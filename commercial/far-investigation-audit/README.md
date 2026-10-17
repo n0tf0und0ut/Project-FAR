@@ -103,3 +103,243 @@ The importer never fetches remote URLs or executes content; input must be UTF-8 
 - [AVeriTeC](https://aclanthology.org/2024.fever-1.1/) motivates separating evidence sufficiency, claim interpretation and downstream verdict quality in future independent evaluations. No performance claim is made here.
 
 **Remaining work:** reliably retrieved and permissioned documents/media, automatic but challengeable natural-language claim mapping, authenticated reviewer attestations, independent source and temporal provenance, causal/statistical identification checks, external blind evaluations and user/customer validation. `0.2` adds only the bounded mechanical check described above, not all of these prerequisites.
+
+---
+
+## 0.3 end-to-end research integration (NOT a validated consumer fact-checker)
+
+Version 0.3 extends the previously bounded core with a locally runnable complete
+**source-to-reviewable-report transaction**. It is a comprehensive experimental
+implementation path, not a claim that all supplied meanings or conclusions are
+verified. All new behavior remains outside FAR Core's Accepted theory and is
+unmerged Research until ordinary repository review and validation succeeds.
+
+### Quick start (Python 3.11+)
+
+From this repository's root:
+
+```sh
+python -m pip install -r commercial/far-investigation-audit/requirements-dev.txt
+python commercial/far-investigation-audit/full_cli.py \
+  commercial/far-investigation-audit/examples/full_speech.json \
+  --output /tmp/far-case-1
+python commercial/far-investigation-audit/full_cli.py --verify /tmp/far-case-1
+python commercial/far-investigation-audit/evaluate.py \
+  commercial/far-investigation-audit/examples/diagnostic_cases.json
+python commercial/far-investigation-audit/webapp.py
+```
+
+The web UI is available at `http://127.0.0.1:8765/` only. It has no
+multi-user authentication, production governance or durable storage. Never
+expose it publicly or send regulated/private content without appropriate
+independent security controls.
+
+### Input modes
+
+The `full_cli.py` request is JSON and specifies `source` and optional
+`evidence_sources`. Use `kind`: `text`, `html`, `srt`, `vtt`, `url`, `youtube`,
+`pdf_file` or `media_file` (CLI-only local file paths). For example:
+
+```json
+{
+  "investigation_id": "hypothetical_case",
+  "source": {"kind": "text", "text": "The sample was small. Therefore the treatment always works."},
+  "evidence_sources": [{"kind": "text", "text": "A study recorded ten observations."}]
+}
+```
+
+- Text, HTML and SRT/WebVTT are accepted without external accounts. Exact text
+  spans or cue time ranges are preserved, while extraction/translation fidelity
+  remains unverified. HTML extraction excludes scripts/styles/forms/nav.
+- HTTPS article fetching is off by default and requires `--allow-network`.
+  It allows only credential-free public DNS HTTPS on port 443, explicitly
+  validates and pins resolved public addresses through TLS, caps response
+  bytes, checks media type, and independently revalidates redirects. It does
+  **not** process arbitrary private network URLs, PDFs fetched remotely,
+  redirects to private addresses, or images. A live fetch is a present-time
+  capture, not an authenticated historical snapshot.
+- YouTube requires `--allow-network`, an optional installed `yt-dlp`, and a
+  usable public English VTT caption track. No download of full copyrighted
+  videos, DRM bypass, guaranteed diarization, or arbitrary platform promise.
+  If captions are absent, processing fails explicitly; it does not invent a
+  transcript.
+- Local PDFs (`pdf_file`) use `pypdf` text extraction (max 30 pages / 8MB)
+  and explicitly abstain on image-only PDFs; visual/table fidelity is not
+  established. Audio/video local files (`media_file`) require ffmpeg and an
+  explicitly authorized speech-to-text provider (`--allow-model`); the model
+  output is unverified transcription. No speaker attribution is inferred.
+- The local web UI accepts text/HTML/captions, public HTTPS article/YouTube
+  URL (if network enabled at the server), or bounded local file uploads.
+  External transcription in the UI additionally requires explicit user
+  consent and the operator-set `FAR_LAB_MODEL=I_ACCEPT_EXTERNAL_TRANSCRIPTION`.
+
+Remote acquisition is deliberately off until explicitly authorized. CLI use
+of `--allow-network` can send queries/URL requests to third-party services;
+`--allow-model` can send provided texts and audio to the model provider. These
+are **operational/financial/privacy decisions**, not proof obligations.
+
+### Three candidate-interpretation paths
+
+`proposal_mode=heuristic` (default) extracts sentence candidates and marks
+lexical evidence matches **unknown**, never supported or refuted. It notes
+possible discourse markers like "therefore" but a propositional countermodel
+cannot by itself certify an actual invalid natural-language argument.
+
+`proposal_mode=supplied` permits structured human-authored claim spans, explicit
+formulas, evidence relations and structured data checks. It rejects invented
+quotes, undeclared atoms, invalid formula trees, ambiguous repeated quotations
+without offsets and missing argument references. The bundled
+`examples/complete_evidence_case.json` demonstrates a deterministic
+`count_where` over a frozen JSON table and a separately checked inference.
+An explicit `quantity` and `data_check` are *claims about that snapshot and
+chosen computation*, not verified facts about the world.
+
+`proposal_mode=openai` is optional CLI-only, requires `--allow-model`, the
+operator's separately configured OpenAI SDK API credentials, and uses a
+constrained JSON proposal prompt. The proposed claim and evidence spans must
+match actual retained input text byte-for-byte after UTF-8 decoding. Model
+claims and ratings do not acquire authority from the provider. The UI cannot
+silently spend money or send text to a model for claim extraction.
+
+For open-web **discovery**, set `discovery=tavily`, plus `--allow-network` and
+operator-managed `TAVILY_API_KEY`. Searches are limited to three queries and
+three results each, and snippets remain unverified leads. Setting
+`expand_discovery=true` explicitly fetches at most four permitted public HTTPS
+links into immutable source snapshots, which an optional proposing model can
+read. Search retrieval does not provide exhaustive recall, publication-time
+proof, source independence, faithful formalization, or reliable truth labels.
+
+### Interpretation and assurance dimensions
+
+- Claim, evidence and inference judgments are distinct. Formal inference is
+  checked by exhaustive finite Boolean assignments (at most 12 atoms), and
+  countermodels are returned, while semantic mapping fidelity remains **not
+  independently verified**.
+- A second, differently implemented finite truth-set/bitmask checker verifies
+  propositions and returned countermodels on replay. That is design-diverse
+  **internal** software cross-validation, not external independent review.
+- A proposed interpretation card can separately retain subject, population,
+  time, geography, quantifier, measurement, comparison, threshold and
+  assumptions, each marked stated/inferred/default/unknown. Differences in
+  cards do not automatically imply different truth values.
+- Numerical records can be recomputed against a supplied JSON snapshot even
+  when the source's historical eligibility is unknown. These become
+  `SNAPSHOT_ONLY_VALUE_CHECK_TEMPORALLY_INADMISSIBLE`, not evidence support.
+- Every source carries an exact hash and acquisition/normalization method.
+  Captured-at is observed for live acquisition, but `published_at`, author,
+  provenance and source independence are **not cryptographically verified**.
+  Historical/as-of constraints prevent using future or undated evidence as
+  proof of historical claims. As-of overrides on live remote capture are refused.
+- A separate Ed25519 review attestation can be signed with a reviewer-owned
+  private key and checked against the exact input/report hash. The signature
+  proves key possession and that the recorded decision is unchanged. It does
+  **not** prove reviewer identity, independence, competence or correctness.
+
+### Reproducible bundle and review
+
+`full_cli.py` writes into a **new directory** only: `input.json`, `audit.json`, `proposal.json`, `acquisition.json`,
+`critical_questions.json`, `report.md`, optional `discovery.json`,
+optional signed `review.json`/`review_verification.json`, and a `manifest.json`
+binding every file's SHA-256. `--verify` checks all files, recomputes the full
+report, separately checks bounded formal entailment/countermodels and validates
+any signed review. It rejects omitted/extra files, symlinks, source tampering
+and changed decision/status fields. It cannot prevent a malicious actor from
+creating an entirely new internally self-consistent package; key-authenticated
+publisher or custodian provenance would be needed for that stronger guarantee.
+
+To add an independently produced reviewer record, prepare `review.json` with
+`schema: "far-review-attestation/1.0"`, `input_sha256`, `report_sha256`,
+`reviewer`, and bounded `decisions` (each with an audit object ID and one of
+`agree`, `disagree`, `not_reviewed`, `requires_more_evidence`). Then use your own
+Ed25519 PEM private key:
+
+```sh
+python commercial/far-investigation-audit/review.py unsigned_review.json \
+  --private-key reviewer_private.pem --output signed_review.json
+python commercial/far-investigation-audit/full_cli.py request.json \
+  --output /tmp/far-reviewed --review signed_review.json
+python commercial/far-investigation-audit/full_cli.py --verify /tmp/far-reviewed
+```
+
+Review binding includes the report's exact bytes and therefore the clock,
+method/version and input hash. Do not commit reviewer private keys.
+
+### Validation / benchmark status
+
+Run the exact component suite:
+
+```sh
+python -m unittest discover -s commercial/far-investigation-audit/tests -p 'test_*.py' -v
+python -m compileall -q commercial/far-investigation-audit
+```
+
+`evaluate.py` runs three **project-authored synthetic conformance cases**. It
+is a software diagnostic only, not a claim-verification benchmark or a
+measure of external accuracy. It reports no external-accuracy value. The
+registered #518 60-case benchmark and EFR-001 are separate, still subject to
+their frozen controls and independent adjudication gates. No benchmark result
+is manufactured by this PR.
+
+### Research incorporated, with implementation-status boundaries
+
+- [AVeriTeC 2024/2025](https://aclanthology.org/2025.fever-1.15/) explicitly
+  couples verdict and evidence adequacy and emphasizes open-weights,
+  reproducible, time/cost-limited evaluation; this implementation does **not**
+  reproduce the shared-task performance.
+- [No Hindsight for LLM Fact-Checkers (Oct 4, 2026)](https://arxiv.org/abs/2610.04888):
+  separate claims knowable when made from later retrieved evidence. Current
+  code excludes temporally ineligible evidence; model pretraining leakage is
+  still outside its ability to audit.
+- [Same Claim, Different Interpretations (Oct 14, 2026)](https://arxiv.org/abs/2610.20457):
+  interpretation-card sensitivity deserves typed records, but the study
+  did not demonstrate improved expert agreement from cards alone. Our card
+  support is an engineering mechanism, not a performance result.
+- [Rethinking Inline Citation Verification (Oct 4, 2026)](https://arxiv.org/abs/2610.05355):
+  different citation uses and reviewer approaches motivate source-intent
+  and independent human-review stages, not automatic citation-validity claims.
+- [Argument Graph Uncertainty (Oct 14, 2026)](https://arxiv.org/abs/2610.20328):
+  post-hoc NLI graph uncertainty is promising on bounded multiple-choice
+  evaluations; it does not authenticate evidence or certify general validity.
+  We do not misapply its uncertainty as a scalar truth probability.
+- [Reason and Verify (2026)](https://proceedings.mlr.press/v318/khan26a.html):
+  emphasizes checking intermediate rationales grounded in evidence spans.
+  Current code checks exact spans and bounded formal inference but does not
+  reproduce its cross-encoder, NLI or experimental results.
+- [TabVer](https://doi.org/10.1162/tacl_a_00722) and
+  [FEVEROUS](https://fever.ai/dataset/feverous.html) motivate programmatic
+  table arithmetic instead of relying exclusively on linguistic inference.
+- [W3C PROV-O](https://www.w3.org/TR/prov-o/) and [AIF](https://doi.org/10.1017/S0269888906001044)
+  inform inspectable provenance, claim/evidence/argument separation. This
+  prototype does not assert conformance to those interchange standards.
+- Open-source competitors [deepcheck](https://github.com/jaytrivediSF25/deepcheck),
+  [truth-in-stream](https://github.com/verovec/truth-in-stream), and
+  [Minerval](https://github.com/minerval-ai/minerval) already implement
+  overlapping link ingestion, cite-grounded research and persistent claim
+  graphs. FAR cannot claim ordinary source-citing media fact checking is
+  novel, occupied by nobody else, or independently superior.
+
+**Remaining mandatory external gates:** independently checked semantic/source
+mapping, adversarial search quality, verified factual source provenance and
+lineage, complete multimedia/visual fidelity, multiple inference families
+beyond bounded propositional logic, hosted exact-head CI and substantive
+independent review, operational hardening, external blinded outcome comparison,
+and user/payments/retention validation. None can be inferred from this
+internally complete pipeline's integration tests.
+
+### Advisory argument-scheme checks
+
+`diagnostics.py` returns typed, **unadjudicated critical questions** for
+causal claims, universal generalizations, numeric denominators, absence
+claims, and normative transitions. These are explicitly questions to test,
+not evidence that a source is mistaken. They are stored independently in
+`critical_questions.json`, included in `report.md`, and hash-checked and
+recomputed on full package replay. They do not change any formal inference
+result or factual evidence verdict. Existing AIF-style argumentation-scheme
+research motivates their separation from deductive proof.
+
+`far-investigation-report/0.2` adds the bounded interpretation-card and
+structured-snapshot-only distinctions; the `far-investigation-audit/0.1`
+input envelope remains supported. This 0.3 implementation does not promise
+that arbitrary earlier report bytes can be re-created by a newer engine: to
+replay a historic record, run the exact engine version identified by its
+report or pinned repository commit.

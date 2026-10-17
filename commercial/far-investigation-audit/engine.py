@@ -15,7 +15,7 @@ from typing import Any
 from structured import StructuredInputError, evaluate_structured
 
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.2.0"
+ENGINE = "far-investigation-audit/0.3.0"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 
@@ -47,8 +47,8 @@ def timestamp(value: Any, where: str) -> datetime:
         raise InvalidBundle(f"{where}: invalid UTC timestamp") from exc
 
 
-def objects(items: Any, field: str) -> dict[str, dict[str, Any]]:
-    required(isinstance(items, list) and 0 < len(items) <= MAX_ITEMS, f"{field}: nonempty bounded list required")
+def objects(items: Any, field: str, *, allow_empty: bool = False) -> dict[str, dict[str, Any]]:
+    required(isinstance(items, list) and (allow_empty or len(items)>0) and len(items) <= MAX_ITEMS, f"{field}: bounded list required")
     found: dict[str, dict[str, Any]] = {}
     for item in items:
         required(isinstance(item, dict), f"{field}: record must be object")
@@ -158,7 +158,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(isinstance(definition, str) and bool(definition.strip()), "atom definition missing")
     sources = objects(bundle.get("sources"), "sources")
     claims = objects(bundle.get("claims"), "claims")
-    readings = objects(bundle.get("interpretations"), "interpretations")
+    readings = objects(bundle.get("interpretations"), "interpretations", allow_empty=True)
     evidence = bundle.get("evidence", [])
     required(isinstance(evidence, list) and len(evidence) <= MAX_ITEMS, "invalid evidence list")
     if evidence:
@@ -172,12 +172,18 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(isinstance(source.get("sha256"), str) and digest(raw.encode("utf-8")) == source["sha256"], f"source {sid}: hash mismatch")
         origin = source.get("origin_id")
         required(origin is None or (isinstance(origin, str) and bool(origin.strip())), f"source {sid}: invalid origin_id")
-        if source.get("published_at") is None or source.get("captured_at") is None:
+        # Validate any supplied timestamps, even when the source date or its
+        # provenance has not been independently authenticated.  Unverified is
+        # not a license to retain malformed or chronologically impossible data.
+        published_at = source.get("published_at")
+        captured_at = source.get("captured_at")
+        pub = timestamp(published_at, f"{sid}.published_at") if published_at is not None else None
+        captured = timestamp(captured_at, f"{sid}.captured_at") if captured_at is not None else None
+        if pub is not None and captured is not None:
+            required(pub <= captured, f"source {sid}: publication after capture")
+        if source.get("publication_date_verified") is False or pub is None or captured is None:
             times[sid] = "UNKNOWN_TEMPORAL_ELIGIBILITY"
         else:
-            pub = timestamp(source["published_at"], f"{sid}.published_at")
-            captured = timestamp(source["captured_at"], f"{sid}.captured_at")
-            required(pub <= captured, f"source {sid}: publication after capture")
             times[sid] = "IN_WINDOW" if captured <= as_of else "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
     for cid, claim in claims.items():
         required(isinstance(claim.get("text"), str) and bool(claim["text"].strip()), f"claim {cid}: text required")
@@ -202,21 +208,30 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
             "origin_id": sources[sid].get("origin_id"), "temporal_status": times[sid],
             "claimed_relation": evidence_item["relation"], "mapping_status": evidence_item["mapping_status"],
         }
-        if times[sid] != "IN_WINDOW":
-            finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
-        elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
-            finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
-        elif "data_check" in evidence_item:
+        if "data_check" in evidence_item:
+            # Arithmetic is about the exact supplied snapshot, so it can be
+            # recomputed even when the snapshot's historical availability is
+            # unknown. It NEVER makes the source admissible at claim time.
             try:
                 checked = evaluate_structured(claim, evidence_item, sources[sid]["text"])
             except StructuredInputError as exc:
                 raise InvalidBundle(f"evidence {evidence_item['id']}: {exc}") from exc
-            finding["formal_relation"] = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
             finding["structured_check"] = checked
+            finding["structured_temporal_eligibility"] = times[sid]
+            if times[sid] != "IN_WINDOW":
+                finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
+            elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
+                finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
+            else:
+                finding["formal_relation"] = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
             if evidence_item["relation"] == "supports" and checked["status"] != "STRUCTURED_VALUE_MATCH":
                 finding["assessment_disagrees_with_structured_check"] = True
             if evidence_item["relation"] == "contradicts" and checked["status"] != "STRUCTURED_VALUE_MISMATCH":
                 finding["assessment_disagrees_with_structured_check"] = True
+        elif times[sid] != "IN_WINDOW":
+            finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
+        elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
+            finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
@@ -245,17 +260,27 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         neg = [r for r in assessed if r["formal_relation"] == "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT"]
         status = ("CONFLICT_RECORDED" if pos and neg else "CONDITIONAL_FORMAL_SUPPORT_RECORDED" if pos
                   else "CONDITIONAL_FORMAL_CONTRADICTION_RECORDED" if neg else "NOT_ESTABLISHED")
-        structured = [r["structured_check"] for r in assessed if "structured_check" in r]
+        structured = [r["structured_check"] for r in assessed if "structured_check" in r and
+                      r["structured_temporal_eligibility"] == "IN_WINDOW" and
+                      r["formal_relation"] != "SELF_REFERENCE_NOT_CORROBORATION"]
+        snapshot_only = [r["structured_check"] for r in assessed if "structured_check" in r and
+                         r["formal_relation"] in {"TEMPORAL_NOT_ADMISSIBLE", "SELF_REFERENCE_NOT_CORROBORATION"}]
+        nonadmissible_structured = len(snapshot_only)
         matched = sum(r["status"] == "STRUCTURED_VALUE_MATCH" for r in structured)
         mismatched = sum(r["status"] == "STRUCTURED_VALUE_MISMATCH" for r in structured)
         numeric_state = ("CONFLICTING_STRUCTURED_VALUES" if matched and mismatched else
                          "STRUCTURED_VALUE_MATCH_CONDITIONALLY" if matched else
-                         "STRUCTURED_VALUE_MISMATCH_CONDITIONALLY" if mismatched else "NOT_ESTABLISHED")
+                         "STRUCTURED_VALUE_MISMATCH_CONDITIONALLY" if mismatched else
+                         "SNAPSHOT_ONLY_VALUE_CHECK_TEMPORALLY_INADMISSIBLE" if snapshot_only else "NOT_ESTABLISHED")
         claim_reports[cid] = {"status": status, "mapping_status": claim["mapping_status"],
                               "structured_value_checks": {"status": numeric_state,
                                   "matches": matched, "mismatches": mismatched,
                                   "unverifiable": len(structured) - matched - mismatched,
-                                  "claim_meaning_verified": False},
+                                  "snapshot_only_not_admissible": nonadmissible_structured,
+                                  "snapshot_only_matches": sum(x["status"] == "STRUCTURED_VALUE_MATCH" for x in snapshot_only),
+                                  "snapshot_only_mismatches": sum(x["status"] == "STRUCTURED_VALUE_MISMATCH" for x in snapshot_only),
+                                  "claim_meaning_verified": False,
+                                  "temporal_eligibility_not_promoted_by_computation": True},
                               "support_origin_ids": sorted({r["origin_id"] for r in pos if r["origin_id"] is not None}),
                               "support_sources_with_unknown_origin": sorted({r["source_id"] for r in pos if r["origin_id"] is None}),
                               "origin_independence_verified": False, "evidence": assessed}
@@ -270,17 +295,30 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(reading.get("mapping_status") in ("unreviewed", "review_recorded"), f"reading {rid}: mapping status required")
         missing = [p for p in ps if claim_reports[p]["status"] != "CONDITIONAL_FORMAL_SUPPORT_RECORDED"]
         result = entailment([claims[p]["formula"] for p in ps], claims[conclusion]["formula"])
+        notes = reading.get("interpretation_notes", "")
+        card = reading.get("interpretation_card", {})
+        required(isinstance(notes, str) and len(notes) <= 2000, f"reading {rid}: invalid interpretation notes")
+        required(isinstance(card, dict), f"reading {rid}: interpretation card must be object")
+        permitted_fields = {"subject", "population", "time", "geography", "quantifier",
+                            "measurement", "comparison", "threshold", "assumptions"}
+        required(all(k in permitted_fields and isinstance(v, dict) and set(v)=={"value", "origin"}
+                     and isinstance(v["value"], str) and len(v["value"]) <= 250
+                     and v["origin"] in {"stated", "inferred", "default", "unknown"}
+                     for k,v in card.items()), f"reading {rid}: invalid interpretation card")
         reading_reports.append({"id": rid, "premises": ps, "conclusion": conclusion,
                                 "mapping_status": reading["mapping_status"],
+                                "interpretation_notes": notes, "interpretation_card": card,
                                 "formal_inference": result,
                                 "premises_without_uncontested_formal_evidence": missing,
                                 "semantic_fidelity_independently_verified": False})
     statuses = {r["formal_inference"]["status"] for r in reading_reports}
-    report = {"schema": "far-investigation-report/0.1", "engine": ENGINE,
+    report = {"schema": "far-investigation-report/0.2", "engine": ENGINE,
               "investigation_id": bundle["investigation_id"], "input_sha256": digest(canonical(bundle)),
               "as_of": bundle["as_of"], "source_temporal_status": times,
               "claims": claim_reports, "interpretations": reading_reports,
               "interpretation_sensitive_inference": len(statuses) > 1,
+              "interpretation_cards_differ": len({canonical(r["interpretation_card"]) for r in reading_reports}) > 1,
+              "interpretations_present": bool(reading_reports),
               "unknowns": unknowns,
               "assurance_boundary": {"formal_entailment": "exhaustive bounded propositional valuations",
                   "source_integrity": "byte-level SHA-256 of supplied snapshot, not authenticity",

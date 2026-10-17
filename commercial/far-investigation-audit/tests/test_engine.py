@@ -119,6 +119,20 @@ class InvestigationAuditTests(unittest.TestCase):
         self.assertEqual(r["source_temporal_status"]["record"], "UNKNOWN_TEMPORAL_ELIGIBILITY")
         self.assertEqual(r["claims"]["p"]["status"], "NOT_ESTABLISHED")
 
+    def test_unverified_source_still_requires_well_formed_timestamps(self):
+        b = base()
+        b["sources"][1]["publication_date_verified"] = False
+        b["sources"][1]["published_at"] = "yesterday"
+        with self.assertRaises(InvalidBundle):
+            audit(b)
+
+    def test_unverified_source_cannot_invert_publication_and_capture(self):
+        b = base()
+        b["sources"][1]["publication_date_verified"] = False
+        b["sources"][1]["published_at"] = "2026-01-04T00:00:00Z"
+        with self.assertRaisesRegex(InvalidBundle, "publication after capture"):
+            audit(b)
+
     def test_unknown_source_lineage_not_reported_as_independent(self):
         b = base()
         b["sources"][1]["origin_id"] = None

@@ -1,0 +1,16 @@
+{
+  "investigation_id": "full_speech_demo",
+  "captured_at": "2026-10-17T08:00:00Z",
+  "source": {
+    "kind": "text",
+    "text": "The quarterly audit counted 11 completed reviews. Therefore every model deployment was safe.\n",
+    "origin_id": "hypothetical_speech",
+    "published_at": "2026-10-16T12:00:00Z"
+  },
+  "evidence_sources": [{
+    "kind": "text",
+    "text": "In a preliminary sample, 11 reviews were completed, while 5 deployments were not observed.\n",
+    "published_at": "2026-10-16T13:00:00Z",
+    "origin_id": "hypothetical_sample"
+  }]
+}
