@@ -29,7 +29,8 @@ def span(text):
 
 def source(id, text, origin=None, published="2026-01-01T00:00:00Z", captured="2026-01-02T00:00:00Z"):
     return {"id": id, "text": text, "sha256": hashlib.sha256(text.encode()).hexdigest(),
-            "origin_id": origin or id, "published_at": published, "captured_at": captured}
+            "origin_id": origin or id, "published_at": published, "captured_at": captured,
+            "publication_date_verified": True}
 
 
 def base():

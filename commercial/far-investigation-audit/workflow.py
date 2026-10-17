@@ -46,6 +46,7 @@ def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fet
         extracted = ({"text": normalize_html(raw)} if kind == "html" else
                      parse_captions(raw) if kind in {"srt", "vtt"} else {"text": raw})
         meta = {"raw_sha256": digest(raw.encode("utf-8")), "extraction": kind + "_provided_v1",
+                "raw_snapshot_utf8": raw,
                 "external_authenticity_verified": False}
         if "cues" in extracted:
             meta["cues"] = extracted["cues"]
@@ -153,7 +154,7 @@ def investigate(config: dict, *, permit_network: bool = False,
         if not permit_model:
             raise InvalidBundle("external model requires explicit opt-in")
         proposal = openai_proposal(text, {k:v for k,v in source_texts.items() if k != "primary"},
-                                  model=config.get("model", "gpt-6-mini"), client=model_client)
+                                  model=config.get("model", "gpt-6-luna"), client=model_client)
     else:
         raise InvalidBundle("unknown proposal mode")
     bundle = compile_proposal(proposal, source_texts, investigation_id=inv_id, captured_at=requested,

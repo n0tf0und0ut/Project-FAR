@@ -15,7 +15,7 @@ from typing import Any
 from structured import StructuredInputError, evaluate_structured
 
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.3.0"
+ENGINE = "far-investigation-audit/0.4.0"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 
@@ -181,10 +181,18 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         captured = timestamp(captured_at, f"{sid}.captured_at") if captured_at is not None else None
         if pub is not None and captured is not None:
             required(pub <= captured, f"source {sid}: publication after capture")
-        if source.get("publication_date_verified") is False or pub is None or captured is None:
+        # Missing is NOT true: JSON documents supplied directly to audit()
+        # must not acquire historical admissibility by omitting verification.
+        required(type(source.get("publication_date_verified", False)) is bool,
+                 f"source {sid}: invalid publication verification flag")
+        required(type(source.get("origin_verified", False)) is bool,
+                 f"source {sid}: invalid origin verification flag")
+        if captured is not None and captured > as_of:
+            times[sid] = "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
+        elif source.get("publication_date_verified") is not True or pub is None or captured is None:
             times[sid] = "UNKNOWN_TEMPORAL_ELIGIBILITY"
         else:
-            times[sid] = "IN_WINDOW" if captured <= as_of else "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
+            times[sid] = "IN_WINDOW"
     for cid, claim in claims.items():
         required(isinstance(claim.get("text"), str) and bool(claim["text"].strip()), f"claim {cid}: text required")
         anchor(claim, sources, f"claim {cid}")
@@ -294,7 +302,13 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(conclusion not in ps, f"reading {rid}: conclusion cannot be a premise")
         required(reading.get("mapping_status") in ("unreviewed", "review_recorded"), f"reading {rid}: mapping status required")
         missing = [p for p in ps if claim_reports[p]["status"] != "CONDITIONAL_FORMAL_SUPPORT_RECORDED"]
-        result = entailment([claims[p]["formula"] for p in ps], claims[conclusion]["formula"])
+        basis = reading.get("formalization_basis", "explicit_formulas")
+        required(basis in {"explicit_formulas", "unformalized_candidate"},
+                 f"reading {rid}: invalid formalization basis")
+        result = ({"status": "NOT_CHECKED_UNFORMALIZED",
+                   "reason": "Auto-generated atom labels cannot test natural-language entailment."}
+                  if basis == "unformalized_candidate" else
+                  entailment([claims[p]["formula"] for p in ps], claims[conclusion]["formula"]))
         notes = reading.get("interpretation_notes", "")
         card = reading.get("interpretation_card", {})
         required(isinstance(notes, str) and len(notes) <= 2000, f"reading {rid}: invalid interpretation notes")
@@ -307,6 +321,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
                      for k,v in card.items()), f"reading {rid}: invalid interpretation card")
         reading_reports.append({"id": rid, "premises": ps, "conclusion": conclusion,
                                 "mapping_status": reading["mapping_status"],
+                                "formalization_basis": basis,
                                 "interpretation_notes": notes, "interpretation_card": card,
                                 "formal_inference": result,
                                 "premises_without_uncontested_formal_evidence": missing,

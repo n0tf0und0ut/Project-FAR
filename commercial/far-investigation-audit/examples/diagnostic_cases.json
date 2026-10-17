@@ -3,7 +3,7 @@
     "case_id":"true_premises_do_not_automatically_entail_causal_claim",
     "config": {"investigation_id":"case_1","captured_at":"2026-10-17T08:00:00Z",
       "source":{"kind":"text","text":"The count increased after the policy changed. Therefore the policy caused the increase."}},
-    "expected":{"claims":2,"argument_statuses":["DOES_NOT_ENTAIL"],"all_claim_evidence_not_established":true,
+    "expected":{"claims":2,"argument_statuses":["NOT_CHECKED_UNFORMALIZED"],"all_claim_evidence_not_established":true,
       "semantic_fidelity_verified":false,"independent_algorithm_agrees":true}
   },
   {
@@ -18,7 +18,7 @@
     "config":{"investigation_id":"case_3","captured_at":"2026-10-17T08:00:00Z",
       "source":{"kind":"text","text":"The report contains three measurements. Therefore all conclusions are certain."},
       "evidence_sources":[{"kind":"text","text":"The report contains three measurements, but its review remains incomplete."}]},
-    "expected":{"claims":2,"argument_statuses":["DOES_NOT_ENTAIL"],"all_claim_evidence_not_established":true,
+    "expected":{"claims":2,"argument_statuses":["NOT_CHECKED_UNFORMALIZED"],"all_claim_evidence_not_established":true,
       "source_temporal_status":{"primary":"UNKNOWN_TEMPORAL_ELIGIBILITY","ev1":"UNKNOWN_TEMPORAL_ELIGIBILITY"},
       "semantic_fidelity_verified":false,"independent_algorithm_agrees":true}
   }

@@ -40,7 +40,7 @@ class FullWorkflowTests(unittest.TestCase):
         self.assertEqual(p["bundle"]["schema"], "far-investigation-audit/0.1")
         self.assertEqual(len(p["bundle"]["claims"]), 2)
         self.assertEqual(len(p["bundle"]["interpretations"]), 1)
-        self.assertEqual(p["audit"]["interpretations"][0]["formal_inference"]["status"], "DOES_NOT_ENTAIL")
+        self.assertEqual(p["audit"]["interpretations"][0]["formal_inference"]["status"], "NOT_CHECKED_UNFORMALIZED")
         self.assertEqual(p["audit"]["claims"]["c1"]["status"], "NOT_ESTABLISHED")
         self.assertTrue(any(x["claimed_relation"] == "unknown" for x in p["audit"]["claims"]["c1"]["evidence"]))
         self.assertFalse(p["manifest"]["semantic_mapping_independently_verified"])
@@ -253,7 +253,7 @@ class ReviewAndMediaTests(unittest.TestCase):
         self.assertIn("default-src 'none'",r.headers["content-security-policy"])
         r=client.post("/api/investigate",json=config())
         self.assertEqual(r.status_code,200)
-        self.assertEqual(r.json()["audit"]["interpretations"][0]["formal_inference"]["status"],"DOES_NOT_ENTAIL")
+        self.assertEqual(r.json()["audit"]["interpretations"][0]["formal_inference"]["status"],"NOT_CHECKED_UNFORMALIZED")
         self.assertFalse(r.json()["manifest"]["semantic_mapping_independently_verified"])
         self.assertEqual(client.post("/api/investigate",json={**config(),"proposal_mode":"openai"}).status_code,400)
         self.assertEqual(client.post("/api/investigate",data="hello").status_code,415)
@@ -364,7 +364,7 @@ class WebUploadsAndCommercialPathTests(unittest.TestCase):
         r=client.post("/api/upload",files={"file":("speech.txt",SPEECH.encode(),"text/plain")},
                       data={"investigation_id":"upload_test", "evidence_text":EVIDENCE})
         self.assertEqual(r.status_code,200,r.text)
-        self.assertEqual(r.json()["audit"]["interpretations"][0]["formal_inference"]["status"],"DOES_NOT_ENTAIL")
+        self.assertEqual(r.json()["audit"]["interpretations"][0]["formal_inference"]["status"],"NOT_CHECKED_UNFORMALIZED")
         self.assertEqual(len(r.json()["bundle"]["sources"]),2)
         with tempfile.TemporaryDirectory() as root:
             from reportlab.pdfgen import canvas
@@ -434,7 +434,7 @@ class WebUploadsAndCommercialPathTests(unittest.TestCase):
             c.pop("evidence_sources")
             x=investigate(c,permit_files=True,permit_model=True,transcription_client=fake)
             self.assertEqual(len(x["bundle"]["claims"]),2)
-            self.assertEqual(x["acquisition"][0]["extraction"],"external_speech_transcription_gpt4o_v1")
+            self.assertEqual(x["acquisition"][0]["extraction"],"external_speech_transcription_gpt_transcribe_v1")
             self.assertFalse(x["acquisition"][0]["transcript_alignment_verified"])
 
     def test_remote_article_requires_explicit_permission_and_safe_source_type(self):
@@ -444,3 +444,122 @@ class WebUploadsAndCommercialPathTests(unittest.TestCase):
         self.assertTrue(x["manifest"]["network_used"])
         self.assertFalse(x["manifest"]["semantic_mapping_independently_verified"])
         self.assertEqual(x["audit"]["source_temporal_status"]["primary"],"UNKNOWN_TEMPORAL_ELIGIBILITY")
+
+class AdversarialPackageReplayTests(unittest.TestCase):
+    """An attacker changing unsigned manifests must not rewrite a report's meaning."""
+    @staticmethod
+    def _forge_file(bundle_dir, name, new_bytes):
+        target = bundle_dir / name
+        target.write_bytes(new_bytes)
+        manifest_path = bundle_dir / 'manifest.json'
+        manifest = json.loads(manifest_path.read_bytes())
+        sha = hashlib.sha256(new_bytes).hexdigest()
+        manifest['files_sha256'][name] = sha
+        if name == 'report.md':
+            manifest['report_md_sha256'] = sha
+        manifest_path.write_bytes(canonical(manifest) + b'\n')
+
+    def test_forged_report_with_rehashed_manifest_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = pathlib.Path(root) / 'package'
+            write_package(path, investigate(config()))
+            self._forge_file(path, 'report.md', b'# FAR CERTIFIED TRUE\nEvery claim is proven.\n')
+            with self.assertRaisesRegex(InvalidBundle, 'human-readable report'):
+                verify_package(path)
+
+    def test_rehashed_proposal_diverging_from_source_bundle_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = pathlib.Path(root) / 'package'
+            write_package(path, investigate(config()))
+            p = json.loads((path/'proposal.json').read_bytes())
+            p['claims'][0]['quote'] = 'This source never said this.'
+            self._forge_file(path, 'proposal.json', canonical(p)+b'\n')
+            with self.assertRaises(InvalidBundle):
+                verify_package(path)
+
+    def test_rehashed_acquisition_with_duplicate_source_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = pathlib.Path(root) / 'package'
+            write_package(path, investigate(config()))
+            record = json.loads((path/'acquisition.json').read_bytes())
+            record.append(copy.deepcopy(record[0]))
+            self._forge_file(path, 'acquisition.json', canonical(record)+b'\n')
+            with self.assertRaisesRegex(InvalidBundle, 'acquisition does not account'):
+                verify_package(path)
+
+    def test_rehashed_manifest_source_reference_is_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = pathlib.Path(root) / 'package'
+            write_package(path, investigate(config()))
+            manifest = json.loads((path/'manifest.json').read_bytes())
+            manifest['source_snapshots_sha256']['primary'] = '0'*64
+            (path/'manifest.json').write_bytes(canonical(manifest)+b'\n')
+            with self.assertRaisesRegex(InvalidBundle, 'source snapshot identities'):
+                verify_package(path)
+
+class HistoricalAdmissibilityFailClosedTests(unittest.TestCase):
+    def test_omitted_publication_verification_flag_stays_unknown(self):
+        p = investigate(config())
+        b = copy.deepcopy(p['bundle'])
+        b['sources'][0]['published_at'] = '2026-10-15T08:00:00Z'
+        b['sources'][0].pop('publication_date_verified')
+        self.assertEqual(audit(b)['source_temporal_status']['primary'], 'UNKNOWN_TEMPORAL_ELIGIBILITY')
+
+    def test_capture_after_cutoff_is_inadmissible_even_if_published_unknown(self):
+        p = investigate(config())
+        b = copy.deepcopy(p['bundle'])
+        b['as_of'] = '2026-10-15T00:00:00Z'
+        self.assertEqual(audit(b)['source_temporal_status']['primary'],
+                         'AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION')
+
+    def test_malformed_verification_flag_rejected(self):
+        b = copy.deepcopy(investigate(config())['bundle'])
+        b['sources'][0]['publication_date_verified'] = 'yes'
+        with self.assertRaises(InvalidBundle):
+            audit(b)
+
+class AcquisitionTransformationReplayTests(unittest.TestCase):
+    def test_text_raw_capture_is_replayed_not_only_hash_checked(self):
+        with tempfile.TemporaryDirectory() as root:
+            p = pathlib.Path(root)/'pkg'
+            write_package(p, investigate(config()))
+            details = verify_package(p)
+            self.assertEqual(details['extraction_replayed'], 2)
+            self.assertEqual(details['extraction_not_replayable'], [])
+
+    def test_html_raw_capture_reproduces_extracted_text(self):
+        c = config()
+        c['source'] = {'kind':'html', 'text':'<body><p>There are eight records.</p><p>Therefore they all succeed.</p></body>'}
+        with tempfile.TemporaryDirectory() as root:
+            p = pathlib.Path(root)/'pkg'
+            write_package(p, investigate(c))
+            self.assertEqual(verify_package(p)['extraction_replayed'], 2)
+
+    def test_rehashed_forged_raw_text_cannot_pass_extraction_replay(self):
+        with tempfile.TemporaryDirectory() as root:
+            p = pathlib.Path(root)/'pkg'
+            write_package(p, investigate(config()))
+            acquisition = json.loads((p/'acquisition.json').read_bytes())
+            acquisition[0]['raw_snapshot_utf8'] = 'The source now asserts everything is true.'
+            acquisition[0]['raw_sha256'] = hashlib.sha256(acquisition[0]['raw_snapshot_utf8'].encode()).hexdigest()
+            AdversarialPackageReplayTests._forge_file(p, 'acquisition.json', canonical(acquisition)+b'\n')
+            with self.assertRaisesRegex(InvalidBundle, 'transformation mismatch'):
+                verify_package(p)
+
+    def test_rehashed_forged_caption_cue_rejected(self):
+        c=config()
+        c['source']={'kind':'vtt','text':'WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nThis source reports six measurements.\n'}
+        with tempfile.TemporaryDirectory() as root:
+            p=pathlib.Path(root)/'pkg';write_package(p,investigate(c))
+            a=json.loads((p/'acquisition.json').read_bytes())
+            a[0]['cues'][0]['start_ms'] = 0
+            AdversarialPackageReplayTests._forge_file(p,'acquisition.json',canonical(a)+b'\n')
+            with self.assertRaisesRegex(InvalidBundle,'caption cue anchor mismatch'):
+                verify_package(p)
+
+    def test_valid_argument_not_called_invalid_by_placeholder_atoms(self):
+        c=config()
+        c['source']['text']='All reports are archived. Therefore all reports are archived.'
+        report=investigate(c)['audit']
+        self.assertEqual(report['interpretations'][0]['formal_inference']['status'],'NOT_CHECKED_UNFORMALIZED')
+        self.assertFalse(report['interpretations'][0]['semantic_fidelity_independently_verified'])

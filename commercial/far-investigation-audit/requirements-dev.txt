@@ -5,3 +5,5 @@ pypdf>=5,<7
 reportlab>=4,<5
 cryptography>=42,<48
 openai>=1.60,<3
+
+sympy>=1.14,<2  # optional independently implemented finite logic test oracle

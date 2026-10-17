@@ -77,7 +77,7 @@ def transcribe_local(path: Path, *, permit_model: bool = False, client=None,
             client = OpenAI(timeout=40, max_retries=0)
         try:
             with output.open("rb") as f:
-                result = client.audio.transcriptions.create(model="gpt-4o-transcribe", file=f,
+                result = client.audio.transcriptions.create(model="gpt-transcribe", file=f,
                                                               response_format="json")
             text = getattr(result, "text", None)
             if not isinstance(text, str) or not text.strip():
@@ -88,8 +88,8 @@ def transcribe_local(path: Path, *, permit_model: bool = False, client=None,
             raise AcquisitionError("transcription provider request failed") from exc
         if len(text.encode("utf-8")) > 190_000:
             raise AcquisitionError("transcript exceeds text cap")
-        return {"text": text, "extraction": "external_speech_transcription_gpt4o_v1",
-                "raw_sha256": digest(path.read_bytes()), "transcript_model": "gpt-4o-transcribe",
+        return {"text": text, "extraction": "external_speech_transcription_gpt_transcribe_v1",
+                "raw_sha256": digest(path.read_bytes()), "transcript_model": "gpt-transcribe",
                 "transcript_alignment_verified": False, "speaker_attribution_verified": False,
                 "external_authenticity_verified": False}
 

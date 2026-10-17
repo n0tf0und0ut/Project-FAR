@@ -175,7 +175,8 @@ def fetch_https(url: str, *, permit_network: bool = False, max_bytes: int = MAX_
                 raise AcquisitionError("remote content is empty")
             if len(text.encode("utf-8")) > MAX_DOWNLOAD:
                 raise AcquisitionError("extracted text exceeds cap")
-            return {"text": text, "raw_sha256": digest(raw), "url": current, "redirects": redirects,
+            return {"text": text, "raw_sha256": digest(raw), "raw_snapshot_utf8": decoded,
+                    "url": current, "redirects": redirects,
                     "content_type": media_type, "extraction": "html_visible_text_v1" if "html" in media_type else "utf8_identity_v1",
                     "external_authenticity_verified": False}
         except (OSError, ssl.SSLError, TimeoutError, http.client.HTTPException) as exc:
@@ -270,5 +271,7 @@ def fetch_youtube_captions(url: str, *, permit_network: bool = False, executable
             transcript = parse_captions(data.decode("utf-8", "strict"))
         except UnicodeError as exc:
             raise AcquisitionError("caption decode failed") from exc
-        return {**transcript, "url": normalized, "raw_sha256": digest(data), "extraction": "yt_dlp_caption_vtt_v1",
+        return {**transcript, "url": normalized, "raw_sha256": digest(data),
+                "raw_snapshot_utf8": data.decode("utf-8", "strict"),
+                "extraction": "yt_dlp_caption_vtt_v1",
                 "external_authenticity_verified": False}

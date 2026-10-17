@@ -13,7 +13,8 @@
       "sha256": "d17e6b31d8b2140e60254ddf10a526a268c2887378e3e312e9f54d724c5b2d54",
       "origin_id": "speech",
       "published_at": "2026-01-01T00:00:00Z",
-      "captured_at": "2026-01-02T00:00:00Z"
+      "captured_at": "2026-01-02T00:00:00Z",
+      "publication_date_verified": true
     },
     {
       "id": "record",
@@ -21,7 +22,8 @@
       "sha256": "e10b85647e46bbdfe366915ce239caae2eb8527b57dba7f777ea20da25a96097",
       "origin_id": "dataset_one",
       "published_at": "2026-01-01T00:00:00Z",
-      "captured_at": "2026-01-02T00:00:00Z"
+      "captured_at": "2026-01-02T00:00:00Z",
+      "publication_date_verified": true
     }
   ],
   "claims": [

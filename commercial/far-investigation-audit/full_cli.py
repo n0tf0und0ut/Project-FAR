@@ -68,26 +68,97 @@ def verify_package(directory: Path) -> dict:
     # Detect extra files and checks that were removed, not just files in manifest.
     if {p.name for p in root.iterdir()} != {*stored, "manifest.json"}:
         raise InvalidBundle("untracked audit-package files")
+    if ("review.json" in stored) != ("review_verification.json" in stored):
+        raise InvalidBundle("incomplete signed-review record pair")
     bundle = json.loads((root / "input.json").read_bytes())
     reported = json.loads((root / "audit.json").read_bytes())
     recalc = audit(bundle)
     if recalc != reported or manifest.get("input_sha256") != recalc.get("input_sha256") or manifest.get("report_sha256") != recalc.get("report_sha256"):
         raise InvalidBundle("auditor replay mismatch")
-    if manifest.get("report_md_sha256") != digest((root / "report.md").read_bytes()):
+    # Every interpretive and human-readable output is recomputed from the
+    # recorded inputs. A file hash inside an unsigned, freely editable manifest
+    # is NOT enough to establish the contents of the report.
+    from proposals import compile_proposal
+    from presentation import render_markdown
+    from diagnostics import critical_questions
+    sources = {s["id"]: s for s in bundle["sources"]}
+    if len(sources) != len(bundle["sources"]):
+        raise InvalidBundle("duplicate source identity in report")
+    acquisition = json.loads((root / "acquisition.json").read_bytes())
+    proposal = json.loads((root / "proposal.json").read_bytes())
+    questions = json.loads((root / "critical_questions.json").read_bytes())
+    discovery = json.loads((root / "discovery.json").read_bytes()) if "discovery.json" in stored else None
+    if not isinstance(acquisition, list) or any(not isinstance(a, dict) or
+            a.get("source_id") not in sources for a in acquisition):
+        raise InvalidBundle("invalid acquisition source identity")
+    if len(acquisition) != len(sources) or {a["source_id"] for a in acquisition} != set(sources):
+        raise InvalidBundle("acquisition does not account for every source exactly once")
+    if not isinstance(proposal, dict):
+        raise InvalidBundle("malformed proposal artifact")
+    # Replay source extraction when the original UTF-8 capture bytes are
+    # available. Recording only a raw digest cannot independently verify the
+    # transformation from downloaded HTML/captions to extracted text.
+    from acquire import normalize_html, parse_captions
+    independently_extracted = 0
+    not_replayable = []
+    for item in acquisition:
+        sid = item["source_id"]
+        raw = item.get("raw_snapshot_utf8")
+        if raw is None:
+            not_replayable.append(sid)
+            continue
+        if not isinstance(raw, str) or len(raw.encode("utf-8")) > 1_000_000:
+            raise InvalidBundle("invalid archived raw source")
+        if item.get("raw_sha256") != digest(raw.encode("utf-8")):
+            raise InvalidBundle("raw source snapshot digest mismatch: " + sid)
+        method = item.get("extraction")
+        if method in {"text_provided_v1", "utf8_identity_v1"}:
+            extracted = {"text": raw}
+        elif method in {"html_provided_v1", "html_visible_text_v1"}:
+            extracted = {"text": normalize_html(raw)}
+        elif method in {"srt_provided_v1", "vtt_provided_v1", "yt_dlp_caption_vtt_v1"}:
+            extracted = parse_captions(raw)
+        else:
+            raise InvalidBundle("unknown replayable extraction method: " + str(method))
+        if extracted["text"] != sources[sid]["text"]:
+            raise InvalidBundle("raw-to-extracted source transformation mismatch: " + sid)
+        if "cues" in extracted and extracted["cues"] != item.get("cues"):
+            raise InvalidBundle("caption cue anchor mismatch: " + sid)
+        independently_extracted += 1
+    rebuilt = compile_proposal(proposal, {k:v["text"] for k,v in sources.items()},
+        investigation_id=bundle["investigation_id"], captured_at=bundle["as_of"],
+        published_at_by_source={k:v.get("published_at") for k,v in sources.items()},
+        source_meta={k:{"origin_id":v.get("origin_id"),
+            "publication_date_verified":v.get("publication_date_verified",False),
+            "origin_verified":v.get("origin_verified",False)} for k,v in sources.items()})
+    if canonical(rebuilt) != canonical(bundle):
+        raise InvalidBundle("proposal-to-audit input reconstruction mismatch")
+    expected_questions = critical_questions(bundle["claims"])
+    if questions != expected_questions:
+        raise InvalidBundle("critical question advisory mismatch")
+    expected_md = render_markdown(bundle, recalc, acquisition=acquisition,
+                                 discovery=discovery, questions=expected_questions)
+    if (root / "report.md").read_bytes() != expected_md.encode("utf-8"):
+        raise InvalidBundle("human-readable report does not replay from source artifacts")
+    if manifest.get("report_md_sha256") != digest(expected_md.encode("utf-8")):
         raise InvalidBundle("report digest mismatch")
+    if manifest.get("source_snapshots_sha256") != {k:v["sha256"] for k,v in sources.items()}:
+        raise InvalidBundle("manifest source snapshot identities mismatch")
+    if (manifest.get("investigation_id") != bundle["investigation_id"] or
+        manifest.get("generated_at") != bundle["as_of"] or
+        manifest.get("method") != proposal.get("method", "supplied")):
+        raise InvalidBundle("manifest and investigation identity mismatch")
     try:
         independent = check_report(bundle, recalc)
     except IndependentCheckError as exc:
         raise InvalidBundle("design-diverse formal cross-check failed: " + str(exc)) from exc
-    from diagnostics import critical_questions
-    advisory=json.loads((root / "critical_questions.json").read_bytes())
-    if advisory != critical_questions(bundle["claims"]):
-        raise InvalidBundle("critical question advisory mismatch")
     if "review.json" in stored:
         reviewed = verify_review(json.loads((root / "review.json").read_bytes()), recalc)
         if reviewed != json.loads((root / "review_verification.json").read_bytes()):
             raise InvalidBundle("review verification mismatch")
     return {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
+            "extraction_replayed": independently_extracted,
+            "extraction_not_replayable": not_replayable,
             "report_sha256": recalc["report_sha256"], "external_truth_verified": False}
 
 

@@ -1,6 +1,6 @@
 # FAR Investigations: bounded auditable evidence and inference checks (Research prototype)
 
-**Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** No general-purpose text/video ingestion or automatic semantic adjudicator is claimed.
+**Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** Version 0.4 includes bounded text, caption, local-document, and optional media/URL intake; it does not establish open-domain ingestion reliability or independently correct semantic adjudication.
 
 This implements a concrete, independently replayable *formal* audit of two distinct steps:
 
@@ -343,3 +343,66 @@ input envelope remains supported. This 0.3 implementation does not promise
 that arbitrary earlier report bytes can be re-created by a newer engine: to
 replay a historic record, run the exact engine version identified by its
 report or pinned repository commit.
+
+See [ACCEPTANCE.md](ACCEPTANCE.md) for the exact tested acceptance contract and outstanding external gates.
+
+## Version 0.4 adversarial verification corrections (2026-10-17)
+
+The original 0.3 package verifier had a concrete integrity defect: changing
+`report.md`, recomputing the **unsigned** manifest hashes, and presenting a false
+certification still passed `--verify`. The attack was reproduced before the fix.
+Version 0.4 now recomputes the report from the original input, recorded proposal,
+acquisition data and generated questions; it validates the proposal-to-bundle
+reconstruction, source identities and manifest identities as well as hashes.
+A tampered report fails even when the attacker recalculates every reported
+SHA-256. This remains a **replay check**, not an authenticated external assertion:
+an attacker able to replace all inputs and unsigned artifacts self-consistently
+can still manufacture an entirely different case. Signed review attestations
+bind reviewer-held keys to an exact input and audit, not to reviewer expertise or
+external truth.
+
+Source acquisition now retains the original UTF-8 bytes for text, HTML, and
+caption modes as `raw_snapshot_utf8`, and the verifier deterministically
+reconstructs their extracted text and cue offsets. The verification result
+separates `extraction_replayed` from `extraction_not_replayable`. PDF/audio
+extraction and provider-supplied model transcripts cannot be reconstructed from
+the extracted text alone, and those gaps remain explicit; source hashes are not
+publisher authenticity certificates.
+
+**Critical inference correction:** heuristically detected sentences get synthetic
+propositional atom labels only for identity. These labels cannot meaningfully
+test whether two natural-language propositions entail each other. Previously,
+an innocuous valid argument such as `P; therefore P` could be displayed as
+`DOES_NOT_ENTAIL` because its two quoted sentences received different atom
+names. All readings missing explicitly authored formulas now produce
+`NOT_CHECKED_UNFORMALIZED`; no countermodel or invalidity claim is invented.
+Explicitly supplied formulas continue to receive independently cross-checked
+bounded Boolean inference judgments; source-to-formula semantic fidelity remains
+unverified even when those formulas happen to be correct.
+
+**Critical temporal correction:** a direct audit input that omits the
+`publication_date_verified` field cannot pass the historical evidence gate.
+The field must be a Boolean and only explicit `true` with a valid historical
+publication and capture date can be admitted, and that asserted verification
+flag still does not authenticate an outside source. A known capture after
+`as_of` is reported as outside the cutoff even if the publication date is
+unknown. As required by [No Hindsight for LLM Fact-Checkers](https://arxiv.org/abs/2610.04888),
+a model's learned knowledge of future outcomes remains a separate unresolved
+hindsight channel.
+
+Current documented optional API models are `gpt-6-luna` for inexpensive,
+untrusted interpretation proposals (Chat Completions with reasoning disabled)
+and `gpt-transcribe` for operator-authorized audio transcription. These were
+selected against the October 2026 OpenAI API model/deprecation documentation.
+No real provider call is claimed by our offline tests. No account credentials
+are needed for the default offline heuristic path.
+
+Tests: 95 local regression tests including a seeded 220-case differential
+comparison with the independently implemented SymPy SAT solver, cross-snapshot
+source extraction replay, signed-record tampering, quotation offsets, malformed
+and hindsight dates, and the full CLI/web/package transaction. The 3-case
+bundled diagnostic corpus is an **internal synthetic test**, not a consumer
+accuracy benchmark. Neither these tests nor a green local CI suite could
+establish independent source truth, semantic fidelity, general causal or
+statistical inference, external benchmark superiority, or product-market fit.
+Those outcomes require outside, blinded adjudication and field testing.

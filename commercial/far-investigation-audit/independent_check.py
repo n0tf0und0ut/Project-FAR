@@ -135,7 +135,14 @@ def check_report(bundle:dict, report:dict)->dict:
         if r["id"] not in readings:
             raise IndependentCheckError("report references unregistered reading")
         spec=readings[r["id"]]
-        result=check([claims[p]["formula"] for p in spec["premises"]],claims[spec["conclusion"]]["formula"])
+        basis = spec.get("formalization_basis", "explicit_formulas")
+        if basis == "unformalized_candidate":
+            result = {"status": "NOT_CHECKED_UNFORMALIZED",
+                      "reason": "Auto-generated atom labels cannot test natural-language entailment."}
+        elif basis == "explicit_formulas":
+            result=check([claims[p]["formula"] for p in spec["premises"]],claims[spec["conclusion"]]["formula"])
+        else:
+            raise IndependentCheckError("unknown formalization basis")
         if result!=r["formal_inference"]:
             raise IndependentCheckError("logical checker disagrees on reading: "+r["id"])
         checked+=1

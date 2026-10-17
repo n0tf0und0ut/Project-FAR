@@ -24,3 +24,17 @@ causal identification or complete protection from prompt injection.
 
 Never log API secrets, export raw production media without authorization, or
 interpret a cryptographic hash as an attested third-party source identity.
+
+## Version 0.4 attack regressions
+
+- Unsigned manifest self-rehashing no longer launders an altered readable report;
+  the replay verifier reconstructs report, proposal mapping and advisory content.
+- Text/HTML/caption raw snapshots are retained and extraction is replayed;
+  unarchived PDF/transcription transformations are reported separately.
+- A missing source publication-verification flag is **unknown**, never true.
+- Synthetic placeholder atoms are not passed off as valid natural-language
+  inferences or automatically generated logical countermodels.
+- Package integrity is not third-party authenticity: a malicious party controlling
+  the initial entire unsigned package can replace it with a self-consistent fiction.
+  Check signed attestations against a separately trusted key registry and obtain
+  source authentication independently when those properties matter.

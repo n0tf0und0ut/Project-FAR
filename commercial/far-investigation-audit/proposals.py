@@ -69,7 +69,7 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
             "method": "deterministic_sentence_candidate_v1"}
 
 
-def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, model: str = "gpt-6-mini",
+def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, model: str = "gpt-6-luna",
                     client: Any = None) -> dict:
     """Optional proposal-only LLM. No secret or source instructions are trusted."""
     if len(primary_text) > 20000 or sum(len(t) for t in evidence_sources.values()) > 15000:
@@ -98,7 +98,7 @@ def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, mode
         response = client.chat.completions.create(
             model=model, messages=[{"role": "system", "content": policy},
                                    {"role": "user", "content": "Untrusted materials:\n" + json.dumps(payload, ensure_ascii=False)}],
-            response_format={"type": "json_object"}, temperature=0, max_completion_tokens=2400)
+            response_format={"type": "json_object"}, reasoning_effort="none", max_completion_tokens=2400)
         raw = response.choices[0].message.content
         if not isinstance(raw, str) or len(raw) > 30000:
             raise InvalidBundle("model response absent or too large")
@@ -202,8 +202,14 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
                     not isinstance(val["value"], str) or len(val["value"]) > 250 or
                     val["origin"] not in {"stated", "inferred", "default", "unknown"}):
                 raise InvalidBundle("invalid interpretation card entry")
+        # Without explicitly authored formulas the P1/P2 labels are syntactic
+        # placeholders, not semantic propositions. Never infer a real fallacy
+        # from their artificial independence.
+        specified = {c["id"] for c in proposal["claims"] if "formula" in c}
+        basis = "explicit_formulas" if all(cid in specified for cid in [*ps, conclusion]) else "unformalized_candidate"
         readings.append({"id": aid, "premises": ps, "conclusion": conclusion,
                          "mapping_status": "unreviewed", "interpretation_notes": note,
+                         "formalization_basis": basis,
                          "interpretation_card": card})
     if len(set(a["id"] for a in readings)) != len(readings):
         raise InvalidBundle("duplicate reading ID")
