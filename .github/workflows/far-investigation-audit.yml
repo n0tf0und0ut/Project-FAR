@@ -26,7 +26,14 @@ jobs:
           python-version: '3.11'
       - name: Run exact fixture and adversarial tests
         run: python -m unittest discover -s commercial/far-investigation-audit/tests -p 'test_*.py' -v
+      - name: Confirm Python modules compile
+        run: python -m compileall -q commercial/far-investigation-audit
       - name: Check runnable example
         run: |
           python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/causal_jump.json > /tmp/far-investigation-example-report.json
           python -c 'import json; x=json.load(open("/tmp/far-investigation-example-report.json")); assert x["interpretations"][0]["formal_inference"]["status"] == "DOES_NOT_ENTAIL"'
+      - name: Check numeric snapshot computation and independently replay report
+        run: |
+          python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/structured_tally.json --output /tmp/far-structured-report.json
+          python commercial/far-investigation-audit/verify.py commercial/far-investigation-audit/examples/structured_tally.json /tmp/far-structured-report.json
+          python -c 'import json; r=json.load(open("/tmp/far-structured-report.json")); assert r["claims"]["p"]["structured_value_checks"]["matches"] == 1'

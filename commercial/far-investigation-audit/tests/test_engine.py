@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import pathlib
+import random
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,8 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from engine import InvalidBundle, audit, entailment
+from structured import parse_snapshot, pointer, StructuredInputError
+from capture import capture_source, exact_anchor
 
 
 def atom(x):
@@ -191,6 +194,222 @@ class InvestigationAuditTests(unittest.TestCase):
             result = subprocess.run([sys.executable, str(root / "cli.py"), str(p)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 2)
             self.assertIn("FAR_AUDIT_INVALID", result.stderr)
+
+
+    def numeric_case(self):
+        b = base()
+        speech = "2 experiments passed. The product is safe."
+        data = '{"experiments":[{"passed":true},{"passed":false},{"passed":true}]}'
+        b["sources"][0] = source("speech", speech)
+        b["sources"][1] = source("record", data, origin="dataset_one")
+        b["claims"][0].update(text="2 experiments passed.",
+            span={"start": 0, "end": 21, "quote": "2 experiments passed."},
+            quantity={"value":"2", "number_span":{"start":0,"end":1}, "unit":"experiments"})
+        b["claims"][1].update(text="The product is safe.",
+            span={"start": 22, "end": 42, "quote": "The product is safe."})
+        b["evidence"][0] = {"id":"data","source_id":"record", "claim_id":"p",
+            "span":span(data), "relation":"supports", "mapping_status":"review_recorded",
+            "data_check":{"operation":"count_where","pointer":"/experiments",
+                "where":{"field":"passed", "equals":True}}}
+        return b
+
+    def test_count_where_calculates_verified_snapshot_value_not_truth(self):
+        b = self.numeric_case()
+        r = audit(b)
+        q = r["claims"]["p"]["structured_value_checks"]
+        self.assertEqual(q["status"], "STRUCTURED_VALUE_MATCH_CONDITIONALLY")
+        self.assertEqual(q["matches"], 1)
+        self.assertEqual(r["claims"]["p"]["status"], "NOT_ESTABLISHED")
+        ck = r["claims"]["p"]["evidence"][0]
+        self.assertEqual(ck["formal_relation"], "NOT_APPLICABLE_TO_STRUCTURED_CHECK")
+        self.assertEqual(ck["structured_check"]["computed_value"], "2")
+        self.assertFalse(ck["structured_check"]["source_authenticity_verified"])
+        self.assertEqual(r["interpretations"][0]["premises_without_uncontested_formal_evidence"], ["p"])
+
+    def test_count_where_can_disagree_without_promoting_contradiction(self):
+        b = self.numeric_case()
+        b["claims"][0]["quantity"]["value"] = "3"
+        b["claims"][0]["quantity"]["number_span"] = {"start":0,"end":1}
+        with self.assertRaisesRegex(InvalidBundle, "token does not match"):
+            audit(b)
+        b = self.numeric_case()
+        text = "3 experiments passed. The product is safe."
+        b["sources"][0] = source("speech", text)
+        b["claims"][0]["span"]["quote"] = "3 experiments passed."
+        b["claims"][0]["quantity"]["value"] = "3"
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["structured_value_checks"]["status"],
+                         "STRUCTURED_VALUE_MISMATCH_CONDITIONALLY")
+        self.assertTrue(r["claims"]["p"]["evidence"][0]["assessment_disagrees_with_structured_check"])
+
+    def test_future_data_does_not_qualify_as_structured_evidence(self):
+        b = self.numeric_case()
+        b["sources"][1]["captured_at"] = "2026-02-02T00:00:00Z"
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["structured_value_checks"]["matches"], 0)
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["formal_relation"], "TEMPORAL_NOT_ADMISSIBLE")
+
+    def test_sum_field_uses_exact_decimal_not_binary_float(self):
+        b = self.numeric_case()
+        text = "0.3 dollars received. The product is safe."
+        b["sources"][0] = source("speech",text)
+        b["claims"][0].update(span={"start":0,"end":21,"quote":"0.3 dollars received."},
+            quantity={"value":"0.3","number_span":{"start":0,"end":3},"unit":"dollars"})
+        raw = '{"observations":[{"amount":0.1},{"amount":0.2}]}'
+        b["sources"][1] = source("record",raw)
+        b["evidence"][0]["span"] = span(raw)
+        b["evidence"][0]["data_check"] = {"operation":"sum_field", "pointer":"/observations","field":"amount"}
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["structured_check"]["computed_value"],"0.3")
+
+    def test_count_rows_and_json_pointer_escaping(self):
+        b = self.numeric_case()
+        raw = '{"a/b":{"t~n":[1,2]}}'
+        b["sources"][1] = source("record",raw)
+        b["evidence"][0]["span"] = span(raw)
+        b["evidence"][0]["data_check"] = {"operation":"count_rows","pointer":"/a~1b/t~0n"}
+        self.assertEqual(audit(b)["claims"]["p"]["structured_value_checks"]["matches"],1)
+
+    def test_duplicate_json_keys_fail_safe_as_unverifiable(self):
+        b = self.numeric_case()
+        raw = '{"experiments":[],"experiments":[{"passed":true},{"passed":true}]}'
+        b["sources"][1] = source("record",raw)
+        b["evidence"][0]["span"] = span(raw)
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["structured_check"]["status"],"STRUCTURED_UNVERIFIABLE")
+
+    def test_missing_rows_not_silently_counted_as_false(self):
+        b = self.numeric_case()
+        raw = '{"experiments":[{"passed":true},{}]}'
+        b["sources"][1] = source("record",raw)
+        b["evidence"][0]["span"] = span(raw)
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["structured_check"]["status"],"STRUCTURED_UNVERIFIABLE")
+
+    def test_where_boolean_cannot_implicitly_match_numeric_one(self):
+        b = self.numeric_case()
+        raw = '{"experiments":[{"passed":1},{"passed":true},{"passed":true}]}'
+        b["sources"][1] = source("record",raw)
+        b["evidence"][0]["span"] = span(raw)
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["structured_check"]["computed_value"],"2")
+
+    def test_invalid_data_contract_does_not_pass_silently(self):
+        b = self.numeric_case()
+        b["evidence"][0]["data_check"]["operation"] = "python_eval"
+        with self.assertRaisesRegex(InvalidBundle,"unsupported structured operation"):
+            audit(b)
+
+    def test_structured_and_propositional_checks_must_be_separate(self):
+        b = self.numeric_case()
+        b["evidence"][0]["formula"] = atom("P")
+        with self.assertRaisesRegex(InvalidBundle,"separate records"):
+            audit(b)
+
+    def test_replay_rejects_tampered_report_even_if_attacker_changes_hash(self):
+        root = pathlib.Path(__file__).resolve().parents[1]
+        b = self.numeric_case()
+        with tempfile.TemporaryDirectory() as d:
+            p = pathlib.Path(d)/"in.json"; f = pathlib.Path(d)/"report.json"
+            p.write_text(json.dumps(b),encoding="utf-8")
+            r=audit(b); f.write_text(json.dumps(r),encoding="utf-8")
+            cmd=[sys.executable,str(root/"verify.py"),str(p),str(f)]
+            self.assertEqual(subprocess.run(cmd,capture_output=True).returncode,0)
+            r["claims"]["p"]["structured_value_checks"]["matches"]=4
+            r["report_sha256"] = hashlib.sha256(json.dumps(r,sort_keys=True).encode()).hexdigest()
+            f.write_text(json.dumps(r))
+            result=subprocess.run(cmd,capture_output=True,text=True)
+            self.assertEqual(result.returncode,1)
+            self.assertIn("FAR_REPLAY_MISMATCH",result.stderr)
+
+    def test_numeric_exponent_bomb_fails_as_unverifiable(self):
+        b=self.numeric_case()
+        raw='{"experiments":[{"amount":1e99999999}]}'
+        b["sources"][1]=source("record",raw)
+        b["evidence"][0]["span"]=span(raw)
+        b["evidence"][0]["data_check"]={"operation":"sum_field","pointer":"/experiments","field":"amount"}
+        self.assertEqual(audit(b)["claims"]["p"]["evidence"][0]["structured_check"]["status"],"STRUCTURED_UNVERIFIABLE")
+
+    def test_structured_sum_does_not_lose_decimal_precision(self):
+        b=self.numeric_case()
+        text="0.300000000000000000000000001 dollars. The product is safe."
+        b["sources"][0]=source("speech",text)
+        b["claims"][0].update(text="0.300000000000000000000000001 dollars.",
+            span={"start":0,"end":len("0.300000000000000000000000001 dollars."),"quote":"0.300000000000000000000000001 dollars."},
+            quantity={"value":"0.300000000000000000000000001","number_span":{"start":0,"end":29},"unit":"dollars"})
+        safe_span_start=text.index("The product is safe.")
+        b["claims"][1]["span"]={"start":safe_span_start,"end":len(text),"quote":"The product is safe."}
+        raw='{"observations":[{"amount":0.1},{"amount":0.200000000000000000000000001}]}'
+        b["sources"][1]=source("record",raw)
+        b["evidence"][0]["span"]=span(raw)
+        b["evidence"][0]["data_check"]={"operation":"sum_field","pointer":"/observations","field":"amount"}
+        self.assertEqual(audit(b)["claims"]["p"]["evidence"][0]["structured_check"]["computed_value"],"0.300000000000000000000000001")
+
+    def test_randomized_count_differential_against_plain_python_oracle(self):
+        rng = random.Random(20261017)
+        for n in range(1, 101):
+            rows = [{"passed": rng.choice((True, False))} for _ in range(rng.randint(0, 50))]
+            actual = sum(1 for row in rows if row["passed"] is True)
+            b = self.numeric_case()
+            claim_text = f"{actual} experiments passed. The product is safe."
+            quote = f"{actual} experiments passed."
+            b["sources"][0] = source("speech", claim_text)
+            b["claims"][0]["text"] = quote
+            b["claims"][0]["span"] = {"start":0,"end":len(quote),"quote":quote}
+            b["claims"][0]["quantity"] = {"value":str(actual),"number_span":{"start":0,"end":len(str(actual))},"unit":"experiments"}
+            statement = "The product is safe."
+            where = claim_text.index(statement)
+            b["claims"][1]["span"] = {"start":where,"end":where+len(statement),"quote":statement}
+            raw = json.dumps({"experiments": rows})
+            b["sources"][1] = source("record", raw)
+            b["evidence"][0]["span"] = span(raw)
+            report = audit(b)
+            ck = report["claims"]["p"]["evidence"][0]["structured_check"]
+            self.assertEqual(ck["computed_value"], str(actual))
+            self.assertEqual(ck["status"], "STRUCTURED_VALUE_MATCH")
+
+    def test_local_capture_records_actual_bytes_without_inventing_dates(self):
+        text="alpha 12 beta"
+        src=capture_source(text.encode(),source_id="snapshot",captured_at="2026-02-01T00:00:00Z")
+        self.assertEqual(src["sha256"],hashlib.sha256(text.encode()).hexdigest())
+        self.assertIsNone(src["published_at"])
+        self.assertFalse(src["origin_verified"])
+        self.assertEqual(exact_anchor(src["text"],"12"),{"start":6,"end":8,"quote":"12"})
+
+    def test_local_capture_rejects_multiple_matching_spans(self):
+        with self.assertRaisesRegex(InvalidBundle,"ambiguous repeated"):
+            exact_anchor("x y x", "x")
+        self.assertEqual(exact_anchor("x y x", "x", start=4)["start"],4)
+
+    def test_capture_rejects_fabricated_published_after_capture(self):
+        with self.assertRaisesRegex(InvalidBundle,"later"):
+            capture_source(b"test",source_id="x",captured_at="2026-01-01T00:00:00Z",
+                published_at="2026-02-01T00:00:00Z")
+
+    def test_example_structured_fixture_and_replay(self):
+        root=pathlib.Path(__file__).resolve().parents[1]
+        src=root/"examples/structured_tally.json"
+        b=json.loads(src.read_text())
+        r=audit(b)
+        self.assertEqual(r["claims"]["p"]["structured_value_checks"]["status"],"STRUCTURED_VALUE_MATCH_CONDITIONALLY")
+        with tempfile.TemporaryDirectory() as d:
+            report=pathlib.Path(d)/"report.json"
+            report.write_text(json.dumps(r))
+            result=subprocess.run([sys.executable,str(root/"verify.py"),str(src),str(report)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+
+    def test_nonfinite_bundle_values_fail_closed(self):
+        b=self.numeric_case()
+        b["atoms"]["P"] = float("nan")
+        with self.assertRaisesRegex(InvalidBundle, "non-JSON or non-finite"):
+            audit(b)
+
+    def test_machine_arithmetic_does_not_validate_source_meaning(self):
+        b = self.numeric_case()
+        b["claims"][0]["mapping_status"] = "review_recorded"
+        report=audit(b)
+        self.assertFalse(report["claims"]["p"]["structured_value_checks"]["claim_meaning_verified"])
+        self.assertEqual(report["assurance_boundary"]["real_world_truth"], "not established")
 
 
 if __name__ == "__main__":

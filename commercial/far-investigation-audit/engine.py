@@ -12,8 +12,10 @@ import re
 from datetime import datetime
 from typing import Any
 
+from structured import StructuredInputError, evaluate_structured
+
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.1.0"
+ENGINE = "far-investigation-audit/0.2.0"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 
@@ -143,6 +145,10 @@ def anchor(record: dict[str, Any], sources: dict[str, dict[str, Any]], label: st
 
 def audit(bundle: dict[str, Any]) -> dict[str, Any]:
     required(isinstance(bundle, dict) and bundle.get("schema") == SCHEMA, "unknown bundle schema")
+    try:
+        required(len(canonical(bundle)) <= 2_000_000, "bundle byte limit exceeded")
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise InvalidBundle("bundle contains non-JSON or non-finite values") from exc
     required(isinstance(bundle.get("investigation_id"), str) and bool(bundle["investigation_id"].strip()), "investigation id required")
     as_of = timestamp(bundle.get("as_of"), "as_of")
     atoms = bundle.get("atoms")
@@ -185,6 +191,8 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(entry.get("mapping_status") in ("unreviewed", "review_recorded"), f"evidence {eid}: mapping status required")
         if "formula" in entry:
             validate_formula(entry["formula"], atoms)
+        required("data_check" not in entry or "formula" not in entry,
+                 f"evidence {eid}: structured and propositional checks must be separate records")
     findings: dict[str, list[dict[str, Any]]] = {cid: [] for cid in claims}
     for evidence_item in evidence:
         sid = evidence_item["source_id"]
@@ -198,6 +206,17 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
             finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
         elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
             finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
+        elif "data_check" in evidence_item:
+            try:
+                checked = evaluate_structured(claim, evidence_item, sources[sid]["text"])
+            except StructuredInputError as exc:
+                raise InvalidBundle(f"evidence {evidence_item['id']}: {exc}") from exc
+            finding["formal_relation"] = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
+            finding["structured_check"] = checked
+            if evidence_item["relation"] == "supports" and checked["status"] != "STRUCTURED_VALUE_MATCH":
+                finding["assessment_disagrees_with_structured_check"] = True
+            if evidence_item["relation"] == "contradicts" and checked["status"] != "STRUCTURED_VALUE_MISMATCH":
+                finding["assessment_disagrees_with_structured_check"] = True
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
@@ -226,7 +245,17 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         neg = [r for r in assessed if r["formal_relation"] == "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT"]
         status = ("CONFLICT_RECORDED" if pos and neg else "CONDITIONAL_FORMAL_SUPPORT_RECORDED" if pos
                   else "CONDITIONAL_FORMAL_CONTRADICTION_RECORDED" if neg else "NOT_ESTABLISHED")
+        structured = [r["structured_check"] for r in assessed if "structured_check" in r]
+        matched = sum(r["status"] == "STRUCTURED_VALUE_MATCH" for r in structured)
+        mismatched = sum(r["status"] == "STRUCTURED_VALUE_MISMATCH" for r in structured)
+        numeric_state = ("CONFLICTING_STRUCTURED_VALUES" if matched and mismatched else
+                         "STRUCTURED_VALUE_MATCH_CONDITIONALLY" if matched else
+                         "STRUCTURED_VALUE_MISMATCH_CONDITIONALLY" if mismatched else "NOT_ESTABLISHED")
         claim_reports[cid] = {"status": status, "mapping_status": claim["mapping_status"],
+                              "structured_value_checks": {"status": numeric_state,
+                                  "matches": matched, "mismatches": mismatched,
+                                  "unverifiable": len(structured) - matched - mismatched,
+                                  "claim_meaning_verified": False},
                               "support_origin_ids": sorted({r["origin_id"] for r in pos if r["origin_id"] is not None}),
                               "support_sources_with_unknown_origin": sorted({r["source_id"] for r in pos if r["origin_id"] is None}),
                               "origin_independence_verified": False, "evidence": assessed}
@@ -258,6 +287,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
                   "quote_validation": "exact span equality, not semantic entailment",
                   "semantic_fidelity": "unverified: claim and evidence text to atoms/formulas is supplied by author",
                   "evidence_independence": "origin_ids are reported, not independently authenticated",
-                  "real_world_truth": "not established", "open_world_search_completeness": "not established"}}
+                  "real_world_truth": "not established", "open_world_search_completeness": "not established",
+                  "structured_numbers": "deterministic computations over supplied JSON, not verification of measurement, population, scope, or claim interpretation"}}
     report["report_sha256"] = digest(canonical(report))
     return report

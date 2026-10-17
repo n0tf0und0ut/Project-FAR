@@ -52,3 +52,54 @@ Before any commercial truth-oriented claim, FAR additionally needs (1) real medi
 - Project FAR [Saturation Baseline v0.5](../../docs/architecture/saturation-baseline-v0.5.md): provisional capability classes, no implicit collapse of claim/evidence/inference status. This implementation uses existing extension points rather than changing the baseline or canonical core.
 
 The next independent test is a blinded real-cases comparison assessing attribution fidelity, evidence-to-premise judgments, inference validity, abstention, false certainty, cost and latency. The registered #518 and EFR experiments remain unchanged and unexecuted by this component.
+
+## 0.2 bounded structured-evidence extension
+
+This Research-only extension adds a **second, independently typed computation lane** for numeric facts in frozen JSON snapshots. It complements—not substitutes for—the propositional evidence/inference checks above. The existing `far-investigation-audit/0.1` input envelope is backward-compatible: old files without structured checks are still checked as before. The engine identifies itself as `far-investigation-audit/0.2.0`. No canonical FAR IR or Accepted-theory schema was changed.
+
+Use `data_check` on an `evidence` record **instead of** `formula`, paired with a `quantity` record on its target `claim`. An example is [examples/structured_tally.json](examples/structured_tally.json):
+
+```json
+{
+  "quantity": {"value":"2", "number_span":{"start":0,"end":1}, "unit":"experiments"},
+  "data_check": {"operation":"count_where", "pointer":"/experiments", "where":{"field":"passed", "equals":true}}
+}
+```
+
+The snippet shows two fields belonging to **different** records. The `number_span` must point to the exact literal number in the claim's source quotation. `data_check` reads the already-hashed JSON evidence source, follows an RFC 6901 JSON Pointer (with bounds), and computes:
+
+- `count_rows`: exact length of a selected array;
+- `count_where`: exact type-safe equality count over a required field in every selected object (boolean `true` is not number `1`);
+- `sum_field`: exact decimal sum over required JSON numeric fields, with finite digit/exponent bounds and a controlled precision context.
+
+Ambiguous duplicate JSON keys, absent fields, non-numeric sums, invalid JSON pointers and unsupported forms fail closed or report `STRUCTURED_UNVERIFIABLE`. Inputs are limited to 2 MB, each source to 200 KB, selected arrays to 10,000 rows, and bounded finite decimals. Missing values are *not* quietly treated as zero. A mismatch produces an actual counter-result from the supplied dataset, rather than a model verdict.
+
+The new per-claim `structured_value_checks` report is **separate** from the propositional `status`. It may show `STRUCTURED_VALUE_MATCH_CONDITIONALLY`, `STRUCTURED_VALUE_MISMATCH_CONDITIONALLY`, `CONFLICTING_STRUCTURED_VALUES`, or `NOT_ESTABLISHED`. Even a numeric match means only that the disclosed operation on the supplied frozen JSON produces the number recorded in the claim quotation. It **does not** verify the dataset's completeness, representativeness, origin, semantics of its columns, proper choice of statistic, associated source's authenticity, or real-world truth. The checker does not infer that a policy caused an observed change or that a reported study generalizes beyond its observed population. The original inference report separately tests whether the formal *premises* entail the formal *conclusion*.
+
+To inspect the structured demonstration and replay the output:
+
+```sh
+python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/structured_tally.json --output /tmp/far-structured-report.json
+python commercial/far-investigation-audit/verify.py commercial/far-investigation-audit/examples/structured_tally.json /tmp/far-structured-report.json
+```
+
+The verifier independently **re-runs the deterministic code path**, checking the entire output against an independently provided bundle; it rejects even a report whose attacker has recalculated its own hash. This is reproducible computation, **not** independently authored verification software, proof of independent source provenance, or trusted third-party attestation.
+
+### Exact local source capture
+
+The optional offline importer constructs a SHA-256-bound source snapshot and, where specified, a unique exact quotation anchor:
+
+```sh
+python commercial/far-investigation-audit/capture.py document.txt --id source_1 --quote 'The observed quantity increased.'
+```
+
+The importer never fetches remote URLs or executes content; input must be UTF-8 text or JSON. The `captured_at` field records the time the command ran. Its `published_at` remains `null` unless a publication date is **explicitly supplied** with `--published-at` (the resulting date is marked unverified). The importer cannot authenticate historic availability, source lineage, or publisher identity. Unknown historical publication dates cause the existing point-in-time evidence gate to abstain rather than count the source as admissible. Ambiguous repeated quotations require `--start` to specify the exact character offset.
+
+### Prior methods incorporated
+
+- [FEVEROUS](https://fever.ai/dataset/feverous.html) explicitly represents factual verification evidence as sentences **and cells in tables**, with annotated numerical reasoning cases. FAR's bounded numerical path is an original *implementation of standard structured-data arithmetic*, not a novel verification algorithm or an evaluated FEVEROUS system.
+- [TabVer: Tabular Fact Verification with Natural Logic](https://doi.org/10.1162/tacl_a_00722) demonstrates that table verification requires controlled operators and inference procedures; its reported performance does not transfer to this module without evaluation.
+- [W3C PROV-O](https://www.w3.org/TR/prov-o/) motivates distinguishing a recorded computation and its input snapshot from the external authenticity and acquisition chain. This module does not claim PROV compliance or independently authenticated evidence.
+- [AVeriTeC](https://aclanthology.org/2024.fever-1.1/) motivates separating evidence sufficiency, claim interpretation and downstream verdict quality in future independent evaluations. No performance claim is made here.
+
+**Remaining work:** reliably retrieved and permissioned documents/media, automatic but challengeable natural-language claim mapping, authenticated reviewer attestations, independent source and temporal provenance, causal/statistical identification checks, external blind evaluations and user/customer validation. `0.2` adds only the bounded mechanical check described above, not all of these prerequisites.
