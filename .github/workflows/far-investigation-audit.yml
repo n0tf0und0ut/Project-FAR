@@ -1,0 +1,32 @@
+name: FAR Bounded Investigation Audit
+
+on:
+  pull_request:
+    paths:
+      - 'commercial/far-investigation-audit/**'
+      - '.github/workflows/far-investigation-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'commercial/far-investigation-audit/**'
+      - '.github/workflows/far-investigation-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run exact fixture and adversarial tests
+        run: python -m unittest discover -s commercial/far-investigation-audit/tests -p 'test_*.py' -v
+      - name: Check runnable example
+        run: |
+          python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/causal_jump.json > /tmp/far-investigation-example-report.json
+          python -c 'import json; x=json.load(open("/tmp/far-investigation-example-report.json")); assert x["interpretations"][0]["formal_inference"]["status"] == "DOES_NOT_ENTAIL"'
