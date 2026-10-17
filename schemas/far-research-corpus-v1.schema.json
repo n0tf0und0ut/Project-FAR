@@ -1,0 +1,541 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-far.local/schemas/far-research-corpus-v1.schema.json",
+  "title": "Project FAR governed research corpus 1.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "authority",
+    "identity_rule",
+    "inventory_rules",
+    "reviewed_input_registry",
+    "completeness_contract",
+    "dynamic_dependencies",
+    "sources",
+    "mechanism_catalog",
+    "conclusion_rules",
+    "frontier_rules",
+    "nonclaims"
+  ],
+  "properties": {
+    "format_version": {
+      "const": "far-research-corpus/1.1"
+    },
+    "authority": {
+      "const": "Research"
+    },
+    "identity_rule": {
+      "$ref": "#/$defs/text"
+    },
+    "reviewed_input_registry": {
+      "type": "string",
+      "const": "research/corpus/reviewed-inputs-v1.0.json"
+    },
+    "inventory_rules": {
+      "$ref": "#/$defs/inventory"
+    },
+    "completeness_contract": {
+      "$ref": "#/$defs/completeness"
+    },
+    "dynamic_dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/dynamicDependency"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "mechanism_catalog": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mechanism"
+      }
+    },
+    "conclusion_rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/conclusion"
+      }
+    },
+    "frontier_rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/frontier"
+      }
+    },
+    "nonclaims": {
+      "$ref": "#/$defs/texts"
+    }
+  },
+  "$defs": {
+    "dynamicDependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "kind", "format_field", "format_value", "role"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "path": {"type": "string", "pattern": "^[^/].*\\.json$"},
+        "kind": {"const": "mutable_generated_state"},
+        "format_field": {"$ref": "#/$defs/text"},
+        "format_value": {"$ref": "#/$defs/text"},
+        "role": {"const": "synthesis_invalidation_only"}
+      }
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9-]+$"
+    },
+    "sha": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "texts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_declared_globs",
+        "automatic_lead_globs",
+        "snapshot_globs",
+        "ignored_nonmaterial",
+        "semantic_input_globs"
+      ],
+      "properties": {
+        "required_declared_globs": {
+          "$ref": "#/$defs/texts"
+        },
+        "automatic_lead_globs": {
+          "$ref": "#/$defs/texts"
+        },
+        "snapshot_globs": {
+          "$ref": "#/$defs/texts"
+        },
+        "ignored_nonmaterial": {
+          "$ref": "#/$defs/texts"
+        },
+        "semantic_input_globs": {
+          "$ref": "#/$defs/texts"
+        }
+      }
+    },
+    "completeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventory_scope",
+        "evidence_scope",
+        "search_scope",
+        "synthesis_scope",
+        "global_scope"
+      ],
+      "properties": {
+        "inventory_scope": {
+          "$ref": "#/$defs/text"
+        },
+        "evidence_scope": {
+          "$ref": "#/$defs/text"
+        },
+        "search_scope": {
+          "$ref": "#/$defs/text"
+        },
+        "synthesis_scope": {
+          "$ref": "#/$defs/text"
+        },
+        "global_scope": {
+          "const": "OPEN_WORLD_UNESTABLISHED"
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "proposition_id",
+        "epistemic_class",
+        "statement",
+        "scope",
+        "scope_key",
+        "relation",
+        "relation_targets",
+        "target_kind",
+        "replacement_effect",
+        "uncertainty",
+        "mechanism_ids",
+        "dependencies",
+        "history"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "proposition_id": {
+          "$ref": "#/$defs/id"
+        },
+        "epistemic_class": {
+          "enum": [
+            "EVIDENCE",
+            "INFERENCE",
+            "HYPOTHESIS",
+            "UNRESOLVED"
+          ]
+        },
+        "statement": {
+          "$ref": "#/$defs/text"
+        },
+        "scope": {
+          "$ref": "#/$defs/text"
+        },
+        "scope_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "relation": {
+          "enum": [
+            "SUPPORTS",
+            "CONTRADICTS",
+            "QUALIFIES",
+            "CORRECTS",
+            "SUPERSEDES",
+            "UNRESOLVED"
+          ]
+        },
+        "relation_targets": {
+          "$ref": "#/$defs/ids"
+        },
+        "target_kind": {
+          "enum": [
+            "NONE",
+            "OBSERVATION",
+            "PROPOSITION"
+          ]
+        },
+        "replacement_effect": {
+          "enum": [
+            "NONE",
+            "INVALIDATE_ONLY",
+            "REPLACE_EQUIVALENT",
+            "REPLACE_NARROWER"
+          ]
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/text"
+        },
+        "mechanism_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "dependencies": {
+          "$ref": "#/$defs/ids"
+        },
+        "history": {
+          "type": "array"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_identity",
+        "path",
+        "sha256",
+        "version",
+        "external_identifier",
+        "evidence_class",
+        "kind",
+        "current_availability",
+        "historical_availability",
+        "evidence_usable",
+        "material",
+        "scope",
+        "history",
+        "supersedes",
+        "corrects",
+        "observations",
+        "review_status",
+        "primary_evidence_verified"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_identity": {
+          "$ref": "#/$defs/text"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "external_identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidence_class": {
+          "$ref": "#/$defs/text"
+        },
+        "kind": {
+          "$ref": "#/$defs/text"
+        },
+        "current_availability": {
+          "enum": [
+            "available",
+            "missing",
+            "withdrawn"
+          ]
+        },
+        "historical_availability": {
+          "enum": [
+            "PRESENT",
+            "UNAVAILABLE_RECORDED",
+            "WITHDRAWN_RETAINED"
+          ]
+        },
+        "evidence_usable": {
+          "type": "boolean"
+        },
+        "material": {
+          "type": "boolean"
+        },
+        "scope": {
+          "$ref": "#/$defs/text"
+        },
+        "history": {
+          "type": "array"
+        },
+        "supersedes": {
+          "$ref": "#/$defs/ids"
+        },
+        "corrects": {
+          "$ref": "#/$defs/ids"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/observation"
+          }
+        },
+        "review_status": {
+          "enum": [
+            "GOVERNED_REPOSITORY_SOURCE",
+            "VERIFIED_FOR_CORPUS",
+            "DISCOVERY_LEAD"
+          ]
+        },
+        "primary_evidence_verified": {
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "auto_extractor": {
+          "enum": [
+            "saturation_falsification_001"
+          ]
+        }
+      }
+    },
+    "mechanism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "architecture_class",
+        "literal_comparison",
+        "aliases",
+        "accepted_scope_keys"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "architecture_class": {
+          "enum": [
+            "already_representable_enforceable",
+            "representable_assurance_incomplete",
+            "existing_extension_point",
+            "genuine_architecture_gap",
+            "contradiction",
+            "unresolved"
+          ]
+        },
+        "literal_comparison": {
+          "$ref": "#/$defs/text"
+        },
+        "aliases": {
+          "$ref": "#/$defs/texts"
+        },
+        "accepted_scope_keys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "gap_proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requirement",
+            "architecture_anchors_checked",
+            "failed_enforcement_reason"
+          ],
+          "properties": {
+            "requirement": {
+              "$ref": "#/$defs/text"
+            },
+            "architecture_anchors_checked": {
+              "$ref": "#/$defs/texts"
+            },
+            "failed_enforcement_reason": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        }
+      }
+    },
+    "conclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "statement",
+        "counterevidence",
+        "result_class",
+        "supported_disposition",
+        "required_mechanisms",
+        "required_scope_keys",
+        "depends_on_conclusions",
+        "missing_disposition",
+        "allow_qualified_support"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "statement": {
+          "$ref": "#/$defs/text"
+        },
+        "counterevidence": {
+          "$ref": "#/$defs/text"
+        },
+        "result_class": {
+          "enum": [
+            "EVIDENCE",
+            "INFERENCE",
+            "HYPOTHESIS",
+            "UNRESOLVED"
+          ]
+        },
+        "supported_disposition": {
+          "$ref": "#/$defs/text"
+        },
+        "required_mechanisms": {
+          "$ref": "#/$defs/ids"
+        },
+        "required_scope_keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          }
+        },
+        "depends_on_conclusions": {
+          "$ref": "#/$defs/ids"
+        },
+        "missing_disposition": {
+          "$ref": "#/$defs/text"
+        },
+        "allow_qualified_support": {
+          "const": false
+        }
+      }
+    },
+    "frontier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "question",
+        "conclusion_ids",
+        "next_evidence",
+        "epistemic_class",
+        "status_if_current"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "question": {
+          "$ref": "#/$defs/text"
+        },
+        "conclusion_ids": {
+          "$ref": "#/$defs/ids"
+        },
+        "next_evidence": {
+          "$ref": "#/$defs/text"
+        },
+        "epistemic_class": {
+          "enum": [
+            "EVIDENCE",
+            "INFERENCE",
+            "HYPOTHESIS",
+            "UNRESOLVED"
+          ]
+        },
+        "status_if_current": {
+          "enum": [
+            "BOUNDED_CURRENT",
+            "OPEN"
+          ]
+        }
+      }
+    }
+  }
+}

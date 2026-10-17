@@ -21,10 +21,22 @@ on:
       - '.github/workflows/living-research.yml'
       - 'tools/run_living_research.py'
       - 'tools/reconcile_living_repo.py'
+      - 'tools/reconcile_research_corpus.py'
+      - 'tools/validate_research_carry.py'
       - 'tools/check_living_research.py'
       - 'tests/test_living_research.py'
       - 'tests/test_living_research_workflow.py'
+      - 'tests/test_pr572_review_regressions.py'
       - 'research/living/**'
+      - 'research/corpus/**'
+      - 'schemas/far-research-corpus-v1.schema.json'
+      - 'schemas/far-reviewed-input-v1.schema.json'
+      - 'theory/theorems/Project-FAR-Theory-Closure-v1.1.md'
+      - 'docs/audits/**'
+      - 'docs/architecture/saturation-baseline-v0.5.md'
+      - 'docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md'
+      - 'research/comparisons/far-investigation-benchmark-v0.1.md'
+      - 'docs/governance/external-falsification-and-replication-*.md'
       - 'research/registry/research-questions-v1.0.json'
       - 'research/registry/epistemic-threats-v1.0.json'
       - 'research/registry/opportunities-v1.0.json'
@@ -62,9 +74,13 @@ jobs:
       - name: Install canonical repository dependencies
         run: pip install -r requirements.txt
       - name: Unit-test living repository
-        run: python -m unittest tests.test_living_research tests.test_living_research_workflow -v
+        run: |
+          python -m tools.run_living_research --help >/dev/null
+          python -m unittest tests.test_living_research tests.test_living_research_workflow tests.test_research_corpus tests.test_pr572_review_regressions -v
       - name: Reconcile canonical living-repository state
-        run: python tools/reconcile_living_repo.py
+        run: |
+          python tools/reconcile_living_repo.py
+          python tools/reconcile_research_corpus.py
       - name: Validate living repository invariants
         # Bounded on every automatic path. This job is dispatched by `discover` after each
         # unattended update, so a full historical scan here would put unbounded and steadily
@@ -124,8 +140,11 @@ jobs:
             # canonical snapshot promotion. No code from this branch is executed.
             for path in research/living/inbox research/living/runs \
                         research/living/state-v1.0.json \
-                        research/living/repository-state-v1.0.json; do
+                        research/corpus/external; do
               if git cat-file -e "origin/$branch:$path" 2>/dev/null; then
+                # Reject symlinks, executable blobs, submodules, and other non-data Git objects
+                # before checking any carried bytes out of the unprotected inbox branch.
+                python tools/validate_research_carry.py --ref "origin/$branch" --path "$path"
                 git checkout "origin/$branch" -- "$path"
               fi
             done
@@ -134,8 +153,11 @@ jobs:
           echo "branch_exists=$branch_exists" >> "$GITHUB_OUTPUT"
       - name: Preflight tests and authority checks
         run: |
-          python -m unittest tests.test_living_research tests.test_living_research_workflow -v
+          # Derived state is never carried from the unprotected inbox branch. Rebuild it
+          # from protected-main code plus carried Research data before reproducibility tests.
           python tools/reconcile_living_repo.py
+          python tools/reconcile_research_corpus.py --living-loop --write
+          python -m unittest tests.test_living_research tests.test_living_research_workflow tests.test_research_corpus tests.test_pr572_review_regressions -v
           python tools/check_living_research.py
           python tools/check_research_gates.py
       - name: Discover current and historical research
@@ -143,13 +165,16 @@ jobs:
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           OPENALEX_MAILTO: ${{ secrets.OPENALEX_MAILTO }}
           CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
-        run: python tools/run_living_research.py
+        run: python -m tools.run_living_research
       - name: Reconcile dependency, claim, and project state
-        run: python tools/reconcile_living_repo.py
+        run: |
+          python tools/reconcile_living_repo.py
+          python tools/reconcile_research_corpus.py --living-loop --write
       - name: Validate generated living repository
         run: |
           python tools/check_living_research.py
-          python -m unittest tests.test_living_research tests.test_living_research_workflow -v
+          python tools/reconcile_research_corpus.py
+          python -m unittest tests.test_living_research tests.test_living_research_workflow tests.test_research_corpus tests.test_pr572_review_regressions -v
           python tools/check_research_gates.py
           python tools/repo_health_check.py --fast
       - name: Commit and push inbox state
@@ -162,6 +187,9 @@ jobs:
             exit 0
           fi
           git add research/living \
+            research/corpus/external \
+            research/corpus/synthesis-v1.0.json \
+            docs/research/current-research-frontier.md \
             docs/research/living-research-status.md \
             docs/research/living-repository-status.md
           git commit -m "research: update unattended living repository"

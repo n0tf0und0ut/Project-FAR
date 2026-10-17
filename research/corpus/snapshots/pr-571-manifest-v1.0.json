@@ -1,0 +1,48 @@
+{
+  "format_version": "far-external-ref-snapshot/1.0",
+  "authority": "unmerged_research",
+  "ref": "github-pr-571",
+  "head_sha": "8220b4878b2176006f9d19e69117d1fdee49729c",
+  "base_sha": "8618384efe4576580f65ff67b02b22bac43ffc51",
+  "files": [
+    {
+      "path": "docs/architecture/saturation-baseline-v0.5-amendment-a1.md",
+      "sha256": "ef0deb7215e2fb52052b90f64b8fc39743364b400c6f029a077d91b9166e95ec",
+      "size": 1482
+    },
+    {
+      "path": "research/saturation-falsification-001/README.md",
+      "sha256": "4d8541a89d611da98a20b22c552297e7abf09aa0d3845c535e81c3dbfd804c26",
+      "size": 6378
+    },
+    {
+      "path": "research/saturation-falsification-001/counterexamples-v1.0.json",
+      "sha256": "4ccc26bbb85661ead7e09a46838b6a50c19e4e50eb1ae0090c4d164dd5dd488a",
+      "size": 6910
+    },
+    {
+      "path": "research/saturation-falsification-001/findings-v1.0.json",
+      "sha256": "32899191b2cc5ca9f1fbe0fcaf5c9d8cbcc90aa4a6b7d330e6a94c5d40ece656",
+      "size": 16675
+    },
+    {
+      "path": "research/saturation-falsification-001/replication.md",
+      "sha256": "1bc3878cde37d83f61500e74a4159095239c972519155a13786c5a5bdb2c4a84",
+      "size": 8375
+    },
+    {
+      "path": "research/saturation-falsification-001/source-receipts-v1.0.json",
+      "sha256": "61a5cc7377e5340d6e8eee1666720f33a7ad1c2563e6060c62f575369b415183",
+      "size": 1406
+    },
+    {
+      "path": "tests/test_saturation_falsification_001.py",
+      "sha256": "a7e005c3bd8bc2165f11a211b909fca4f1f020520af82304890f4327a7879bc1",
+      "size": 10806
+    }
+  ],
+  "evidence_usable": true,
+  "scope": "Exact unmerged research snapshot; not current canonical authority.",
+  "file_inventory_sha256": "c5e2791610aae7040be52fa89cec0f949dfda15a14f033057f54b0b2d9432db6",
+  "completeness_scope": "All files added by exact PR #571 head relative to its recorded base; bounded unmerged Research only."
+}

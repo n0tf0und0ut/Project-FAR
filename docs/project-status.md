@@ -2,6 +2,10 @@
 
 This file is the canonical project-level status surface identified by [`CANONICAL_MAP.md`](CANONICAL_MAP.md). It records current governance and milestone state and does not upgrade any linked artifact beyond its stated scope or assurance.
 
+## Living synthesis
+
+The [governed research corpus](../research/corpus/README.md) provides a permanent, machine-readable Research-status chain from content-addressed sources through human-governed atomic findings and relations to mechanically deduplicated mechanisms, dependency-derived conclusions, and the [generated current frontier](research/current-research-frontier.md). Automation inventories, validates, reconciles leads, evaluates declared relation/history semantics, and regenerates views; it does not verify arbitrary source meaning or author scientific findings and rules. Inventory closure is relative only to declared repository rules and frozen manifests. Evidence/search/global completeness remain unestablished, and neither the corpus nor its generator can promote scientific status. The current reconciliation demonstrates no novelty, global saturation, external validity, superiority, product-market fit, defensibility, or moat.
+
 ## Current release
 
 Current published repository release: [`v1.0.0`](releases/project-far-v1.0.0.md). The installable package version remains a separate surface governed by `pyproject.toml`; post-release theory and assurance work does not silently retag either surface.

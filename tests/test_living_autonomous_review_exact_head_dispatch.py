@@ -60,6 +60,9 @@ class AutonomousReviewExactHeadDispatchTests(unittest.TestCase):
 
     def test_autonomous_review_dispatches_trusted_main_and_publishes_on_head(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
+        self.assertIn("python -m tools.run_living_autonomous_review --help", workflow)
+        self.assertIn("python -m tools.run_living_autonomous_review", workflow)
+        self.assertNotIn("python tools/run_living_autonomous_review.py", workflow)
         expected = (
             'gh workflow run exact-head-assurance.yml --repo "$GITHUB_REPOSITORY" --ref main '
             '\\\n            -f head_sha="$head_sha" -f base_sha="$base_sha"'

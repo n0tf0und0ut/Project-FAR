@@ -56,6 +56,7 @@ Canonical links:
 - [Epistemic assurance acceptance](docs/governance/far-epistemic-assurance-promotion-acceptance-v1.0.md), [specification](docs/specification/far-epistemic-assurance-1.0.md), and [hostile-source boundary](methodology/hostile-source-boundary.md)
 - [Canonical W1–W6 claim/evidence matrix](docs/governance/w1-w6-claim-evidence-matrix-v1.0.md)
 - [FAR core epistemic calibration audit](docs/audits/far-core-epistemic-calibration-v1.0.md) (non-authoritative Research calibration)
+- [Governed research corpus](research/corpus/README.md) and [generated current research frontier](docs/research/current-research-frontier.md) (non-authoritative Research synthesis)
 - [External Falsification and Replication program](docs/governance/external-falsification-and-replication-program-v1.0.md) and its [comparator amendment v2.0](docs/governance/external-falsification-and-replication-comparator-amendment-v2.0.md)
 - [W6 execution and results](docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md)
 - [`far-ir/2.1` approximation/cost specification](docs/specification/far-ir-2.1-approximation-cost.md)

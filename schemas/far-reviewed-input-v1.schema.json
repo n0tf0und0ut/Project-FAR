@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://project-far.local/schemas/far-reviewed-input-v1.schema.json",
+  "title": "Governed bridge from reviewed lead to corpus input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version",
+    "authority",
+    "entries",
+    "promotion_authority"
+  ],
+  "properties": {
+    "format_version": {
+      "const": "far-reviewed-inputs/1.0"
+    },
+    "authority": {
+      "const": "Research"
+    },
+    "promotion_authority": {
+      "const": false
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/text"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha"
+        }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "candidate",
+        "primary_evidence",
+        "review",
+        "evidence_class",
+        "scope",
+        "observations"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9-]+$"
+        },
+        "candidate": {
+          "$ref": "#/$defs/artifact"
+        },
+        "primary_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "external_identifier",
+            "version",
+            "independently_verified"
+          ],
+          "properties": {
+            "path": {
+              "$ref": "#/$defs/text"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha"
+            },
+            "external_identifier": {
+              "$ref": "#/$defs/text"
+            },
+            "version": {
+              "$ref": "#/$defs/text"
+            },
+            "independently_verified": {
+              "const": true
+            }
+          }
+        },
+        "review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "status"
+          ],
+          "properties": {
+            "path": {
+              "$ref": "#/$defs/text"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha"
+            },
+            "status": {
+              "const": "VERIFIED_FOR_CORPUS"
+            }
+          }
+        },
+        "evidence_class": {
+          "$ref": "#/$defs/text"
+        },
+        "scope": {
+          "$ref": "#/$defs/text"
+        },
+        "observations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

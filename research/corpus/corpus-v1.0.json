@@ -1,0 +1,1203 @@
+{
+  "format_version": "far-research-corpus/1.1",
+  "authority": "Research",
+  "identity_rule": "IDs are stable curator-assigned identities; source bytes are bound by SHA-256; derived synthesis is bound to canonical JSON of this file.",
+  "inventory_rules": {
+    "required_declared_globs": [
+      "theory/theorems/Project-FAR-Theory-Closure-v1.1.md",
+      "theory/evaluation/far-core-assurance-v1.0.json",
+      "docs/audits/far-core-epistemic-calibration-v1.0.md",
+      "docs/audits/*competition*.md",
+      "docs/audits/root-of-trust-audit-2026-09.md",
+      "docs/audits/living-core-claim-review-*.md",
+      "docs/architecture/saturation-baseline-v0.5.md",
+      "research/comparisons/far-investigation-benchmark-v0.1.md",
+      "docs/governance/external-falsification-and-replication-*.md",
+      "docs/project-status.md",
+      "research/living/README.md",
+      "research/living/review-dispositions-v1.0.json",
+      "research/living/repository-state-v1.0.json"
+    ],
+    "automatic_lead_globs": [
+      "research/living/inbox/candidates/FAR-LIT-*.json",
+      "research/corpus/external/*.json",
+      "research/corpus/external/*.bin"
+    ],
+    "snapshot_globs": [
+      "research/corpus/snapshots/*.json",
+      "research/corpus/snapshots/pr-571/**/*"
+    ],
+    "ignored_nonmaterial": [
+      "research/living/inbox/.rolling-pr-anchor.json"
+    ],
+    "semantic_input_globs": [
+      "research/corpus/reviewed-inputs-v1.0.json"
+    ]
+  },
+  "sources": [
+    {
+      "id": "SRC-CORE",
+      "path": "theory/theorems/Project-FAR-Theory-Closure-v1.1.md",
+      "sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
+      "version": "git:7abb25ec0b519bad6d040d36f3b36d71a3e44435",
+      "evidence_class": "accepted_internal_deductive",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-CORE-CONTRACT",
+          "proposition_id": "FND-CONTRACT",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Exact sufficiency is contract-relative; a nontrivial universal least-informative representation is impossible under the stated core scope.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Accepted internal deductive result; novelty and external replication are absent.",
+          "mechanism_ids": [
+            "MEC-CONTRACT"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-CORE-ASSURANCE",
+          "proposition_id": "FND-ASSURANCE",
+          "epistemic_class": "INFERENCE",
+          "statement": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim.",
+          "mechanism_ids": [
+            "MEC-RECONCILIATION"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-CORE",
+      "external_identifier": "git:7abb25ec0b519bad6d040d36f3b36d71a3e44435",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-CALIBRATION",
+      "path": "docs/audits/far-core-epistemic-calibration-v1.0.md",
+      "sha256": "3e93cf7a653cb49135141646028b594166cd80391ab852e16bb695f4495760c6",
+      "version": "git:2f67bdd29c2672d4bd3e78b389da1555a5899188",
+      "evidence_class": "research_audit",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-CALIBRATION-LITERATURE",
+          "proposition_id": "FND-LITERATURE",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Current governed literature review found analogues and calibration context but no reproducible contradiction to FAR-CORE at reviewed scope.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Metadata discovery is not exhaustive and no novelty conclusion follows.",
+          "mechanism_ids": [
+            "MEC-COMPOUNDING"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-CALIBRATION",
+      "external_identifier": "git:2f67bdd29c2672d4bd3e78b389da1555a5899188",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-W6",
+      "path": "docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md",
+      "sha256": "beec81427d14d2bd49250e15278d375d1bbca23a543fbac067c2d21ef46a101e",
+      "version": "git:85b30415091d8c473b95d5ad47e5d044d31eb4f1",
+      "evidence_class": "bounded_internal_empirical",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-W6-AUDIT",
+          "proposition_id": "FND-AUDIT",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Explicit contracts, provenance, failure states, and semantic checking expose bounded representation-loss defects.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Exact only for project-authored finite controls and audited implementations; repeated internal results are not independent evidence.",
+          "mechanism_ids": [
+            "MEC-CONTRACT"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-W6",
+      "external_identifier": "git:85b30415091d8c473b95d5ad47e5d044d31eb4f1",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-LIVING",
+      "path": "research/living/README.md",
+      "sha256": "2412d5a429b6bfc341884b467d8e86c5951da91a583ba6e2e73349410372d0ff",
+      "version": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+      "evidence_class": "research_infrastructure",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-LIVING-GOVERNANCE",
+          "proposition_id": "FND-GOVERNANCE",
+          "epistemic_class": "EVIDENCE",
+          "statement": "The living path separates discovery, review, acceptance, promotion, and implementation, and treats inbox bytes as untrusted data.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Describes and tests repository controls; does not show scientific effectiveness.",
+          "mechanism_ids": [
+            "MEC-PROVENANCE",
+            "MEC-NEGATIVE",
+            "MEC-DEPENDENCY",
+            "MEC-INTAKE",
+            "MEC-COMPOUNDING"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-LIVING-ASSURANCE",
+          "proposition_id": "FND-ASSURANCE",
+          "epistemic_class": "INFERENCE",
+          "statement": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim.",
+          "mechanism_ids": [
+            "MEC-RECONCILIATION"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-LIVING",
+      "external_identifier": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-LIVING-REVIEW",
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-29.md",
+      "sha256": "a93b37022dff5cee2839c6085c849e2e3b603fabea47e590a95f3548d2d008ca",
+      "version": "git:d90ea24444268968bca9d015dabbe72153117d84",
+      "evidence_class": "governed_review",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [
+        "SRC-LIVING-REVIEW-PRIOR"
+      ],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-LIVING-REVIEW-LITERATURE",
+          "proposition_id": "FND-LITERATURE",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Current governed literature review found analogues and calibration context but no reproducible contradiction to FAR-CORE at reviewed scope.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Metadata discovery is not exhaustive and no novelty conclusion follows.",
+          "mechanism_ids": [
+            "MEC-COMPOUNDING"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-LIVING-REVIEW",
+      "external_identifier": "git:d90ea24444268968bca9d015dabbe72153117d84",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-SATURATION",
+      "path": "docs/architecture/saturation-baseline-v0.5.md",
+      "sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
+      "version": "git:2b2fafc5a87ec6997be15280814c59ca49a21477",
+      "evidence_class": "governed_architecture",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-SATURATION-SATURATION",
+          "proposition_id": "FND-SATURATION",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Current saturation architecture bounds closure by registered scope, counterexample search, and explicit unresolved state.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Repository-governed state, not global saturation.",
+          "mechanism_ids": [
+            "MEC-NEGATIVE",
+            "MEC-DEPENDENCY"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-SATURATION-ASSURANCE",
+          "proposition_id": "FND-ASSURANCE",
+          "epistemic_class": "INFERENCE",
+          "statement": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim.",
+          "mechanism_ids": [
+            "MEC-RECONCILIATION"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-SATURATION",
+      "external_identifier": "git:2b2fafc5a87ec6997be15280814c59ca49a21477",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-ROOT-AUDIT",
+      "path": "docs/audits/root-of-trust-audit-2026-09.md",
+      "sha256": "2d477eabe765404a3fd59b5146aaa3b0992862e802aa02bb403ba9a140b3f8d4",
+      "version": "git:666e52a844696538658595ec52785c37762c93fa",
+      "evidence_class": "internal_hostile_audit",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-ROOT-AUDIT-AUDIT",
+          "proposition_id": "FND-AUDIT",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Explicit contracts, provenance, failure states, and semantic checking expose bounded representation-loss defects.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Exact only for project-authored finite controls and audited implementations; repeated internal results are not independent evidence.",
+          "mechanism_ids": [
+            "MEC-CONTRACT"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-ROOT-AUDIT",
+      "external_identifier": "git:666e52a844696538658595ec52785c37762c93fa",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-COMPETITION",
+      "path": "docs/audits/ikd-w2-expanded-candidate-competition-audit.md",
+      "sha256": "559fb5bb7167e6bb9dd20e87503ca81c1ac9bd3d332cb6268996f3234fba8085",
+      "version": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "evidence_class": "research_audit",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-COMPETITION-ALTERNATIVES",
+          "proposition_id": "FND-ALTERNATIVES",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Alternative vocabularies and candidate decompositions can cover overlapping functions without establishing one global primitive basis.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Internal bounded audits; terminology overlap is not architectural identity or difference.",
+          "mechanism_ids": [],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-COMPETITION",
+      "external_identifier": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-VOCAB",
+      "path": "docs/audits/usd-w2-alternative-vocabulary-competition-audit.md",
+      "sha256": "22f926c465b6c607ca302d07d9607ca5b800e066d697f9c0740ab951d41cc826",
+      "version": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "evidence_class": "research_audit",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-VOCAB-ALTERNATIVES",
+          "proposition_id": "FND-ALTERNATIVES",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Alternative vocabularies and candidate decompositions can cover overlapping functions without establishing one global primitive basis.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Internal bounded audits; terminology overlap is not architectural identity or difference.",
+          "mechanism_ids": [],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-VOCAB",
+      "external_identifier": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-BENCHMARK",
+      "path": "research/comparisons/far-investigation-benchmark-v0.1.md",
+      "sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
+      "version": "git:f5f60643eba729999b475f87ed2de9f5b5dc15e5",
+      "evidence_class": "preregistered_not_executed",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-BENCHMARK-BENCHMARK",
+          "proposition_id": "FND-BENCHMARK",
+          "epistemic_class": "EVIDENCE",
+          "statement": "#518 preregisters a four-condition real-world benchmark with unsupported-inference and evidence-coverage gates but intentionally contains no execution result.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Prepared design; utility, superiority, and PMF remain open.",
+          "mechanism_ids": [
+            "MEC-EXPERIMENT-DESIGN"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-BENCHMARK-MOAT",
+          "proposition_id": "FND-MOAT",
+          "epistemic_class": "UNRESOLVED",
+          "statement": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "UNRESOLVED",
+          "relation_targets": [
+            "FND-MOAT"
+          ],
+          "target_kind": "PROPOSITION",
+          "replacement_effect": "NONE",
+          "uncertainty": "External commercial evidence absent.",
+          "mechanism_ids": [
+            "MEC-COMMERCIAL"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-BENCHMARK",
+      "external_identifier": "git:f5f60643eba729999b475f87ed2de9f5b5dc15e5",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-EFR",
+      "path": "docs/governance/external-falsification-and-replication-program-v1.0.md",
+      "sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
+      "version": "git:6150d11c4c7aa930d6b32de0f62b091bc83bd753",
+      "evidence_class": "preregistered_not_executed",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-EFR-COMPARATOR",
+          "proposition_id": "FND-COMPARATOR",
+          "epistemic_class": "EVIDENCE",
+          "statement": "The initial EFR human/utility comparison was confounded by answer access; comparator amendment v2 adds a generic checker arm and prohibits old tests.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Pre-execution design correction; no outcomes exist.",
+          "mechanism_ids": [
+            "MEC-COMPARATORS",
+            "MEC-EXPERIMENT-DESIGN"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-EFR-MOAT",
+          "proposition_id": "FND-MOAT",
+          "epistemic_class": "UNRESOLVED",
+          "statement": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "UNRESOLVED",
+          "relation_targets": [
+            "FND-MOAT"
+          ],
+          "target_kind": "PROPOSITION",
+          "replacement_effect": "NONE",
+          "uncertainty": "External commercial evidence absent.",
+          "mechanism_ids": [
+            "MEC-COMMERCIAL"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-EFR",
+      "external_identifier": "git:6150d11c4c7aa930d6b32de0f62b091bc83bd753",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-EFR-COMP",
+      "path": "docs/governance/external-falsification-and-replication-comparator-amendment-v2.0.md",
+      "sha256": "a2a6cc08a4ac57274df66d37b7824560aaf18e481667cabeb33b541a6d7a1570",
+      "version": "git:06731706974ad48389d207b9ed285bac1193740f",
+      "evidence_class": "preregistered_not_executed",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-EFR-COMP-COMPARATOR",
+          "proposition_id": "FND-COMPARATOR",
+          "epistemic_class": "EVIDENCE",
+          "statement": "The initial EFR human/utility comparison was confounded by answer access; comparator amendment v2 adds a generic checker arm and prohibits old tests.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Pre-execution design correction; no outcomes exist.",
+          "mechanism_ids": [
+            "MEC-COMPARATORS",
+            "MEC-EXPERIMENT-DESIGN"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-EFR-COMP",
+      "external_identifier": "git:06731706974ad48389d207b9ed285bac1193740f",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-STATUS",
+      "path": "docs/project-status.md",
+      "sha256": "1379fbf53f539ffd9a27e7956a9c3b5f12963174b844bf2bf8cb60a9d7d2fd53",
+      "version": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "evidence_class": "canonical_status",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-STATUS-SATURATION",
+          "proposition_id": "FND-SATURATION",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Current saturation architecture bounds closure by registered scope, counterexample search, and explicit unresolved state.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Repository-governed state, not global saturation.",
+          "mechanism_ids": [
+            "MEC-NEGATIVE",
+            "MEC-DEPENDENCY"
+          ],
+          "dependencies": [],
+          "history": []
+        },
+        {
+          "id": "OBS-STATUS-MOAT",
+          "proposition_id": "FND-MOAT",
+          "epistemic_class": "UNRESOLVED",
+          "statement": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "UNRESOLVED",
+          "relation_targets": [
+            "FND-MOAT"
+          ],
+          "target_kind": "PROPOSITION",
+          "replacement_effect": "NONE",
+          "uncertainty": "External commercial evidence absent.",
+          "mechanism_ids": [
+            "MEC-COMMERCIAL"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-STATUS",
+      "external_identifier": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-MERGED-REVIEWS",
+      "path": "docs/audits/merged-pr-review-classification/FINDINGS.md",
+      "sha256": "8018a33c02fff08800e609bd0868cfee5de912eec39c7109e5a5381c065ab066",
+      "version": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "evidence_class": "governed_review_corpus",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-MERGED-REVIEWS-REVIEW-HISTORY",
+          "proposition_id": "FND-REVIEW-HISTORY",
+          "epistemic_class": "EVIDENCE",
+          "statement": "Merged review history contains concrete defects and corrections, so current correctness cannot be inferred from merge status or repetition.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "SUPPORTS",
+          "relation_targets": [],
+          "target_kind": "NONE",
+          "replacement_effect": "NONE",
+          "uncertainty": "Review corpus is repository-internal and its records retain their individual dispositions.",
+          "mechanism_ids": [],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-MERGED-REVIEWS",
+      "external_identifier": "git:1f3b086dcdb0ab4995b1a4493c77d9e047a3ad61",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-SCHEDULED-TASK-HISTORY",
+      "path": null,
+      "sha256": null,
+      "version": null,
+      "evidence_class": "unavailable",
+      "kind": "scheduled_task_output",
+      "evidence_usable": false,
+      "material": true,
+      "exclusion_reason": "No historical scheduled-task output was supplied or present; absence is recorded and no content is fabricated.",
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [
+        {
+          "id": "OBS-SCHEDULED-TASK-HISTORY-HISTORY-MISSING",
+          "proposition_id": "FND-HISTORY-MISSING",
+          "epistemic_class": "UNRESOLVED",
+          "statement": "Historical scheduled-task research cannot be reconciled because no source bytes or primary evidence are available.",
+          "scope": "source-bound scope stated by the cited artifact",
+          "scope_key": "source_bounded",
+          "relation": "UNRESOLVED",
+          "relation_targets": [
+            "FND-HISTORY-MISSING"
+          ],
+          "target_kind": "PROPOSITION",
+          "replacement_effect": "NONE",
+          "uncertainty": "Exact contents unknown; fabrication prohibited.",
+          "mechanism_ids": [
+            "MEC-INTAKE"
+          ],
+          "dependencies": [],
+          "history": []
+        }
+      ],
+      "source_identity": "SRC-SCHEDULED-TASK-HISTORY",
+      "external_identifier": null,
+      "current_availability": "missing",
+      "historical_availability": "UNAVAILABLE_RECORDED",
+      "review_status": "DISCOVERY_LEAD",
+      "primary_evidence_verified": false
+    },
+    {
+      "id": "SRC-SATURATION-OPEN-PR",
+      "path": "research/corpus/snapshots/pr-571-manifest-v1.0.json",
+      "sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "version": "github-pr-571-head:8220b4878b2176006f9d19e69117d1fdee49729c",
+      "evidence_class": "unmerged_research",
+      "kind": "external_git_snapshot",
+      "evidence_usable": true,
+      "material": true,
+      "exclusion_reason": null,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "auto_extractor": "saturation_falsification_001",
+      "source_identity": "SRC-SATURATION-OPEN-PR",
+      "external_identifier": "github-pr-571-head:8220b4878b2176006f9d19e69117d1fdee49729c",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-LIVING-PR490",
+      "path": "research/corpus/snapshots/pr-490-manifest-v1.0.json",
+      "sha256": "542e0418dd77d32aeea03e9c86407cccfa9545dd384562c3a46bbaf508538640",
+      "version": "github-pr-490-head:0e3f16c1a658c5f55c2dac61abdcf2fe3d136da2",
+      "evidence_class": "untrusted_research_leads",
+      "kind": "living_inbox_snapshot",
+      "evidence_usable": false,
+      "material": true,
+      "scope": "exact public PR #490 Git tree snapshot",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "source_identity": "SRC-LIVING-PR490",
+      "external_identifier": "github-pr-490-head:0e3f16c1a658c5f55c2dac61abdcf2fe3d136da2",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "DISCOVERY_LEAD",
+      "primary_evidence_verified": false
+    },
+    {
+      "id": "SRC-ASSURANCE",
+      "path": "theory/evaluation/far-core-assurance-v1.0.json",
+      "sha256": "1ed4157fb9cb7a5ce5f428a73e0fc2287b17499360708b063dc5b6fec9f98f60",
+      "version": "git:a4c359f27a51ed3c54d556925f0629a4092681b4",
+      "evidence_class": "accepted_machine_assurance",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "source_identity": "SRC-ASSURANCE",
+      "external_identifier": "git:a4c359f27a51ed3c54d556925f0629a4092681b4",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-LIVING-REVIEW-PRIOR",
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-20.md",
+      "sha256": "1cd72a86e35cc46c9b0b50745af595eb8494aa6e1fa3ee683fbabcd37ccc3b7e",
+      "version": "git:f9686952db2da8ccff14afb54c0e4b9230257c29",
+      "evidence_class": "superseded_review_history",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "source_identity": "SRC-LIVING-REVIEW-PRIOR",
+      "external_identifier": "git:f9686952db2da8ccff14afb54c0e4b9230257c29",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-EFR-R2-V11",
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.1.md",
+      "sha256": "f2efbf02dbd8c430ef014519c9b4365eb723a152fb68636e2939b502429f4232",
+      "version": "git:ccea9550a529acefcc250222acd7513344ca73f5",
+      "evidence_class": "preregistered_amendment",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "source_identity": "SRC-EFR-R2-V11",
+      "external_identifier": "git:ccea9550a529acefcc250222acd7513344ca73f5",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-EFR-R2-V12",
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.2.md",
+      "sha256": "799326e285553835039fc24892cd2152d2ed9e329bbe355f2ed9258bccf855f8",
+      "version": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "evidence_class": "candidate_amendment",
+      "kind": "repository_artifact",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "exact cited artifact at bound bytes/version",
+      "history": [],
+      "supersedes": [
+        "SRC-EFR-R2-V11"
+      ],
+      "corrects": [],
+      "observations": [],
+      "source_identity": "SRC-EFR-R2-V12",
+      "external_identifier": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    },
+    {
+      "id": "SRC-LIVING-REVIEWS",
+      "source_identity": "SRC-LIVING-REVIEWS",
+      "path": "research/living/review-dispositions-v1.0.json",
+      "sha256": "2d3a0335c8f6f1941fa9ca3d18e04df825453e227c921773cda7a25be3eb5817",
+      "version": "git:1d25fee23e6c4e2ce358dd2388a46bf38320793b",
+      "external_identifier": "research/living/review-dispositions-v1.0.json",
+      "evidence_class": "governed_living_state",
+      "kind": "governed_review_registry",
+      "current_availability": "available",
+      "historical_availability": "PRESENT",
+      "evidence_usable": true,
+      "material": true,
+      "scope": "Exact governed living state at bound bytes",
+      "history": [],
+      "supersedes": [],
+      "corrects": [],
+      "observations": [],
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
+    }
+  ],
+  "mechanism_catalog": [
+    {
+      "id": "MEC-CONTRACT",
+      "name": "contract-relative observation",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "FAR Core defines comparison contracts and exact factorization; far-ir/2.0 enforces finite-explicit witnesses.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-PROVENANCE",
+      "name": "content-addressed provenance",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "Living promotion and governed ledgers bind exact paths, hashes, stages, and preimages.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-NEGATIVE",
+      "name": "explicit negative knowledge",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "Unknown, refutation, failure, exclusions, limitations, and open problems are first-class governed states.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-DEPENDENCY",
+      "name": "impact-aware dependency graph",
+      "architecture_class": "representable_assurance_incomplete",
+      "literal_comparison": "Dependency and reverse-impact machinery exists, but corpus-wide synthesis invalidation was not previously enforced.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-RECONCILIATION",
+      "name": "source-to-frontier reconciliation",
+      "architecture_class": "existing_extension_point",
+      "literal_comparison": "Saturation v0.5 already specifies provenance-preserving synthesis and dependency-aware invalidation; this repository layer implements that existing extension/enforcement surface rather than proving a capability-class gap.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-INTAKE",
+      "name": "hostile external input freeze",
+      "architecture_class": "existing_extension_point",
+      "literal_comparison": "Living intake already treats external bytes as untrusted data; the corpus adds a nonexecuting content-addressed receipt path rather than a second promotion route.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-COMPARATORS",
+      "name": "generic-mechanism comparator",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "EFR v2 explicitly compares FAR with a generic collision checker and forbids the confounded endpoints.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-COMPOUNDING",
+      "name": "accumulated epistemic memory",
+      "architecture_class": "representable_assurance_incomplete",
+      "literal_comparison": "Registries, histories, hashes, and dependency impacts preserve learning, but no longitudinal evidence shows compounding outcome value.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-COMMERCIAL",
+      "name": "commercial defensibility",
+      "architecture_class": "unresolved",
+      "literal_comparison": "Current FAR architecture can preserve evidence about commercial claims, but contains no evidence that establishes moat or product-market fit.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    },
+    {
+      "id": "MEC-SATURATION-ATTACKS",
+      "name": "literal saturation falsification",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "Exact PR #571 mappings test seven decision-relevant distinctions against typed Saturation v0.5 anchors and enforcement hooks; all seven are provisionally REPRESENTABLE_NO_CHANGE at that unmerged bounded scope.",
+      "aliases": [
+        "SATURATION-FALSIFICATION-001"
+      ],
+      "accepted_scope_keys": [
+        "saturation_v05_seven_attacks"
+      ]
+    },
+    {
+      "id": "MEC-EXPERIMENT-DESIGN",
+      "name": "governed pre-execution experiment design",
+      "architecture_class": "already_representable_enforceable",
+      "literal_comparison": "#518 and EFR encode preregistered inputs, endpoints, comparators, freezes, and nonclaims; this records design state only and supplies no outcome evidence.",
+      "aliases": [],
+      "accepted_scope_keys": [
+        "source_bounded"
+      ]
+    }
+  ],
+  "conclusion_rules": [
+    {
+      "id": "CON-STABILITY",
+      "statement": "The governed architecture is stabilizing in the limited sense that recent material work mostly hardens assurance, comparators, and provenance rather than replacing the contract-relative core.",
+      "counterevidence": "Recent root-of-trust defects and an open saturation reconstruction show continuing implementation correction; stability is not completion or global saturation.",
+      "result_class": "INFERENCE",
+      "supported_disposition": "SUPPORTED_AT_REPOSITORY_SCOPE_NOT_ESTABLISHED_GLOBALLY",
+      "required_mechanisms": [
+        "MEC-CONTRACT",
+        "MEC-PROVENANCE",
+        "MEC-NEGATIVE",
+        "MEC-DEPENDENCY"
+      ],
+      "depends_on_conclusions": [],
+      "missing_disposition": "UNRESOLVED_STALE_INPUTS",
+      "required_scope_keys": {
+        "MEC-CONTRACT": "source_bounded",
+        "MEC-PROVENANCE": "source_bounded",
+        "MEC-NEGATIVE": "source_bounded",
+        "MEC-DEPENDENCY": "source_bounded"
+      },
+      "allow_qualified_support": false
+    },
+    {
+      "id": "CON-INVESTIGATION-ASSURANCE",
+      "statement": "At current supported scopes, FAR is better characterized as contract-relative investigation assurance than as fact-checking or evidence retrieval alone.",
+      "counterevidence": "The characterization has not been externally validated against alternative taxonomies or user understanding.",
+      "result_class": "INFERENCE",
+      "supported_disposition": "BEST_CURRENT_BOUNDED_CHARACTERIZATION",
+      "required_mechanisms": [
+        "MEC-CONTRACT",
+        "MEC-PROVENANCE",
+        "MEC-NEGATIVE",
+        "MEC-COMPARATORS"
+      ],
+      "depends_on_conclusions": [
+        "CON-STABILITY"
+      ],
+      "missing_disposition": "UNRESOLVED_STALE_INPUTS",
+      "required_scope_keys": {
+        "MEC-CONTRACT": "source_bounded",
+        "MEC-PROVENANCE": "source_bounded",
+        "MEC-NEGATIVE": "source_bounded",
+        "MEC-COMPARATORS": "source_bounded"
+      },
+      "allow_qualified_support": false
+    },
+    {
+      "id": "CON-COMPOUNDING",
+      "statement": "Accumulated provenance-bound epistemic state could reduce repeated discovery and improve future correction, but compounding performance or economic value is unmeasured.",
+      "counterevidence": "Repeated claims are not independent evidence; repository growth can also accumulate stale or correlated error.",
+      "result_class": "HYPOTHESIS",
+      "supported_disposition": "PLAUSIBLE_MECHANISM_UNTESTED_VALUE",
+      "required_mechanisms": [
+        "MEC-COMPOUNDING",
+        "MEC-DEPENDENCY",
+        "MEC-RECONCILIATION"
+      ],
+      "depends_on_conclusions": [],
+      "missing_disposition": "UNRESOLVED_STALE_INPUTS",
+      "required_scope_keys": {
+        "MEC-COMPOUNDING": "source_bounded",
+        "MEC-DEPENDENCY": "source_bounded",
+        "MEC-RECONCILIATION": "source_bounded"
+      },
+      "allow_qualified_support": false
+    },
+    {
+      "id": "CON-MOAT",
+      "statement": "No commercial moat is established. A governed corpus could be an input to defensibility, but current evidence demonstrates neither exclusivity nor durable advantage.",
+      "counterevidence": "No market, customer, switching-cost, competitive replication, or willingness-to-pay evidence exists.",
+      "result_class": "UNRESOLVED",
+      "supported_disposition": "NOT_DEMONSTRATED",
+      "required_mechanisms": [
+        "MEC-COMMERCIAL",
+        "MEC-COMPOUNDING"
+      ],
+      "depends_on_conclusions": [
+        "CON-COMPOUNDING"
+      ],
+      "missing_disposition": "UNRESOLVED_STALE_INPUTS",
+      "required_scope_keys": {
+        "MEC-COMMERCIAL": "source_bounded",
+        "MEC-COMPOUNDING": "source_bounded"
+      },
+      "allow_qualified_support": false
+    },
+    {
+      "id": "CON-EXPERIMENTS",
+      "statement": "No experiment change or execution is authorized by this synthesis. #518 and EFR remain preregistered and unexecuted; future verified findings must be reconciled against their frozen assumptions before execution.",
+      "counterevidence": "This is an internal design audit and cannot detect unknown execution-time failures.",
+      "result_class": "UNRESOLVED",
+      "supported_disposition": "PREREGISTERED_UNEXECUTED_CONTINUING_AUDIT_REQUIRED",
+      "required_mechanisms": [
+        "MEC-COMPARATORS",
+        "MEC-CONTRACT",
+        "MEC-SATURATION-ATTACKS",
+        "MEC-EXPERIMENT-DESIGN"
+      ],
+      "depends_on_conclusions": [],
+      "missing_disposition": "UNRESOLVED_STALE_INPUTS",
+      "required_scope_keys": {
+        "MEC-COMPARATORS": "source_bounded",
+        "MEC-CONTRACT": "source_bounded",
+        "MEC-SATURATION-ATTACKS": "saturation_v05_seven_attacks",
+        "MEC-EXPERIMENT-DESIGN": "source_bounded"
+      },
+      "allow_qualified_support": false
+    }
+  ],
+  "frontier_rules": [
+    {
+      "id": "FRONTIER-EXTERNAL",
+      "question": "Does FAR improve externally adjudicated real-world investigations over strong matched comparators?",
+      "conclusion_ids": [
+        "CON-INVESTIGATION-ASSURANCE",
+        "CON-EXPERIMENTS"
+      ],
+      "next_evidence": "Execute, without amendment unless a concrete defect emerges, the frozen #518 benchmark and EFR program under their independent and governance gates.",
+      "epistemic_class": "UNRESOLVED",
+      "status_if_current": "BOUNDED_CURRENT"
+    },
+    {
+      "id": "FRONTIER-COMPOUNDING",
+      "question": "Does retained epistemic state create measurable longitudinal learning or efficiency?",
+      "conclusion_ids": [
+        "CON-COMPOUNDING"
+      ],
+      "next_evidence": "Prospectively compare repeated investigations with and without access to a frozen prior corpus while controlling task and reviewer dependence.",
+      "epistemic_class": "HYPOTHESIS",
+      "status_if_current": "BOUNDED_CURRENT"
+    },
+    {
+      "id": "FRONTIER-COMMERCIAL",
+      "question": "Does FAR have product-market fit or a defensible commercial moat?",
+      "conclusion_ids": [
+        "CON-MOAT"
+      ],
+      "next_evidence": "Independent market evidence: buyer behavior, willingness to pay, retention, switching costs, competitor replication, and durability over time.",
+      "epistemic_class": "UNRESOLVED",
+      "status_if_current": "BOUNDED_CURRENT"
+    },
+    {
+      "id": "FRONTIER-COVERAGE",
+      "question": "What material research exists outside the verified repository and frozen inputs?",
+      "conclusion_ids": [
+        "CON-STABILITY"
+      ],
+      "next_evidence": "Freeze source bytes and primary evidence through the external-input path; never infer completeness or independence from absent graph edges.",
+      "epistemic_class": "UNRESOLVED",
+      "status_if_current": "BOUNDED_CURRENT"
+    }
+  ],
+  "nonclaims": [
+    "No novelty, priority, global saturation, universal superiority, external validity, product-market fit, defensibility, or moat is established.",
+    "No missing scheduled-task output is reconstructed or fabricated.",
+    "Graph nonadjacency does not establish independence; repeated or correlated claims do not increase evidence strength.",
+    "Terminology differences alone are not classified as architecture differences.",
+    "Automation derives Research views only and cannot promote scientific status or authorize a Project change."
+  ],
+  "reviewed_input_registry": "research/corpus/reviewed-inputs-v1.0.json",
+  "completeness_contract": {
+    "inventory_scope": "Files matched by inventory_rules in this checkout plus the exact frozen PR #490/#571 manifests.",
+    "evidence_scope": "Only explicitly governed, primary-evidence-verified source observations; discovery leads are excluded.",
+    "search_scope": "Repository-declared search surfaces and frozen refs only; not an exhaustive literature search.",
+    "synthesis_scope": "Deterministic closure over active declared observations, relation history, mechanism definitions, and conclusion rules.",
+    "global_scope": "OPEN_WORLD_UNESTABLISHED"
+  },
+  "dynamic_dependencies": [
+    {
+      "id": "DYN-LIVING-REPOSITORY-STATE",
+      "path": "research/living/repository-state-v1.0.json",
+      "kind": "mutable_generated_state",
+      "format_field": "schema_version",
+      "format_value": "1.0",
+      "role": "synthesis_invalidation_only"
+    }
+  ]
+}

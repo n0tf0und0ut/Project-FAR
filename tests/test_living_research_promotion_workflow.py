@@ -67,7 +67,12 @@ class PromotionWorkflowTests(unittest.TestCase):
         self.assertEqual("living-promotion",job["environment"])
         (mint,)=[step for step in job["steps"] if "create-github-app-token" in step.get("uses","")]
         self.assertRegex(mint["uses"],r"^actions/create-github-app-token@[0-9a-f]{40}$")
-        self.assertEqual({"client-id","private-key","permission-pull-requests"},set(mint["with"]))
+        self.assertEqual(
+            {"client-id","private-key","owner","repositories","permission-pull-requests"},
+            set(mint["with"]),
+        )
+        self.assertEqual("${{ github.repository_owner }}",mint["with"]["owner"])
+        self.assertEqual("${{ github.event.repository.name }}",mint["with"]["repositories"])
         self.assertEqual("write",mint["with"]["permission-pull-requests"])
         self.assertEqual(1,self.workflow.count("secrets."))
         self.assertIn("secrets.FAR_PROMOTION_APP_PRIVATE_KEY",mint["with"]["private-key"])

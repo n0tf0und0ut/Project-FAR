@@ -32,7 +32,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = "notfoundout/Project-FAR"
 REPOSITORY_ID = 1283452680
 POLICY = "validation/runtime-policy.json"
-NOW = datetime(2026, 9, 24, 12, 0, 0, tzinfo=timezone.utc)
+# Keep real-clock integration paths inside the same authorization window as the fixture.
+NOW = datetime.now(timezone.utc).replace(microsecond=0)
 APP_ID = 424242
 GATE_REPOSITORY_ID = 99887766
 ACTIONS_APP_ID = 15368

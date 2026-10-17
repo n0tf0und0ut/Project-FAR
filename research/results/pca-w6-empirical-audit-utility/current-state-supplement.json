@@ -16,23 +16,23 @@
     {
       "path": "Makefile",
       "executed_sha256": "8c1513bef6d51a84a839f17178bab13e448609850c6956b6af72f20cc21da6d7",
-      "current_sha256": "682ac25777eef08fbcf219bbec267c19add749c393705734a7dc47bdf4cb7a05",
+      "current_sha256": "f42aff4a85143418f7e3e65851579f8d334b362c36f944681ef675cea5926570",
       "class": "verification_tooling",
-      "reason": "The 2026-09 root-of-trust audit made the local validate, validate-changed and validate-full targets pass --no-cache, as CI already does: far_validation cache keys cover only declared check inputs and not imported modules, so a cached PASS could be stale. No W6 target, input, computation, or recorded result changed."
+      "reason": "The 2026-09 root-of-trust audit made the local validate, validate-changed and validate-full targets pass --no-cache, as CI already does: far_validation cache keys cover only declared check inputs and not imported modules, so a cached PASS could be stale. No W6 target, input, computation, or recorded result changed. Added the governed Research-status corpus and deterministic synthesis/frontier validation. This changes no W4/W6 input, computation, recorded result, claim boundary, or assurance dimension."
     },
     {
       "path": "README.md",
       "executed_sha256": "845e41291771498a76c17836f36e6758049fa1da5e57c44274f358966993ff4c",
-      "current_sha256": "7d2e832c34f111ab6ec42b56ec4fb43830c89e70c720a607c9b89275831b1f4f",
+      "current_sha256": "713fefc34ba1ade608c5b03ebca972309b3443ee83ad25e6e850fd5b22c0597c",
       "class": "documentation_surface",
-      "reason": "Red-team remediation (PR #538): presentation boundaries, current far-ir/2.0 verification commands, and the EFR-001 comparator amendment v2.0 reference. No campaign input, computation, result, or status changes. Registered the hardened far-epistemic/1.0 application contract and the accepted additive epistemic-assurance contracts. No campaign claim, boundary, input, computation, recorded result, or assurance dimension changed. The 2026-09 root-of-trust audit added the far-ir/2.0 errata 1 tests to the current-verification test command; no campaign claim, boundary, input, computation, or recorded result changed."
+      "reason": "Red-team remediation (PR #538): presentation boundaries, current far-ir/2.0 verification commands, and the EFR-001 comparator amendment v2.0 reference. No campaign input, computation, result, or status changes. Registered the hardened far-epistemic/1.0 application contract and the accepted additive epistemic-assurance contracts. No campaign claim, boundary, input, computation, recorded result, or assurance dimension changed. The 2026-09 root-of-trust audit added the far-ir/2.0 errata 1 tests to the current-verification test command; no campaign claim, boundary, input, computation, or recorded result changed. Added the governed Research-status corpus and deterministic synthesis/frontier validation. This changes no W4/W6 input, computation, recorded result, claim boundary, or assurance dimension."
     },
     {
       "path": "docs/CANONICAL_MAP.md",
       "executed_sha256": "28e17da45e4d894ed0ed4bd2622b0be5971d62264620d41c5792607fb28c58b3",
-      "current_sha256": "f17122ee4140940ea36119a266f332d4c138feb39a1716caf709d8219156464a",
+      "current_sha256": "94fac5a8527f8574aa488fe3cb0cca4654a522014d3ac8aa0d8f820e3cd50c3e",
       "class": "documentation_surface",
-      "reason": "Red-team remediation (PR #538): registered the far-ir/2.0 current verification rule and the EFR-001 comparator amendment v2.0. No campaign input, computation, or result changes. Registered the additive far-epistemic/1.0 application interchange, accepted evidence-closure authority, and accepted epistemic-assurance authority. No campaign claim, boundary, input, computation, recorded result, or assurance dimension changed. The 2026-09 root-of-trust audit added the candidate EFR-R2 input amendment v1.2 row (v1.1 kept as preserved history), registered far-ir/2.0 and far-ir/2.1 errata 1, and moved the far-ir/2.0 current-verification row to rule v1.1 (contract_v2_strict_v11), keeping rule v1.0 for the comparator amendment v2.0 binding. No campaign claim, boundary, input, computation, or recorded result changed."
+      "reason": "Red-team remediation (PR #538): registered the far-ir/2.0 current verification rule and the EFR-001 comparator amendment v2.0. No campaign input, computation, or result changes. Registered the additive far-epistemic/1.0 application interchange, accepted evidence-closure authority, and accepted epistemic-assurance authority. No campaign claim, boundary, input, computation, recorded result, or assurance dimension changed. The 2026-09 root-of-trust audit added the candidate EFR-R2 input amendment v1.2 row (v1.1 kept as preserved history), registered far-ir/2.0 and far-ir/2.1 errata 1, and moved the far-ir/2.0 current-verification row to rule v1.1 (contract_v2_strict_v11), keeping rule v1.0 for the comparator amendment v2.0 binding. No campaign claim, boundary, input, computation, or recorded result changed. Added the governed Research-status corpus and deterministic synthesis/frontier validation. This changes no W4/W6 input, computation, recorded result, claim boundary, or assurance dimension."
     },
     {
       "path": "docs/ROADMAP.md",
@@ -65,9 +65,9 @@
     {
       "path": "docs/project-status.md",
       "executed_sha256": "3ed5913f16e006784e2a9234b229e0f167ce58818b10464f9588622ca3170666",
-      "current_sha256": "e6056b5025ec7300c79eab010d9c2e8cb5612dc0ac2662f4b471dbfe54be5897",
+      "current_sha256": "1379fbf53f539ffd9a27e7956a9c3b5f12963174b844bf2bf8cb60a9d7d2fd53",
       "class": "documentation_surface",
-      "reason": "Red-team remediation (PR #538): records that the EFR-001 comparator amendment v2.0 supersedes EFR-HD1/U1/C1 with three-arm EFR-HD2/U2/C2. No campaign input, computation, or result changes. Registered the accepted governed post-evidence closure correction and the additive epistemic-assurance contracts. No W6 claim, boundary, input, computation, or result changed. The 2026-09 root-of-trust audit qualified the W2 FORMALIZED statement with LIM-052/LIM-053 and added a pointer to its non-authoritative audit record, which corrects the frozen reference verifiers through versioned errata successors; no campaign claim, boundary, input, computation, or recorded result changed."
+      "reason": "Red-team remediation (PR #538): records that the EFR-001 comparator amendment v2.0 supersedes EFR-HD1/U1/C1 with three-arm EFR-HD2/U2/C2. No campaign input, computation, or result changes. Registered the accepted governed post-evidence closure correction and the additive epistemic-assurance contracts. No W6 claim, boundary, input, computation, or result changed. The 2026-09 root-of-trust audit qualified the W2 FORMALIZED statement with LIM-052/LIM-053 and added a pointer to its non-authoritative audit record, which corrects the frozen reference verifiers through versioned errata successors; no campaign claim, boundary, input, computation, or recorded result changed. Added the governed Research-status corpus and deterministic synthesis/frontier validation. This changes no W4/W6 input, computation, recorded result, claim boundary, or assurance dimension. Clarified that corpus automation operates only over human-governed semantic inputs and that inventory closure is repository-bounded; evidence, search, and global completeness remain unestablished. No W4/W6 input, computation, result, claim boundary, or assurance dimension changed."
     },
     {
       "path": "tests/test_pca_w4_domain_contracts.py",

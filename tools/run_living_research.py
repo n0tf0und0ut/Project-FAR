@@ -957,6 +957,10 @@ def run(
     write_json(root / STATE_PATH, state)
     write_json(root / RUN_DIR / f"{run_id}.json", run_record)
     render_dashboard(root, state, run_record)
+    # Reconcile every unattended candidate-set change into the Research-only corpus input.
+    # This executes protected-main code and grants no review or promotion authority.
+    from tools.reconcile_research_corpus import write_living
+    write_living(root)
     return run_record
 
 

@@ -92,6 +92,7 @@ release-check:
 	python tools/check_release_consistency.py
 
 research-check:
+	python tools/reconcile_research_corpus.py
 	python tools/far_research_registry.py
 	python tools/check_far_core_v11_formalization.py
 	python tools/research_campaign.py

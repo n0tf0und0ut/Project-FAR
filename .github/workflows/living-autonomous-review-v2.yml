@@ -53,6 +53,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Validate autonomous review contract
         run: |
+          python -m tools.run_living_autonomous_review --help >/dev/null
           python -m unittest \
             tests.test_living_autonomous_review \
             tests.test_living_autonomous_review_source_binding \
@@ -150,7 +151,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           set -euo pipefail
-          python tools/run_living_autonomous_review.py \
+          python -m tools.run_living_autonomous_review \
             --source-root "$RUNNER_TEMP/living-source" \
             --out-root "$RUNNER_TEMP/living-package"
           status="$(jq -r '.status' "$RUNNER_TEMP/living-package/manifest.json")"

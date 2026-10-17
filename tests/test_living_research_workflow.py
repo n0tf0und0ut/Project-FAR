@@ -19,6 +19,11 @@ class LivingResearchWorkflowTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.text = WORKFLOW.read_text(encoding="utf-8")
 
+    def test_discovery_uses_package_entrypoint(self):
+        self.assertIn("python -m tools.run_living_research --help", self.text)
+        self.assertIn("run: python -m tools.run_living_research", self.text)
+        self.assertNotIn("run: python tools/run_living_research.py", self.text)
+
     def test_post_push_governance_surfaces_run_independently(self):
         rolling = step_block(self.text, "Create or refresh rolling research PR")
         queue = step_block(self.text, "Maintain core-claim review queue issue")

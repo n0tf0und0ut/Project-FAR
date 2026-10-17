@@ -42,11 +42,14 @@ jobs:
         # GitHub starts no pull_request workflow for a PR opened with GITHUB_TOKEN, so such a
         # PR can never get the required merge-authority check. The promotion PR is opened
         # with this App installation token instead: this repository only, pull requests
-        # write only, revoked when the job ends.
+        # write only, revoked when the job ends. Resolve the installation explicitly through
+        # the repository owner, then scope the resulting token back to this repository.
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ vars.FAR_PROMOTION_APP_CLIENT_ID }}
           private-key: ${{ secrets.FAR_PROMOTION_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
           permission-pull-requests: write
       - name: Run fail-closed living-research promotion transaction
         env:
