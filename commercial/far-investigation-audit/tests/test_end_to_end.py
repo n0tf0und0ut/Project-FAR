@@ -518,6 +518,13 @@ class AdversarialPackageReplayTests(unittest.TestCase):
                 files={"file": ("speech.txt", b"This is an attributed claim.", "text/plain")})
             self.assertEqual(response.status_code, 200)
 
+    def test_synthetic_test_hostname_is_not_allowed_for_real_loopback_clients(self):
+        from fastapi.testclient import TestClient
+        from webapp import app
+        with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 12345)) as client:
+            self.assertEqual(client.get("/health").status_code, 200)
+            self.assertEqual(client.get("/health", headers={"Host": "testserver"}).status_code, 403)
+
     def test_rehashed_proposal_diverging_from_source_bundle_is_rejected(self):
         with tempfile.TemporaryDirectory() as root:
             path = pathlib.Path(root) / 'package'

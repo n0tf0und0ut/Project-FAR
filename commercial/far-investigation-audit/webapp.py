@@ -16,7 +16,7 @@ from acquire import AcquisitionError
 from engine import InvalidBundle
 from workflow import investigate
 
-app = FastAPI(title="FAR Investigation Lab", version="0.3.0", docs_url=None, redoc_url=None)
+app = FastAPI(title="FAR Investigation Lab", version="0.4.1", docs_url=None, redoc_url=None)
 _GATE = threading.BoundedSemaphore(value=1)
 
 PAGE = r'''<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -58,7 +58,9 @@ async def security_headers(request: Request, call_next):
     # or an attacker hostname resolving to loopback. Check the request's
     # authority and browser origin before parsing uploads or invoking providers.
     authority = request.headers.get("host", "").lower()
-    if re.fullmatch(r"(?:localhost|127\.0\.0\.1|\[::1\]|testserver)(?::[0-9]{1,5})?", authority) is None:
+    local_host = re.fullmatch(r"(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]{1,5})?", authority)
+    synthetic_host = client == "testclient" and re.fullmatch(r"testserver(?::[0-9]{1,5})?", authority)
+    if not local_host and not synthetic_host:
         return JSONResponse({"detail":"local host required"}, status_code=403)
     origin = request.headers.get("origin")
     if origin is not None and origin.lower() != f"{request.url.scheme}://{authority}":
