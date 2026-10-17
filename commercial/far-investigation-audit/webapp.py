@@ -6,6 +6,7 @@ isolation or security-reviewed production rate limiting.
 from __future__ import annotations
 import json
 import os
+import re
 import threading
 import tempfile
 from pathlib import Path
@@ -53,6 +54,15 @@ async def security_headers(request: Request, call_next):
     client = request.client.host if request.client else None
     if client not in {"127.0.0.1", "::1", "testclient"}:
         return JSONResponse({"detail":"local-only research service"}, status_code=403)
+    # Loopback client addresses alone do not stop browser cross-site requests
+    # or an attacker hostname resolving to loopback. Check the request's
+    # authority and browser origin before parsing uploads or invoking providers.
+    authority = request.headers.get("host", "").lower()
+    if re.fullmatch(r"(?:localhost|127\.0\.0\.1|\[::1\]|testserver)(?::[0-9]{1,5})?", authority) is None:
+        return JSONResponse({"detail":"local host required"}, status_code=403)
+    origin = request.headers.get("origin")
+    if origin is not None and origin.lower() != f"{request.url.scheme}://{authority}":
+        return JSONResponse({"detail":"same-origin request required"}, status_code=403)
     response = await call_next(request)
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"

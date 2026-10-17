@@ -52,8 +52,12 @@ def verify_package(directory: Path) -> dict:
     if not root.is_dir():
         raise InvalidBundle("audit directory missing")
     manifest = json.loads((root / "manifest.json").read_bytes())
-    if manifest.get("schema") != "far-investigation-delivery/0.3":
+    if not isinstance(manifest, dict) or manifest.get("schema") != "far-investigation-delivery/0.3":
         raise InvalidBundle("unexpected manifest version")
+    if (manifest.get("semantic_mapping_independently_verified") is not False or
+        manifest.get("open_world_completeness") != "UNESTABLISHED" or
+        manifest.get("end_to_end_production_quality") != "UNESTABLISHED"):
+        raise InvalidBundle("manifest assurance boundary was changed")
     stored = manifest.get("files_sha256")
     if not isinstance(stored, dict) or not {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json", "critical_questions.json"}.issubset(stored):
         raise InvalidBundle("manifest required files missing")
@@ -101,17 +105,22 @@ def verify_package(directory: Path) -> dict:
     from acquire import normalize_html, parse_captions
     independently_extracted = 0
     not_replayable = []
+    replayable_methods = {"text_provided_v1", "utf8_identity_v1",
+        "html_provided_v1", "html_visible_text_v1", "srt_provided_v1",
+        "vtt_provided_v1", "yt_dlp_caption_vtt_v1"}
     for item in acquisition:
         sid = item["source_id"]
         raw = item.get("raw_snapshot_utf8")
+        method = item.get("extraction")
         if raw is None:
+            if method in replayable_methods:
+                raise InvalidBundle("raw snapshot required for replayable extraction: " + sid)
             not_replayable.append(sid)
             continue
         if not isinstance(raw, str) or len(raw.encode("utf-8")) > 1_000_000:
             raise InvalidBundle("invalid archived raw source")
         if item.get("raw_sha256") != digest(raw.encode("utf-8")):
             raise InvalidBundle("raw source snapshot digest mismatch: " + sid)
-        method = item.get("extraction")
         if method in {"text_provided_v1", "utf8_identity_v1"}:
             extracted = {"text": raw}
         elif method in {"html_provided_v1", "html_visible_text_v1"}:

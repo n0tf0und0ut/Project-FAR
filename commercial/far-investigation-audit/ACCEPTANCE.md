@@ -12,8 +12,8 @@
 | Explicit finite propositional reasoning | Primary exhaustive checker + separate bitmask oracle; 220 seeded formula cases checked against SymPy satisfiability | Tests the supplied formalization only; does not establish natural-language fidelity |
 | No false fallacy from generated labels | Heuristic/model proposals without explicit author-supplied formulas return `NOT_CHECKED_UNFORMALIZED` | Does not automatically solve free-text reasoning validity |
 | Historical cutoff semantics | Missing verification flags stay unknown, malformed dates rejected, known late captures excluded | Flag can be author asserted; independent source/publisher dating is not established |
-| Exact JSON table calculations | Bounded row counts, filters and decimal sums including randomized oracle checks | Only measures the captured data and chosen operation |
-| Report/package replay | Recreates human-readable report and proposal-derived audit, checks raw source transforms, review signatures where present | Unsigned whole-package replacement remains possible; a signature must be checked against external trusted key custody |
+| Exact JSON table calculations | Bounded row counts, filters and decimal sums; rational-oracle cancellation tests span both exponent limits and the 10,000-row cap | Only measures the captured data and chosen operation |
+| Report/package replay | Recreates human-readable report and proposal-derived audit, requires raw snapshots for replayable extraction methods, rejects promoted manifest assurance flags, checks review signatures where present | Unsigned whole-package replacement remains possible; a signature must be checked against external trusted key custody |
 | Optional network/audio/model paths | Unit tests use injected adapters, permissions/consent gates and fake provider clients | No authenticated live provider/model transcriptions, service availability or real-cost evaluation |
 | Threat boundary | Local-only HTTP UI, opt-in remote calls, pinned HTTPS DNS/redirect checks, input bounds | No full penetration test, production authentication, provider/data rights assessment or privacy certification |
 

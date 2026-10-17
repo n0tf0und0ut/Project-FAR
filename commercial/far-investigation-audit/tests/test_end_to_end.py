@@ -467,6 +467,57 @@ class AdversarialPackageReplayTests(unittest.TestCase):
             with self.assertRaisesRegex(InvalidBundle, 'human-readable report'):
                 verify_package(path)
 
+    def test_manifest_cannot_promote_unestablished_assurance(self):
+        for key, value in (
+            ("semantic_mapping_independently_verified", True),
+            ("open_world_completeness", "COMPLETE"),
+            ("end_to_end_production_quality", "CERTIFIED"),
+        ):
+            with self.subTest(key=key), tempfile.TemporaryDirectory() as root:
+                path = pathlib.Path(root) / "package"
+                write_package(path, investigate(config()))
+                manifest = json.loads((path / "manifest.json").read_bytes())
+                manifest[key] = value
+                (path / "manifest.json").write_bytes(canonical(manifest) + b"\n")
+                with self.assertRaisesRegex(InvalidBundle, "assurance boundary"):
+                    verify_package(path)
+
+    def test_replayable_extraction_cannot_drop_its_raw_snapshot(self):
+        with tempfile.TemporaryDirectory() as root:
+            path = pathlib.Path(root) / "package"
+            write_package(path, investigate(config()))
+            acquisition = json.loads((path / "acquisition.json").read_bytes())
+            del acquisition[0]["raw_snapshot_utf8"]
+            self._forge_file(path, "acquisition.json", canonical(acquisition) + b"\n")
+            with self.assertRaisesRegex(InvalidBundle, "raw snapshot required"):
+                verify_package(path)
+
+    def test_compiler_does_not_coerce_untrusted_verification_flags_to_true(self):
+        text = "This is an attributed claim."
+        proposal = heuristic_proposal(text)
+        for flag in ("origin_verified", "publication_date_verified"):
+            for value in ("false", "true", 1, [], None):
+                with self.subTest(flag=flag, value=value), self.assertRaisesRegex(InvalidBundle, "verification flag"):
+                    compile_proposal(proposal, {"primary": text}, investigation_id="flag_case",
+                        captured_at="2026-10-17T00:00:00Z", published_at_by_source={},
+                        source_meta={"primary": {flag: value}})
+
+    def test_local_service_rejects_foreign_origins_and_rebound_hosts(self):
+        from fastapi.testclient import TestClient
+        from webapp import app
+        with TestClient(app) as client:
+            with patch("webapp.investigate") as investigate_call:
+                for headers in ({"Origin": "https://attacker.example.org"}, {"Origin": "null"},
+                                {"Host": "attacker.example.org"}):
+                    with self.subTest(headers=headers):
+                        response = client.post("/api/upload", headers=headers,
+                            files={"file": ("speech.txt", b"This is an attributed claim.", "text/plain")})
+                        self.assertEqual(response.status_code, 403)
+                investigate_call.assert_not_called()
+            response = client.post("/api/upload", headers={"Origin": "http://testserver"},
+                files={"file": ("speech.txt", b"This is an attributed claim.", "text/plain")})
+            self.assertEqual(response.status_code, 200)
+
     def test_rehashed_proposal_diverging_from_source_bundle_is_rejected(self):
         with tempfile.TemporaryDirectory() as root:
             path = pathlib.Path(root) / 'package'

@@ -82,7 +82,10 @@ def pointer(value: Any, path: str) -> Any:
 def _sum_field(rows: list[Any], field: str) -> Decimal:
     total = Decimal(0)
     with localcontext() as ctx:
-        ctx.prec = 100  # exact over <=10k source values of <=40 digits; no float rounding
+        # A 40-digit coefficient at exponent +40 and a term at -40 can
+        # occupy 120 significant places. Reserve row-count carry places too;
+        # 100 digits silently lost small terms before later cancellation.
+        ctx.prec = MAX_DIGITS + 2 * MAX_DECIMAL_EXPONENT + len(str(MAX_ROWS))
         for row in rows:
             if not isinstance(row, dict) or field not in row:
                 raise StructuredUnverifiable("sum field missing or row is not an object")

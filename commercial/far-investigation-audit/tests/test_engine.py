@@ -1,6 +1,9 @@
 """Adversarial regression tests. No model/network calls or subjective verdict fixtures."""
 import copy
+from decimal import Decimal
+from fractions import Fraction
 import hashlib
+import itertools
 import json
 import pathlib
 import random
@@ -11,7 +14,7 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from engine import InvalidBundle, audit, entailment
-from structured import parse_snapshot, pointer, StructuredInputError
+from structured import parse_snapshot, pointer, StructuredInputError, _sum_field
 from capture import capture_source, exact_anchor
 
 
@@ -359,6 +362,23 @@ class InvestigationAuditTests(unittest.TestCase):
         b["evidence"][0]["span"]=span(raw)
         b["evidence"][0]["data_check"]={"operation":"sum_field","pointer":"/observations","field":"amount"}
         self.assertEqual(audit(b)["claims"]["p"]["evidence"][0]["structured_check"]["computed_value"],"0.300000000000000000000000001")
+
+    def test_structured_sum_preserves_small_terms_across_large_cancellation(self):
+        large = Decimal("9" * 40 + "e40")
+        small = Decimal("1e-40")
+        for values in itertools.permutations((large, small, large.copy_negate())):
+            with self.subTest(values=values):
+                expected = sum(map(Fraction, values), Fraction())
+                result = _sum_field([{"amount": value} for value in values], "amount")
+                self.assertEqual(Fraction(result), expected)
+
+    def test_structured_sum_is_exact_at_the_row_and_exponent_limits(self):
+        large = Decimal("9" * 40 + "e40")
+        values = [large] * 4999 + [Decimal("1e-40")]
+        values += [large.copy_negate()] * 4999 + [Decimal("2e-40")]
+        expected = sum(map(Fraction, values), Fraction())
+        result = _sum_field([{"amount": value} for value in values], "amount")
+        self.assertEqual(Fraction(result), expected)
 
     def test_randomized_count_differential_against_plain_python_oracle(self):
         rng = random.Random(20261017)
