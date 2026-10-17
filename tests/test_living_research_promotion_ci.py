@@ -92,6 +92,39 @@ class PromotionCIAdapterTests(unittest.TestCase):
                 ci.ensure_merge_authority(BRANCH, 700, "token")
         checks.assert_not_called()
 
+    def test_queued_workflow_without_a_check_run_suppresses_duplicate_dispatch(self):
+        pr = {"state": "OPEN", "baseRefName": "main", "headRefName": BRANCH, "headRefOid": HEAD}
+        for status in ("queued", "in_progress", "waiting", "requested", "pending"):
+            with (
+                self.subTest(status=status),
+                patch.dict(os.environ, {"GITHUB_REPOSITORY": REPO}, clear=False),
+                patch.object(ci, "_remote_head", return_value=HEAD),
+                patch.object(ci, "_check_runs", return_value=[]),
+                patch.object(ci, "_validator_runs", return_value=[
+                    {"databaseId": 10, "headSha": HEAD, "status": status, "conclusion": None}
+                ]),
+                patch.object(ci.core, "run", return_value=SimpleNamespace(stdout=json.dumps(pr), returncode=0)) as run,
+                patch.object(ci.time, "sleep"),
+            ):
+                ci.ensure_merge_authority(BRANCH, 700, "token")
+                run.assert_called_once()
+
+    def test_failed_workflow_without_a_check_run_is_not_automatically_retried(self):
+        pr = {"state": "OPEN", "baseRefName": "main", "headRefName": BRANCH, "headRefOid": HEAD}
+        with (
+            patch.dict(os.environ, {"GITHUB_REPOSITORY": REPO}, clear=False),
+            patch.object(ci, "_remote_head", return_value=HEAD),
+            patch.object(ci, "_check_runs", return_value=[]),
+            patch.object(ci, "_validator_runs", return_value=[
+                {"databaseId": 10, "headSha": HEAD, "status": "completed", "conclusion": "failure"}
+            ]),
+            patch.object(ci.core, "run", return_value=SimpleNamespace(stdout=json.dumps(pr), returncode=0)) as run,
+            patch.object(ci.time, "sleep"),
+        ):
+            with self.assertRaisesRegex(ci.AdapterError, "refusing automatic rerun"):
+                ci.ensure_merge_authority(BRANCH, 700, "token")
+        run.assert_called_once()
+
     def test_absent_authority_dispatches_validator_and_binds_new_exact_head_run(self):
         pr = {"state": "OPEN", "baseRefName": "main", "headRefName": BRANCH, "headRefOid": HEAD}
         before = [{"databaseId": 10, "headSha": HEAD, "status": "completed", "conclusion": "success"}]

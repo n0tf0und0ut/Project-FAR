@@ -192,11 +192,19 @@ def ensure_merge_authority(branch: str, pr_number: int, token: str) -> None:
             f"merge-authority already failed for exact promotion head {head_sha}: {conclusions}; refusing automatic rerun"
         )
 
-    before = {
-        int(row["databaseId"])
-        for row in _validator_runs(repo, branch, token)
-        if row.get("headSha") == head_sha and isinstance(row.get("databaseId"), int)
-    }
+    existing = [row for row in _validator_runs(repo, branch, token) if row.get("headSha") == head_sha]
+    # A dispatched workflow may be queued before GitHub creates its job/check
+    # runs. Absence of merge-authority alone does not justify another dispatch.
+    if any(row.get("status") != "completed" for row in existing):
+        print(f"Validator Assurance is already pending for exact promotion head {head_sha}; no duplicate dispatch")
+        return
+    failed = [row for row in existing if row.get("conclusion") != "success"]
+    if failed:
+        conclusions = sorted({str(row.get("conclusion")) for row in failed})
+        raise AdapterError(
+            f"Validator Assurance already failed for exact promotion head {head_sha}: {conclusions}; refusing automatic rerun"
+        )
+    before = {int(row["databaseId"]) for row in existing if isinstance(row.get("databaseId"), int)}
     core.run(
         "gh", "workflow", "run", VALIDATOR_WORKFLOW, "--repo", repo, "--ref", branch,
         env=_token_env(token),
