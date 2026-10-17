@@ -109,6 +109,29 @@ class InvestigationAuditTests(unittest.TestCase):
         self.assertEqual(r["claims"]["p"]["evidence"][0]["formal_relation"], "TEMPORAL_NOT_ADMISSIBLE")
         self.assertEqual(r["claims"]["p"]["status"], "NOT_ESTABLISHED")
 
+    def test_unknown_date_remains_explicit_unknown_not_fake_admissible(self):
+        b = base()
+        b["sources"][1]["published_at"] = None
+        r = audit(b)
+        self.assertEqual(r["source_temporal_status"]["record"], "UNKNOWN_TEMPORAL_ELIGIBILITY")
+        self.assertEqual(r["claims"]["p"]["status"], "NOT_ESTABLISHED")
+
+    def test_unknown_source_lineage_not_reported_as_independent(self):
+        b = base()
+        b["sources"][1]["origin_id"] = None
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["support_origin_ids"], [])
+        self.assertEqual(r["claims"]["p"]["support_sources_with_unknown_origin"], ["record"])
+
+    def test_claim_cannot_prove_itself_through_the_same_quote(self):
+        b = base()
+        b["evidence"] = [{"id": "self", "source_id": "speech", "claim_id": "p",
+                          "span": b["claims"][0]["span"], "formula": atom("P"),
+                          "relation": "supports", "mapping_status": "unreviewed"}]
+        r = audit(b)
+        self.assertEqual(r["claims"]["p"]["status"], "NOT_ESTABLISHED")
+        self.assertEqual(r["claims"]["p"]["evidence"][0]["formal_relation"], "SELF_REFERENCE_NOT_CORROBORATION")
+
     def test_rejects_wrong_quote_even_if_matching_source_id(self):
         b = base()
         b["evidence"][0]["span"]["quote"] = "Something not in the source"

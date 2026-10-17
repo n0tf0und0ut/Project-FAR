@@ -21,7 +21,7 @@ python -m unittest discover -s commercial/far-investigation-audit/tests -p 'test
 The input (`far-investigation-audit/0.1`) is a JSON file containing:
 
 - `investigation_id`, an ISO 8601 UTC `as_of` cutoff and a dictionary of named propositional `atoms` with human-readable definitions;
-- `sources`: `id`, UTF-8 `text`, its SHA-256 hash, `published_at`, `captured_at`, and a **reported, not authenticated** `origin_id`;
+- `sources`: `id`, UTF-8 `text`, its SHA-256 hash, `published_at`, `captured_at`, and a **reported, not authenticated** `origin_id` (nullable when unknown);
 - `claims`: source-anchored exact quote spans (`start` inclusive, `end` exclusive), natural-language `text`, propositional `formula`, and `mapping_status` (`unreviewed` or `review_recorded`);
 - `evidence`: exact quote spans, target `claim_id`, author-proposed relation and optional propositional `formula`. Without the formula, the evidence's semantic relation is explicitly untested;
 - `interpretations`: each named candidate has `premises`, `conclusion`, and `mapping_status`. Distinct readings cannot be merged into a majority vote;
@@ -29,7 +29,7 @@ The input (`far-investigation-audit/0.1`) is a JSON file containing:
 
 Formula operators are JSON `{"atom":"P"}`, `{"not": EXPR}`, `{"and":[EXPR,EXPR]}`, `{"or":[EXPR,EXPR]}`, and `{"implies":[EXPR,EXPR]}`. Variables must be declared. This finite propositional subset cannot establish causal identification, quantifiers, open-world generalizations, statistical evidence quality, social/normative inference, or natural-language intent. It rejects unverifiable or malformed source spans/hashes, limits source size and graph complexity, and returns `NOT_CHECKED_ATOM_LIMIT` for more than 12 distinct variables rather than silently asserting validity.
 
-**Temporal discipline:** only source snapshots *both published and captured* by `as_of` are eligible for evidence→premise formal support. Later archives or unknown historical editions require separate version-specific substantiation; the conservative exclusion avoids hindsight leakage. The cutoff does **not** prove that the language model developing a formalization lacked future parametric knowledge.
+**Temporal discipline:** only source snapshots *both published and captured* by `as_of` are eligible for evidence→premise formal support. Missing dates remain `UNKNOWN_TEMPORAL_ELIGIBILITY` and cannot satisfy that gate. A claim cannot corroborate itself by citing its exact same source span. Later archives or unknown historical editions require separate version-specific substantiation; the conservative exclusion avoids hindsight leakage. The cutoff does **not** prove that the language model developing a formalization lacked future parametric knowledge.
 
 **Replay:** input hash, method version, per-reading checked assignment count, returned countermodel and deterministic report hash are included. A changed bundle produces a changed input hash; hashes prove consistency of supplied bytes, **not** identity/authenticity or independence of the real source, semantic correctness of atom mappings, or correctness of a third-party assessor. `mapping_status=review_recorded` is an *unauthenticated claim of review*, not independent review evidence. Fail-closed `InvalidBundle` errors are not silently turned into a "verified" result.
 

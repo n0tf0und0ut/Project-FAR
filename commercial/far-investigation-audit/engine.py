@@ -164,10 +164,15 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         raw = source.get("text")
         required(isinstance(raw, str) and 0 < len(raw.encode("utf-8")) <= 200000, f"source {sid}: invalid text")
         required(isinstance(source.get("sha256"), str) and digest(raw.encode("utf-8")) == source["sha256"], f"source {sid}: hash mismatch")
-        required(isinstance(source.get("origin_id"), str) and bool(source["origin_id"].strip()), f"source {sid}: origin_id required")
-        pub, captured = timestamp(source.get("published_at"), f"{sid}.published_at"), timestamp(source.get("captured_at"), f"{sid}.captured_at")
-        required(pub <= captured, f"source {sid}: publication after capture")
-        times[sid] = "IN_WINDOW" if captured <= as_of else "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
+        origin = source.get("origin_id")
+        required(origin is None or (isinstance(origin, str) and bool(origin.strip())), f"source {sid}: invalid origin_id")
+        if source.get("published_at") is None or source.get("captured_at") is None:
+            times[sid] = "UNKNOWN_TEMPORAL_ELIGIBILITY"
+        else:
+            pub = timestamp(source["published_at"], f"{sid}.published_at")
+            captured = timestamp(source["captured_at"], f"{sid}.captured_at")
+            required(pub <= captured, f"source {sid}: publication after capture")
+            times[sid] = "IN_WINDOW" if captured <= as_of else "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
     for cid, claim in claims.items():
         required(isinstance(claim.get("text"), str) and bool(claim["text"].strip()), f"claim {cid}: text required")
         anchor(claim, sources, f"claim {cid}")
@@ -186,11 +191,13 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         claim = claims[evidence_item["claim_id"]]
         finding: dict[str, Any] = {
             "evidence_id": evidence_item["id"], "source_id": sid,
-            "origin_id": sources[sid]["origin_id"], "temporal_status": times[sid],
+            "origin_id": sources[sid].get("origin_id"), "temporal_status": times[sid],
             "claimed_relation": evidence_item["relation"], "mapping_status": evidence_item["mapping_status"],
         }
         if times[sid] != "IN_WINDOW":
             finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
+        elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
+            finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
@@ -220,7 +227,8 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         status = ("CONFLICT_RECORDED" if pos and neg else "CONDITIONAL_FORMAL_SUPPORT_RECORDED" if pos
                   else "CONDITIONAL_FORMAL_CONTRADICTION_RECORDED" if neg else "NOT_ESTABLISHED")
         claim_reports[cid] = {"status": status, "mapping_status": claim["mapping_status"],
-                              "support_origin_ids": sorted({r["origin_id"] for r in pos}),
+                              "support_origin_ids": sorted({r["origin_id"] for r in pos if r["origin_id"] is not None}),
+                              "support_sources_with_unknown_origin": sorted({r["source_id"] for r in pos if r["origin_id"] is None}),
                               "origin_independence_verified": False, "evidence": assessed}
     reading_reports: list[dict[str, Any]] = []
     for rid, reading in readings.items():
