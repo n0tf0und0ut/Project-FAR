@@ -1,0 +1,113 @@
+{
+  "campaign_id": "SATURATION-FALSIFICATION-001",
+  "status": "RESEARCH_PROVISIONAL",
+  "base_sha": "8618384efe4576580f65ff67b02b22bac43ffc51",
+  "baseline_path": "docs/architecture/saturation-baseline-v0.5.md",
+  "baseline_blob_sha1": "9d398e01f915e4f368dee44d35e9bd98de5b82ff",
+  "allowed_dispositions": [
+    "REPRESENTABLE_NO_CHANGE",
+    "SPECIFICATION_REPAIR",
+    "ASSURANCE_BOUNDARY_CHANGE",
+    "EXTENSION_INTERFACE_CHANGE",
+    "NEW_CAPABILITY_CLASS_REQUIRED",
+    "INDETERMINATE"
+  ],
+  "source_manifest": {
+    "ARXIV-2609.32495v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2609.32495v1","title":"Hearsay: Can an Auditor Trust the Record a Deployed Agent Harness Writes?","authors":["Jiahong Dai","Zhuochen Yang","Pengyang Shao","Kelvin Ng","Zhongyi Liu","Chengquan Ju","Yuting He","Bo Hu"],"submitted_at":"2026-09-26T11:37:06Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "ARXIV-2609.30383v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2609.30383v1","title":"Stealth Apart, Harm Together: Skill Cascading Attacks on Skill-Based Agent Systems","authors":["Zihao Zhu","Siwei Lyu","Adel Bibi","Baoyuan Wu"],"submitted_at":"2026-09-24T18:00:18Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "ARXIV-2609.31937v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2609.31937v1","title":"Verification as an Architectural Layer for LLM Agents: A V-Model Design, and a Pilot Study of Its Deterministic Core","authors":["Ali Afoud","Jie JW Wu"],"submitted_at":"2026-09-25T19:30:58Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "ARXIV-2609.31422v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2609.31422v1","title":"Towards Mitigating Fabricated Consensus: The Active Provenance Gate for Multi-Agent Debate Synthesis","authors":["Jakub Masłowski","Jarosław A. Chudziak"],"submitted_at":"2026-09-25T15:44:18Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "ARXIV-2607.09996v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2607.09996v1","title":"Who&When Pro: Can LLMs Really Attribute Failures in AI Agents?","authors":["Jiale Liu","Huajun Xi","Shaokun Zhang","Yifan Zeng","Tianwei Yue","Chi Wang","Jian Kang","Qingyun Wu","Huazheng Wang"],"submitted_at":"2026-07-10T21:45:16Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "ARXIV-2609.32924v1": {"kind":"arxiv","version":"v1","version_url":"https://arxiv.org/abs/2609.32924v1","title":"Diagnosing Sampled LLM Reasoning in Formal Geometry: Coverage, Realization, and Validity Evidence","authors":["Xiao Yue","Guangzhi Qu"],"submitted_at":"2026-09-26T20:30:56Z","retrieved_on":"2026-09-29","freeze_basis":"versioned arXiv v1 identity"},
+    "LEAN-ISSUE-14576": {"kind":"github_issue","url":"https://github.com/leanprover/lean4/issues/14576","api_url":"https://api.github.com/repos/leanprover/lean4/issues/14576","title":"Kernel accepts wrong-structure projections, allowing an axiom-free proof of False","issue_id":4994570410,"node_id":"I_kwDOB7kabM8AAAABKbMYqg","created_at":"2026-07-28T03:28:34Z","updated_at":"2026-07-28T13:39:10Z","state":"closed","retrieved_on":"2026-09-29","freeze_basis":"bounded content receipt plus issue identity and updated_at","content_receipt_id":"LEAN-ISSUE-14576-RECEIPT"},
+    "LEAN-RELEASE-4.32.2": {"kind":"release_notes","url":"https://lean-lang.org/doc/reference/latest/releases/v4.32.2/","title":"Lean 4.32.2 (2026-07-28)","version":"4.32.2","published_on":"2026-07-28","retrieved_on":"2026-09-29","freeze_basis":"bounded content receipt plus version-specific release identity","content_receipt_id":"LEAN-RELEASE-4.32.2-RECEIPT"},
+    "LEAN-POSTMORTEM-14576": {"kind":"dated_post","url":"https://leodemoura.github.io/blog/2026-8-1-postmortem-for-kernel-soundness-bug-14576/","title":"Postmortem for Kernel Soundness Bug #14576","published_on":"2026-08-01","retrieved_on":"2026-09-29","freeze_basis":"bounded content receipt plus dated source identity","content_receipt_id":"LEAN-POSTMORTEM-14576-RECEIPT"}
+  },
+  "findings": [
+    {
+      "id":"SF001-HS",
+      "name":"Hearsay / independent evidentiary observation",
+      "source_ids":["ARXIV-2609.32495v1"],
+      "evidence":"The source reports omission/fabrication attacks against self-authored agent-harness records and an external append-only observation path that detects injected record tampering while a hash chain over the harness-owned record does not.",
+      "decision_relevant_distinction":"self-authored record versus independently observed or corroborated event",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None at the v0.5 architecture level. Self-report provenance, independent corroboration, and independence-limited sufficiency can already be represented and made contract-relevant through typed source/provenance/evidence requirements.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["SOURCE_ARTIFACT","EVIDENCE_ITEM","SOURCE_LINEAGE","SOURCE_DEPENDENCE","ATTESTATION","PROVENANCE_RECORD","VALIDATION_RECORD"],"enforcement_anchors":["INDEPENDENCE_LIMITED","Retrieval should be driven by explicit evidence requirements for the claim type.","source independence"],"construction":"Represent the harness-owned report and the external observation/corroboration as distinct SOURCE_ARTIFACT/EVIDENCE_ITEM identities; connect copying/common-origin through SOURCE_LINEAGE/SOURCE_DEPENDENCE; retain any attestation/provenance/validation separately. An evidence requirement or assurance claim can then require non-dependent corroboration and yield INDEPENDENCE_LIMITED when that requirement is unmet.","rationale":"This preserves authorship, observation identity, dependence, provenance, and the decision consequence without an opaque metadata field. Hearsay therefore supplies an adversarial implementation test, not a missing architecture boundary.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-SC",
+      "name":"SkillCascade / composition assurance",
+      "source_ids":["ARXIV-2609.30383v1"],
+      "evidence":"The source constructs harmful cross-skill cascades whose components can pass per-skill review while their combined execution causes harm, demonstrating that component-level review does not imply safe composed behavior.",
+      "decision_relevant_distinction":"component assurance versus assurance of a consequential composition/execution path",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None at the v0.5 architecture level. A consequential composition can already be represented as an identity-bearing computation/result with dependency edges, provenance, and its own validation record; implementation should add composition-level adversarial coverage where such paths are supported.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["COMPUTATION","RESULT","PROVENANCE_RECORD","VALIDATION_RECORD","DEPENDS_ON","DERIVED_FROM"],"enforcement_anchors":["Every consequential transformation is inspectable.","Every consequential relationship may itself be challenged.","consequential transitions have validator contracts"],"construction":"Represent the joint execution as its own COMPUTATION/RESULT identity, connect participating component results through DEPENDS_ON/DERIVED_FROM, and attach distinct PROVENANCE_RECORD and VALIDATION_RECORD state to the joint transformation. Component validation records therefore remain evidence about components and cannot by identity alone substitute for the composition's validation record. This campaign does not infer component independence from the absence of a DEPENDS_ON edge; the prior SC-04 control was removed because v0.5 is not a closed-world dependency model.","rationale":"This gives the composed execution its own identity, dependencies, provenance, and validation behavior using literal v0.5 object/relation families. SkillCascade is therefore a concrete regression target for orchestration/security implementations, not evidence of a missing capability class or assurance boundary. Verified absence of a data/control path remains outside this finding unless separately evidenced.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-VA",
+      "name":"Verification before reliance-state promotion",
+      "source_ids":["ARXIV-2609.31937v1"],
+      "evidence":"The source separates generated proposals from verifier outcomes and describes a controller in which only verification outcomes write to memory; its pilot concerns termination/correction behavior rather than accuracy at scale.",
+      "decision_relevant_distinction":"proposal state versus validation outcome versus authoritative reliance state",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None. Frozen v0.5 already provides identity-bearing adjudication/version objects, separate validation records, fail-closed reliance states, and a recorded promotion rule that requires applicable validation before EXTERNAL_RELIANCE_READY.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["ADJUDICATION","ADJUDICATION_VERSION","VALIDATION_RECORD","EXPLORATORY","EXTERNAL_RELIANCE_PENDING","EXTERNAL_RELIANCE_READY"],"enforcement_anchors":["An adjudication may enter `EXTERNAL_RELIANCE_READY` only through a recorded promotion transition","validates every applicable assurance capability"],"construction":"Represent the generated proposal as an identity-bearing ADJUDICATION/ADJUDICATION_VERSION in EXPLORATORY or EXTERNAL_RELIANCE_PENDING state; represent each verifier outcome as a separate VALIDATION_RECORD linked to that exact version; permit authoritative reliance only through the recorded EXTERNAL_RELIANCE_READY promotion after every applicable assurance capability validates. Proposal identity, validation outcome, and reliance state therefore remain separate.","rationale":"The paper reinforces an existing three-part construction rather than exposing a missing state distinction: proposal/adjudication identity is separate from validation records, which are separate from the later reliance-state transition.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-SF",
+      "name":"Synthesis / provenance fidelity",
+      "source_ids":["ARXIV-2609.31422v1"],
+      "evidence":"The source studies fabricated consensus in multi-agent debate synthesis and evaluates an active provenance gate that blocks unsupported synthesized claims and can emit divergence reports.",
+      "decision_relevant_distinction":"faithful synthesis versus unsupported strengthening or consensus manufacture",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None. Frozen v0.5 already requires synthesis to preserve qualifications, scope, uncertainty, disagreement, supporting and contradicting evidence, unresolved alternatives, source lineage, and status-time boundaries, and forbids a summary from strengthening a claim beyond the underlying graph.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["Synthesis must preserve:","qualifications","disagreement","source lineage"],"enforcement_anchors":["A summary must not strengthen a claim beyond the underlying graph.","uncertainty, abstention, provenance, versioning, and challenge state survive end to end"],"rationale":"The fabricated-consensus cases are direct adversarial fixtures for requirements already stated in v0.5.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-PRO",
+      "name":"Who&When Pro / failure-origin localization",
+      "source_ids":["ARXIV-2607.09996v1"],
+      "evidence":"The source constructs controlled failure-attribution trajectories by replaying a successful prefix before injecting a failure, supporting a distinction between where failure becomes visible and the step whose correction changes the failed outcome.",
+      "decision_relevant_distinction":"detection location versus challengeable causal/origin attribution",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None. Frozen v0.5 already treats CAUSES as a challengeable consequential relation with provenance/validation state and routes causal claims through a specialized gate. Detection can remain an event/timestamp while origin attribution is a separately justified causal assertion.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["CAUSES","PROVENANCE_RECORD","CHALLENGE"],"enforcement_anchors":["Every consequential relationship may itself be challenged.","Causal claims require a specialized gate rather than a generic `correlation != causation` warning."],"rationale":"Recording a detection event does not force it to become a CAUSES relation. v0.5 already permits the two to remain distinct and requires justification for the causal edge.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-CRV",
+      "name":"CRV coverage / realization / validity",
+      "source_ids":["ARXIV-2609.32924v1"],
+      "evidence":"The source separately measures answer availability in a frozen candidate pool, readout realization/selection, and critic-based validity evidence, and reports them as distinct quantities.",
+      "decision_relevant_distinction":"availability/coverage versus realization/selection versus validity/support",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None. Frozen v0.5 already makes evaluation stage-specific, separately enumerates retrieval/high-recall coverage, evidence-support/contradiction accuracy, and adjudication accuracy, and prohibits collapsing distinct epistemic dimensions.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["Evaluation begins before optimization and is stage-specific.","retrieval Recall@K / high-recall coverage","evidence-support / contradiction accuracy","adjudication accuracy and calibration"],"enforcement_anchors":["Never collapse distinct epistemic dimensions."],"rationale":"The paper supplies a useful evaluation decomposition already expressible by v0.5.","uses_opaque_metadata":false}
+    },
+    {
+      "id":"SF001-LEAN",
+      "name":"Lean kernel trust-base qualification",
+      "source_ids":["LEAN-ISSUE-14576","LEAN-RELEASE-4.32.2","LEAN-POSTMORTEM-14576"],
+      "evidence":"The bounded sources establish a checked-kernel soundness defect, a point-release soundness fix, and a metaprogramming-reachable exploit path. They do not establish that FAR's pinned Lean 4.19.0 contains this defect. Applicability to FAR's pinned Lean 4.19.0 is unestablished and must remain explicit uncertainty.",
+      "decision_relevant_distinction":"known checker-defect evidence versus unestablished applicability to FAR's pinned checker, retained as unresolved assurance uncertainty rather than projected as an affected-version fact",
+      "disposition":"REPRESENTABLE_NO_CHANGE",
+      "minimal_repair":"None at the v0.5 architecture level. v0.5 already records checker method/version, bounds downstream assurance by inherited uncertainty, applies validation discipline to FAR's own formal outputs, and requires assurance cases to expose unresolved defeaters and limitations with evidence/validation links. The correct campaign state is unknown applicability, not an inferred affected-version claim.",
+      "amendment_rule":null,
+      "new_capability_class":false,
+      "baseline_mapping":{"representation_anchors":["ASSURANCE_CASE","VALIDATION_RECORD","method/version","FAR receives no epistemic privilege from being FAR.","unresolved defeaters and limitations"],"enforcement_anchors":["Each assurance claim must point to evidence or validation records.","Never manufacture certainty upstream."],"rationale":"The external defect can be retained as relevant checker evidence while its applicability to the pinned FAR checker remains unresolved. v0.5 already has an assurance surface for that uncertainty and forbids promoting an unbound defect into a stronger claim about FAR's proofs.","uses_opaque_metadata":false}
+    }
+  ],
+  "campaign_conclusion": {"bounded_no_change_saturation_survives":true,"scope":"these seven attacks against frozen v0.5 only","capability_class_inventory_survives":true,"amendment_required":false,"v0_6_required":false,"fara_core_status_change":false,"efr_executed":false}
+}
