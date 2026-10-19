@@ -80,7 +80,7 @@ If that implementation PR changes merge-authority's own declared assurance-sensi
 
 This separation prevents the research inbox from becoming an unreviewed software supply chain while still ensuring that a project-changing study automatically surfaces all necessary scientific and implementation changes as reviewable PRs.
 
-The only non-plan files permitted to change during scientific promotion are the explicitly declared deterministic reconciliation outputs in `trusted_generated_paths`.
+The only non-plan files permitted to change during scientific promotion are the explicitly declared deterministic reconciliation outputs in `trusted_generated_paths`: living status/state and the dependent corpus synthesis/current frontier. The runner rebuilds the corpus views after living reconciliation and before canonical validation. The independent head verifier reconstructs both stages from the frozen base plus planned payloads and rejects a rehashed forged view.
 
 ## Transaction seal
 
@@ -106,7 +106,7 @@ Strict branch protection requires the `merge-authority` check to be current with
 
 ## Publication boundary
 
-The scheduled workflow is only a small wrapper around `tools/run_living_research_promotion.py`. The runner may create/recover the separate promotion PR. It never merges, approves itself, changes branch protection, writes directly to `main`, or uses the permanent inbox PR as the merge vehicle.
+The scheduled workflow calls `tools/run_living_research_promotion_ci.py`, the native-token adapter around `tools/run_living_research_promotion.py`. The runner may create/recover the separate promotion PR. It never merges, approves itself, changes branch protection, writes directly to `main`, or uses the permanent inbox PR as the merge vehicle.
 
 The separate implementation runner follows the same publication rule: it may create/recover the exact implementation PR, but it never merges or writes directly to `main`. Its full contract is in `IMPLEMENTATION.md`.
 
@@ -114,19 +114,15 @@ If GitHub Actions lacks permission to create a PR, the exact branch is preserved
 
 ### Promotion PR credential
 
-GitHub starts no `pull_request` workflow for a PR opened with `GITHUB_TOKEN`, so such a PR never gets the required `merge-authority` check. A run dispatched on the PR's behalf does not satisfy it either. The promotion PR is therefore opened by a dedicated GitHub App:
+GitHub starts no `pull_request` workflow for a PR opened with `GITHUB_TOKEN`. The CI adapter therefore uses the ephemeral job token for bounded GitHub operations and explicitly dispatches `validator-assurance.yml` on the exact promotion branch when `merge-authority` is absent.
 
-- `GITHUB_TOKEN` pushes the sealed promotion branch (`contents: write`) and reads PR #490 (`pull-requests: read`). Nothing else.
-- A separate step mints an installation token of the promotion App, restricted to this repository and to *Pull requests: write*, and revoked when the job ends. The runner removes it from its environment before any subprocess runs and uses it only to list, create and read the promotion PR.
-- The PR's own `pull_request` event then runs the ordinary workflows, including `merge-authority`, on the exact promotion head. The runner dispatches nothing.
-- Without the token the runner fails closed before doing any work.
+- Checkout uses `persist-credentials: false`. The adapter removes the real token from its ambient environment before materialization or validation, and injects it only into bounded GitHub API and push calls.
+- The workflow requests `contents: write`, `pull-requests: write`, and `actions: write`. GitHub must allow Actions to create pull requests; a permission failure preserves the branch and stops the transaction.
+- Before dispatch, the adapter verifies the open PR's base, branch, and exact remote head. A pending check or dispatched workflow on that head suppresses duplicate dispatch, including the interval before GitHub creates check runs.
+- Failed exact-head authority or a failed dispatched workflow stops automation; the adapter never automatically retries it. A newly dispatched run must appear with the exact expected head.
+- Validator Assurance still performs its protected validation. Its result and the separate `protected-repin-gate` remain required; dispatch itself grants no merge authority.
 
-One-time owner setup:
-
-1. Register a GitHub App with no webhook. Its only repository permissions are *Pull requests: Read and write* and the mandatory *Metadata: Read-only*; no *Contents*, *Administration*, *Checks* or *Actions*. Install it on this repository only.
-2. Create the environment `living-promotion` with deployment branches limited to `main`. Add the environment secret `FAR_PROMOTION_APP_PRIVATE_KEY` (the App's private key) and the repository variable `FAR_PROMOTION_APP_CLIENT_ID` (the App's client ID).
-
-The key is readable only by jobs that run on `main` in that environment, so no candidate's `pull_request` workflow can use it. A PR the App opens is still an ordinary candidate: it needs `merge-authority` and `protected-repin-gate` on its exact head like any other.
+This workflow does not require the former promotion App installation, private key, or `living-promotion` environment. The independent repin-gate App and its owner-signature requirements are unchanged. The standalone core runner retains its legacy credential interface; scheduled operation uses the CI adapter.
 
 ## Core rule
 

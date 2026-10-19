@@ -99,6 +99,7 @@ def validate_target(target:str,policy:dict[str,Any])->None:
     if not under(target,policy["canonical_write_roots"]): raise PromotionError(f"target outside automatic roots: {target}")
     if PurePosixPath(target).suffix.lower() not in set(policy["canonical_write_extensions"]): raise PromotionError(f"target extension is not mechanically promotable: {target}")
     if target in set(policy["protected_exact_paths"]): raise PromotionError(f"protected control-plane path is not mechanically promotable: {target}")
+    if target in set(policy["trusted_generated_paths"]): raise PromotionError(f"generated reconciliation output is not a proposal payload: {target}")
 
 def registries(root:Path):
     lifecycle=load(root/LIFECYCLE)

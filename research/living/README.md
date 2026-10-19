@@ -72,7 +72,7 @@ Each provider's attention-term matches are stored on that provider's source entr
 
 ## PR-status boundary
 
-Updates pushed to the permanent inbox by `GITHUB_TOKEN` do not manufacture protected PR status checks and never make PR #490 canonical. Promotion therefore uses distinct exact source+base branches and PRs, opened by the dedicated promotion App so that each PR's own `pull_request` run produces `merge-authority` (see `PROMOTION.md`). The transactions cannot forge or replace protected merge authority.
+Updates pushed to the permanent inbox by `GITHUB_TOKEN` do not manufacture protected PR status checks and never make PR #490 canonical. Promotion uses distinct exact source+base branches and PRs. The native-token CI adapter explicitly dispatches protected Validator Assurance for the exact promotion head when authority is absent; queued runs suppress duplicate dispatch, and failed authority requires manual review (see `PROMOTION.md`). The transactions cannot forge or replace protected merge authority.
 
 Canonical tests independently verify the final scientific promotion head. For pull-request CI, where GitHub checks out a synthetic merge commit, the verifier resolves `GITHUB_HEAD_REF` and checks the exact promotion commit. It is read-only and rejects stale bases, multiple commits, forged manifests, unauthorized or unsealed files, authorization/provenance drift, and protected/control-plane targets.
 

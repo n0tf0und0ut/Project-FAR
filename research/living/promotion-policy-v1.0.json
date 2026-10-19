@@ -14,7 +14,7 @@
   "canonical_write_roots": ["commercial", "docs", "methodology", "research", "schemas", "theory"],
   "canonical_write_extensions": [".csv", ".json", ".jsonl", ".md", ".txt", ".yaml", ".yml"],
   "canonical_forbidden_prefixes": ["docs/governance/", "research/living/"],
-  "trusted_generated_paths": ["docs/research/living-repository-status.md", "research/living/repository-state-v1.0.json"],
+  "trusted_generated_paths": ["docs/research/living-repository-status.md", "research/living/repository-state-v1.0.json", "research/corpus/synthesis-v1.0.json", "docs/research/current-research-frontier.md"],
   "protected_exact_paths": [
     "research/living/config-v1.0.json",
     "research/living/implementation-authorizations-v1.0.json",

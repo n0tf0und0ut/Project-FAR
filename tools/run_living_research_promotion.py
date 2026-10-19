@@ -225,6 +225,8 @@ def run_validations() -> None:
             "-v",
         ),
         (sys.executable, "tools/reconcile_living_repo.py"),
+        (sys.executable, "tools/reconcile_research_corpus.py", "--write"),
+        (sys.executable, "tools/reconcile_research_corpus.py"),
         (sys.executable, "tools/check_living_research.py"),
         (sys.executable, "tools/check_research_gates.py"),
         (sys.executable, "tools/repo_health_check.py", "--fast"),
