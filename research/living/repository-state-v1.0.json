@@ -2,14 +2,14 @@
   "authority": "Research",
   "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
   "candidate_counts": {
-    "candidates": 156,
-    "claim_mapped": 74,
+    "candidates": 160,
+    "claim_mapped": 78,
     "direct_core_threat": 16,
-    "high_attention": 11,
-    "historical": 47,
-    "philosophy_metaphysics_history": 0,
+    "high_attention": 15,
+    "historical": 51,
+    "philosophy_metaphysics_history": 2,
     "review_required": 0,
-    "reviewed": 8
+    "reviewed": 12
   },
   "canonical_theory_id": "PROJECT-FAR-CORE-THEORY-1.1",
   "changed_surfaces": [],
