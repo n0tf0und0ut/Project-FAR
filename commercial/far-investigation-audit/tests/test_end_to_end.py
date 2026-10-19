@@ -99,11 +99,16 @@ class FullWorkflowTests(unittest.TestCase):
     def test_model_response_exact_citations_only(self):
         response={"claims":[{"id":"c1", "quote":"A report counted 11 reviewed submissions."}],
                   "arguments":[], "unknowns":[]}
-        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(
-            create=lambda **kw: SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps(response)))])
-        )))
+        calls=[]
+        def fake_create(**kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps(response)))])
+        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=fake_create)))
         c=config();c["proposal_mode"]="openai"
         p=investigate(c,permit_model=True,model_client=client)
+        self.assertEqual(calls[0]["model"],"gpt-4.1")
+        self.assertEqual(calls[0]["response_format"],{"type":"json_object"})
+        self.assertNotIn("reasoning_effort",calls[0])
         self.assertEqual(p["manifest"]["method"],"model_proposed_unreviewed")
         self.assertEqual(p["audit"]["claims"]["c1"]["status"], "NOT_ESTABLISHED")
         response["claims"][0]["quote"]="This quote was fabricated by the model."
@@ -428,13 +433,18 @@ class WebUploadsAndCommercialPathTests(unittest.TestCase):
             with wave.open(str(p),"wb") as w:
                 w.setnchannels(1);w.setsampwidth(2);w.setframerate(16000)
                 w.writeframes(b"\x00\x00"*16000)
-            fake=SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(
-                create=lambda **kwargs:SimpleNamespace(text=SPEECH))))
+            calls=[]
+            def fake_transcription(**kwargs):
+                calls.append(kwargs)
+                return SimpleNamespace(text=SPEECH)
+            fake=SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(create=fake_transcription)))
             c=config();c["source"]={"kind":"media_file","path":str(p)}
             c.pop("evidence_sources")
             x=investigate(c,permit_files=True,permit_model=True,transcription_client=fake)
             self.assertEqual(len(x["bundle"]["claims"]),2)
-            self.assertEqual(x["acquisition"][0]["extraction"],"external_speech_transcription_gpt_transcribe_v1")
+            self.assertEqual(calls[0]["model"],"gpt-4o-transcribe")
+            self.assertEqual(x["acquisition"][0]["transcript_model"],"gpt-4o-transcribe")
+            self.assertEqual(x["acquisition"][0]["extraction"],"external_speech_transcription_gpt_4o_transcribe_v1")
             self.assertFalse(x["acquisition"][0]["transcript_alignment_verified"])
 
     def test_remote_article_requires_explicit_permission_and_safe_source_type(self):

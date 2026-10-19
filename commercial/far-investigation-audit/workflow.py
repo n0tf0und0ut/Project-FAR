@@ -154,7 +154,7 @@ def investigate(config: dict, *, permit_network: bool = False,
         if not permit_model:
             raise InvalidBundle("external model requires explicit opt-in")
         proposal = openai_proposal(text, {k:v for k,v in source_texts.items() if k != "primary"},
-                                  model=config.get("model", "gpt-6-luna"), client=model_client)
+                                  model=config.get("model", "gpt-4.1"), client=model_client)
     else:
         raise InvalidBundle("unknown proposal mode")
     bundle = compile_proposal(proposal, source_texts, investigation_id=inv_id, captured_at=requested,

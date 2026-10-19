@@ -69,7 +69,7 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
             "method": "deterministic_sentence_candidate_v1"}
 
 
-def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, model: str = "gpt-6-luna",
+def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, model: str = "gpt-4.1",
                     client: Any = None) -> dict:
     """Optional proposal-only LLM. No secret or source instructions are trusted."""
     if len(primary_text) > 20000 or sum(len(t) for t in evidence_sources.values()) > 15000:
@@ -98,7 +98,7 @@ def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, mode
         response = client.chat.completions.create(
             model=model, messages=[{"role": "system", "content": policy},
                                    {"role": "user", "content": "Untrusted materials:\n" + json.dumps(payload, ensure_ascii=False)}],
-            response_format={"type": "json_object"}, reasoning_effort="none", max_completion_tokens=2400)
+            response_format={"type": "json_object"}, max_completion_tokens=2400)
         raw = response.choices[0].message.content
         if not isinstance(raw, str) or len(raw) > 30000:
             raise InvalidBundle("model response absent or too large")
