@@ -92,6 +92,13 @@ class FullWorkflowTests(unittest.TestCase):
             (out/"extra.txt").write_text("injected")
             with self.assertRaises(InvalidBundle): verify_package(out)
 
+    def test_documented_optional_provider_models_match_request_contract(self):
+        doc=(pathlib.Path(__file__).resolve().parents[1]/"README.md").read_text()
+        self.assertIn("`gpt-4.1`",doc)
+        self.assertIn("`gpt-4o-transcribe`",doc)
+        self.assertNotIn("`gpt-6-luna`",doc)
+        self.assertNotIn("`gpt-transcribe`",doc)
+
     def test_model_requires_opt_in_even_if_stubbed(self):
         c=config(); c["proposal_mode"]="openai"
         with self.assertRaises(InvalidBundle): investigate(c)

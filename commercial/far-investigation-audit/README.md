@@ -390,12 +390,12 @@ unknown. As required by [No Hindsight for LLM Fact-Checkers](https://arxiv.org/a
 a model's learned knowledge of future outcomes remains a separate unresolved
 hindsight channel.
 
-Current documented optional API models are `gpt-6-luna` for inexpensive,
-untrusted interpretation proposals (Chat Completions with reasoning disabled)
-and `gpt-transcribe` for operator-authorized audio transcription. These were
-selected against the October 2026 OpenAI API model/deprecation documentation.
-No real provider call is claimed by our offline tests. No account credentials
-are needed for the default offline heuristic path.
+Optional API calls use `gpt-4.1` for untrusted interpretation
+proposals (Chat Completions in JSON mode without `reasoning_effort`) and
+`gpt-4o-transcribe` for operator-authorized audio transcription.
+Offline regression tests assert the actual model names and request arguments,
+but do not claim a successful live provider call. No account credentials are
+needed for the default offline heuristic path.
 
 Tests: 95 local regression tests including a seeded 220-case differential
 comparison with the independently implemented SymPy SAT solver, cross-snapshot
