@@ -397,7 +397,7 @@ Offline regression tests assert the actual model names and request arguments,
 but do not claim a successful live provider call. No account credentials are
 needed for the default offline heuristic path.
 
-Tests: 95 local regression tests including a seeded 220-case differential
+Tests: a bounded local regression suite including a seeded 220-case differential
 comparison with the independently implemented SymPy SAT solver, cross-snapshot
 source extraction replay, signed-record tampering, quotation offsets, malformed
 and hindsight dates, and the full CLI/web/package transaction. The 3-case
