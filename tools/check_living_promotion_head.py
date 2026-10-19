@@ -92,6 +92,17 @@ def _verify_generated_outputs(root:Path,base:str,head:str,planned:set[str],gener
             target.write_bytes(raw)
         from tools.reconcile_living_repo import reconcile
         reconcile(temp)
+        from tools import reconcile_research_corpus as corpus
+        corpus_outputs = {str(corpus.OUTPUT), str(corpus.STATUS)}
+        if generated & corpus_outputs:
+            if not corpus_outputs <= generated:
+                raise IntegrityError("promotion must replay both dependent corpus views")
+            data = corpus.load_json(corpus.CORPUS, temp)
+            errors = corpus.validate(data, temp)
+            if errors:
+                raise IntegrityError("promotion corpus inputs invalid: " + "; ".join(errors))
+            for path, raw in corpus.expected_outputs(data, temp).items():
+                (temp / path).write_bytes(raw)
         for path in sorted(generated):
             expected=temp/path
             actual=blob(root,head,path)

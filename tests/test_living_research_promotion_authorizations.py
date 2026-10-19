@@ -22,7 +22,9 @@ class PromotionAuthorizationRegistryTests(unittest.TestCase):
             self.assertNotIn(root,policy['canonical_write_roots'])
         for suffix in ('.py','.sh','.js','.ts','.exe'):
             self.assertNotIn(suffix,policy['canonical_write_extensions'])
-        self.assertEqual({'docs/research/living-repository-status.md','research/living/repository-state-v1.0.json'},set(policy['trusted_generated_paths']))
+        self.assertEqual({'docs/research/living-repository-status.md','research/living/repository-state-v1.0.json',
+                          'research/corpus/synthesis-v1.0.json','docs/research/current-research-frontier.md'},
+                         set(policy['trusted_generated_paths']))
 
     def test_snapshot_authorizations_are_exact_and_bound_to_review_and_basis(self):
         data=p.load(SNAP); self.assertEqual('1.1',data.get('schema_version')); self.assertEqual('FAR-LIVING-SNAPSHOT-AUTHORIZATIONS-001',data.get('program_id')); self.assertEqual('Research',data.get('authority'))

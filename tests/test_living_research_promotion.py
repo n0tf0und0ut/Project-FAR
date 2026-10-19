@@ -79,6 +79,10 @@ class PromotionTests(unittest.TestCase):
     def test_symlink_target_rejected(self):
         files=self.fixture(); (self.root/"theory").mkdir(exist_ok=True); (self.root/"theory/x.md").symlink_to("../docs/question.md")
         self.assertTrue(self.plan(files)["fatal"])
+    def test_generated_views_cannot_be_supplied_as_canonical_payloads(self):
+        for path in p.load(self.root / p.POLICY)["trusted_generated_paths"]:
+            with self.subTest(path=path):
+                self.assertTrue(self.plan(self.fixture(target=path))["fatal"])
     def test_precommit_seals_exact_staged_paths_and_rejects_extras(self):
         files=self.fixture(); plan=self.plan(files); src=p.MemorySource(files,self.source); p.materialize(self.root,src,plan)
         generated=p.load(self.root/p.POLICY)["trusted_generated_paths"]

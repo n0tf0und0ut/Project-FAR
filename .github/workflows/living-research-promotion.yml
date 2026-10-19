@@ -11,8 +11,9 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: living-research-promotion
@@ -23,36 +24,26 @@ jobs:
     if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # The promotion App's private key exists only in this environment, whose deployment
-    # branch policy admits main alone, so no pull_request workflow can read it.
-    environment: living-promotion
     steps:
       - name: Checkout protected main automation
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: main
           fetch-depth: 0
+          # The job token has write capabilities, so it must never be persisted where
+          # candidate validation code can read Git's credential configuration.
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.12'
       - name: Install canonical repository dependencies
         run: python -m pip install -r requirements.txt
-      - name: Mint the promotion pull-request credential
-        id: pr-credential
-        # GitHub starts no pull_request workflow for a PR opened with GITHUB_TOKEN, so such a
-        # PR can never get the required merge-authority check. The promotion PR is opened
-        # with this App installation token instead: this repository only, pull requests
-        # write only, revoked when the job ends. Resolve the installation explicitly through
-        # the repository owner, then scope the resulting token back to this repository.
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ vars.FAR_PROMOTION_APP_CLIENT_ID }}
-          private-key: ${{ secrets.FAR_PROMOTION_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ github.event.repository.name }}
-          permission-pull-requests: write
       - name: Run fail-closed living-research promotion transaction
+        # The adapter removes GH_TOKEN from its process environment before any candidate
+        # materialization/validation subprocess executes. It injects the token only into
+        # bounded GitHub API/git calls after validation, opens or recovers the exact PR,
+        # and dispatches Validator Assurance on the exact promotion branch if and only if
+        # merge-authority is absent for that head.
         env:
           GH_TOKEN: ${{ github.token }}
-          FAR_PROMOTION_PR_TOKEN: ${{ steps.pr-credential.outputs.token }}
-        run: python -m tools.run_living_research_promotion
+        run: python -m tools.run_living_research_promotion_ci

@@ -176,14 +176,22 @@
     {
       "id": "SRC-LIVING",
       "path": "research/living/README.md",
-      "sha256": "2412d5a429b6bfc341884b467d8e86c5951da91a583ba6e2e73349410372d0ff",
-      "version": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+      "sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
+      "version": "sha256:1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
       "evidence_class": "research_infrastructure",
       "kind": "repository_artifact",
       "evidence_usable": true,
       "material": true,
       "scope": "exact cited artifact at bound bytes/version",
-      "history": [],
+      "history": [
+        {
+          "path": "research/living/README.md",
+          "sha256": "2412d5a429b6bfc341884b467d8e86c5951da91a583ba6e2e73349410372d0ff",
+          "version": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+          "external_identifier": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+          "reason": "PR 577 documents the native-token CI adapter and queued-run suppression; the discovery/review/acceptance/promotion/implementation boundary and both source-bound observations remain unchanged."
+        }
+      ],
       "supersedes": [],
       "corrects": [],
       "observations": [
@@ -229,7 +237,7 @@
         }
       ],
       "source_identity": "SRC-LIVING",
-      "external_identifier": "git:3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+      "external_identifier": "sha256:1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
       "current_availability": "available",
       "historical_availability": "PRESENT",
       "review_status": "GOVERNED_REPOSITORY_SOURCE",
