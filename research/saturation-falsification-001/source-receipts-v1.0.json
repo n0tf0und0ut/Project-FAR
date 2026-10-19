@@ -1,0 +1,30 @@
+{
+  "campaign_id": "SATURATION-FALSIFICATION-001",
+  "normalization": "The excerpt_sha256 is SHA-256 over the exact UTF-8 bytes of `excerpt`, with no trailing newline. Receipts freeze only the decisive bounded excerpt used by this campaign, not the full external page.",
+  "receipts": [
+    {
+      "id": "LEAN-ISSUE-14576-RECEIPT",
+      "source_id": "LEAN-ISSUE-14576",
+      "retrieved_on": "2026-09-29",
+      "source_locator": "GitHub issue #14576, Impact section",
+      "excerpt": "The issue affects checked-kernel soundness.",
+      "excerpt_sha256": "c76e1ba31c83b3a858701fb21ca5f076e3d0bdd829673de600444350cdd60104"
+    },
+    {
+      "id": "LEAN-RELEASE-4.32.2-RECEIPT",
+      "source_id": "LEAN-RELEASE-4.32.2",
+      "retrieved_on": "2026-09-29",
+      "source_locator": "Lean 4.32.2 release notes",
+      "excerpt": "This point release fixes a soundness bug in the kernel.",
+      "excerpt_sha256": "51bf7479f9b10ff5a29a6255cd33c1887f40af35e15ff7781408ed58e3ec6a1e"
+    },
+    {
+      "id": "LEAN-POSTMORTEM-14576-RECEIPT",
+      "source_id": "LEAN-POSTMORTEM-14576",
+      "retrieved_on": "2026-09-29",
+      "source_locator": "Postmortem, What happened",
+      "excerpt": "The bug is only reachable through metaprogramming, by sending the inductive declaration to the kernel directly.",
+      "excerpt_sha256": "2a99c42db81f172f310229dd4dd8990e990fc4f664c67fa2ca8cb48a00353f61"
+    }
+  ]
+}
