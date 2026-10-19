@@ -14,6 +14,7 @@ import json
 import os
 import subprocess
 import unittest
+from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -39,6 +40,11 @@ def sha256(data: bytes) -> str:
 
 class ProtectedRepinAuthorizationTests(unittest.TestCase):
     def setUp(self) -> None:
+        # Synthetic signatures belong to this fixture repository, independent of the CI host.
+        self.enterContext(mock.patch.dict(os.environ, {
+            "GITHUB_REPOSITORY": "notfoundout/Project-FAR",
+            "GITHUB_REPOSITORY_ID": "1283452680",
+        }))
         self.tmp = self.enterContext(__import__("tempfile").TemporaryDirectory())
         self.repo = Path(self.tmp) / "repo"
         self.repo.mkdir()
