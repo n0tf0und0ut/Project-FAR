@@ -115,11 +115,11 @@ def verify_package(directory: Path) -> dict:
         method = item.get("extraction")
         if method not in replayable_methods and method not in nonreplayable_methods:
             raise InvalidBundle("unrecognized acquisition extraction method: " + str(method))
-        if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
-            raise InvalidBundle("acquisition commitment mismatch: " + sid)
         if raw is None:
             if method in replayable_methods:
                 raise InvalidBundle("raw snapshot required for replayable extraction: " + sid)
+            if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
+                raise InvalidBundle("acquisition commitment mismatch: " + sid)
             not_replayable.append(sid)
             continue
         if not isinstance(raw, str) or len(raw.encode("utf-8")) > 1_000_000:
@@ -138,6 +138,8 @@ def verify_package(directory: Path) -> dict:
             raise InvalidBundle("raw-to-extracted source transformation mismatch: " + sid)
         if "cues" in extracted and extracted["cues"] != item.get("cues"):
             raise InvalidBundle("caption cue anchor mismatch: " + sid)
+        if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
+            raise InvalidBundle("acquisition commitment mismatch: " + sid)
         independently_extracted += 1
     rebuilt = compile_proposal(proposal, {k:v["text"] for k,v in sources.items()},
         investigation_id=bundle["investigation_id"], captured_at=bundle["as_of"],
