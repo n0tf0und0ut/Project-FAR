@@ -40,12 +40,26 @@ def verify_review(payload: dict, audit: dict) -> dict:
         raise InvalidBundle("invalid review decision")
     if len({v["object_id"] for v in verdicts}) != len(verdicts):
         raise InvalidBundle("duplicate review object")
-    valid_objects = set(audit.get("claims", {}))
-    valid_objects |= {r["id"] for r in audit.get("interpretations", [])}
+    # A flat review ID must identify exactly one object. Audit IDs are
+    # namespace-local, so claim/citation/reading names can legitimately
+    # collide. Reject ambiguous attestations rather than attributing a signed
+    # decision to an unidentifiable object. A future typed schema can express
+    # review decisions on both colliding records.
+    objects = [("claim", cid) for cid in audit.get("claims", {})]
+    objects.extend(("interpretation", item["id"])
+                   for item in audit.get("interpretations", []))
     for item in audit.get("claims", {}).values():
-        valid_objects |= {e["evidence_id"] for e in item.get("evidence", [])}
-    if any(v["object_id"] not in valid_objects for v in verdicts):
-        raise InvalidBundle("review claims to assess an unknown audit object")
+        objects.extend(("evidence", e["evidence_id"])
+                       for e in item.get("evidence", []))
+    counts = {}
+    for _, object_id in objects:
+        counts[object_id] = counts.get(object_id, 0) + 1
+    for decision in verdicts:
+        object_id = decision["object_id"]
+        if object_id not in counts:
+            raise InvalidBundle("review claims to assess an unknown audit object")
+        if counts[object_id] != 1:
+            raise InvalidBundle("ambiguous review object: " + object_id)
     key = _decode(payload.get("public_key_b64"), 32)
     signature = _decode(payload.get("signature_b64"), 64)
     try:
