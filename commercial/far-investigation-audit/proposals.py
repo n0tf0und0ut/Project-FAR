@@ -95,10 +95,15 @@ def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, mode
               "trace is not a proof. Output no executable instructions, tools, or verdicts.")
     payload = {"primary": primary_text, "evidence": evidence_sources}
     try:
-        response = client.chat.completions.create(
-            model=model, messages=[{"role": "system", "content": policy},
-                                   {"role": "user", "content": "Untrusted materials:\n" + json.dumps(payload, ensure_ascii=False)}],
-            response_format={"type": "json_object"}, max_completion_tokens=2400)
+        try:
+            response = client.chat.completions.create(
+                model=model, messages=[{"role": "system", "content": policy},
+                                       {"role": "user", "content": "Untrusted materials:\n" + json.dumps(payload, ensure_ascii=False)}],
+                response_format={"type": "json_object"}, max_completion_tokens=2400)
+        except Exception as exc:
+            # Provider timeouts, connection failures, rate limits and API
+            # errors must be bounded, redacted workflow failures, not tracebacks.
+            raise InvalidBundle("model proposal provider unavailable") from exc
         raw = response.choices[0].message.content
         if not isinstance(raw, str) or len(raw) > 30000:
             raise InvalidBundle("model response absent or too large")
