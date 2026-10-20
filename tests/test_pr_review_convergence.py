@@ -117,6 +117,13 @@ class ConvergenceTests(unittest.TestCase):
                               [self.codex_comment(**kwargs)])
             self.assertFalse(result["review_metadata_converged"])
 
+    def test_human_approval_cannot_mask_explicit_codex_unresolved_findings(self):
+        result = evaluate(copy.deepcopy(PR), [approval()], [], [], HEAD,
+                          [self.codex_comment(unresolved=True)])
+        self.assertFalse(result["review_metadata_converged"])
+        self.assertIn("authenticated exact-head Codex review reports unresolved findings",
+                      result["blockers"])
+
     def test_later_codex_running_state_invalidates_earlier_completed(self):
         completed = self.codex_comment()
         running = self.codex_comment(status="running", unresolved=None, ident=2,
