@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   convergence-contract:
@@ -33,3 +34,27 @@ jobs:
         run: |
           python3 -m py_compile tools/pr_review_convergence.py
           python3 -m unittest discover -s tests -p 'test_pr_review_convergence.py' -v
+      - name: Live read-only GitHub review API compatibility smoke
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/pr_review_convergence.py \
+            --repository "$PR_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --expected-head "$PR_HEAD_SHA" \
+            --output "$RUNNER_TEMP/convergence-smoke.json" \
+            --mode report
+      - name: Preserve live-API smoke evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: convergence-api-smoke-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/convergence-smoke.json
+          if-no-files-found: warn
+          retention-days: 30
