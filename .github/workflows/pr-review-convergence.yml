@@ -69,14 +69,16 @@ jobs:
 
   review-convergence:
     needs: discover
-    if: needs.discover.outputs.numbers != '[]'
+    # No pull-request-influenced workflow is ever permitted a write token.
+    # Only trusted main schedule/manual dispatch publishes Checks API status.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       max-parallel: 5
       matrix:
         pr: ${{ fromJSON(needs.discover.outputs.numbers) }}
     concurrency:
-      group: pr-review-convergence-${{ github.repository }}-${{ matrix.pr }}
+      group: pr-review-convergence-publish-${{ github.repository }}-${{ matrix.pr }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -143,6 +145,57 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: pr-review-convergence-${{ matrix.pr }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pr-review-convergence.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  # Candidate-driven events use only read permissions. They cannot publish
+  # checks or acquire privileged tokens even if a candidate changes a workflow.
+  review-evidence:
+    needs: discover
+    if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment' || github.event_name == 'issue_comment'
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        pr: ${{ fromJSON(needs.discover.outputs.numbers) }}
+    concurrency:
+      group: pr-review-convergence-observe-${{ github.repository }}-${{ matrix.pr }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - name: Checkout trusted main, never candidate code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Collect observational review evidence without write token
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+          pr="$(gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          [[ "$(jq -r '.base.ref' <<< "$pr")" == main ]] || exit 0
+          sha="$(jq -r '.head.sha' <<< "$pr")"
+          [[ "$sha" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          python3 tools/pr_review_convergence.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --expected-head "$sha" \
+            --output "$RUNNER_TEMP/pr-review-convergence.json" \
+            --mode report
+      - name: Preserve read-only observational evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pr-review-observation-${{ matrix.pr }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/pr-review-convergence.json
           if-no-files-found: warn
           retention-days: 30
