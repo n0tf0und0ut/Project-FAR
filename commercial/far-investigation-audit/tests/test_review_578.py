@@ -139,5 +139,24 @@ class Review578RegressionTests(unittest.TestCase):
             self.assertTrue(verify_package(target)["replay_match"])
 
 
+    def test_report_quote_preserves_exact_markup_and_backticks_as_code(self):
+        quote = "Record <img src=x onerror=alert(1)> contains ``` markup."
+        proposal = {"method": "supplied", "claims": [{"id": "c1", "quote": quote}],
+                    "unknowns": [], "arguments": []}
+        pkg = investigate({"captured_at": CUTOFF, "source": {"kind": "text", "text": quote},
+                           "proposal_mode": "supplied", "proposal": proposal})
+        md = pkg["report_md"]
+        # An adaptive backtick fence keeps raw HTML inert in Markdown while
+        # preserving the exact quoted bytes for visual forensic inspection.
+        self.assertIn("\n````text\n" + quote + "\n````\n", md)
+        self.assertEqual(pkg["bundle"]["claims"][0]["span"]["quote"], quote)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = pathlib.Path(tmp) / "pkg"
+            write_package(target, pkg)
+            self.assertTrue(verify_package(target)["replay_match"])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
