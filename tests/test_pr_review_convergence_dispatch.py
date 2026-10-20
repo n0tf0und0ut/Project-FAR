@@ -53,7 +53,7 @@ class DispatchNumberTests(unittest.TestCase):
     def test_check_publisher_is_explicitly_restricted_to_main(self):
         workflow = WORKFLOW.read_text(encoding="utf-8")
         self.assertIn(
-            "if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')",
+            "if: (github.event_name == 'schedule' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')",
             workflow,
         )
         self.assertIn("checks: write", workflow)
