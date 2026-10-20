@@ -9,18 +9,21 @@ on:
     types: [submitted, dismissed]
   pull_request_review_thread:
     types: [resolved, unresolved]
+  issue_comment:
+    types: [created, edited]
 
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
-  group: pr-review-convergence-${{ github.event.pull_request.number }}
+  group: pr-review-convergence-${{ github.event.pull_request.number || github.event.issue.number }}
   cancel-in-progress: true
 
 jobs:
   review-convergence:
-    if: github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.base.ref == 'main' || (github.event_name == 'issue_comment' && github.event.issue.pull_request != null && github.event.comment.user.login == 'chatgpt-codex-connector[bot]')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,11 +37,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         shell: bash
         run: |
           set -euo pipefail
+          # Issue-comment events have no embedded head SHA; freeze it from the API.
+          if [[ -z "$PR_HEAD_SHA" ]]; then
+            PR_HEAD_SHA="$(gh api "/repos/$PR_REPOSITORY/pulls/$PR_NUMBER" --jq .head.sha)"
+          fi
           python3 tools/pr_review_convergence.py \
             --repository "$PR_REPOSITORY" \
             --pr "$PR_NUMBER" \
@@ -49,7 +56,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: pr-review-convergence-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: pr-review-convergence-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/pr-review-convergence.json
           if-no-files-found: warn
           retention-days: 30
