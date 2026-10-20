@@ -18,6 +18,14 @@
 
 **Finding disposition:** Six current findings reproduced and assigned structural fixes. Zero rejected, duplicated or speculative findings among the six. The previous PR conversation includes historical integration and billing notes, not distinct code-review findings. Completion status must be set only after successful final-head validation and independent review.
 
+### Correction-induced defect, separately reproduced
+
+- **`PRESENTATION-EXACT-SOURCE-QUOTE`** was discovered after implementing the Markdown injection fix: the previous HTML escape and triple-backtick substitution rewrote attributed source content shown in the downloadable report. The attribution and hash in the JSON remained exact, but the human-readable quotation was no longer a literal reproduction.
+- **Red test proof:** New `test_report_quote_preserves_exact_markup_and_backticks_as_code` committed at `9e66c5d322db9ead14ff52bbe01505098728c305`; hosted [run 39456944132](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/39456944132) failed that test on Python 3.11 and 3.13 (138 tests, one new failure, one optional skip). Exact literal `<img ...>` and ``` were rewritten to entities and spaced backticks.
+- **Root-cause correction:** Instead of modifying raw quoted bytes, `presentation.py` uses an adaptive Markdown code fence longer than any run of backticks in the untrusted quote. Fenced code prevents executable markup without corrupting the visible quotation. Independent compilation and package replay remain required on the final head.
+- **Scope:** A report-output integrity and security correction; neither source authenticity nor natural-language fidelity is promoted by faithful quotation.
+
+
 ## Verification obligations and limits
 
 - **Source replay:** Hashes of untrusted snapshots and commitment to the recorded acquisition method now participate in the audit identity; source authenticity remains unestablished. Replacement of an entire unsigned package, including recomputed audit bytes, remains possible absent external trusted signatures.
