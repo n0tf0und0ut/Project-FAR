@@ -26,7 +26,14 @@ def parse_json_artifact(raw: bytes, name: str):
     try:
         def nonfinite(token):
             raise ValueError("non-finite JSON artifact")
-        return json.loads(raw, parse_constant=nonfinite)
+        def unique_object(pairs):
+            found = {}
+            for key, value in pairs:
+                if key in found:
+                    raise ValueError("duplicate JSON object key")
+                found[key] = value
+            return found
+        return json.loads(raw, parse_constant=nonfinite, object_pairs_hook=unique_object)
     except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
         raise InvalidBundle("invalid or over-nested JSON artifact: " + name) from exc
 
@@ -64,7 +71,10 @@ def write_package(destination: Path, package: dict, *, review: dict | None = Non
             (tmp / name).write_bytes(content)
         manifest = {**package["manifest"], "files_sha256": {name: digest(content) for name,content in sorted(files.items())},
                     "self_digest_scope": "manifest.json intentionally excluded"}
-        (tmp / "manifest.json").write_bytes(canonical(manifest) + b"\n")
+        manifest_raw = canonical(manifest) + b"\n"
+        if len(manifest_raw) > 6_000_000:
+            raise InvalidBundle("manifest input size limit exceeded")
+        (tmp / "manifest.json").write_bytes(manifest_raw)
         os.replace(tmp, destination)
         return manifest
     except BaseException:
@@ -119,7 +129,14 @@ def verify_package(directory: Path) -> dict:
     def artifact(name):
         return parse_json_artifact(artifacts[name], name)
     # Detect extra files and checks that were removed, not just files in manifest.
-    if {p.name for p in root.iterdir()} != {*stored, "manifest.json"}:
+    expected_names = {*stored, "manifest.json"}
+    present = set()
+    with os.scandir(root) as entries:
+        for entry in entries:
+            if entry.name not in expected_names:
+                raise InvalidBundle("untracked audit-package files")
+            present.add(entry.name)
+    if present != expected_names:
         raise InvalidBundle("untracked audit-package files")
     if ("review.json" in stored) != ("review_verification.json" in stored):
         raise InvalidBundle("incomplete signed-review record pair")

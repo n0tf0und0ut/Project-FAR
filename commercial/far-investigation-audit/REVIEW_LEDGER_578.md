@@ -190,3 +190,33 @@ upload, proving worker release. This fourth sixth-review test fails on the
 predecessor; all four and the complete 182-test component suite pass after
 correction. This is the same reported ingress-bound invariant, not an added
 feature. Hosted and independent exact-head validation must use this successor.
+
+
+## Seventh review: unambiguous replay and composed resource bounds
+
+Reviewed integration `ae18d3dfd01d49349b5c88841801f1bdea1b60f5`; fixes below
+preserve the sixth-review correction `e85900fcfeb0a7354b3cd0fe693c6d0d7dec1c83`.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `WRITER-VERIFIER-SIZE-CONSISTENCY` | 4330776142 | Serialize and cap the complete manifest before stage publication; rejection removes staging output | `test_writer_rejects_oversized_manifest_without_publishing` |
+| `UNAMBIGUOUS-PACKAGE-JSON` | 4330776148 | Reject duplicate object keys at every nesting level in all package JSON, including the manifest | `test_rehashed_duplicate_keys_are_rejected_in_every_json_artifact` |
+| `LOSSLESS-ACCEPTED-TIME-PRECISION` | 4330776154 | Primary and independent validators each reject precision beyond six fractional digits before datetime conversion; unsupported precision cannot collapse chronology | `test_timestamp_precision_is_never_silently_truncated` |
+| `BOUNDED-DIRECTORY-ENUMERATION` | 4330776160 | Stream directory entries and stop at the first unexpected name; retained names are bounded by the schema allowlist | `test_untracked_entries_stop_enumeration_at_first_mismatch` |
+
+All four regressions are red on `e85900fc`, with nine failing assertions and no
+fixture errors; they pass after correction. Duplicate-key probes preserve the
+original last value and refresh the unsigned file hash, so the prior parser
+accepted all six ambiguous JSON artifacts. Timestamp probes independently
+exercise both validators with rehashed input/report identity.
+
+
+Two additional full-ASGI regressions exercise the sixth-review actual-byte
+limits through the complete middleware stack, including understated multipart
+Content-Length. They complement the direct route tests. Per-request quotas do
+not establish global concurrency admission control or production readiness.
+
+The complete local component suite executes **188 tests, all passing**, with
+installed FastAPI/Starlette/httpx dependencies. Hosted Python-version checks,
+final independent review and protected merge authorization remain separate
+requirements.

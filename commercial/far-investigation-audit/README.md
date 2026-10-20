@@ -416,3 +416,11 @@ artifact snapshot rather than reopening mutable paths. Replay preserves JSON
 Boolean, integer and floating-point types. Identical inference queries are
 cached separately in both checking algorithms; cached query keys reuse bounded
 formula metadata, avoiding repeated serialization of entire premise families.
+
+Package replay rejects ambiguous duplicate JSON keys, manifests over 6 MB and
+unexpected directory entries without collecting an unbounded directory listing.
+Accepted UTC timestamps have at most microsecond precision; finer precision is
+rejected before comparison. HTTP receive quotas count actual bytes before JSON
+or multipart parsing (450 KB investigation, 16 MB upload), including chunked or
+understated-length traffic. These are per-input limits, with no claim of global
+concurrency admission control or production readiness.

@@ -40,7 +40,9 @@ def required(condition: bool, problem: str) -> None:
 
 
 def timestamp(value: Any, where: str) -> datetime:
-    required(isinstance(value, str) and value.endswith("Z"), f"{where}: UTC timestamp ending Z required")
+    required(isinstance(value, str) and re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", value) is not None,
+        f"{where}: UTC timestamp with at most microsecond precision required")
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         required(parsed.utcoffset().total_seconds() == 0, f"{where}: UTC required")

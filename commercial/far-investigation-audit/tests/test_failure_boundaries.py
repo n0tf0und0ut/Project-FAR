@@ -92,6 +92,49 @@ class FailureBoundaryTests(unittest.TestCase):
 
 
 class WebFailureBoundaryTests(unittest.TestCase):
+    def test_chunked_json_is_stopped_before_the_whole_stream_is_consumed(self):
+        import asyncio
+        from webapp import app
+        reads = []
+        sent = []
+        async def receive():
+            if len(reads) >= 20:
+                return {"type": "http.disconnect"}
+            reads.append(1)
+            return {"type": "http.request", "body": b" " * 128_000,
+                    "more_body": len(reads) < 20}
+        async def send(message):
+            sent.append(message)
+        scope = {"type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1",
+                 "method": "POST", "scheme": "http", "path": "/api/investigate",
+                 "raw_path": b"/api/investigate", "query_string": b"", "root_path": "",
+                 "headers": [(b"host", b"localhost"), (b"content-type", b"application/json")],
+                 "client": ("127.0.0.1", 1000), "server": ("localhost", 80)}
+        asyncio.run(app(scope, receive, send))
+        self.assertEqual(next(s for s in sent if s["type"] == "http.response.start")["status"], 413)
+        self.assertLessEqual(len(reads), 4)
+
+    def test_upload_actual_bytes_override_understated_length_before_multipart(self):
+        import asyncio
+        from webapp import app
+        reads = []
+        sent = []
+        async def receive():
+            reads.append(1)
+            self.assertLessEqual(len(reads), 3)
+            return {"type": "http.request", "body": b"x" * 8_000_000, "more_body": True}
+        async def send(message):
+            sent.append(message)
+        scope = {"type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1",
+                 "method": "POST", "scheme": "http", "path": "/api/upload",
+                 "raw_path": b"/api/upload", "query_string": b"", "root_path": "",
+                 "headers": [(b"host", b"localhost"), (b"content-length", b"1"),
+                             (b"content-type", b"multipart/form-data; boundary=hostile")],
+                 "client": ("127.0.0.1", 1000), "server": ("localhost", 80)}
+        asyncio.run(app(scope, receive, send))
+        self.assertEqual(next(s for s in sent if s["type"] == "http.response.start")["status"], 413)
+        self.assertEqual(len(reads), 3)
+
     def test_over_nested_request_returns_422_and_releases_worker(self):
         from fastapi.testclient import TestClient
         from webapp import app

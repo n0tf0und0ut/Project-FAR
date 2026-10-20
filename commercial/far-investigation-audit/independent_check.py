@@ -28,7 +28,8 @@ def _same_json(left, right):
 
 
 def _utc(value):
-    if not isinstance(value, str) or not value.endswith("Z"):
+    if not isinstance(value, str) or re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", value) is None:
         raise IndependentCheckError("independent UTC timestamp required")
     try:
         parsed = datetime.fromisoformat(value[:-1] + "+00:00")
