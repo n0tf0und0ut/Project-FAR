@@ -1,0 +1,143 @@
+"""PR #578 review-counterexample tests: deliberately adversarial inputs.
+
+Each regression is keyed to a violated invariant rather than a reviewer comment ID.
+No test authenticates external sources, semantic mapping, or real-world verdicts.
+"""
+from __future__ import annotations
+
+import copy
+import json
+import pathlib
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+from engine import InvalidBundle, audit, digest
+from full_cli import write_package, verify_package
+from independent_check import IndependentCheckError, check_report
+from presentation import render_markdown
+from workflow import investigate
+
+CUTOFF = "2026-10-17T12:00:00Z"
+
+
+def source(sid, text, *, origin=None):
+    return {"id": sid, "text": text, "sha256": digest(text.encode("utf-8")),
+            "origin_id": origin, "published_at": "2026-10-16T12:00:00Z",
+            "captured_at": CUTOFF, "publication_date_verified": True,
+            "origin_verified": False}
+
+
+def bundle(primary="Exactly 1 row reported.", secondary="One observation supports the record."):
+    return {
+        "schema": "far-investigation-audit/0.1", "investigation_id": "review_578",
+        "as_of": CUTOFF, "atoms": {"P": "A declared observation"},
+        "sources": [source("primary", primary), source("ev1", secondary, origin="origin-A")],
+        "claims": [{"id": "c1", "text": primary, "source_id": "primary",
+                    "span": {"start": 0, "end": len(primary), "quote": primary},
+                    "formula": {"atom": "P"}, "mapping_status": "unreviewed"}],
+        "evidence": [{"id": "e1", "claim_id": "c1", "source_id": "ev1",
+                      "span": {"start": 0, "end": len(secondary), "quote": secondary},
+                      "formula": {"atom": "P"}, "relation": "supports",
+                      "mapping_status": "unreviewed"}],
+        "interpretations": [], "unknowns": []}
+
+
+class Review578RegressionTests(unittest.TestCase):
+    def test_replay_method_downgrade_cannot_keep_original_audit_identity(self):
+        pkg = investigate({"investigation_id": "capture_commitment",
+                           "captured_at": CUTOFF,
+                           "source": {"kind": "text", "text": "There are exactly six items."}})
+        old_identity = pkg["audit"]["report_sha256"]
+        self.assertEqual(pkg["acquisition"][0]["extraction"], "text_provided_v1")
+        pkg["acquisition"][0]["extraction"] = "pypdf_text_v1"
+        pkg["acquisition"][0].pop("raw_snapshot_utf8")
+        pkg["report_md"] = render_markdown(pkg["bundle"], pkg["audit"],
+                                           acquisition=pkg["acquisition"],
+                                           discovery=pkg["discovery"],
+                                           questions=pkg["critical_questions"])
+        pkg["manifest"]["report_md_sha256"] = digest(pkg["report_md"].encode("utf-8"))
+        self.assertEqual(pkg["audit"]["report_sha256"], old_identity)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / "pkg"
+            write_package(path, pkg)
+            with self.assertRaisesRegex(InvalidBundle, "acquisition commitment mismatch"):
+                verify_package(path)
+
+    def test_source_origin_must_be_checked_independently(self):
+        b = bundle()
+        wrong = copy.deepcopy(audit(b))
+        wrong["claims"]["c1"]["evidence"][0]["origin_id"] = "origin-B"
+        wrong["claims"]["c1"]["support_origin_ids"] = ["origin-B"]
+        with self.assertRaisesRegex(IndependentCheckError, "origin"):
+            check_report(b, wrong)
+
+    def test_overlapping_same_source_claim_is_not_corrobating_evidence(self):
+        b = bundle()
+        b["evidence"][0]["source_id"] = "primary"
+        text = b["sources"][0]["text"]
+        b["evidence"][0]["span"] = {"start": 0, "end": len(text) - 1,
+                                    "quote": text[:-1]}
+        result = audit(b)
+        self.assertEqual(result["claims"]["c1"]["status"], "NOT_ESTABLISHED")
+        self.assertEqual(result["claims"]["c1"]["evidence"][0]["formal_relation"],
+                         "SELF_REFERENCE_NOT_CORROBORATION")
+        self.assertTrue(check_report(b, result)["independent_algorithm_agrees"])
+
+    def test_independent_checker_detects_forged_structured_summary(self):
+        b = bundle(secondary='[{"count": 1}]')
+        b["claims"][0]["quantity"] = {
+            "value": "1", "number_span": {"start": 8, "end": 9}, "unit": "rows"}
+        b["evidence"][0].pop("formula")
+        b["evidence"][0]["data_check"] = {"operation": "count_rows", "pointer": ""}
+        report = audit(b)
+        self.assertEqual(report["claims"]["c1"]["structured_value_checks"]["matches"], 1)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        forged = copy.deepcopy(report)
+        forged["claims"]["c1"]["structured_value_checks"]["status"] = "CONFLICTING_STRUCTURED_VALUES"
+        forged["claims"]["c1"]["structured_value_checks"]["matches"] = 0
+        forged["claims"]["c1"]["structured_value_checks"]["mismatches"] = 99
+        with self.assertRaisesRegex(IndependentCheckError, "structured.*summary"):
+            check_report(b, forged)
+
+    def test_remote_capture_is_recorded_after_fetch_not_at_cutoff(self):
+        raw = "<p>This example asserts a concrete measured result.</p>"
+        text = "This example asserts a concrete measured result."
+        def fake_fetch(url, *, permit_network):
+            self.assertTrue(permit_network)
+            return {"text": text, "raw_snapshot_utf8": raw,
+                    "raw_sha256": digest(raw.encode("utf-8")),
+                    "extraction": "html_visible_text_v1", "url": url}
+        with patch("workflow._now", side_effect=["2026-10-20T00:00:00Z",
+                                                  "2026-10-20T00:00:05Z"]):
+            pkg = investigate({"source": {"kind": "url",
+                                         "url": "https://example.net/observation"}},
+                              permit_network=True, source_fetcher=fake_fetch)
+        self.assertEqual(pkg["bundle"]["as_of"], "2026-10-20T00:00:00Z")
+        self.assertEqual(pkg["bundle"]["sources"][0]["captured_at"],
+                         "2026-10-20T00:00:05Z")
+        self.assertEqual(pkg["audit"]["source_temporal_status"]["primary"],
+                         "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION")
+
+    def test_report_escapes_untrusted_html_and_markdown(self):
+        text = "Exactly 1 row reported."
+        proposal = {"method": "supplied", "claims": [{"id": "c1", "quote": text}],
+                    "unknowns": ["<img src=x onerror=alert(1)>",
+                                 "[forged link](https://evil.example)"],
+                    "arguments": []}
+        pkg = investigate({"captured_at": CUTOFF, "source": {"kind": "text", "text": text},
+                           "proposal_mode": "supplied", "proposal": proposal})
+        md = pkg["report_md"]
+        self.assertNotIn("<img", md)
+        self.assertNotIn("[forged link](https://evil.example)", md)
+        self.assertIn("&lt;img", md)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = pathlib.Path(tmp) / "pkg"
+            write_package(target, pkg)
+            self.assertTrue(verify_package(target)["replay_match"])
+
+
+if __name__ == "__main__":
+    unittest.main()
