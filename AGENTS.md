@@ -115,6 +115,8 @@ Never modify frozen evidence to obtain a desired result. Internal construction, 
 
 ## Git and repository discipline
 
+For every PR, apply docs/governance/pr-review-convergence.md: reconstruct exact-head evidence, record review findings by underlying violated invariant and root cause, reproduce and regression-test substantive defects, justify stale/duplicate/disproven findings, avoid re-requesting reviews on an unchanged head, and retain independent review and protected merge authorization as separate obligations. A green metadata review check is not a claim of substantive correctness.
+
 Respect branch protection, merge authority, provenance controls, frozen evidence, canonical-source rules, and required checks. Do not bypass them.
 
 When repository mutation is authorized, keep branches and diffs task-scoped. Change authoritative sources rather than manually patching generated artifacts; regenerate derived outputs with existing tooling when applicable.
