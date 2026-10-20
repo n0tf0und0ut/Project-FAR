@@ -41,7 +41,8 @@
     "Author and vendor claims have not been independently benchmarked or reproduced in this intake.",
     "Live source content was inspected at URLs but source bytes were not content-addressed, and chronological freshness after the observation date is not asserted.",
     "All candidate mechanisms appear representable within provisional v0.5's declared source, semantic interpretation, graph, provenance, validation, confidence, or governance extension interfaces; this is a preliminary mapping, not a proof of saturation.",
-    "No automatic change to FAR-CORE, FARA, EFR, v0.5, project status, accepted evidence, feature scope, or benchmark results."
+    "No automatic change to FAR-CORE, FARA, EFR, v0.5, project status, accepted evidence, feature scope, or benchmark results.",
+    "Sources published after the earlier October 4–16 catch-up report can enter the October 20 intake without treating their publication date as a scheduled task execution timestamp."
   ],
   "entries": [
     {
@@ -205,6 +206,66 @@
       "source_reported_observation": "Public source describes versioned cited evidence, historical replay, MCP, REST, and CLI surfaces.",
       "inference_limit": "A source repository and architecture description do not demonstrate actual correctness or sustained deployment.",
       "single_falsification_or_comparison_test": "Independent offline replay with changed sources and time-cutoff invalidation comparison.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-012",
+      "title": "SPIDES: Information-Flow Control for Browser Agents",
+      "primary_url": "https://arxiv.org/abs/2610.24277",
+      "publication_or_event_date": "2026-10-16",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "hostile-browser-source-boundary",
+      "source_reported_observation": "Authors propose browser-action-gated information-flow controls for agent access to untrusted webpage content, aimed at preventing prompt-injection-driven exfiltration.",
+      "inference_limit": "A browser-agent system model and its evaluation do not establish that FAR's untrusted-source and tool authorization boundaries are implemented or independently secure.",
+      "single_falsification_or_comparison_test": "Inject a malicious webpage instruction into an otherwise valid source, attempt unauthorized tool arguments and cross-origin disclosure, and verify no privileged effect while preserving legitimate cited data.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-013",
+      "title": "The Window Is in the Reasoning: When LLM Agents Decide to Follow Prompt Injections",
+      "primary_url": "https://arxiv.org/abs/2610.24048",
+      "publication_or_event_date": "2026-10-16",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "injection-branching-reliability",
+      "source_reported_observation": "Across four AgentDojo suites, authors report that replay/resampling after injection exposure changes outcome variance, including 0.91 versus 0.62 between-state variance share for Qwen3 without/with thinking; single-run labels for thinking agents disagree on reruns as often as 35%.",
+      "inference_limit": "Reported model- and benchmark-specific variance does not demonstrate FAR prompt-injection vulnerability, nor that any single hosted monitor gives complete protection.",
+      "single_falsification_or_comparison_test": "Freeze identical untrusted source bytes and authorized search state, branch repeated agent rollouts, measure attack/legitimate task outcomes with confidence bounds; compare gate decisions at read time and before each tool effect.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-014",
+      "title": "Anytime Contracts for AI Services",
+      "primary_url": "https://arxiv.org/abs/2610.22781",
+      "publication_or_event_date": "2026-10-16",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "service-quality-anytime-audit",
+      "source_reported_observation": "Authors model principal-agent quality under unknown contract termination times and derive model-conditional optimal anytime-test-linked payments; examples use synthetic and deployed-LLM data.",
+      "inference_limit": "The contract-theory result is conditional on its game and observation assumptions; it is not evidence that FAR has audited providers, reliable quality telemetry, or enforceable commercial contracts.",
+      "single_falsification_or_comparison_test": "On a frozen sequence of repeated model-quality outcomes, compare fixed-horizon and anytime-valid evidence processes while adversarially changing stop time and provider quality; measure false accusation versus missed degradation.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-015",
+      "title": "Dataminr AIUC-1 certification announcement and testing scope",
+      "primary_url": "https://www.financialcontent.com/article/bizwire-2026-10-20-dataminr-achieves-aiuc-1-certification-the-standard-for-ai-agent-security-safety-and-reliability",
+      "publication_or_event_date": "2026-10-20",
+      "checked_on": "2026-10-20",
+      "evidence_class": "vendor_benchmark_self_report",
+      "topic": "enterprise-third-party-agent-assurance",
+      "source_reported_observation": "Dataminr announces AIUC-1 certification; its release names Mastermind as independent organizational-control auditor and reports over 1,000 AIUC tests spanning adversarial, quality and groundedness scenarios.",
+      "inference_limit": "An organization-issued certification release and undisclosed pass counts do not establish tested FAR capabilities, actual pass rates, factual-verdict reliability, or premise-to-conclusion entailment validation.",
+      "single_falsification_or_comparison_test": "Obtain third-party certificate scope, applicable standard version, raw evaluation criteria, aggregate pass/fail rates and independent audit report before comparing coverage against FAR's reproducible entailment, source-provenance and injection tests.",
       "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
       "architecture_change_required": false,
       "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
