@@ -13,7 +13,7 @@ from collections import defaultdict
 from pathlib import Path
 
 SHA = re.compile(r"[a-f0-9]{40}\Z")
-REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
+REPO = re.compile(r"(?!\.{1,2}/)[A-Za-z0-9_.-]+/(?!(?:\.{1,2})\Z)[A-Za-z0-9_.-]+\Z")
 QUERY = """query($owner:String!,$name:String!,$number:Int!,$cursor:String) {
  repository(owner:$owner,name:$name) {
   pullRequest(number:$number) {
