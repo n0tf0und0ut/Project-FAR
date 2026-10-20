@@ -167,6 +167,9 @@ def investigate(config: dict, *, permit_network: bool = False,
         meta[item["source_id"]]["acquisition_sha256"] = digest(canonical(item))
     bundle = compile_proposal(proposal, source_texts, investigation_id=inv_id, captured_at=requested,
                               published_at_by_source=publications, source_meta=meta)
+    # Bind even unexpanded network-discovery receipts into the immutable audit
+    # identity; a removable, self-rehashable delivery file is insufficient.
+    bundle["discovery_sha256"] = digest(canonical(discovery)) if discovery is not None else None
     result = audit(bundle)
     questions = critical_questions(bundle["claims"])
     # Advisory critical questions are a separately hashed adjunct, not part of
