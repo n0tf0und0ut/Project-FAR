@@ -54,7 +54,7 @@ class ScheduledIntakeTests(unittest.TestCase):
         self.assertEqual(len(streams), len(EXPECTED_TASKS))
         for stream in streams:
             self.assertIs(stream["results_exhaustive"], False)
-            self.assertRegex(stream["last_run_metadata_utc"], r"^2026-10-20T\\d\\d:\\d\\d:\\d\\dZ$")
+            self.assertRegex(stream["last_run_metadata_utc"], r"^2026-10-20T\d\d:\d\d:\d\dZ$")
 
     def test_each_source_has_primary_link_explicit_limit_and_falsifier(self):
         entries = self.data["entries"]
@@ -64,7 +64,7 @@ class ScheduledIntakeTests(unittest.TestCase):
         for e in entries:
             with self.subTest(source=e["id"]):
                 self.assertEqual(set(e), REQUIRED_ENTRY_FIELDS)
-                self.assertRegex(e["id"], r"^SR-\\d{3}$")
+                self.assertRegex(e["id"], r"^SR-\d{3}$")
                 self.assertEqual(urlparse(e["primary_url"]).scheme, "https")
                 self.assertTrue(urlparse(e["primary_url"]).hostname)
                 self.assertIn(e["evidence_class"], PERMITTED_EVIDENCE)
