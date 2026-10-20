@@ -51,7 +51,13 @@ def verify_package(directory: Path) -> dict:
     root = directory.resolve()
     if not root.is_dir():
         raise InvalidBundle("audit directory missing")
-    manifest = json.loads((root / "manifest.json").read_bytes())
+    # This manifest is itself untracked by the file digest map. Enforce its
+    # untrusted-input bounds before allocation or JSON parsing.
+    manifest_path = root / "manifest.json"
+    if (manifest_path.is_symlink() or not manifest_path.is_file()
+            or manifest_path.stat().st_size > 6_000_000):
+        raise InvalidBundle("manifest input size/type limit exceeded")
+    manifest = json.loads(manifest_path.read_bytes())
     if not isinstance(manifest, dict) or manifest.get("schema") != "far-investigation-delivery/0.3":
         raise InvalidBundle("unexpected manifest version")
     if (manifest.get("semantic_mapping_independently_verified") is not False or
@@ -99,6 +105,8 @@ def verify_package(directory: Path) -> dict:
         raise InvalidBundle("acquisition does not account for every source exactly once")
     if not isinstance(proposal, dict):
         raise InvalidBundle("malformed proposal artifact")
+    if bundle.get("proposal_sha256") != digest(canonical(proposal)):
+        raise InvalidBundle("proposal provenance commitment mismatch")
     # The manifest is unsigned and deliberately excluded from its own hash.
     # Reject a false privacy/network disclosure when archived data proves an
     # external proposal, transcription, fetched URL or discovery route.
