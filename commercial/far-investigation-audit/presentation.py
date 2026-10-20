@@ -1,6 +1,16 @@
 """Bounded inspection report; neither generated prose nor markdown is an authority."""
 from __future__ import annotations
 import json
+import html
+
+
+def _plain(value: object) -> str:
+    """Escape untrusted HTML and Markdown without interpreting its contents."""
+    escaped = html.escape(str(value), quote=False).replace(chr(13), " ").replace(chr(10), " ")
+    for symbol in (chr(92), chr(96), "*", "_", "[", "]", "(", ")", "!", "#", ">", "|", "~"):
+        escaped = escaped.replace(symbol, chr(92) + symbol)
+    return escaped
+
 from engine import canonical, digest
 
 
@@ -22,7 +32,7 @@ def render_markdown(bundle: dict, audit: dict, *, acquisition: list[dict],
         state = audit["claims"][cid]
         lines += [f"### {cid}", "", f"Source: `{claim['source_id']}`; exact span: "
                   f"`{claim['span']['start']}:{claim['span']['end']}`", "",
-                  "Source quotation:", "", "```text", claim["span"]["quote"].replace("```", "` ` `"), "```", "",
+                  "Source quotation:", "", "```text", html.escape(claim["span"]["quote"].replace("```", "` ` `")), "```", "",
                   f"- Evidential/conditional status: **{state['status']}**",
                   f"- Numerical status: **{state['structured_value_checks']['status']}**",
                   f"- Semantic mapping: **{state['mapping_status']}** (not independent validation)",
@@ -39,10 +49,10 @@ def render_markdown(bundle: dict, audit: dict, *, acquisition: list[dict],
         lines += [f"### {r['id']}", "", f"- Premises: {', '.join(r['premises'])}; conclusion: {r['conclusion']}",
                   f"- Formal result: **{p['status']}**", "- Natural-language fidelity: **unverified**"]
         if r.get("interpretation_notes"):
-            lines.append("- Interpretation: " + r["interpretation_notes"].replace("\n", " "))
+            lines.append("- Interpretation: " + _plain(r["interpretation_notes"]))
         if r.get("interpretation_card"):
             for dimension, spec in sorted(r["interpretation_card"].items()):
-                lines.append(f"- {dimension}: {spec['value']} ({spec['origin']}, unverified)")
+                lines.append(f"- {dimension}: {_plain(spec['value'])} ({spec['origin']}, unverified)")
         if p.get("countermodel") is not None:
             lines.append("- Formal countermodel: `" + json.dumps(p["countermodel"], sort_keys=True) + "`")
         if r["premises_without_uncontested_formal_evidence"]:
@@ -53,8 +63,9 @@ def render_markdown(bundle: dict, audit: dict, *, acquisition: list[dict],
     lines += ["## Acquisition history", ""]
     for entry in acquisition:
         label = entry.get("url") or entry.get("label") or entry.get("source_id", "unknown")
-        label = str(label).replace("`", "'")
-        lines.append(f"- `{entry.get('source_id', 'unknown')}`: {label}; method={entry.get('extraction', 'provided')}; raw SHA-256={entry.get('raw_sha256', '?')}; authenticity=unverified")
+        lines.append(f"- {_plain(entry.get('source_id', 'unknown'))}: {_plain(label)}; "
+                     f"method={_plain(entry.get('extraction', 'provided'))}; "
+                     f"raw SHA-256={_plain(entry.get('raw_sha256', '?'))}; authenticity=unverified")
     lines.append("")
     if discovery:
         lines += ["## Discovery (leads only)", "", f"- Searches: {len(discovery.get('queries', []))}; leads: {len(discovery.get('results', []))}",
@@ -63,10 +74,11 @@ def render_markdown(bundle: dict, audit: dict, *, acquisition: list[dict],
         lines += ["## Argument-scheme critical questions (unadjudicated)", "",
                   "These are hypothesis/checklist triggers, NOT findings that an argument is invalid.", ""]
         for question in questions:
-            lines += [f"- `{question['claim_id']}` / `{question['scheme']}`: {question['critical_question']}"]
+            lines += [f"- {_plain(question['claim_id'])} / {_plain(question['scheme'])}: "
+                      f"{_plain(question['critical_question'])}"]
         lines.append("")
     lines += ["## Unknowns and blockers", ""]
-    lines.extend("- " + x.replace("\n", " ") for x in audit["unknowns"])
+    lines.extend("- " + _plain(x) for x in audit["unknowns"])
     lines += ["", "## Assurance boundaries", ""]
     lines.extend("- " + k.replace("_", " ") + ": " + v for k,v in audit["assurance_boundary"].items())
     return "\n".join(lines) + "\n"
