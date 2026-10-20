@@ -137,6 +137,68 @@ class ConvergenceTests(unittest.TestCase):
         ], [], HEAD, [self.codex_comment()])
         self.assertFalse(result["review_metadata_converged"])
 
+    def test_pending_rerun_preserves_unresolved_codex_with_human_approval(self):
+        first = self.codex_comment(unresolved=True)
+        pending = self.codex_comment(status="running", unresolved=None, ident=2,
+                                     updated="2026-10-21T00:00:00Z")
+        result = evaluate(copy.deepcopy(PR), [approval()], [], [], HEAD,
+                          [first, pending])
+        self.assertFalse(result["review_metadata_converged"])
+        self.assertTrue(result["trusted_codex_review_on_exact_head"]["unresolved"])
+        self.assertIn("authenticated exact-head Codex review reports unresolved findings",
+                      result["blockers"])
+        self.assertIn("authenticated exact-head Codex review is incomplete",
+                      result["blockers"])
+
+    def test_pending_codex_alone_blocks_prior_human_approval(self):
+        result = evaluate(copy.deepcopy(PR), [approval()], [], [], HEAD,
+                          [self.codex_comment(status="running", unresolved=None)])
+        self.assertFalse(result["review_metadata_converged"])
+
+    def test_latest_completed_clean_review_supersedes_prior_unresolved(self):
+        first = self.codex_comment(unresolved=True)
+        done = self.codex_comment(unresolved=False, ident=3,
+                                  updated="2026-10-21T00:00:00Z")
+        record = evaluate(copy.deepcopy(PR), [], [], [], HEAD, [first, done])
+        self.assertTrue(record["review_metadata_converged"])
+        codex = record["trusted_codex_review_on_exact_head"]
+        self.assertEqual(codex["source_comment_id"], 3)
+        self.assertEqual(len(codex["review_state_sources"]), 2)
+        self.assertFalse(codex["unresolved"])
+
+    def test_ambiguous_double_codex_marker_fails_closed(self):
+        comment = self.codex_comment(unresolved=False)
+        comment["body"] += "\\n" + self.codex_comment(unresolved=True)["body"]
+        with self.assertRaises(EvidenceError):
+            evaluate(copy.deepcopy(PR), [], [], [], HEAD, [comment])
+
+    def test_malformed_completed_codex_not_validated_by_human(self):
+        comment = self.codex_comment(unresolved=None)
+        with self.assertRaises(EvidenceError):
+            evaluate(copy.deepcopy(PR), [approval()], [], [], HEAD, [comment])
+
+    def test_review_metadata_preserves_source_ids_and_all_threads(self):
+        threads = [{"id": "t1", "resolved": True, "outdated": False,
+                    "root_comment_id": 11}]
+        result = evaluate(copy.deepcopy(PR), [approval(number=42)], threads, [], HEAD, [])
+        self.assertTrue(result["review_metadata_converged"])
+        self.assertEqual(result["active_review_sources"][0]["review_id"], 42)
+        self.assertEqual(result["active_review_sources"][0]["commit_id"], HEAD)
+        self.assertEqual(result["all_thread_states"], threads)
+
+    def test_additional_codex_html_comments_do_not_break_single_state(self):
+        comment = self.codex_comment()
+        comment["body"] += "\\n<!-- unrelated advisory note -->"
+        result = evaluate(copy.deepcopy(PR), [], [], [], HEAD, [comment])
+        self.assertTrue(result["review_metadata_converged"])
+
+    def test_trusted_codex_summary_identifiers_are_reconstructible(self):
+        comment = self.codex_comment(ident=789, updated="2026-10-25T02:00:00Z")
+        result = evaluate(copy.deepcopy(PR), [], [], [], HEAD, [comment])
+        code = result["trusted_codex_review_on_exact_head"]
+        self.assertEqual(code["source_comment_id"], 789)
+        self.assertEqual(code["updated_at"], "2026-10-25T02:00:00Z")
+
     def test_head_drift_fails_closed(self):
         changed = copy.deepcopy(PR)
         changed["head"]["sha"] = OLD
