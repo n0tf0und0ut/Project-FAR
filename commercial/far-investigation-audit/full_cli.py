@@ -16,19 +16,26 @@ from bounded_io import read_bounded, BoundedInputError
 MAX_CONFIG = 450_000
 
 
-def read_json_artifact(path: Path, limit: int = 6_000_000):
+def parse_json_artifact(raw: bytes, name: str):
     """Bound parser-depth failures for all hostile package JSON, not just size.
 
-    Descriptor size checks and bounded reads precede allocation in this helper.
+    Stored-file size limits are enforced by verify_package before this helper.
     RecursionError is *not* a ValueError; never leak parser tracebacks through
     the public verification CLI or its imported API.
     """
     try:
-        return json.loads(read_bounded(path, limit))
+        def nonfinite(token):
+            raise ValueError("non-finite JSON artifact")
+        return json.loads(raw, parse_constant=nonfinite)
+    except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
+        raise InvalidBundle("invalid or over-nested JSON artifact: " + name) from exc
+
+
+def read_json_artifact(path: Path, limit: int = 6_000_000):
+    try:
+        return parse_json_artifact(read_bounded(path, limit, path.name), path.name)
     except BoundedInputError as exc:
         raise InvalidBundle(str(exc)) from exc
-    except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
-        raise InvalidBundle("invalid or over-nested JSON artifact: " + path.name) from exc
 
 
 def write_package(destination: Path, package: dict, *, review: dict | None = None) -> dict:
@@ -49,6 +56,10 @@ def write_package(destination: Path, package: dict, *, review: dict | None = Non
         if review is not None:
             files["review.json"] = canonical(review) + b"\n"
             files["review_verification.json"] = canonical(verify_review(review, package["audit"])) + b"\n"
+        if any(len(content) > 6_000_000 for content in files.values()):
+            raise InvalidBundle("audit artifact size limit exceeded")
+        if sum(map(len, files.values())) > 36_000_000:
+            raise InvalidBundle("aggregate audit artifact byte limit exceeded")
         for name, content in files.items():
             (tmp / name).write_bytes(content)
         manifest = {**package["manifest"], "files_sha256": {name: digest(content) for name,content in sorted(files.items())},
@@ -83,23 +94,39 @@ def verify_package(directory: Path) -> dict:
     stored = manifest.get("files_sha256")
     if not isinstance(stored, dict) or not {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json", "critical_questions.json"}.issubset(stored):
         raise InvalidBundle("manifest required files missing")
+    allowed = {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json",
+               "critical_questions.json", "discovery.json", "review.json", "review_verification.json"}
+    if not set(stored).issubset(allowed):
+        raise InvalidBundle("unrecognized audit artifact")
+    artifacts = {}
+    total_bytes = 0
     for name, expected in stored.items():
         if not isinstance(name, str) or name in {"", ".", ".."} or "/" in name or "\\" in name:
             raise InvalidBundle("unsafe file path in manifest")
         path = root / name
         if path.is_symlink():
             raise InvalidBundle("symlink audit artifact forbidden")
-        if not path.is_file() or path.stat().st_size > 6_000_000 or digest(read_bounded(path, 6_000_000)) != expected:
+        try:
+            snapshot = read_bounded(path, min(6_000_000, 36_000_000 - total_bytes), name)
+        except (OSError, BoundedInputError) as exc:
+            raise InvalidBundle("audit artifact size/type limit: " + name) from exc
+        if digest(snapshot) != expected:
             raise InvalidBundle("audit artifact hash mismatch: " + name)
+        total_bytes += len(snapshot)
+        if total_bytes > 36_000_000:
+            raise InvalidBundle("aggregate audit artifact byte limit exceeded")
+        artifacts[name] = snapshot
+    def artifact(name):
+        return parse_json_artifact(artifacts[name], name)
     # Detect extra files and checks that were removed, not just files in manifest.
     if {p.name for p in root.iterdir()} != {*stored, "manifest.json"}:
         raise InvalidBundle("untracked audit-package files")
     if ("review.json" in stored) != ("review_verification.json" in stored):
         raise InvalidBundle("incomplete signed-review record pair")
-    bundle = read_json_artifact(root / "input.json")
-    reported = read_json_artifact(root / "audit.json")
+    bundle = artifact("input.json")
+    reported = artifact("audit.json")
     recalc = audit(bundle)
-    if recalc != reported or manifest.get("input_sha256") != recalc.get("input_sha256") or manifest.get("report_sha256") != recalc.get("report_sha256"):
+    if canonical(recalc) != canonical(reported) or manifest.get("input_sha256") != recalc.get("input_sha256") or manifest.get("report_sha256") != recalc.get("report_sha256"):
         raise InvalidBundle("auditor replay mismatch")
     # Every interpretive and human-readable output is recomputed from the
     # recorded inputs. A file hash inside an unsigned, freely editable manifest
@@ -110,10 +137,10 @@ def verify_package(directory: Path) -> dict:
     sources = {s["id"]: s for s in bundle["sources"]}
     if len(sources) != len(bundle["sources"]):
         raise InvalidBundle("duplicate source identity in report")
-    acquisition = read_json_artifact(root / "acquisition.json")
-    proposal = read_json_artifact(root / "proposal.json")
-    questions = read_json_artifact(root / "critical_questions.json")
-    discovery = read_json_artifact(root / "discovery.json") if "discovery.json" in stored else None
+    acquisition = artifact("acquisition.json")
+    proposal = artifact("proposal.json")
+    questions = artifact("critical_questions.json")
+    discovery = artifact("discovery.json") if "discovery.json" in stored else None
     if not isinstance(acquisition, list) or any(not isinstance(a, dict) or
             a.get("source_id") not in sources for a in acquisition):
         raise InvalidBundle("invalid acquisition source identity")
@@ -179,7 +206,7 @@ def verify_package(directory: Path) -> dict:
             raise InvalidBundle("unknown replayable extraction method: " + str(method))
         if extracted["text"] != sources[sid]["text"]:
             raise InvalidBundle("raw-to-extracted source transformation mismatch: " + sid)
-        if "cues" in extracted and extracted["cues"] != item.get("cues"):
+        if "cues" in extracted and canonical(extracted["cues"]) != canonical(item.get("cues")):
             raise InvalidBundle("caption cue anchor mismatch: " + sid)
         if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
             raise InvalidBundle("acquisition commitment mismatch: " + sid)
@@ -197,11 +224,11 @@ def verify_package(directory: Path) -> dict:
     if canonical(rebuilt) != canonical(bundle):
         raise InvalidBundle("proposal-to-audit input reconstruction mismatch")
     expected_questions = critical_questions(bundle["claims"])
-    if questions != expected_questions:
+    if canonical(questions) != canonical(expected_questions):
         raise InvalidBundle("critical question advisory mismatch")
     expected_md = render_markdown(bundle, recalc, acquisition=acquisition,
                                  discovery=discovery, questions=expected_questions)
-    if read_bounded(root / "report.md", 6_000_000) != expected_md.encode("utf-8"):
+    if artifacts["report.md"] != expected_md.encode("utf-8"):
         raise InvalidBundle("human-readable report does not replay from source artifacts")
     if manifest.get("report_md_sha256") != digest(expected_md.encode("utf-8")):
         raise InvalidBundle("report digest mismatch")
@@ -216,8 +243,8 @@ def verify_package(directory: Path) -> dict:
     except IndependentCheckError as exc:
         raise InvalidBundle("design-diverse formal cross-check failed: " + str(exc)) from exc
     if "review.json" in stored:
-        reviewed = verify_review(read_json_artifact(root / "review.json"), recalc)
-        if reviewed != read_json_artifact(root / "review_verification.json"):
+        reviewed = verify_review(artifact("review.json"), recalc)
+        if canonical(reviewed) != canonical(artifact("review_verification.json")):
             raise InvalidBundle("review verification mismatch")
     return {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
             "extraction_replayed": independently_extracted,
@@ -242,7 +269,7 @@ def main() -> int:
             p.error("request and --output required unless --verify is specified")
         config = read_json_artifact(args.request, MAX_CONFIG)
         result = investigate(config, permit_network=args.allow_network, permit_model=args.allow_model, permit_files=True)
-        rev = read_json_artifact(args.review) if args.review else None
+        rev = read_json_artifact(args.review, 2_000_000) if args.review else None
         manifest = write_package(args.output, result, review=rev)
         print(json.dumps({"output": str(args.output), "report_sha256": manifest["report_sha256"],
                           "claims": len(result["bundle"]["claims"]), "readings": len(result["audit"]["interpretations"]),

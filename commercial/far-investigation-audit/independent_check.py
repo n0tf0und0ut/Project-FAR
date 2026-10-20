@@ -182,6 +182,20 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str):
 def check_report(bundle:dict, report:dict)->dict:
     if not isinstance(bundle,dict) or not isinstance(report,dict):
         raise IndependentCheckError("bundle/report missing")
+    formula_keys = {}
+    logical_results = {}
+    def formula_key(node):
+        identity = id(node)
+        if identity not in formula_keys:
+            # Retain the object so temporary negations cannot reuse an ID.
+            formula_keys[identity] = (node, json.dumps(
+                node, sort_keys=True, separators=(",", ":"), allow_nan=False))
+        return formula_keys[identity][1]
+    def formal_check(premises, conclusion):
+        key = tuple(formula_key(node) for node in [*premises, conclusion])
+        if key not in logical_results:
+            logical_results[key] = check(premises, conclusion)
+        return logical_results[key]
     claims={c["id"]:c for c in bundle["claims"]}
     readings={r["id"]:r for r in bundle["interpretations"]}
     checked=0
@@ -202,7 +216,7 @@ def check_report(bundle:dict, report:dict)->dict:
             result = {"status": "NOT_CHECKED_UNFORMALIZED",
                       "reason": "Auto-generated atom labels cannot test natural-language entailment."}
         elif basis == "explicit_formulas":
-            result=check([claims[p]["formula"] for p in spec["premises"]],claims[spec["conclusion"]]["formula"])
+            result=formal_check([claims[p]["formula"] for p in spec["premises"]],claims[spec["conclusion"]]["formula"])
         else:
             raise IndependentCheckError("unknown formalization basis")
         if not _same_json(result, r["formal_inference"]):
@@ -319,8 +333,8 @@ def check_report(bundle:dict, report:dict)->dict:
         elif "formula" not in ev:
             relation = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
-            pos = check([ev["formula"]], claim["formula"])
-            neg = check([ev["formula"]], {"not": claim["formula"]})
+            pos = formal_check([ev["formula"]], claim["formula"])
+            neg = formal_check([ev["formula"]], {"not": claim["formula"]})
             if pos["status"] == "INCONSISTENT_PREMISES":
                 relation = "INCONSISTENT_EVIDENCE_FORMULA"
             elif pos["status"] == "NOT_CHECKED_ATOM_LIMIT":

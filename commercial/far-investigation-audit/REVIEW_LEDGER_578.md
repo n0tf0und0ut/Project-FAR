@@ -129,3 +129,29 @@ The corrected candidate requires fresh hosted validation and an independent revi
 **Observed before/after:** On the predecessor's exact component bytes, the first eight tests in `test_review_578_cycle5.py` produced **22 failing assertions**. The oversized cases use a sparse 512 MiB file and a 128 MiB address-space limit in the child, so the regression does not allocate the adversarial file into the test runner. A separate predecessor diagnostic probe exited 1 with a `RecursionError` traceback. The corrected eight tests pass; a ninth positive control additionally rejects file growth between descriptor size inspection and reading. All 34 earlier-plus-new review tests pass locally, with zero failures. The complete local 172-test suite still needs hosted FastAPI dependencies for six web tests; it is not claimed as a full local pass.
 
 The work-budget tests instrument the expensive inference primitive to test rejection and duplicate-call accounting; they do not claim a measured runtime benchmark or independently verified real-world semantics. The snapshot tests use fake extraction/conversion adapters and mutate the original file during the operation. No live provider or source-authenticity claim follows. All final-head hosted, independent-review and protected-App obligations remain in force on the corrected successor.
+
+### Fifth-review integration follow-up
+
+Additional counterexamples were checked against `92b8cae2fe24af038651ad0692bef53e749d54dd`.
+Two replay paths still used Python container equality: legacy replay accepted
+floating-point counts substituted for integers; package replay accepted `0`
+substituted for a Boolean assurance flag after only the unsigned artifact hash
+was refreshed. Canonical JSON comparison now covers those paths and signed
+review replay. Regressions: `test_legacy_replay_does_not_coerce_float_counts_to_json_integers`
+and `test_package_replay_does_not_coerce_zero_to_false`.
+
+The same 48-record logic family caused 96 repeated calls in the independent
+oracle. `test_independent_repeated_queries_are_computed_once` requires two
+actual independent computations. A separate 400-reading, sub-two-megabyte
+counterexample measures serialized bytes rather than runtime: cache keys may
+not repeatedly expand the entire premise family. The primary cache now retains
+per-formula metadata, charges query-reference work to the existing 8,000,000-unit
+budget and returns separate result objects.
+
+Bounded I/O is also enforced across the delivery transaction: snapshot each
+artifact once, admit only the nine defined names, enforce 6 MB per artifact and
+36 MB total, and reject excessive writer output atomically. The manifest-family
+and oversized-writer regressions detect those missing composition bounds.
+These are extensions of the reported JSON-type and aggregate-resource invariants,
+not new product features or assurance promotion. Final-head validation and
+independent review remain required after the integrated corrections.

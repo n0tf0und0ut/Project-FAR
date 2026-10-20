@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import copy
+import io
+from pathlib import Path
 import json
 import pathlib
 import subprocess
@@ -12,9 +14,13 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
+import engine
+import independent_check
 from engine import InvalidBundle, audit, canonical, digest
 from independent_check import IndependentCheckError, check_report
 from local_media import read_pdf, transcribe_local
+from full_cli import verify_package, write_package
+from workflow import investigate
 from test_review_578 import bundle
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -186,6 +192,99 @@ class FifthReviewRegressions(unittest.TestCase):
         with patch("engine.entailment", return_value={"status": "ENTAILS_CONDITIONALLY"}) as evaluate:
             audit(work_bundle(unique=False))
             self.assertEqual(evaluate.call_count, 2)
+
+
+    def test_legacy_replay_does_not_coerce_float_counts_to_json_integers(self):
+        import verify
+        bundle = json.loads((ROOT / "examples/causal_jump.json").read_bytes())
+        report = audit(bundle)
+        report["interpretations"][0]["formal_inference"]["assignments_checked"] = float(
+            report["interpretations"][0]["formal_inference"]["assignments_checked"])
+        with tempfile.TemporaryDirectory() as folder:
+            b, r = Path(folder) / "input.json", Path(folder) / "audit.json"
+            b.write_bytes(canonical(bundle)); r.write_bytes(canonical(report))
+            with patch.object(sys, "argv", ["verify", str(b), str(r)]), \
+                    patch.object(sys, "stdout", io.StringIO()):
+                self.assertEqual(verify.main(), 1)
+
+
+    def test_package_replay_does_not_coerce_zero_to_false(self):
+        package = investigate(json.loads((ROOT / "examples/full_speech.json").read_bytes()))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / "package"
+            write_package(root, package)
+            path = root / "audit.json"
+            report = json.loads(path.read_bytes())
+            report["interpretations"][0]["semantic_fidelity_independently_verified"] = 0
+            raw = canonical(report) + b"\n"
+            path.write_bytes(raw)
+            manifest_path = root / "manifest.json"
+            manifest = json.loads(manifest_path.read_bytes())
+            manifest["files_sha256"]["audit.json"] = digest(raw)
+            manifest_path.write_bytes(canonical(manifest))
+            with self.assertRaisesRegex(InvalidBundle, "auditor replay mismatch"):
+                verify_package(root)
+
+    def test_independent_repeated_queries_are_computed_once(self):
+        b = work_bundle(unique=False)
+        report = audit(b)
+        with patch("independent_check.check", wraps=independent_check.check) as calls:
+            self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+            self.assertEqual(calls.call_count, 2)
+
+    def test_cache_hits_do_not_expand_entire_formula_families_again(self):
+        b = bundle()
+        b["atoms"] = {f"A{i}": f"Declared atom {i}" for i in range(40)}
+        prototype = b["claims"][0]
+        b["claims"] = []
+        for i in range(80):
+            formula = {"and": [{"or": [{"atom": f"A{(i+j+k*18) % 40}"}
+                                        for j in range(18)]} for k in range(10)]}
+            b["claims"].append({**copy.deepcopy(prototype), "id": f"c{i}", "formula": formula})
+        b["evidence"] = []
+        b["interpretations"] = [{"id": f"r{i}", "premises": [f"c{j}" for j in range(79)],
+                                  "conclusion": "c79", "mapping_status": "unreviewed"}
+                                 for i in range(400)]
+        input_size = len(canonical(b))
+        self.assertLess(input_size, 2_000_000)
+        serialized_bytes = 0
+        original = engine.canonical
+        def counted(value):
+            nonlocal serialized_bytes
+            raw = original(value)
+            serialized_bytes += len(raw)
+            return raw
+        with patch("engine.canonical", side_effect=counted):
+            report = audit(b)
+        self.assertEqual(len(report["interpretations"]), 400)
+        # A cache hit cannot serialize the full formula family again. This
+        # bounds deterministic serialization work without a timing assertion.
+        self.assertLess(serialized_bytes, 25 * input_size)
+
+    def test_manifest_cannot_add_an_unbounded_family_of_artifacts(self):
+        package = investigate(json.loads((ROOT / "examples/full_speech.json").read_bytes()))
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder) / "package"
+            write_package(root, package)
+            path = root / "manifest.json"
+            manifest = json.loads(path.read_bytes())
+            for i in range(50):
+                name = f"extra{i}.txt"
+                (root / name).write_bytes(b"untrusted adjunct")
+                manifest["files_sha256"][name] = digest(b"untrusted adjunct")
+            path.write_bytes(canonical(manifest))
+            with self.assertRaises(InvalidBundle):
+                verify_package(root)
+
+    def test_package_writer_rejects_artifacts_that_cannot_be_verified(self):
+        package = investigate(json.loads((ROOT / "examples/full_speech.json").read_bytes()))
+        package["report_md"] = "x" * 6_000_001
+        with tempfile.TemporaryDirectory() as folder:
+            root = pathlib.Path(folder) / "package"
+            with self.assertRaisesRegex(InvalidBundle, "artifact size limit"):
+                write_package(root, package)
+            self.assertFalse(root.exists())
+            self.assertEqual(list(pathlib.Path(folder).iterdir()), [])
 
 
 if __name__ == "__main__":

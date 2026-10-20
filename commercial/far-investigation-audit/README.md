@@ -408,3 +408,11 @@ accuracy benchmark. Neither these tests nor a green local CI suite could
 establish independent source truth, semantic fidelity, general causal or
 statistical inference, external benchmark superiority, or product-market fit.
 Those outcomes require outside, blinded adjudication and field testing.
+
+Package writers and verifiers enforce the same limits: only the nine defined
+artifact names, at most 6 MB per tracked artifact and 36 MB in aggregate, plus
+a separate 6 MB manifest cap. Verification hashes and parses each captured
+artifact snapshot rather than reopening mutable paths. Replay preserves JSON
+Boolean, integer and floating-point types. Identical inference queries are
+cached separately in both checking algorithms; cached query keys reuse bounded
+formula metadata, avoiding repeated serialization of entire premise families.

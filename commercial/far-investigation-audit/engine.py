@@ -6,6 +6,7 @@ and argument formalization entailment. Does not verify natural-language mappings
 from __future__ import annotations
 
 import hashlib
+import copy
 import itertools
 import json
 import re
@@ -133,6 +134,41 @@ def entailment(premises: list[dict[str, Any]], conclusion: dict[str, Any]) -> di
             "premise_satisfying_assignments": satisfying, "countermodel": countermodel}
 
 
+class _BoundedInference:
+    """Per-audit conservative node/valuation budget and repeated-query cache."""
+    def __init__(self):
+        self.work = 0
+        self.formulas = {}
+        self.results = {}
+
+    def metadata(self, node):
+        identity = id(node)
+        if identity not in self.formulas:
+            op, value = next(iter(node.items()))
+            children = [] if op == "atom" else [value] if op == "not" else value
+            parts = [self.metadata(child) for child in children]
+            names = {value} if op == "atom" else set().union(*(part[3] for part in parts))
+            # Retain the node: identity-keyed metadata must never alias a
+            # later temporary negation after Python reuses an object ID.
+            self.formulas[identity] = (node, digest(canonical(node)),
+                                       1 + sum(part[2] for part in parts), names)
+        return self.formulas[identity]
+
+    def run(self, premises, conclusion):
+        metadata = [self.metadata(node) for node in [*premises, conclusion]]
+        key = tuple(part[1] for part in metadata)
+        self.work += len(metadata)  # Even cached input-reference work is bounded.
+        required(self.work <= MAX_ENTAILMENT_WORK, "aggregate entailment work budget exceeded")
+        if key not in self.results:
+            names = set().union(*(part[3] for part in metadata))
+            nodes = sum(part[2] for part in metadata)
+            valuations = 1 << len(names) if len(names) <= MAX_ATOMS else 1
+            self.work += nodes * valuations
+            required(self.work <= MAX_ENTAILMENT_WORK, "aggregate entailment work budget exceeded")
+            self.results[key] = entailment(premises, conclusion)
+        return copy.deepcopy(self.results[key])
+
+
 def anchor(record: dict[str, Any], sources: dict[str, dict[str, Any]], label: str) -> None:
     srcid = record.get("source_id")
     required(isinstance(srcid, str) and srcid in sources, f"{label}: unknown source")
@@ -150,32 +186,6 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(len(canonical(bundle)) <= 2_000_000, "bundle byte limit exceeded")
     except (TypeError, ValueError, OverflowError, RecursionError) as exc:
         raise InvalidBundle("bundle contains non-JSON or non-finite values") from exc
-    inference_cache = {}
-    work_used = 0
-
-    def infer(premises, conclusion):
-        nonlocal work_used
-        key = canonical([premises, conclusion])
-        if key not in inference_cache:
-            formulas = [*premises, conclusion]
-            names = set().union(*(variables(formula) for formula in formulas))
-            def nodes(formula):
-                op, value = next(iter(formula.items()))
-                if op == "atom":
-                    return 1
-                children = [value] if op == "not" else value
-                return 1 + sum(nodes(child) for child in children)
-            # Count the worst-case recursive node visits, not just valuations.
-            # Short-circuiting can reduce actual work; it cannot exceed this
-            # bound. Over-atom-limit calls perform no exhaustive evaluation.
-            work = sum(nodes(formula) for formula in formulas)
-            if len(names) <= MAX_ATOMS:
-                work *= 1 << len(names)
-            required(work_used + work <= MAX_ENTAILMENT_WORK,
-                     "aggregate entailment work budget exceeded")
-            work_used += work
-            inference_cache[key] = entailment(premises, conclusion)
-        return inference_cache[key]
     required(isinstance(bundle.get("investigation_id"), str) and bool(bundle["investigation_id"].strip()), "investigation id required")
     proposal_hash = bundle.get("proposal_sha256")
     required(proposal_hash is None or (isinstance(proposal_hash, str) and
@@ -246,6 +256,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
             validate_formula(entry["formula"], atoms)
         required("data_check" not in entry or "formula" not in entry,
                  f"evidence {eid}: structured and propositional checks must be separate records")
+    logic = _BoundedInference()
     findings: dict[str, list[dict[str, Any]]] = {cid: [] for cid in claims}
     for evidence_item in evidence:
         sid = evidence_item["source_id"]
@@ -286,8 +297,8 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
-            positive = infer([evidence_item["formula"]], claim["formula"])
-            negative = infer([evidence_item["formula"]], {"not": claim["formula"]})
+            positive = logic.run([evidence_item["formula"]], claim["formula"])
+            negative = logic.run([evidence_item["formula"]], {"not": claim["formula"]})
             if positive["status"] == "INCONSISTENT_PREMISES":
                 relation = "INCONSISTENT_EVIDENCE_FORMULA"
             elif positive["status"] == "NOT_CHECKED_ATOM_LIMIT":
@@ -351,7 +362,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         result = ({"status": "NOT_CHECKED_UNFORMALIZED",
                    "reason": "Auto-generated atom labels cannot test natural-language entailment."}
                   if basis == "unformalized_candidate" else
-                  infer([claims[p]["formula"] for p in ps], claims[conclusion]["formula"]))
+                  logic.run([claims[p]["formula"] for p in ps], claims[conclusion]["formula"]))
         notes = reading.get("interpretation_notes", "")
         card = reading.get("interpretation_card", {})
         required(isinstance(notes, str) and len(notes) <= 2000, f"reading {rid}: invalid interpretation notes")
