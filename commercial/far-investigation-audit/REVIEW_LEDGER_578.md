@@ -61,6 +61,15 @@
 
 **Convergence diagnosis:** The first two review cycles exposed missing independent bindings for distinct derived surfaces: acquisitions, proposal provenance, per-evidence metadata, per-reading metadata, aggregate flags, and unsigned delivery metadata. The corrected source-to-audit input commitments and report cross-check now cover the reported subclasses. A new review is permitted only on a stabilized SHA after a completed full validation, for a substantive independent final-head check. Do not claim that the ledger or this agent's verification is independent human approval or that absence of further reviewer comments establishes absolute correctness.
 
+## Consolidated independent-oracle surface audit (third-review root-cause expansion)
+
+Following the third review, the audit examined every already-declared output field rather than requesting a new automated review before checking the remaining nearby contract:
+
+- **`STRUCTURED-DISPLAY-BINDING`:** Independent numeric calculations already verified status and number but omitted `declared_value`, `unit`, `operation`, `rows_inspected`, `structured_temporal_eligibility`, origin/authenticity markers and the discrepancy flag. This can misstate the evidence scope or appear authenticated with a formally correct numerical result. Correction independently checks the complete structured-result schema, admissibility, operation, row denominator, claim-bound unit/value, nonverification flags and discrepancy annotation. A nonempty reason is required for `STRUCTURED_UNVERIFIABLE` without pretending that the independent oracle reproduced the human-readable reason text.
+- **`BOUNDARY-CONSERVATION`:** `check_report` accepted a report whose `unknowns` removed safeguards or whose `assurance_boundary.real_world_truth` falsely claimed certification. Correction compares unknowns with input and requires the complete declared nonproduction assurance contract.
+- **Red counterexamples:** `test_independent_checker_binds_structured_display_and_provenance_metadata` exercises eight mutated subfields; `test_independent_checker_preserves_assurance_boundaries_and_unknowns` mutates two blocker fields. Test-only SHA `33243ab3765e57b2c689aa3049ddc1d7ef6efcca`; [hosted run 39460967051](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/39460967051) provides its exact red-test results. These are additional structural strengthening tests, not an instruction to expand product features.
+- **Threat-model boundary:** All these checks inspect declared inputs and internally generated metadata. They do not verify independent source truth, reviewer identity, whether an operator genuinely used an external API, or correctness of text-to-logic mapping.
+
 ## Verification obligations and limits
 
 - **Source replay:** Hashes of untrusted snapshots and commitment to the recorded acquisition method now participate in the audit identity; source authenticity remains unestablished. Replacement of an entire unsigned package, including recomputed audit bytes, remains possible absent external trusted signatures.
