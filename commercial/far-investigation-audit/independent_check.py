@@ -195,16 +195,23 @@ def check_report(bundle:dict, report:dict)->dict:
                 finding.get("temporal_status") != temporal[sid] or
                 finding.get("claimed_relation") != ev["relation"]):
             raise IndependentCheckError("evidence reference or status mismatch: " + ev["id"])
+        if ("origin_id" not in finding or
+                finding["origin_id"] != sources[sid].get("origin_id")):
+            raise IndependentCheckError("evidence origin differs from source record: " + ev["id"])
         if "data_check" in ev:
             if temporal[sid] != "IN_WINDOW":
                 relation = "TEMPORAL_NOT_ADMISSIBLE"
-            elif sid == claim["source_id"] and ev["span"] == claim["span"]:
+            elif (sid == claim["source_id"] and
+                  ev["span"]["start"] < claim["span"]["end"] and
+                  claim["span"]["start"] < ev["span"]["end"]):
                 relation = "SELF_REFERENCE_NOT_CORROBORATION"
             else:
                 relation = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
         elif temporal[sid] != "IN_WINDOW":
             relation = "TEMPORAL_NOT_ADMISSIBLE"
-        elif sid == claim["source_id"] and ev["span"] == claim["span"]:
+        elif (sid == claim["source_id"] and
+                  ev["span"]["start"] < claim["span"]["end"] and
+                  claim["span"]["start"] < ev["span"]["end"]):
             relation = "SELF_REFERENCE_NOT_CORROBORATION"
         elif "formula" not in ev:
             relation = "UNTESTED_SEMANTIC_ASSESSMENT"
@@ -245,8 +252,10 @@ def check_report(bundle:dict, report:dict)->dict:
                   "NOT_ESTABLISHED")
         if report["claims"][cid].get("status") != status:
             raise IndependentCheckError("independent claim evidence aggregation mismatch: " + cid)
-        origin_ids = sorted({f["origin_id"] for f in pos if f.get("origin_id") is not None})
-        unknown_origins = sorted({f["source_id"] for f in pos if f.get("origin_id") is None})
+        origin_ids = sorted({sources[f["source_id"]]["origin_id"] for f in pos
+                             if sources[f["source_id"]].get("origin_id") is not None})
+        unknown_origins = sorted({f["source_id"] for f in pos
+                                  if sources[f["source_id"]].get("origin_id") is None})
         if (report["claims"][cid].get("support_origin_ids") != origin_ids or
                 report["claims"][cid].get("support_sources_with_unknown_origin") != unknown_origins):
             raise IndependentCheckError("claim support lineage mismatch: " + cid)
@@ -270,6 +279,34 @@ def check_report(bundle:dict, report:dict)->dict:
                 except (ValueError,TypeError,ArithmeticError) as exc:
                     raise IndependentCheckError("computed numeric value differs: "+ev["id"]) from exc
             arithmetic_count+=1
+    for cid, claim_report in report["claims"].items():
+        findings = claim_report["evidence"]
+        admissible = [f["structured_check"] for f in findings
+                      if "structured_check" in f
+                      and temporal[f["source_id"]] == "IN_WINDOW"
+                      and f["formal_relation"] != "SELF_REFERENCE_NOT_CORROBORATION"]
+        snapshot = [f["structured_check"] for f in findings
+                    if "structured_check" in f
+                    and f["formal_relation"] in {
+                        "TEMPORAL_NOT_ADMISSIBLE", "SELF_REFERENCE_NOT_CORROBORATION"}]
+        matches = sum(x["status"] == "STRUCTURED_VALUE_MATCH" for x in admissible)
+        mismatches = sum(x["status"] == "STRUCTURED_VALUE_MISMATCH" for x in admissible)
+        expected_summary = {
+            "status": ("CONFLICTING_STRUCTURED_VALUES" if matches and mismatches else
+                       "STRUCTURED_VALUE_MATCH_CONDITIONALLY" if matches else
+                       "STRUCTURED_VALUE_MISMATCH_CONDITIONALLY" if mismatches else
+                       "SNAPSHOT_ONLY_VALUE_CHECK_TEMPORALLY_INADMISSIBLE" if snapshot else
+                       "NOT_ESTABLISHED"),
+            "matches": matches, "mismatches": mismatches,
+            "unverifiable": len(admissible) - matches - mismatches,
+            "snapshot_only_not_admissible": len(snapshot),
+            "snapshot_only_matches": sum(x["status"] == "STRUCTURED_VALUE_MATCH" for x in snapshot),
+            "snapshot_only_mismatches": sum(x["status"] == "STRUCTURED_VALUE_MISMATCH" for x in snapshot),
+            "claim_meaning_verified": False,
+            "temporal_eligibility_not_promoted_by_computation": True,
+        }
+        if claim_report.get("structured_value_checks") != expected_summary:
+            raise IndependentCheckError("independent structured summary mismatch: " + cid)
     return {"independent_algorithm_agrees":True,"structured_computations_rechecked":arithmetic_count,"readings_checked":checked,
             "evidence_formulas_rechecked":evidence_formulas_rechecked,
             "source_hashes_checked":len(sources),"semantic_correspondence_checked":False,
