@@ -34,19 +34,43 @@ def discovery_step() -> str:
 class DispatchNumberTests(unittest.TestCase):
     def run_discovery(self, event: str, value: str, *, comment_author: str = "",
                       pr_number: str = "") -> tuple[subprocess.CompletedProcess[str], str]:
+        # Use Bash functions rather than executable scripts in /tmp: the
+        # whole-suite trace policy explicitly rejects undeclared executables.
+        # The production Bash block is still run unchanged. Each mock is a
+        # narrow API adapter with strict argument checking; JSON parsing is
+        # supplied by the already-allowed Python interpreter.
+        stubs = r"""
+gh() {
+  [[ "$#" -eq 5 && "$1" == "api" && "$2" == "--paginate" &&
+     "$3" == "/repos/n0tf0und0ut/Project-FAR/pulls?state=open&base=main&per_page=100" &&
+     "$4" == "--jq" && "$5" == ".[].number" ]] || return 40
+  printf '587\n578\n'
+}
+jq() {
+  if [[ "$#" -eq 2 && "$1" == "-sc" && "$2" == "map(tonumber)" ]]; then
+    python3 -c 'import json,sys
+raw=[line.strip() for line in sys.stdin if line.strip()]
+assert all(item.isdecimal() and str(int(item)) == item for item in raw)
+print(json.dumps([int(item) for item in raw],separators=(",",":")))'
+  elif [[ "$#" -eq 2 && "$1" == "-e" &&
+          "$2" == 'type == "array" and all(.[]; type == "number" and . > 0)' ]]; then
+    python3 -c 'import json,sys
+value=json.load(sys.stdin)
+sys.exit(0 if isinstance(value,list) and all(type(x) is int and x>0 for x in value) else 1)'
+  else
+    printf 'unsupported jq mock invocation\n' >&2
+    return 41
+  fi
+}
+"""
         with tempfile.TemporaryDirectory() as temporary:
-            home = Path(temporary)
-            mock_gh = home / "gh"
-            # A deterministic paginated CLI mock. Invoked only for all-open queries.
-            mock_gh.write_text("#!/bin/sh\nprintf '587\\n578\\n'\n", encoding="utf-8")
-            mock_gh.chmod(0o700)
-            output = home / "outputs"
-            env = dict(os.environ, PATH=str(home) + os.pathsep + os.environ["PATH"],
+            output = Path(temporary) / "outputs"
+            env = dict(os.environ,
                        GH_EVENT_NAME=event, INPUT_PR_NUMBER=value,
                        EVENT_PR_NUMBER=pr_number, EVENT_ISSUE_NUMBER=pr_number,
                        EVENT_COMMENT_AUTHOR=comment_author, GITHUB_OUTPUT=str(output),
                        GITHUB_REPOSITORY="n0tf0und0ut/Project-FAR", GH_TOKEN="synthetic")
-            completed = subprocess.run(["bash", "-c", discovery_step()], env=env,
+            completed = subprocess.run(["bash", "-c", stubs + "\n" + discovery_step()], env=env,
                                        text=True, capture_output=True, check=False, timeout=10)
             return completed, output.read_text(encoding="utf-8") if output.exists() else ""
 
