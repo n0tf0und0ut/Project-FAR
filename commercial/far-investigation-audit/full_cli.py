@@ -108,10 +108,13 @@ def verify_package(directory: Path) -> dict:
     replayable_methods = {"text_provided_v1", "utf8_identity_v1",
         "html_provided_v1", "html_visible_text_v1", "srt_provided_v1",
         "vtt_provided_v1", "yt_dlp_caption_vtt_v1"}
+    nonreplayable_methods = {"pypdf_text_v1", "external_speech_transcription_gpt_4o_transcribe_v1"}
     for item in acquisition:
         sid = item["source_id"]
         raw = item.get("raw_snapshot_utf8")
         method = item.get("extraction")
+        if method not in replayable_methods and method not in nonreplayable_methods:
+            raise InvalidBundle("unrecognized acquisition extraction method: " + str(method))
         if raw is None:
             if method in replayable_methods:
                 raise InvalidBundle("raw snapshot required for replayable extraction: " + sid)

@@ -78,6 +78,31 @@ class IndependentEvidenceCheckTests(unittest.TestCase):
         with self.assertRaisesRegex(IndependentCheckError, "countermodel mismatch"):
             check_report(bundle, tampered)
 
+    def test_replay_rejects_unknown_method_relabel_even_with_rehashed_manifest(self):
+        import hashlib
+        import json
+        import tempfile
+        from full_cli import write_package, verify_package
+        from workflow import investigate
+        from engine import InvalidBundle, canonical
+        config = {"investigation_id": "replay_method_attack",
+                  "source": {"kind": "text", "text": "This is a concrete source sentence."},
+                  "captured_at": "2026-10-17T12:00:00Z"}
+        with tempfile.TemporaryDirectory() as root:
+            directory = Path(root) / "package"
+            write_package(directory, investigate(config))
+            self.assertTrue(verify_package(directory)["replay_match"])
+            acquisition = json.loads((directory / "acquisition.json").read_bytes())
+            acquisition[0]["extraction"] = "unrecognized_nonreplayable_attacker_label"
+            acquisition[0].pop("raw_snapshot_utf8")
+            replacement = canonical(acquisition) + b"\n"
+            (directory / "acquisition.json").write_bytes(replacement)
+            manifest = json.loads((directory / "manifest.json").read_bytes())
+            manifest["files_sha256"]["acquisition.json"] = hashlib.sha256(replacement).hexdigest()
+            (directory / "manifest.json").write_bytes(canonical(manifest) + b"\n")
+            with self.assertRaisesRegex(InvalidBundle, "unrecognized acquisition extraction method"):
+                verify_package(directory)
+
     def test_explicit_formula_with_implicit_claim_id(self):
         quote_a = "One premise is offered."
         quote_b = "A second conclusion is offered."
