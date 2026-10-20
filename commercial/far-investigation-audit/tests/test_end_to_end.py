@@ -216,7 +216,7 @@ class AcquisitionSecurityTests(unittest.TestCase):
                 "raw_sha256":"0"*64,"extraction":"test_stub"})
         self.assertEqual(len(result["bundle"]["sources"]),3)
         self.assertEqual(result["discovery"]["results"][0]["fetch_status"],"SNAPSHOT_RECORDED_UNAUTHENTICATED")
-        self.assertEqual(result["audit"]["source_temporal_status"]["discovery2"],"UNKNOWN_TEMPORAL_ELIGIBILITY")
+        self.assertEqual(result["audit"]["source_temporal_status"]["discovery2"],"AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION")
 
     def test_discovery_unverified_leads_never_create_evidence_records_without_quote(self):
         c=config();c.pop("captured_at");c["discovery"]="tavily";c["queries"]=["some query"]
@@ -460,7 +460,7 @@ class WebUploadsAndCommercialPathTests(unittest.TestCase):
             "text":SPEECH,"url":url,"raw_sha256":"a"*64,"extraction":"injected_illustration"})
         self.assertTrue(x["manifest"]["network_used"])
         self.assertFalse(x["manifest"]["semantic_mapping_independently_verified"])
-        self.assertEqual(x["audit"]["source_temporal_status"]["primary"],"UNKNOWN_TEMPORAL_ELIGIBILITY")
+        self.assertEqual(x["audit"]["source_temporal_status"]["primary"],"AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION")
 
 class AdversarialPackageReplayTests(unittest.TestCase):
     """An attacker changing unsigned manifests must not rewrite a report's meaning."""
