@@ -1,62 +1,148 @@
 name: PR Review Convergence
 
-# Protected-main-only code and metadata reads. Never execute untrusted PR code.
+# Runs trusted protected-main code only. Never checks out PR source. A
+# distinct exact-head check-run is published for eligible and ineligible
+# workflow events alike, avoiding GitHub's event-attached job-check limitation.
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
     branches: [main]
   pull_request_review:
     types: [submitted, dismissed]
-  pull_request_review_thread:
-    types: [resolved, unresolved]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
   issue_comment:
     types: [created, edited]
+  schedule:
+    - cron: '13,43 * * * *'
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Single PR number, or 0 for all open main PRs
+        type: number
+        required: true
+        default: 0
 
 permissions:
   contents: read
-  pull-requests: read
-  issues: read
-
-concurrency:
-  group: pr-review-convergence-${{ github.event.pull_request.number || github.event.issue.number }}
-  cancel-in-progress: true
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      numbers: ${{ steps.freeze.outputs.numbers }}
+    steps:
+      - name: Determine PR identities without running PR code
+        id: freeze
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          if [[ "$GH_EVENT_NAME" == "schedule" || ( "$GH_EVENT_NAME" == "workflow_dispatch" && "${INPUT_PR_NUMBER:-0}" == "0" ) ]]; then
+            numbers="$(gh api --paginate "/repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" --jq '.[].number' | jq -sc 'map(tonumber)')"
+          elif [[ "$GH_EVENT_NAME" == "workflow_dispatch" ]]; then
+            [[ "$INPUT_PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
+            numbers="[$INPUT_PR_NUMBER]"
+          elif [[ "$GH_EVENT_NAME" == "issue_comment" && "$EVENT_COMMENT_AUTHOR" != "chatgpt-codex-connector[bot]" ]]; then
+            numbers='[]'
+          elif [[ "$GH_EVENT_NAME" == "issue_comment" ]]; then
+            numbers="[$EVENT_ISSUE_NUMBER]"
+          elif [[ "$EVENT_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            numbers="[$EVENT_PR_NUMBER]"
+          else
+            echo "Unrecognized PR event identity" >&2
+            exit 1
+          fi
+          jq -e 'type == "array" and all(.[]; type == "number" and . > 0)' <<< "$numbers" >/dev/null
+          echo "numbers=$numbers" >> "$GITHUB_OUTPUT"
+
   review-convergence:
-    if: github.event.pull_request.base.ref == 'main' || (github.event_name == 'issue_comment' && github.event.issue.pull_request != null && github.event.comment.user.login == 'chatgpt-codex-connector[bot]')
+    needs: discover
+    if: needs.discover.outputs.numbers != '[]'
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        pr: ${{ fromJSON(needs.discover.outputs.numbers) }}
+    concurrency:
+      group: pr-review-convergence-${{ github.repository }}-${{ matrix.pr }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      checks: write
     steps:
-      - name: Checkout protected main; never PR code
+      - name: Checkout protected main (not the candidate)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: main
           persist-credentials: false
           fetch-depth: 1
-      - name: Collect complete read-only review evidence for exact head
+      - name: Verify current identity and publish review evidence on exact head
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        shell: bash
+          PR_NUMBER: ${{ matrix.pr }}
         run: |
           set -euo pipefail
-          # Issue-comment events have no embedded head SHA; freeze it from the API.
-          if [[ -z "$PR_HEAD_SHA" ]]; then
-            PR_HEAD_SHA="$(gh api "/repos/$PR_REPOSITORY/pulls/$PR_NUMBER" --jq .head.sha)"
-          fi
+          api="/repos/$GITHUB_REPOSITORY"
+          metadata="$(gh api "$api/pulls/$PR_NUMBER")"
+          [[ "$(jq -r '.base.ref' <<< "$metadata")" == main ]] || { echo 'PR does not target main' >&2; exit 1; }
+          [[ "$(jq -r '.state' <<< "$metadata")" == open ]] || exit 0
+          sha="$(jq -r '.head.sha' <<< "$metadata")"
+          [[ "$sha" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          output="$RUNNER_TEMP/pr-review-convergence.json"
+          set +e
           python3 tools/pr_review_convergence.py \
-            --repository "$PR_REPOSITORY" \
+            --repository "$GITHUB_REPOSITORY" \
             --pr "$PR_NUMBER" \
-            --expected-head "$PR_HEAD_SHA" \
-            --output "$RUNNER_TEMP/pr-review-convergence.json" \
+            --expected-head "$sha" \
+            --output "$output" \
             --mode enforce
-      - name: Preserve evidence including exact head and review identifiers
+          rc=$?
+          set -e
+          # Do not post a stale result to a moving head.
+          current="$(gh api "$api/pulls/$PR_NUMBER" --jq .head.sha)"
+          [[ "$current" == "$sha" ]] || { echo 'PR moved during review evaluation' >&2; exit 1; }
+          if [[ "$rc" == 0 ]]; then
+            conclusion=success
+            if [[ -f "$output" ]] && jq -e '.draft == true' "$output" >/dev/null; then
+              conclusion=neutral
+            fi
+          else
+            conclusion=failure
+          fi
+          summary="Read-only review metadata check for PR #$PR_NUMBER at $sha. See workflow evidence; not a proof of software correctness."
+          jq -n \
+            --arg sha "$sha" \
+            --arg conclusion "$conclusion" \
+            --arg summary "$summary" \
+            --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            '{name:"pr-review-convergence-observation",head_sha:$sha,status:"completed",conclusion:$conclusion,details_url:$url,output:{title:"PR review convergence",summary:$summary}}' \
+          | gh api --method POST "$api/check-runs" --input -
+          if [[ "$rc" != 0 ]]; then
+            echo "Review evidence incomplete or unconverged (exit $rc)" >&2
+            exit "$rc"
+          fi
+      - name: Preserve exact-head review evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: pr-review-convergence-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: pr-review-convergence-${{ matrix.pr }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/pr-review-convergence.json
           if-no-files-found: warn
           retention-days: 30
