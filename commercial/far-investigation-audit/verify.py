@@ -31,7 +31,7 @@ def main() -> int:
             return 1
         print("FAR_REPLAY_MATCH: deterministic report and bundle agree")
         return 0
-    except (InvalidBundle, OSError, ValueError, UnicodeError, TypeError) as exc:
+    except (InvalidBundle, OSError, ValueError, UnicodeError, TypeError, RecursionError) as exc:
         print(f"FAR_REPLAY_INVALID: {exc}", file=sys.stderr)
         return 2
 

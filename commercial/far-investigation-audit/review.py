@@ -103,7 +103,7 @@ def main() -> int:
         args.output.write_bytes(canonical(signed)+b"\n")
         print("Review record signed; identity/accuracy/independence NOT established")
         return 0
-    except (OSError,ValueError,TypeError) as exc:
+    except (OSError,ValueError,TypeError,RecursionError) as exc:
         print("FAR_REVIEW_INVALID: "+str(exc),file=sys.stderr)
         return 2
 

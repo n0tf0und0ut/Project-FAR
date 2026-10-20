@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -18,6 +19,38 @@ from workflow import investigate
 
 
 class FailureBoundaryTests(unittest.TestCase):
+    def test_all_json_clis_reject_parser_recursion_without_tracebacks(self):
+        root = pathlib.Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as d:
+            nested = pathlib.Path(d) / "nested.json"
+            nested.write_text("[" * 10000 + "0" + "]" * 10000)
+            commands = [
+                ("cli.py", [str(nested)], "FAR_AUDIT_INVALID"),
+                ("verify.py", [str(nested), str(nested)], "FAR_REPLAY_INVALID"),
+                ("field_validation.py", ["--predictions", str(nested), "--adjudications", str(nested)], "FAR_FIELD_EVAL_INVALID"),
+                ("review.py", [str(nested), "--private-key", str(pathlib.Path(d) / "absent.pem"),
+                               "--output", str(pathlib.Path(d) / "out.json")], "FAR_REVIEW_INVALID"),
+            ]
+            for script, arguments, prefix in commands:
+                with self.subTest(script=script):
+                    result = subprocess.run([sys.executable, str(root / script), *arguments],
+                                            capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode, 2, result.stderr)
+                    self.assertTrue(result.stderr.startswith(prefix), result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+
+    def test_over_nested_search_response_is_a_bounded_provider_failure(self):
+        from discovery import DiscoveryError, tavily_search
+        connection = SimpleNamespace(
+            request=lambda *a, **kw: None, close=lambda: None,
+            getresponse=lambda: SimpleNamespace(status=200, read=lambda n:
+                ("[" * 10000 + "0" + "]" * 10000).encode()))
+        with patch.dict("os.environ", {"TAVILY_API_KEY": "synthetic-test-key"}), \
+                patch("discovery.resolve_public", return_value=["93.184.216.34"]), \
+                patch("discovery._PinnedHTTPS", return_value=connection):
+            with self.assertRaisesRegex(DiscoveryError, "search provider request failed"):
+                tavily_search(["bounded query"], allow_network=True)
+
     def test_malformed_sources_are_validated_before_network_time_guard(self):
         for change in ({"source": []}, {"evidence_sources": None}):
             with self.subTest(change=change):

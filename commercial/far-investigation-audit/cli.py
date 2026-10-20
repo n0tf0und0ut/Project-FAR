@@ -21,7 +21,7 @@ def main() -> int:
             args.output.write_bytes(serialized)
         else:
             sys.stdout.buffer.write(serialized)
-    except (InvalidBundle, ValueError, OSError, UnicodeError) as exc:
+    except (InvalidBundle, ValueError, OSError, UnicodeError, RecursionError) as exc:
         print(f"FAR_AUDIT_INVALID: {exc}", file=sys.stderr)
         return 2
     return 0

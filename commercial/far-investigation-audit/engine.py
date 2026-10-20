@@ -147,7 +147,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
     required(isinstance(bundle, dict) and bundle.get("schema") == SCHEMA, "unknown bundle schema")
     try:
         required(len(canonical(bundle)) <= 2_000_000, "bundle byte limit exceeded")
-    except (TypeError, ValueError, OverflowError) as exc:
+    except (TypeError, ValueError, OverflowError, RecursionError) as exc:
         raise InvalidBundle("bundle contains non-JSON or non-finite values") from exc
     required(isinstance(bundle.get("investigation_id"), str) and bool(bundle["investigation_id"].strip()), "investigation id required")
     proposal_hash = bundle.get("proposal_sha256")

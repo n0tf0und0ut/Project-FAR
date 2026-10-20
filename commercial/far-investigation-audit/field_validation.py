@@ -44,8 +44,11 @@ def _no_duplicate(pairs):
 def read_json(path: Path) -> object:
     if path.stat().st_size > 6_000_000:
         raise InvalidFieldEvaluation('input over six-megabyte limit')
-    return json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=_no_duplicate,
-                      parse_constant=lambda s: (_ for _ in ()).throw(InvalidFieldEvaluation('nonfinite number')))
+    try:
+        return json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=_no_duplicate,
+                          parse_constant=lambda s: (_ for _ in ()).throw(InvalidFieldEvaluation('nonfinite number')))
+    except RecursionError as exc:
+        raise InvalidFieldEvaluation('over-nested JSON input') from exc
 
 
 def _index(items, *, kind: str, field: str = 'case_id'):
