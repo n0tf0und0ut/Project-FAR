@@ -183,6 +183,8 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
     blockers = []
     if not current and not automated["passed"]:
         blockers.append("missing exact-head independent human approval or completed trusted Codex review")
+    if automated["status"] == "completed" and automated["unresolved"] is True:
+        blockers.append("authenticated exact-head Codex review reports unresolved findings")
     if changes:
         blockers.append("active CHANGES_REQUESTED")
     if unresolved:
