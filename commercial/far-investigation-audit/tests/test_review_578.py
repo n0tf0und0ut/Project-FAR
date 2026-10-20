@@ -274,5 +274,80 @@ class Review578RegressionTests(unittest.TestCase):
 
 
 
+    def test_proposal_provider_downgrade_cannot_preserve_audit_identity(self):
+        raw = "Exactly 1 row reported."
+        response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(
+            content=json.dumps({"claims": [{"id": "c1", "quote": raw, "source_id": "primary"}],
+                                "unknowns": [], "evidence": [], "arguments": []})))])
+        fake = SimpleNamespace(chat=SimpleNamespace(
+            completions=SimpleNamespace(create=lambda **kwargs: response)))
+        pkg = investigate({"captured_at": CUTOFF, "source": {"kind": "text", "text": raw},
+                           "proposal_mode": "openai"}, permit_model=True, model_client=fake)
+        original_identity = pkg["audit"]["report_sha256"]
+        with tempfile.TemporaryDirectory() as tmp:
+            target = pathlib.Path(tmp) / "pkg"
+            write_package(target, pkg)
+            proposal_path = target / "proposal.json"
+            proposal = json.loads(proposal_path.read_text())
+            proposal["method"] = "supplied"
+            proposal.pop("model", None)
+            proposal_bytes = json.dumps(proposal, ensure_ascii=False, sort_keys=True,
+                                        separators=(",", ":")).encode() + b"\n"
+            proposal_path.write_bytes(proposal_bytes)
+            manifest_path = target / "manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["files_sha256"]["proposal.json"] = digest(proposal_bytes)
+            manifest["method"] = "supplied"
+            manifest["network_used"] = False
+            manifest_path.write_text(json.dumps(manifest, sort_keys=True,
+                                                separators=(",", ":")) + "\n")
+            self.assertEqual(json.loads((target / "audit.json").read_text())["report_sha256"],
+                             original_identity)
+            with self.assertRaisesRegex(InvalidBundle, "proposal provenance commitment mismatch"):
+                verify_package(target)
+
+    def test_independent_checker_rebuilds_report_wide_interpretation_flags(self):
+        b = json.loads((pathlib.Path(__file__).resolve().parents[1] /
+                        "examples/causal_jump.json").read_text())
+        second = copy.deepcopy(b["interpretations"][0])
+        second["id"] = "card_variant"
+        second["interpretation_card"] = {"quantifier": {"value": "all", "origin": "inferred"}}
+        b["interpretations"].append(second)
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        for key in ("interpretation_sensitive_inference", "interpretation_cards_differ",
+                    "interpretations_present"):
+            forged = copy.deepcopy(report)
+            forged[key] = not report[key]
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(IndependentCheckError,
+                                            "interpretation flags mismatch"):
+                    check_report(b, forged)
+
+    def test_checker_refuses_promotion_of_unreviewed_semantic_mappings(self):
+        b = bundle()
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        forged = copy.deepcopy(report)
+        forged["claims"]["c1"]["mapping_status"] = "review_recorded"
+        forged["claims"]["c1"]["evidence"][0]["mapping_status"] = "review_recorded"
+        with self.assertRaisesRegex(IndependentCheckError, "mapping status mismatch"):
+            check_report(b, forged)
+
+    def test_manifest_size_is_bounded_before_read_or_parse(self):
+        pkg = investigate({"captured_at": CUTOFF,
+                           "source": {"kind": "text", "text": "Exactly one recorded item."}})
+        with tempfile.TemporaryDirectory() as tmp:
+            target = pathlib.Path(tmp) / "pkg"
+            write_package(target, pkg)
+            manifest_path = target / "manifest.json"
+            with manifest_path.open("ab") as handle:
+                handle.write(b" " * 6_000_001)
+            with self.assertRaisesRegex(InvalidBundle, "manifest.*limit"):
+                verify_package(target)
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
