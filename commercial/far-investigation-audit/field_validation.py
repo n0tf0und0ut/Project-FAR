@@ -196,7 +196,13 @@ def predictions_from_far_bundle(bundle_dir: Path) -> list[dict]:
         raise InvalidFieldEvaluation('FAR audit contains no claims')
     # The current engine has *no* independently established empirical truth
     # status. Changing this adapter requires a new verified factual gate.
-    return [{'case_id':audit['investigation_id']+':'+claim_id,
+    # IDs from the accepted source can each be 80 characters, and may already
+    # contain ':'. Concatenation can exceed the scorer's 160-char bound and is
+    # not injective (a:b + c collides with a + b:c). Encode both identities as
+    # a canonical *pair* before computing the stable bounded case identifier.
+    return [{'case_id':'far-'+hashlib.sha256(canonical_bytes(
+                 [audit['investigation_id'],claim_id])).hexdigest(),
+             'investigation_id':audit['investigation_id'], 'claim_id':claim_id,
              'verdict':'ABSTAIN', 'formal_status':v.get('status'),
              'source_audit_sha256':audit.get('report_sha256')}
             for claim_id,v in sorted(claims.items())]
