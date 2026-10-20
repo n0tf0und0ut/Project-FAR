@@ -172,6 +172,10 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(isinstance(source.get("sha256"), str) and digest(raw.encode("utf-8")) == source["sha256"], f"source {sid}: hash mismatch")
         origin = source.get("origin_id")
         required(origin is None or (isinstance(origin, str) and bool(origin.strip())), f"source {sid}: invalid origin_id")
+        commitment = source.get("acquisition_sha256")
+        required(commitment is None or (isinstance(commitment, str) and
+                 re.fullmatch(r"[0-9a-f]{64}", commitment) is not None),
+                 f"source {sid}: invalid acquisition commitment")
         # Validate any supplied timestamps, even when the source date or its
         # provenance has not been independently authenticated.  Unverified is
         # not a license to retain malformed or chronologically impossible data.
@@ -228,7 +232,9 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
             finding["structured_temporal_eligibility"] = times[sid]
             if times[sid] != "IN_WINDOW":
                 finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
-            elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
+            elif (sid == claim["source_id"] and
+                  evidence_item["span"]["start"] < claim["span"]["end"] and
+                  claim["span"]["start"] < evidence_item["span"]["end"]):
                 finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
             else:
                 finding["formal_relation"] = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
@@ -238,7 +244,9 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
                 finding["assessment_disagrees_with_structured_check"] = True
         elif times[sid] != "IN_WINDOW":
             finding["formal_relation"] = "TEMPORAL_NOT_ADMISSIBLE"
-        elif sid == claim["source_id"] and evidence_item["span"] == claim["span"]:
+        elif (sid == claim["source_id"] and
+                  evidence_item["span"]["start"] < claim["span"]["end"] and
+                  claim["span"]["start"] < evidence_item["span"]["end"]):
             finding["formal_relation"] = "SELF_REFERENCE_NOT_CORROBORATION"
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
