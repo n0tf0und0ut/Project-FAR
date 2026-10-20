@@ -50,6 +50,64 @@ class CheckValidationProtectionTests(unittest.TestCase):
         actual["required_status_checks"]["contexts"] = []
         self.assertTrue(PROTECTION.protection_errors(actual, GATE_APP_ID))
 
+    def test_prospective_review_gate_is_detected_exactly(self) -> None:
+        actual = compliant_readback()
+        actual["required_status_checks"]["contexts"].append("pr-review-convergence-observation")
+        actual["required_status_checks"]["checks"].append(
+            {"context": "pr-review-convergence-observation", "app_id": 15368}
+        )
+        self.assertEqual(
+            PROTECTION.protection_errors(
+                actual, GATE_APP_ID, require_review_convergence=True), []
+        )
+        # Existing production contract must reject unapproved addition until cutover.
+        self.assertTrue(PROTECTION.protection_errors(actual, GATE_APP_ID))
+
+    def test_review_gate_target_rejects_absence(self) -> None:
+        actual = compliant_readback()
+        errors = PROTECTION.protection_errors(
+            actual, GATE_APP_ID, require_review_convergence=True)
+        self.assertTrue(any("pr-review-convergence-observation" in e for e in errors))
+
+    def test_review_gate_target_rejects_spoofable_or_wrong_source(self) -> None:
+        for wrong_app_id in (-1, None, GATE_APP_ID, 15369):
+            with self.subTest(wrong_app_id=wrong_app_id):
+                actual = compliant_readback()
+                actual["required_status_checks"]["contexts"].append(
+                    "pr-review-convergence-observation")
+                actual["required_status_checks"]["checks"].append({
+                    "context": "pr-review-convergence-observation",
+                    "app_id": wrong_app_id,
+                })
+                self.assertTrue(PROTECTION.protection_errors(
+                    actual, GATE_APP_ID, require_review_convergence=True))
+
+    def test_review_gate_target_does_not_weaken_strict_or_app_gate(self) -> None:
+        actual = compliant_readback()
+        actual["required_status_checks"]["contexts"].append("pr-review-convergence-observation")
+        actual["required_status_checks"]["checks"].append(
+            {"context": "pr-review-convergence-observation", "app_id": 15368}
+        )
+        actual["required_status_checks"]["checks"][1]["app_id"] = 15368
+        actual["enforce_admins"]["enabled"] = False
+        errors = PROTECTION.protection_errors(
+            actual, GATE_APP_ID, require_review_convergence=True)
+        self.assertTrue(any("required checks" in e for e in errors))
+        self.assertTrue(any("administrator" in e for e in errors))
+
+    def test_review_gate_target_rejects_duplicate_or_extra_context(self) -> None:
+        for extra in ("pr-review-convergence-observation", "forged-pass"):
+            with self.subTest(extra=extra):
+                actual = compliant_readback()
+                actual["required_status_checks"]["contexts"] += [
+                    "pr-review-convergence-observation", extra]
+                actual["required_status_checks"]["checks"] += [
+                    {"context": "pr-review-convergence-observation", "app_id": 15368},
+                    {"context": extra, "app_id": 15368},
+                ]
+                self.assertTrue(PROTECTION.protection_errors(
+                    actual, GATE_APP_ID, require_review_convergence=True))
+
     def test_non_strict_checks_and_admin_bypass_fail(self) -> None:
         actual = compliant_readback()
         actual["required_status_checks"]["strict"] = False

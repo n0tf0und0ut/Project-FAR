@@ -248,7 +248,7 @@ class ConvergenceTests(unittest.TestCase):
         publishing = workflow.split("  review-convergence:\n", 1)[1].split("  review-evidence:\n", 1)[0]
         observational = workflow.split("  review-evidence:\n", 1)[1]
         self.assertIn("checks: write", publishing)
-        self.assertIn("if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'",
+        self.assertIn("if: (github.event_name == 'schedule' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')",
                       publishing)
         self.assertNotIn("checks: write", observational)
         self.assertIn("pull-requests: read", observational)
