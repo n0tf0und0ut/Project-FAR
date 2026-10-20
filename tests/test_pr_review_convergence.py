@@ -218,6 +218,30 @@ class ConvergenceTests(unittest.TestCase):
         changed["draft"] = True
         self.assertFalse(scan([approval()], pr=changed)["review_metadata_converged"])
 
+    def test_workflow_uses_supported_events_and_head_bound_check(self):
+        workflow = (Path(__file__).resolve().parents[1] /
+                    ".github/workflows/pr-review-convergence.yml").read_text()
+        self.assertNotIn("  pull_request_review_thread:", workflow)
+        self.assertIn("  pull_request_review_comment:", workflow)
+        self.assertIn("  schedule:", workflow)
+        self.assertIn("  issue_comment:", workflow)
+        self.assertIn("checks: write", workflow)
+        self.assertIn('name:"pr-review-convergence-observation"', workflow)
+        self.assertIn('--expected-head "$sha"', workflow)
+        self.assertIn('current" == "$sha"', workflow)
+        self.assertIn("ref: main", workflow)
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertNotIn("ref: ${{ github.event.pull_request.head.sha }}", workflow)
+
+    def test_polling_updates_review_state_without_re_requesting_reviews(self):
+        workflow = (Path(__file__).resolve().parents[1] /
+                    ".github/workflows/pr-review-convergence.yml").read_text()
+        self.assertIn("gh api --paginate", workflow)
+        self.assertIn("pulls?state=open&base=main", workflow)
+        self.assertIn("cancel-in-progress: true", workflow)
+        self.assertNotIn("@codex review", workflow)
+        self.assertNotIn("/requested_reviewers", workflow)
+
     def test_identity_restrictions(self):
         self.assertIsNone(REPO.fullmatch("../x"))
         self.assertIsNone(SHA.fullmatch("a" * 39))
