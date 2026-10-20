@@ -150,6 +150,10 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
     except (TypeError, ValueError, OverflowError) as exc:
         raise InvalidBundle("bundle contains non-JSON or non-finite values") from exc
     required(isinstance(bundle.get("investigation_id"), str) and bool(bundle["investigation_id"].strip()), "investigation id required")
+    proposal_hash = bundle.get("proposal_sha256")
+    required(proposal_hash is None or (isinstance(proposal_hash, str) and
+             re.fullmatch(r"[0-9a-f]{64}", proposal_hash) is not None),
+             "invalid proposal provenance commitment")
     as_of = timestamp(bundle.get("as_of"), "as_of")
     atoms = bundle.get("atoms")
     required(isinstance(atoms, dict) and 0 < len(atoms) <= 100, "bounded atom definitions required")
