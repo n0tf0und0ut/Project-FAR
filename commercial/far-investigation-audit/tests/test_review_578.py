@@ -247,5 +247,32 @@ class Review578RegressionTests(unittest.TestCase):
 
 
 
+    def test_model_network_provenance_survives_manifest_replay(self):
+        raw = "Exactly 1 row reported."
+        response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(
+            content=json.dumps({"claims": [{"id": "c1", "quote": raw, "source_id": "primary"}],
+                                "unknowns": [], "evidence": [], "arguments": []})))])
+        fake = SimpleNamespace(chat=SimpleNamespace(
+            completions=SimpleNamespace(create=lambda **kwargs: response)))
+        pkg = investigate({"captured_at": CUTOFF, "source": {"kind": "text", "text": raw},
+                           "proposal_mode": "openai"}, permit_model=True, model_client=fake)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = pathlib.Path(tmp) / "pkg"
+            write_package(target, pkg)
+            self.assertTrue(verify_package(target)["replay_match"])
+            manifest_path = target / "manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            self.assertTrue(manifest["network_used"])
+            # Manifest hashes are self-declared; verification must rebuild
+            # the provider-boundary flag, not trust an unsigned field.
+            manifest["network_used"] = False
+            manifest_path.write_text(json.dumps(manifest, sort_keys=True,
+                                                separators=(",", ":")) + "\n")
+            with self.assertRaisesRegex(InvalidBundle, "network provenance mismatch"):
+                verify_package(target)
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
