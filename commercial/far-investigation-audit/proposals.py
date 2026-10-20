@@ -108,6 +108,8 @@ def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, mode
         if not isinstance(raw, str) or len(raw) > 30000:
             raise InvalidBundle("model response absent or too large")
         candidate = json.loads(raw)
+    except InvalidBundle:
+        raise  # Do not obscure provider failures with a JSON-shape error.
     except (KeyError, IndexError, AttributeError, TypeError, ValueError) as exc:
         raise InvalidBundle("model proposal invalid JSON or response") from exc
     if not isinstance(candidate, dict):
