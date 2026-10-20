@@ -242,6 +242,19 @@ class ConvergenceTests(unittest.TestCase):
         self.assertNotIn("@codex review", workflow)
         self.assertNotIn("/requested_reviewers", workflow)
 
+    def test_candidate_events_never_hold_a_write_token(self):
+        workflow = (Path(__file__).resolve().parents[1] /
+                    ".github/workflows/pr-review-convergence.yml").read_text()
+        publishing = workflow.split("  review-convergence:\n", 1)[1].split("  review-evidence:\n", 1)[0]
+        observational = workflow.split("  review-evidence:\n", 1)[1]
+        self.assertIn("checks: write", publishing)
+        self.assertIn("if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'",
+                      publishing)
+        self.assertNotIn("checks: write", observational)
+        self.assertIn("pull-requests: read", observational)
+        self.assertIn("--mode report", observational)
+        self.assertIn("--mode enforce", publishing)
+
     def test_identity_restrictions(self):
         self.assertIsNone(REPO.fullmatch("../x"))
         self.assertIsNone(SHA.fullmatch("a" * 39))
