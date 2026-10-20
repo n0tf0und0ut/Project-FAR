@@ -190,6 +190,7 @@ def verify_package(directory: Path) -> dict:
             "captured_at": v.get("captured_at"),
             "acquisition_sha256": digest(canonical(next(a for a in acquisition if a["source_id"] == k)))}
             for k,v in sources.items()})
+    rebuilt["discovery_sha256"] = expected_discovery_sha256
     if canonical(rebuilt) != canonical(bundle):
         raise InvalidBundle("proposal-to-audit input reconstruction mismatch")
     expected_questions = critical_questions(bundle["claims"])
