@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import re
 import unittest
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -19,8 +19,19 @@ EXPECTED_TASKS = {
     "Project FAR Competitive Brief",
     "FAR Saturation Watch",
 }
-PERMITTED_EVIDENCE = {
-    "author_report", "public_repository_documentation", "vendor_benchmark_self_report",
+# Source identities and trust categories are contractual, not any-HTTPS links.
+EXPECTED_SOURCES = {
+    "SR-001": ("https://arxiv.org/abs/2610.04888", "author_report"),
+    "SR-002": ("https://arxiv.org/abs/2610.05355", "author_report"),
+    "SR-003": ("https://arxiv.org/abs/2610.07459", "author_report"),
+    "SR-004": ("https://arxiv.org/abs/2610.12788", "author_report"),
+    "SR-005": ("https://arxiv.org/abs/2610.20457", "author_report"),
+    "SR-006": ("https://arxiv.org/abs/2610.20328", "author_report"),
+    "SR-007": ("https://arxiv.org/abs/2610.21046", "author_report"),
+    "SR-008": ("https://arxiv.org/abs/2610.21063", "author_report"),
+    "SR-009": ("https://fact.engineering/benchmarks", "vendor_benchmark_self_report"),
+    "SR-010": ("https://github.com/minerval-ai/minerval", "public_repository_documentation"),
+    "SR-011": ("https://github.com/Ikey168/Noesis", "public_repository_documentation"),
 }
 REQUIRED_ENTRY_FIELDS = {
     "id", "title", "primary_url", "publication_or_event_date", "checked_on",
@@ -44,8 +55,11 @@ class ScheduledIntakeTests(unittest.TestCase):
         self.assertIn("No complete per-run task output archive", data["source_scope"])
         self.assertTrue(data["coverage_limits"])
         self.assertTrue(any("missed runs" in line for line in data["coverage_limits"]))
-        self.assertTrue(any("architecture" in line for line in data["coverage_limits"]))
-        self.assertIn("not", self.readme.lower())
+        self.assertTrue(any("architectur" in line.lower() for line in data["coverage_limits"]))
+        lines = self.readme.splitlines()
+        self.assertEqual(lines[0], "# Scheduled FAR research streams — bounded reconciliation (2026-10-20)")
+        self.assertEqual(lines[2], "**Status: Research intake, non-authoritative. No scientific acceptance, v0.5 amendment, FAR-CORE/FARA/EFR status change, or commercial-performance determination.**")
+        self.assertIn("no complete per-run task output archive", self.readme.lower())
         self.assertIn("research/living/README.md", self.readme)
 
     def test_stream_inventory_is_complete_but_not_mislabelled_as_run_archive(self):
@@ -54,11 +68,16 @@ class ScheduledIntakeTests(unittest.TestCase):
         self.assertEqual(len(streams), len(EXPECTED_TASKS))
         for stream in streams:
             self.assertIs(stream["results_exhaustive"], False)
-            self.assertRegex(stream["last_run_metadata_utc"], r"^2026-10-20T\d\d:\d\d:\d\dZ$")
+            stamp = stream["last_run_metadata_utc"]
+            self.assertTrue(stamp.endswith("Z"))
+            parsed = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+            self.assertEqual(parsed.tzinfo, timezone.utc)
+            self.assertEqual(parsed.date().isoformat(), self.data["generated_date"])
 
     def test_each_source_has_primary_link_explicit_limit_and_falsifier(self):
         entries = self.data["entries"]
-        self.assertEqual(len(entries), 11)
+        self.assertEqual(len(entries), len(EXPECTED_SOURCES))
+        self.assertEqual({e["id"] for e in entries}, set(EXPECTED_SOURCES))
         self.assertEqual(len({e["id"] for e in entries}), len(entries))
         self.assertEqual(len({e["primary_url"] for e in entries}), len(entries))
         for e in entries:
@@ -67,7 +86,7 @@ class ScheduledIntakeTests(unittest.TestCase):
                 self.assertRegex(e["id"], r"^SR-\d{3}$")
                 self.assertEqual(urlparse(e["primary_url"]).scheme, "https")
                 self.assertTrue(urlparse(e["primary_url"]).hostname)
-                self.assertIn(e["evidence_class"], PERMITTED_EVIDENCE)
+                self.assertEqual((e["primary_url"], e["evidence_class"]), EXPECTED_SOURCES[e["id"]])
                 self.assertIs(e["architecture_change_required"], False)
                 self.assertEqual(e["v05_classification"], "REPRESENTABLE_WITH_EXISTING_INTERFACE")
                 self.assertEqual(e["repository_disposition"], "RESEARCH_LEAD_UNPROMOTED")
@@ -87,6 +106,10 @@ class ScheduledIntakeTests(unittest.TestCase):
         vendor = [e for e in self.data["entries"] if e["evidence_class"] == "vendor_benchmark_self_report"]
         self.assertEqual([e["id"] for e in vendor], ["SR-009"])
         self.assertIn("self", vendor[0]["inference_limit"].lower())
+        self.assertIn("1,063", vendor[0]["source_reported_observation"])
+        self.assertIn("subset denominator undisclosed", vendor[0]["source_reported_observation"])
+        self.assertIn("1,063", self.readme)
+        self.assertIn("denominator undisclosed", self.readme)
         self.assertIn("no new v0.5 capability class", self.readme.lower())
 
 
