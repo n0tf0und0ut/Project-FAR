@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
@@ -15,6 +16,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
