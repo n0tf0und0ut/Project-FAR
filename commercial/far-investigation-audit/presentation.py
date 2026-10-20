@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import html
+import re
 
 
 def _plain(value: object) -> str:
@@ -30,9 +31,14 @@ def render_markdown(bundle: dict, audit: dict, *, acquisition: list[dict],
              "## Attributed claims", ""]
     for cid, claim in claims.items():
         state = audit["claims"][cid]
+        quote = claim["span"]["quote"]
+        # A fence longer than every embedded run of backticks preserves the
+        # exact untrusted quotation without allowing it to terminate its code
+        # block or activate HTML/Markdown markup.
+        fence = "`" * max(3, 1 + max((len(m.group()) for m in re.finditer(r"`+", quote)), default=0))
         lines += [f"### {cid}", "", f"Source: `{claim['source_id']}`; exact span: "
                   f"`{claim['span']['start']}:{claim['span']['end']}`", "",
-                  "Source quotation:", "", "```text", html.escape(claim["span"]["quote"].replace("```", "` ` `")), "```", "",
+                  "Source quotation:", "", fence + "text", quote, fence, "",
                   f"- Evidential/conditional status: **{state['status']}**",
                   f"- Numerical status: **{state['structured_value_checks']['status']}**",
                   f"- Semantic mapping: **{state['mapping_status']}** (not independent validation)",
