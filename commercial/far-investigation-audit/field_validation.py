@@ -118,18 +118,32 @@ def evaluate(predictions: list[dict], adjudications: list[dict], *, alpha: float
             raise InvalidFieldEvaluation('invalid predictions or adjudications: ' + case_id)
         if any(field in pred for field in ('reference_verdict','mapping_fidelity','evidence_adequacy', 'temporal_eligibility')):
             raise InvalidFieldEvaluation('reference material leaked into predictions: ' + case_id)
-        # Denominator includes abstentions; all decisive results must be evaluated.
-        decisive = prediction != 'ABSTAIN'
+        # Only SUPPORTED/REFUTED are factual truth commitments.
+        # "INSUFFICIENT" is a specific evidence-status judgment, not a
+        # confident truth classification; "ABSTAIN" makes no such judgment.
+        # Treating either as a decisive factual verdict inflates coverage and
+        # can misclassify warranted insufficiency as false factual certainty.
+        decisive = prediction in {'SUPPORTED', 'REFUTED'}
+        insufficient = prediction == 'INSUFFICIENT'
+        abstained = prediction == 'ABSTAIN'
         semantically_disputed = fidelity == 'DISPUTED'
         truth_disputed = truth == 'CONTESTED'
-        # Reference uncertainty does not become a model error or a success. A
-        # decisive judgment against disputed reference is counted as unsafe.
+        # A decisive factual verdict is justified only under an unambiguous,
+        # faithful and admissible reference. Disputed truth is never rewarded.
         justified = (decisive and not semantically_disputed and not truth_disputed
                      and prediction == truth and fidelity == 'FAITHFUL'
                      and adequacy == 'ADEQUATE' and temporal == 'IN_WINDOW')
         false_certainty = decisive and not justified
+        # Measure correct evidence insufficiency separately. It is not proof
+        # of factual accuracy, and cannot improve factual-verdict coverage.
+        insufficiency_reference_match = (
+            insufficient and truth == 'INSUFFICIENT'
+            and fidelity == 'FAITHFUL' and adequacy == 'INADEQUATE')
         record = {'case_id': case_id, 'domain':domain, 'verdict':prediction,
-                  'decisive':decisive, 'justified_under_reference':justified,
+                  'decisive':decisive, 'insufficient':insufficient,
+                  'abstained':abstained,
+                  'insufficiency_reference_match':insufficiency_reference_match,
+                  'justified_under_reference':justified,
                   'false_certainty_under_reference':false_certainty,
                   'mapping_fidelity':fidelity, 'reference_disputed':semantically_disputed or truth_disputed,
                   'temporal_eligibility':temporal}
@@ -138,15 +152,19 @@ def evaluate(predictions: list[dict], adjudications: list[dict], *, alpha: float
     def metrics(group):
         n = len(group)
         covered = sum(r['decisive'] for r in group)
+        insufficient = sum(r['insufficient'] for r in group)
+        abstained = sum(r['abstained'] for r in group)
         fc = sum(r['false_certainty_under_reference'] for r in group)
-        return {'cases':n,'decisive':covered,'abstained':n-covered,
-                'coverage':covered/n, 'false_certainty':fc,
+        assert covered + insufficient + abstained == n
+        return {'cases':n,'decisive':covered,'insufficient':insufficient,
+                'insufficient_matches_under_reference':sum(r['insufficiency_reference_match'] for r in group),
+                'abstained':abstained,'coverage':covered/n, 'false_certainty':fc,
                 'false_certainty_rate_given_decisive':fc/covered if covered else None,
                 'upper_false_certainty_rate_given_decisive':upper_error_rate(fc,covered,alpha),
                 'reference_disputes':sum(r['reference_disputed'] for r in group),
                 'faithful_interpretations_in_reference':sum(r['mapping_fidelity']=='FAITHFUL' for r in group),
                 'unfaithful_interpretations_in_reference':sum(r['mapping_fidelity']=='UNFAITHFUL' for r in group)}
-    result={'schema':'far-field-evaluation-score/0.1','predictions_sha256':sha(predictions),
+    result={'schema':'far-field-evaluation-score/0.2','predictions_sha256':sha(predictions),
             'adjudications_sha256':sha(adjudications),'alpha':float(alpha),
             'overall':metrics(records),
             'by_domain':{domain:metrics(items) for domain,items in sorted(by_domain.items())},

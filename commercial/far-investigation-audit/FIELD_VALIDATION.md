@@ -71,6 +71,9 @@ Reference (provided by a separate adjudicator, NEVER synthesized from FAR output
 
 Allowed predicted verdicts: `SUPPORTED`, `REFUTED`, `INSUFFICIENT`, `ABSTAIN`. Allowed reference verdicts add `CONTESTED`. The external adjudicator's mapping fidelity is `FAITHFUL`/`UNFAITHFUL`/`DISPUTED`; evidence adequacy is `ADEQUATE`/`INADEQUATE`/`UNDETERMINED`; temporal eligibility is `IN_WINDOW`/`NOT_ADMISSIBLE`/`UNKNOWN`.
 
+**Score schema 0.2 (non-backward-compatible denominator correction):** Only `SUPPORTED` and `REFUTED` are *decisive factual verdicts*. `INSUFFICIENT` expresses an evidence-adequacy judgment, not truth certainty; `ABSTAIN` makes no evidentiary conclusion. Report these categories separately (`decisive`, `insufficient`, `abstained`). `coverage` is decisive factual verdicts divided by **all** evaluated cases, including insufficiency and abstention. False-certainty rates and their confidence bounds use only decisive factual verdicts as the denominator. Correctly predicting an independently labeled `INSUFFICIENT` case with faithful interpretation and inadequate evidence counts as `insufficient_matches_under_reference`, *not* as a factual success or false factual certainty. Disputed references are not auto-promoted into agreement. A product that predicts `INSUFFICIENT` for everything has zero factual-verdict coverage and cannot pass a coverage threshold.
+
+
 ```bash
 python commercial/far-investigation-audit/field_validation.py --predictions predictions.json --adjudications blinded_reference.json --output score.json
 ```

@@ -48,6 +48,50 @@ class FieldScorerTests(unittest.TestCase):
         self.assertIsNone(s['overall']['false_certainty_rate_given_decisive'])
         self.assertEqual(s['overall']['coverage'],0)
 
+    def test_insufficient_is_not_a_factual_verdict(self):
+        gold = {**GOLD, 'reference_verdict':'INSUFFICIENT',
+                'evidence_adequacy':'INADEQUATE', 'temporal_eligibility':'UNKNOWN'}
+        score=evaluate([{'case_id':'case01','verdict':'INSUFFICIENT'}],[gold])
+        self.assertEqual(score['schema'],'far-field-evaluation-score/0.2')
+        self.assertEqual(score['overall']['decisive'],0)
+        self.assertEqual(score['overall']['insufficient'],1)
+        self.assertEqual(score['overall']['abstained'],0)
+        self.assertEqual(score['overall']['insufficient_matches_under_reference'],1)
+        self.assertEqual(score['overall']['false_certainty'],0)
+        self.assertEqual(score['overall']['coverage'],0)
+        self.assertIsNone(score['overall']['upper_false_certainty_rate_given_decisive'])
+
+    def test_insufficient_on_supported_case_is_not_falsely_correct(self):
+        score=evaluate([{'case_id':'case01','verdict':'INSUFFICIENT'}],[GOLD])
+        self.assertEqual(score['overall']['decisive'],0)
+        self.assertEqual(score['overall']['insufficient_matches_under_reference'],0)
+        self.assertEqual(score['overall']['false_certainty'],0)
+        self.assertEqual(score['overall']['coverage'],0)
+
+    def test_contested_gold_insufficiency_is_nondecisive(self):
+        gold={**GOLD,'reference_verdict':'CONTESTED','mapping_fidelity':'DISPUTED'}
+        score=evaluate([{'case_id':'case01','verdict':'INSUFFICIENT'}],[gold])
+        self.assertEqual(score['overall']['insufficient'],1)
+        self.assertEqual(score['overall']['false_certainty'],0)
+        self.assertEqual(score['overall']['insufficient_matches_under_reference'],0)
+
+    def test_mixed_factual_insufficient_and_abstained_accounting(self):
+        predictions=[{'case_id':'case01','verdict':'REFUTED'},
+                     {'case_id':'case02','verdict':'INSUFFICIENT'},
+                     {'case_id':'case03','verdict':'ABSTAIN'}]
+        gold=[GOLD,{**GOLD,'case_id':'case02','reference_verdict':'INSUFFICIENT',
+                    'evidence_adequacy':'INADEQUATE'},
+              {**GOLD,'case_id':'case03','domain':'medicine'}]
+        score=evaluate(predictions,gold)
+        self.assertEqual(score['overall']['cases'],3)
+        self.assertEqual(score['overall']['decisive'],1)
+        self.assertEqual(score['overall']['insufficient'],1)
+        self.assertEqual(score['overall']['abstained'],1)
+        self.assertEqual(score['overall']['false_certainty'],1)
+        self.assertAlmostEqual(score['overall']['coverage'],1/3)
+        self.assertEqual(score['overall']['insufficient_matches_under_reference'],1)
+        self.assertEqual(score['by_domain']['medicine']['abstained'],1)
+
     def test_dropped_case_fails(self):
         with self.assertRaises(InvalidFieldEvaluation):
             evaluate([{'case_id':'case01','verdict':'SUPPORTED'}], [GOLD,{**GOLD,'case_id':'case02'}])
