@@ -24,7 +24,7 @@ MAX_EVIDENCE_SOURCES = 8
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fetcher, permit_files: bool = False, permit_model: bool = False, transcription_client=None) -> tuple[str, dict, dict]:
@@ -60,7 +60,8 @@ def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fet
         extracted = source_fetcher(url, permit_network=permit_network)
     if len(extracted["text"].encode("utf-8")) > MAX_INPUT:
         raise InvalidBundle("extracted source text over limit")
-    return extracted["text"], extracted, config
+    # Live acquisition completes after the source bytes have been retrieved.
+    return extracted["text"], {**extracted, "captured_at": _now()}, config
 
 
 def investigate(config: dict, *, permit_network: bool = False,
@@ -94,7 +95,8 @@ def investigate(config: dict, *, permit_network: bool = False,
                                                 transcription_client=transcription_client)
     source_texts = {"primary": text}
     meta = {"primary": {"origin_id": primary_cfg.get("origin_id"), "publication_date_verified": False,
-                        "origin_verified": False}}
+                        "origin_verified": False,
+                        "captured_at": primary_provenance.get("captured_at", requested)}}
     publications = {"primary": primary_cfg.get("published_at")}
     acquisitions = [{"source_id": "primary", **primary_provenance}]
     evidence_configs = config.get("evidence_sources", [])
@@ -113,7 +115,8 @@ def investigate(config: dict, *, permit_network: bool = False,
         source_texts[name] = source
         publications[name] = scfg.get("published_at")
         meta[name] = {"origin_id": scfg.get("origin_id"), "publication_date_verified": False,
-                      "origin_verified": False}
+                      "origin_verified": False,
+                      "captured_at": provenance.get("captured_at", requested)}
         acquisitions.append({"source_id": name, **provenance})
     discovery = None
     if config.get("discovery"):
@@ -138,10 +141,11 @@ def investigate(config: dict, *, permit_network: bool = False,
                     lead["fetch_status"] = "FAILED: " + str(exc)[:100]
                     continue
                 sid = f"discovery{len(source_texts)}"
+                found = {**found, "captured_at": _now()}
                 source_texts[sid] = found["text"]
                 publications[sid] = None
                 meta[sid] = {"origin_id": None, "publication_date_verified": False,
-                             "origin_verified": False}
+                             "origin_verified": False, "captured_at": found["captured_at"]}
                 acquisitions.append({"source_id": sid, **found})
                 lead["fetch_status"] = "SNAPSHOT_RECORDED_UNAUTHENTICATED"
                 lead["source_id"] = sid
@@ -157,6 +161,10 @@ def investigate(config: dict, *, permit_network: bool = False,
                                   model=config.get("model", "gpt-4.1"), client=model_client)
     else:
         raise InvalidBundle("unknown proposal mode")
+    # Bind exact acquisition records, including method and archived bytes,
+    # into the hashed audit input. Not an external authenticity guarantee.
+    for item in acquisitions:
+        meta[item["source_id"]]["acquisition_sha256"] = digest(canonical(item))
     bundle = compile_proposal(proposal, source_texts, investigation_id=inv_id, captured_at=requested,
                               published_at_by_source=publications, source_meta=meta)
     result = audit(bundle)
