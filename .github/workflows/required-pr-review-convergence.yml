@@ -1,0 +1,63 @@
+name: Required PR Review Convergence
+
+# This workflow must have exactly one eligible event family. A skipped job on
+# another eligible event can otherwise appear as required-check success.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  required-review:
+    name: pr-review-convergence-observation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pr-review-required-${{ github.repository }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - name: Checkout protected main, never PR source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Enforce review evidence for this event's exact PR head
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EVENT_HEAD" =~ ^[a-f0-9]{40}$ ]]
+          api="/repos/$GITHUB_REPOSITORY"
+          metadata="$(gh api "$api/pulls/$PR_NUMBER")"
+          [[ "$(jq -r '.base.ref' <<< "$metadata")" == main ]]
+          sha="$(jq -r '.head.sha' <<< "$metadata")"
+          [[ "$sha" == "$EVENT_HEAD" ]] || { echo 'PR no longer matches this event head' >&2; exit 1; }
+          python3 tools/pr_review_convergence.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --expected-head "$sha" \
+            --output "$RUNNER_TEMP/pr-review-required.json" \
+            --mode enforce
+          current="$(gh api "$api/pulls/$PR_NUMBER" --jq .head.sha)"
+          [[ "$current" == "$sha" ]] || { echo 'PR moved during review evaluation' >&2; exit 1; }
+      - name: Preserve required PR-event review evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pr-review-required-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pr-review-required.json
+          if-no-files-found: warn
+          retention-days: 30
+

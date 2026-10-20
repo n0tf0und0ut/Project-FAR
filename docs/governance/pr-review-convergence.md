@@ -49,3 +49,5 @@ The Codex installation's own automatic review-trigger settings are external to t
 ## Final release record
 
 Record final PR/main/merge SHAs, live review findings, resolved/disproven ledger dispositions, root-cause regressions, mutation results, final exact-head review outcome, hosted checks, protected App decision, and the merge result. If an external review or authorized protection change remains unavailable, stop with a named external blocker instead of forging a green signal or bypassing the gate. Keep research and empirical claims within demonstrated boundaries.
+
+The required-name job is isolated in `.github/workflows/required-pr-review-convergence.yml`, whose only event is `pull_request_target`. It has no job-level condition. The advisory workflow cannot emit that required job on review events: GitHub treats conditionally skipped eligible-event jobs as successful, so co-location would allow a skipped success without enforcement. Independent review discussion 4330779437 identified this boundary; regression mutations reject adding the eligible `pull_request_review` event.

@@ -22,3 +22,5 @@ The fix cannot bootstrap itself through an already required, ineligible check. T
 ## Unproved claims
 
 Local/YAML tests cannot prove GitHub's future deployed behavior. Hosted CI on a candidate cannot deploy protected-main workflow code. A native green metadata job does not prove correctness or independent scientific validity. Bootstrap and actual negative/positive merge-path evidence must be recorded before declaring this incident resolved.
+
+The required-name job is isolated in `.github/workflows/required-pr-review-convergence.yml`, whose only event is `pull_request_target`. It has no job-level condition. The advisory workflow cannot emit that required job on review events: GitHub treats conditionally skipped eligible-event jobs as successful, so co-location would allow a skipped success without enforcement. Independent review discussion 4330779437 identified this boundary; regression mutations reject adding the eligible `pull_request_review` event.

@@ -227,7 +227,7 @@ class ConvergenceTests(unittest.TestCase):
         self.assertIn("  schedule:", workflow)
         self.assertIn("  issue_comment:", workflow)
         self.assertIn("checks: write", workflow)
-        self.assertIn('name: pr-review-convergence-observation', workflow)
+        self.assertNotIn('name: pr-review-convergence-observation', workflow)
         self.assertIn('name:"pr-review-convergence-scheduled-observation"', workflow)
         self.assertIn('--expected-head "$sha"', workflow)
         self.assertIn('current" == "$sha"', workflow)
@@ -265,7 +265,9 @@ class ConvergenceTests(unittest.TestCase):
         jobs = workflow["jobs"]
         job = jobs["required-review"]
         self.assertEqual(job["name"], "pr-review-convergence-observation")
-        self.assertEqual(job["if"], "github.event_name == 'pull_request_target' && github.event.pull_request.base.ref == 'main'")
+        self.assertEqual(set(workflow["on"]), {"pull_request_target"})
+        self.assertEqual(workflow["on"]["pull_request_target"]["branches"], ["main"])
+        self.assertNotIn("if", job)
         # No dependency may turn failure of another job into a skipped success.
         self.assertNotIn("needs", job)
         self.assertNotIn("strategy", job)
@@ -282,18 +284,24 @@ class ConvergenceTests(unittest.TestCase):
         self.assertNotIn("gh api --method POST", script["run"])
 
     def test_required_check_is_a_native_eligible_read_only_job(self):
-        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence.yml"
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
         self.assert_required_workflow_boundary(yaml.load(path.read_text(), Loader=yaml.BaseLoader))
+        advisory = path.with_name("pr-review-convergence.yml")
+        other_jobs = yaml.load(advisory.read_text(), Loader=yaml.BaseLoader)["jobs"]
+        self.assertFalse(any(job.get("name") == "pr-review-convergence-observation"
+                             for job in other_jobs.values()))
 
     def test_required_job_rejects_ineligible_event_or_privileged_candidate_mutations(self):
-        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence.yml"
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
         source = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
-        for mutation in ("event", "permissions", "checkout", "head", "dependency"):
+        for mutation in ("event", "review_event", "permissions", "checkout", "head", "dependency"):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(source)
                 job = changed["jobs"]["required-review"]
                 if mutation == "event":
-                    job["if"] = "github.event_name == 'schedule'"
+                    changed["on"] = {"schedule": [{"cron": "13 * * * *"}]}
+                elif mutation == "review_event":
+                    changed["on"]["pull_request_review"] = {"types": ["submitted"]}
                 elif mutation == "permissions":
                     job["permissions"]["checks"] = "write"
                 elif mutation == "checkout":
