@@ -130,3 +130,26 @@ Describe whether this PR is:
 - evaluation
 - release
 - cleanup
+
+---
+
+## Review Convergence
+
+- [ ] Exact PR head, base/main SHA, merge base, changed-file scope and primary review/CI evidence examined.
+- [ ] Changed correctness/security invariants and trust boundaries identified.
+- [ ] Every substantive review finding assigned a demonstrated root cause or left explicitly unresolved.
+- [ ] Fixed findings have defect-detecting regression tests and relevant integration validation.
+- [ ] Duplicate, stale, speculative and rejected findings have concrete evidence, not unsupported dismissals.
+- [ ] Independent substantive review completed on the stabilized exact head.
+- [ ] Reviews were not repeatedly requested on identical code without new evidence.
+- [ ] Required protected gates pass on the actual final SHA; claim limitations preserved.
+
+**Finding ledger (or immutable artifact link):**
+
+| Root cause | Review/thread IDs and reviewed SHA | Invariant/reproducer | Disposition and evidence | Fix SHA and regression |
+|---|---|---|---|---|
+| none recorded | — | — | — | — |
+
+**Disposition:** draft / review required / metadata converged / substantive review completed / external blocker / merge authorized.
+
+See docs/governance/pr-review-convergence.md. Metadata convergence does not prove code correctness.
