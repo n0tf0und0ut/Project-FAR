@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.0",
+  "status": "RESEARCH_INTAKE_UNREVIEWED_NO_PROMOTION",
+  "generated_date": "2026-10-20",
+  "source_scope": "Scheduled-task context and retrievable prior summaries, independently cross-checked against linked author/vendor/public-repository pages on 2026-10-20. No complete per-run task output archive or frozen source bytes accessible.",
+  "repository_baseline": {
+    "main_sha": "e4d936ca0ba9770be6f72e0435220987882f4146",
+    "saturation_baseline": "docs/architecture/saturation-baseline-v0.5.md",
+    "current_frontier": "docs/research/current-research-frontier.md",
+    "living_inbox": "research/living/README.md"
+  },
+  "task_streams": [
+    {
+      "name": "Project FAR Research Brief",
+      "last_run_metadata_utc": "2026-10-20T20:13:35Z",
+      "scope": "formal theory, citation and interpretation",
+      "results_exhaustive": false
+    },
+    {
+      "name": "FAR Research Watch",
+      "last_run_metadata_utc": "2026-10-20T20:13:57Z",
+      "scope": "new research and cross-domain assurance",
+      "results_exhaustive": false
+    },
+    {
+      "name": "Project FAR Competitive Brief",
+      "last_run_metadata_utc": "2026-10-20T20:09:34Z",
+      "scope": "media-verification markets, substitutes, adoption evidence",
+      "results_exhaustive": false
+    },
+    {
+      "name": "FAR Saturation Watch",
+      "last_run_metadata_utc": "2026-10-20T20:26:09Z",
+      "scope": "architectural counterexamples to provisional v0.5",
+      "results_exhaustive": false
+    }
+  ],
+  "coverage_limits": [
+    "Automation scheduling metadata is not the same as a saved run result; missed runs are not reconstructed.",
+    "Retrieved prior conversation summaries are not a complete archive of notifications, raw inputs, or searches.",
+    "Author and vendor claims have not been independently benchmarked or reproduced in this intake.",
+    "Live source content was inspected at URLs but source bytes were not content-addressed, and chronological freshness after the observation date is not asserted.",
+    "All candidate mechanisms appear representable within provisional v0.5's declared source, semantic interpretation, graph, provenance, validation, confidence, or governance extension interfaces; this is a preliminary mapping, not a proof of saturation.",
+    "No automatic change to FAR-CORE, FARA, EFR, v0.5, project status, accepted evidence, feature scope, or benchmark results."
+  ],
+  "entries": [
+    {
+      "id": "SR-001",
+      "title": "No Hindsight for LLM Fact-Checkers: Measuring Leakage Channels in Misinformation Detection",
+      "primary_url": "https://arxiv.org/abs/2610.04888",
+      "publication_or_event_date": "2026-10-04",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "temporal-hindsight",
+      "source_reported_observation": "Paper reports a 6.3-point AVeriTeC zero-shot lift when post-claim evidence is permitted; it separates parametric memorization from retrieval hindsight.",
+      "inference_limit": "Point-in-time source admissibility and memorization leakage are distinct; source timestamps alone do not rule out parametric hindsight.",
+      "single_falsification_or_comparison_test": "Time-cutoff paired benchmark with publication-index freeze and model-memory probe.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-002",
+      "title": "Rethinking Inline Citation Verification in Scholarly Communication",
+      "primary_url": "https://arxiv.org/abs/2610.05355",
+      "publication_or_event_date": "2026-10-04",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "citation-fidelity",
+      "source_reported_observation": "Mixed-methods study of 12 reviewer interviews and a 203-reviewer survey about citation verification practices.",
+      "inference_limit": "Reviewer preferences and citation types differ; this does not measure FAR's own citation fidelity.",
+      "single_falsification_or_comparison_test": "Citation-type-stratified manual review and citation-to-passage support error rates.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-003",
+      "title": "Auditable Claims about AI Agents",
+      "primary_url": "https://arxiv.org/abs/2610.07459",
+      "publication_or_event_date": "2026-10-05",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "agent-assurance",
+      "source_reported_observation": "Position and formal model require explicit policy, scope, evidence records, provenance, decision rules, and observation coverage; stated impossibility results are model-conditional.",
+      "inference_limit": "Formal guarantees do not transfer automatically to FAR production deployments or external actor records.",
+      "single_falsification_or_comparison_test": "Build six auditable-policy fixtures: missing independent observer, argument mismatch, incomplete action record.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-004",
+      "title": "What Counts as Evidence? Epistemic Cue Utilization in Large Language Models",
+      "primary_url": "https://arxiv.org/abs/2610.12788",
+      "publication_or_event_date": "2026-10-08",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "source-weighting",
+      "source_reported_observation": "Controlled study reports 500 scenarios and 13 models; source reliability recognition can diverge from actual reliance during judgments.",
+      "inference_limit": "Citation existence and stated source-quality ratings cannot establish how a model used evidence.",
+      "single_falsification_or_comparison_test": "Counterfactual source-history/order swaps with fixed evidence and measured verdict sensitivity.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-005",
+      "title": "Same Claim, Different Interpretations: How LLM Agents Resolve Ambiguity in Scientific Claims",
+      "primary_url": "https://arxiv.org/abs/2610.20457",
+      "publication_or_event_date": "2026-10-14",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "semantic-interpretation",
+      "source_reported_observation": "Claim Cards expose nine interpretation fields; authors report 900 runs on 60 labeled scientific claims and deliberate interpretation edits changing verdicts.",
+      "inference_limit": "Observed influence is specific to tested agents and scientific claims; does not show semantic correctness of FAR's mappings.",
+      "single_falsification_or_comparison_test": "Freeze interpretation cards; mutate one quantifier or threshold; compare evidence, formalization and final verdict.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-006",
+      "title": "Argument Graph Uncertainty: Quantifying Uncertainty from the Logical Structure of Reasoning Chains",
+      "primary_url": "https://arxiv.org/abs/2610.20328",
+      "publication_or_event_date": "2026-10-14",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "argument-uncertainty",
+      "source_reported_observation": "NLI-based argument graph scores feed a Dirichlet uncertainty estimate on multiple-choice benchmarks; authors report gains over sampled baselines.",
+      "inference_limit": "Graph coherence estimates uncertainty, not sound entailment or true source propositions.",
+      "single_falsification_or_comparison_test": "Compare graph-based confidence with independent countermodel checker on known-invalid valid-premise arguments.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-007",
+      "title": "PremiseCheck: Efficient Fact-Checking of Human and AI Peer Reviews",
+      "primary_url": "https://arxiv.org/abs/2610.21046",
+      "publication_or_event_date": "2026-10-15",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "premise-checking",
+      "source_reported_observation": "Decomposes review comments into explicit premises and checks each against a paper; authors report accuracy-cost/latency improvements against LLM baselines.",
+      "inference_limit": "Premise factuality is not the same obligation as premise-to-conclusion entailment.",
+      "single_falsification_or_comparison_test": "Hold correct premises fixed and introduce invalid inference; score detection separately from premise retrieval.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-008",
+      "title": "Approve What, Exactly? Effect Binding and Trusted Rendering for Agent Step-Up Authorization",
+      "primary_url": "https://arxiv.org/abs/2610.21063",
+      "publication_or_event_date": "2026-10-15",
+      "checked_on": "2026-10-20",
+      "evidence_class": "author_report",
+      "topic": "authorization-effect-binding",
+      "source_reported_observation": "Authors describe 12 approval-path attacks, evaluations of agent runtimes and conditional Tamarin formal guarantees for an effect-bound approval gateway.",
+      "inference_limit": "Device-bound authorization under model assumptions does not establish independent audit completeness in FAR.",
+      "single_falsification_or_comparison_test": "Mutate approved recipient/amount after signed effect descriptor; require authorization and execution-record rejection.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-009",
+      "title": "Stamp AI benchmark disclosure (Fact Engineering)",
+      "primary_url": "https://fact.engineering/benchmarks",
+      "publication_or_event_date": "2026-10-16",
+      "checked_on": "2026-10-20",
+      "evidence_class": "vendor_benchmark_self_report",
+      "topic": "commercial-factchecking",
+      "source_reported_observation": "Vendor reports AVeriTeC evaluation of 2,123 claims: 89.0% alignment on 1,808 settled labels, 96.6% correct within a high-confidence subset, 74.7% without an existing fact-check in retrieved evidence.",
+      "inference_limit": "Self-reported dataset-label agreement is not independent reproduction, real-world downstream accuracy, or premise-to-conclusion entailment.",
+      "single_falsification_or_comparison_test": "Reproduce vendor's label mapping on frozen matched claims; stratify fact-check retrieval contamination, mixed labels, and abstentions.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-010",
+      "title": "Minerval public claim-graph implementation",
+      "primary_url": "https://github.com/minerval-ai/minerval",
+      "publication_or_event_date": null,
+      "checked_on": "2026-10-20",
+      "evidence_class": "public_repository_documentation",
+      "topic": "competitive-claim-graph",
+      "source_reported_observation": "Public source describes canonical claims, decomposition, assessment history, provenance, a public read API, an extension and MCP access.",
+      "inference_limit": "Public code and documented features demonstrate substantial conceptual overlap, not verified service reliability, customer adoption, or correctness.",
+      "single_falsification_or_comparison_test": "Matched document-to-claim-graph trial measuring identity stability, source support, counterexamples and cost vs FAR.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    },
+    {
+      "id": "SR-011",
+      "title": "Noesis local-first evidence knowledge engine",
+      "primary_url": "https://github.com/Ikey168/Noesis",
+      "publication_or_event_date": null,
+      "checked_on": "2026-10-20",
+      "evidence_class": "public_repository_documentation",
+      "topic": "competitive-evidence-replay",
+      "source_reported_observation": "Public source describes versioned cited evidence, historical replay, MCP, REST, and CLI surfaces.",
+      "inference_limit": "A source repository and architecture description do not demonstrate actual correctness or sustained deployment.",
+      "single_falsification_or_comparison_test": "Independent offline replay with changed sources and time-cutoff invalidation comparison.",
+      "v05_classification": "REPRESENTABLE_WITH_EXISTING_INTERFACE",
+      "architecture_change_required": false,
+      "repository_disposition": "RESEARCH_LEAD_UNPROMOTED"
+    }
+  ]
+}
