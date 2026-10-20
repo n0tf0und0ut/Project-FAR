@@ -3,6 +3,7 @@ import copy
 import json
 import sys
 import unittest
+import yaml
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -226,7 +227,8 @@ class ConvergenceTests(unittest.TestCase):
         self.assertIn("  schedule:", workflow)
         self.assertIn("  issue_comment:", workflow)
         self.assertIn("checks: write", workflow)
-        self.assertIn('name:"pr-review-convergence-observation"', workflow)
+        self.assertIn('name: pr-review-convergence-observation', workflow)
+        self.assertIn('name:"pr-review-convergence-scheduled-observation"', workflow)
         self.assertIn('--expected-head "$sha"', workflow)
         self.assertIn('current" == "$sha"', workflow)
         self.assertIn("ref: main", workflow)
@@ -258,6 +260,50 @@ class ConvergenceTests(unittest.TestCase):
     def test_identity_restrictions(self):
         self.assertIsNone(REPO.fullmatch("../x"))
         self.assertIsNone(SHA.fullmatch("a" * 39))
+
+    def assert_required_workflow_boundary(self, workflow):
+        jobs = workflow["jobs"]
+        job = jobs["required-review"]
+        self.assertEqual(job["name"], "pr-review-convergence-observation")
+        self.assertEqual(job["if"], "github.event_name == 'pull_request_target' && github.event.pull_request.base.ref == 'main'")
+        # No dependency may turn failure of another job into a skipped success.
+        self.assertNotIn("needs", job)
+        self.assertNotIn("strategy", job)
+        self.assertEqual(job["permissions"], {"contents": "read", "pull-requests": "read", "issues": "read"})
+        checkout = next(step for step in job["steps"] if step.get("uses", "").startswith("actions/checkout@"))
+        self.assertEqual(checkout["with"]["ref"], "main")
+        self.assertEqual(checkout["with"]["persist-credentials"], "false")
+        script = next(step for step in job["steps"] if "run" in step)
+        self.assertEqual(script["env"]["EVENT_HEAD"], "${{ github.event.pull_request.head.sha }}")
+        self.assertIn('"$sha" == "$EVENT_HEAD"', script["run"])
+        self.assertIn('"$current" == "$sha"', script["run"])
+        self.assertIn('--expected-head "$sha"', script["run"])
+        self.assertIn("--mode enforce", script["run"])
+        self.assertNotIn("gh api --method POST", script["run"])
+
+    def test_required_check_is_a_native_eligible_read_only_job(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence.yml"
+        self.assert_required_workflow_boundary(yaml.load(path.read_text(), Loader=yaml.BaseLoader))
+
+    def test_required_job_rejects_ineligible_event_or_privileged_candidate_mutations(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence.yml"
+        source = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        for mutation in ("event", "permissions", "checkout", "head", "dependency"):
+            with self.subTest(mutation=mutation):
+                changed = copy.deepcopy(source)
+                job = changed["jobs"]["required-review"]
+                if mutation == "event":
+                    job["if"] = "github.event_name == 'schedule'"
+                elif mutation == "permissions":
+                    job["permissions"]["checks"] = "write"
+                elif mutation == "checkout":
+                    job["steps"][0]["with"]["ref"] = "${{ github.event.pull_request.head.sha }}"
+                elif mutation == "head":
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace('[[ "$sha" == "$EVENT_HEAD" ]]', "true")
+                else:
+                    job["needs"] = "discover"
+                with self.assertRaises(AssertionError):
+                    self.assert_required_workflow_boundary(changed)
 
 
 if __name__ == "__main__":
