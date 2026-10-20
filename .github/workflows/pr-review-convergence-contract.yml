@@ -1,0 +1,35 @@
+name: PR Review Convergence Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence.py'
+      - 'docs/governance/pr-review-convergence.md'
+      - '.github/pull_request_template.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence.py'
+
+permissions:
+  contents: read
+
+jobs:
+  convergence-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Compile and run adversarial review convergence tests
+        run: |
+          python3 -m py_compile tools/pr_review_convergence.py
+          python3 -m unittest discover -s tests -p 'test_pr_review_convergence.py' -v
