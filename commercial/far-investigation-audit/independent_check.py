@@ -125,9 +125,10 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str):
                 number+=Fraction(amount)
         else:raise ValueError("unknown operator")
         expected=Fraction(Decimal(claim["quantity"]["value"]))
-        return "STRUCTURED_VALUE_MATCH" if number==expected else "STRUCTURED_VALUE_MISMATCH",number
+        return ("STRUCTURED_VALUE_MATCH" if number==expected else "STRUCTURED_VALUE_MISMATCH",
+                number, len(selected))
     except (ValueError,KeyError,TypeError,IndexError,OverflowError,ArithmeticError,RecursionError):
-        return "STRUCTURED_UNVERIFIABLE",None
+        return "STRUCTURED_UNVERIFIABLE",None,None
 
 
 def check_report(bundle:dict, report:dict)->dict:
@@ -285,6 +286,21 @@ def check_report(bundle:dict, report:dict)->dict:
             if finding.get("assessment_disagrees_with_formalization", False) is not discrepancy:
                 raise IndependentCheckError("evidence assessment discrepancy mismatch: " + ev["id"])
             evidence_formulas_rechecked += 1
+        if "data_check" in ev:
+            structured = finding.get("structured_check")
+            if (not isinstance(structured, dict)
+                    or finding.get("structured_temporal_eligibility") != temporal[sid]):
+                raise IndependentCheckError("structured annotation mismatch: " + ev["id"])
+            disagrees = (
+                (ev["relation"] == "supports" and
+                 structured.get("status") != "STRUCTURED_VALUE_MATCH")
+                or (ev["relation"] == "contradicts" and
+                    structured.get("status") != "STRUCTURED_VALUE_MISMATCH")
+            )
+            if ("assessment_disagrees_with_structured_check" in finding) != disagrees or (
+                disagrees and finding["assessment_disagrees_with_structured_check"] is not True
+            ):
+                raise IndependentCheckError("structured annotation mismatch: " + ev["id"])
         if finding.get("formal_relation") != relation:
             raise IndependentCheckError("independent formal evidence mismatch: " + ev["id"])
     for cid, expected_ids in expected_evidence.items():
@@ -319,11 +335,28 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("independent evidence quote mismatch")
         if "data_check" in ev:
             claim=claims[ev["claim_id"]]
-            expected_status,expected_value=_separate_numeric_recompute(claim,ev,text)
+            expected_status,expected_value,rows_inspected=_separate_numeric_recompute(claim,ev,text)
             found=next((e.get("structured_check") for e in report["claims"][ev["claim_id"]]["evidence"]
                         if e.get("evidence_id")==ev["id"]),None)
             if not isinstance(found,dict) or found.get("status")!=expected_status:
                 raise IndependentCheckError("arithmetic recheck differs: "+ev["id"])
+            base_fields = {"status", "declared_value", "unit",
+                           "semantic_mapping_verified", "source_authenticity_verified"}
+            detail_fields = ({"reason"} if expected_status == "STRUCTURED_UNVERIFIABLE"
+                             else {"computed_value", "operation", "rows_inspected"})
+            if (set(found) != base_fields | detail_fields
+                    or found["declared_value"] != claim["quantity"]["value"]
+                    or found["unit"] != claim["quantity"]["unit"]
+                    or found["semantic_mapping_verified"] is not False
+                    or found["source_authenticity_verified"] is not False):
+                raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
+            if expected_status == "STRUCTURED_UNVERIFIABLE":
+                if not isinstance(found["reason"], str) or not found["reason"].strip():
+                    raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
+            elif (found["operation"] != ev["data_check"]["operation"]
+                    or type(found["rows_inspected"]) is not int
+                    or found["rows_inspected"] != rows_inspected):
+                raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
             if expected_value is not None:
                 try:
                     if Fraction(Decimal(found.get("computed_value")))!=expected_value:
@@ -359,6 +392,23 @@ def check_report(bundle:dict, report:dict)->dict:
         }
         if claim_report.get("structured_value_checks") != expected_summary:
             raise IndependentCheckError("independent structured summary mismatch: " + cid)
+    if report.get("unknowns") != bundle.get("unknowns"):
+        raise IndependentCheckError("assurance boundary mismatch: unknowns")
+    # Reify the declared non-production guarantees as a second explicit
+    # checker contract. An audit-engine regression may not silently promote a
+    # statement about world truth, source authenticity or semantic fidelity.
+    assurance_contract = {
+        "formal_entailment": "exhaustive bounded propositional valuations",
+        "source_integrity": "byte-level SHA-256 of supplied snapshot, not authenticity",
+        "quote_validation": "exact span equality, not semantic entailment",
+        "semantic_fidelity": "unverified: claim and evidence text to atoms/formulas is supplied by author",
+        "evidence_independence": "origin_ids are reported, not independently authenticated",
+        "real_world_truth": "not established",
+        "open_world_search_completeness": "not established",
+        "structured_numbers": "deterministic computations over supplied JSON, not verification of measurement, population, scope, or claim interpretation",
+    }
+    if report.get("assurance_boundary") != assurance_contract:
+        raise IndependentCheckError("assurance boundary mismatch: declared limitations")
     return {"independent_algorithm_agrees":True,"structured_computations_rechecked":arithmetic_count,"readings_checked":checked,
             "evidence_formulas_rechecked":evidence_formulas_rechecked,
             "source_hashes_checked":len(sources),"semantic_correspondence_checked":False,
