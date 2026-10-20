@@ -15,6 +15,19 @@ from review import verify_review
 MAX_CONFIG = 450_000
 
 
+def read_json_artifact(path: Path):
+    """Bound parser-depth failures for all hostile package JSON, not just size.
+
+    Stored-file size limits are enforced by verify_package before this helper.
+    RecursionError is *not* a ValueError; never leak parser tracebacks through
+    the public verification CLI or its imported API.
+    """
+    try:
+        return json.loads(path.read_bytes())
+    except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
+        raise InvalidBundle("invalid or over-nested JSON artifact: " + path.name) from exc
+
+
 def write_package(destination: Path, package: dict, *, review: dict | None = None) -> dict:
     if destination.exists():
         raise InvalidBundle("output directory already exists; will not overwrite audit history")
@@ -57,7 +70,7 @@ def verify_package(directory: Path) -> dict:
     if (manifest_path.is_symlink() or not manifest_path.is_file()
             or manifest_path.stat().st_size > 6_000_000):
         raise InvalidBundle("manifest input size/type limit exceeded")
-    manifest = json.loads(manifest_path.read_bytes())
+    manifest = read_json_artifact(manifest_path)
     if not isinstance(manifest, dict) or manifest.get("schema") != "far-investigation-delivery/0.3":
         raise InvalidBundle("unexpected manifest version")
     if (manifest.get("semantic_mapping_independently_verified") is not False or
@@ -80,8 +93,8 @@ def verify_package(directory: Path) -> dict:
         raise InvalidBundle("untracked audit-package files")
     if ("review.json" in stored) != ("review_verification.json" in stored):
         raise InvalidBundle("incomplete signed-review record pair")
-    bundle = json.loads((root / "input.json").read_bytes())
-    reported = json.loads((root / "audit.json").read_bytes())
+    bundle = read_json_artifact(root / "input.json")
+    reported = read_json_artifact(root / "audit.json")
     recalc = audit(bundle)
     if recalc != reported or manifest.get("input_sha256") != recalc.get("input_sha256") or manifest.get("report_sha256") != recalc.get("report_sha256"):
         raise InvalidBundle("auditor replay mismatch")
@@ -94,10 +107,10 @@ def verify_package(directory: Path) -> dict:
     sources = {s["id"]: s for s in bundle["sources"]}
     if len(sources) != len(bundle["sources"]):
         raise InvalidBundle("duplicate source identity in report")
-    acquisition = json.loads((root / "acquisition.json").read_bytes())
-    proposal = json.loads((root / "proposal.json").read_bytes())
-    questions = json.loads((root / "critical_questions.json").read_bytes())
-    discovery = json.loads((root / "discovery.json").read_bytes()) if "discovery.json" in stored else None
+    acquisition = read_json_artifact(root / "acquisition.json")
+    proposal = read_json_artifact(root / "proposal.json")
+    questions = read_json_artifact(root / "critical_questions.json")
+    discovery = read_json_artifact(root / "discovery.json") if "discovery.json" in stored else None
     if not isinstance(acquisition, list) or any(not isinstance(a, dict) or
             a.get("source_id") not in sources for a in acquisition):
         raise InvalidBundle("invalid acquisition source identity")
@@ -107,6 +120,11 @@ def verify_package(directory: Path) -> dict:
         raise InvalidBundle("malformed proposal artifact")
     if bundle.get("proposal_sha256") != digest(canonical(proposal)):
         raise InvalidBundle("proposal provenance commitment mismatch")
+    # Discovery network calls must remain visible even when none of their
+    # untrusted leads was expanded into an archived source.
+    expected_discovery_sha256 = digest(canonical(discovery)) if discovery is not None else None
+    if bundle.get("discovery_sha256") != expected_discovery_sha256:
+        raise InvalidBundle("discovery provenance commitment mismatch")
     # The manifest is unsigned and deliberately excluded from its own hash.
     # Reject a false privacy/network disclosure when archived data proves an
     # external proposal, transcription, fetched URL or discovery route.
@@ -194,8 +212,8 @@ def verify_package(directory: Path) -> dict:
     except IndependentCheckError as exc:
         raise InvalidBundle("design-diverse formal cross-check failed: " + str(exc)) from exc
     if "review.json" in stored:
-        reviewed = verify_review(json.loads((root / "review.json").read_bytes()), recalc)
-        if reviewed != json.loads((root / "review_verification.json").read_bytes()):
+        reviewed = verify_review(read_json_artifact(root / "review.json"), recalc)
+        if reviewed != read_json_artifact(root / "review_verification.json"):
             raise InvalidBundle("review verification mismatch")
     return {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
             "extraction_replayed": independently_extracted,
@@ -221,9 +239,9 @@ def main() -> int:
         raw = args.request.read_bytes()
         if len(raw) > MAX_CONFIG:
             raise InvalidBundle("config size limit exceeded")
-        config = json.loads(raw)
+        config = read_json_artifact(args.request)
         result = investigate(config, permit_network=args.allow_network, permit_model=args.allow_model, permit_files=True)
-        rev = json.loads(args.review.read_bytes()) if args.review else None
+        rev = read_json_artifact(args.review) if args.review else None
         manifest = write_package(args.output, result, review=rev)
         print(json.dumps({"output": str(args.output), "report_sha256": manifest["report_sha256"],
                           "claims": len(result["bundle"]["claims"]), "readings": len(result["audit"]["interpretations"]),
