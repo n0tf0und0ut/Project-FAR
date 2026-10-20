@@ -1,0 +1,56 @@
+# Scheduled FAR research streams — bounded reconciliation (2026-10-20)
+
+**Status: Research intake, non-authoritative. No scientific acceptance, v0.5 amendment, FAR-CORE/FARA/EFR status change, or commercial-performance determination.**
+
+Machine-readable, testable source register: [`intake-2026-10-20.json`](intake-2026-10-20.json). This report summarizes four ChatGPT scheduled streams: *Project FAR Research Brief*, *FAR Research Watch*, *Project FAR Competitive Brief*, and *FAR Saturation Watch*. The current schedules and last-run timestamps were inspected, but their **complete historical run outputs, frozen raw pages, notifications, and all prior manual catch-up files were not accessible together**. This is a bounded reconstruction of retrievable dated findings with fresh primary-source cross-checks, **not** a claim to have replayed missed runs or exhaustively ingested every automation result.
+
+## Authority and deduplication
+
+- Baseline: protected `main` at `e4d936ca0ba9770be6f72e0435220987882f4146` when this intake was authored.
+- `docs/architecture/saturation-baseline-v0.5.md` remains **provisional**. The withdrawn v0.5 Amendment A1 is **non-operative**.
+- `docs/research/current-research-frontier.md` already reports 2,068 **untrusted leads** and distinctly limited search/evidence completeness; `research/living/README.md` defines the approved promotion process and prohibits automatic evidence promotion.
+- For every source below, reuse the existing living-candidate/corpus record **if the normalized primary identifier matches**. Do not write a second scientific finding solely because multiple scheduled streams mentioned it. Before governed promotion, bind exact primary bytes, source identity, temporal scope, review/authorization record and independent validation as required by the existing intake machinery.
+- A source's publication date is **not** its discovery or scheduler-run date. Vendor results are **self-reported** unless independently replicated; public code establishes inspectable interfaces, not deployment quality or market adoption.
+
+## Reconciled results
+
+| Intake ID | Source and observed result | Epistemic limit | FAR mapping |
+|---|---|---|---|
+| SR-001 | [No Hindsight for LLM Fact-Checkers](https://arxiv.org/abs/2610.04888) (Oct 4): authors report 6.3-point higher zero-shot AVeriTeC accuracy with post-claim evidence | Their measured leakage does not quantify FAR's leakage; separate retrieval-time and model-memory leakage | Existing time-indexed source eligibility and benchmark controls |
+| SR-002 | [Rethinking Inline Citation Verification](https://arxiv.org/abs/2610.05355) (Oct 4): 12 interviews, 203 surveyed reviewers | Reviewers' preferences do not prove citation correctness | Citation→passage support, reviewer provenance and error taxonomy |
+| SR-003 | [Auditable Claims about AI Agents](https://arxiv.org/abs/2610.07459) (Oct 5): conditional auditable-policy/record requirements | Model-conditional argument, not deployment certification | Separate policy, scope, records, decision and independent observation |
+| SR-004 | [What Counts as Evidence?](https://arxiv.org/abs/2610.12788) (Oct 8): 500 scenarios and 13 models compare cue recognition with cue influence | A cited or recognized source need not determine the final model judgment | Source-independence, provenance and evidence-weight sensitivity |
+| SR-005 | [Same Claim, Different Interpretations](https://arxiv.org/abs/2610.20457) (Oct 14): nine-field Claim Cards; 900 runs across 60 labeled claims | Interpreting a claim differently can change verdicts; the paper does not validate FAR's semantic mappings | Interpretation variants must remain distinct, auditable and replayable |
+| SR-006 | [Argument Graph Uncertainty](https://arxiv.org/abs/2610.20328) (Oct 14): NLI argument graphs supply uncertainty signals | Calibrated answer uncertainty **does not certify logical entailment** | Optional uncertainty signal remains distinct from proof/countermodel |
+| SR-007 | [PremiseCheck](https://arxiv.org/abs/2610.21046) (Oct 15): converts peer-review comments into separately fact-checkable premises | Verifying premises is **not** verifying that a conclusion follows | Preserve separate evidence→premise and premise→conclusion checks |
+| SR-008 | [Approve What, Exactly?](https://arxiv.org/abs/2610.21063) (Oct 15): studied approval substitution attacks and conditional signed effect binding | The paper's formal assumptions do not transfer to FAR automatically | Signed effect descriptors, authorization record and actual execution comparison |
+| SR-009 | [Fact Engineering / Stamp AI benchmark](https://fact.engineering/benchmarks) (evaluations Oct 16): vendor reports 89.0% agreement on 1,808 settled AVeriTeC labels among 2,123 claims; 96.6% on its selected high-confidence band; 74.7% in a subset without retrieved prior fact-checks | **Vendor self-evaluation**; abstention, partially true claims and existing-fact-check retrieval are material confounds. Compare like-for-like; do not mix denominator definitions with the site's cross-dataset aggregate | Substantial product overlap; prioritize independently reproduced, matched end-to-end comparisons |
+| SR-010 | [Minerval public repository](https://github.com/minerval-ai/minerval) (observed Oct 20): documented reusable claims, decompositions, assessment history, provenance, Lean formalizations, public API/MCP/extension | Public architecture is evidence of *implementation overlap*, not proof of correctness, adoption or irreproducibility | Direct threat to any claim that a reusable auditable claim graph is unique to FAR |
+| SR-011 | [Noesis public repository](https://github.com/Ikey168/Noesis) (observed Oct 20): local-first versioned evidence, citations, historical replay, MCP/REST/CLI | Documented capability does not prove reliability or deployed usage | Directly comparable source-lineage and replay workflows |
+
+## Cross-stream deductions — hypotheses, not promotions
+
+1. **The independent utility test is the binding commercial obstacle.** A provenance-aware, claim-graph, citation-auditing or model-panel feature alone is demonstrably occupied territory. Historical [Project FAR moat audit (Sept 27)](https://github.com/n0tf0und0ut/Project-FAR) concluded that no current defensible moat was demonstrated by its inspected evidence. This intake adds specific public competitor artifacts, not proof of market leadership, conversion, retention, lower cost, accuracy superiority or a FAR moat.
+2. **Two obligations are routinely conflated:** (a) whether the source evidence supports a natural-language premise, and (b) whether the formalized premises entail a conclusion. SR-007 stresses (a); SR-006 approximates uncertainty in a related inference representation; neither establishes (b). FAR must score the obligations separately without assuming faithful text-to-logic translation.
+3. **A source can be perfectly cited and still be inapplicable.** SR-001 and SR-004 motivate distinct provenance, publication/capture time, available-at-claim-time status, independence and actual influence controls. Source quality and citedness alone do not resolve hindsight contamination or model behavior.
+4. **Interpretation shifts are testable counterfactuals.** SR-005 reinforces maintaining incompatible readings and preventing uncertainty about quantifier/threshold from disappearing into an apparently proven inference.
+5. **Observation and authorization cannot be self-attested.** SR-003 and SR-008 motivate negative probes of independent action records, actual effects, policy coverage, and changed arguments after approval.
+
+## Falsification-first next tests (not authorization to execute frozen studies)
+
+| Priority | Reproducer / matched comparator | Pass/fail observation |
+|---|---|---|
+| P0 | Claim-time evaluation: same claims/model/evidence with time-frozen retrieval vs allowed future material; separate known memorization probes | Quantify retrospective score inflation, temporal false support and appropriate abstention; no aggregate-only report |
+| P0 | True premises + invalid conclusion, compared with deliberately false premises + valid inference schema | Report premise verification, semantic fidelity and logical entailment independently; show exact countermodels when possible |
+| P0 | One source claim with alternate quantifier/threshold readings and unchanged archived evidence | Reading-specific audit identities, evidence eligibility and result/uncertainty changes remain visible and replayable |
+| P1 | Matched competitor run on identical document, reference sources and adjudicator; include published-fact-check and no-fact-check strata | Claim recall, citation support, entailment invalidity detection, abstention, time, cost and reviewer correction rate; report uncertainty |
+| P1 | Alter one recipient/amount after legitimate signed approval or remove a required independent event record | Reject unsupported authorization/completeness assertions despite internally valid signatures and hashes |
+
+**No new v0.5 capability class established.** Each discovered mechanism has an apparent existing source, semantic-representation, provenance, argument-graph, time, assurance or governance extension point. This classification is provisional and falsifiable; finding a concrete unrepresentable requirement would require a **separate** explicit saturation-falsification campaign, not implicit promotion from this note.
+
+## Handoff to governed intake
+
+1. Match SR identifiers by normalized DOI/URL against `research/living/inbox/`, the governed research corpus and prior versioned comparison notes. Preserve earlier observations; add a new receipt only for material new primary-source bytes or verified differences.
+2. For any source proposed to affect a governed claim, freeze the actual primary material, complete adversarial review and supply the exact authorization required by `research/living/README.md`. A scheduled task summary is neither a reviewed candidate nor an authorization.
+3. Record new experimental observations in their own governed evaluation artifacts. Do not rewrite the Accepted theory, frozen tests, benchmark endpoints, saturations or the PR #490 rolling inbox as a shortcut.
+4. Rerun this bounded reconciliation against archived scheduled-run outputs if they become accessible. Their current unavailability is an explicit **coverage gap**, not proof that no other consequential research exists.
