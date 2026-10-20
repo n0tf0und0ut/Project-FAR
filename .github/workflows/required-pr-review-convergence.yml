@@ -1,7 +1,7 @@
 name: Required PR Review Convergence
 
-# This workflow must have exactly one eligible event family. A skipped job on
-# another eligible event can otherwise appear as required-check success.
+# Every event reaches the same unconditionally enforced read-only job.
+# A job-level filter must never turn an eligible review event into skipped success.
 # PR configuration is candidate-controlled, but the token is read-only and the
 # collector code is loaded only from protected main. This job can deploy itself
 # through ordinary protection without an administrative rollback.
@@ -9,6 +9,8 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
     branches: [main]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
 
 permissions:
   contents: read
@@ -63,4 +65,3 @@ jobs:
           path: ${{ runner.temp }}/pr-review-required.json
           if-no-files-found: warn
           retention-days: 30
-
