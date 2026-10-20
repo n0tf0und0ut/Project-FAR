@@ -32,6 +32,10 @@ EXPECTED_SOURCES = {
     "SR-009": ("https://fact.engineering/benchmarks", "vendor_benchmark_self_report"),
     "SR-010": ("https://github.com/minerval-ai/minerval", "public_repository_documentation"),
     "SR-011": ("https://github.com/Ikey168/Noesis", "public_repository_documentation"),
+    "SR-012": ("https://arxiv.org/abs/2610.24277", "author_report"),
+    "SR-013": ("https://arxiv.org/abs/2610.24048", "author_report"),
+    "SR-014": ("https://arxiv.org/abs/2610.22781", "author_report"),
+    "SR-015": ("https://www.financialcontent.com/article/bizwire-2026-10-20-dataminr-achieves-aiuc-1-certification-the-standard-for-ai-agent-security-safety-and-reliability", "vendor_benchmark_self_report"),
 }
 README_STATUS = (
     "**Status: Research intake, non-authoritative. No scientific acceptance, "
@@ -130,8 +134,9 @@ class ScheduledIntakeTests(unittest.TestCase):
                 )
     def test_vendor_claims_are_not_promoted_to_independent_replication(self):
         vendor = [e for e in self.data["entries"] if e["evidence_class"] == "vendor_benchmark_self_report"]
-        self.assertEqual([e["id"] for e in vendor], ["SR-009"])
+        self.assertEqual([e["id"] for e in vendor], ["SR-009", "SR-015"])
         self.assertIn("self", vendor[0]["inference_limit"].lower())
+        self.assertIn("organization-issued", vendor[1]["inference_limit"].lower())
         self.assertIn("no new v0.5 capability class", self.readme.lower())
 
     def test_mutations_cannot_promote_readme_or_remove_coverage_boundary(self):
