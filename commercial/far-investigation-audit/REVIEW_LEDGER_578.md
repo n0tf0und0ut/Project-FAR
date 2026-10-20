@@ -45,6 +45,22 @@
 
 **Important limit:** This Codex finding cycle was performed on `77ddd...`, superseded by later corrections, and is not an independent clean final-head signoff. The next review must reference the newly stabilized SHA, challenge these regressions and their integration, and receive the protected-repin App's own final-head decision.
 
+## Third Codex review: verification-boundary defects
+
+**Reviewed code head:** `80de02898ad7466b1737704d8c2abc13504a2f80`.
+**Reviewer:** `chatgpt-codex-connector[bot]` at 2026-10-20 16:44:04 UTC. All four findings are valid, substantive, new at the indicated invariant level, and originally reproducible.
+
+**Falsifying test-only head:** `4edc58f0b5087bb8935a47340f93b76999e5e33a`. Hosted [FAR Bounded Investigation Audit run 39460346172](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/39460346172), Python 3.11 and 3.13: 149 tests, **six intentionally failing assertions** (the report-flag case uses three independent subtests), one optional skip, 0 unrelated failures.
+
+| Invariant / defect | Source review finding | Reproducer and structural correction | Regression |
+|---|---|---|---|
+| `PROPOSAL-PROVIDER-COMMITMENT` | [4327628856](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327628856) | Change model-proposal route to supplied, delete model metadata, adjust unsigned proposal hash/manifest fields and claim `network_used=false`; original audited input/report identity remains unchanged. `compile_proposal` now binds **SHA-256 of the complete proposal** (method/model and all fields) into the audited input, validated in engine and independently compared with `proposal.json` by package replay | `test_proposal_provider_downgrade_cannot_preserve_audit_identity` |
+| `INTERPRETATION-REPORT-WIDE-AGGREGATION` | [4327628873](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327628873) | Flip the three report-wide interpretation flags on an otherwise correct two-reading report; prior `check_report` still agreed. After independently checking each reading, recompute `interpretation_sensitive_inference`, `interpretation_cards_differ`, and `interpretations_present` | `test_independent_checker_rebuilds_report_wide_interpretation_flags` (three subtests) |
+| `NO-UNAUTHENTICATED-MAPPING-PROMOTION` | [4327628887](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327628887) | Falsely promote claim and evidence `mapping_status` to `review_recorded`; previous checker accepted. Independently compare both mapping fields against input, and require `origin_independence_verified=false` | `test_checker_refuses_promotion_of_unreviewed_semantic_mappings` |
+| `MANIFEST-PREPARSE-BOUNDS` | [4327628895](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327628895) | Append 6,000,001 whitespace bytes to otherwise valid manifest; old verifier parses arbitrarily oversized JSON. Require non-symlink regular manifest, <=6 MB, before parsing | `test_manifest_size_is_bounded_before_read_or_parse` |
+
+**Convergence diagnosis:** The first two review cycles exposed missing independent bindings for distinct derived surfaces: acquisitions, proposal provenance, per-evidence metadata, per-reading metadata, aggregate flags, and unsigned delivery metadata. The corrected source-to-audit input commitments and report cross-check now cover the reported subclasses. A new review is permitted only on a stabilized SHA after a completed full validation, for a substantive independent final-head check. Do not claim that the ledger or this agent's verification is independent human approval or that absence of further reviewer comments establishes absolute correctness.
+
 ## Verification obligations and limits
 
 - **Source replay:** Hashes of untrusted snapshots and commitment to the recorded acquisition method now participate in the audit identity; source authenticity remains unestablished. Replacement of an entire unsigned package, including recomputed audit bytes, remains possible absent external trusted signatures.
