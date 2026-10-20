@@ -176,3 +176,17 @@ cue anchors and full package replay. Invalid minute/second values are rejected.
 The complete local component suite passes 181 tests. No live provider or source
 authenticity is claimed. Final-head hosted checks, substantive independent review
 and protected merge authorization remain required.
+
+
+### Sixth-review adjacent upload boundary
+
+The same `PREALLOCATION-TRANSPORT-BOUND` defect reproduced on `e85900fc`
+for multipart uploads with an understated Content-Length. The parser consumed
+more than the 16 MB transport cap before checking the extracted file. The shared
+bounded transport reader now captures at most the permitted body before the
+multipart parser can spool it. A permanent regression detects consumption past
+the first overflowing chunk and requires HTTP 413 plus a subsequent successful
+upload, proving worker release. This fourth sixth-review test fails on the
+predecessor; all four and the complete 182-test component suite pass after
+correction. This is the same reported ingress-bound invariant, not an added
+feature. Hosted and independent exact-head validation must use this successor.

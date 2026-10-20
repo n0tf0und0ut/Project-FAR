@@ -19,6 +19,16 @@ from workflow import investigate
 app = FastAPI(title="FAR Investigation Lab", version="0.4.1", docs_url=None, redoc_url=None)
 _GATE = threading.BoundedSemaphore(value=1)
 
+
+async def _bounded_body(request: Request, limit: int) -> bytearray:
+    """Count actual transport bytes before retaining them or invoking a parser."""
+    raw = bytearray()
+    async for chunk in request.stream():
+        if len(raw) + len(chunk) > limit:
+            raise HTTPException(413, "request over size limit")
+        raw.extend(chunk)
+    return raw
+
 PAGE = r'''<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FAR Investigation Lab</title><style>
@@ -92,13 +102,8 @@ async def analyze(request: Request):
         raise HTTPException(400, "malformed content length")
     if announced > 450000:
         raise HTTPException(413, "request over size limit")
-    # Content-Length may be absent or understated. Check each chunk before
-    # retaining it; never call body(), which buffers the entire transport.
-    raw = bytearray()
-    async for chunk in request.stream():
-        if len(raw) + len(chunk) > 450000:
-            raise HTTPException(413, "request over size limit")
-        raw.extend(chunk)
+    # Content-Length may be absent or understated.
+    raw = await _bounded_body(request, 450000)
     if not _GATE.acquire(blocking=False):
         raise HTTPException(429, "local research worker busy")
     try:
@@ -134,7 +139,14 @@ async def upload_document(request: Request):
     form=None
     try:
         from starlette.datastructures import UploadFile
-        form=await request.form(max_files=1, max_fields=4)
+        # Bound the complete transport before multipart parsing can spool an
+        # unbounded file to disk. Content-Length is an early check, not evidence
+        # of the bytes actually received. Parsing sees only this bounded snapshot.
+        body = bytes(await _bounded_body(request, 16_000_000))
+        async def captured_body():
+            return {"type": "http.request", "body": body, "more_body": False}
+        bounded_request = Request(request.scope, captured_body)
+        form=await bounded_request.form(max_files=1, max_fields=4)
         file=form.get("file")
         if not isinstance(file, UploadFile):
             raise InvalidBundle("uploaded file missing")

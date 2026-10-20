@@ -64,6 +64,37 @@ class SixthReviewRegressions(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
         asyncio.run(run())
 
+    def test_upload_transport_cap_precedes_multipart_parsing_and_releases_worker(self):
+        from fastapi import HTTPException
+        from fastapi.testclient import TestClient
+        from starlette.requests import Request
+        from webapp import app, upload_document
+
+        async def run():
+            prefix = (b'--probe\r\nContent-Disposition: form-data; name="file"; '
+                      b'filename="source.txt"\r\n\r\n')
+            chunks = iter([prefix] + [b'x' * 1_000_000] * 17)
+            received = 0
+            async def receive():
+                nonlocal received
+                chunk = next(chunks)
+                received += len(chunk)
+                if received > 17_000_000:
+                    self.fail("multipart upload read beyond first overflowing chunk")
+                return {"type": "http.request", "body": chunk, "more_body": True}
+            request = Request({"type": "http", "headers": [
+                (b"content-type", b"multipart/form-data; boundary=probe"),
+                (b"content-length", b"100")]}, receive)
+            with self.assertRaises(HTTPException) as error:
+                await upload_document(request)
+            self.assertEqual(error.exception.status_code, 413)
+            self.assertGreater(received, 16_000_000)
+        asyncio.run(run())
+        with TestClient(app) as client:
+            response = client.post("/api/upload", files={
+                "file": ("source.txt", b"A bounded claim.", "text/plain")})
+            self.assertEqual(response.status_code, 200, response.text)
+
     def test_caption_two_component_and_hour_timestamps_preserve_anchors_and_replay(self):
         cases = [("WEBVTT\n\n00:01.000 --> 00:02.000\nA bounded claim.", "vtt", 1000, 2000),
                  ("WEBVTT\n\n01:02:03.000 --> 01:02:04.500\nA bounded claim.", "vtt", 3723000, 3724500),
