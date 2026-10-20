@@ -99,6 +99,20 @@ def verify_package(directory: Path) -> dict:
         raise InvalidBundle("acquisition does not account for every source exactly once")
     if not isinstance(proposal, dict):
         raise InvalidBundle("malformed proposal artifact")
+    # The manifest is unsigned and deliberately excluded from its own hash.
+    # Reject a false privacy/network disclosure when archived data proves an
+    # external proposal, transcription, fetched URL or discovery route.
+    # Absence of a recorded route is NOT an assertion of offline execution.
+    if type(manifest.get("network_used")) is not bool:
+        raise InvalidBundle("network provenance flag invalid")
+    externally_sourced = (
+        proposal.get("method") == "model_proposed_unreviewed"
+        or discovery is not None
+        or any(a.get("extraction") == "external_speech_transcription_gpt_4o_transcribe_v1"
+               or isinstance(a.get("url"), str) for a in acquisition)
+    )
+    if externally_sourced and not manifest["network_used"]:
+        raise InvalidBundle("network provenance mismatch: externally sourced input reported offline")
     # Replay source extraction when the original UTF-8 capture bytes are
     # available. Recording only a raw digest cannot independently verify the
     # transformation from downloaded HTML/captions to extracted text.
