@@ -155,3 +155,24 @@ and oversized-writer regressions detect those missing composition bounds.
 These are extensions of the reported JSON-type and aggregate-resource invariants,
 not new product features or assurance promotion. Final-head validation and
 independent review remain required after the integrated corrections.
+
+
+## Sixth review: delivery provenance, transport bounds and caption grammar
+
+Reviewed predecessor `92b8cae2fe24af038651ad0692bef53e749d54dd`; the three
+findings also reproduce on integrated head `ae18d3dfd01d49349b5c88841801f1bdea1b60f5`.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `COMMITTED-PROVIDER-DISCLOSURE` | 4330718724 | Derive external-provider disclosure from the committed proposal method as well as the live proposal mode; supplied provider proposals retain their provenance and replay | `test_supplied_provider_method_produces_replayable_network_disclosure` |
+| `PREALLOCATION-TRANSPORT-BOUND` | 4330718737 | Count JSON request chunks before retaining them, independently of missing or understated Content-Length; stop at overflow | `test_chunked_json_stops_consuming_at_the_byte_limit_and_recovers` |
+| `CAPTION-TIME-GRAMMAR` | 4330718751 | Accept two-component minute/second captions alongside the bounded three-component hour form; constrain minute and second fields to 00–59 | `test_caption_two_component_and_hour_timestamps_preserve_anchors_and_replay` |
+
+The three tests produced six assertion failures and one parser error on the
+integrated predecessor, including all three missing/understated transport-length
+cases. They pass after correction. Positive controls include a subsequent valid
+chunked JSON request, an offline supplied proposal, SRT and hour-form VTT, exact
+cue anchors and full package replay. Invalid minute/second values are rejected.
+The complete local component suite passes 181 tests. No live provider or source
+authenticity is claimed. Final-head hosted checks, substantive independent review
+and protected merge authorization remain required.

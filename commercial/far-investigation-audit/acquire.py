@@ -27,7 +27,7 @@ MAX_REDIRECTS = 2
 MAX_TRANSCRIPT = 120_000
 MAX_SEGMENTS = 2000
 MAX_VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}\Z")
-TIME = r"\d{2}:\d{2}:\d{2}[.,]\d{3}"
+TIME = r"(?:\d{2}:)?[0-5]\d:[0-5]\d[.,]\d{3}"
 CUE = re.compile(rf"(?P<start>{TIME})\s+-->\s+(?P<end>{TIME})(?:\s+.*)?\Z")
 
 
@@ -208,7 +208,8 @@ def parse_captions(raw: str) -> dict:
             raise AcquisitionError("invalid caption cue identifier")
         cue = CUE.fullmatch(lines[idx])
         def ms(t):
-            hh, mm, sec, frac = re.split(r"[:.,]", t)
+            fields = re.split(r"[:.,]", t)
+            hh, mm, sec, frac = fields if len(fields) == 4 else ["0", *fields]
             return ((int(hh) * 60 + int(mm)) * 60 + int(sec)) * 1000 + int(frac)
         start_ms, end_ms = ms(cue["start"]), ms(cue["end"])
         if end_ms <= start_ms or end_ms - start_ms > 3_600_000:

@@ -88,11 +88,17 @@ async def analyze(request: Request):
         announced = int(request.headers.get("content-length", "0"))
     except ValueError:
         raise HTTPException(400, "malformed content length")
+    if announced < 0:
+        raise HTTPException(400, "malformed content length")
     if announced > 450000:
         raise HTTPException(413, "request over size limit")
-    raw = await request.body()
-    if len(raw) > 450000:
-        raise HTTPException(413, "request over size limit")
+    # Content-Length may be absent or understated. Check each chunk before
+    # retaining it; never call body(), which buffers the entire transport.
+    raw = bytearray()
+    async for chunk in request.stream():
+        if len(raw) + len(chunk) > 450000:
+            raise HTTPException(413, "request over size limit")
+        raw.extend(chunk)
     if not _GATE.acquire(blocking=False):
         raise HTTPException(429, "local research worker busy")
     try:

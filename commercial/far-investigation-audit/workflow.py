@@ -180,7 +180,7 @@ def investigate(config: dict, *, permit_network: bool = False,
     # to a provider even when the separate web-retrieval flag is disabled.
     # Network provenance must account for both trust boundaries.
     external_provider_used = (
-        mode == "openai" or
+        mode == "openai" or proposal.get("method") == "model_proposed_unreviewed" or
         any(item.get("extraction") ==
             "external_speech_transcription_gpt_4o_transcribe_v1"
             for item in acquisitions)
