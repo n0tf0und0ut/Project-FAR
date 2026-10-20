@@ -1,6 +1,6 @@
-# Review-convergence branch-protection cutover and recovery
+# Review-convergence branch-protection deployment and verification
 
-Status: **three contexts observed live; eligible-event correction awaiting deployment**. Repository files and green advisory publications do not establish operational enforcement.
+Status: **three contexts observed live; eligible-event correction awaiting deployment**. Green advisory publications do not establish operational enforcement.
 
 ## Observed blocker
 
@@ -12,26 +12,27 @@ On 2026-10-20, `branches/main` exposed these source bindings:
 | `protected-repin-gate` | Dedicated FAR gate `5073230` |
 | `pr-review-convergence-observation` | GitHub Actions `15368` |
 
-PR #588 at `42b51215418448d10f50a1153cb302da4bcfcb29` had all three visible checks successful, a clean exact-head Codex review, and zero unresolved threads. Its normal merge request still failed with HTTP 405 because the review-convergence context was expected. The [incident record](../audits/pr-review-convergence-event-eligibility-2026-10-20.md) preserves exact check IDs and the event-eligibility cause.
+PR #588 at `42b51215418448d10f50a1153cb302da4bcfcb29` had all three visible checks successful, a clean exact-head Codex review, and zero unresolved threads. Its normal merge request failed with HTTP 405 because the review context was expected. The [incident record](../audits/pr-review-convergence-event-eligibility-2026-10-20.md) preserves exact check IDs and the event-eligibility cause.
 
-The corrected workflow supplies the required context through a native, read-only `pull_request_target` job that executes protected-main collector code. Scheduled/manual publications have a different advisory name and cannot authorize a merge. A candidate cannot deploy this trusted-main job by changing only its own workflow file.
+## Deploy through the existing protected path
 
-## Owner bootstrap (only after the fix is reviewed)
+The native required job lives in `.github/workflows/required-pr-review-convergence.yml`, whose sole event is main-targeting `pull_request`. This eligible event can load the reviewed candidate workflow before it reaches main. It therefore permits ordinary protected deployment without removing a requirement or changing settings. The collector code is checked out from protected `main`, never the candidate; the token has read permissions only and no persistent secret is used.
 
-1. Verify the workflow correction, its regression tests, independent review, hosted validations, `merge-authority`, and the dedicated `protected-repin-gate`. Keep their exact head SHA and App identities.
-2. As the repository owner, open `n0tf0und0ut/Project-FAR → Settings → Branches → main protection rule → Edit`.
-3. Temporarily remove only `pr-review-convergence-observation`. Keep `merge-authority` bound to App `15368`, `protected-repin-gate` bound to App `5073230`, strict/up-to-date checks, administrator enforcement, conversation resolution, stale review dismissal, and every other setting. This restores the previously documented two-context contract; it does not authorize bypassing either retained gate.
-4. Merge only the independently reviewed correction after the two retained gates and all substantive review/validation obligations pass.
-5. Restore `pr-review-convergence-observation` as required with **GitHub Actions App `15368`**, never “Any source.” Keep both retained checks and all unrelated settings unchanged.
-6. On each waiting PR, trigger an eligible `pull_request_target` event through a legitimate metadata edit, or rerun its latest eligible required job. Require the exact current head, event-head guard, trusted-main checkout, and native job conclusion. A manually dispatched or scheduled advisory check is insufficient.
-7. Verify a negative review state fails the native required job and blocks normal merge. Then complete the substantive review on the same head, rerun that eligible job, require success, and verify the normal merge API/UI permits merging. Record the final merge and main SHAs. Never label rollout complete based only on an advisory check or documentation edit.
+1. Freeze the correction head, protected-main base and complete diff. Run the regression tests, workflow validator, full hosted assurance and dedicated gate App. Obtain a substantive independent review covering the exact final head.
+2. Observe that the native `pr-review-convergence-observation` job fails while exact-head review evidence is incomplete. Verify the source App, event, associated head and collector artifact; no skipped job counts as enforcement.
+3. After the independent review is clean and all threads are resolved, rerun the latest eligible native job on that unchanged head. Require the event/current-head comparison, protected-main checkout, enforce-mode collector and post-check head comparison to succeed.
+4. Require all three original context/App bindings and all other substantive checks. Use the normal expected-head merge API/UI for the correction. Record the final merge/main SHAs and verify that the original protection settings remain intact.
+5. Refresh waiting PRs onto the resulting main without rewriting history, obtain exact-head review and assurance, and require their native eligible job. Review/thread changes alone do not reliably refresh the required result: rerun the current eligible job or make a legitimate PR metadata edit.
+6. Merge only through the ordinary protected path and verify final PR/main state. Do not label deployment complete based on a YAML test, scheduled advisory pass or metadata edit alone.
 
-## Readback and limits
+## Skipped-success boundary
 
-The connected GitHub integrations cannot read or write the full administrative protection endpoint (HTTP 403). The ordinary branch endpoint reveals context/App bindings but not every protection invariant. The owner must retain the complete settings above and use the separate owner's gate repository protection audit for authenticated full readback. Keep agents out of that repository and never expose its App key.
+The required job has no job-level condition, dependency or matrix. Its dedicated workflow has no review/comment/schedule/manual event. Independent review discussion 4330779437 showed that co-locating it with `pull_request_review` could emit an eligible skipped success without enforcing the collector. Regression mutations reject adding that event and reject write permissions, candidate checkout, missing head binding and dependency-skipped success. Scheduled/manual publications use the distinct advisory context `pr-review-convergence-scheduled-observation`.
 
-The native GitHub Actions check is a process gate, not an adversarial security authority. Candidate-authored workflows under the same Actions App can shadow names; a stronger future design would move this decision into the independently controlled gate App. That is a separately reviewed deployment, not a reason to weaken the existing dedicated gate.
+## Trust and readback limits
 
-After rollout, the existing read-only verifier's `--require-review-convergence` option checks the three-context profile. Its default two-context profile remains historical and must not be cited as evidence of the live three-context configuration. If native publication fails during bootstrap, keep the reviewed fix and recovery state explicit; do not declare success or post counterfeit required results.
+The native GitHub Actions check is a process gate, not an adversarial security authority. Candidate workflow configuration and other candidate-authored Actions workflows share App `15368` and can shadow names; the protected-main collector checkout does not eliminate that existing limitation. A stronger future authority could be deployed in an independently controlled App, as a separately reviewed owner operation. This change does not claim that guarantee or modify the dedicated gate.
 
-The required-name job is isolated in `.github/workflows/required-pr-review-convergence.yml`, whose only event is `pull_request_target`. It has no job-level condition. The advisory workflow cannot emit that required job on review events: GitHub treats conditionally skipped eligible-event jobs as successful, so co-location would allow a skipped success without enforcement. Independent review discussion 4330779437 identified this boundary; regression mutations reject adding the eligible `pull_request_review` event.
+Managed integrations cannot read or write the full administrative protection endpoint (HTTP 403). The ordinary branch endpoint reveals context/App bindings but not every protection invariant. No administrative mutation is needed or attempted. Keep agents out of the owner's separate gate repository and never expose its key.
+
+The existing read-only protection verifier's `--require-review-convergence` option checks the three-context profile. Its default two-context profile remains historical and is not evidence of the live configuration. If the eligible native job cannot satisfy the normal merge path, retain the failed result and report the actual blocker; never manufacture a green result or remove a required check.

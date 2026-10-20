@@ -265,8 +265,8 @@ class ConvergenceTests(unittest.TestCase):
         jobs = workflow["jobs"]
         job = jobs["required-review"]
         self.assertEqual(job["name"], "pr-review-convergence-observation")
-        self.assertEqual(set(workflow["on"]), {"pull_request_target"})
-        self.assertEqual(workflow["on"]["pull_request_target"]["branches"], ["main"])
+        self.assertEqual(set(workflow["on"]), {"pull_request"})
+        self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
         self.assertNotIn("if", job)
         # No dependency may turn failure of another job into a skipped success.
         self.assertNotIn("needs", job)

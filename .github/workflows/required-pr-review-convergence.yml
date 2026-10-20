@@ -2,8 +2,11 @@ name: Required PR Review Convergence
 
 # This workflow must have exactly one eligible event family. A skipped job on
 # another eligible event can otherwise appear as required-check success.
+# PR configuration is candidate-controlled, but the token is read-only and the
+# collector code is loaded only from protected main. This job can deploy itself
+# through ordinary protection without an administrative rollback.
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
     branches: [main]
 
