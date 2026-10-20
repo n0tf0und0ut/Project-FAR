@@ -93,44 +93,68 @@ def person(value):
 
 
 def codex_status(issue_comments, expected_head):
-    """Use only authenticated Codex App review summaries bound to the exact head.
-
-    This is observable automated review metadata, NOT an independent human approval
-    or a guarantee of the review's completeness.
-    """
-    candidate = None
+    """Only authenticated, unambiguous, exact-head Codex state; never human approval."""
+    candidates = []
+    prefix = "<!-- codex-review-state:v1 "
     for comment in issue_comments:
         if not isinstance(comment, dict):
             raise EvidenceError("malformed issue comment record")
         user = comment.get("user") or {}
         app = comment.get("performed_via_github_app") or {}
-        if user.get("login") != "chatgpt-codex-connector[bot]" or app.get("slug") != "chatgpt-codex-connector":
+        if not isinstance(user, dict) or not isinstance(app, dict):
+            raise EvidenceError("malformed issue comment origin")
+        if (user.get("login") != "chatgpt-codex-connector[bot]"
+                or app.get("slug") != "chatgpt-codex-connector"):
             continue
         body = comment.get("body")
         if not isinstance(body, str):
-            raise EvidenceError("trusted Codex summary has invalid body")
-        prefix = "<!-- codex-review-state:v1 "
-        if prefix not in body or " -->" not in body.split(prefix, 1)[1]:
+            raise EvidenceError("authenticated Codex comment has invalid body")
+        if prefix not in body:
             continue
+        # The bot's review prose can quote untrusted input. Two machine markers
+        # are ambiguous even if the first one parses as a successful review.
+        if body.count(prefix) != 1 or body.split(prefix, 1)[1].count(" -->") != 1:
+            raise EvidenceError("ambiguous authenticated Codex review delimiters")
         try:
-            details = json.loads(body.split(prefix, 1)[1].split(" -->", 1)[0])
-            code = details["code_review"]
+            state = json.loads(body.split(prefix, 1)[1].split(" -->", 1)[0])
+            code = state["code_review"]
             if not isinstance(code, dict):
-                raise TypeError("invalid code_review object")
-        except (ValueError, TypeError, KeyError) as exc:
-            raise EvidenceError("malformed signed-origin Codex review state") from exc
+                raise ValueError("code_review must be an object")
+        except (ValueError, KeyError, TypeError) as exc:
+            raise EvidenceError("malformed authenticated Codex review summary") from exc
         if code.get("commit_sha") != expected_head:
             continue
-        key = (comment.get("updated_at") or "", comment.get("id") or 0)
-        if candidate is None or key > candidate[0]:
-            candidate = (key, code)
-    if candidate is None:
-        return {"status": "missing", "unresolved": None, "passed": False}
-    code = candidate[1]
-    passed = code.get("status") == "completed" and code.get("has_unresolved_findings") is False
-    return {"status": code.get("status"), "unresolved": code.get("has_unresolved_findings"),
-            "passed": passed}
-
+        if (code.get("status") not in ("running", "completed", "failed")
+                or type(code.get("has_unresolved_findings")) not in (bool, type(None))):
+            raise EvidenceError("unrecognized authenticated Codex state")
+        cid, updated = comment.get("id"), comment.get("updated_at")
+        if type(cid) is not int or not isinstance(updated, str) or not updated:
+            raise EvidenceError("Codex summary missing source ID or timestamp")
+        candidates.append((updated, cid, code))
+    if not candidates:
+        return {"status": "missing", "unresolved": None, "passed": False,
+                "source_comment_id": None, "updated_at": None,
+                "review_state_sources": []}
+    candidates.sort(key=lambda x: (x[0], x[1]))
+    updated, cid, code = candidates[-1]
+    # A pending rerun never clears a previously known unresolved result. Nor
+    # may a human approval bypass the incomplete rerun on the same head.
+    outstanding = any(c.get("status") == "completed"
+                      and c.get("has_unresolved_findings") is True
+                      for _, _, c in candidates)
+    # A later *completed* clean review supersedes previous known findings.
+    if code["status"] == "completed":
+        outstanding = code["has_unresolved_findings"] is True
+    passed = code["status"] == "completed" and code["has_unresolved_findings"] is False
+    return {"status": code["status"],
+            "unresolved": outstanding,
+            "passed": passed,
+            "source_comment_id": cid,
+            "updated_at": updated,
+            "review_state_sources": [
+                {"comment_id": n, "updated_at": t, "status": c["status"],
+                 "has_unresolved_findings": c["has_unresolved_findings"]}
+                for t, n, c in candidates]}
 
 def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None):
     """Only metadata closure; no claim of independent substantive correctness."""
@@ -153,7 +177,12 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
         if state in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
             active[reviewer] = review
     current, stale, changes = [], [], []
+    active_review_sources = []
     for reviewer, review in sorted(active.items()):
+        active_review_sources.append({
+            "login": reviewer, "review_id": review.get("id"),
+            "state": review["state"], "commit_id": review.get("commit_id"),
+            "submitted_at": review.get("submitted_at")})
         if review["state"] == "CHANGES_REQUESTED":
             changes.append(reviewer)
         elif review["state"] == "APPROVED":
@@ -183,8 +212,10 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
     blockers = []
     if not current and not automated["passed"]:
         blockers.append("missing exact-head independent human approval or completed trusted Codex review")
-    if automated["status"] == "completed" and automated["unresolved"] is True:
+    if automated["unresolved"] is True:
         blockers.append("authenticated exact-head Codex review reports unresolved findings")
+    if automated["status"] in ("running", "failed"):
+        blockers.append("authenticated exact-head Codex review is incomplete")
     if changes:
         blockers.append("active CHANGES_REQUESTED")
     if unresolved:
@@ -199,6 +230,8 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
         "review_count": len(reviews),
         "inline_comment_count": len(comments),
         "thread_count": len(threads),
+        "all_thread_states": threads,
+        "active_review_sources": active_review_sources,
         "human_approvals_on_exact_head": current,
         "trusted_codex_review_on_exact_head": automated,
         "stale_or_nonhuman_approvals": stale,
