@@ -115,6 +115,8 @@ def verify_package(directory: Path) -> dict:
         method = item.get("extraction")
         if method not in replayable_methods and method not in nonreplayable_methods:
             raise InvalidBundle("unrecognized acquisition extraction method: " + str(method))
+        if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
+            raise InvalidBundle("acquisition commitment mismatch: " + sid)
         if raw is None:
             if method in replayable_methods:
                 raise InvalidBundle("raw snapshot required for replayable extraction: " + sid)
@@ -142,7 +144,10 @@ def verify_package(directory: Path) -> dict:
         published_at_by_source={k:v.get("published_at") for k,v in sources.items()},
         source_meta={k:{"origin_id":v.get("origin_id"),
             "publication_date_verified":v.get("publication_date_verified",False),
-            "origin_verified":v.get("origin_verified",False)} for k,v in sources.items()})
+            "origin_verified":v.get("origin_verified",False),
+            "captured_at": v.get("captured_at"),
+            "acquisition_sha256": digest(canonical(next(a for a in acquisition if a["source_id"] == k)))}
+            for k,v in sources.items()})
     if canonical(rebuilt) != canonical(bundle):
         raise InvalidBundle("proposal-to-audit input reconstruction mismatch")
     expected_questions = critical_questions(bundle["claims"])
