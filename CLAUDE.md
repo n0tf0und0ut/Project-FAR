@@ -130,6 +130,8 @@ Archive is historical evidence, not current authority, unless a current authorit
 
 ## 10. Git and PR Discipline
 
+For every PR, apply docs/governance/pr-review-convergence.md: reconstruct exact-head evidence, record review findings by underlying violated invariant and root cause, reproduce and regression-test substantive defects, justify stale/duplicate/disproven findings, avoid re-requesting reviews on an unchanged head, and retain independent review and protected merge authorization as separate obligations. A green metadata review check is not a claim of substantive correctness.
+
 Do not commit, push, open a PR, merge, force-push, or rewrite history unless the user authorizes that action.
 
 When authorized:

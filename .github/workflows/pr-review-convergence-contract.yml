@@ -1,0 +1,63 @@
+name: PR Review Convergence Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence_dispatch.py'
+      - 'docs/governance/pr-review-convergence.md'
+      - '.github/pull_request_template.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-review-convergence.yml'
+      - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence.py'
+      - 'tests/test_pr_review_convergence_dispatch.py'
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  convergence-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Compile and run adversarial review convergence tests
+        run: |
+          python3 -m py_compile tools/pr_review_convergence.py
+          python3 -m unittest discover -s tests -p 'test_pr_review_convergence*.py' -v
+      - name: Live read-only GitHub review API compatibility smoke
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/pr_review_convergence.py \
+            --repository "$PR_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --expected-head "$PR_HEAD_SHA" \
+            --output "$RUNNER_TEMP/convergence-smoke.json" \
+            --mode report
+      - name: Preserve live-API smoke evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: convergence-api-smoke-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/convergence-smoke.json
+          if-no-files-found: warn
+          retention-days: 30
