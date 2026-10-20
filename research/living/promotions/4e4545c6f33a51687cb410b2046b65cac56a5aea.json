@@ -1,0 +1,91 @@
+{
+  "authority": "Research",
+  "base_main_sha": "c8fc77be102edd6a4eae61d4a29f1f20452475da",
+  "canonical_proposals": [],
+  "program_id": "FAR-LIVING-PROMOTION-001",
+  "review_required_count_at_analysis": 4,
+  "schema_version": "1.1",
+  "sealed_files": [
+    {
+      "kind": "trusted_generated",
+      "path": "docs/research/current-research-frontier.md",
+      "sha256": "2cca840c69199f9dedd0649cfa73e0146c7c146c57cfbf5a607d7471ce7d4c8f"
+    },
+    {
+      "kind": "trusted_generated",
+      "path": "docs/research/living-repository-status.md",
+      "sha256": "49ce126be02004f69b6e5dedcb43ac3076c91f4dc7e763a1ae02be791ea22468"
+    },
+    {
+      "kind": "trusted_generated",
+      "path": "research/corpus/synthesis-v1.0.json",
+      "sha256": "057c1dc3227a7830526e1dc5dccd6270b1df47332f9504f93ff8c7829167b571"
+    },
+    {
+      "kind": "planned",
+      "path": "research/living/inbox/candidates/FAR-LIT-88F64D9376E250FC.json",
+      "sha256": "64f38d83cee81d5a56167fd3b92f2eecb67b0803a0c3b5af0f1aca6fbfd83d57"
+    },
+    {
+      "kind": "planned",
+      "path": "research/living/inbox/candidates/FAR-LIT-C28489AE4D339427.json",
+      "sha256": "557a20340b50544448314a30ffcb50256117ed18e91f52da29501476d234c334"
+    },
+    {
+      "kind": "planned",
+      "path": "research/living/inbox/candidates/FAR-LIT-DC526D11098789EF.json",
+      "sha256": "9ed36717547fed91804907968f1fe9bb5e48f7638ee43767ce63d64604b7cab6"
+    },
+    {
+      "kind": "planned",
+      "path": "research/living/inbox/candidates/FAR-LIT-DDA83861514E8635.json",
+      "sha256": "0440aeb4b3e22daa5a51651907b80677bdd8b78c14f72e56186d061e5efa962d"
+    },
+    {
+      "kind": "trusted_generated",
+      "path": "research/living/repository-state-v1.0.json",
+      "sha256": "7fc5d628fb4632768ec58b1e86ecbde018e33ab48e2912ba9ebf6162992ef62f"
+    }
+  ],
+  "snapshot_candidates": [
+    {
+      "candidate_id": "FAR-LIT-88F64D9376E250FC",
+      "disposition": "ADJACENT_NO_CONTRADICTION",
+      "expected_main_sha256": "ABSENT",
+      "path": "research/living/inbox/candidates/FAR-LIT-88F64D9376E250FC.json",
+      "review_basis": "docs/audits/efr-activation-and-living-threat-triage-2026-09-10.md",
+      "source_key": "doi:10.1145/3498721",
+      "source_sha256": "64f38d83cee81d5a56167fd3b92f2eecb67b0803a0c3b5af0f1aca6fbfd83d57"
+    },
+    {
+      "candidate_id": "FAR-LIT-C28489AE4D339427",
+      "disposition": "ADJACENT_NO_CONTRADICTION",
+      "expected_main_sha256": "ABSENT",
+      "path": "research/living/inbox/candidates/FAR-LIT-C28489AE4D339427.json",
+      "review_basis": "docs/audits/efr-activation-and-living-threat-triage-2026-09-10.md",
+      "source_key": "doi:10.1613/jair.5222",
+      "source_sha256": "557a20340b50544448314a30ffcb50256117ed18e91f52da29501476d234c334"
+    },
+    {
+      "candidate_id": "FAR-LIT-DC526D11098789EF",
+      "disposition": "ADJACENT_NO_CONTRADICTION",
+      "expected_main_sha256": "ABSENT",
+      "path": "research/living/inbox/candidates/FAR-LIT-DC526D11098789EF.json",
+      "review_basis": "docs/audits/living-review-lifecycle-closure-2026-09-10.md",
+      "source_key": "doi:10.1007/s00236-017-0294-5",
+      "source_sha256": "9ed36717547fed91804907968f1fe9bb5e48f7638ee43767ce63d64604b7cab6"
+    },
+    {
+      "candidate_id": "FAR-LIT-DDA83861514E8635",
+      "disposition": "ADJACENT_NO_CONTRADICTION",
+      "expected_main_sha256": "ABSENT",
+      "path": "research/living/inbox/candidates/FAR-LIT-DDA83861514E8635.json",
+      "review_basis": "docs/audits/efr-activation-and-living-threat-triage-2026-09-10.md",
+      "source_key": "doi:10.1007/s00165-016-0406-y",
+      "source_sha256": "0440aeb4b3e22daa5a51651907b80677bdd8b78c14f72e56186d061e5efa962d"
+    }
+  ],
+  "source_branch": "automation/living-research-inbox",
+  "source_head_sha": "4e4545c6f33a51687cb410b2046b65cac56a5aea",
+  "source_pr": 490
+}
