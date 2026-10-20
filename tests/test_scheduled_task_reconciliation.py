@@ -55,11 +55,11 @@ class ScheduledIntakeTests(unittest.TestCase):
         self.assertIn("No complete per-run task output archive", data["source_scope"])
         self.assertTrue(data["coverage_limits"])
         self.assertTrue(any("missed runs" in line for line in data["coverage_limits"]))
-        self.assertTrue(any("architectur" in line.lower() for line in data["coverage_limits"]))
+        self.assertTrue(any("provisional v0.5" in line.lower() and "not a proof of saturation" in line.lower() for line in data["coverage_limits"]))
         lines = self.readme.splitlines()
         self.assertEqual(lines[0], "# Scheduled FAR research streams — bounded reconciliation (2026-10-20)")
         self.assertEqual(lines[2], "**Status: Research intake, non-authoritative. No scientific acceptance, v0.5 amendment, FAR-CORE/FARA/EFR status change, or commercial-performance determination.**")
-        self.assertIn("no complete per-run task output archive", self.readme.lower())
+        self.assertIn("complete historical run outputs, frozen raw pages, notifications, and all prior manual catch-up files were not accessible together", self.readme.lower())
         self.assertIn("research/living/README.md", self.readme)
 
     def test_stream_inventory_is_complete_but_not_mislabelled_as_run_archive(self):
