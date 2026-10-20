@@ -156,6 +156,100 @@ def check_report(bundle:dict, report:dict)->dict:
         span=c["span"]
         if text[span["start"]:span["end"]]!=span["quote"]:
             raise IndependentCheckError("independent quotation mismatch")
+    # Independently recompute the admissibility routing and formal relations of
+    # evidence. Checking argument entailment alone leaves evidence-derived claim
+    # statuses vulnerable to an undetected first-checker error.
+    from datetime import datetime
+    cutoff = datetime.fromisoformat(bundle["as_of"].replace("Z", "+00:00"))
+    temporal = {}
+    if set(report.get("source_temporal_status", {})) != set(sources):
+        raise IndependentCheckError("source temporal coverage mismatch")
+    for sid, source in sources.items():
+        captured = source.get("captured_at")
+        captured_dt = datetime.fromisoformat(captured.replace("Z", "+00:00")) if captured else None
+        if captured_dt is not None and captured_dt > cutoff:
+            expected_time = "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
+        elif (source.get("publication_date_verified") is True
+              and source.get("published_at") is not None and captured_dt is not None):
+            expected_time = "IN_WINDOW"
+        else:
+            expected_time = "UNKNOWN_TEMPORAL_ELIGIBILITY"
+        if report["source_temporal_status"][sid] != expected_time:
+            raise IndependentCheckError("independent temporal eligibility mismatch: " + sid)
+        temporal[sid] = expected_time
+
+    if set(report.get("claims", {})) != set(claims):
+        raise IndependentCheckError("claim report coverage mismatch")
+    expected_evidence = {cid: [] for cid in claims}
+    evidence_formulas_rechecked = 0
+    for ev in bundle["evidence"]:
+        cid, sid = ev["claim_id"], ev["source_id"]
+        claim = claims[cid]
+        found = [f for f in report["claims"][cid].get("evidence", [])
+                 if f.get("evidence_id") == ev["id"]]
+        if len(found) != 1:
+            raise IndependentCheckError("missing or duplicated evidence result: " + ev["id"])
+        finding = found[0]
+        expected_evidence[cid].append(ev["id"])
+        if (finding.get("source_id") != sid or
+                finding.get("temporal_status") != temporal[sid] or
+                finding.get("claimed_relation") != ev["relation"]):
+            raise IndependentCheckError("evidence reference or status mismatch: " + ev["id"])
+        if "data_check" in ev:
+            if temporal[sid] != "IN_WINDOW":
+                relation = "TEMPORAL_NOT_ADMISSIBLE"
+            elif sid == claim["source_id"] and ev["span"] == claim["span"]:
+                relation = "SELF_REFERENCE_NOT_CORROBORATION"
+            else:
+                relation = "NOT_APPLICABLE_TO_STRUCTURED_CHECK"
+        elif temporal[sid] != "IN_WINDOW":
+            relation = "TEMPORAL_NOT_ADMISSIBLE"
+        elif sid == claim["source_id"] and ev["span"] == claim["span"]:
+            relation = "SELF_REFERENCE_NOT_CORROBORATION"
+        elif "formula" not in ev:
+            relation = "UNTESTED_SEMANTIC_ASSESSMENT"
+        else:
+            pos = check([ev["formula"]], claim["formula"])
+            neg = check([ev["formula"]], {"not": claim["formula"]})
+            if pos["status"] == "INCONSISTENT_PREMISES":
+                relation = "INCONSISTENT_EVIDENCE_FORMULA"
+            elif pos["status"] == "NOT_CHECKED_ATOM_LIMIT":
+                relation = "NOT_CHECKED_ATOM_LIMIT"
+            elif pos["status"] == "ENTAILS_CONDITIONALLY":
+                relation = "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT"
+            elif neg["status"] == "ENTAILS_CONDITIONALLY":
+                relation = "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT"
+            else:
+                relation = "DOES_NOT_ESTABLISH"
+            if relation == "DOES_NOT_ESTABLISH" and finding.get("countermodel") != pos["countermodel"]:
+                raise IndependentCheckError("evidence countermodel mismatch: " + ev["id"])
+            discrepancy = (
+                (ev["relation"] == "supports" and relation != "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT")
+                or (ev["relation"] == "contradicts" and relation != "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT")
+            )
+            if finding.get("assessment_disagrees_with_formalization", False) is not discrepancy:
+                raise IndependentCheckError("evidence assessment discrepancy mismatch: " + ev["id"])
+            evidence_formulas_rechecked += 1
+        if finding.get("formal_relation") != relation:
+            raise IndependentCheckError("independent formal evidence mismatch: " + ev["id"])
+    for cid, expected_ids in expected_evidence.items():
+        findings = report["claims"][cid].get("evidence", [])
+        if (len(findings) != len(expected_ids)
+                or {f.get("evidence_id") for f in findings} != set(expected_ids)):
+            raise IndependentCheckError("extraneous or missing claim evidence: " + cid)
+        pos = [f for f in findings if f["formal_relation"] == "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT"]
+        neg = [f for f in findings if f["formal_relation"] == "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT"]
+        status = ("CONFLICT_RECORDED" if pos and neg else
+                  "CONDITIONAL_FORMAL_SUPPORT_RECORDED" if pos else
+                  "CONDITIONAL_FORMAL_CONTRADICTION_RECORDED" if neg else
+                  "NOT_ESTABLISHED")
+        if report["claims"][cid].get("status") != status:
+            raise IndependentCheckError("independent claim evidence aggregation mismatch: " + cid)
+        origin_ids = sorted({f["origin_id"] for f in pos if f.get("origin_id") is not None})
+        unknown_origins = sorted({f["source_id"] for f in pos if f.get("origin_id") is None})
+        if (report["claims"][cid].get("support_origin_ids") != origin_ids or
+                report["claims"][cid].get("support_sources_with_unknown_origin") != unknown_origins):
+            raise IndependentCheckError("claim support lineage mismatch: " + cid)
     arithmetic_count=0
     for ev in bundle["evidence"]:
         text=sources[ev["source_id"]]["text"]
@@ -177,5 +271,6 @@ def check_report(bundle:dict, report:dict)->dict:
                     raise IndependentCheckError("computed numeric value differs: "+ev["id"]) from exc
             arithmetic_count+=1
     return {"independent_algorithm_agrees":True,"structured_computations_rechecked":arithmetic_count,"readings_checked":checked,
+            "evidence_formulas_rechecked":evidence_formulas_rechecked,
             "source_hashes_checked":len(sources),"semantic_correspondence_checked":False,
             "independent_human_replication":False}

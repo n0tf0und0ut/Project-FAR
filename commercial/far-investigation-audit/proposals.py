@@ -205,7 +205,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         # Without explicitly authored formulas the P1/P2 labels are syntactic
         # placeholders, not semantic propositions. Never infer a real fallacy
         # from their artificial independence.
-        specified = {c["id"] for c in proposal["claims"] if "formula" in c}
+        specified = {c.get("id", f"c{k+1}") for k, c in enumerate(proposal["claims"]) if "formula" in c}
         basis = "explicit_formulas" if all(cid in specified for cid in [*ps, conclusion]) else "unformalized_candidate"
         readings.append({"id": aid, "premises": ps, "conclusion": conclusion,
                          "mapping_status": "unreviewed", "interpretation_notes": note,
