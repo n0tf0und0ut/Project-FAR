@@ -50,6 +50,15 @@ class DispatchNumberTests(unittest.TestCase):
                                        text=True, capture_output=True, check=False, timeout=10)
             return completed, output.read_text(encoding="utf-8") if output.exists() else ""
 
+    def test_check_publisher_is_explicitly_restricted_to_main(self):
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn(
+            "if: github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')",
+            workflow,
+        )
+        self.assertIn("checks: write", workflow)
+        self.assertIn("if: github.event_name == 'pull_request_target' ||", workflow)
+
     def test_integer_valued_dispatch_as_decimal(self):
         for raw in ("587", "587.0", "587.00", "1.0"):
             with self.subTest(raw=raw):
