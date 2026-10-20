@@ -109,11 +109,11 @@ def codex_status(issue_comments, expected_head):
         body = comment.get("body")
         if not isinstance(body, str):
             raise EvidenceError("trusted Codex summary has invalid body")
-        match = re.search(r"<!-- codex-review-state:v1 (\\{[^\\n]*\\}) -->", body)
-        if not match:
+        prefix = "<!-- codex-review-state:v1 "
+        if prefix not in body or " -->" not in body.split(prefix, 1)[1]:
             continue
         try:
-            details = json.loads(match.group(1))
+            details = json.loads(body.split(prefix, 1)[1].split(" -->", 1)[0])
             code = details["code_review"]
             if not isinstance(code, dict):
                 raise TypeError("invalid code_review object")
