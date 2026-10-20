@@ -409,6 +409,31 @@ def check_report(bundle:dict, report:dict)->dict:
     }
     if report.get("assurance_boundary") != assurance_contract:
         raise IndependentCheckError("assurance boundary mismatch: declared limitations")
+    # Independently bind top-level report identity and self-excluding digest.
+    # Keep these after structural/semantic checks so diagnostic regressions
+    # preserve the more specific violated-field error messages.
+    try:
+        canonical_input = json.dumps(bundle, sort_keys=True, separators=(",", ":"),
+                                     ensure_ascii=False, allow_nan=False).encode("utf-8")
+        input_hash = hashlib.sha256(canonical_input).hexdigest()
+        report_without_digest = {k: v for k, v in report.items() if k != "report_sha256"}
+        report_bytes = json.dumps(report_without_digest, sort_keys=True,
+                                  separators=(",", ":"), ensure_ascii=False,
+                                  allow_nan=False).encode("utf-8")
+        report_hash = hashlib.sha256(report_bytes).hexdigest()
+    except (ValueError, TypeError, OverflowError, RecursionError) as exc:
+        raise IndependentCheckError("invalid report identity serialization") from exc
+    expected_identity = {
+        "schema": "far-investigation-report/0.2",
+        "engine": "far-investigation-audit/0.4.1",
+        "investigation_id": bundle["investigation_id"],
+        "input_sha256": input_hash,
+        "as_of": bundle["as_of"],
+        "report_sha256": report_hash,
+    }
+    for field, expected in expected_identity.items():
+        if report.get(field) != expected:
+            raise IndependentCheckError("independent report identity mismatch: " + field)
     return {"independent_algorithm_agrees":True,"structured_computations_rechecked":arithmetic_count,"readings_checked":checked,
             "evidence_formulas_rechecked":evidence_formulas_rechecked,
             "source_hashes_checked":len(sources),"semantic_correspondence_checked":False,
