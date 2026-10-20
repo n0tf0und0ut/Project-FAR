@@ -35,7 +35,24 @@ EXPECTED_SOURCES = {
     "SR-012": ("https://arxiv.org/abs/2610.24277", "author_report"),
     "SR-013": ("https://arxiv.org/abs/2610.24048", "author_report"),
     "SR-014": ("https://arxiv.org/abs/2610.22781", "author_report"),
-    "SR-015": ("https://www.financialcontent.com/article/bizwire-2026-10-20-dataminr-achieves-aiuc-1-certification-the-standard-for-ai-agent-security-safety-and-reliability", "vendor_benchmark_self_report"),
+    "SR-015": ("https://www.businesswire.com/news/home/20261020065385/en/Dataminr-Achieves-AIUC-1-Certification-the-Standard-for-AI-Agent-Security-Safety-and-Reliability", "vendor_benchmark_self_report"),
+}
+EXPECTED_DATES = {
+    "SR-001": ("2026-10-04", "(Oct 4)"),
+    "SR-002": ("2026-10-04", "(Oct 4)"),
+    "SR-003": ("2026-10-05", "(Oct 5)"),
+    "SR-004": ("2026-10-08", "(Oct 8)"),
+    "SR-005": ("2026-10-14", "(Oct 14)"),
+    "SR-006": ("2026-10-14", "(Oct 14)"),
+    "SR-007": ("2026-10-15", "(Oct 15)"),
+    "SR-008": ("2026-10-15", "(Oct 15)"),
+    "SR-009": ("2026-10-16", "(evaluations Oct 16)"),
+    "SR-010": (None, "(observed Oct 20)"),
+    "SR-011": (None, "(observed Oct 20)"),
+    "SR-012": ("2026-10-16", "(Oct 16)"),
+    "SR-013": ("2026-10-16", "(Oct 16)"),
+    "SR-014": ("2026-10-16", "(Oct 16)"),
+    "SR-015": ("2026-10-20", "(Oct 20)"),
 }
 README_STATUS = (
     "**Status: Research intake, non-authoritative. No scientific acceptance, "
@@ -105,6 +122,22 @@ class ScheduledIntakeTests(unittest.TestCase):
 
     def assert_sources(self, data, readme):
         entries = data["entries"]
+        self.assertEqual(set(EXPECTED_DATES), set(EXPECTED_SOURCES))
+        lines = readme.splitlines()
+        header = "| Intake ID | Source and observed result | Epistemic limit | FAR mapping |"
+        self.assertIn(header, lines)
+        start = lines.index(header)
+        self.assertEqual(lines[start + 1], "|---|---|---|---|")
+        rows = []
+        for line in lines[start + 2:]:
+            if not line.startswith("|"):
+                break
+            columns = [cell.strip() for cell in line.strip("|").split("|")]
+            self.assertEqual(len(columns), 4)
+            rows.append(columns)
+        self.assertEqual(len(rows), len(entries))
+        row_by_id = {columns[0]: columns for columns in rows}
+        self.assertEqual(set(row_by_id), set(EXPECTED_SOURCES))
         self.assertEqual(len(entries), len(EXPECTED_SOURCES))
         self.assertEqual(len({e["id"] for e in entries}), len(entries))
         self.assertEqual(len({e["primary_url"] for e in entries}), len(entries))
@@ -118,6 +151,10 @@ class ScheduledIntakeTests(unittest.TestCase):
             self.assertTrue(urlparse(e["primary_url"]).hostname)
             self.assertEqual((e["primary_url"], e["evidence_class"]),
                              EXPECTED_SOURCES[e["id"]])
+            expected_date, readme_date = EXPECTED_DATES[e["id"]]
+            self.assertEqual(e["publication_or_event_date"], expected_date)
+            self.assertIn(readme_date, row_by_id[e["id"]][1])
+            self.assertIn(e["primary_url"], row_by_id[e["id"]][1])
             self.assertIs(e["architecture_change_required"], False)
             self.assertEqual(e["v05_classification"], "REPRESENTABLE_WITH_EXISTING_INTERFACE")
             self.assertEqual(e["repository_disposition"], "RESEARCH_LEAD_UNPROMOTED")
@@ -132,6 +169,7 @@ class ScheduledIntakeTests(unittest.TestCase):
                     date.fromisoformat(e["publication_or_event_date"]),
                     date.fromisoformat(e["checked_on"]),
                 )
+
     def test_vendor_claims_are_not_promoted_to_independent_replication(self):
         vendor = [e for e in self.data["entries"] if e["evidence_class"] == "vendor_benchmark_self_report"]
         self.assertEqual([e["id"] for e in vendor], ["SR-009", "SR-015"])
@@ -175,6 +213,31 @@ class ScheduledIntakeTests(unittest.TestCase):
         self.assertIn("exact subset denominator undisclosed", vendor["source_reported_observation"])
         self.assertIn("**1,063**", self.readme)
         self.assertIn("**exact subset denominator undisclosed**", self.readme)
+
+    def test_mutations_cannot_change_source_dates_including_unknown_dates(self):
+        for source_id in EXPECTED_DATES:
+            with self.subTest(source=source_id):
+                changed = copy.deepcopy(self.data)
+                entry = next(e for e in changed["entries"] if e["id"] == source_id)
+                entry["publication_or_event_date"] = "2026-01-01"
+                with self.assertRaises(AssertionError):
+                    self.assert_sources(changed, self.readme)
+
+    def test_mutations_cannot_change_readme_row_dates(self):
+        for source_id, (_, label) in EXPECTED_DATES.items():
+            with self.subTest(source=source_id):
+                lines = self.readme.splitlines()
+                row = next(i for i, line in enumerate(lines)
+                           if line.startswith(f"| {source_id} |"))
+                lines[row] = lines[row].replace(label, "(Oct 1)")
+                with self.assertRaises(AssertionError):
+                    self.assert_sources(self.data, "\n".join(lines))
+
+    def test_mutation_cannot_detach_late_entries_from_markdown_table(self):
+        continuous = self.readme.replace("\n\n| SR-012 |", "\n| SR-012 |")
+        detached = continuous.replace("\n| SR-012 |", "\n\n| SR-012 |")
+        with self.assertRaises(AssertionError):
+            self.assert_sources(self.data, detached)
 
 
 if __name__ == "__main__":
