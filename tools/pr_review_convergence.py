@@ -113,10 +113,13 @@ def codex_status(issue_comments, expected_head):
             continue
         # The bot's review prose can quote untrusted input. Two machine markers
         # are ambiguous even if the first one parses as a successful review.
-        if body.count(prefix) != 1 or body.split(prefix, 1)[1].count(" -->") != 1:
+        if body.count(prefix) != 1:
             raise EvidenceError("ambiguous authenticated Codex review delimiters")
+        suffix = body.split(prefix, 1)[1]
+        if " -->" not in suffix:
+            raise EvidenceError("unterminated authenticated Codex review state")
         try:
-            state = json.loads(body.split(prefix, 1)[1].split(" -->", 1)[0])
+            state = json.loads(suffix.split(" -->", 1)[0])
             code = state["code_review"]
             if not isinstance(code, dict):
                 raise ValueError("code_review must be an object")
@@ -125,8 +128,10 @@ def codex_status(issue_comments, expected_head):
         if code.get("commit_sha") != expected_head:
             continue
         if (code.get("status") not in ("running", "completed", "failed")
-                or type(code.get("has_unresolved_findings")) not in (bool, type(None))):
-            raise EvidenceError("unrecognized authenticated Codex state")
+                or type(code.get("has_unresolved_findings")) not in (bool, type(None))
+                or (code.get("status") == "completed"
+                    and type(code.get("has_unresolved_findings")) is not bool)):
+            raise EvidenceError("unrecognized or incomplete authenticated Codex state")
         cid, updated = comment.get("id"), comment.get("updated_at")
         if type(cid) is not int or not isinstance(updated, str) or not updated:
             raise EvidenceError("Codex summary missing source ID or timestamp")
@@ -269,7 +274,7 @@ def main(argv=None):
         issue_comments = paginate(root + "/issues/" + str(args.pr) + "/comments", token)
         threads = threads_for(owner, name, args.pr, token)
         final = api(root + suffix, token)
-        if (final.get("head") or {}).get("sha") != args.expected_head:
+        if not isinstance(final, dict) or (final.get("head") or {}).get("sha") != args.expected_head:
             raise EvidenceError("PR head advanced during evidence retrieval")
         record = evaluate(pr, reviews, threads, comments, args.expected_head, issue_comments)
         args.output.parent.mkdir(parents=True, exist_ok=True)
