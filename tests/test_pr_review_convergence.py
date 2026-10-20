@@ -1,5 +1,6 @@
 """Adversarial tests of exact-head review-convergence metadata policy."""
 import copy
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -84,6 +85,50 @@ class ConvergenceTests(unittest.TestCase):
         result = scan([approval()], comments=data)
         self.assertEqual(len(result["exact_text_duplicate_candidates"]), 1)
         self.assertEqual(result["exact_text_duplicate_candidates"][0]["comment_ids"], [1, 2])
+
+
+    def codex_comment(self, sha=HEAD, status="completed", unresolved=False,
+                      author="chatgpt-codex-connector[bot]", app="chatgpt-codex-connector",
+                      ident=1, updated="2026-10-20T00:00:00Z"):
+        state = {"code_review": {"commit_sha": sha, "status": status,
+                                 "has_unresolved_findings": unresolved}}
+        return {"id": ident, "updated_at": updated,
+                "user": {"login": author},
+                "performed_via_github_app": {"slug": app},
+                "body": "<!-- codex-review-state:v1 " + json.dumps(state) + " -->"}
+
+    def test_authenticated_codex_clean_review_counts_for_metadata(self):
+        result = evaluate(copy.deepcopy(PR), [], [], [], HEAD,
+                          [self.codex_comment()])
+        self.assertTrue(result["review_metadata_converged"])
+        self.assertTrue(result["trusted_codex_review_on_exact_head"]["passed"])
+        self.assertFalse(result["substantive_review_verified"])
+
+    def test_spoofed_codex_comment_cannot_qualify(self):
+        for kwargs in ({"author": "attacker"}, {"app": "attacker-app"}):
+            result = evaluate(copy.deepcopy(PR), [], [], [], HEAD,
+                              [self.codex_comment(**kwargs)])
+            self.assertFalse(result["review_metadata_converged"])
+
+    def test_codex_stale_running_or_unresolved_cannot_qualify(self):
+        for kwargs in ({"sha": OLD}, {"status": "running", "unresolved": None},
+                       {"unresolved": True}):
+            result = evaluate(copy.deepcopy(PR), [], [], [], HEAD,
+                              [self.codex_comment(**kwargs)])
+            self.assertFalse(result["review_metadata_converged"])
+
+    def test_later_codex_running_state_invalidates_earlier_completed(self):
+        completed = self.codex_comment()
+        running = self.codex_comment(status="running", unresolved=None, ident=2,
+                                     updated="2026-10-21T00:00:00Z")
+        result = evaluate(copy.deepcopy(PR), [], [], [], HEAD, [completed, running])
+        self.assertFalse(result["review_metadata_converged"])
+
+    def test_codex_review_does_not_override_unresolved_threads(self):
+        result = evaluate(copy.deepcopy(PR), [], [
+            {"id": "t", "resolved": False, "outdated": False, "root_comment_id": 4}
+        ], [], HEAD, [self.codex_comment()])
+        self.assertFalse(result["review_metadata_converged"])
 
     def test_head_drift_fails_closed(self):
         changed = copy.deepcopy(PR)
