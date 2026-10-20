@@ -265,7 +265,9 @@ class ConvergenceTests(unittest.TestCase):
         jobs = workflow["jobs"]
         job = jobs["required-review"]
         self.assertEqual(job["name"], "pr-review-convergence-observation")
-        self.assertEqual(set(workflow["on"]), {"pull_request"})
+        self.assertEqual(set(workflow["on"]), {"pull_request", "pull_request_review"})
+        self.assertEqual(set(workflow["on"]["pull_request_review"]["types"]),
+                         {"submitted", "edited", "dismissed"})
         self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
         self.assertNotIn("if", job)
         # No dependency may turn failure of another job into a skipped success.
@@ -291,17 +293,27 @@ class ConvergenceTests(unittest.TestCase):
         self.assertFalse(any(job.get("name") == "pr-review-convergence-observation"
                              for job in other_jobs.values()))
 
+    def test_contract_workflow_covers_the_required_workflow_on_pr_and_push(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence-contract.yml"
+        workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        for event in ("pull_request", "push"):
+            with self.subTest(event=event):
+                self.assertIn(".github/workflows/required-pr-review-convergence.yml",
+                              workflow["on"][event]["paths"])
+
     def test_required_job_rejects_ineligible_event_or_privileged_candidate_mutations(self):
         path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
         source = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
-        for mutation in ("event", "review_event", "permissions", "checkout", "head", "dependency"):
+        for mutation in ("event", "comment_event", "conditional", "permissions", "checkout", "head", "dependency"):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(source)
                 job = changed["jobs"]["required-review"]
                 if mutation == "event":
                     changed["on"] = {"schedule": [{"cron": "13 * * * *"}]}
-                elif mutation == "review_event":
-                    changed["on"]["pull_request_review"] = {"types": ["submitted"]}
+                elif mutation == "comment_event":
+                    changed["on"]["issue_comment"] = {"types": ["created"]}
+                elif mutation == "conditional":
+                    job["if"] = "github.event_name == 'pull_request'"
                 elif mutation == "permissions":
                     job["permissions"]["checks"] = "write"
                 elif mutation == "checkout":
