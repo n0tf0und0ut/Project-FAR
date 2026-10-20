@@ -49,11 +49,21 @@ jobs:
           INPUT_PR_NUMBER: ${{ inputs.pr_number }}
         run: |
           set -euo pipefail
-          if [[ "$GH_EVENT_NAME" == "schedule" || ( "$GH_EVENT_NAME" == "workflow_dispatch" && "${INPUT_PR_NUMBER:-0}" == "0" ) ]]; then
+          # GitHub's typed number input is rendered as "587.0" (or "0.0") in
+          # the Actions environment. Require an integer value; normalize its
+          # decimal-only representation before JSON matrix construction.
+          normalized_pr_number=""
+          if [[ "$GH_EVENT_NAME" == "workflow_dispatch" ]]; then
+            [[ "$INPUT_PR_NUMBER" =~ ^(0|[1-9][0-9]*)(\.0+)?$ ]] || {
+              echo "Invalid integer-valued pr_number: $INPUT_PR_NUMBER" >&2
+              exit 1
+            }
+            normalized_pr_number="${INPUT_PR_NUMBER%%.*}"
+          fi
+          if [[ "$GH_EVENT_NAME" == "schedule" || ( "$GH_EVENT_NAME" == "workflow_dispatch" && "$normalized_pr_number" == "0" ) ]]; then
             numbers="$(gh api --paginate "/repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" --jq '.[].number' | jq -sc 'map(tonumber)')"
           elif [[ "$GH_EVENT_NAME" == "workflow_dispatch" ]]; then
-            [[ "$INPUT_PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
-            numbers="[$INPUT_PR_NUMBER]"
+            numbers="[$normalized_pr_number]"
           elif [[ "$GH_EVENT_NAME" == "issue_comment" && "$EVENT_COMMENT_AUTHOR" != "chatgpt-codex-connector[bot]" ]]; then
             numbers='[]'
           elif [[ "$GH_EVENT_NAME" == "issue_comment" ]]; then
