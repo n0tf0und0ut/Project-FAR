@@ -174,13 +174,25 @@ def investigate(config: dict, *, permit_network: bool = False,
     # Proposal notes/cue offsets remain outside formal report and cannot alter its outcome.
     rendered = render_markdown(bundle, result, acquisition=acquisitions, discovery=discovery,
                                questions=questions)
+    # Model proposals and externally transcribed media transmit source material
+    # to a provider even when the separate web-retrieval flag is disabled.
+    # Network provenance must account for both trust boundaries.
+    external_provider_used = (
+        mode == "openai" or
+        any(item.get("extraction") ==
+            "external_speech_transcription_gpt_4o_transcribe_v1"
+            for item in acquisitions)
+    )
     manifest = {"schema": "far-investigation-delivery/0.3", "investigation_id": inv_id,
                 "generated_at": requested, "method": proposal.get("method", mode),
                 "input_sha256": result["input_sha256"], "report_sha256": result["report_sha256"],
                 "report_md_sha256": digest(rendered.encode("utf-8")),
                 "source_snapshots_sha256": {s["id"]: s["sha256"] for s in bundle["sources"]},
-                "network_used": bool(permit_network and (primary_cfg.get("kind") in ("url", "youtube")
-                       or any(s.get("kind") == "url" for s in evidence_configs) or discovery)),
+                "network_used": bool(
+                    external_provider_used or
+                    (permit_network and (
+                        primary_cfg.get("kind") in ("url", "youtube") or
+                        any(s.get("kind") == "url" for s in evidence_configs) or discovery))),
                 "open_world_completeness": "UNESTABLISHED", "semantic_mapping_independently_verified": False,
                 "end_to_end_production_quality": "UNESTABLISHED"}
     return {"bundle": bundle, "audit": result, "report_md": rendered, "manifest": manifest,
