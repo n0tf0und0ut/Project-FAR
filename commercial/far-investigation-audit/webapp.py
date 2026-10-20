@@ -105,7 +105,7 @@ async def analyze(request: Request):
         permit_network = os.environ.get("FAR_LAB_NETWORK") == "I_ACCEPT_UNTRUSTED_REMOTE_FETCH"
         result = investigate(data, permit_network=permit_network)
         return JSONResponse(result)
-    except (InvalidBundle, AcquisitionError, ValueError, TypeError) as exc:
+    except (InvalidBundle, AcquisitionError, ValueError, TypeError, RecursionError) as exc:
         raise HTTPException(422, "invalid investigation: " + str(exc)[:250]) from exc
     finally:
         _GATE.release()

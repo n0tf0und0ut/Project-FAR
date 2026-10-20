@@ -74,7 +74,10 @@ def transcribe_local(path: Path, *, permit_model: bool = False, client=None,
                 from openai import OpenAI
             except ImportError as exc:
                 raise AcquisitionError("OpenAI SDK not installed") from exc
-            client = OpenAI(timeout=40, max_retries=0)
+            try:
+                client = OpenAI(timeout=40, max_retries=0)
+            except Exception as exc:
+                raise AcquisitionError("transcription provider unavailable") from exc
         try:
             with output.open("rb") as f:
                 result = client.audio.transcriptions.create(model="gpt-4o-transcribe", file=f,

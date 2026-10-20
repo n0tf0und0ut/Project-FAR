@@ -74,21 +74,25 @@ def investigate(config: dict, *, permit_network: bool = False,
     try:
         if len(canonical(config)) > 450_000:
             raise InvalidBundle("investigation request over byte cap")
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError, RecursionError) as exc:
         raise InvalidBundle("request is not finite valid JSON") from exc
     requested = config.get("captured_at", _now())
     timestamp(requested, "captured_at")
+    primary_cfg = config.get("source")
+    if not isinstance(primary_cfg, dict):
+        raise InvalidBundle("primary source configuration missing")
+    evidence_configs = config.get("evidence_sources", [])
+    if (not isinstance(evidence_configs, list) or len(evidence_configs) > MAX_EVIDENCE_SOURCES
+            or any(not isinstance(source, dict) for source in evidence_configs)):
+        raise InvalidBundle("invalid or over-cap evidence source list")
     if permit_network and "captured_at" in config and (
-        config.get("source", {}).get("kind") in {"url", "youtube"} or config.get("discovery") or
-        any(isinstance(x, dict) and x.get("kind") == "url" for x in config.get("evidence_sources", []))
+        primary_cfg.get("kind") in {"url", "youtube"} or config.get("discovery") or
+        any(x.get("kind") == "url" for x in evidence_configs)
     ):
         raise InvalidBundle("remote acquisition cannot be assigned a user-declared historical capture time")
     inv_id = config.get("investigation_id", "investigation")
     if not isinstance(inv_id, str) or not re.fullmatch(r"[a-zA-Z0-9_.:-]{1,80}", inv_id):
         raise InvalidBundle("invalid investigation ID")
-    primary_cfg = config.get("source")
-    if not isinstance(primary_cfg, dict):
-        raise InvalidBundle("primary source configuration missing")
     text, primary_provenance, _ = _loaded_source(primary_cfg, permit_network=permit_network,
                                                 source_fetcher=source_fetcher, yt_fetcher=yt_fetcher,
                                                 permit_files=permit_files, permit_model=permit_model,
@@ -99,12 +103,7 @@ def investigate(config: dict, *, permit_network: bool = False,
                         "captured_at": primary_provenance.get("captured_at", requested)}}
     publications = {"primary": primary_cfg.get("published_at")}
     acquisitions = [{"source_id": "primary", **primary_provenance}]
-    evidence_configs = config.get("evidence_sources", [])
-    if not isinstance(evidence_configs, list) or len(evidence_configs) > MAX_EVIDENCE_SOURCES:
-        raise InvalidBundle("evidence source list over cap")
     for i, scfg in enumerate(evidence_configs):
-        if not isinstance(scfg, dict):
-            raise InvalidBundle("invalid evidence source config")
         if scfg.get("kind") not in {"text", "html", "url", "srt", "vtt", "pdf_file"}:
             raise InvalidBundle("evidence source kind unsupported")
         source, provenance, _ = _loaded_source(scfg, permit_network=permit_network,
