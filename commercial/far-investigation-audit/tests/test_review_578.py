@@ -349,5 +349,61 @@ class Review578RegressionTests(unittest.TestCase):
 
 
 
+    def test_independent_checker_binds_structured_display_and_provenance_metadata(self):
+        b = bundle(secondary='[{"x":1}]')
+        b["claims"][0]["quantity"] = {
+            "value": "1", "number_span": {"start": 8, "end": 9}, "unit": "rows"}
+        b["evidence"][0].pop("formula")
+        b["evidence"][0]["data_check"] = {"operation": "count_rows", "pointer": ""}
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        for path, replacement in (
+            (("structured_temporal_eligibility",), "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"),
+            (("assessment_disagrees_with_structured_check",), True),
+            (("structured_check", "declared_value"), "999"),
+            (("structured_check", "unit"), "false_units"),
+            (("structured_check", "operation"), "count_where"),
+            (("structured_check", "rows_inspected"), 999),
+            (("structured_check", "semantic_mapping_verified"), True),
+            (("structured_check", "source_authenticity_verified"), True),
+        ):
+            with self.subTest(path=path):
+                forged = copy.deepcopy(report)
+                finding = forged["claims"]["c1"]["evidence"][0]
+                dest = finding
+                for part in path[:-1]:
+                    dest = dest[part]
+                dest[path[-1]] = replacement
+                forged["report_sha256"] = digest(
+                    json.dumps({k: v for k, v in forged.items() if k != "report_sha256"},
+                               sort_keys=True, ensure_ascii=False, allow_nan=False,
+                               separators=(",", ":")).encode("utf-8"))
+                with self.assertRaisesRegex(IndependentCheckError,
+                                            "structured (?:metadata|annotation) mismatch"):
+                    check_report(b, forged)
+
+    def test_independent_checker_preserves_assurance_boundaries_and_unknowns(self):
+        b = bundle()
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        variants = [
+            ("unknowns", ["Everything verified."]),
+            ("assurance_boundary", {**report["assurance_boundary"],
+                                    "real_world_truth": "certified"}),
+        ]
+        for key, value in variants:
+            with self.subTest(key=key):
+                forged = copy.deepcopy(report)
+                forged[key] = value
+                forged["report_sha256"] = digest(
+                    json.dumps({k: v for k, v in forged.items() if k != "report_sha256"},
+                               sort_keys=True, ensure_ascii=False, allow_nan=False,
+                               separators=(",", ":")).encode("utf-8"))
+                with self.assertRaisesRegex(IndependentCheckError, "assurance boundary mismatch"):
+                    check_report(b, forged)
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
