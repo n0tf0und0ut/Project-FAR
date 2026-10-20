@@ -26,6 +26,23 @@
 - **Scope:** A report-output integrity and security correction; neither source authenticity nor natural-language fidelity is promoted by faithful quotation.
 
 
+## Second independent Codex review: substantive new findings
+
+**Reviewed code head:** `77dddabe451132dac6a29e802768addcbac27eb0`.
+**Reviewer:** `chatgpt-codex-connector[bot]`, review submitted 2026-10-20 16:22:50 UTC. Five valid findings; none dismissed as duplicates, style or speculation. The two interpretation defects share a checker-coverage root cause and were corrected together.
+
+**Falsifying test-only head:** `e149ba276b6fba7387c788b7d32d70c19a0b9757`. Hosted [FAR Bounded Investigation Audit run 39457706458](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/39457706458): Python 3.11 and 3.13 ran **144** tests each, with 5 new assertion failures and 1 new IndependentCheckError, 1 previously optional skip. The six red regressions identify root causes directly.
+
+| Invariant / defect | Reviewed finding | Reproduction and root-cause correction | Red/green test |
+|---|---|---|---|
+| `INDEPENDENT-NUMERIC-DOMAIN` | [4327410018](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327410018) | `sum_field` over `[{"x":1e100}]` gives valid `STRUCTURED_UNVERIFIABLE` from engine, but old Fraction oracle accepts out-of-domain source number and calls it a mismatch. Enforce 40-digit coefficient and 40-exponent bounds separately before Fraction arithmetic | `test_numeric_oracle_respects_bounded_decimal_contract` |
+| `PROVIDER-CALLS-NETWORK-PROVENANCE` | [4327410029](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327410029) | External model proposal and transcription can transmit text/audio while `manifest.network_used` is false. Include these providers in the source/network manifest flag. Model/provenance fixtures separately reproduce both paths | `test_external_model_proposal_declares_provider_network_usage`, `test_external_transcription_declares_provider_network_usage` |
+| `SIGNED-REVIEW-UNAMBIGUOUS-IDENTITY` | [4327410036](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327410036) | Signed `object_id: c1` can refer to both a claim and evidence record named `c1`. A correct Ed25519 signature cannot disambiguate the review. Reject ambiguous reviewed ID references, retaining allowed namespace-local IDs for unrelated audit operations | `test_signed_review_rejects_ambiguous_cross_type_object_identity` |
+| `INTERPRETATION-OPERANDS-COMMITMENT` | [4327410044](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327410044) | Forge reported reading operands and unsupported-premise list while reusing unchanged valid `formal_inference`; old oracle accepted. Independently bind all report reading metadata and premise-evidence list to declared bundle and independently checked claim statuses | `test_checker_binds_reported_interpretation_operands_and_premises` |
+| `INTERPRETATION-ID-BIJECTION` | [4327410051](https://github.com/n0tf0und0ut/Project-FAR/pull/578#discussion_r4327410051) | Duplicate a valid reading result and omit a second registered reading, preserving list length and logical result; old oracle accepted. Require exact 1:1 ID set and no duplicates before checking content | `test_checker_rejects_duplicate_interpretations_with_missing_reading` |
+
+**Important limit:** This Codex finding cycle was performed on `77ddd...`, superseded by later corrections, and is not an independent clean final-head signoff. The next review must reference the newly stabilized SHA, challenge these regressions and their integration, and receive the protected-repin App's own final-head decision.
+
 ## Verification obligations and limits
 
 - **Source replay:** Hashes of untrusted snapshots and commitment to the recorded acquisition method now participate in the audit identity; source authenticity remains unestablished. Replacement of an entire unsigned package, including recomputed audit bytes, remains possible absent external trusted signatures.
