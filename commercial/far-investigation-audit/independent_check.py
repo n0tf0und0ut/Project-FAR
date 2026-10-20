@@ -179,6 +179,19 @@ def check_report(bundle:dict, report:dict)->dict:
                 any(r.get(name) != value for name, value in fields.items())):
             raise IndependentCheckError("interpretation metadata mismatch: " + r["id"])
         checked+=1
+    # Reporting a different set of interpretation conditions can suppress
+    # prominent safety warnings without changing any per-reading inference.
+    expected_flags = {
+        "interpretation_sensitive_inference": len({
+            r["formal_inference"]["status"] for r in reported}) > 1,
+        "interpretation_cards_differ": len({
+            json.dumps(r["interpretation_card"], sort_keys=True, separators=(",", ":"))
+            for r in reported}) > 1,
+        "interpretations_present": bool(reported),
+    }
+    if any(type(report.get(k)) is not bool or report[k] != v
+           for k, v in expected_flags.items()):
+        raise IndependentCheckError("interpretation flags mismatch")
     # Validate quotation and hashes independently (independent implementation).
     sources={s["id"]:s for s in bundle["sources"]}
     for s in sources.values():
@@ -231,6 +244,8 @@ def check_report(bundle:dict, report:dict)->dict:
         if ("origin_id" not in finding or
                 finding["origin_id"] != sources[sid].get("origin_id")):
             raise IndependentCheckError("evidence origin differs from source record: " + ev["id"])
+        if finding.get("mapping_status") != ev["mapping_status"]:
+            raise IndependentCheckError("evidence mapping status mismatch: " + ev["id"])
         if "data_check" in ev:
             if temporal[sid] != "IN_WINDOW":
                 relation = "TEMPORAL_NOT_ADMISSIBLE"
@@ -273,6 +288,10 @@ def check_report(bundle:dict, report:dict)->dict:
         if finding.get("formal_relation") != relation:
             raise IndependentCheckError("independent formal evidence mismatch: " + ev["id"])
     for cid, expected_ids in expected_evidence.items():
+        if report["claims"][cid].get("mapping_status") != claims[cid]["mapping_status"]:
+            raise IndependentCheckError("claim mapping status mismatch: " + cid)
+        if report["claims"][cid].get("origin_independence_verified") is not False:
+            raise IndependentCheckError("claim origin independence marker mismatch: " + cid)
         findings = report["claims"][cid].get("evidence", [])
         if (len(findings) != len(expected_ids)
                 or {f.get("evidence_id") for f in findings} != set(expected_ids)):
