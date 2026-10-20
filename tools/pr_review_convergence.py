@@ -92,7 +92,47 @@ def person(value):
     return user.get("login", "") if isinstance(user, dict) else ""
 
 
-def evaluate(pr, reviews, threads, comments, expected_head):
+def codex_status(issue_comments, expected_head):
+    """Use only authenticated Codex App review summaries bound to the exact head.
+
+    This is observable automated review metadata, NOT an independent human approval
+    or a guarantee of the review's completeness.
+    """
+    candidate = None
+    for comment in issue_comments:
+        if not isinstance(comment, dict):
+            raise EvidenceError("malformed issue comment record")
+        user = comment.get("user") or {}
+        app = comment.get("performed_via_github_app") or {}
+        if user.get("login") != "chatgpt-codex-connector[bot]" or app.get("slug") != "chatgpt-codex-connector":
+            continue
+        body = comment.get("body")
+        if not isinstance(body, str):
+            raise EvidenceError("trusted Codex summary has invalid body")
+        match = re.search(r"<!-- codex-review-state:v1 (\\{[^\\n]*\\}) -->", body)
+        if not match:
+            continue
+        try:
+            details = json.loads(match.group(1))
+            code = details["code_review"]
+            if not isinstance(code, dict):
+                raise TypeError("invalid code_review object")
+        except (ValueError, TypeError, KeyError) as exc:
+            raise EvidenceError("malformed signed-origin Codex review state") from exc
+        if code.get("commit_sha") != expected_head:
+            continue
+        key = (comment.get("updated_at") or "", comment.get("id") or 0)
+        if candidate is None or key > candidate[0]:
+            candidate = (key, code)
+    if candidate is None:
+        return {"status": "missing", "unresolved": None, "passed": False}
+    code = candidate[1]
+    passed = code.get("status") == "completed" and code.get("has_unresolved_findings") is False
+    return {"status": code.get("status"), "unresolved": code.get("has_unresolved_findings"),
+            "passed": passed}
+
+
+def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None):
     """Only metadata closure; no claim of independent substantive correctness."""
     if not isinstance(pr, dict) or not SHA.fullmatch(expected_head):
         raise EvidenceError("invalid expected head or PR data")
@@ -139,9 +179,10 @@ def evaluate(pr, reviews, threads, comments, expected_head):
         groups[(comment.get("path") or "", digest)].append(comment["id"])
     duplicates = [{"path": path, "normalized_sha256": digest, "comment_ids": sorted(ids)}
                   for (path, digest), ids in sorted(groups.items()) if len(ids) > 1]
+    automated = codex_status([] if issue_comments is None else issue_comments, expected_head)
     blockers = []
-    if not current:
-        blockers.append("missing independent human approval on exact head")
+    if not current and not automated["passed"]:
+        blockers.append("missing exact-head independent human approval or completed trusted Codex review")
     if changes:
         blockers.append("active CHANGES_REQUESTED")
     if unresolved:
@@ -157,6 +198,7 @@ def evaluate(pr, reviews, threads, comments, expected_head):
         "inline_comment_count": len(comments),
         "thread_count": len(threads),
         "human_approvals_on_exact_head": current,
+        "trusted_codex_review_on_exact_head": automated,
         "stale_or_nonhuman_approvals": stale,
         "active_changes_requested": changes,
         "unresolved_threads": unresolved,
@@ -189,17 +231,19 @@ def main(argv=None):
         pr = api(root + suffix, token)
         reviews = paginate(root + suffix + "/reviews", token)
         comments = paginate(root + suffix + "/comments", token)
+        issue_comments = paginate(root + "/issues/" + str(args.pr) + "/comments", token)
         threads = threads_for(owner, name, args.pr, token)
         final = api(root + suffix, token)
         if (final.get("head") or {}).get("sha") != args.expected_head:
             raise EvidenceError("PR head advanced during evidence retrieval")
-        record = evaluate(pr, reviews, threads, comments, args.expected_head)
+        record = evaluate(pr, reviews, threads, comments, args.expected_head, issue_comments)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         report = "\n".join([
             "## PR review convergence (metadata only)",
             "Exact head: " + args.expected_head,
-            "Qualifying approvals: " + str(len(record["human_approvals_on_exact_head"])),
+            "Qualifying human approvals: " + str(len(record["human_approvals_on_exact_head"])),
+            "Trusted Codex completed on exact head: " + str(record["trusted_codex_review_on_exact_head"]["passed"]),
             "Outstanding threads: " + str(len(record["unresolved_threads"])),
             "Active changes requested: " + str(len(record["active_changes_requested"])),
             "Result: " + ("METADATA CONVERGED" if record["review_metadata_converged"]
