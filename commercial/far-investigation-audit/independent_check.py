@@ -115,7 +115,14 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str):
                 got=row[contract["field"]]
                 if isinstance(got,bool) or not isinstance(got,(int,Decimal)):
                     raise ValueError("not numeric")
-                number+=Fraction(got)
+                amount = Decimal(got)
+                # Mirror the declared finite input *domain*, but compute
+                # quantities with Fraction rather than engine Decimal sums.
+                # Out-of-range source values are not arithmetic mismatches.
+                if (not amount.is_finite() or len(amount.as_tuple().digits) > 40 or
+                        abs(amount.as_tuple().exponent) > 40):
+                    raise ValueError("source number exceeds bounded decimal domain")
+                number+=Fraction(amount)
         else:raise ValueError("unknown operator")
         expected=Fraction(Decimal(claim["quantity"]["value"]))
         return "STRUCTURED_VALUE_MATCH" if number==expected else "STRUCTURED_VALUE_MISMATCH",number
@@ -129,11 +136,17 @@ def check_report(bundle:dict, report:dict)->dict:
     claims={c["id"]:c for c in bundle["claims"]}
     readings={r["id"]:r for r in bundle["interpretations"]}
     checked=0
-    if len(report.get("interpretations",[])) != len(readings):
-        raise IndependentCheckError("report reading count mismatch")
-    for r in report["interpretations"]:
-        if r["id"] not in readings:
-            raise IndependentCheckError("report references unregistered reading")
+    reported = report.get("interpretations")
+    if not isinstance(reported, list):
+        raise IndependentCheckError("interpretation coverage mismatch")
+    reported_ids = [item.get("id") if isinstance(item, dict) else None
+                    for item in reported]
+    if (len(reported_ids) != len(readings)
+            or any(not isinstance(rid, str) for rid in reported_ids)
+            or len(set(reported_ids)) != len(reported_ids)
+            or set(reported_ids) != set(readings)):
+        raise IndependentCheckError("interpretation coverage mismatch")
+    for r in reported:
         spec=readings[r["id"]]
         basis = spec.get("formalization_basis", "explicit_formulas")
         if basis == "unformalized_candidate":
@@ -145,6 +158,26 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("unknown formalization basis")
         if result!=r["formal_inference"]:
             raise IndependentCheckError("logical checker disagrees on reading: "+r["id"])
+        if not isinstance(report.get("claims"), dict):
+            raise IndependentCheckError("claim reports missing for interpretation")
+        try:
+            unsupported = [p for p in spec["premises"]
+                           if report["claims"][p]["status"] != "CONDITIONAL_FORMAL_SUPPORT_RECORDED"]
+            fields = {
+                "premises": spec["premises"],
+                "conclusion": spec["conclusion"],
+                "mapping_status": spec["mapping_status"],
+                "formalization_basis": basis,
+                "interpretation_notes": spec.get("interpretation_notes", ""),
+                "interpretation_card": spec.get("interpretation_card", {}),
+                "premises_without_uncontested_formal_evidence": unsupported,
+                "semantic_fidelity_independently_verified": False,
+            }
+        except (KeyError, TypeError) as exc:
+            raise IndependentCheckError("interpretation dependencies missing: " + r["id"]) from exc
+        if (set(r) != set(fields) | {"id", "formal_inference"} or
+                any(r.get(name) != value for name, value in fields.items())):
+            raise IndependentCheckError("interpretation metadata mismatch: " + r["id"])
         checked+=1
     # Validate quotation and hashes independently (independent implementation).
     sources={s["id"]:s for s in bundle["sources"]}
