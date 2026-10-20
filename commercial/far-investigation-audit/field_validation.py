@@ -11,6 +11,7 @@ import json
 import math
 import sys
 from pathlib import Path
+from bounded_io import read_bounded
 
 PREDICTED = frozenset({'SUPPORTED', 'REFUTED', 'INSUFFICIENT', 'ABSTAIN'})
 REFERENCE = frozenset({'SUPPORTED', 'REFUTED', 'INSUFFICIENT', 'CONTESTED'})
@@ -45,7 +46,7 @@ def read_json(path: Path) -> object:
     if path.stat().st_size > 6_000_000:
         raise InvalidFieldEvaluation('input over six-megabyte limit')
     try:
-        return json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=_no_duplicate,
+        return json.loads(read_bounded(path, 6_000_000).decode('utf-8'), object_pairs_hook=_no_duplicate,
                           parse_constant=lambda s: (_ for _ in ()).throw(InvalidFieldEvaluation('nonfinite number')))
     except RecursionError as exc:
         raise InvalidFieldEvaluation('over-nested JSON input') from exc

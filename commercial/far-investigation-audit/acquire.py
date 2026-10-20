@@ -20,6 +20,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 from engine import InvalidBundle, digest
+from bounded_io import read_bounded, BoundedInputError
 
 MAX_DOWNLOAD = 250_000
 MAX_REDIRECTS = 2
@@ -264,7 +265,10 @@ def fetch_youtube_captions(url: str, *, permit_network: bool = False, executable
         tracks = sorted(Path(root).glob("caption*.vtt"))
         if not tracks:
             raise AcquisitionError("no usable caption track")
-        data = tracks[0].read_bytes()
+        try:
+            data = read_bounded(tracks[0], MAX_TRANSCRIPT)
+        except (OSError, BoundedInputError) as exc:
+            raise AcquisitionError("caption file size/type limit exceeded") from exc
         if len(data) > MAX_TRANSCRIPT:
             raise AcquisitionError("caption file too large")
         try:

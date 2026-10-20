@@ -26,6 +26,7 @@ class FailureBoundaryTests(unittest.TestCase):
             nested.write_text("[" * 10000 + "0" + "]" * 10000)
             commands = [
                 ("cli.py", [str(nested)], "FAR_AUDIT_INVALID"),
+                ("evaluate.py", [str(nested)], "FAR_DIAGNOSTIC_INVALID"),
                 ("verify.py", [str(nested), str(nested)], "FAR_REPLAY_INVALID"),
                 ("field_validation.py", ["--predictions", str(nested), "--adjudications", str(nested)], "FAR_FIELD_EVAL_INVALID"),
                 ("review.py", [str(nested), "--private-key", str(pathlib.Path(d) / "absent.pem"),

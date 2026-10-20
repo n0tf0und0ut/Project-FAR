@@ -5,11 +5,13 @@ provider authorization; source confidence and speaker/time attribution unknown.
 """
 from __future__ import annotations
 import os
+from io import BytesIO
 from pathlib import Path
 import subprocess
 import tempfile
 from acquire import AcquisitionError
 from engine import digest
+from bounded_io import read_bounded, BoundedInputError
 
 MAX_LOCAL_FILE = 100_000_000
 MAX_PDF = 8_000_000
@@ -17,14 +19,16 @@ MAX_TRANSCRIPTION_AUDIO = 24_000_000
 
 
 def read_pdf(path: Path) -> dict:
-    if path.stat().st_size > MAX_PDF:
-        raise AcquisitionError("PDF file exceeds 8 MB cap")
+    try:
+        raw = read_bounded(path, MAX_PDF)
+    except (OSError, BoundedInputError) as exc:
+        raise AcquisitionError("PDF input size/type limit exceeded") from exc
     try:
         from pypdf import PdfReader
     except ImportError as exc:
         raise AcquisitionError("pypdf optional dependency unavailable") from exc
     try:
-        with path.open("rb") as f:
+        with BytesIO(raw) as f:
             reader = PdfReader(f, strict=True)
             if reader.is_encrypted:
                 raise AcquisitionError("encrypted PDF not supported")
@@ -44,7 +48,7 @@ def read_pdf(path: Path) -> dict:
     if len(text.encode("utf-8")) > 190_000:
         raise AcquisitionError("extracted PDF text too large")
     return {"text": text, "extraction": "pypdf_text_v1", "pages": len(pages),
-            "raw_sha256": digest(path.read_bytes()), "external_authenticity_verified": False,
+            "raw_sha256": digest(raw), "external_authenticity_verified": False,
             "visual_figure_and_table_fidelity_verified": False}
 
 
@@ -54,11 +58,19 @@ def transcribe_local(path: Path, *, permit_model: bool = False, client=None,
         raise AcquisitionError("audio transcription needs explicit external-model authorization")
     if path.suffix.lower() not in {".mp3", ".wav", ".m4a", ".mp4", ".mov", ".webm", ".ogg"}:
         raise AcquisitionError("unsupported local media extension")
-    if not 0 < path.stat().st_size <= MAX_LOCAL_FILE:
-        raise AcquisitionError("media file size over limit")
+    try:
+        raw = read_bounded(path, MAX_LOCAL_FILE)
+    except (OSError, BoundedInputError) as exc:
+        raise AcquisitionError("media input size/type limit exceeded") from exc
+    if not raw:
+        raise AcquisitionError("media file is empty")
+    raw_hash = digest(raw)
     with tempfile.TemporaryDirectory(prefix="far-media-") as root:
+        snapshot = Path(root) / ("input" + path.suffix.lower())
+        snapshot.write_bytes(raw)
+        del raw
         output = Path(root) / "mono.mp3"
-        cmd = [converter, "-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path),
+        cmd = [converter, "-nostdin", "-hide_banner", "-loglevel", "error", "-y", "-i", str(snapshot),
                "-vn", "-ac", "1", "-ar", "16000", "-b:a", "48k", "-t", "1800", str(output)]
         try:
             # No shell, no browser, no dynamic model-generated command.
@@ -92,7 +104,7 @@ def transcribe_local(path: Path, *, permit_model: bool = False, client=None,
         if len(text.encode("utf-8")) > 190_000:
             raise AcquisitionError("transcript exceeds text cap")
         return {"text": text, "extraction": "external_speech_transcription_gpt_4o_transcribe_v1",
-                "raw_sha256": digest(path.read_bytes()), "transcript_model": "gpt-4o-transcribe",
+                "raw_sha256": raw_hash, "transcript_model": "gpt-4o-transcribe",
                 "transcript_alignment_verified": False, "speaker_attribution_verified": False,
                 "external_authenticity_verified": False}
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from engine import InvalidBundle, canonical, digest
 from workflow import investigate
 from independent_check import check_report, IndependentCheckError
+from bounded_io import read_bounded
 
 
 def evaluate_cases(cases: list[dict]) -> dict:
@@ -40,7 +41,7 @@ def main()->int:
     p.add_argument("--output",type=Path)
     args=p.parse_args()
     try:
-        raw=args.cases.read_bytes()
+        raw=read_bounded(args.cases, 500_000)
         if len(raw)>500_000:raise InvalidBundle("diagnostic case file too large")
         cases=json.loads(raw)
         result=evaluate_cases(cases)
@@ -48,7 +49,7 @@ def main()->int:
         if args.output:args.output.write_bytes(output)
         else:sys.stdout.buffer.write(output)
         return 0 if result["passed_count"]==result["case_count"] else 1
-    except (OSError,ValueError,TypeError,IndependentCheckError) as exc:
+    except (OSError,ValueError,TypeError,IndependentCheckError,RecursionError) as exc:
         print("FAR_DIAGNOSTIC_INVALID: "+str(exc),file=sys.stderr)
         return 2
 

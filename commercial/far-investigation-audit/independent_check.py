@@ -8,11 +8,35 @@ from __future__ import annotations
 import hashlib
 import itertools
 import json
+import re
 from decimal import Decimal
 from fractions import Fraction
+from datetime import datetime, timedelta
 
 class IndependentCheckError(ValueError):
     pass
+
+
+def _same_json(left, right):
+    """JSON types are part of the report contract: bool/int/float differ."""
+    try:
+        encode = lambda value: json.dumps(value, sort_keys=True, separators=(",", ":"),
+                                           ensure_ascii=False, allow_nan=False)
+        return encode(left) == encode(right)
+    except (ValueError, TypeError, RecursionError) as exc:
+        raise IndependentCheckError("invalid JSON comparison") from exc
+
+
+def _utc(value):
+    if not isinstance(value, str) or not value.endswith("Z"):
+        raise IndependentCheckError("independent UTC timestamp required")
+    try:
+        parsed = datetime.fromisoformat(value[:-1] + "+00:00")
+    except (ValueError, TypeError) as exc:
+        raise IndependentCheckError("invalid independent UTC timestamp") from exc
+    if parsed.utcoffset() != timedelta(0):
+        raise IndependentCheckError("independent UTC timestamp required")
+    return parsed
 
 
 def _variables(expr):
@@ -72,63 +96,87 @@ def check(premises:list[dict], conclusion:dict):
             "premise_satisfying_assignments":ps.bit_count(),"countermodel":counter}
 
 
+class _NumericUnavailable(ValueError):
+    pass
+
+
 def _separate_numeric_recompute(claim:dict, record:dict, text:str):
-    """A different Fraction-based oracle for the bounded tabular operators."""
+    """Fraction arithmetic and independently classified source failures."""
     try:
         def pairs(elements):
-            out={}
-            for k,v in elements:
-                if k in out:raise ValueError("duplicate key")
-                out[k]=v
-            return out
-        def reject(token):raise ValueError("nonfinite")
-        data=json.loads(text,object_pairs_hook=pairs,parse_float=Decimal,parse_constant=reject)
-        contract=record["data_check"]
-        pointer=contract["pointer"]
-        selected=data
-        if pointer:
-            if not isinstance(pointer,str) or not pointer.startswith("/"):
-                raise ValueError("bad pointer")
-            for part in pointer.split("/")[1:]:
-                if '~' in part and any(part[j+1:j+2] not in ('0','1') for j,c in enumerate(part) if c=='~'):
-                    raise ValueError("invalid escape")
-                key=part.replace("~1","/").replace("~0","~")
-                if isinstance(selected,dict):selected=selected[key]
-                elif isinstance(selected,list):selected=selected[int(key)]
-                else:raise ValueError("scalar path")
-        if not isinstance(selected,list) or len(selected)>10000:raise ValueError("rows invalid")
-        op=contract["operation"]
-        if op=="count_rows":number=Fraction(len(selected))
-        elif op=="count_where":
-            where=contract["where"]
-            field=where["field"];target=where["equals"]
-            count=0
+            result = {}
+            for key, value in elements:
+                if key in result:
+                    raise ValueError("source contains duplicate JSON keys")
+                result[key] = value
+            return result
+        def reject(token):
+            raise ValueError("non-finite source number: " + token)
+        try:
+            data = json.loads(text, object_pairs_hook=pairs, parse_float=Decimal,
+                              parse_constant=reject)
+        except (ValueError, TypeError, RecursionError) as exc:
+            raise _NumericUnavailable("cannot parse unambiguous JSON source: " + str(exc)) from exc
+        contract = record["data_check"]
+        path = contract["pointer"]
+        if not isinstance(path, str) or len(path) > 1024 or (path and not path.startswith("/")):
+            raise IndependentCheckError("invalid declared JSON pointer")
+        selected = data
+        for token in path.split("/")[1:] if path else []:
+            if re.search(r"~(?![01])", token):
+                raise IndependentCheckError("invalid declared JSON pointer escape")
+            key = token.replace("~1", "/").replace("~0", "~")
+            if isinstance(selected, dict):
+                if key not in selected:
+                    raise _NumericUnavailable("JSON Pointer field absent: " + repr(key))
+                selected = selected[key]
+            elif isinstance(selected, list):
+                if not re.fullmatch(r"0|[1-9][0-9]*", key):
+                    raise IndependentCheckError("invalid declared JSON array index")
+                index = int(key)
+                if index >= len(selected):
+                    raise _NumericUnavailable("JSON array index out of bounds")
+                selected = selected[index]
+            else:
+                raise _NumericUnavailable("JSON Pointer descends into scalar")
+        if not isinstance(selected, list) or len(selected) > 10000:
+            raise _NumericUnavailable("source selection is not a bounded JSON list")
+        op = contract["operation"]
+        if op == "count_rows":
+            number = Fraction(len(selected))
+        elif op == "count_where":
+            field, target = contract["where"]["field"], contract["where"]["equals"]
+            count = 0
             for row in selected:
-                if not isinstance(row,dict) or field not in row:raise ValueError("field absent")
-                got=row[field]
-                if type(got) is type(target) and got==target:count+=1
-            number=Fraction(count)
-        elif op=="sum_field":
-            number=Fraction(0)
+                if not isinstance(row, dict) or field not in row:
+                    raise _NumericUnavailable("where field missing or row not an object")
+                if type(row[field]) is type(target) and row[field] == target:
+                    count += 1
+            number = Fraction(count)
+        elif op == "sum_field":
+            number = Fraction(0)
             for row in selected:
-                if not isinstance(row,dict) or contract["field"] not in row:raise ValueError("field absent")
-                got=row[contract["field"]]
-                if isinstance(got,bool) or not isinstance(got,(int,Decimal)):
-                    raise ValueError("not numeric")
-                amount = Decimal(got)
-                # Mirror the declared finite input *domain*, but compute
-                # quantities with Fraction rather than engine Decimal sums.
-                # Out-of-range source values are not arithmetic mismatches.
-                if (not amount.is_finite() or len(amount.as_tuple().digits) > 40 or
-                        abs(amount.as_tuple().exponent) > 40):
-                    raise ValueError("source number exceeds bounded decimal domain")
-                number+=Fraction(amount)
-        else:raise ValueError("unknown operator")
-        expected=Fraction(Decimal(claim["quantity"]["value"]))
-        return ("STRUCTURED_VALUE_MATCH" if number==expected else "STRUCTURED_VALUE_MISMATCH",
-                number, len(selected))
-    except (ValueError,KeyError,TypeError,IndexError,OverflowError,ArithmeticError,RecursionError):
-        return "STRUCTURED_UNVERIFIABLE",None,None
+                if not isinstance(row, dict) or contract["field"] not in row:
+                    raise _NumericUnavailable("sum field missing or row is not an object")
+                value = row[contract["field"]]
+                if isinstance(value, bool) or not isinstance(value, (int, Decimal)):
+                    raise _NumericUnavailable("sum field is not a finite JSON number")
+                amount = Decimal(value)
+                if (not amount.is_finite() or len(amount.as_tuple().digits) > 40
+                        or abs(amount.as_tuple().exponent) > 40):
+                    raise _NumericUnavailable("source numeric value exceeds bounded decimal contract")
+                number += Fraction(amount)
+        else:
+            raise IndependentCheckError("unknown declared numeric operation")
+        expected = Fraction(Decimal(claim["quantity"]["value"]))
+        return ("STRUCTURED_VALUE_MATCH" if number == expected else "STRUCTURED_VALUE_MISMATCH",
+                number, len(selected), None)
+    except _NumericUnavailable as exc:
+        return "STRUCTURED_UNVERIFIABLE", None, None, str(exc)
+    except IndependentCheckError:
+        raise
+    except (ValueError, KeyError, TypeError, IndexError, OverflowError, ArithmeticError) as exc:
+        raise IndependentCheckError("invalid numeric computation contract") from exc
 
 
 def check_report(bundle:dict, report:dict)->dict:
@@ -157,7 +205,7 @@ def check_report(bundle:dict, report:dict)->dict:
             result=check([claims[p]["formula"] for p in spec["premises"]],claims[spec["conclusion"]]["formula"])
         else:
             raise IndependentCheckError("unknown formalization basis")
-        if result!=r["formal_inference"]:
+        if not _same_json(result, r["formal_inference"]):
             raise IndependentCheckError("logical checker disagrees on reading: "+r["id"])
         if not isinstance(report.get("claims"), dict):
             raise IndependentCheckError("claim reports missing for interpretation")
@@ -177,7 +225,7 @@ def check_report(bundle:dict, report:dict)->dict:
         except (KeyError, TypeError) as exc:
             raise IndependentCheckError("interpretation dependencies missing: " + r["id"]) from exc
         if (set(r) != set(fields) | {"id", "formal_inference"} or
-                any(r.get(name) != value for name, value in fields.items())):
+                any(not _same_json(r.get(name), value) for name, value in fields.items())):
             raise IndependentCheckError("interpretation metadata mismatch: " + r["id"])
         checked+=1
     # Reporting a different set of interpretation conditions can suppress
@@ -206,14 +254,20 @@ def check_report(bundle:dict, report:dict)->dict:
     # Independently recompute the admissibility routing and formal relations of
     # evidence. Checking argument entailment alone leaves evidence-derived claim
     # statuses vulnerable to an undetected first-checker error.
-    from datetime import datetime
-    cutoff = datetime.fromisoformat(bundle["as_of"].replace("Z", "+00:00"))
+    cutoff = _utc(bundle["as_of"])
     temporal = {}
     if set(report.get("source_temporal_status", {})) != set(sources):
         raise IndependentCheckError("source temporal coverage mismatch")
     for sid, source in sources.items():
         captured = source.get("captured_at")
-        captured_dt = datetime.fromisoformat(captured.replace("Z", "+00:00")) if captured else None
+        captured_dt = _utc(captured) if captured is not None else None
+        published = source.get("published_at")
+        published_dt = _utc(published) if published is not None else None
+        if published_dt is not None and captured_dt is not None and published_dt > captured_dt:
+            raise IndependentCheckError("independent publication chronology mismatch: " + sid)
+        for flag in ("publication_date_verified", "origin_verified"):
+            if flag in source and type(source[flag]) is not bool:
+                raise IndependentCheckError("independent source verification flag type mismatch")
         if captured_dt is not None and captured_dt > cutoff:
             expected_time = "AFTER_CUTOFF_OR_UNVERIFIED_HISTORICAL_VERSION"
         elif (source.get("publication_date_verified") is True
@@ -277,7 +331,7 @@ def check_report(bundle:dict, report:dict)->dict:
                 relation = "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT"
             else:
                 relation = "DOES_NOT_ESTABLISH"
-            if relation == "DOES_NOT_ESTABLISH" and finding.get("countermodel") != pos["countermodel"]:
+            if relation == "DOES_NOT_ESTABLISH" and not _same_json(finding.get("countermodel"), pos["countermodel"]):
                 raise IndependentCheckError("evidence countermodel mismatch: " + ev["id"])
             discrepancy = (
                 (ev["relation"] == "supports" and relation != "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT")
@@ -335,7 +389,7 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("independent evidence quote mismatch")
         if "data_check" in ev:
             claim=claims[ev["claim_id"]]
-            expected_status,expected_value,rows_inspected=_separate_numeric_recompute(claim,ev,text)
+            expected_status,expected_value,rows_inspected,expected_reason=_separate_numeric_recompute(claim,ev,text)
             found=next((e.get("structured_check") for e in report["claims"][ev["claim_id"]]["evidence"]
                         if e.get("evidence_id")==ev["id"]),None)
             if not isinstance(found,dict) or found.get("status")!=expected_status:
@@ -351,7 +405,7 @@ def check_report(bundle:dict, report:dict)->dict:
                     or found["source_authenticity_verified"] is not False):
                 raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
             if expected_status == "STRUCTURED_UNVERIFIABLE":
-                if not isinstance(found["reason"], str) or not found["reason"].strip():
+                if found["reason"] != expected_reason:
                     raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
             elif (found["operation"] != ev["data_check"]["operation"]
                     or type(found["rows_inspected"]) is not int
@@ -359,7 +413,7 @@ def check_report(bundle:dict, report:dict)->dict:
                 raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
             if expected_value is not None:
                 try:
-                    if Fraction(Decimal(found.get("computed_value")))!=expected_value:
+                    if not isinstance(found.get("computed_value"), str) or Fraction(Decimal(found["computed_value"]))!=expected_value:
                         raise ValueError("value changed")
                 except (ValueError,TypeError,ArithmeticError) as exc:
                     raise IndependentCheckError("computed numeric value differs: "+ev["id"]) from exc
@@ -390,7 +444,7 @@ def check_report(bundle:dict, report:dict)->dict:
             "claim_meaning_verified": False,
             "temporal_eligibility_not_promoted_by_computation": True,
         }
-        if claim_report.get("structured_value_checks") != expected_summary:
+        if not _same_json(claim_report.get("structured_value_checks"), expected_summary):
             raise IndependentCheckError("independent structured summary mismatch: " + cid)
     if report.get("unknowns") != bundle.get("unknowns"):
         raise IndependentCheckError("assurance boundary mismatch: unknowns")

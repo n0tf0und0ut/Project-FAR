@@ -18,6 +18,7 @@ SCHEMA = "far-investigation-audit/0.1"
 ENGINE = "far-investigation-audit/0.4.1"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
+MAX_ENTAILMENT_WORK = 8_000_000
 
 
 class InvalidBundle(ValueError):
@@ -149,6 +150,32 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(len(canonical(bundle)) <= 2_000_000, "bundle byte limit exceeded")
     except (TypeError, ValueError, OverflowError, RecursionError) as exc:
         raise InvalidBundle("bundle contains non-JSON or non-finite values") from exc
+    inference_cache = {}
+    work_used = 0
+
+    def infer(premises, conclusion):
+        nonlocal work_used
+        key = canonical([premises, conclusion])
+        if key not in inference_cache:
+            formulas = [*premises, conclusion]
+            names = set().union(*(variables(formula) for formula in formulas))
+            def nodes(formula):
+                op, value = next(iter(formula.items()))
+                if op == "atom":
+                    return 1
+                children = [value] if op == "not" else value
+                return 1 + sum(nodes(child) for child in children)
+            # Count the worst-case recursive node visits, not just valuations.
+            # Short-circuiting can reduce actual work; it cannot exceed this
+            # bound. Over-atom-limit calls perform no exhaustive evaluation.
+            work = sum(nodes(formula) for formula in formulas)
+            if len(names) <= MAX_ATOMS:
+                work *= 1 << len(names)
+            required(work_used + work <= MAX_ENTAILMENT_WORK,
+                     "aggregate entailment work budget exceeded")
+            work_used += work
+            inference_cache[key] = entailment(premises, conclusion)
+        return inference_cache[key]
     required(isinstance(bundle.get("investigation_id"), str) and bool(bundle["investigation_id"].strip()), "investigation id required")
     proposal_hash = bundle.get("proposal_sha256")
     required(proposal_hash is None or (isinstance(proposal_hash, str) and
@@ -259,8 +286,8 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         elif "formula" not in evidence_item:
             finding["formal_relation"] = "UNTESTED_SEMANTIC_ASSESSMENT"
         else:
-            positive = entailment([evidence_item["formula"]], claim["formula"])
-            negative = entailment([evidence_item["formula"]], {"not": claim["formula"]})
+            positive = infer([evidence_item["formula"]], claim["formula"])
+            negative = infer([evidence_item["formula"]], {"not": claim["formula"]})
             if positive["status"] == "INCONSISTENT_PREMISES":
                 relation = "INCONSISTENT_EVIDENCE_FORMULA"
             elif positive["status"] == "NOT_CHECKED_ATOM_LIMIT":
@@ -324,7 +351,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         result = ({"status": "NOT_CHECKED_UNFORMALIZED",
                    "reason": "Auto-generated atom labels cannot test natural-language entailment."}
                   if basis == "unformalized_candidate" else
-                  entailment([claims[p]["formula"] for p in ps], claims[conclusion]["formula"]))
+                  infer([claims[p]["formula"] for p in ps], claims[conclusion]["formula"]))
         notes = reading.get("interpretation_notes", "")
         card = reading.get("interpretation_card", {})
         required(isinstance(notes, str) and len(notes) <= 2000, f"reading {rid}: invalid interpretation notes")

@@ -10,6 +10,7 @@ import json
 import sys
 from pathlib import Path
 from engine import InvalidBundle, audit
+from bounded_io import read_bounded
 
 MAX_INPUT = 2_000_000
 MAX_REPORT = 6_000_000
@@ -21,7 +22,7 @@ def main() -> int:
     p.add_argument("report", type=Path)
     args = p.parse_args()
     try:
-        b, r = args.bundle.read_bytes(), args.report.read_bytes()
+        b, r = read_bounded(args.bundle, MAX_INPUT), read_bounded(args.report, MAX_REPORT)
         if len(b) > MAX_INPUT or len(r) > MAX_REPORT:
             raise InvalidBundle("audit replay input/report byte limit exceeded")
         supplied = json.loads(r)

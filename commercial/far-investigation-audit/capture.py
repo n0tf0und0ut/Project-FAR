@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from engine import InvalidBundle, canonical, digest, timestamp
+from bounded_io import read_bounded
 
 MAX_SOURCE_BYTES = 200_000
 
@@ -66,7 +67,7 @@ def main() -> int:
         args = p.parse_args()
         if args.start is not None and args.quote is None:
             raise InvalidBundle("capture: --start requires --quote")
-        raw = args.path.read_bytes()
+        raw = read_bounded(args.path, MAX_SOURCE_BYTES)
         now = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
         source = capture_source(raw, source_id=args.id, captured_at=now,
                                 published_at=args.published_at, origin_id=args.origin_id)

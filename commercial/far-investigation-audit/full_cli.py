@@ -11,19 +11,22 @@ from engine import InvalidBundle, canonical, digest
 from acquire import AcquisitionError
 from workflow import investigate
 from review import verify_review
+from bounded_io import read_bounded, BoundedInputError
 
 MAX_CONFIG = 450_000
 
 
-def read_json_artifact(path: Path):
+def read_json_artifact(path: Path, limit: int = 6_000_000):
     """Bound parser-depth failures for all hostile package JSON, not just size.
 
-    Stored-file size limits are enforced by verify_package before this helper.
+    Descriptor size checks and bounded reads precede allocation in this helper.
     RecursionError is *not* a ValueError; never leak parser tracebacks through
     the public verification CLI or its imported API.
     """
     try:
-        return json.loads(path.read_bytes())
+        return json.loads(read_bounded(path, limit))
+    except BoundedInputError as exc:
+        raise InvalidBundle(str(exc)) from exc
     except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
         raise InvalidBundle("invalid or over-nested JSON artifact: " + path.name) from exc
 
@@ -86,7 +89,7 @@ def verify_package(directory: Path) -> dict:
         path = root / name
         if path.is_symlink():
             raise InvalidBundle("symlink audit artifact forbidden")
-        if not path.is_file() or path.stat().st_size > 6_000_000 or digest(path.read_bytes()) != expected:
+        if not path.is_file() or path.stat().st_size > 6_000_000 or digest(read_bounded(path, 6_000_000)) != expected:
             raise InvalidBundle("audit artifact hash mismatch: " + name)
     # Detect extra files and checks that were removed, not just files in manifest.
     if {p.name for p in root.iterdir()} != {*stored, "manifest.json"}:
@@ -198,7 +201,7 @@ def verify_package(directory: Path) -> dict:
         raise InvalidBundle("critical question advisory mismatch")
     expected_md = render_markdown(bundle, recalc, acquisition=acquisition,
                                  discovery=discovery, questions=expected_questions)
-    if (root / "report.md").read_bytes() != expected_md.encode("utf-8"):
+    if read_bounded(root / "report.md", 6_000_000) != expected_md.encode("utf-8"):
         raise InvalidBundle("human-readable report does not replay from source artifacts")
     if manifest.get("report_md_sha256") != digest(expected_md.encode("utf-8")):
         raise InvalidBundle("report digest mismatch")
@@ -237,10 +240,7 @@ def main() -> int:
             return 0
         if args.request is None or args.output is None:
             p.error("request and --output required unless --verify is specified")
-        raw = args.request.read_bytes()
-        if len(raw) > MAX_CONFIG:
-            raise InvalidBundle("config size limit exceeded")
-        config = read_json_artifact(args.request)
+        config = read_json_artifact(args.request, MAX_CONFIG)
         result = investigate(config, permit_network=args.allow_network, permit_model=args.allow_model, permit_files=True)
         rev = read_json_artifact(args.review) if args.review else None
         manifest = write_package(args.output, result, review=rev)

@@ -7,6 +7,7 @@ from __future__ import annotations
 import base64
 import binascii
 from engine import InvalidBundle, canonical, digest
+from bounded_io import read_bounded
 
 
 def _decode(x: str, length: int) -> bytes:
@@ -90,10 +91,10 @@ def main() -> int:
     try:
         from cryptography.hazmat.primitives import serialization
         from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-        unsigned=json.loads(args.review.read_bytes())
+        unsigned=json.loads(read_bounded(args.review, 6_000_000))
         if not isinstance(unsigned,dict) or unsigned.get("schema") != "far-review-attestation/1.0":
             raise InvalidBundle("invalid review document schema")
-        private=serialization.load_pem_private_key(args.private_key.read_bytes(),password=None)
+        private=serialization.load_pem_private_key(read_bounded(args.private_key, 65_536),password=None)
         if not isinstance(private,Ed25519PrivateKey):
             raise InvalidBundle("Ed25519 PEM key required")
         public=private.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw)

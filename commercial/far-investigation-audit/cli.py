@@ -4,6 +4,7 @@ import json
 import sys
 from pathlib import Path
 from engine import audit, canonical, InvalidBundle
+from bounded_io import read_bounded
 
 
 def main() -> int:
@@ -12,7 +13,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     try:
-        raw = args.bundle.read_bytes()
+        raw = read_bounded(args.bundle, 2_000_000)
         if len(raw) > 2_000_000:
             raise InvalidBundle("input size limit exceeded")
         result = audit(json.loads(raw))
