@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import copy
 import json
+import base64
+from types import SimpleNamespace
 import pathlib
 import sys
 import tempfile
@@ -154,6 +156,93 @@ class Review578RegressionTests(unittest.TestCase):
             target = pathlib.Path(tmp) / "pkg"
             write_package(target, pkg)
             self.assertTrue(verify_package(target)["replay_match"])
+
+
+
+
+    def test_numeric_oracle_respects_bounded_decimal_contract(self):
+        b = bundle(secondary='{"rows":[{"x":1e100}]}')
+        b["claims"][0]["quantity"] = {
+            "value": "1", "number_span": {"start": 8, "end": 9}, "unit": "rows"}
+        b["evidence"][0].pop("formula")
+        b["evidence"][0]["data_check"] = {
+            "operation": "sum_field", "pointer": "/rows", "field": "x"}
+        report = audit(b)
+        self.assertEqual(report["claims"]["c1"]["evidence"][0]["structured_check"]["status"],
+                         "STRUCTURED_UNVERIFIABLE")
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+
+    def test_external_model_proposal_declares_provider_network_usage(self):
+        raw = "Exactly 1 row reported."
+        response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(
+            content=json.dumps({"claims": [{"id": "c1", "quote": raw, "source_id": "primary"}],
+                                "unknowns": [], "evidence": [], "arguments": []})))])
+        fake = SimpleNamespace(chat=SimpleNamespace(
+            completions=SimpleNamespace(create=lambda **kwargs: response)))
+        pkg = investigate({"captured_at": CUTOFF, "source": {"kind": "text", "text": raw},
+                           "proposal_mode": "openai"}, permit_model=True, model_client=fake)
+        self.assertTrue(pkg["manifest"]["network_used"])
+
+    def test_external_transcription_declares_provider_network_usage(self):
+        fake_transcription = {
+            "text": "Exactly 1 row reported.", "raw_sha256": "0" * 64,
+            "extraction": "external_speech_transcription_gpt_4o_transcribe_v1",
+            "transcript_model": "gpt-4o-transcribe"}
+        with patch("workflow.read_local_file", return_value=fake_transcription):
+            pkg = investigate({"captured_at": CUTOFF,
+                               "source": {"kind": "media_file", "path": "/fictional.wav"}},
+                              permit_files=True, permit_model=True)
+        self.assertTrue(pkg["manifest"]["network_used"])
+
+    def test_signed_review_rejects_ambiguous_cross_type_object_identity(self):
+        try:
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+            from cryptography.hazmat.primitives import serialization
+        except ImportError:
+            self.skipTest("optional Ed25519 review backend unavailable")
+        from review import verify_review
+        b = bundle()
+        b["evidence"][0]["id"] = "c1"  # Same ID as a different claim object.
+        report = audit(b)
+        record = {"schema": "far-review-attestation/1.0",
+                  "input_sha256": report["input_sha256"],
+                  "report_sha256": report["report_sha256"],
+                  "reviewer": "Independent reviewer label",
+                  "decisions": [{"object_id": "c1", "decision": "agree", "notes": "ambiguous"}]}
+        key = Ed25519PrivateKey.generate()
+        public = key.public_key().public_bytes(serialization.Encoding.Raw,
+                                               serialization.PublicFormat.Raw)
+        signed = {"review": record, "public_key_b64": base64.b64encode(public).decode(),
+                  "signature_b64": base64.b64encode(key.sign(
+                      json.dumps(record, sort_keys=True, separators=(",", ":"),
+                                 ensure_ascii=False, allow_nan=False).encode())).decode()}
+        with self.assertRaisesRegex(InvalidBundle, "ambiguous review object"):
+            verify_review(signed, report)
+
+    def test_checker_binds_reported_interpretation_operands_and_premises(self):
+        b = json.loads((pathlib.Path(__file__).resolve().parents[1] /
+                        "examples/causal_jump.json").read_text())
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        forged = copy.deepcopy(report)
+        forged["interpretations"][0]["premises"] = []
+        forged["interpretations"][0]["conclusion"] = b["interpretations"][0]["premises"][0]
+        forged["interpretations"][0]["premises_without_uncontested_formal_evidence"] = []
+        with self.assertRaisesRegex(IndependentCheckError, "interpretation .*mismatch"):
+            check_report(b, forged)
+
+    def test_checker_rejects_duplicate_interpretations_with_missing_reading(self):
+        b = json.loads((pathlib.Path(__file__).resolve().parents[1] /
+                        "examples/causal_jump.json").read_text())
+        copied = copy.deepcopy(b["interpretations"][0])
+        copied["id"] = "other_reading"
+        b["interpretations"].append(copied)
+        report = audit(b)
+        self.assertTrue(check_report(b, report)["independent_algorithm_agrees"])
+        forged = copy.deepcopy(report)
+        forged["interpretations"][1] = copy.deepcopy(forged["interpretations"][0])
+        with self.assertRaisesRegex(IndependentCheckError, "interpretation (?:coverage|duplicate)"):
+            check_report(b, forged)
 
 
 
