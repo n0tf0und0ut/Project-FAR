@@ -251,8 +251,11 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
             raise InvalidBundle("invalid source verification flag")
         record = {"id": sid, "text": text, "sha256": digest(text.encode("utf-8")),
                   "origin_id": meta.get("origin_id"), "published_at": published_at_by_source.get(sid),
-                  "captured_at": captured_at, "publication_date_verified": meta.get("publication_date_verified", False),
+                  "captured_at": meta.get("captured_at", captured_at),
+                  "publication_date_verified": meta.get("publication_date_verified", False),
                   "origin_verified": meta.get("origin_verified", False)}
+        if "acquisition_sha256" in meta:
+            record["acquisition_sha256"] = meta["acquisition_sha256"]
         records.append(record)
     return {"schema": "far-investigation-audit/0.1", "investigation_id": investigation_id,
             "as_of": captured_at, "atoms": atoms, "sources": records,
