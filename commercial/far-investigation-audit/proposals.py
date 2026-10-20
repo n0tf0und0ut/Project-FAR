@@ -241,7 +241,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
     if not isinstance(texts, list) or len(texts) > 100 or any(not isinstance(x, str) or len(x) > 600 for x in texts):
         raise InvalidBundle("malformed unknowns")
     records = []
-    from engine import digest
+    from engine import digest, canonical
     for sid, text in sources.items():
         meta = source_meta.get(sid, {})
         if not isinstance(meta, dict):
@@ -257,7 +257,11 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         if "acquisition_sha256" in meta:
             record["acquisition_sha256"] = meta["acquisition_sha256"]
         records.append(record)
+    # Preserve a commitment to the *complete* recorded proposal, including
+    # provenance/method/model labels that do not influence the inferred claims.
+    # This binds provider disclosure to the audit identity, not provider truth.
     return {"schema": "far-investigation-audit/0.1", "investigation_id": investigation_id,
+            "proposal_sha256": digest(canonical(proposal)),
             "as_of": captured_at, "atoms": atoms, "sources": records,
             "claims": claim_records, "evidence": evidences, "interpretations": readings,
             "unknowns": list(dict.fromkeys([*texts,
