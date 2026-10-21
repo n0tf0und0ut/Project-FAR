@@ -188,11 +188,13 @@ def predictions_from_far_bundle(bundle_dir: Path) -> list[dict]:
     NOT promote it to supported/refuted merely for better benchmark coverage.
     """
     from full_cli import verify_package
-    verification=verify_package(bundle_dir)
+    verification=verify_package(bundle_dir, include_verified_snapshots=True)
     if not verification['replay_match']:
         raise InvalidFieldEvaluation('FAR bundle did not replay')
-    manifest=read_json(bundle_dir/'manifest.json')
-    audit=read_json(bundle_dir/'audit.json')
+    # Consume precisely the in-memory bytes checked during replay. Reopening
+    # mutable paths after verification admits unverified replacement content.
+    manifest=verification['_verified_manifest']
+    audit=verification['_verified_audit']
     if manifest.get('investigation_id') != audit.get('investigation_id'):
         raise InvalidFieldEvaluation('FAR audit identity mismatch')
     claims=audit.get('claims',{})

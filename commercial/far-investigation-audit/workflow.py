@@ -139,6 +139,10 @@ def investigate(config: dict, *, permit_network: bool = False,
                 except AcquisitionError as exc:
                     lead["fetch_status"] = "FAILED: " + str(exc)[:100]
                     continue
+                if (not isinstance(found, dict) or not isinstance(found.get("text"), str)
+                        or len(found["text"].encode("utf-8")) > MAX_INPUT):
+                    lead["fetch_status"] = "FAILED: expanded discovery source exceeds text cap"
+                    continue
                 sid = f"discovery{len(source_texts)}"
                 found = {**found, "captured_at": _now()}
                 source_texts[sid] = found["text"]

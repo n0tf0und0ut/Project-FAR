@@ -82,7 +82,7 @@ def write_package(destination: Path, package: dict, *, review: dict | None = Non
         raise
 
 
-def verify_package(directory: Path) -> dict:
+def verify_package(directory: Path, *, include_verified_snapshots: bool = False) -> dict:
     from engine import audit
     from independent_check import check_report, IndependentCheckError
     root = directory.resolve()
@@ -97,6 +97,15 @@ def verify_package(directory: Path) -> dict:
     manifest = read_json_artifact(manifest_path)
     if not isinstance(manifest, dict) or manifest.get("schema") != "far-investigation-delivery/0.3":
         raise InvalidBundle("unexpected manifest version")
+    permitted_manifest_fields = {
+        "schema", "investigation_id", "generated_at", "method", "input_sha256",
+        "report_sha256", "report_md_sha256", "source_snapshots_sha256",
+        "network_used", "open_world_completeness",
+        "semantic_mapping_independently_verified", "end_to_end_production_quality",
+        "files_sha256", "self_digest_scope",
+    }
+    if set(manifest) != permitted_manifest_fields or manifest["self_digest_scope"] != "manifest.json intentionally excluded":
+        raise InvalidBundle("unexpected manifest fields or self-digest scope")
     if (manifest.get("semantic_mapping_independently_verified") is not False or
         manifest.get("open_world_completeness") != "UNESTABLISHED" or
         manifest.get("end_to_end_production_quality") != "UNESTABLISHED"):
@@ -263,10 +272,15 @@ def verify_package(directory: Path) -> dict:
         reviewed = verify_review(artifact("review.json"), recalc)
         if canonical(reviewed) != canonical(artifact("review_verification.json")):
             raise InvalidBundle("review verification mismatch")
-    return {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
-            "extraction_replayed": independently_extracted,
-            "extraction_not_replayable": not_replayable,
-            "report_sha256": recalc["report_sha256"], "external_truth_verified": False}
+    outcome = {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
+               "extraction_replayed": independently_extracted,
+               "extraction_not_replayable": not_replayable,
+               "report_sha256": recalc["report_sha256"], "external_truth_verified": False}
+    if include_verified_snapshots:
+        # These are validated in-memory objects, NOT second reads of mutable files.
+        outcome["_verified_manifest"] = manifest
+        outcome["_verified_audit"] = recalc
+    return outcome
 
 
 def main() -> int:

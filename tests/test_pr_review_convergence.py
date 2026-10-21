@@ -269,15 +269,28 @@ class ConvergenceTests(unittest.TestCase):
         self.assertEqual(set(workflow["on"]["pull_request_review"]["types"]),
                          {"submitted", "edited", "dismissed"})
         self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
+        self.assertEqual(set(workflow["on"]["pull_request"]["types"]),
+                         {"opened", "reopened", "synchronize", "ready_for_review",
+                          "converted_to_draft", "edited"})
         self.assertNotIn("if", job)
+        self.assertNotIn("continue-on-error", job)
         # No dependency may turn failure of another job into a skipped success.
         self.assertNotIn("needs", job)
         self.assertNotIn("strategy", job)
         self.assertEqual(job["permissions"], {"contents": "read", "pull-requests": "read", "issues": "read"})
-        checkout = next(step for step in job["steps"] if step.get("uses", "").startswith("actions/checkout@"))
+        checkouts = [step for step in job["steps"]
+                     if step.get("uses", "").startswith("actions/checkout@")]
+        self.assertEqual(len(checkouts), 1)
+        checkout = checkouts[0]
+        self.assertNotIn("repository", checkout.get("with", {}))
+        self.assertNotIn("if", checkout)
         self.assertEqual(checkout["with"]["ref"], "main")
         self.assertEqual(checkout["with"]["persist-credentials"], "false")
-        script = next(step for step in job["steps"] if "run" in step)
+        scripts = [step for step in job["steps"] if "run" in step]
+        self.assertEqual(len(scripts), 1)
+        script = scripts[0]
+        self.assertNotIn("if", script)
+        self.assertNotIn("continue-on-error", script)
         self.assertEqual(script["env"]["EVENT_HEAD"], "${{ github.event.pull_request.head.sha }}")
         self.assertIn('"$sha" == "$EVENT_HEAD"', script["run"])
         self.assertIn('"$current" == "$sha"', script["run"])
@@ -304,7 +317,10 @@ class ConvergenceTests(unittest.TestCase):
     def test_required_job_rejects_ineligible_event_or_privileged_candidate_mutations(self):
         path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
         source = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
-        for mutation in ("event", "comment_event", "conditional", "permissions", "checkout", "head", "dependency"):
+        for mutation in ("event", "comment_event", "conditional", "permissions", "checkout",
+                         "head", "dependency", "skip_enforce", "ignore_step_failure",
+                         "ignore_job_failure", "remove_ready_event", "other_repo",
+                         "second_checkout"):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(source)
                 job = changed["jobs"]["required-review"]
@@ -320,6 +336,19 @@ class ConvergenceTests(unittest.TestCase):
                     job["steps"][0]["with"]["ref"] = "${{ github.event.pull_request.head.sha }}"
                 elif mutation == "head":
                     job["steps"][1]["run"] = job["steps"][1]["run"].replace('[[ "$sha" == "$EVENT_HEAD" ]]', "true")
+                elif mutation == "skip_enforce":
+                    job["steps"][1]["if"] = "github.event_name == 'pull_request'"
+                elif mutation == "ignore_step_failure":
+                    job["steps"][1]["continue-on-error"] = "true"
+                elif mutation == "ignore_job_failure":
+                    job["continue-on-error"] = "true"
+                elif mutation == "remove_ready_event":
+                    changed["on"]["pull_request"]["types"].remove("ready_for_review")
+                elif mutation == "other_repo":
+                    job["steps"][0]["with"]["repository"] = "attacker/fork"
+                elif mutation == "second_checkout":
+                    job["steps"].insert(1, {"uses": "actions/checkout@v4",
+                                            "with": {"ref": "candidate"}})
                 else:
                     job["needs"] = "discover"
                 with self.assertRaises(AssertionError):

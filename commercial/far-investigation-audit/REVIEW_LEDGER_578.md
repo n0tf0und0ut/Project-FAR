@@ -220,3 +220,14 @@ The complete local component suite executes **188 tests, all passing**, with
 installed FastAPI/Starlette/httpx dependencies. Hosted Python-version checks,
 final independent review and protected merge authorization remain separate
 requirements.
+
+## Eighth-cycle review: exact-head follow-up corrections
+
+- Manifest assurance: verification rejects unknown manifest keys and altered self-digest scope, including contradictory positive truth/semantic claims in unsigned extensions.
+- Standalone replay: input/report parsing uses the package's duplicate-rejecting parser, preventing first-key/last-key ambiguity.
+- Field adapter: predictions consume the already-validated in-memory manifest and audit instead of reopening mutable package files.
+- Expanded discovery: oversized lead text is recorded as a failed candidate and the remaining investigation continues within the primary source cap.
+- Synthetic diagnostics: empty and misspelled expectations cannot count as passing checks.
+- Native required-check contract: fail-closed enforcement at job and step levels, exact PR activity types, and a single protected-main checkout without repository override. Mutation tests exercise each escape.
+- The three independent workflow-contract findings on #589 are also repaired in this integration tree. Their original branch remains a historical ancestor.
+- This work requires fresh hosted validation and independent review on its new commit; no green predecessor or earlier review is transferred.

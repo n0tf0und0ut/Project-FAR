@@ -26,7 +26,9 @@ def evaluate_cases(cases: list[dict]) -> dict:
              "semantic_fidelity_verified":result["manifest"]["semantic_mapping_independently_verified"],
              "source_temporal_status":result["audit"]["source_temporal_status"],
              "independent_algorithm_agrees":check_report(result["bundle"],result["audit"])["independent_algorithm_agrees"]}
-        matches={k:got.get(k)==v for k,v in expected.items()}
+        if not expected or not set(expected).issubset(got):
+            raise InvalidBundle("diagnostic expectations must name at least one recognized result field")
+        matches={k:got[k]==v for k,v in expected.items()}
         records.append({"case_id":case.get("case_id"),"checks":matches,"passed":all(matches.values()),
                         "result":got,"input_sha256":result["audit"]["input_sha256"]})
     return {"schema":"far-synthetic-contract-diagnostic/1.0",

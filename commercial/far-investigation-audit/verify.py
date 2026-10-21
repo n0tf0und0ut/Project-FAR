@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 from engine import InvalidBundle, audit, canonical
 from bounded_io import read_bounded
+from full_cli import parse_json_artifact
 
 MAX_INPUT = 2_000_000
 MAX_REPORT = 6_000_000
@@ -25,8 +26,8 @@ def main() -> int:
         b, r = read_bounded(args.bundle, MAX_INPUT), read_bounded(args.report, MAX_REPORT)
         if len(b) > MAX_INPUT or len(r) > MAX_REPORT:
             raise InvalidBundle("audit replay input/report byte limit exceeded")
-        supplied = json.loads(r)
-        regenerated = audit(json.loads(b))
+        supplied = parse_json_artifact(r, "report.json")
+        regenerated = audit(parse_json_artifact(b, "input.json"))
         if canonical(supplied) != canonical(regenerated):
             print("FAR_REPLAY_MISMATCH: supplied report differs from audited input", file=sys.stderr)
             return 1
