@@ -39,10 +39,14 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
                "proposition": x["quote"], "role": "unspecified", "start": x["start"]}
               for i, x in enumerate(extract_sentences(primary_text))]
     readings = []
+    omitted_readings = 0
     for i, claim in enumerate(claims[1:], 1):
         # Discourse cues are only hypotheses: correlation and invalid leaps cannot
         # be established by keyword spotting or by assigning fresh atoms.
         if re.match(r"(?i)^(therefore|thus|hence|so\b|as a result)\b", claim["quote"]):
+            if len(readings) == MAX_READINGS:
+                omitted_readings += 1
+                continue
             readings.append({"id": f"candidate_{len(readings)+1}",
                              "premises": [claims[i-1]["id"]], "conclusion": claim["id"],
                              "interpretation": "heuristic discourse-cue candidate; not a faithful formalization"})
@@ -63,9 +67,12 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
                 _, target = max(candidates)
                 links.append({"id": f"e{len(links)+1}", "claim_id": target, "source_id": sid,
                               "quote": s["quote"], "start": s["start"], "relation": "unknown"})
+    unknowns = ["Claim extraction is heuristic; skipped claims and implicit premises may exist.",
+                "Source identity, meaning, and factual reliability have not been independently verified."]
+    if omitted_readings:
+        unknowns.append(f"Reading limit ({MAX_READINGS}) omitted {omitted_readings} additional discourse-cue candidate(s) among retained claims; inspect the source for missing arguments.")
     return {"claims": claims, "arguments": readings, "evidence": links,
-            "unknowns": ["Claim extraction is heuristic; skipped claims and implicit premises may exist.",
-                         "Source identity, meaning, and factual reliability have not been independently verified."],
+            "unknowns": unknowns,
             "method": "deterministic_sentence_candidate_v1"}
 
 

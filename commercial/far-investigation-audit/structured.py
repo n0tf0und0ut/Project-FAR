@@ -14,6 +14,11 @@ MAX_ROWS = 10000
 MAX_DIGITS = 40
 MAX_DECIMAL_EXPONENT = 40
 NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\Z")
+# Recognize the *whole* source token, including unsupported notation, before
+# accepting a span. A signed, grouped, fractional or scientific number must
+# never be converted to a different quantity by selecting only some digits.
+# A terminal sentence period is punctuation; a period followed by digits is not.
+SOURCE_NUMBER = re.compile(r"[-+−]?(?:\d+(?:[.,]\d+)*|[.,]\d+)(?:[eE][-+−]?\d*)?")
 
 
 class StructuredInputError(ValueError):
@@ -52,6 +57,8 @@ def _nonfinite(token: str) -> None:
 def parse_snapshot(raw: str) -> Any:
     try:
         return json.loads(raw, parse_float=Decimal, parse_int=int, parse_constant=_nonfinite, object_pairs_hook=_duplicates)
+    except InvalidOperation as exc:
+        raise StructuredUnverifiable("source number exceeds decimal parser range") from exc
     except (ValueError, TypeError, RecursionError) as exc:
         raise StructuredUnverifiable(f"cannot parse unambiguous JSON source: {exc}") from exc
 
@@ -105,7 +112,8 @@ def _strict_equal(left: Any, right: Any) -> bool:
     return type(left) is type(right) and left == right
 
 
-def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_text: str) -> dict[str, Any]:
+def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_text: str,
+                        *, claim_source_text: str) -> dict[str, Any]:
     """Check a recorded number against a disclosed computation on frozen JSON.
 
     Even a match is conditional on correct field selection, metric definition,
@@ -142,6 +150,11 @@ def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_
         raise StructuredInputError("quantity number_span outside claimed quotation")
     if quote[start:end] != quantity["value"]:
         raise StructuredInputError("quantity token does not match the attributed source quotation")
+    literal_text = claim_source_text
+    offset = claim["span"]["start"]
+    if not any(match.span() == (offset + start, offset + end)
+               for match in SOURCE_NUMBER.finditer(literal_text)):
+        raise StructuredInputError("quantity span must cover a complete numeric literal")
     if not isinstance(config["pointer"], str):
         raise StructuredInputError("JSON Pointer must be a string")
     if op == "sum_field":

@@ -16,7 +16,7 @@ from typing import Any
 from structured import StructuredInputError, evaluate_structured
 
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.4.1"
+ENGINE = "far-investigation-audit/0.4.2"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 MAX_ENTAILMENT_WORK = 8_000_000
@@ -273,7 +273,8 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
             # recomputed even when the snapshot's historical availability is
             # unknown. It NEVER makes the source admissible at claim time.
             try:
-                checked = evaluate_structured(claim, evidence_item, sources[sid]["text"])
+                checked = evaluate_structured(claim, evidence_item, sources[sid]["text"],
+                    claim_source_text=sources[claim["source_id"]]["text"])
             except StructuredInputError as exc:
                 raise InvalidBundle(f"evidence {evidence_item['id']}: {exc}") from exc
             finding["structured_check"] = checked

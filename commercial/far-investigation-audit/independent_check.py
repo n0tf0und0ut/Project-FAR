@@ -9,7 +9,7 @@ import hashlib
 import itertools
 import json
 import re
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 from datetime import datetime, timedelta
 
@@ -101,9 +101,55 @@ class _NumericUnavailable(ValueError):
     pass
 
 
-def _separate_numeric_recompute(claim:dict, record:dict, text:str):
+def _check_quantity_anchor(claim, source_text):
+    """Scan numeric tokens separately from the primary regex implementation."""
+    quantity = claim["quantity"]
+    quote = claim["span"]["quote"]
+    value = quantity["value"]
+    start, end = quantity["number_span"]["start"], quantity["number_span"]["end"]
+    if (not isinstance(quote, str) or not isinstance(value, str)
+            or re.fullmatch(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?", value) is None
+            or type(start) is not int or type(end) is not int
+            or not 0 <= start < end <= len(quote) or quote[start:end] != value):
+        raise IndependentCheckError("invalid quantity numeric literal anchor")
+    start += claim["span"]["start"]
+    end += claim["span"]["start"]
+    quote = source_text
+    i = 0
+    while i < len(quote):
+        first = i
+        if quote[i] in "-+−":
+            i += 1
+        if (i < len(quote) and quote[i] in ".,"
+                and i + 1 < len(quote) and quote[i + 1].isdecimal()):
+            i += 1
+        if i == len(quote) or not quote[i].isdecimal():
+            i = first + 1
+            continue
+        while i < len(quote) and quote[i].isdecimal():
+            i += 1
+        while (i + 1 < len(quote) and quote[i] in ".,"
+               and quote[i + 1].isdecimal()):
+            i += 1
+            while i < len(quote) and quote[i].isdecimal():
+                i += 1
+        if i < len(quote) and quote[i] in "eE":
+            i += 1
+            if i < len(quote) and quote[i] in "-+−":
+                i += 1
+            while i < len(quote) and quote[i].isdecimal():
+                i += 1
+        if (first, i) == (start, end):
+            return
+        if first > start:
+            break
+    raise IndependentCheckError("quantity span must cover a complete numeric literal")
+
+
+def _separate_numeric_recompute(claim:dict, record:dict, text:str, *, claim_source_text):
     """Fraction arithmetic and independently classified source failures."""
     try:
+        _check_quantity_anchor(claim, claim_source_text)
         def pairs(elements):
             result = {}
             for key, value in elements:
@@ -116,6 +162,8 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str):
         try:
             data = json.loads(text, object_pairs_hook=pairs, parse_float=Decimal,
                               parse_constant=reject)
+        except InvalidOperation as exc:
+            raise _NumericUnavailable("source number exceeds decimal parser range") from exc
         except (ValueError, TypeError, RecursionError) as exc:
             raise _NumericUnavailable("cannot parse unambiguous JSON source: " + str(exc)) from exc
         contract = record["data_check"]
@@ -404,7 +452,8 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("independent evidence quote mismatch")
         if "data_check" in ev:
             claim=claims[ev["claim_id"]]
-            expected_status,expected_value,rows_inspected,expected_reason=_separate_numeric_recompute(claim,ev,text)
+            expected_status,expected_value,rows_inspected,expected_reason=_separate_numeric_recompute(
+                claim,ev,text,claim_source_text=sources[claim["source_id"]]["text"])
             found=next((e.get("structured_check") for e in report["claims"][ev["claim_id"]]["evidence"]
                         if e.get("evidence_id")==ev["id"]),None)
             if not isinstance(found,dict) or found.get("status")!=expected_status:
@@ -494,7 +543,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("invalid report identity serialization") from exc
     expected_identity = {
         "schema": "far-investigation-report/0.2",
-        "engine": "far-investigation-audit/0.4.1",
+        "engine": "far-investigation-audit/0.4.2",
         "investigation_id": bundle["investigation_id"],
         "input_sha256": input_hash,
         "as_of": bundle["as_of"],

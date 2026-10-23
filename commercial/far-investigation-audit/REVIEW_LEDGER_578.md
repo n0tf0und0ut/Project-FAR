@@ -1,6 +1,6 @@
 # PR #578 review convergence and defect ledger
 
-**Scope:** Research-only investigation lab v0.4.1. This ledger records reviewed invariants, reproducible counterexamples and correction evidence. It grants no independent scientific, factual-verdict, source-authenticity, or production-security status.
+**Scope:** Research-only investigation lab v0.4.2. This ledger records reviewed invariants, reproducible counterexamples and correction evidence. It grants no independent scientific, factual-verdict, source-authenticity, or production-security status.
 
 **Original reviewed head:** `181e7abc531e17e9c7322c62e0945f5e40dfaa0b`.
 **Protected main and merge base at intake:** `959a2c3cce9935963882b7856c7de31d54179ac5`.
@@ -231,3 +231,31 @@ requirements.
 - Native required-check contract: fail-closed enforcement at job and step levels, exact PR activity types, and a single protected-main checkout without repository override. Mutation tests exercise each escape.
 - The three independent workflow-contract findings on #589 are also repaired in this integration tree. Their original branch remains a historical ancestor.
 - This work requires fresh hosted validation and independent review on its new commit; no green predecessor or earlier review is transferred.
+
+## Ninth review: generated bounds and complete numeric source tokens
+
+Independent review `5633278067` covered exact head
+`d1fb637cfc5c4c60e036f6fdf2a01b80958085de` on 2026-10-23. Three findings
+reproduced; none is dismissed by predecessor green checks.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `GENERATED-READING-COMPILER-CONSISTENCY` | 4363320217 | Cap default heuristic arguments at `MAX_READINGS`, preserve all retained claims, disclose the exact omitted discourse-cue count in committed proposal/report uncertainty | 13- and 23-cue source-to-package replays, plus the exact 12-cue boundary |
+| `SOURCE-DECIMAL-FAILURE-CONTRACT` | 4363320234 | Both JSON parsers classify Decimal conversion failures as structured source unavailability with the same stable reason; neither aborts the whole investigation | Positive/negative extreme exponents, public independent cross-check and full CLI/package replay |
+| `COMPLETE-NUMERIC-SOURCE-ANCHOR` | 4363320242 | Check the full numeric token against the original claim source, including context outside a clipped quotation; a separately coded scanner checks the independent path | Reject sign/digit/decimal/exponent/grouping fragments and clipped-source prefixes; retain complete signed decimals and sentence punctuation |
+
+`tests/test_review_578_cycle9.py` was copied without implementation changes into
+an isolated worktree at the reviewed head: **8 tests, 20 assertion failures and
+2 Decimal parser errors**. On the corrected tree all **201 component tests pass**,
+including the eight new tests and the installed SymPy solver control. Engine,
+service and independent report identity advance together to **0.4.2** so earlier
+packages cannot be silently certified under changed numeric semantics.
+
+The field-validation document's readiness wording is reconciled with the
+Research-only integration contract: external outcomes remain mandatory for
+validated factual/utility/production claims, while Research integration
+separately requires substantive review, hosted assurance and protected gates.
+No empirical result, Accepted artifact, frozen benchmark or EFR contract changes.
+
+Fresh hosted validation, independent substantive review of the complete
+successor head and all protected source-bound gates remain required.
