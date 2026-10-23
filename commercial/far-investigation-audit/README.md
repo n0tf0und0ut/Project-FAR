@@ -2,7 +2,7 @@
 
 **Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** Version 0.4 includes bounded text, caption, local-document, and optional media/URL intake; it does not establish open-domain ingestion reliability or independently correct semantic adjudication.
 
-Current engine and local-service revision: **0.4.3**. Generated heuristic readings
+Current engine and local-service revision: **0.4.4**. Generated heuristic readings
 are capped at 12, with omitted candidates disclosed in the report. Structured
 quantities must cover a complete numeric literal in the original source, including
 its sign and decimal digits; clipping the claim quotation cannot strip those
@@ -14,7 +14,14 @@ requires explicitly supplied bounded excerpts. Source numbers beyond the Decimal
 parser's range yield explicit structured unavailability. Replay requires the
 originating engine revision; these repairs do not upgrade factual assurance.
 The separate checker derives numerical-result membership from input evidence,
-and truncated discovery HTTP responses remain redacted workflow failures.
+and truncated discovery HTTP responses remain redacted workflow failures. Numeric
+terms separated only by punctuation, symbols or whitespace are conservatively
+treated as one unsupported group: this rejects ambiguous mixed fractions,
+space grouping and arithmetic fragments without interpreting their semantics.
+Adjacent numeric lists can therefore require an explicitly disambiguated input.
+The audit producer and replay share duplicate-rejecting JSON parsing, malformed
+enums yield bounded input errors, and the separate checker rejects undeclared
+report fields at report, claim and evidence levels.
 
 This implements a concrete, independently replayable *formal* audit of two distinct steps:
 

@@ -284,3 +284,29 @@ These are Research implementation and internal-oracle corrections. They add no
 external source authentication, semantic-verification result, independent human
 study, Accepted scientific claim or production-readiness claim. Fresh final-head
 review, hosted assurance and protected merge gates remain required.
+
+
+## Eleventh review: numeric groups, malformed input and closed report shapes
+
+Reviewed head: `5772c629c7a85e7869a37c9bb3550410f0375bac` (2026-10-23).
+All four substantive findings reproduced; prior passing suites did not establish
+these invariants.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `COMPLETE-NUMERIC-SOURCE-ANCHOR` reopened | 4363653639 | Conservatively group adjacent numeric terms separated only by punctuation, symbols, underscores or whitespace; check Unicode math/dash boundaries in separately implemented scanners | Mixed fraction components, ASCII/narrow/nonbreaking-space grouping, arithmetic fragments, repeated and Unicode signs; forged rehashed reports exercise the separate checker |
+| `MALFORMED-ENUM-ERROR-CONTRACT` | 4363653644 | Type-check enum and identifier values before set/dictionary membership in core and proposal validation; preserve the audit CLI bounded-error contract | List/dict enum values, reading IDs, premises, conclusions and evidence references; subprocess exit 2 without traceback or report |
+| `PRODUCER-REPLAY-JSON-CONSISTENCY` | 4363653650 | Use the same duplicate-rejecting artifact parser for audit production and replay | Duplicate top-level and nested fields rejected before output; ordinary producer/replay round trip remains valid |
+| `CLOSED-REPORT-ASSURANCE-CONTRACT` | 4363653652 | Enforce exact report, claim and evidence result field sets, derived from the input lane and independently recomputed outcome | Rehashed positive truth, semantic-mapping and authenticity extensions at all three levels are rejected |
+
+The unchanged six-test regression file produces **28 assertion failures and 11
+errors** on the reviewed head. The corrected complete component suite passes
+**213 tests**, including the installed SymPy control. Engine, service and
+independent report identity advance together to **0.4.4**. The conservative numeric
+group grammar may reject adjacent numeric lists; it does not parse mixed-number
+semantics or establish natural-language fidelity.
+
+These are Research implementation and internal-checker repairs. They do not
+supply external source authentication, human semantic adjudication, scientific
+replication, measured customer utility or production assurance. Fresh final-head
+substantive review, hosted assurance and protected merge gates remain required.

@@ -9,6 +9,7 @@ import hashlib
 import itertools
 import json
 import re
+import unicodedata
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 from datetime import datetime, timedelta
@@ -148,19 +149,19 @@ def _check_quantity_anchor(claim, source_text):
         i = numeric_end
         while i < len(quote):
             delimiter = i
-            while delimiter < len(quote) and quote[delimiter].isspace():
+            while delimiter < len(quote) and (not quote[delimiter].isalnum() or quote[delimiter] == "_"):
                 delimiter += 1
-            if delimiter == len(quote) or quote[delimiter] not in "/⁄∕:":
+            if delimiter == i:
                 break
-            next_start = delimiter + 1
-            while next_start < len(quote) and quote[next_start].isspace():
-                next_start += 1
-            next_end = atom_end(next_start)
+            next_end = atom_end(delimiter)
             if next_end is None:
                 break
             i = next_end
-        standalone = ((first == 0 or not (quote[first - 1].isalnum() or quote[first - 1] == "_"))
-                      and (i == len(quote) or not (quote[i].isalnum() or quote[i] == "_")))
+        def boundary(position):
+            return (position < 0 or position >= len(quote)
+                    or not (quote[position].isalnum() or quote[position] == "_"
+                            or unicodedata.category(quote[position]) in {"Pd", "Sm"}))
+        standalone = boundary(first - 1) and boundary(i)
         if (first, i) == (start, end) and standalone:
             return
         if first > start:
@@ -376,6 +377,8 @@ def check_report(bundle:dict, report:dict)->dict:
         if len(found) != 1:
             raise IndependentCheckError("missing or duplicated evidence result: " + ev["id"])
         finding = found[0]
+        expected_finding_fields = {"evidence_id", "source_id", "origin_id", "temporal_status",
+                                   "claimed_relation", "mapping_status", "formal_relation"}
         expected_evidence[cid].append(ev["id"])
         if (finding.get("source_id") != sid or
                 finding.get("temporal_status") != temporal[sid] or
@@ -422,14 +425,19 @@ def check_report(bundle:dict, report:dict)->dict:
                 relation = "DOES_NOT_ESTABLISH"
             if relation == "DOES_NOT_ESTABLISH" and not _same_json(finding.get("countermodel"), pos["countermodel"]):
                 raise IndependentCheckError("evidence countermodel mismatch: " + ev["id"])
+            if relation == "DOES_NOT_ESTABLISH":
+                expected_finding_fields.add("countermodel")
             discrepancy = (
                 (ev["relation"] == "supports" and relation != "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT")
                 or (ev["relation"] == "contradicts" and relation != "FORMALLY_CONTRADICTS_IF_MAPPINGS_CORRECT")
             )
             if finding.get("assessment_disagrees_with_formalization", False) is not discrepancy:
                 raise IndependentCheckError("evidence assessment discrepancy mismatch: " + ev["id"])
+            if discrepancy:
+                expected_finding_fields.add("assessment_disagrees_with_formalization")
             evidence_formulas_rechecked += 1
         if "data_check" in ev:
+            expected_finding_fields.update({"structured_check", "structured_temporal_eligibility"})
             structured = finding.get("structured_check")
             if (not isinstance(structured, dict)
                     or finding.get("structured_temporal_eligibility") != temporal[sid]):
@@ -444,8 +452,12 @@ def check_report(bundle:dict, report:dict)->dict:
                 disagrees and finding["assessment_disagrees_with_structured_check"] is not True
             ):
                 raise IndependentCheckError("structured annotation mismatch: " + ev["id"])
+            if disagrees:
+                expected_finding_fields.add("assessment_disagrees_with_structured_check")
         if finding.get("formal_relation") != relation:
             raise IndependentCheckError("independent formal evidence mismatch: " + ev["id"])
+        if set(finding) != expected_finding_fields:
+            raise IndependentCheckError("unexpected evidence report fields: " + ev["id"])
     for cid, expected_ids in expected_evidence.items():
         if report["claims"][cid].get("mapping_status") != claims[cid]["mapping_status"]:
             raise IndependentCheckError("claim mapping status mismatch: " + cid)
@@ -470,6 +482,10 @@ def check_report(bundle:dict, report:dict)->dict:
         if (report["claims"][cid].get("support_origin_ids") != origin_ids or
                 report["claims"][cid].get("support_sources_with_unknown_origin") != unknown_origins):
             raise IndependentCheckError("claim support lineage mismatch: " + cid)
+        if set(report["claims"][cid]) != {
+                "status", "mapping_status", "structured_value_checks", "support_origin_ids",
+                "support_sources_with_unknown_origin", "origin_independence_verified", "evidence"}:
+            raise IndependentCheckError("unexpected claim report fields: " + cid)
     arithmetic_count=0
     numeric_by_claim = {cid: [] for cid in claims}
     for ev in bundle["evidence"]:
@@ -556,6 +572,11 @@ def check_report(bundle:dict, report:dict)->dict:
     }
     if report.get("assurance_boundary") != assurance_contract:
         raise IndependentCheckError("assurance boundary mismatch: declared limitations")
+    if set(report) != {
+            "schema", "engine", "investigation_id", "input_sha256", "as_of", "source_temporal_status",
+            "claims", "interpretations", "interpretation_sensitive_inference", "interpretation_cards_differ",
+            "interpretations_present", "unknowns", "assurance_boundary", "report_sha256"}:
+        raise IndependentCheckError("unexpected top-level report fields")
     # Independently bind top-level report identity and self-excluding digest.
     # Keep these after structural/semantic checks so diagnostic regressions
     # preserve the more specific violated-field error messages.
@@ -572,7 +593,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("invalid report identity serialization") from exc
     expected_identity = {
         "schema": "far-investigation-report/0.2",
-        "engine": "far-investigation-audit/0.4.3",
+        "engine": "far-investigation-audit/0.4.4",
         "investigation_id": bundle["investigation_id"],
         "input_sha256": input_hash,
         "as_of": bundle["as_of"],

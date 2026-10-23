@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from decimal import Decimal, InvalidOperation, localcontext
 from typing import Any
 
@@ -19,7 +20,17 @@ NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\Z")
 # never be converted to a different quantity by selecting only some digits.
 # A terminal sentence period is punctuation; a period followed by digits is not.
 SOURCE_DECIMAL = r"[-+−]?(?:\d+(?:[.,_]\d+)*|[.,]\d+)(?:[eE][-+−]?\d*)?"
-SOURCE_NUMBER = re.compile(rf"{SOURCE_DECIMAL}(?:\s*[/⁄∕:]\s*{SOURCE_DECIMAL})*")
+# Conservatively treat numeric terms separated only by punctuation, symbols,
+# underscores or whitespace as one unsupported numeric group. This covers mixed
+# fractions and space grouping without guessing their value or unit semantics.
+SOURCE_NUMBER = re.compile(rf"{SOURCE_DECIMAL}(?:[\W_]+{SOURCE_DECIMAL})*")
+
+
+def _numeric_boundary(text: str, index: int) -> bool:
+    if not 0 <= index < len(text):
+        return True
+    char = text[index]
+    return not (char.isalnum() or char == "_" or unicodedata.category(char) in {"Pd", "Sm"})
 
 
 class StructuredInputError(ValueError):
@@ -154,10 +165,8 @@ def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_
     literal_text = claim_source_text
     offset = claim["span"]["start"]
     if not any(match.span() == (offset + start, offset + end)
-               and (match.start() == 0 or not (
-                   literal_text[match.start() - 1].isalnum() or literal_text[match.start() - 1] == "_"))
-               and (match.end() == len(literal_text) or not (
-                   literal_text[match.end()].isalnum() or literal_text[match.end()] == "_"))
+               and _numeric_boundary(literal_text, match.start() - 1)
+               and _numeric_boundary(literal_text, match.end())
                for match in SOURCE_NUMBER.finditer(literal_text)):
         raise StructuredInputError("quantity span must cover a complete numeric literal")
     if not isinstance(config["pointer"], str):

@@ -16,7 +16,7 @@ from typing import Any
 from structured import StructuredInputError, evaluate_structured
 
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.4.3"
+ENGINE = "far-investigation-audit/0.4.4"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 MAX_ENTAILMENT_WORK = 8_000_000
@@ -360,7 +360,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
         required(reading.get("mapping_status") in ("unreviewed", "review_recorded"), f"reading {rid}: mapping status required")
         missing = [p for p in ps if claim_reports[p]["status"] != "CONDITIONAL_FORMAL_SUPPORT_RECORDED"]
         basis = reading.get("formalization_basis", "explicit_formulas")
-        required(basis in {"explicit_formulas", "unformalized_candidate"},
+        required(isinstance(basis, str) and basis in {"explicit_formulas", "unformalized_candidate"},
                  f"reading {rid}: invalid formalization basis")
         result = ({"status": "NOT_CHECKED_UNFORMALIZED",
                    "reason": "Auto-generated atom labels cannot test natural-language entailment."}
@@ -374,6 +374,7 @@ def audit(bundle: dict[str, Any]) -> dict[str, Any]:
                             "measurement", "comparison", "threshold", "assumptions"}
         required(all(k in permitted_fields and isinstance(v, dict) and set(v)=={"value", "origin"}
                      and isinstance(v["value"], str) and len(v["value"]) <= 250
+                     and isinstance(v["origin"], str)
                      and v["origin"] in {"stated", "inferred", "default", "unknown"}
                      for k,v in card.items()), f"reading {rid}: invalid interpretation card")
         reading_reports.append({"id": rid, "premises": ps, "conclusion": conclusion,

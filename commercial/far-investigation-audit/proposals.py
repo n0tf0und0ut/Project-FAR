@@ -222,8 +222,12 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         if not isinstance(a, dict):
             raise InvalidBundle("invalid reading")
         aid = a.get("id", f"r{j+1}")
+        if not isinstance(aid, str) or re.fullmatch(r"[a-zA-Z0-9_.:-]{1,80}", aid) is None:
+            raise InvalidBundle("invalid reading ID")
         ps, conclusion = a.get("premises"), a.get("conclusion")
-        if not isinstance(ps, list) or not ps or len(ps) > 16 or not all(x in seen for x in ps) or conclusion not in seen or conclusion in ps:
+        if (not isinstance(ps, list) or not ps or len(ps) > 16
+                or not all(isinstance(x, str) and x in seen for x in ps)
+                or not isinstance(conclusion, str) or conclusion not in seen or conclusion in ps):
             raise InvalidBundle("invalid inference IDs")
         note = a.get("interpretation", "")
         if not isinstance(note, str) or len(note) > 2000:
@@ -234,6 +238,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         for key, val in card.items():
             if (not isinstance(val, dict) or set(val) != {"value", "origin"} or
                     not isinstance(val["value"], str) or len(val["value"]) > 250 or
+                    not isinstance(val["origin"], str) or
                     val["origin"] not in {"stated", "inferred", "default", "unknown"}):
                 raise InvalidBundle("invalid interpretation card entry")
         # Without explicitly authored formulas the P1/P2 labels are syntactic
@@ -249,7 +254,9 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         raise InvalidBundle("duplicate reading ID")
     evidences = []
     for k, e in enumerate(evs):
-        if not isinstance(e, dict) or e.get("source_id") not in sources or e.get("claim_id") not in seen:
+        if (not isinstance(e, dict) or not isinstance(e.get("source_id"), str)
+                or e["source_id"] not in sources or not isinstance(e.get("claim_id"), str)
+                or e["claim_id"] not in seen):
             raise InvalidBundle("evidence candidate references unknown source/claim")
         eid = e.get("id", f"e{k+1}")
         if not isinstance(eid, str) or not re.fullmatch(r"[a-zA-Z0-9_.:-]{1,80}", eid):
@@ -257,7 +264,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         quote = e.get("quote")
         span = _unique_anchor(sources[e["source_id"]], quote, e.get("start"))
         relation = e.get("relation", "unknown")
-        if relation not in {"supports", "contradicts", "qualifies", "unknown"}:
+        if not isinstance(relation, str) or relation not in {"supports", "contradicts", "qualifies", "unknown"}:
             raise InvalidBundle("invalid proposed evidence relation")
         record = {"id": eid, "claim_id": e["claim_id"], "source_id": e["source_id"],
                   "span": span, "relation": relation, "mapping_status": "unreviewed"}
