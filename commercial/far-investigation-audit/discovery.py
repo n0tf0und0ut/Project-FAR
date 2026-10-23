@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import os
+from http.client import HTTPException
 from acquire import AcquisitionError, safe_url, resolve_public, _PinnedHTTPS
 
 
@@ -46,7 +47,7 @@ def tavily_search(queries: list[str], *, allow_network: bool, requester=None,
                 if len(data) > 120_000:
                     raise DiscoveryError("search response exceeds byte cap")
                 result = json.loads(data)
-            except (OSError, ValueError, AcquisitionError, RecursionError) as exc:
+            except (OSError, ValueError, AcquisitionError, RecursionError, HTTPException) as exc:
                 if isinstance(exc, DiscoveryError):
                     raise
                 raise DiscoveryError("search provider request failed") from exc

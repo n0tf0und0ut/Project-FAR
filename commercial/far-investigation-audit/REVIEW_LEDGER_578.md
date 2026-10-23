@@ -1,6 +1,6 @@
 # PR #578 review convergence and defect ledger
 
-**Scope:** Research-only investigation lab v0.4.2. This ledger records reviewed invariants, reproducible counterexamples and correction evidence. It grants no independent scientific, factual-verdict, source-authenticity, or production-security status.
+**Scope:** Research-only investigation lab v0.4.3. This ledger records reviewed invariants, reproducible counterexamples and correction evidence. It grants no independent scientific, factual-verdict, source-authenticity, or production-security status.
 
 **Original reviewed head:** `181e7abc531e17e9c7322c62e0945f5e40dfaa0b`.
 **Protected main and merge base at intake:** `959a2c3cce9935963882b7856c7de31d54179ac5`.
@@ -259,3 +259,28 @@ No empirical result, Accepted artifact, frozen benchmark or EFR contract changes
 
 Fresh hosted validation, independent substantive review of the complete
 successor head and all protected source-bound gates remain required.
+
+## Tenth review: close adjacent token, generator, lane and transport gaps
+
+Reviewed head: `cee521a3fd0fbc184988be9ff908cfc0303fc63e` (2026-10-23).
+All four findings below reproduced. The first two extend prior invariant
+repairs; they are not dismissed as duplicates merely because the earlier
+root-cause tests passed.
+
+| Invariant | Source discussion | Correction | Regression evidence |
+|---|---|---|---|
+| `COMPLETE-NUMERIC-SOURCE-ANCHOR` reopened | 4363507656 | Treat underscore groups, fractions and ratios as indivisible unsupported tokens, including spaced/Unicode fraction separators; reject numeric substrings of identifiers in both implementations | Primary and independently forged-report controls for numerator/denominator, group prefix/suffix and identifiers |
+| Generated-candidate/compiler consistency, extending the reading-cap repair | 4363507663 | Use the same 1,000-character bound in generated and supplied quotation/proposition validation; omit whole overlong primary/evidence sentences with source-specific disclosure, retain exact original offsets; explicitly reject a primary source with no bounded candidates | Mixed long/short sources replay; exactly 1,000 characters remain accepted after an omitted sentence; all-overlong source reports a bounded error |
+| `STRUCTURED-LANE-MEMBERSHIP` | 4363507671 | Reject all structured annotations on non-structured input evidence; aggregate only independently recomputed input-lane members, deriving admissibility from input source/overlap records | Rehashed fabricated numerical results, temporal markers and discrepancy annotations are rejected |
+| `DISCOVERY-HTTP-FAILURE-CONTRACT` | 4363507676 | Translate HTTP protocol exceptions into redacted `DiscoveryError` while preserving connection cleanup and the CLI error contract | Real HTTP parsers process truncated chunked bodies and invalid status lines; CLI returns 2 without traceback, key disclosure or published package |
+
+The complete six-test regression file was copied onto the unchanged reviewed
+head in an isolated worktree: **21 assertion failures and three errors**. On the
+corrected tree all **207 component tests pass**, including the installed SymPy
+control. Engine, service and independent report identity advance together to
+**0.4.3**; no prior package is silently re-certified.
+
+These are Research implementation and internal-oracle corrections. They add no
+external source authentication, semantic-verification result, independent human
+study, Accepted scientific claim or production-readiness claim. Fresh final-head
+review, hosted assurance and protected merge gates remain required.

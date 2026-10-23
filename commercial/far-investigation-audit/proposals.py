@@ -14,30 +14,43 @@ from capture import exact_anchor
 MAX_CLAIMS = 24
 MAX_READINGS = 12
 MAX_EVIDENCE = 48
+MAX_CANDIDATE_TEXT = 1000
 CARD_FIELDS = {"subject", "population", "time", "geography", "quantifier",
                "measurement", "comparison", "threshold", "assumptions"}
 SENTENCE = re.compile(r"[^.!?\n]+(?:[.!?]+|(?=\n|$))")
 
 
-def extract_sentences(text: str, *, limit: int = MAX_CLAIMS) -> list[dict]:
+def _bounded_sentences(text: str, limit: int) -> tuple[list[dict], int]:
     records = []
+    omitted = 0
     for m in SENTENCE.finditer(text):
         raw = m.group()
         trimmed = raw.strip()
         if len(trimmed) < 8 or not any(c.isalpha() for c in trimmed):
             continue
+        if len(trimmed) > MAX_CANDIDATE_TEXT:
+            omitted += 1
+            continue
         start = m.start() + len(raw) - len(raw.lstrip())
         records.append({"quote": trimmed, "start": start, "end": start + len(trimmed)})
         if len(records) >= limit:
             break
-    return records
+    return records, omitted
+
+
+def extract_sentences(text: str, *, limit: int = MAX_CLAIMS) -> list[dict]:
+    return _bounded_sentences(text, limit)[0]
 
 
 def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None = None) -> dict:
     """Find check-worthy sentence *candidates*, not semantic facts or verdicts."""
+    sentences, primary_omissions = _bounded_sentences(primary_text, MAX_CLAIMS)
+    if not sentences:
+        raise InvalidBundle("heuristic source has no bounded sentence candidates; supply bounded source excerpts explicitly")
+    omissions = {"primary": primary_omissions}
     claims = [{"id": f"c{i+1}", "source_id": "primary", "quote": x["quote"],
                "proposition": x["quote"], "role": "unspecified", "start": x["start"]}
-              for i, x in enumerate(extract_sentences(primary_text))]
+              for i, x in enumerate(sentences)]
     readings = []
     omitted_readings = 0
     for i, claim in enumerate(claims[1:], 1):
@@ -55,7 +68,8 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
     links = []
     stopwords = {"the", "and", "that", "with", "from", "this", "therefore", "were", "was", "are", "have", "into", "will", "been", "their", "after", "when", "every"}
     for sid, evidence_text in (evidence_texts or {}).items():
-        for s in extract_sentences(evidence_text, limit=32):
+        evidence_sentences, omissions[sid] = _bounded_sentences(evidence_text, 32)
+        for s in evidence_sentences:
             terms = {x for x in re.findall(r"[a-zA-Z0-9]{3,}", s["quote"].lower()) if x not in stopwords}
             candidates = []
             for c in claims:
@@ -71,6 +85,9 @@ def heuristic_proposal(primary_text: str, evidence_texts: dict[str, str] | None 
                 "Source identity, meaning, and factual reliability have not been independently verified."]
     if omitted_readings:
         unknowns.append(f"Reading limit ({MAX_READINGS}) omitted {omitted_readings} additional discourse-cue candidate(s) among retained claims; inspect the source for missing arguments.")
+    for sid, count in omissions.items():
+        if count:
+            unknowns.append(f"Source {sid}: omitted {count} overlong sentence candidate(s) while selecting bounded candidates (maximum {MAX_CANDIDATE_TEXT} characters); omitted text was not shortened or assessed.")
     return {"claims": claims, "arguments": readings, "evidence": links,
             "unknowns": unknowns,
             "method": "deterministic_sentence_candidate_v1"}
@@ -130,7 +147,7 @@ def openai_proposal(primary_text: str, evidence_sources: dict[str, str], *, mode
 
 
 def _unique_anchor(source: str, quote: str, start: Any = None) -> dict:
-    if not isinstance(quote, str) or len(quote) > 1000 or not quote.strip():
+    if not isinstance(quote, str) or len(quote) > MAX_CANDIDATE_TEXT or not quote.strip():
         raise InvalidBundle("candidate quotation empty or overlong")
     return exact_anchor(source, quote, start=start)
 
@@ -162,7 +179,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         for name, meaning in supplied_atoms.items():
             if not isinstance(name, str) or re.fullmatch(r"[A-Z][A-Z0-9_]{0,39}", name) is None:
                 raise InvalidBundle("invalid explicit atom name")
-            if not isinstance(meaning, str) or not meaning.strip() or len(meaning) > 1000:
+            if not isinstance(meaning, str) or not meaning.strip() or len(meaning) > MAX_CANDIDATE_TEXT:
                 raise InvalidBundle("invalid atom interpretation")
         atoms = dict(supplied_atoms)
     else:
@@ -173,7 +190,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
             if not isinstance(c, dict):
                 raise InvalidBundle("invalid claim candidate")
             meaning = c.get("proposition", c.get("quote"))
-            if not isinstance(meaning, str) or not meaning.strip() or len(meaning) > 1000:
+            if not isinstance(meaning, str) or not meaning.strip() or len(meaning) > MAX_CANDIDATE_TEXT:
                 raise InvalidBundle("invalid atom interpretation")
             atoms[f"P{i+1}"] = meaning
     seen = set()
@@ -190,7 +207,7 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
         quote = c.get("quote")
         anchor = _unique_anchor(sources[sid], quote, c.get("start"))
         proposition = c.get("proposition", quote)
-        if not isinstance(proposition, str) or not proposition.strip() or len(proposition) > 1000:
+        if not isinstance(proposition, str) or not proposition.strip() or len(proposition) > MAX_CANDIDATE_TEXT:
             raise InvalidBundle("invalid claim proposition")
         name = f"P{i+1}"
         formula = c.get("formula", {"atom": name})

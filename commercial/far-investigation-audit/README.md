@@ -2,14 +2,19 @@
 
 **Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** Version 0.4 includes bounded text, caption, local-document, and optional media/URL intake; it does not establish open-domain ingestion reliability or independently correct semantic adjudication.
 
-Current engine and local-service revision: **0.4.2**. Generated heuristic readings
+Current engine and local-service revision: **0.4.3**. Generated heuristic readings
 are capped at 12, with omitted candidates disclosed in the report. Structured
 quantities must cover a complete numeric literal in the original source, including
 its sign and decimal digits; clipping the claim quotation cannot strip those
-characters. Grouped, scientific and other unsupported number spellings cannot
-be checked by selecting a supported substring. Source numbers beyond the Decimal
+characters. Grouped, scientific, fractional, ratio and identifier spellings cannot
+be checked by selecting a supported substring. Generated sentence candidates over
+1,000 characters are omitted and disclosed, preserving the original offsets of
+retained claims and evidence. A source with no eligible sentence candidates
+requires explicitly supplied bounded excerpts. Source numbers beyond the Decimal
 parser's range yield explicit structured unavailability. Replay requires the
 originating engine revision; these repairs do not upgrade factual assurance.
+The separate checker derives numerical-result membership from input evidence,
+and truncated discovery HTTP responses remain redacted workflow failures.
 
 This implements a concrete, independently replayable *formal* audit of two distinct steps:
 

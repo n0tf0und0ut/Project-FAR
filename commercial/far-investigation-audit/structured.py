@@ -18,7 +18,8 @@ NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\Z")
 # accepting a span. A signed, grouped, fractional or scientific number must
 # never be converted to a different quantity by selecting only some digits.
 # A terminal sentence period is punctuation; a period followed by digits is not.
-SOURCE_NUMBER = re.compile(r"[-+−]?(?:\d+(?:[.,]\d+)*|[.,]\d+)(?:[eE][-+−]?\d*)?")
+SOURCE_DECIMAL = r"[-+−]?(?:\d+(?:[.,_]\d+)*|[.,]\d+)(?:[eE][-+−]?\d*)?"
+SOURCE_NUMBER = re.compile(rf"{SOURCE_DECIMAL}(?:\s*[/⁄∕:]\s*{SOURCE_DECIMAL})*")
 
 
 class StructuredInputError(ValueError):
@@ -153,6 +154,10 @@ def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_
     literal_text = claim_source_text
     offset = claim["span"]["start"]
     if not any(match.span() == (offset + start, offset + end)
+               and (match.start() == 0 or not (
+                   literal_text[match.start() - 1].isalnum() or literal_text[match.start() - 1] == "_"))
+               and (match.end() == len(literal_text) or not (
+                   literal_text[match.end()].isalnum() or literal_text[match.end()] == "_"))
                for match in SOURCE_NUMBER.finditer(literal_text)):
         raise StructuredInputError("quantity span must cover a complete numeric literal")
     if not isinstance(config["pointer"], str):

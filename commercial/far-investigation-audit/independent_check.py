@@ -115,31 +115,53 @@ def _check_quantity_anchor(claim, source_text):
     start += claim["span"]["start"]
     end += claim["span"]["start"]
     quote = source_text
+    def atom_end(position):
+        if position < len(quote) and quote[position] in "-+−":
+            position += 1
+        if (position + 1 < len(quote) and quote[position] in ".,"
+                and quote[position + 1].isdecimal()):
+            position += 1
+        if position == len(quote) or not quote[position].isdecimal():
+            return None
+        while position < len(quote) and quote[position].isdecimal():
+            position += 1
+        while (position + 1 < len(quote) and quote[position] in ".,_"
+               and quote[position + 1].isdecimal()):
+            position += 1
+            while position < len(quote) and quote[position].isdecimal():
+                position += 1
+        if position < len(quote) and quote[position] in "eE":
+            position += 1
+            if position < len(quote) and quote[position] in "-+−":
+                position += 1
+            while position < len(quote) and quote[position].isdecimal():
+                position += 1
+        return position
+
     i = 0
     while i < len(quote):
         first = i
-        if quote[i] in "-+−":
+        numeric_end = atom_end(i)
+        if numeric_end is None:
             i += 1
-        if (i < len(quote) and quote[i] in ".,"
-                and i + 1 < len(quote) and quote[i + 1].isdecimal()):
-            i += 1
-        if i == len(quote) or not quote[i].isdecimal():
-            i = first + 1
             continue
-        while i < len(quote) and quote[i].isdecimal():
-            i += 1
-        while (i + 1 < len(quote) and quote[i] in ".,"
-               and quote[i + 1].isdecimal()):
-            i += 1
-            while i < len(quote) and quote[i].isdecimal():
-                i += 1
-        if i < len(quote) and quote[i] in "eE":
-            i += 1
-            if i < len(quote) and quote[i] in "-+−":
-                i += 1
-            while i < len(quote) and quote[i].isdecimal():
-                i += 1
-        if (first, i) == (start, end):
+        i = numeric_end
+        while i < len(quote):
+            delimiter = i
+            while delimiter < len(quote) and quote[delimiter].isspace():
+                delimiter += 1
+            if delimiter == len(quote) or quote[delimiter] not in "/⁄∕:":
+                break
+            next_start = delimiter + 1
+            while next_start < len(quote) and quote[next_start].isspace():
+                next_start += 1
+            next_end = atom_end(next_start)
+            if next_end is None:
+                break
+            i = next_end
+        standalone = ((first == 0 or not (quote[first - 1].isalnum() or quote[first - 1] == "_"))
+                      and (i == len(quote) or not (quote[i].isalnum() or quote[i] == "_")))
+        if (first, i) == (start, end) and standalone:
             return
         if first > start:
             break
@@ -364,6 +386,10 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("evidence origin differs from source record: " + ev["id"])
         if finding.get("mapping_status") != ev["mapping_status"]:
             raise IndependentCheckError("evidence mapping status mismatch: " + ev["id"])
+        if "data_check" not in ev and {
+                "structured_check", "structured_temporal_eligibility",
+                "assessment_disagrees_with_structured_check"} & set(finding):
+            raise IndependentCheckError("structured annotations outside the input evidence lane: " + ev["id"])
         if "data_check" in ev:
             if temporal[sid] != "IN_WINDOW":
                 relation = "TEMPORAL_NOT_ADMISSIBLE"
@@ -445,6 +471,7 @@ def check_report(bundle:dict, report:dict)->dict:
                 report["claims"][cid].get("support_sources_with_unknown_origin") != unknown_origins):
             raise IndependentCheckError("claim support lineage mismatch: " + cid)
     arithmetic_count=0
+    numeric_by_claim = {cid: [] for cid in claims}
     for ev in bundle["evidence"]:
         text=sources[ev["source_id"]]["text"]
         span=ev["span"]
@@ -482,16 +509,18 @@ def check_report(bundle:dict, report:dict)->dict:
                 except (ValueError,TypeError,ArithmeticError) as exc:
                     raise IndependentCheckError("computed numeric value differs: "+ev["id"]) from exc
             arithmetic_count+=1
+            numeric_by_claim[ev["claim_id"]].append((ev, found))
+    def numeric_admissible(ev):
+        claim = claims[ev["claim_id"]]
+        self_reference = (ev["source_id"] == claim["source_id"]
+                          and ev["span"]["start"] < claim["span"]["end"]
+                          and claim["span"]["start"] < ev["span"]["end"])
+        return temporal[ev["source_id"]] == "IN_WINDOW" and not self_reference
     for cid, claim_report in report["claims"].items():
-        findings = claim_report["evidence"]
-        admissible = [f["structured_check"] for f in findings
-                      if "structured_check" in f
-                      and temporal[f["source_id"]] == "IN_WINDOW"
-                      and f["formal_relation"] != "SELF_REFERENCE_NOT_CORROBORATION"]
-        snapshot = [f["structured_check"] for f in findings
-                    if "structured_check" in f
-                    and f["formal_relation"] in {
-                        "TEMPORAL_NOT_ADMISSIBLE", "SELF_REFERENCE_NOT_CORROBORATION"}]
+        # Membership and admissibility come from input records; every retained
+        # result has already passed the separate arithmetic and metadata checks.
+        admissible = [result for ev, result in numeric_by_claim[cid] if numeric_admissible(ev)]
+        snapshot = [result for ev, result in numeric_by_claim[cid] if not numeric_admissible(ev)]
         matches = sum(x["status"] == "STRUCTURED_VALUE_MATCH" for x in admissible)
         mismatches = sum(x["status"] == "STRUCTURED_VALUE_MISMATCH" for x in admissible)
         expected_summary = {
@@ -543,7 +572,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("invalid report identity serialization") from exc
     expected_identity = {
         "schema": "far-investigation-report/0.2",
-        "engine": "far-investigation-audit/0.4.2",
+        "engine": "far-investigation-audit/0.4.3",
         "investigation_id": bundle["investigation_id"],
         "input_sha256": input_hash,
         "as_of": bundle["as_of"],
