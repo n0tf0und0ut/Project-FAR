@@ -361,6 +361,13 @@ correction. This is an implementation repair of v1.1, not a further weakening of
 the policy. The deployment pin/digest must advance to the corrected collector,
 and the final successor needs new independent review and complete assurance.
 
+Corrected immutable collector: `a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71`,
+SHA-256 `21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863`.
+This supersedes the earlier 21db5b82 deployment pin. All **64** review-policy
+tests and the workflow validator pass with the corrected pin. Hosted policy
+tests, 2,584 canonical tests and both 225-test component matrices passed on
+9970958a, but that earlier head's results do not authorize this material repair.
+
 
 ## Eleventh review: numeric groups, malformed input and closed report shapes
 

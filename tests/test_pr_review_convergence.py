@@ -300,8 +300,8 @@ class ConvergenceTests(unittest.TestCase):
         self.assertIn('"$PR_NUMBER" == 578', script["run"])
         self.assertIn('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', script["run"])
         self.assertIn('sha256sum --check --status', script["run"])
-        self.assertIn('?ref=21db5b82282bf5759b96016eff84daf5783b6236', script["run"])
-        self.assertIn('02795d65f14029ccf8b86c83397d6b3ff979c17b6c6f8e84f85da02fc0be585c', script["run"])
+        self.assertIn('?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71', script["run"])
+        self.assertIn('21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863', script["run"])
         self.assertIn("--mode enforce", script["run"])
         self.assertNotIn("gh api --method POST", script["run"])
 
@@ -359,7 +359,7 @@ class ConvergenceTests(unittest.TestCase):
                                             "with": {"ref": "candidate"}})
                 elif mutation.startswith("bootstrap_"):
                     before, after = {
-                        "bootstrap_pin": ('?ref=21db5b82282bf5759b96016eff84daf5783b6236', '?ref=feature'),
+                        "bootstrap_pin": ('?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71', '?ref=feature'),
                         "bootstrap_digest": ('sha256sum --check --status', 'true'),
                         "bootstrap_pr": ('"$PR_NUMBER" == 578', '1 == 1'),
                         "bootstrap_repository": ('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', '1 == 1'),

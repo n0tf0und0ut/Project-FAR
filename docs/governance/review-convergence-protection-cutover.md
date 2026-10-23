@@ -22,9 +22,9 @@ The native required job lives in `.github/workflows/required-pr-review-convergen
 
 Only when the checked-out protected-main commit is exactly `e4d936ca0ba9770be6f72e0435220987882f4146`, repository is `n0tf0und0ut/Project-FAR`, and PR is #578, the native job downloads the single collector file from a literal full commit pin and verifies its literal SHA-256 before execution. The source commit is an ancestor of the final integration candidate; independent review must cover that collector and the complete final workflow. No mutable PR ref, candidate checkout, arbitrary URL, write token, persistent key, manufactured review state or fabricated check publication is used. Failed download, digest mismatch, API ambiguity or missing review evidence fails the job.
 
-Pinned collector commit: `21db5b82282bf5759b96016eff84daf5783b6236`.
+Pinned collector commit: `a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71`.
 File: `tools/pr_review_convergence.py`.
-SHA-256: `02795d65f14029ccf8b86c83397d6b3ff979c17b6c6f8e84f85da02fc0be585c`.
+SHA-256: `21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863`.
 
 This is a deliberate, limited collector-source trust amendment authorized by the user's instruction to implement the policy repair. The pinned file is reviewed candidate code, not already protected-main code. It does not acquire more authority by being hashed. Required exact-head review, full hosted assurance, merge-authority and the owner-controlled gate remain mandatory. Once main moves from that exact base, the exception is inactive and the collector again runs from protected main; other PRs at the old base fail closed rather than inherit this exception. Remove the dormant loader in a separately reviewed cleanup after verified deployment. The final workflow and regression assertions record the exact pin and digest; do not edit either without new review and assurance.
 
