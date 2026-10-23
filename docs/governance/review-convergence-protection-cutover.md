@@ -1,6 +1,6 @@
 # Review-convergence branch-protection deployment and verification
 
-Status: **three contexts observed live; eligible-event correction awaiting deployment**. Green advisory publications do not establish operational enforcement.
+Status: **three contexts observed live; eligible-event and v1.1 receipt corrections awaiting protected deployment**. Green advisory publications do not establish operational enforcement.
 
 ## Observed blocker
 
@@ -16,11 +16,17 @@ PR #588 at `42b51215418448d10f50a1153cb302da4bcfcb29` had all three visible chec
 
 ## Deploy through the existing protected path
 
-The native required job lives in `.github/workflows/required-pr-review-convergence.yml`, whose events are main-targeting `pull_request` and `pull_request_review` submission/edit/dismissal. This eligible event can load the reviewed candidate workflow before it reaches main. It therefore permits ordinary protected deployment without removing a requirement or changing settings. The collector code is checked out from protected `main`, never the candidate; the token has read permissions only and no persistent secret is used.
+The native required job lives in `.github/workflows/required-pr-review-convergence.yml`, whose events are main-targeting `pull_request` and `pull_request_review` submission/edit/dismissal. This eligible event can load the reviewed candidate workflow before it reaches main. It permits ordinary protected deployment without removing a requirement or changing settings. The token has read permissions only and no persistent secret is used. Normal collection uses protected `main`; the following explicitly authorized v1.1 exception is necessary because the old main collector cannot evaluate the new receipt policy.
+
+### One-base, one-PR immutable collector deployment
+
+Only when the checked-out protected-main commit is exactly `e4d936ca0ba9770be6f72e0435220987882f4146`, repository is `n0tf0und0ut/Project-FAR`, and PR is #578, the native job downloads the single collector file from a literal full commit pin and verifies its literal SHA-256 before execution. The source commit is an ancestor of the final integration candidate; independent review must cover that collector and the complete final workflow. No mutable PR ref, candidate checkout, arbitrary URL, write token, persistent key, manufactured review state or fabricated check publication is used. Failed download, digest mismatch, API ambiguity or missing review evidence fails the job.
+
+This is a deliberate, limited collector-source trust amendment authorized by the user's instruction to implement the policy repair. The pinned file is reviewed candidate code, not already protected-main code. It does not acquire more authority by being hashed. Required exact-head review, full hosted assurance, merge-authority and the owner-controlled gate remain mandatory. Once main moves from that exact base, the exception is inactive and the collector again runs from protected main; other PRs at the old base fail closed rather than inherit this exception. Remove the dormant loader in a separately reviewed cleanup after verified deployment. The final workflow and regression assertions record the exact pin and digest; do not edit either without new review and assurance.
 
 1. Freeze the correction head, protected-main base and complete diff. Run the regression tests, workflow validator, full hosted assurance and dedicated gate App. Obtain a substantive independent review covering the exact final head.
 2. Observe that the native `pr-review-convergence-observation` job fails while exact-head review evidence is incomplete. Verify the source App, event, associated head and collector artifact; no skipped job counts as enforcement.
-3. After the independent review is clean and all threads are resolved, rerun the latest eligible native job on that unchanged head. Require the event/current-head comparison, protected-main checkout, enforce-mode collector and post-check head comparison to succeed.
+3. After the independent review is clean and all threads are resolved, rerun the latest eligible native job on that unchanged head. Require the event/current-head comparison, protected-main checkout, policy-v1.1 collector source/digest verification where applicable, enforce-mode collector and post-check head comparison to succeed. Preserve both raw summary and receipt evidence; null flags must remain null.
 4. Require all three original context/App bindings and all other substantive checks. Use the normal expected-head merge API/UI for the correction. Record the final merge/main SHAs and verify that the original protection settings remain intact.
 5. Refresh waiting PRs onto the resulting main without rewriting history, obtain exact-head review and assurance, and require their native eligible job. Review submissions, edits and dismissals automatically execute the required collector. For comment-only machine-state or thread changes, inspect fresh API evidence and rerun the current eligible job before merge; no atomic merge-time freshness guarantee is claimed.
 6. Merge only through the ordinary protected path and verify final PR/main state. Do not label deployment complete based on a YAML test, scheduled advisory pass or metadata edit alone.

@@ -285,6 +285,44 @@ external source authentication, semantic-verification result, independent human
 study, Accepted scientific claim or production-readiness claim. Fresh final-head
 review, hosted assurance and protected merge gates remain required.
 
+## Review-evidence policy v1.1 repair (deployment pending)
+
+Predecessor: `6c874db2e0dc2ce8a4281bf9c507001a3b0787fd`.
+Root cause `CODEX-COMPLETION-EVIDENCE-COMPATIBILITY`: the protected-main
+collector requires a completed summary's unresolved flag to be boolean, while
+the observed authenticated service summary leaves it null despite separate
+no-major-issues completion receipts. Native jobs 120644160046, 120644960518
+and 120653906205 fail closed; summary 6293998197 and receipts 6374221633 /
+6374521211 preserve the original evidence. Metadata reconciliation request
+6374505392 did not change the null flags. This is not proof of a vendor defect.
+
+After the blocker was reported, the user explicitly instructed implementation
+of the review-evidence policy repair. Policy v1.1 accepts a narrowly specified
+authenticated receipt plus contemporaneous completed full-head summary as
+metadata evidence, preserving unknown flags. The receipt cannot clear known
+unresolved findings, threads, changes requested, or a running/failed review.
+Authentication now checks bot type and numeric App ID as well as login/slug;
+GitHub resolves short commit prefixes, duplicate JSON keys reject, and both
+source records survive in the v2 artifact. The exact compatibility limits and
+weaker finding-state assertion are documented in the policy.
+
+The new CLI regression
+`ReceiptContractTests.test_actual_cli_resolves_prefix_via_read_only_commit_endpoint`
+fails on the unchanged predecessor with exit 2 (`unrecognized or incomplete
+authenticated Codex state`) rather than expected exit 0. All 56 review-policy
+tests pass after repair. A read-only reconstruction of 68 reviews, 110 inline
+comments, 55 resolved threads and 32 issue comments passes the v1.1 metadata
+criterion, preserving `unresolved: null`, summary ID 6293998197 and receipt ID
+6374521211. This is local compatibility evidence, not a protected green check.
+
+Deployment requires the separately documented immutable collector-source
+exception for only PR #578 at the exact old main, digest verification, fresh
+independent review of the final head, complete hosted assurance and all original
+protected context/App bindings. No protected-main update, fabricated finding
+flag, check publication or administrative bypass is authorized by this record.
+Engine/service/oracle remain 0.4.6. Scientific claims, EFR and frozen benchmarks
+are unchanged.
+
 
 ## Eleventh review: numeric groups, malformed input and closed report shapes
 

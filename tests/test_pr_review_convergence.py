@@ -94,8 +94,8 @@ class ConvergenceTests(unittest.TestCase):
         state = {"code_review": {"commit_sha": sha, "status": status,
                                  "has_unresolved_findings": unresolved}}
         return {"id": ident, "updated_at": updated,
-                "user": {"login": author},
-                "performed_via_github_app": {"slug": app},
+                "user": {"login": author, "type": "Bot"},
+                "performed_via_github_app": {"slug": app, "id": 1144995},
                 "body": "<!-- codex-review-state:v1 " + json.dumps(state) + " -->"}
 
     def test_authenticated_codex_clean_review_counts_for_metadata(self):

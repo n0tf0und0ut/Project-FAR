@@ -10,6 +10,8 @@ on:
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
+      - 'tests/test_pr_review_convergence_receipts.py'
+      - 'tests/test_pr_review_convergence_bootstrap.py'
       - 'docs/governance/pr-review-convergence.md'
       - '.github/pull_request_template.md'
   push:
@@ -21,6 +23,8 @@ on:
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
+      - 'tests/test_pr_review_convergence_receipts.py'
+      - 'tests/test_pr_review_convergence_bootstrap.py'
 
 permissions:
   contents: read
