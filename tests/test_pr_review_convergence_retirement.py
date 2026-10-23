@@ -55,6 +55,12 @@ class FakeClient:
                            "head_branch": "main", "path": ".github/workflows/pr-review-convergence.yml"}]
         self.jobs[700] = [{"id": 701, "name": "review-convergence (578)",
                            "status": "completed", "conclusion": "failure"}]
+        operation = check(3001, "convergence-contract", run=801)
+        operation["head_sha"] = SOURCE
+        self.operation_checks = [operation]
+        self.runs[801] = {"id": 801, "head_sha": SOURCE, "event": "pull_request", "status": "completed",
+                          "path": ".github/workflows/pr-review-convergence-contract.yml", "conclusion": "success"}
+        self.jobs[801] = [{"id": 3001, "name": "convergence-contract", "status": "completed", "conclusion": "success"}]
         self.logs = {701: "2026-10-23T22:34:33Z " + json.dumps(self.checks[-1], separators=(",", ":"))}
         self.writes, self.reads = [], []
         self.alter_result = False
@@ -76,6 +82,8 @@ class FakeClient:
             return copy.deepcopy(self.authorizations)
         if route == "/commits/" + repair.TARGET + "/check-runs":
             return {"check_runs": copy.deepcopy(self.checks)}
+        if route == "/commits/" + SOURCE + "/check-runs":
+            return {"check_runs": copy.deepcopy(self.operation_checks)}
         if route == "/actions/runs":
             return {"workflow_runs": copy.deepcopy(self.schedules)}
         if route.startswith("/actions/runs/"):
@@ -178,6 +186,14 @@ class RetirementTests(unittest.TestCase):
                 with self.subTest(index=index, field=field):
                     self.assert_no_write(client)
 
+    def test_repair_source_requires_its_own_exact_head_native_contract_test(self):
+        for mutation in (lambda c: c.operation_checks.clear(),
+                         lambda c: c.operation_checks[0].update(conclusion="failure"),
+                         lambda c: c.runs[801].update(head_sha="b" * 40)):
+            client = FakeClient()
+            mutation(client)
+            self.assert_no_write(client)
+
     def test_new_failed_native_job_cannot_be_masked_by_an_older_success(self):
         client = FakeClient()
         client.checks.append(check(1100, repair.REQUIRED, run=599, outcome="failure"))
@@ -258,15 +274,28 @@ class RetirementTests(unittest.TestCase):
 
     def test_cli_refuses_nonmanual_or_unbound_source_before_creating_a_client(self):
         with tempfile.TemporaryDirectory() as directory:
-            for field, bad in (("GITHUB_EVENT_NAME", "pull_request"), ("GITHUB_REPOSITORY", "attacker/fork"),
+            for field, bad in (("GITHUB_EVENT_NAME", "pull_request"), ("GITHUB_EVENT_NAME", "push"),
+                               ("GITHUB_REPOSITORY", "attacker/fork"),
                                ("GITHUB_REF", "refs/heads/main"), ("GITHUB_SHA", "b" * 40)):
                 env = {"GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": repair.REPOSITORY,
-                       "GITHUB_REF": "refs/heads/" + repair.REPAIR_BRANCH, "GITHUB_SHA": SOURCE, "GH_TOKEN": "synthetic"}
+                       "GITHUB_REF": "refs/heads/" + repair.REPAIR_BRANCH, "GITHUB_SHA": SOURCE,
+                       "GITHUB_RUN_ATTEMPT": "1", "GH_TOKEN": "synthetic"}
                 env[field] = bad
                 with patch.dict(os.environ, env), patch.object(repair, "Client") as client:
                     with self.assertRaises(SystemExit):
                         repair.main(["--source-sha", SOURCE, "--output", directory + "/result.json", "--apply"])
                     client.assert_not_called()
+
+    def test_explicit_push_retry_can_reach_preflight_with_the_exact_source(self):
+        env = {"GITHUB_EVENT_NAME": "push", "GITHUB_REPOSITORY": repair.REPOSITORY,
+               "GITHUB_REF": "refs/heads/" + repair.REPAIR_BRANCH, "GITHUB_SHA": SOURCE,
+               "GITHUB_RUN_ATTEMPT": "2", "GH_TOKEN": "synthetic"}
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, env), \
+                patch.object(repair, "Client", return_value="fake-client"), \
+                patch.object(repair, "execute", return_value={"applied": True}) as execute:
+            self.assertEqual(repair.main(["--source-sha", SOURCE, "--output", directory + "/result.json", "--apply"]), 0)
+            self.assertEqual(execute.call_args.args[:2], ("fake-client", SOURCE))
+            self.assertTrue(execute.call_args.kwargs["apply"])
 
 
 class Response(io.BytesIO):

@@ -147,12 +147,13 @@ def identity(client):
         raise RepairError("protection bindings changed or are incomplete")
 
 
-def gate_evidence(client, checks):
+def gate_evidence(client, checks, *, head=TARGET, gates=None):
+    gates = GATES if gates is None else gates
     evidence = {}
-    for name, (app, workflow) in GATES.items():
+    for name, (app, workflow) in gates.items():
         candidates = sorted((x for x in checks if x.get("name") == name
                              and x.get("app", {}).get("id") == app
-                             and x.get("head_sha") == TARGET), key=lambda x: x["id"], reverse=True)
+                             and x.get("head_sha") == head), key=lambda x: x["id"], reverse=True)
         # API publications cannot masquerade as eligible native assurance jobs.
         if workflow:
             candidates = [x for x in candidates if NATIVE_URL.fullmatch(x.get("details_url", ""))]
@@ -164,7 +165,7 @@ def gate_evidence(client, checks):
             match = NATIVE_URL.fullmatch(check["details_url"])
             run = client.get(ROOT + "/actions/runs/" + match[1])
             jobs = collection(client, ROOT + "/actions/runs/" + match[1] + "/jobs", "jobs")
-            if (int(match[2]) != check["id"] or run.get("head_sha") != TARGET
+            if (int(match[2]) != check["id"] or run.get("head_sha") != head
                     or run.get("event") not in ("pull_request", "pull_request_review")
                     or run.get("path") != workflow or run.get("status") != "completed"
                     or run.get("conclusion") != "success"
@@ -253,6 +254,10 @@ def execute(client, source_sha, output_dir, *, apply=False, reviewer=check_revie
         raise RepairError("missing unique exact-source operation review PR")
     reviews = [reviewer(authorizations[0]["number"], source_sha, output_dir),
                reviewer(TARGET_PR, TARGET, output_dir)]
+    operation_checks = collection(client, ROOT + "/commits/" + source_sha
+                                  + "/check-runs?filter=all", "check_runs")
+    operation_tests = gate_evidence(client, operation_checks, head=source_sha, gates={
+        "convergence-contract": (15368, ".github/workflows/pr-review-convergence-contract.yml")})
     checks = collection(client, ROOT + "/commits/" + TARGET + "/check-runs?filter=all", "check_runs")
     gates = gate_evidence(client, checks)
     legacy = [x for x in checks if legacy_record(x)]
@@ -279,6 +284,7 @@ def execute(client, source_sha, output_dir, *, apply=False, reviewer=check_revie
             "target_pr": TARGET_PR, "target_head": TARGET, "protected_main": MAIN,
             "operation_source": source_sha, "authorization_pr": authorizations[0]["number"],
             "review_artifacts": [r["pr_number"] for r in reviews], "gates": gates,
+            "operation_tests": operation_tests,
             "plan": plan, "renamed_check_ids": changed, "applied": apply,
             "conclusions_modified": False, "protection_modified": False,
             "merge_performed": False}
@@ -290,11 +296,14 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args(argv)
-    if (os.environ.get("GITHUB_REPOSITORY") != REPOSITORY
-            or os.environ.get("GITHUB_EVENT_NAME") != "workflow_dispatch"
+    event = os.environ.get("GITHUB_EVENT_NAME")
+    attempt = os.environ.get("GITHUB_RUN_ATTEMPT", "")
+    activated = (event == "workflow_dispatch" or (event == "push"
+                 and re.fullmatch(r"[1-9][0-9]*", attempt) and int(attempt) > 1))
+    if (os.environ.get("GITHUB_REPOSITORY") != REPOSITORY or not activated
             or os.environ.get("GITHUB_REF") != "refs/heads/" + REPAIR_BRANCH
             or os.environ.get("GITHUB_SHA") != args.source_sha or not os.environ.get("GH_TOKEN")):
-        parser.error("only the fixed, explicitly dispatched repair workflow may run")
+        parser.error("only the fixed, explicitly activated repair workflow may run")
     try:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         report = execute(Client(os.environ["GH_TOKEN"]), args.source_sha, args.output.parent,
