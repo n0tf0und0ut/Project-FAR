@@ -343,6 +343,24 @@ existing declared development dependencies in an isolated target resolved that
 environment failure without repository dependency changes. These local results
 do not substitute for fresh hosted certificates or final-head independent review.
 
+### Review of policy repair at 9970958a
+
+Independent discussion **4364741900**, thread `PRRT_kwDOTH_vCM6vysd0`,
+identified a real `KNOWN-UNRESOLVED-STATE-PERSISTENCE` defect: the receipt path
+retained prior explicit unresolved flags only from completed states, allowing a
+completed/null receipt to mask flags from running or failed observations.
+Two new tests on unchanged `9970958a` produce **three assertion failures**:
+both reported bypasses and the locally added converse where an intervening
+explicit completed-clean result should clear an older completed unresolved flag.
+
+The correction folds all authenticated exact-head observations chronologically:
+every explicit true flag sets the outstanding state regardless of review status;
+only an explicit completed false flag clears it. A later null flag never performs
+that clearance. Both regressions and the explicit-clean converse pass after the
+correction. This is an implementation repair of v1.1, not a further weakening of
+the policy. The deployment pin/digest must advance to the corrected collector,
+and the final successor needs new independent review and complete assurance.
+
 
 ## Eleventh review: numeric groups, malformed input and closed report shapes
 

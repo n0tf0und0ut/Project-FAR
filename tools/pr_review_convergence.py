@@ -215,12 +215,15 @@ def codex_status(issue_comments, expected_head, commit_resolutions=None):
     updated, cid, code = candidates[-1]
     # A pending rerun never clears a previously known unresolved result. Nor
     # may a human approval bypass the incomplete rerun on the same head.
-    outstanding = any(c.get("status") == "completed"
-                      and c.get("has_unresolved_findings") is True
-                      for _, _, c in candidates)
-    # A later *completed* clean review supersedes previous known findings.
-    if code["status"] == "completed" and type(code["has_unresolved_findings"]) is bool:
-        outstanding = code["has_unresolved_findings"] is True
+    outstanding = False
+    for _, _, observed in candidates:
+        if observed["has_unresolved_findings"] is True:
+            outstanding = True
+        elif (observed["status"] == "completed"
+              and observed["has_unresolved_findings"] is False):
+            # Only an explicit completed clean result clears known findings,
+            # including those reported while a prior review was running/failed.
+            outstanding = False
     passed = code["status"] == "completed" and code["has_unresolved_findings"] is False
     basis = "explicit_finding_state" if passed else None
     receipt_source = None

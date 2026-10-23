@@ -132,6 +132,25 @@ class ReceiptContractTests(unittest.TestCase):
         result = evaluate([summary(True), receipt()])
         self.assertFalse(result["review_metadata_converged"])
 
+    def test_running_and_failed_unresolved_flags_survive_later_null_receipt(self):
+        for status in ("running", "failed"):
+            prior = summary(True, status=status, ident=8, moment="2026-10-23T20:00:00Z")
+            result = evaluate([prior, summary(), receipt()])
+            with self.subTest(status=status):
+                self.assertFalse(result["review_metadata_converged"])
+                codex = result["trusted_codex_review_on_exact_head"]
+                self.assertTrue(codex["unresolved"])
+                self.assertFalse(codex["passed"])
+
+    def test_intervening_explicit_completed_clean_state_clears_older_flags(self):
+        for status in ("running", "failed", "completed"):
+            prior = summary(True, status=status, ident=8, moment="2026-10-23T20:00:00Z")
+            clean = summary(False, ident=9, moment="2026-10-23T20:30:00Z")
+            result = evaluate([prior, clean, summary(), receipt()])
+            with self.subTest(status=status):
+                self.assertTrue(result["review_metadata_converged"])
+                self.assertIsNone(result["trusted_codex_review_on_exact_head"]["unresolved"])
+
     def test_running_or_failed_review_blocks_receipt_and_prior_clean_state(self):
         for status in ("running", "failed"):
             result = evaluate([summary(False, ident=8, moment="2026-10-23T20:00:00Z"),
