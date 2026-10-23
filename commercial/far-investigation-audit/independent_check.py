@@ -10,7 +10,8 @@ import itertools
 import json
 import re
 import unicodedata
-from decimal import Decimal, InvalidOperation
+from decimal import (Context, Decimal, DivisionByZero, InvalidOperation, Overflow,
+                     ROUND_HALF_EVEN)
 from fractions import Fraction
 from datetime import datetime, timedelta
 
@@ -183,7 +184,13 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str, *, claim_sour
         def reject(token):
             raise ValueError("non-finite source number: " + token)
         try:
-            data = json.loads(text, object_pairs_hook=pairs, parse_float=Decimal,
+            # Independent explicit parser context: never inherit a caller's
+            # disabled InvalidOperation trap and silently convert overflow to NaN.
+            source_context = Context(prec=125, rounding=ROUND_HALF_EVEN,
+                                     Emin=-999999, Emax=999999, capitals=1, clamp=0,
+                                     flags=[], traps=[InvalidOperation, DivisionByZero, Overflow])
+            data = json.loads(text, object_pairs_hook=pairs,
+                              parse_float=lambda token: Decimal(token, context=source_context),
                               parse_constant=reject)
         except InvalidOperation as exc:
             raise _NumericUnavailable("source number exceeds decimal parser range") from exc
@@ -262,6 +269,23 @@ def _reported_fraction(value):
             or re.fullmatch(r"-?(?:0|[1-9][0-9]{0,84})(?:\.[0-9]{1,40})?", value) is None):
         raise IndependentCheckError("computed numeric value exceeds bounded report contract")
     return Fraction(Decimal(value))
+
+
+def _check_source_span(item, sources, *, evidence=False):
+    sid = item.get("source_id")
+    if not isinstance(sid, str) or sid not in sources:
+        raise IndependentCheckError("independent anchor source missing")
+    text = sources[sid]["text"]
+    span = item.get("span")
+    if not isinstance(span, dict):
+        raise IndependentCheckError("independent source span missing")
+    start, end, quote = span.get("start"), span.get("end"), span.get("quote")
+    if (type(start) is not int or type(end) is not int
+            or not 0 <= start < end <= len(text)):
+        raise IndependentCheckError("independent source span out of bounds")
+    if not isinstance(quote, str) or text[start:end] != quote:
+        raise IndependentCheckError("independent evidence quote mismatch" if evidence
+                                    else "independent quotation mismatch")
 
 
 def check_report(bundle:dict, report:dict)->dict:
@@ -346,10 +370,11 @@ def check_report(bundle:dict, report:dict)->dict:
         if hashlib.sha256(s["text"].encode("utf-8")).hexdigest()!=s["sha256"]:
             raise IndependentCheckError("independent source hash mismatch")
     for c in bundle["claims"]:
-        text=sources[c["source_id"]]["text"]
-        span=c["span"]
-        if text[span["start"]:span["end"]]!=span["quote"]:
-            raise IndependentCheckError("independent quotation mismatch")
+        _check_source_span(c, sources)
+    # Validate every coordinate before evidence routing or overlap predicates.
+    # Slice equality alone admits negative/clamped offsets and bool-as-int.
+    for ev in bundle["evidence"]:
+        _check_source_span(ev, sources, evidence=True)
     # Independently recompute the admissibility routing and formal relations of
     # evidence. Checking argument entailment alone leaves evidence-derived claim
     # statuses vulnerable to an undetected first-checker error.
@@ -503,9 +528,6 @@ def check_report(bundle:dict, report:dict)->dict:
     numeric_by_claim = {cid: [] for cid in claims}
     for ev in bundle["evidence"]:
         text=sources[ev["source_id"]]["text"]
-        span=ev["span"]
-        if text[span["start"]:span["end"]]!=span["quote"]:
-            raise IndependentCheckError("independent evidence quote mismatch")
         if "data_check" in ev:
             claim=claims[ev["claim_id"]]
             expected_status,expected_value,rows_inspected,expected_reason=_separate_numeric_recompute(
@@ -606,7 +628,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("invalid report identity serialization") from exc
     expected_identity = {
         "schema": "far-investigation-report/0.2",
-        "engine": "far-investigation-audit/0.4.5",
+        "engine": "far-investigation-audit/0.4.6",
         "investigation_id": bundle["investigation_id"],
         "input_sha256": input_hash,
         "as_of": bundle["as_of"],

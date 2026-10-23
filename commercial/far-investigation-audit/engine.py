@@ -16,7 +16,7 @@ from typing import Any
 from structured import StructuredInputError, evaluate_structured
 
 SCHEMA = "far-investigation-audit/0.1"
-ENGINE = "far-investigation-audit/0.4.5"
+ENGINE = "far-investigation-audit/0.4.6"
 MAX_ATOMS = 12
 MAX_ITEMS = 500
 MAX_ENTAILMENT_WORK = 8_000_000

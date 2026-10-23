@@ -2,7 +2,7 @@
 
 **Classification:** Research prototype; not certified independent fact verification, not a production service, not an Accepted FAR/FARA/FARO research promotion.
 
-Current engine and local service revision: **0.4.5**. Earlier packages must be
+Current engine and local service revision: **0.4.6**. Earlier packages must be
 replayed with their originating code revision; the patched engine never silently
 certifies a report produced by an earlier calculation implementation.
 

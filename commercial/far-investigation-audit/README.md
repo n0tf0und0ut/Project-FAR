@@ -2,7 +2,7 @@
 
 **Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** Version 0.4 includes bounded text, caption, local-document, and optional media/URL intake; it does not establish open-domain ingestion reliability or independently correct semantic adjudication.
 
-Current engine and local-service revision: **0.4.5**. Generated heuristic readings
+Current engine and local-service revision: **0.4.6**. Generated heuristic readings
 are capped at 12, with omitted candidates disclosed in the report. Structured
 quantities must cover a complete numeric literal in the original source, including
 its sign and decimal digits; clipping the claim quotation cannot strip those
@@ -25,8 +25,14 @@ report fields at report, claim and evidence levels. Reported computed numbers
 must use bounded fixed-decimal notation before separate rational checking.
 Filtered counts use integer accumulation and sums use a complete fixed Decimal
 context, independent of caller precision, exponent limits, traps and clamping.
+Both JSON Decimal parsers also use explicit exception contexts, so disabled
+caller traps cannot turn parser failure into an accepted NaN-containing snapshot.
+The separate checker validates integer, nonempty, in-range source coordinates
+before quote equality or self-corroboration overlap checks.
 Caption metadata keywords require their WebVTT boundaries; valid cue identifiers
 such as `NOTEworthy` retain their transcript text, timing and source spans.
+The `WEBVTT` file-header rule applies only to the initial block; a later cue with
+that identifier remains ordinary transcript content.
 
 This implements a concrete, independently replayable *formal* audit of two distinct steps:
 

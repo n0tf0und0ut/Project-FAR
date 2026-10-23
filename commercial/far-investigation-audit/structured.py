@@ -67,9 +67,18 @@ def _nonfinite(token: str) -> None:
     raise StructuredUnverifiable(f"non-finite source number: {token}")
 
 
+def _decimal_context() -> Context:
+    return Context(prec=MAX_DIGITS + 2 * MAX_DECIMAL_EXPONENT + len(str(MAX_ROWS)),
+                   rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
+                   capitals=1, clamp=0, flags=[],
+                   traps=[InvalidOperation, DivisionByZero, Overflow])
+
+
 def parse_snapshot(raw: str) -> Any:
     try:
-        return json.loads(raw, parse_float=Decimal, parse_int=int, parse_constant=_nonfinite, object_pairs_hook=_duplicates)
+        context = _decimal_context()
+        return json.loads(raw, parse_float=lambda token: Decimal(token, context=context),
+                          parse_int=int, parse_constant=_nonfinite, object_pairs_hook=_duplicates)
     except InvalidOperation as exc:
         raise StructuredUnverifiable("source number exceeds decimal parser range") from exc
     except (ValueError, TypeError, RecursionError) as exc:
@@ -103,10 +112,7 @@ def _sum_field(rows: list[Any], field: str) -> Decimal:
     total = Decimal(0)
     # The caller may customize exponent limits, traps and clamping as well as
     # precision. Arithmetic must use its own complete deterministic context.
-    with localcontext(Context(prec=MAX_DIGITS + 2 * MAX_DECIMAL_EXPONENT + len(str(MAX_ROWS)),
-                              rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
-                              capitals=1, clamp=0, flags=[],
-                              traps=[InvalidOperation, DivisionByZero, Overflow])) as ctx:
+    with localcontext(_decimal_context()):
         # A 40-digit coefficient at exponent +40 and a term at -40 can
         # occupy 120 significant places. Reserve row-count carry places too;
         # 100 digits silently lost small terms before later cancellation.

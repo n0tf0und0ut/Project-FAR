@@ -335,3 +335,29 @@ These are internal Research implementation/oracle repairs. No external semantic
 fidelity, source authenticity, factual accuracy, commercial advantage, EFR result
 or production-readiness claim changes. Fresh substantive review, complete hosted
 assurance and all protected merge gates remain required on the successor head.
+
+
+## Thirteenth review and caption-context self-review
+
+Reviewed head: `574a00dbf0fe3347bea2b6afdd51ef8aed740242` (2026-10-23).
+Two independent findings and one locally discovered follow-up remain genuine
+new counterexamples to earlier invariant repairs, not stale duplicates.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `ARITHMETIC-CONTEXT-INDEPENDENCE` reopened at parsing | 4363924546 | Supply complete explicit contexts to Decimal JSON conversion in both separately implemented parsers, including a trapping InvalidOperation policy; parsing cannot silently replace out-of-range source numbers with NaN when caller traps are disabled | Both extreme exponent directions under relaxed traps produce the same unavailability report as default context; relaxed-context generation replays under default context |
+| `INDEPENDENT-SOURCE-ANCHOR-BOUNDS` | 4363924557 | Validate claim and evidence offset types, nonempty ordered bounds and quotation equality before any overlap routing; negative/clamped Python slices and bool-as-int are not valid anchors | Fourteen malformed claim/evidence span variants and a rehashed negative-coordinate self-corroboration bypass reject; equivalent valid positive overlap remains SELF_REFERENCE_NOT_CORROBORATION |
+| `CAPTION-METADATA-KEYWORD-BOUNDARY` reopened at file context | self-review PR comment 6373977465 | Restrict WEBVTT file-header handling to the initial block; later cue identifiers equal to the header keyword retain their contents | Two-cue source extraction and complete package replay retain the second WEBVTT-identified cue |
+
+On the unchanged reviewed predecessor in an isolated worktree,
+`test_review_578_cycle13.py` produces **17 assertion failures and one error**
+across four tests; `test_review_578_header_context.py` adds **one failing test**.
+All five pass after correction. Engine/service/oracle identity advances together
+to **0.4.6**; current component suite contains **225 tests**.
+
+The source anchor oracle remains separately coded and does not import primary
+validation to certify itself. These fixes do not independently establish that
+text means the supplied formulas, sources are authentic, or any real-world
+claim is true. They change no frozen benchmark, EFR contract, Accepted theory,
+external-independence status or product-readiness claim. Final-head independent
+review, hosted assurance and protected merge gates remain required.

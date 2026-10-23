@@ -196,9 +196,10 @@ def parse_captions(raw: str) -> dict:
     blocks = re.split(r"\r?\n\s*\r?\n", raw.replace("\r\n", "\n").strip())
     output = []
     parts = []
-    for block in blocks:
+    for block_index, block in enumerate(blocks):
         lines = [x.strip(" \t") for x in block.splitlines() if x.strip(" \t")]
-        if (not lines or lines[0] in {"WEBVTT", "STYLE", "REGION"}
+        if (not lines or (block_index == 0 and lines[0] == "WEBVTT")
+                or lines[0] in {"STYLE", "REGION"}
                 or re.match(r"NOTE(?:[ \t]|$)", lines[0])):
             continue
         matches = [i for i, x in enumerate(lines) if CUE.fullmatch(x)]
