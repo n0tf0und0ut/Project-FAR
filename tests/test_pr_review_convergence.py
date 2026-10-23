@@ -295,6 +295,13 @@ class ConvergenceTests(unittest.TestCase):
         self.assertIn('"$sha" == "$EVENT_HEAD"', script["run"])
         self.assertIn('"$current" == "$sha"', script["run"])
         self.assertIn('--expected-head "$sha"', script["run"])
+        self.assertIn('python3 "$collector"', script["run"])
+        self.assertIn('collector=tools/pr_review_convergence.py', script["run"])
+        self.assertIn('"$PR_NUMBER" == 578', script["run"])
+        self.assertIn('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', script["run"])
+        self.assertIn('sha256sum --check --status', script["run"])
+        self.assertIn('?ref=21db5b82282bf5759b96016eff84daf5783b6236', script["run"])
+        self.assertIn('02795d65f14029ccf8b86c83397d6b3ff979c17b6c6f8e84f85da02fc0be585c', script["run"])
         self.assertIn("--mode enforce", script["run"])
         self.assertNotIn("gh api --method POST", script["run"])
 
@@ -320,7 +327,8 @@ class ConvergenceTests(unittest.TestCase):
         for mutation in ("event", "comment_event", "conditional", "permissions", "checkout",
                          "head", "dependency", "skip_enforce", "ignore_step_failure",
                          "ignore_job_failure", "remove_ready_event", "other_repo",
-                         "second_checkout"):
+                         "second_checkout", "bootstrap_pin", "bootstrap_digest",
+                         "bootstrap_pr", "bootstrap_repository"):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(source)
                 job = changed["jobs"]["required-review"]
@@ -349,6 +357,14 @@ class ConvergenceTests(unittest.TestCase):
                 elif mutation == "second_checkout":
                     job["steps"].insert(1, {"uses": "actions/checkout@v4",
                                             "with": {"ref": "candidate"}})
+                elif mutation.startswith("bootstrap_"):
+                    before, after = {
+                        "bootstrap_pin": ('?ref=21db5b82282bf5759b96016eff84daf5783b6236', '?ref=feature'),
+                        "bootstrap_digest": ('sha256sum --check --status', 'true'),
+                        "bootstrap_pr": ('"$PR_NUMBER" == 578', '1 == 1'),
+                        "bootstrap_repository": ('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', '1 == 1'),
+                    }[mutation]
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace(before, after)
                 else:
                     job["needs"] = "discover"
                 with self.assertRaises(AssertionError):

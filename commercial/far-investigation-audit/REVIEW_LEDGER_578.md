@@ -323,6 +323,26 @@ flag, check publication or administrative bypass is authorized by this record.
 Engine/service/oracle remain 0.4.6. Scientific claims, EFR and frozen benchmarks
 are unchanged.
 
+The native deployment loads only collector commit
+`21db5b82282bf5759b96016eff84daf5783b6236`, SHA-256
+`02795d65f14029ccf8b86c83397d6b3ff979c17b6c6f8e84f85da02fc0be585c`,
+and only for the canonical repository's PR #578 at old main `e4d936ca`.
+Six actual-shell regression tests exercise successful verified loading,
+wrong-PR/repository refusal, corrupt bytes and failed downloads, collector
+failure, pre/post head drift, and return to protected-main code after main moves.
+Four additional workflow mutations remove/alter the pin, digest, PR or repository
+binding and are rejected by the contract. Shell command adapters use the allowed
+Python interpreter for base64/hash operations so tests do not add an undeclared
+executable to the frozen runtime policy.
+
+Current local validation: **62** review-policy tests; **2,446** repository tests
+with three skips; **225** component tests; **137** full-health checks with zero
+warnings/failures; workflow parsing and diff checks. The initial component command
+failed because FastAPI was absent from the default interpreter; installing the
+existing declared development dependencies in an isolated target resolved that
+environment failure without repository dependency changes. These local results
+do not substitute for fresh hosted certificates or final-head independent review.
+
 
 ## Eleventh review: numeric groups, malformed input and closed report shapes
 
