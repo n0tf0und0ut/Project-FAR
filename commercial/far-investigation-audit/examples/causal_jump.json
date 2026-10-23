@@ -1,0 +1,87 @@
+{
+  "as_of": "2026-02-01T00:00:00Z",
+  "atoms": {
+    "P": "The observation occurred",
+    "Q": "The proposed cause occurred"
+  },
+  "claims": [
+    {
+      "formula": {
+        "atom": "P"
+      },
+      "id": "p",
+      "mapping_status": "unreviewed",
+      "source_id": "speech",
+      "span": {
+        "end": 15,
+        "quote": "P was observed.",
+        "start": 0
+      },
+      "text": "P was observed."
+    },
+    {
+      "formula": {
+        "atom": "Q"
+      },
+      "id": "q",
+      "mapping_status": "unreviewed",
+      "source_id": "speech",
+      "span": {
+        "end": 39,
+        "quote": "Q was caused.",
+        "start": 26
+      },
+      "text": "Q was caused."
+    }
+  ],
+  "evidence": [
+    {
+      "claim_id": "p",
+      "formula": {
+        "atom": "P"
+      },
+      "id": "e1",
+      "mapping_status": "unreviewed",
+      "relation": "supports",
+      "source_id": "record",
+      "span": {
+        "end": 38,
+        "quote": "P was observed in the official record.",
+        "start": 0
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "conclusion": "q",
+      "id": "literal",
+      "mapping_status": "unreviewed",
+      "premises": [
+        "p"
+      ]
+    }
+  ],
+  "investigation_id": "test_case",
+  "schema": "far-investigation-audit/0.1",
+  "sources": [
+    {
+      "captured_at": "2026-01-02T00:00:00Z",
+      "id": "speech",
+      "origin_id": "speech",
+      "published_at": "2026-01-01T00:00:00Z",
+      "sha256": "245faf25a8b3a9791b21748a49156cce5e4a650e9671f1d331a955f62f8d62f8",
+      "text": "P was observed. Therefore Q was caused."
+    },
+    {
+      "captured_at": "2026-01-02T00:00:00Z",
+      "id": "record",
+      "origin_id": "record",
+      "published_at": "2026-01-01T00:00:00Z",
+      "sha256": "3c0cb4e29ebd2391b9146cdc66c3168209f3672a2f0177208fc45355bccf374c",
+      "text": "P was observed in the official record."
+    }
+  ],
+  "unknowns": [
+    "Whether P is causally relevant to Q"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schema": "far-investigation-audit/0.1",
+  "investigation_id": "test_case",
+  "as_of": "2026-02-01T00:00:00Z",
+  "atoms": {
+    "P": "The observation occurred",
+    "Q": "The proposed cause occurred"
+  },
+  "sources": [
+    {
+      "id": "speech",
+      "text": "2 experiments passed. The product is safe.",
+      "sha256": "d17e6b31d8b2140e60254ddf10a526a268c2887378e3e312e9f54d724c5b2d54",
+      "origin_id": "speech",
+      "published_at": "2026-01-01T00:00:00Z",
+      "captured_at": "2026-01-02T00:00:00Z",
+      "publication_date_verified": true
+    },
+    {
+      "id": "record",
+      "text": "{\"experiments\":[{\"passed\":true},{\"passed\":false},{\"passed\":true}]}",
+      "sha256": "e10b85647e46bbdfe366915ce239caae2eb8527b57dba7f777ea20da25a96097",
+      "origin_id": "dataset_one",
+      "published_at": "2026-01-01T00:00:00Z",
+      "captured_at": "2026-01-02T00:00:00Z",
+      "publication_date_verified": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "p",
+      "text": "2 experiments passed.",
+      "source_id": "speech",
+      "span": {
+        "start": 0,
+        "end": 21,
+        "quote": "2 experiments passed."
+      },
+      "formula": {
+        "atom": "P"
+      },
+      "mapping_status": "unreviewed",
+      "quantity": {
+        "value": "2",
+        "number_span": {
+          "start": 0,
+          "end": 1
+        },
+        "unit": "experiments"
+      }
+    },
+    {
+      "id": "q",
+      "text": "The product is safe.",
+      "source_id": "speech",
+      "span": {
+        "start": 22,
+        "end": 42,
+        "quote": "The product is safe."
+      },
+      "formula": {
+        "atom": "Q"
+      },
+      "mapping_status": "unreviewed"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "data",
+      "source_id": "record",
+      "claim_id": "p",
+      "span": {
+        "start": 0,
+        "end": 66,
+        "quote": "{\"experiments\":[{\"passed\":true},{\"passed\":false},{\"passed\":true}]}"
+      },
+      "relation": "supports",
+      "mapping_status": "review_recorded",
+      "data_check": {
+        "operation": "count_where",
+        "pointer": "/experiments",
+        "where": {
+          "field": "passed",
+          "equals": true
+        }
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "id": "literal",
+      "premises": [
+        "p"
+      ],
+      "conclusion": "q",
+      "mapping_status": "unreviewed"
+    }
+  ],
+  "unknowns": [
+    "Whether P is causally relevant to Q"
+  ]
+}

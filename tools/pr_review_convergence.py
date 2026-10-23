@@ -10,6 +10,7 @@ import re
 import sys
 import urllib.request
 from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 SHA = re.compile(r"[a-f0-9]{40}\Z")
@@ -92,19 +93,88 @@ def person(value):
     return user.get("login", "") if isinstance(user, dict) else ""
 
 
-def codex_status(issue_comments, expected_head):
+def codex_origin(comment):
+    user = comment.get("user") or {}
+    app = comment.get("performed_via_github_app") or {}
+    if not isinstance(user, dict) or not isinstance(app, dict):
+        raise EvidenceError("malformed issue comment origin")
+    return (user.get("login") == "chatgpt-codex-connector[bot]"
+            and user.get("type") == "Bot"
+            and app.get("slug") == "chatgpt-codex-connector"
+            and type(app.get("id")) is int and app["id"] == 1144995)
+
+
+def timestamp(value):
+    if not isinstance(value, str):
+        raise EvidenceError("invalid Codex source timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise EvidenceError("invalid Codex source timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+        raise EvidenceError("Codex source timestamp must be UTC")
+    return parsed
+
+
+def source_identity(comment):
+    cid, updated = comment.get("id"), comment.get("updated_at")
+    if type(cid) is not int or cid < 1:
+        raise EvidenceError("Codex comment missing source ID")
+    return cid, updated, timestamp(updated)
+
+
+RECEIPT_MARKER = "<!-- codex-review-receipt:v1 -->"
+RECEIPT = re.compile(
+    r"\A<!-- codex-review-receipt:v1 -->\s*"
+    r"Codex Review: Didn't find any major issues\."
+    r"(?: (?:Chef's kiss\.|Keep them coming!))?\n\s*"
+    r"\*\*Reviewed commit:\*\* `([a-f0-9]{10,40})`\s*"
+    r"(?:<details>.*</details>\s*)?\Z", re.DOTALL)
+
+
+def codex_receipts(issue_comments):
+    receipts = []
+    for comment in issue_comments:
+        if not isinstance(comment, dict):
+            raise EvidenceError("malformed issue comment record")
+        if not codex_origin(comment):
+            continue
+        body = comment.get("body")
+        if not isinstance(body, str):
+            raise EvidenceError("authenticated Codex comment has invalid body")
+        if RECEIPT_MARKER not in body:
+            continue
+        match = RECEIPT.fullmatch(body)
+        if (not match or body.count(RECEIPT_MARKER) != 1
+                or body.count("**Reviewed commit:**") != 1):
+            raise EvidenceError("ambiguous or unrecognized authenticated Codex receipt")
+        cid, updated, moment = source_identity(comment)
+        created = comment.get("created_at")
+        if timestamp(created) != moment:
+            raise EvidenceError("edited Codex completion receipt")
+        receipts.append({"comment_id": cid, "created_at": created,
+                         "updated_at": updated, "commit_prefix": match[1],
+                         "verdict": "no_major_issues"})
+    return receipts
+
+
+def unique_json(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate machine-state key")
+        result[key] = value
+    return result
+
+
+def codex_status(issue_comments, expected_head, commit_resolutions=None):
     """Only authenticated, unambiguous, exact-head Codex state; never human approval."""
     candidates = []
     prefix = "<!-- codex-review-state:v1 "
     for comment in issue_comments:
         if not isinstance(comment, dict):
             raise EvidenceError("malformed issue comment record")
-        user = comment.get("user") or {}
-        app = comment.get("performed_via_github_app") or {}
-        if not isinstance(user, dict) or not isinstance(app, dict):
-            raise EvidenceError("malformed issue comment origin")
-        if (user.get("login") != "chatgpt-codex-connector[bot]"
-                or app.get("slug") != "chatgpt-codex-connector"):
+        if not codex_origin(comment):
             continue
         body = comment.get("body")
         if not isinstance(body, str):
@@ -119,7 +189,7 @@ def codex_status(issue_comments, expected_head):
         if " -->" not in suffix:
             raise EvidenceError("unterminated authenticated Codex review state")
         try:
-            state = json.loads(suffix.split(" -->", 1)[0])
+            state = json.loads(suffix.split(" -->", 1)[0], object_pairs_hook=unique_json)
             code = state["code_review"]
             if not isinstance(code, dict):
                 raise ValueError("code_review must be an object")
@@ -128,32 +198,60 @@ def codex_status(issue_comments, expected_head):
         if code.get("commit_sha") != expected_head:
             continue
         if (code.get("status") not in ("running", "completed", "failed")
+                or "has_unresolved_findings" not in code
                 or type(code.get("has_unresolved_findings")) not in (bool, type(None))
-                or (code.get("status") == "completed"
-                    and type(code.get("has_unresolved_findings")) is not bool)):
+                or type(code.get("has_any_findings")) not in (bool, type(None))
+                or (code.get("has_any_findings") is False
+                    and code.get("has_unresolved_findings") is True)):
             raise EvidenceError("unrecognized or incomplete authenticated Codex state")
-        cid, updated = comment.get("id"), comment.get("updated_at")
-        if type(cid) is not int or not isinstance(updated, str) or not updated:
-            raise EvidenceError("Codex summary missing source ID or timestamp")
+        cid, updated, _ = source_identity(comment)
         candidates.append((updated, cid, code))
     if not candidates:
         return {"status": "missing", "unresolved": None, "passed": False,
                 "source_comment_id": None, "updated_at": None,
-                "review_state_sources": []}
-    candidates.sort(key=lambda x: (x[0], x[1]))
+                "review_state_sources": [], "completion_basis": None,
+                "receipt_source": None}
+    candidates.sort(key=lambda x: (timestamp(x[0]), x[1]))
     updated, cid, code = candidates[-1]
     # A pending rerun never clears a previously known unresolved result. Nor
     # may a human approval bypass the incomplete rerun on the same head.
-    outstanding = any(c.get("status") == "completed"
-                      and c.get("has_unresolved_findings") is True
-                      for _, _, c in candidates)
-    # A later *completed* clean review supersedes previous known findings.
-    if code["status"] == "completed":
-        outstanding = code["has_unresolved_findings"] is True
+    outstanding = False
+    for _, _, observed in candidates:
+        if observed["has_unresolved_findings"] is True:
+            outstanding = True
+        elif (observed["status"] == "completed"
+              and observed["has_unresolved_findings"] is False):
+            # Only an explicit completed clean result clears known findings,
+            # including those reported while a prior review was running/failed.
+            outstanding = False
     passed = code["status"] == "completed" and code["has_unresolved_findings"] is False
+    basis = "explicit_finding_state" if passed else None
+    receipt_source = None
+    if code["status"] == "completed" and code["has_unresolved_findings"] is None:
+        # A separate, narrowly recognized receipt can attest completion with no
+        # major issues. It does NOT turn unknown finding flags into false and
+        # cannot clear a known unresolved result from another authenticated state.
+        matching = []
+        for receipt in codex_receipts(issue_comments):
+            prefix = receipt["commit_prefix"]
+            if not expected_head.startswith(prefix):
+                continue
+            elapsed = (timestamp(updated) - timestamp(receipt["created_at"])).total_seconds()
+            if not 0 <= elapsed <= 5:
+                continue
+            if (commit_resolutions or {}).get(prefix) != expected_head:
+                raise EvidenceError("Codex receipt commit prefix is not API-resolved to exact head")
+            matching.append(receipt)
+        if len(matching) != 1:
+            raise EvidenceError("completed Codex state lacks one contemporaneous exact-head receipt")
+        receipt_source = dict(matching[0], resolved_commit_sha=expected_head)
+        passed = not outstanding
+        basis = "authenticated_no_major_issues_receipt" if passed else None
     return {"status": code["status"],
-            "unresolved": outstanding,
+            "unresolved": True if outstanding else code["has_unresolved_findings"],
             "passed": passed,
+            "completion_basis": basis,
+            "receipt_source": receipt_source,
             "source_comment_id": cid,
             "updated_at": updated,
             "review_state_sources": [
@@ -161,7 +259,8 @@ def codex_status(issue_comments, expected_head):
                  "has_unresolved_findings": c["has_unresolved_findings"]}
                 for t, n, c in candidates]}
 
-def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None):
+def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None,
+             commit_resolutions=None):
     """Only metadata closure; no claim of independent substantive correctness."""
     if not isinstance(pr, dict) or not SHA.fullmatch(expected_head):
         raise EvidenceError("invalid expected head or PR data")
@@ -213,7 +312,8 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
         groups[(comment.get("path") or "", digest)].append(comment["id"])
     duplicates = [{"path": path, "normalized_sha256": digest, "comment_ids": sorted(ids)}
                   for (path, digest), ids in sorted(groups.items()) if len(ids) > 1]
-    automated = codex_status([] if issue_comments is None else issue_comments, expected_head)
+    automated = codex_status([] if issue_comments is None else issue_comments,
+                             expected_head, commit_resolutions)
     blockers = []
     if not current and not automated["passed"]:
         blockers.append("missing exact-head independent human approval or completed trusted Codex review")
@@ -226,7 +326,8 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None)
     if unresolved:
         blockers.append("unresolved review threads")
     return {
-        "schema": "far-pr-review-convergence/1",
+        "schema": "far-pr-review-convergence/2",
+        "policy_version": "1.1",
         "pr_number": pr["number"],
         "exact_head_sha": expected_head,
         "base_sha": (pr.get("base") or {}).get("sha"),
@@ -272,11 +373,20 @@ def main(argv=None):
         reviews = paginate(root + suffix + "/reviews", token)
         comments = paginate(root + suffix + "/comments", token)
         issue_comments = paginate(root + "/issues/" + str(args.pr) + "/comments", token)
+        resolutions = {}
+        for receipt in codex_receipts(issue_comments):
+            prefix = receipt["commit_prefix"]
+            if args.expected_head.startswith(prefix) and prefix not in resolutions:
+                resolved = api(root + "/commits/" + prefix, token)
+                if not isinstance(resolved, dict) or not SHA.fullmatch(resolved.get("sha", "")):
+                    raise EvidenceError("incomplete receipt commit resolution")
+                resolutions[prefix] = resolved["sha"]
         threads = threads_for(owner, name, args.pr, token)
         final = api(root + suffix, token)
         if not isinstance(final, dict) or (final.get("head") or {}).get("sha") != args.expected_head:
             raise EvidenceError("PR head advanced during evidence retrieval")
-        record = evaluate(pr, reviews, threads, comments, args.expected_head, issue_comments)
+        record = evaluate(pr, reviews, threads, comments, args.expected_head,
+                          issue_comments, resolutions)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         report = "\n".join([

@@ -1,0 +1,54 @@
+name: FAR Bounded Investigation Audit
+
+on:
+  pull_request:
+    paths:
+      - 'commercial/far-investigation-audit/**'
+      - '.github/workflows/far-investigation-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'commercial/far-investigation-audit/**'
+      - '.github/workflows/far-investigation-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install optional component test dependencies
+        run: python -m pip install -r commercial/far-investigation-audit/requirements-dev.txt
+      - name: Run adversarial and end-to-end tests
+        run: python -W error::ResourceWarning -m unittest discover -s commercial/far-investigation-audit/tests -p 'test_*.py' -v
+      - name: Confirm Python modules compile
+        run: python -m compileall -q commercial/far-investigation-audit
+      - name: Legacy bounded evidence/inference fixtures
+        run: |
+          python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/causal_jump.json > /tmp/far-investigation-example.json
+          python commercial/far-investigation-audit/cli.py commercial/far-investigation-audit/examples/structured_tally.json --output /tmp/far-structured-report.json
+          python commercial/far-investigation-audit/verify.py commercial/far-investigation-audit/examples/structured_tally.json /tmp/far-structured-report.json
+      - name: End-to-end source through package replay
+        run: |
+          set -euo pipefail
+          python commercial/far-investigation-audit/full_cli.py commercial/far-investigation-audit/examples/full_speech.json --output /tmp/far-full-speech
+          python commercial/far-investigation-audit/full_cli.py --verify /tmp/far-full-speech
+          python commercial/far-investigation-audit/full_cli.py commercial/far-investigation-audit/examples/complete_evidence_case.json --output /tmp/far-complete-evidence
+          python commercial/far-investigation-audit/full_cli.py --verify /tmp/far-complete-evidence
+          python commercial/far-investigation-audit/evaluate.py commercial/far-investigation-audit/examples/diagnostic_cases.json --output /tmp/far-diagnostic.json
+          python -c 'import json; x=json.load(open("/tmp/far-diagnostic.json")); assert x["case_count"]==x["passed_count"]==3; assert x["external_accuracy"] is None'
+      - name: Verify web server imports and stays research-scoped
+        run: |
+          cd commercial/far-investigation-audit
+          python -c 'from webapp import app; assert app.title == "FAR Investigation Lab"'

@@ -3,6 +3,7 @@ import copy
 import json
 import sys
 import unittest
+import yaml
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -93,8 +94,8 @@ class ConvergenceTests(unittest.TestCase):
         state = {"code_review": {"commit_sha": sha, "status": status,
                                  "has_unresolved_findings": unresolved}}
         return {"id": ident, "updated_at": updated,
-                "user": {"login": author},
-                "performed_via_github_app": {"slug": app},
+                "user": {"login": author, "type": "Bot"},
+                "performed_via_github_app": {"slug": app, "id": 1144995},
                 "body": "<!-- codex-review-state:v1 " + json.dumps(state) + " -->"}
 
     def test_authenticated_codex_clean_review_counts_for_metadata(self):
@@ -226,7 +227,8 @@ class ConvergenceTests(unittest.TestCase):
         self.assertIn("  schedule:", workflow)
         self.assertIn("  issue_comment:", workflow)
         self.assertIn("checks: write", workflow)
-        self.assertIn('name:"pr-review-convergence-observation"', workflow)
+        self.assertNotIn('name: pr-review-convergence-observation', workflow)
+        self.assertIn('name:"pr-review-convergence-scheduled-observation"', workflow)
         self.assertIn('--expected-head "$sha"', workflow)
         self.assertIn('current" == "$sha"', workflow)
         self.assertIn("ref: main", workflow)
@@ -258,6 +260,115 @@ class ConvergenceTests(unittest.TestCase):
     def test_identity_restrictions(self):
         self.assertIsNone(REPO.fullmatch("../x"))
         self.assertIsNone(SHA.fullmatch("a" * 39))
+
+    def assert_required_workflow_boundary(self, workflow):
+        jobs = workflow["jobs"]
+        job = jobs["required-review"]
+        self.assertEqual(job["name"], "pr-review-convergence-observation")
+        self.assertEqual(set(workflow["on"]), {"pull_request", "pull_request_review"})
+        self.assertEqual(set(workflow["on"]["pull_request_review"]["types"]),
+                         {"submitted", "edited", "dismissed"})
+        self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
+        self.assertEqual(set(workflow["on"]["pull_request"]["types"]),
+                         {"opened", "reopened", "synchronize", "ready_for_review",
+                          "converted_to_draft", "edited"})
+        self.assertNotIn("if", job)
+        self.assertNotIn("continue-on-error", job)
+        # No dependency may turn failure of another job into a skipped success.
+        self.assertNotIn("needs", job)
+        self.assertNotIn("strategy", job)
+        self.assertEqual(job["permissions"], {"contents": "read", "pull-requests": "read", "issues": "read"})
+        checkouts = [step for step in job["steps"]
+                     if step.get("uses", "").startswith("actions/checkout@")]
+        self.assertEqual(len(checkouts), 1)
+        checkout = checkouts[0]
+        self.assertNotIn("repository", checkout.get("with", {}))
+        self.assertNotIn("if", checkout)
+        self.assertEqual(checkout["with"]["ref"], "main")
+        self.assertEqual(checkout["with"]["persist-credentials"], "false")
+        scripts = [step for step in job["steps"] if "run" in step]
+        self.assertEqual(len(scripts), 1)
+        script = scripts[0]
+        self.assertNotIn("if", script)
+        self.assertNotIn("continue-on-error", script)
+        self.assertEqual(script["env"]["EVENT_HEAD"], "${{ github.event.pull_request.head.sha }}")
+        self.assertIn('"$sha" == "$EVENT_HEAD"', script["run"])
+        self.assertIn('"$current" == "$sha"', script["run"])
+        self.assertIn('--expected-head "$sha"', script["run"])
+        self.assertIn('python3 "$collector"', script["run"])
+        self.assertIn('collector=tools/pr_review_convergence.py', script["run"])
+        self.assertIn('"$PR_NUMBER" == 578', script["run"])
+        self.assertIn('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', script["run"])
+        self.assertIn('sha256sum --check --status', script["run"])
+        self.assertIn('?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71', script["run"])
+        self.assertIn('21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863', script["run"])
+        self.assertIn("--mode enforce", script["run"])
+        self.assertNotIn("gh api --method POST", script["run"])
+
+    def test_required_check_is_a_native_eligible_read_only_job(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
+        self.assert_required_workflow_boundary(yaml.load(path.read_text(), Loader=yaml.BaseLoader))
+        advisory = path.with_name("pr-review-convergence.yml")
+        other_jobs = yaml.load(advisory.read_text(), Loader=yaml.BaseLoader)["jobs"]
+        self.assertFalse(any(job.get("name") == "pr-review-convergence-observation"
+                             for job in other_jobs.values()))
+
+    def test_contract_workflow_covers_the_required_workflow_on_pr_and_push(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence-contract.yml"
+        workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        for event in ("pull_request", "push"):
+            with self.subTest(event=event):
+                self.assertIn(".github/workflows/required-pr-review-convergence.yml",
+                              workflow["on"][event]["paths"])
+
+    def test_required_job_rejects_ineligible_event_or_privileged_candidate_mutations(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/required-pr-review-convergence.yml"
+        source = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        for mutation in ("event", "comment_event", "conditional", "permissions", "checkout",
+                         "head", "dependency", "skip_enforce", "ignore_step_failure",
+                         "ignore_job_failure", "remove_ready_event", "other_repo",
+                         "second_checkout", "bootstrap_pin", "bootstrap_digest",
+                         "bootstrap_pr", "bootstrap_repository"):
+            with self.subTest(mutation=mutation):
+                changed = copy.deepcopy(source)
+                job = changed["jobs"]["required-review"]
+                if mutation == "event":
+                    changed["on"] = {"schedule": [{"cron": "13 * * * *"}]}
+                elif mutation == "comment_event":
+                    changed["on"]["issue_comment"] = {"types": ["created"]}
+                elif mutation == "conditional":
+                    job["if"] = "github.event_name == 'pull_request'"
+                elif mutation == "permissions":
+                    job["permissions"]["checks"] = "write"
+                elif mutation == "checkout":
+                    job["steps"][0]["with"]["ref"] = "${{ github.event.pull_request.head.sha }}"
+                elif mutation == "head":
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace('[[ "$sha" == "$EVENT_HEAD" ]]', "true")
+                elif mutation == "skip_enforce":
+                    job["steps"][1]["if"] = "github.event_name == 'pull_request'"
+                elif mutation == "ignore_step_failure":
+                    job["steps"][1]["continue-on-error"] = "true"
+                elif mutation == "ignore_job_failure":
+                    job["continue-on-error"] = "true"
+                elif mutation == "remove_ready_event":
+                    changed["on"]["pull_request"]["types"].remove("ready_for_review")
+                elif mutation == "other_repo":
+                    job["steps"][0]["with"]["repository"] = "attacker/fork"
+                elif mutation == "second_checkout":
+                    job["steps"].insert(1, {"uses": "actions/checkout@v4",
+                                            "with": {"ref": "candidate"}})
+                elif mutation.startswith("bootstrap_"):
+                    before, after = {
+                        "bootstrap_pin": ('?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71', '?ref=feature'),
+                        "bootstrap_digest": ('sha256sum --check --status', 'true'),
+                        "bootstrap_pr": ('"$PR_NUMBER" == 578', '1 == 1'),
+                        "bootstrap_repository": ('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', '1 == 1'),
+                    }[mutation]
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace(before, after)
+                else:
+                    job["needs"] = "discover"
+                with self.assertRaises(AssertionError):
+                    self.assert_required_workflow_boundary(changed)
 
 
 if __name__ == "__main__":
