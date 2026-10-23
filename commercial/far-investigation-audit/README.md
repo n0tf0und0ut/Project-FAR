@@ -2,7 +2,7 @@
 
 **Status:** experimental downstream commercial/research component. It does **not** modify or claim Accepted FARA/FAR/FARO authority, the frozen FAR-CORE theory, the EFR campaign or the 60-case confirmatory benchmark. **It does not independently establish real-world truth.** Version 0.4 includes bounded text, caption, local-document, and optional media/URL intake; it does not establish open-domain ingestion reliability or independently correct semantic adjudication.
 
-Current engine and local-service revision: **0.4.4**. Generated heuristic readings
+Current engine and local-service revision: **0.4.5**. Generated heuristic readings
 are capped at 12, with omitted candidates disclosed in the report. Structured
 quantities must cover a complete numeric literal in the original source, including
 its sign and decimal digits; clipping the claim quotation cannot strip those
@@ -21,7 +21,12 @@ space grouping and arithmetic fragments without interpreting their semantics.
 Adjacent numeric lists can therefore require an explicitly disambiguated input.
 The audit producer and replay share duplicate-rejecting JSON parsing, malformed
 enums yield bounded input errors, and the separate checker rejects undeclared
-report fields at report, claim and evidence levels.
+report fields at report, claim and evidence levels. Reported computed numbers
+must use bounded fixed-decimal notation before separate rational checking.
+Filtered counts use integer accumulation and sums use a complete fixed Decimal
+context, independent of caller precision, exponent limits, traps and clamping.
+Caption metadata keywords require their WebVTT boundaries; valid cue identifiers
+such as `NOTEworthy` retain their transcript text, timing and source spans.
 
 This implements a concrete, independently replayable *formal* audit of two distinct steps:
 

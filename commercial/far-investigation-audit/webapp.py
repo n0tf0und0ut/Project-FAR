@@ -16,7 +16,7 @@ from acquire import AcquisitionError
 from engine import InvalidBundle
 from workflow import investigate
 
-app = FastAPI(title="FAR Investigation Lab", version="0.4.4", docs_url=None, redoc_url=None)
+app = FastAPI(title="FAR Investigation Lab", version="0.4.5", docs_url=None, redoc_url=None)
 _GATE = threading.BoundedSemaphore(value=1)
 
 

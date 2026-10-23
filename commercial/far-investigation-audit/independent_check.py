@@ -251,6 +251,19 @@ def _separate_numeric_recompute(claim:dict, record:dict, text:str, *, claim_sour
         raise IndependentCheckError("invalid numeric computation contract") from exc
 
 
+def _reported_fraction(value):
+    """Bound producer-format decimals before any potentially expanding power.
+
+    A sum has at most 10,000 terms, each with 40 coefficient digits and exponent
+    in [-40, 40]. Allow 85 integer and 40 fractional places, including row carry.
+    The producer emits fixed notation, so exponent aliases are unnecessary.
+    """
+    if (not isinstance(value, str) or len(value) > 127
+            or re.fullmatch(r"-?(?:0|[1-9][0-9]{0,84})(?:\.[0-9]{1,40})?", value) is None):
+        raise IndependentCheckError("computed numeric value exceeds bounded report contract")
+    return Fraction(Decimal(value))
+
+
 def check_report(bundle:dict, report:dict)->dict:
     if not isinstance(bundle,dict) or not isinstance(report,dict):
         raise IndependentCheckError("bundle/report missing")
@@ -520,7 +533,7 @@ def check_report(bundle:dict, report:dict)->dict:
                 raise IndependentCheckError("structured metadata mismatch: " + ev["id"])
             if expected_value is not None:
                 try:
-                    if not isinstance(found.get("computed_value"), str) or Fraction(Decimal(found["computed_value"]))!=expected_value:
+                    if _reported_fraction(found.get("computed_value")) != expected_value:
                         raise ValueError("value changed")
                 except (ValueError,TypeError,ArithmeticError) as exc:
                     raise IndependentCheckError("computed numeric value differs: "+ev["id"]) from exc
@@ -593,7 +606,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("invalid report identity serialization") from exc
     expected_identity = {
         "schema": "far-investigation-report/0.2",
-        "engine": "far-investigation-audit/0.4.4",
+        "engine": "far-investigation-audit/0.4.5",
         "investigation_id": bundle["investigation_id"],
         "input_sha256": input_hash,
         "as_of": bundle["as_of"],

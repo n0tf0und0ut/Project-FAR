@@ -310,3 +310,28 @@ These are Research implementation and internal-checker repairs. They do not
 supply external source authentication, human semantic adjudication, scientific
 replication, measured customer utility or production assurance. Fresh final-head
 substantive review, hosted assurance and protected merge gates remain required.
+
+
+## Twelfth review: resource-bounded report numbers, cue coverage and arithmetic context
+
+Reviewed head: `8ec9a4683e393c22f4dd7ac42dc1b839317ea83d` (2026-10-23).
+Three new findings reproduced despite the predecessor's passing component suite.
+
+| Invariant | Source discussion | Root correction | Permanent regression |
+|---|---|---|---|
+| `BOUNDED-REPORTED-NUMERIC-CONVERSION` | 4363821905 | Require producer-format fixed decimal strings with at most 85 integer and 40 fractional places (127 characters including sign/dot) before Decimal/Fraction conversion; this accommodates 10,000-row sums of the admitted 40-digit, exponent ±40 inputs | Rehashed reports with billion-scale positive/negative exponents, nonfinite and oversized values reject in bounded subprocesses; large aggregates and small fractional results still cross-check |
+| `CAPTION-METADATA-KEYWORD-BOUNDARY` | 4363821913 | Match NOTE only at end or ASCII space/tab boundary; STYLE/REGION require complete header lines. Preserve non-ASCII identifier whitespace rather than stripping it into a reserved keyword | Eight keyword-prefix/Unicode-whitespace cue identifiers retain both cues, extracted text, offsets and package replay; genuine metadata remains excluded |
+| `ARITHMETIC-CONTEXT-INDEPENDENCE` | 4363821922 | Accumulate filtered counts as integers, constructing Decimal only after counting. Also give sums a complete fixed arithmetic context rather than inheriting caller exponent limits, traps or clamping | 101- and 10,000-row counts under precision 2 and rounding traps, low-context generation/default-context replay, and sums under hostile caller exponent/trap settings |
+
+The unchanged seven-test regression file was executed on the exact reviewed
+predecessor in an isolated worktree: **10 assertion failures and four errors**.
+All **220 corrected component tests pass**. Engine, service and separate-checker
+identity advance together to **0.4.5**; earlier packages retain their originating
+engine requirement. Caption grammar was checked against the W3C WebVTT editor's
+draft at https://w3c.github.io/webvtt/ (metadata and cue syntax); this is a bounded
+parser correction, not a claim of complete WebVTT conformance.
+
+These are internal Research implementation/oracle repairs. No external semantic
+fidelity, source authenticity, factual accuracy, commercial advantage, EFR result
+or production-readiness claim changes. Fresh substantive review, complete hosted
+assurance and all protected merge gates remain required on the successor head.

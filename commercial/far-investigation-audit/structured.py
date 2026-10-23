@@ -8,7 +8,8 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
-from decimal import Decimal, InvalidOperation, localcontext
+from decimal import (Context, Decimal, DivisionByZero, InvalidOperation, Overflow,
+                     ROUND_HALF_EVEN, localcontext)
 from typing import Any
 
 MAX_ROWS = 10000
@@ -100,11 +101,15 @@ def pointer(value: Any, path: str) -> Any:
 
 def _sum_field(rows: list[Any], field: str) -> Decimal:
     total = Decimal(0)
-    with localcontext() as ctx:
+    # The caller may customize exponent limits, traps and clamping as well as
+    # precision. Arithmetic must use its own complete deterministic context.
+    with localcontext(Context(prec=MAX_DIGITS + 2 * MAX_DECIMAL_EXPONENT + len(str(MAX_ROWS)),
+                              rounding=ROUND_HALF_EVEN, Emin=-999999, Emax=999999,
+                              capitals=1, clamp=0, flags=[],
+                              traps=[InvalidOperation, DivisionByZero, Overflow])) as ctx:
         # A 40-digit coefficient at exponent +40 and a term at -40 can
         # occupy 120 significant places. Reserve row-count carry places too;
         # 100 digits silently lost small terms before later cancellation.
-        ctx.prec = MAX_DIGITS + 2 * MAX_DECIMAL_EXPONENT + len(str(MAX_ROWS))
         for row in rows:
             if not isinstance(row, dict) or field not in row:
                 raise StructuredUnverifiable("sum field missing or row is not an object")
@@ -194,12 +199,13 @@ def evaluate_structured(claim: dict[str, Any], evidence: dict[str, Any], source_
         elif op == "sum_field":
             computed = _sum_field(rows, field)
         else:
-            computed = Decimal(0)
+            count = 0
             for row in rows:
                 if not isinstance(row, dict) or where["field"] not in row:
                     raise StructuredUnverifiable("where field missing or row not an object")
                 if _strict_equal(row[where["field"]], expected):
-                    computed += 1
+                    count += 1
+            computed = Decimal(count)
         return {"status": "STRUCTURED_VALUE_MATCH" if computed == value else "STRUCTURED_VALUE_MISMATCH",
                 "declared_value": quantity["value"], "computed_value": format(computed, "f"),
                 "unit": unit, "operation": op, "rows_inspected": len(rows),

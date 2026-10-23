@@ -197,8 +197,9 @@ def parse_captions(raw: str) -> dict:
     output = []
     parts = []
     for block in blocks:
-        lines = [x.strip() for x in block.splitlines() if x.strip()]
-        if not lines or lines[0] == "WEBVTT" or lines[0].startswith(("NOTE", "STYLE", "REGION")):
+        lines = [x.strip(" \t") for x in block.splitlines() if x.strip(" \t")]
+        if (not lines or lines[0] in {"WEBVTT", "STYLE", "REGION"}
+                or re.match(r"NOTE(?:[ \t]|$)", lines[0])):
             continue
         matches = [i for i, x in enumerate(lines) if CUE.fullmatch(x)]
         if len(matches) != 1:
