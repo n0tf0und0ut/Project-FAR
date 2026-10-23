@@ -3,6 +3,8 @@ name: PR Review Convergence
 # Runs trusted protected-main code only. Required PR checks must originate
 # from eligible PR events; schedule/manual publications are advisory only.
 on:
+  push:
+    branches: [repair/legacy-review-publications-20261023]
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
     branches: [main]
@@ -27,6 +29,7 @@ permissions:
 
 jobs:
   discover:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -78,8 +81,8 @@ jobs:
 
   review-convergence:
     needs: discover
-    # No pull-request-influenced workflow is ever permitted a write token.
-    # Only trusted main schedule/manual dispatch publishes Checks API status.
+    # PR-driven jobs never receive a write token. Result publication stays on
+    # main; the separate manual repair below can rename proven legacy records.
     if: (github.event_name == 'schedule' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     strategy:
       fail-fast: false
@@ -155,6 +158,100 @@ jobs:
         with:
           name: pr-review-convergence-${{ matrix.pr }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/pr-review-convergence.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  legacy-review-activation:
+    # Initial push intentionally stops read-only. Explicit retry activates a
+    # reviewed immutable source; the dependent writer is skipped until then.
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/repair/legacy-review-publications-20261023') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/repair/legacy-review-publications-20261023')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      actions: read
+      checks: read
+    steps:
+      - name: Require explicit activation and construct a provenance-checked plan
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR ]]
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          if [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_RUN_ATTEMPT" == 1 ]]; then
+            echo 'Explicit job retry after exact-source review and tests is required.' >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            [[ "$PR_NUMBER" =~ ^578([.]0+)?$ ]]
+          fi
+          api="/repos/$GITHUB_REPOSITORY/contents/tools"
+          gh api "$api/retire_legacy_review_publications.py?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
+          gh api "$api/pr_review_convergence.py?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
+          printf '%s  %s\n' fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
+          printf '%s  %s\n' 21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863 "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
+          python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$RUNNER_TEMP/legacy-review-name-repair.json"
+      - name: Preserve the operation and review evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: legacy-review-name-plan-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/legacy-review-name-repair.json
+            ${{ runner.temp }}/review-*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  legacy-review-retirement:
+    needs: legacy-review-activation
+    # No PR-origin write token, no checkout, no conclusion/status mutation.
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/repair/legacy-review-publications-20261023' && github.run_attempt > 1) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/repair/legacy-review-publications-20261023')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: legacy-review-name-retirement-${{ github.repository }}-578
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      actions: read
+      checks: write
+    steps:
+      - name: Recheck readiness and rename only proven legacy scheduled records
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR ]]
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          api="/repos/$GITHUB_REPOSITORY/contents/tools"
+          gh api "$api/retire_legacy_review_publications.py?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
+          gh api "$api/pr_review_convergence.py?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
+          printf '%s  %s\n' fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
+          printf '%s  %s\n' 21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863 "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
+          python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$RUNNER_TEMP/legacy-review-name-repair.json" \
+            --apply
+      - name: Preserve the operation and review evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: legacy-review-name-applied-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/legacy-review-name-repair.json
+            ${{ runner.temp }}/review-*.json
           if-no-files-found: warn
           retention-days: 30
 

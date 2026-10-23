@@ -9,6 +9,9 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import urllib.error
+import hashlib
+import subprocess
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import retire_legacy_review_publications as repair
@@ -332,6 +335,100 @@ class TransportTests(unittest.TestCase):
                 with self.assertRaises(repair.RepairError):
                     client.log(701)
                 self.assertEqual(opened.call_count, 1)
+
+
+class ManualWorkflowTests(unittest.TestCase):
+    def workflow(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence.yml"
+        return yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+
+    def boundary(self, workflow):
+        jobs = workflow["jobs"]
+        read = jobs["legacy-review-activation"]
+        write = jobs["legacy-review-retirement"]
+        self.assertEqual(workflow["on"]["push"]["branches"], [repair.REPAIR_BRANCH])
+        common = "github.ref == 'refs/heads/" + repair.REPAIR_BRANCH + "'"
+        self.assertEqual(read["if"], "(github.event_name == 'push' && " + common
+                         + ") || (github.event_name == 'workflow_dispatch' && " + common + ")")
+        self.assertEqual(write["if"], "(github.event_name == 'push' && " + common
+                         + " && github.run_attempt > 1) || (github.event_name == 'workflow_dispatch' && " + common + ")")
+        self.assertEqual(write.get("needs"), "legacy-review-activation")
+        self.assertEqual(read["permissions"], {"contents": "read", "pull-requests": "read",
+                         "issues": "read", "actions": "read", "checks": "read"})
+        self.assertEqual(write["permissions"], dict(read["permissions"], checks="write"))
+        for job in (read, write):
+            self.assertNotIn("continue-on-error", job)
+            self.assertFalse(any("checkout@" in step.get("uses", "") for step in job["steps"]))
+            scripts = [step for step in job["steps"] if "run" in step]
+            self.assertEqual(len(scripts), 1)
+            self.assertNotIn("if", scripts[0])
+            self.assertNotIn("continue-on-error", scripts[0])
+            self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
+            script = scripts[0]["run"]
+            self.assertIn("?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380", script)
+            self.assertIn("?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71", script)
+            self.assertIn("fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f", script)
+            self.assertIn("21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863", script)
+            self.assertEqual(script.count("sha256sum --check --status"), 2)
+        read_script = read["steps"][0]["run"]
+        self.assertNotIn("--apply", read_script)
+        self.assertIn('"$GITHUB_RUN_ATTEMPT" == 1', read_script)
+        self.assertLess(read_script.index('"$GITHUB_RUN_ATTEMPT" == 1'), read_script.index("gh api"))
+        self.assertIn("--apply", write["steps"][0]["run"])
+
+    def test_read_only_activation_and_dependent_name_writer_have_closed_boundaries(self):
+        self.boundary(self.workflow())
+
+    def test_removing_activation_source_pin_or_candidate_isolation_is_rejected(self):
+        for mutation in ("needs", "event", "attempt", "permissions", "pin", "digest"):
+            workflow = self.workflow()
+            read, write = [workflow["jobs"][name] for name in ("legacy-review-activation", "legacy-review-retirement")]
+            if mutation == "needs":
+                del write["needs"]
+            elif mutation == "event":
+                write["if"] = "github.event_name == 'pull_request'"
+            elif mutation == "attempt":
+                write["if"] = write["if"].replace(" && github.run_attempt > 1", "")
+            elif mutation == "permissions":
+                read["permissions"]["checks"] = "write"
+            elif mutation == "pin":
+                write["steps"][0]["run"] = write["steps"][0]["run"].replace(
+                    "?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380", "?ref=branch")
+            else:
+                write["steps"][0]["run"] = write["steps"][0]["run"].replace("sha256sum --check --status", "true")
+            with self.subTest(mutation=mutation), self.assertRaises(AssertionError):
+                self.boundary(workflow)
+
+    def test_initial_push_stops_before_downloading_or_executing_any_helper(self):
+        script = self.workflow()["jobs"]["legacy-review-activation"]["steps"][0]["run"]
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / "called"
+            env = dict(os.environ, GITHUB_EVENT_NAME="push", GITHUB_RUN_ATTEMPT="1",
+                       GITHUB_REPOSITORY=repair.REPOSITORY, SOURCE_SHA=SOURCE, RUNNER_TEMP=directory,
+                       MOCK_MARKER=str(marker))
+            stubs = 'gh() { printf called > "$MOCK_MARKER"; return 99; }\npython3() { printf called > "$MOCK_MARKER"; return 99; }\n'
+            result = subprocess.run(["bash", "-c", stubs + script], env=env, text=True,
+                                    capture_output=True, timeout=5)
+            self.assertEqual(result.returncode, 1)
+            self.assertFalse(marker.exists())
+
+    def test_pinned_helper_and_collector_digests_match_the_actual_files(self):
+        root = Path(__file__).resolve().parents[1] / "tools"
+        self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
+                         "fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f")
+        self.assertEqual(hashlib.sha256((root / "pr_review_convergence.py").read_bytes()).hexdigest(),
+                         "21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863")
+
+    def test_operation_review_base_runs_the_read_only_contract_and_token_tests(self):
+        path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence-contract.yml"
+        workflow = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        self.assertIn(repair.TARGET_BRANCH, workflow["on"]["pull_request"]["branches"])
+        for event in ("pull_request", "push"):
+            self.assertIn("tools/retire_legacy_review_publications.py", workflow["on"][event]["paths"])
+            self.assertIn("tests/test_pr_review_convergence_retirement.py", workflow["on"][event]["paths"])
+        job = workflow["jobs"]["convergence-contract"]
+        self.assertIn("test_workflow_token_permissions.py", "\n".join(s.get("run", "") for s in job["steps"]))
+        self.assertNotIn("write", workflow["permissions"].values())
 
 
 if __name__ == "__main__":
