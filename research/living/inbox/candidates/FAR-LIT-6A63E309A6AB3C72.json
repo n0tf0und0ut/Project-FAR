@@ -4,8 +4,41 @@
   "candidate_id": "FAR-LIT-6A63E309A6AB3C72",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:07:29Z",
-    "last_seen_utc": "2026-09-08T14:07:29Z",
+    "last_seen_utc": "2026-09-21T00:17:34Z",
     "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "bisimulation quotient minimization computation",
+        "seen_utc": "2026-09-11T18:36:50Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      },
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "HIST-QUOTIENT-MINIMIZATION",
+        "lens": "formal_mathematics",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1977,
+          1986
+        ],
+        "query": "equivalence quotient minimization representation",
+        "seen_utc": "2026-09-18T05:56:42Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
       {
         "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
         "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
@@ -29,7 +62,20 @@
     "stage": "DISCOVERED"
   },
   "potential_claim_ids": [
-    "FAR-CORE-002"
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
   ],
   "record_type": "CANDIDATE_LITERATURE",
   "schema_version": "1.0",
@@ -55,6 +101,7 @@
   "triage": {
     "attention_terms": [],
     "lenses": [
+      "formal_mathematics",
       "governed_question"
     ],
     "status": "UNREVIEWED_CANDIDATE"

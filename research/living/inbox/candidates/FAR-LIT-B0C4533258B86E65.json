@@ -1,0 +1,76 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-B0C4533258B86E65",
+  "discovery": {
+    "first_seen_utc": "2026-09-15T11:46:20Z",
+    "last_seen_utc": "2026-09-24T06:11:53Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning audit workload efficiency",
+        "seen_utc": "2026-09-15T11:46:20Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      },
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured reasoning contract provenance audit",
+        "seen_utc": "2026-09-15T11:46:20Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.54254/2755-2721/2026.36917",
+  "sources": [
+    {
+      "attention_terms": [
+        "correction"
+      ],
+      "authors": [
+        "Zhiqi Hu"
+      ],
+      "container": "Applied and Computational Engineering",
+      "doi": "10.54254/2755-2721/2026.36917",
+      "provider": "Crossref",
+      "provider_id": "10.54254/2755-2721/2026.36917",
+      "published_date": "2026-09-15",
+      "publisher": "EWA Publishing",
+      "title": "RoundValue: A Complete-Trajectory Audit of Repair, Harm, and Correct-Candidate Non-Uptake in Multi-agent Reasoning",
+      "url": "https://doi.org/10.54254/2755-2721/2026.36917",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [
+      "correction"
+    ],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

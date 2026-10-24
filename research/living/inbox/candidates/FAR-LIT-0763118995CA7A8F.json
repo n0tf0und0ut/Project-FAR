@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-0763118995CA7A8F",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:07:29Z",
-    "last_seen_utc": "2026-09-08T14:07:29Z",
+    "last_seen_utc": "2026-10-19T19:47:16Z",
     "query_bindings": [
       {
         "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",

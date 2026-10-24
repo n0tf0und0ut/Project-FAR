@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-93C57A005BA7291D",
+  "discovery": {
+    "first_seen_utc": "2026-09-22T09:59:35Z",
+    "last_seen_utc": "2026-09-25T01:55:44Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured argument audit cost benefit",
+        "seen_utc": "2026-09-22T09:59:35Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1515/2152-2812.1085",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Lynn A. Karoly"
+      ],
+      "container": "Journal of Benefit-Cost Analysis",
+      "doi": "10.1515/2152-2812.1085",
+      "provider": "Crossref",
+      "provider_id": "10.1515/2152-2812.1085",
+      "published_date": "2015-01-19",
+      "publisher": "Cambridge University Press (CUP)",
+      "title": "Toward Standardization of Benefit-Cost Analysis of Early Childhood Interventions",
+      "url": "https://doi.org/10.1515/2152-2812.1085",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

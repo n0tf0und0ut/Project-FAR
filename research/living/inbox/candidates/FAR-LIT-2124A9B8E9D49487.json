@@ -1,0 +1,79 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-2124A9B8E9D49487",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T18:36:50Z",
+    "last_seen_utc": "2026-09-11T18:36:50Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "PHIL-MEASUREMENT",
+        "lens": "philosophy_of_science",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          2007,
+          2016
+        ],
+        "query": "measurement theory representation invariance scale transformation",
+        "seen_utc": "2026-09-11T18:36:50Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.4324/9781410605269-13",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [],
+      "container": "Item Response Theory",
+      "doi": "10.4324/9781410605269-13",
+      "provider": "Crossref",
+      "provider_id": "10.4324/9781410605269-13",
+      "published_date": "2013-09-05",
+      "publisher": "Psychology Press",
+      "title": "The Trait Level Measurement Scale: Meaning, Interpretations, and Measurement-Scale Properties",
+      "url": "https://doi.org/10.4324/9781410605269-13",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "philosophy_of_science"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

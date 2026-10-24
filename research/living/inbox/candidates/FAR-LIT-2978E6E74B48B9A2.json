@@ -1,0 +1,65 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-2978E6E74B48B9A2",
+  "discovery": {
+    "first_seen_utc": "2026-10-23T21:45:08Z",
+    "last_seen_utc": "2026-10-24T19:40:03Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "large language model adversarial reviewer calibration independent evaluation",
+        "seen_utc": "2026-10-23T21:45:08Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.3390/electronics14112267",
+  "sources": [
+    {
+      "attention_terms": [
+        "correction"
+      ],
+      "authors": [
+        "Lei Che",
+        "Chengcong Wu",
+        "Yan Hou"
+      ],
+      "container": "Electronics",
+      "doi": "10.3390/electronics14112267",
+      "provider": "Crossref",
+      "provider_id": "10.3390/electronics14112267",
+      "published_date": "2025-05-31",
+      "publisher": "MDPI AG",
+      "title": "Large Language Model Text Adversarial Defense Method Based on Disturbance Detection and Error Correction",
+      "url": "https://doi.org/10.3390/electronics14112267",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [
+      "correction"
+    ],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}
