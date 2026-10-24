@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-36B89C3A121F5586",
+  "discovery": {
+    "first_seen_utc": "2026-09-18T11:18:27Z",
+    "last_seen_utc": "2026-09-19T06:40:13Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-09-18T11:18:27Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1002/nla.1915",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Klaus Neymeyr",
+        "Ming Zhou"
+      ],
+      "container": "Numerical Linear Algebra with Applications",
+      "doi": "10.1002/nla.1915",
+      "provider": "Crossref",
+      "provider_id": "10.1002/nla.1915",
+      "published_date": "2013-12-10",
+      "publisher": "Wiley",
+      "title": "Iterative minimization of the Rayleigh quotient by block steepest descent iterations",
+      "url": "https://doi.org/10.1002/nla.1915",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

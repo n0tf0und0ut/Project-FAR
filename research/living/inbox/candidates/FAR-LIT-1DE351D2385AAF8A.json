@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-1DE351D2385AAF8A",
+  "discovery": {
+    "first_seen_utc": "2026-09-14T07:08:55Z",
+    "last_seen_utc": "2026-09-15T00:59:02Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "representation loss audit empirical study",
+        "seen_utc": "2026-09-14T07:08:55Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1016/j.jlp.2026.106177",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Kateryna Miniailo",
+        "Zhouxiang Fei",
+        "Neil Buckley",
+        "Ogbonnaya Anicho"
+      ],
+      "container": "Journal of Loss Prevention in the Process Industries",
+      "doi": "10.1016/j.jlp.2026.106177",
+      "provider": "Crossref",
+      "provider_id": "10.1016/j.jlp.2026.106177",
+      "published_date": "2026-09-01",
+      "publisher": "Elsevier BV",
+      "title": "Ontology-Driven Representation and Reasoning for Hazard and Operability Studies",
+      "url": "https://doi.org/10.1016/j.jlp.2026.106177",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-79B481134B714113",
+  "discovery": {
+    "first_seen_utc": "2026-09-25T07:51:16Z",
+    "last_seen_utc": "2026-09-28T05:27:03Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information bottleneck decision loss sufficient statistic",
+        "seen_utc": "2026-09-25T07:51:16Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.7554/elife.89369.2",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Michael Kleinman",
+        "Tian Wang",
+        "Derek Xiao",
+        "Ebrahim Feghhi",
+        "Kenji Lee",
+        "Nicole Carr",
+        "Yuke Li",
+        "Nima Hadidi",
+        "Chandramouli Chandrasekaran",
+        "Jonathan C Kao"
+      ],
+      "container": null,
+      "doi": "10.7554/elife.89369.2",
+      "provider": "Crossref",
+      "provider_id": "10.7554/elife.89369.2",
+      "published_date": "2025-05-28",
+      "publisher": "eLife Sciences Publications, Ltd",
+      "title": "The information bottleneck as a principle underlying multi-area cortical representations during decision-making",
+      "url": "https://doi.org/10.7554/elife.89369.2",
+      "work_type": "posted-content"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

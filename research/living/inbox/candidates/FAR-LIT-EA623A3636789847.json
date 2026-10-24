@@ -1,0 +1,64 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-EA623A3636789847",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T06:02:08Z",
+    "last_seen_utc": "2026-10-23T11:15:23Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "large language model adversarial reviewer calibration independent evaluation",
+        "seen_utc": "2026-09-11T06:02:08Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.18653/v1/2024.findings-emnlp.407",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Alfonso Amayuelas",
+        "Xianjun Yang",
+        "Antonis Antoniades",
+        "Wenyue Hua",
+        "Liangming Pan",
+        "William Yang Wang"
+      ],
+      "container": "Findings of the Association for Computational Linguistics: EMNLP 2024",
+      "doi": "10.18653/v1/2024.findings-emnlp.407",
+      "provider": "Crossref",
+      "provider_id": "10.18653/v1/2024.findings-emnlp.407",
+      "published_date": "2024-01-01",
+      "publisher": "Association for Computational Linguistics",
+      "title": "MultiAgent Collaboration Attack: Investigating Adversarial Attacks in Large Language Model Collaborations via Debate",
+      "url": "https://doi.org/10.18653/v1/2024.findings-emnlp.407",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

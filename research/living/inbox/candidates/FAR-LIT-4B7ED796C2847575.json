@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-4B7ED796C2847575",
+  "discovery": {
+    "first_seen_utc": "2026-09-17T15:19:16Z",
+    "last_seen_utc": "2026-10-19T19:47:16Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured reasoning audit error detection human evaluation",
+        "seen_utc": "2026-09-17T15:19:16Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.18653/v1/2025.emnlp-main.1541",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Mohna Chakraborty",
+        "Lu Wang",
+        "David Jurgens"
+      ],
+      "container": "Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing",
+      "doi": "10.18653/v1/2025.emnlp-main.1541",
+      "provider": "Crossref",
+      "provider_id": "10.18653/v1/2025.emnlp-main.1541",
+      "published_date": "2025-01-01",
+      "publisher": "Association for Computational Linguistics",
+      "title": "Structured Moral Reasoning in Language Models: A Value-Grounded Evaluation Framework",
+      "url": "https://doi.org/10.18653/v1/2025.emnlp-main.1541",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}
