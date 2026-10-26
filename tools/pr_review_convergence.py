@@ -127,7 +127,7 @@ RECEIPT_MARKER = "<!-- codex-review-receipt:v1 -->"
 RECEIPT = re.compile(
     r"\A<!-- codex-review-receipt:v1 -->\s*"
     r"Codex Review: Didn't find any major issues\."
-    r"(?: (?:Chef's kiss\.|Keep them coming!))?\n\s*"
+    r"(?: (?:Chef's kiss\.|Keep them coming!|Swish!|Nice work!|:tada:))?\n\s*"
     r"\*\*Reviewed commit:\*\* `([a-f0-9]{10,40})`\s*"
     r"(?:<details>.*</details>\s*)?\Z", re.DOTALL)
 
