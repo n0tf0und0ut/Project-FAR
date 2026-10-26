@@ -177,9 +177,10 @@ def gate_evidence(client, checks, *, head=TARGET, gates=None):
     return evidence
 
 
-def legacy_record(check):
+def legacy_record(check, *, allow_renamed=False):
     ident = check.get("id")
-    return (type(ident) is int and ident > 0 and check.get("name") == REQUIRED
+    valid_names = (REQUIRED, ADVISORY) if allow_renamed else (REQUIRED,)
+    return (type(ident) is int and ident > 0 and check.get("name") in valid_names
             and check.get("app", {}).get("id") == 15368 and check.get("head_sha") == TARGET
             and check.get("details_url") == f"https://github.com/{REPOSITORY}/runs/{ident}"
             and check.get("status") == "completed" and check.get("conclusion") in ("success", "failure"))
@@ -204,41 +205,56 @@ def publication_proofs(client, legacy):
     proofs = {}
     if not wanted:
         return proofs
-    # This is a bounded proof search, not a claim that every historical run was
-    # enumerated. Stop once all requested records have a verified receipt.
-    runs = []
-    for page in range(1, 3):
-        batch = client.get(ROOT + "/actions/runs?event=schedule&per_page=100&page=" + str(page))
-        batch = batch.get("workflow_runs")
+    # Query only the verified publisher workflow. Repository-wide scheduled jobs
+    # exhaust a small page window within hours and cannot prove older receipts.
+    # Bound the search to 10,000 publisher runs; fail closed beyond that limit.
+    for page in range(1, 101):
+        response = client.get(ROOT + "/actions/workflows/pr-review-convergence.yml/runs"
+                              + "?event=schedule&per_page=100&page=" + str(page))
+        batch = response.get("workflow_runs")
         if not isinstance(batch, list) or any(not isinstance(x, dict) for x in batch):
-            raise RepairError("incomplete scheduled run search")
-        runs.extend(batch)
+            raise RepairError("incomplete publisher workflow run search")
+        for run in batch:
+            if (run.get("event") != "schedule" or run.get("head_sha") != MAIN
+                    or run.get("head_branch") != "main"
+                    or run.get("path") != ".github/workflows/pr-review-convergence.yml"):
+                continue
+            jobs = collection(client, ROOT + "/actions/runs/" + str(run["id"]) + "/jobs", "jobs")
+            for job in jobs:
+                if job.get("name") != "review-convergence (578)" or job.get("status") != "completed":
+                    continue
+                for line in client.log(job["id"]).splitlines():
+                    match = PUBLICATION_LINE.fullmatch(line)
+                    if not match:
+                        continue
+                    try:
+                        posted = json.loads(match[1], object_pairs_hook=unique_object)
+                    except ValueError:
+                        continue
+                    ident = posted.get("id") if isinstance(posted, dict) else None
+                    # The publisher receipt MUST show the original required name.
+                    # The live record may already be renamed from a partial retry;
+                    # all immutable result fields must still match the original.
+                    if (ident in wanted and legacy_record(posted)
+                            and fingerprint(posted) == fingerprint(wanted[ident])):
+                        proofs[ident] = {"run_id": run["id"], "job_id": job["id"]}
+            if set(proofs) == set(wanted):
+                return proofs
         if len(batch) < 100:
             break
-    for run in runs:
-        if (run.get("event") != "schedule" or run.get("head_sha") != MAIN
-                or run.get("head_branch") != "main"
-                or run.get("path") != ".github/workflows/pr-review-convergence.yml"):
-            continue
-        jobs = collection(client, ROOT + "/actions/runs/" + str(run["id"]) + "/jobs", "jobs")
-        for job in jobs:
-            if job.get("name") != "review-convergence (578)" or job.get("status") != "completed":
-                continue
-            for line in client.log(job["id"]).splitlines():
-                match = PUBLICATION_LINE.fullmatch(line)
-                if not match:
-                    continue
-                try:
-                    posted = json.loads(match[1], object_pairs_hook=unique_object)
-                except ValueError:
-                    continue
-                ident = posted.get("id") if isinstance(posted, dict) else None
-                if ident in wanted and legacy_record(posted) and fingerprint(posted) == fingerprint(wanted[ident]):
-                    proofs[ident] = {"run_id": run["id"], "job_id": job["id"]}
-        if set(proofs) == set(wanted):
-            return proofs
     raise RepairError("not every legacy check has a protected-main scheduled publication receipt")
 
+
+def persist_journal(path, record):
+    """Durably stage a redacted write-ahead journal before any Checks API PATCH."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    with temporary.open("w", encoding="utf-8") as stream:
+        json.dump(record, stream, indent=2, sort_keys=True)
+        stream.write("\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
 
 def execute(client, source_sha, output_dir, *, apply=False, reviewer=check_review):
     if not SHA.fullmatch(source_sha):
@@ -260,35 +276,64 @@ def execute(client, source_sha, output_dir, *, apply=False, reviewer=check_revie
         "convergence-contract": (15368, ".github/workflows/pr-review-convergence-contract.yml")})
     checks = collection(client, ROOT + "/commits/" + TARGET + "/check-runs?filter=all", "check_runs")
     gates = gate_evidence(client, checks)
-    legacy = [x for x in checks if legacy_record(x)]
+    # Include previously renamed records only when their original required-name
+    # publication receipt is proven. This makes crash recovery auditable.
+    legacy = [x for x in checks if legacy_record(x, allow_renamed=True)]
     proofs = publication_proofs(client, legacy)
-    plan = [{"check_id": x["id"], "old_name": REQUIRED, "new_name": ADVISORY,
+    plan = [{"check_id": x["id"], "old_name": x["name"], "new_name": ADVISORY,
              "preserved": fingerprint(x), "source": proofs[x["id"]]} for x in legacy]
-    # Complete all provenance/readiness checks before performing the first write.
+    # Complete all provenance/readiness checks before preparing any write.
     identity(client)
-    changed = []
-    for before in legacy:
-        latest = client.get(ROOT + "/check-runs/" + str(before["id"]))
-        if not legacy_record(latest) or fingerprint(latest) != fingerprint(before):
-            raise RepairError("publication changed after preflight")
-        if apply:
-            result = client.rename(before["id"])
-            after = client.get(ROOT + "/check-runs/" + str(before["id"]))
-            if (result.get("name") != ADVISORY or after.get("name") != ADVISORY
-                    or fingerprint(after) != fingerprint(before)
-                    or after.get("app", {}).get("id") != 15368):
-                raise RepairError("readback did not preserve the original result")
-            changed.append(before["id"])
-        identity(client)
-    return {"schema": "far-legacy-review-name-repair/1", "repository": REPOSITORY,
-            "target_pr": TARGET_PR, "target_head": TARGET, "protected_main": MAIN,
-            "operation_source": source_sha, "authorization_pr": authorizations[0]["number"],
-            "review_artifacts": [r["pr_number"] for r in reviews], "gates": gates,
-            "operation_tests": operation_tests,
-            "plan": plan, "renamed_check_ids": changed, "applied": apply,
-            "conclusions_modified": False, "protection_modified": False,
-            "merge_performed": False}
-
+    operations = [{"check_id": x["id"], "state": "PREVIOUSLY_RENAMED"
+                   if x["name"] == ADVISORY else "PLANNED"} for x in legacy]
+    report = {"schema": "far-legacy-review-name-repair/1", "repository": REPOSITORY,
+              "target_pr": TARGET_PR, "target_head": TARGET, "protected_main": MAIN,
+              "operation_source": source_sha, "authorization_pr": authorizations[0]["number"],
+              "review_artifacts": [r["pr_number"] for r in reviews], "gates": gates,
+              "operation_tests": operation_tests, "plan": plan, "operations": operations,
+              "renamed_check_ids": [], "applied": False, "state": "PREPARED",
+              "conclusions_modified": False, "protection_modified": False,
+              "merge_performed": False}
+    journal_path = output_dir / "legacy-review-name-repair.json"
+    # Persist the complete authorized plan before attempting the first write.
+    persist_journal(journal_path, report)
+    try:
+        for index, before in enumerate(legacy):
+            op = operations[index]
+            latest = client.get(ROOT + "/check-runs/" + str(before["id"]))
+            if (not legacy_record(latest, allow_renamed=True)
+                    or latest["name"] != before["name"]
+                    or fingerprint(latest) != fingerprint(before)):
+                raise RepairError("publication changed after preflight")
+            if before["name"] == ADVISORY:
+                op["state"] = "PREVIOUSLY_RENAMED_VERIFIED"
+                persist_journal(journal_path, report)
+            elif apply:
+                # Unknown outcome after a network interruption is not "failed":
+                # document the attempted write before issuing the PATCH.
+                op["state"] = "PATCH_IN_FLIGHT"
+                persist_journal(journal_path, report)
+                result = client.rename(before["id"])
+                op["state"] = "PATCH_RETURNED"
+                persist_journal(journal_path, report)
+                after = client.get(ROOT + "/check-runs/" + str(before["id"]))
+                if (result.get("name") != ADVISORY or after.get("name") != ADVISORY
+                        or fingerprint(after) != fingerprint(before)
+                        or after.get("app", {}).get("id") != 15368):
+                    raise RepairError("readback did not preserve the original result")
+                op["state"] = "READBACK_VERIFIED"
+                report["renamed_check_ids"].append(before["id"])
+                persist_journal(journal_path, report)
+            identity(client)
+    except Exception as exc:
+        report["state"] = "INCOMPLETE"
+        report["error_type"] = type(exc).__name__
+        persist_journal(journal_path, report)
+        raise
+    report["state"] = "COMPLETE"
+    report["applied"] = apply
+    persist_journal(journal_path, report)
+    return report
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
