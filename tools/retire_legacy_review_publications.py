@@ -353,7 +353,7 @@ def main(argv=None):
         args.output.parent.mkdir(parents=True, exist_ok=True)
         report = execute(Client(os.environ["GH_TOKEN"]), args.source_sha, args.output.parent,
                          apply=args.apply)
-        args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+        persist_journal(args.output, report)
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0
     except (RepairError, OSError, ValueError, KeyError, TypeError, AttributeError, IndexError,
