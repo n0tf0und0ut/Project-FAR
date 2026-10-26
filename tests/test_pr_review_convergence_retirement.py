@@ -444,9 +444,9 @@ class ManualWorkflowTests(unittest.TestCase):
             self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
             script = scripts[0]["run"]
             self.assertIn("?ref=7da4d20b242fe6d327e342d61ac06094b2a5ac6b", script)
-            self.assertIn("?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65", script)
+            self.assertIn("?ref=57bfc75b2af375efb1774faf0c418147097c0d10", script)
             self.assertIn("7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3", script)
-            self.assertIn("c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c", script)
+            self.assertIn("ff3bab0fcdc4d0eeb7e94af21eb1df2c2cde6858ca8cbfa14363b08b804644a0", script)
             self.assertEqual(script.count("sha256sum --check --status"), 2)
         read_script = read["steps"][0]["run"]
         self.assertNotIn("--apply", read_script)
@@ -495,7 +495,7 @@ class ManualWorkflowTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
                          "7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3")
         self.assertEqual(hashlib.sha256((root / "pr_review_convergence_operator.py").read_bytes()).hexdigest(),
-                         "c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c")
+                         "ff3bab0fcdc4d0eeb7e94af21eb1df2c2cde6858ca8cbfa14363b08b804644a0")
 
     def test_operator_collector_preserves_native_bytes_and_authenticated_boundaries(self):
         root = Path(__file__).resolve().parents[1] / "tools"
@@ -510,7 +510,7 @@ class ManualWorkflowTests(unittest.TestCase):
         self.assertIn("if (candidates and candidates[-1][2]", operator)
         self.assertIn('and candidates[-1][2]["has_unresolved_findings"] is None', operator)
         self.assertIn("ambiguous or unrecognized authenticated Codex receipt", operator)
-        self.assertIn("pr_review_convergence_operator.py?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65",
+        self.assertIn("pr_review_convergence_operator.py?ref=57bfc75b2af375efb1774faf0c418147097c0d10",
                       self.workflow()["jobs"]["legacy-review-retirement"]["steps"][0]["run"])
 
     def test_operation_review_base_runs_the_read_only_contract_and_token_tests(self):
