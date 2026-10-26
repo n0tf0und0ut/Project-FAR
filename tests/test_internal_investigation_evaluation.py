@@ -80,6 +80,12 @@ class InternalCampaignTests(unittest.TestCase):
         self.assertNotIn('TAVILY_API_KEY', env); self.assertEqual(env['NOESIS_JEV_ENABLED'], 'false')
         self.assertEqual(env['HF_HUB_OFFLINE'], '1')
 
+    def test_workspace_exclusion_is_relative_to_the_run_not_host_root(self):
+        # A host often lives under /workspace; that must not erase every receipt.
+        source = (ROOT / 'tools/run_internal_investigation_evaluation.py').read_text()
+        self.assertNotIn("'workspace' not in p.parts", source)
+        self.assertEqual(source.count("'workspace' not in p.relative_to(output).parts"), 2)
+
     def test_runtime_logic_bound_and_frozen_study_bytes_are_not_changed(self):
         # This exploratory harness does not modify engine, field adapter or frozen study contracts.
         source = (ROOT / 'tools/run_internal_investigation_evaluation.py').read_text()

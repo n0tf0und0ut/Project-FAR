@@ -347,7 +347,7 @@ def run(registration, output, noesis_cli):
     checkpoint()
     write(output / 'artifact-manifest.json', {'schema': 'far-internal-run-artifacts/1',
           'files': {str(p.relative_to(output)): sha(p.read_bytes()) for p in sorted(output.rglob('*'))
-                    if p.is_file() and 'workspace' not in p.parts and p.name != 'artifact-manifest.json'}})
+                    if p.is_file() and 'workspace' not in p.relative_to(output).parts and p.name != 'artifact-manifest.json'}})
     return results
 
 
@@ -355,7 +355,7 @@ def verify_run(output):
     output = Path(output).resolve()
     manifest = read(output / 'artifact-manifest.json')
     actual = {str(p.relative_to(output)) for p in output.rglob('*')
-              if p.is_file() and 'workspace' not in p.parts and p.name != 'artifact-manifest.json'}
+              if p.is_file() and 'workspace' not in p.relative_to(output).parts and p.name != 'artifact-manifest.json'}
     if set(manifest['files']) != actual:
         raise ValueError('incomplete artifact manifest')
     results = read(output / 'results.json')
