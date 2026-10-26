@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import pr_review_convergence as gate
+import pr_review_convergence_operator as operator_gate
 
 HEAD = "ab12cd34ef" + "a" * 30
 PREFIX = HEAD[:10]
@@ -66,7 +67,10 @@ class ReceiptContractTests(unittest.TestCase):
     def test_observed_nice_work_suffix_is_authenticated_without_promoting_unknown(self):
         updated = receipt()
         updated["body"] = updated["body"].replace("Keep them coming!", "Nice work!")
-        record = evaluate([summary(), updated])
+        with self.assertRaises(gate.EvidenceError):
+            evaluate([summary(), updated])
+        record = operator_gate.evaluate(copy.deepcopy(PR), [], [], [], HEAD,
+                                        [summary(), updated], {PREFIX: HEAD})
         self.assertTrue(record["review_metadata_converged"])
         source = record["trusted_codex_review_on_exact_head"]
         self.assertEqual(source["completion_basis"], "authenticated_no_major_issues_receipt")
