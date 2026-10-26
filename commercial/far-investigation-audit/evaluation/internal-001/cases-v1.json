@@ -1,0 +1,2458 @@
+{
+  "schema": "far-internal-exploratory-corpus/1",
+  "status": "Research",
+  "author_control": "PROJECT_CONTROLLED_ALL_CASES_AND_REFERENCES",
+  "source_to_report": [
+    {
+      "case_id": "true-premises-invalid",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "true-premises-invalid",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The switch is on.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The switch is on.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The switch is on.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "false-premise-valid",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "false-premise-valid",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. If the lamp is on then the room is lit. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "If the lamp is on then the room is lit.",
+              "formula": {
+                "implies": [
+                  {
+                    "atom": "P"
+                  },
+                  {
+                    "atom": "Q"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "p3",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1",
+                "p2"
+              ],
+              "conclusion": "p3",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "ENTAILS_CONDITIONALLY",
+        "premise_truth_internal_reference": "FALSE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "affirming-consequent",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "affirming-consequent",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "If the lamp is on then the room is lit. The room is lit. The lamp is on.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "If the lamp is on then the room is lit.",
+            "Q": "The lamp is on.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "If the lamp is on then the room is lit.",
+              "formula": {
+                "implies": [
+                  {
+                    "atom": "P"
+                  },
+                  {
+                    "atom": "Q"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            },
+            {
+              "id": "p3",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1",
+                "p2"
+              ],
+              "conclusion": "p3",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "denying-antecedent",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "denying-antecedent",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "If the lamp is on then the room is lit. The lamp is not on. The room is not lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "If the lamp is on then the room is lit.",
+            "Q": "The room is not lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "If the lamp is on then the room is lit.",
+              "formula": {
+                "implies": [
+                  {
+                    "atom": "P"
+                  },
+                  {
+                    "atom": "Q"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The lamp is not on.",
+              "formula": {
+                "not": {
+                  "atom": "P"
+                }
+              }
+            },
+            {
+              "id": "p3",
+              "quote": "The room is not lit.",
+              "formula": {
+                "not": {
+                  "atom": "Q"
+                }
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1",
+                "p2"
+              ],
+              "conclusion": "p3",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "valid-control",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "valid-control",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. If the lamp is on then the room is lit. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "If the lamp is on then the room is lit.",
+              "formula": {
+                "implies": [
+                  {
+                    "atom": "P"
+                  },
+                  {
+                    "atom": "Q"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "p3",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1",
+                "p2"
+              ],
+              "conclusion": "p3",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "ENTAILS_CONDITIONALLY",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "inconsistent-premises",
+      "research_intake_ids": [
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "inconsistent-premises",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The lamp is not on. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The lamp is not on.",
+              "formula": {
+                "not": {
+                  "atom": "P"
+                }
+              }
+            },
+            {
+              "id": "p3",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1",
+                "p2"
+              ],
+              "conclusion": "p3",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "INCONSISTENT_PREMISES",
+        "premise_truth_internal_reference": "INCONSISTENT",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "quantifier-faithful",
+      "research_intake_ids": [
+        "SR-005"
+      ],
+      "config": {
+        "investigation_id": "quantifier-faithful",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "Some reviewed deployments were safe. All reviewed deployments were safe.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "Some reviewed deployments were safe.",
+            "Q": "All reviewed deployments were safe.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "Some reviewed deployments were safe.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "All reviewed deployments were safe.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "quantifier-collapsed",
+      "research_intake_ids": [
+        "SR-005"
+      ],
+      "config": {
+        "investigation_id": "quantifier-collapsed",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "Some reviewed deployments were safe. All reviewed deployments were safe.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "Some reviewed deployments were safe.",
+            "Q": "All reviewed deployments were safe.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "Some reviewed deployments were safe.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "All reviewed deployments were safe.",
+              "formula": {
+                "atom": "P"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "ENTAILS_CONDITIONALLY",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "UNFAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "threshold-faithful",
+      "research_intake_ids": [
+        "SR-005"
+      ],
+      "config": {
+        "investigation_id": "threshold-faithful",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "At least ten audits were completed. More than ten audits were completed.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "At least ten audits were completed.",
+            "Q": "More than ten audits were completed.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "At least ten audits were completed.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "More than ten audits were completed.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "threshold-collapsed",
+      "research_intake_ids": [
+        "SR-005"
+      ],
+      "config": {
+        "investigation_id": "threshold-collapsed",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "At least ten audits were completed. More than ten audits were completed.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "At least ten audits were completed.",
+            "Q": "More than ten audits were completed.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "At least ten audits were completed.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "More than ten audits were completed.",
+              "formula": {
+                "atom": "P"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "ENTAILS_CONDITIONALLY",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "UNFAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "correlation-causal-jump",
+      "research_intake_ids": [
+        "SR-004",
+        "SR-007"
+      ],
+      "config": {
+        "investigation_id": "correlation-causal-jump",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "Sales rose after the policy changed. The policy caused the increase.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "Sales rose after the policy changed.",
+            "Q": "The policy caused the increase.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "Sales rose after the policy changed.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The policy caused the increase.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "TRUE",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "exact-citation-irrelevant",
+      "research_intake_ids": [
+        "SR-002",
+        "SR-004"
+      ],
+      "config": {
+        "investigation_id": "exact-citation-irrelevant",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [
+          {
+            "kind": "text",
+            "text": "The report describes blue walls.",
+            "published_at": "2026-10-25T12:00:00Z",
+            "origin_id": "controlled-origin"
+          }
+        ],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [
+            {
+              "id": "e1",
+              "source_id": "ev1",
+              "claim_id": "p1",
+              "quote": "The report describes blue walls.",
+              "formula": {
+                "atom": "R"
+              },
+              "relation": "supports"
+            }
+          ],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "UNKNOWN",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": true
+    },
+    {
+      "case_id": "hindsight-later-capture",
+      "research_intake_ids": [
+        "SR-001"
+      ],
+      "config": {
+        "investigation_id": "hindsight-later-capture",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [
+          {
+            "kind": "text",
+            "text": "The lamp is on.",
+            "published_at": "2026-10-25T12:00:00Z",
+            "origin_id": "controlled-origin"
+          }
+        ],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [
+            {
+              "id": "e1",
+              "source_id": "ev1",
+              "claim_id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              },
+              "relation": "supports"
+            }
+          ],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "UNKNOWN",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": true,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "unverified-source-date",
+      "research_intake_ids": [
+        "SR-001"
+      ],
+      "config": {
+        "investigation_id": "unverified-source-date",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [
+          {
+            "kind": "text",
+            "text": "The lamp is on.",
+            "published_at": "2026-10-25T12:00:00Z",
+            "origin_id": "controlled-origin"
+          }
+        ],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [
+            {
+              "id": "e1",
+              "source_id": "ev1",
+              "claim_id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              },
+              "relation": "supports"
+            }
+          ],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "UNKNOWN",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    },
+    {
+      "case_id": "copied-origin",
+      "research_intake_ids": [
+        "SR-004"
+      ],
+      "config": {
+        "investigation_id": "copied-origin",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The lamp is on. The room is lit.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [
+          {
+            "kind": "text",
+            "text": "The lamp is on.",
+            "published_at": "2026-10-25T12:00:00Z",
+            "origin_id": "controlled-origin"
+          },
+          {
+            "kind": "text",
+            "text": "The lamp is on.",
+            "published_at": "2026-10-25T12:00:00Z",
+            "origin_id": "controlled-origin"
+          }
+        ],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The lamp is on.",
+            "Q": "The room is lit.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The room is lit.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [
+            {
+              "id": "e1",
+              "source_id": "ev1",
+              "claim_id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              },
+              "relation": "supports"
+            },
+            {
+              "id": "e2",
+              "source_id": "ev2",
+              "claim_id": "p1",
+              "quote": "The lamp is on.",
+              "formula": {
+                "atom": "P"
+              },
+              "relation": "supports"
+            }
+          ],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "UNKNOWN",
+        "semantic_fidelity_internal_reference": "FAITHFUL",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": true
+    },
+    {
+      "case_id": "ambiguous-interpretation",
+      "research_intake_ids": [
+        "SR-005"
+      ],
+      "config": {
+        "investigation_id": "ambiguous-interpretation",
+        "captured_at": "2026-10-26T12:00:00Z",
+        "source": {
+          "kind": "text",
+          "text": "The system is safe. The system is reliable.",
+          "published_at": "2026-10-25T12:00:00Z",
+          "origin_id": "primary-fixture"
+        },
+        "evidence_sources": [],
+        "proposal_mode": "supplied",
+        "proposal": {
+          "atoms": {
+            "P": "The system is safe.",
+            "Q": "The system is reliable.",
+            "R": "The report describes wall color."
+          },
+          "claims": [
+            {
+              "id": "p1",
+              "quote": "The system is safe.",
+              "formula": {
+                "atom": "P"
+              }
+            },
+            {
+              "id": "p2",
+              "quote": "The system is reliable.",
+              "formula": {
+                "atom": "Q"
+              }
+            }
+          ],
+          "arguments": [
+            {
+              "id": "reading",
+              "premises": [
+                "p1"
+              ],
+              "conclusion": "p2",
+              "interpretation": "Developer supplied; semantic fidelity is not established by the tool."
+            }
+          ],
+          "evidence": [],
+          "unknowns": []
+        }
+      },
+      "reference": {
+        "argument_status": "DOES_NOT_ENTAIL",
+        "premise_truth_internal_reference": "UNKNOWN",
+        "semantic_fidelity_internal_reference": "DISPUTED",
+        "factual_verdict_expected": "ABSTAIN",
+        "semantic_verification_expected": false,
+        "label_origin": "PROJECT_AUTHORED_CONTROL_NOT_EXTERNAL_GOLD"
+      },
+      "controlled_temporal_variant": false,
+      "controlled_in_window_variant": false
+    }
+  ],
+  "formal_comparison": [
+    {
+      "case_id": "formal-0-0",
+      "premises": [
+        {
+          "atom": "P0"
+        },
+        {
+          "implies": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "Q0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-1",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        },
+        {
+          "atom": "Q0"
+        }
+      ],
+      "conclusion": {
+        "atom": "P0"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-2",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P0"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "Q0"
+        }
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-3",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "Q0"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "P0"
+        }
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-4",
+      "premises": [
+        {
+          "atom": "P0"
+        },
+        {
+          "not": {
+            "atom": "P0"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q0"
+      },
+      "reference_status": "INCONSISTENT_PREMISES",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-5",
+      "premises": [
+        {
+          "or": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P0"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-6",
+      "premises": [
+        {
+          "atom": "P0"
+        }
+      ],
+      "conclusion": {
+        "atom": "Q0"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-0-7",
+      "premises": [
+        {
+          "and": [
+            {
+              "atom": "P0"
+            },
+            {
+              "atom": "Q0"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "P0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-0",
+      "premises": [
+        {
+          "atom": "P1"
+        },
+        {
+          "implies": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "Q1"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-1",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        },
+        {
+          "atom": "Q1"
+        }
+      ],
+      "conclusion": {
+        "atom": "P1"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-2",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P1"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "Q1"
+        }
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-3",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "Q1"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "P1"
+        }
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-4",
+      "premises": [
+        {
+          "atom": "P1"
+        },
+        {
+          "not": {
+            "atom": "P1"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q1"
+      },
+      "reference_status": "INCONSISTENT_PREMISES",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-5",
+      "premises": [
+        {
+          "or": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P1"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q1"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-6",
+      "premises": [
+        {
+          "atom": "P1"
+        }
+      ],
+      "conclusion": {
+        "atom": "Q1"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-1-7",
+      "premises": [
+        {
+          "and": [
+            {
+              "atom": "P1"
+            },
+            {
+              "atom": "Q1"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "P1"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-0",
+      "premises": [
+        {
+          "atom": "P2"
+        },
+        {
+          "implies": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "Q2"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-1",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        },
+        {
+          "atom": "Q2"
+        }
+      ],
+      "conclusion": {
+        "atom": "P2"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-2",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P2"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "Q2"
+        }
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-3",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "Q2"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "P2"
+        }
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-4",
+      "premises": [
+        {
+          "atom": "P2"
+        },
+        {
+          "not": {
+            "atom": "P2"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q2"
+      },
+      "reference_status": "INCONSISTENT_PREMISES",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-5",
+      "premises": [
+        {
+          "or": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P2"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q2"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-6",
+      "premises": [
+        {
+          "atom": "P2"
+        }
+      ],
+      "conclusion": {
+        "atom": "Q2"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-2-7",
+      "premises": [
+        {
+          "and": [
+            {
+              "atom": "P2"
+            },
+            {
+              "atom": "Q2"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "P2"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-0",
+      "premises": [
+        {
+          "atom": "P3"
+        },
+        {
+          "implies": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "Q3"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-1",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        },
+        {
+          "atom": "Q3"
+        }
+      ],
+      "conclusion": {
+        "atom": "P3"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-2",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P3"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "Q3"
+        }
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-3",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "Q3"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "P3"
+        }
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-4",
+      "premises": [
+        {
+          "atom": "P3"
+        },
+        {
+          "not": {
+            "atom": "P3"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q3"
+      },
+      "reference_status": "INCONSISTENT_PREMISES",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-5",
+      "premises": [
+        {
+          "or": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P3"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q3"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-6",
+      "premises": [
+        {
+          "atom": "P3"
+        }
+      ],
+      "conclusion": {
+        "atom": "Q3"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-3-7",
+      "premises": [
+        {
+          "and": [
+            {
+              "atom": "P3"
+            },
+            {
+              "atom": "Q3"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "P3"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-0",
+      "premises": [
+        {
+          "atom": "P4"
+        },
+        {
+          "implies": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "Q4"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-1",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        },
+        {
+          "atom": "Q4"
+        }
+      ],
+      "conclusion": {
+        "atom": "P4"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-2",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P4"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "Q4"
+        }
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-3",
+      "premises": [
+        {
+          "implies": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "Q4"
+          }
+        }
+      ],
+      "conclusion": {
+        "not": {
+          "atom": "P4"
+        }
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-4",
+      "premises": [
+        {
+          "atom": "P4"
+        },
+        {
+          "not": {
+            "atom": "P4"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q4"
+      },
+      "reference_status": "INCONSISTENT_PREMISES",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-5",
+      "premises": [
+        {
+          "or": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        },
+        {
+          "not": {
+            "atom": "P4"
+          }
+        }
+      ],
+      "conclusion": {
+        "atom": "Q4"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-6",
+      "premises": [
+        {
+          "atom": "P4"
+        }
+      ],
+      "conclusion": {
+        "atom": "Q4"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "formal-4-7",
+      "premises": [
+        {
+          "and": [
+            {
+              "atom": "P4"
+            },
+            {
+              "atom": "Q4"
+            }
+          ]
+        }
+      ],
+      "conclusion": {
+        "atom": "P4"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "predeclared_truth_table_pattern"
+    },
+    {
+      "case_id": "bound-13-True",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        },
+        {
+          "atom": "A12"
+        }
+      ],
+      "conclusion": {
+        "atom": "A0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "declared_atom_bound_probe"
+    },
+    {
+      "case_id": "bound-13-False",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        }
+      ],
+      "conclusion": {
+        "atom": "A12"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "declared_atom_bound_probe"
+    },
+    {
+      "case_id": "bound-16-True",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        },
+        {
+          "atom": "A12"
+        },
+        {
+          "atom": "A13"
+        },
+        {
+          "atom": "A14"
+        },
+        {
+          "atom": "A15"
+        }
+      ],
+      "conclusion": {
+        "atom": "A0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "declared_atom_bound_probe"
+    },
+    {
+      "case_id": "bound-16-False",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        },
+        {
+          "atom": "A12"
+        },
+        {
+          "atom": "A13"
+        },
+        {
+          "atom": "A14"
+        }
+      ],
+      "conclusion": {
+        "atom": "A15"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "declared_atom_bound_probe"
+    },
+    {
+      "case_id": "bound-25-True",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        },
+        {
+          "atom": "A12"
+        },
+        {
+          "atom": "A13"
+        },
+        {
+          "atom": "A14"
+        },
+        {
+          "atom": "A15"
+        },
+        {
+          "atom": "A16"
+        },
+        {
+          "atom": "A17"
+        },
+        {
+          "atom": "A18"
+        },
+        {
+          "atom": "A19"
+        },
+        {
+          "atom": "A20"
+        },
+        {
+          "atom": "A21"
+        },
+        {
+          "atom": "A22"
+        },
+        {
+          "atom": "A23"
+        },
+        {
+          "atom": "A24"
+        }
+      ],
+      "conclusion": {
+        "atom": "A0"
+      },
+      "reference_status": "ENTAILS_CONDITIONALLY",
+      "kind": "declared_atom_bound_probe"
+    },
+    {
+      "case_id": "bound-25-False",
+      "premises": [
+        {
+          "atom": "A0"
+        },
+        {
+          "atom": "A1"
+        },
+        {
+          "atom": "A2"
+        },
+        {
+          "atom": "A3"
+        },
+        {
+          "atom": "A4"
+        },
+        {
+          "atom": "A5"
+        },
+        {
+          "atom": "A6"
+        },
+        {
+          "atom": "A7"
+        },
+        {
+          "atom": "A8"
+        },
+        {
+          "atom": "A9"
+        },
+        {
+          "atom": "A10"
+        },
+        {
+          "atom": "A11"
+        },
+        {
+          "atom": "A12"
+        },
+        {
+          "atom": "A13"
+        },
+        {
+          "atom": "A14"
+        },
+        {
+          "atom": "A15"
+        },
+        {
+          "atom": "A16"
+        },
+        {
+          "atom": "A17"
+        },
+        {
+          "atom": "A18"
+        },
+        {
+          "atom": "A19"
+        },
+        {
+          "atom": "A20"
+        },
+        {
+          "atom": "A21"
+        },
+        {
+          "atom": "A22"
+        },
+        {
+          "atom": "A23"
+        }
+      ],
+      "conclusion": {
+        "atom": "A24"
+      },
+      "reference_status": "DOES_NOT_ENTAIL",
+      "kind": "declared_atom_bound_probe"
+    }
+  ],
+  "raw_comparison_case_ids": [
+    "true-premises-invalid",
+    "false-premise-valid",
+    "quantifier-faithful",
+    "threshold-faithful",
+    "exact-citation-irrelevant",
+    "hindsight-later-capture"
+  ],
+  "history_pairs": [
+    {
+      "id": "retained-lamp",
+      "prior_text": "The lamp uses a rechargeable battery.",
+      "followup_text": "The device was inspected today.",
+      "question": "What does the lamp use?"
+    },
+    {
+      "id": "retained-audit",
+      "prior_text": "The audit recorded eleven inspections.",
+      "followup_text": "The quarterly report was published.",
+      "question": "How many inspections did the audit record?"
+    }
+  ]
+}
