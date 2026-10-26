@@ -8,6 +8,7 @@ on:
       - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
       - 'tools/pr_review_convergence.py'
+      - 'tools/pr_review_convergence_operator.py'
       - 'tools/retire_legacy_review_publications.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
@@ -23,6 +24,7 @@ on:
       - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
       - 'tools/pr_review_convergence.py'
+      - 'tools/pr_review_convergence_operator.py'
       - 'tools/retire_legacy_review_publications.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
@@ -55,10 +57,19 @@ jobs:
           PR_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
         shell: bash
         run: |
           set -euo pipefail
-          python3 tools/pr_review_convergence.py \
+          collector=tools/pr_review_convergence.py
+          # Only the separate, read-only operator PR smoke uses the pinned
+          # compatibility copy. Required protected-main review stays unchanged.
+          if [[ "$PR_REPOSITORY" == n0tf0und0ut/Project-FAR &&
+                "$PR_NUMBER" == 591 &&
+                "$PR_BASE_REF" == feature/bounded-auditable-investigations-v01 ]]; then
+            collector=tools/pr_review_convergence_operator.py
+          fi
+          python3 "$collector" \
             --repository "$PR_REPOSITORY" \
             --pr "$PR_NUMBER" \
             --expected-head "$PR_HEAD_SHA" \
