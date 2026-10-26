@@ -63,6 +63,30 @@ class ReceiptContractTests(unittest.TestCase):
         self.assertFalse(record["software_correctness_proven"])
         self.assertFalse(record["merge_authorization_verified"])
 
+    def test_authenticated_cosmetic_completion_suffixes_with_exact_head(self):
+        # All observed bot variants retain the same strict, authenticated,
+        # contiguous exact-head completion declaration.
+        for suffix in ("Keep them coming!", "Chef's kiss.", "Swish!",
+                       "Nice work!", ":tada:"):
+            record = receipt()
+            record["body"] = record["body"].replace(
+                "Keep them coming!", suffix)
+            with self.subTest(suffix=suffix):
+                result = evaluate([summary(), record])
+                self.assertTrue(result["review_metadata_converged"])
+                codex = result["trusted_codex_review_on_exact_head"]
+                self.assertIsNone(codex["unresolved"])
+                self.assertEqual(codex["receipt_source"]["comment_id"], 11)
+
+    def test_unrecognized_or_semantically_negative_suffix_rejected(self):
+        for suffix in (":bug:", "However, a critical bug remains.",
+                       "No; there are unresolved findings.", "Nice work! NOTE"):
+            record = receipt()
+            record["body"] = record["body"].replace(
+                "Keep them coming!", suffix)
+            with self.subTest(suffix=suffix), self.assertRaises(gate.EvidenceError):
+                evaluate([summary(), record])
+
     def test_null_without_receipt_still_fails_even_with_human_approval(self):
         review = {"id": 4, "state": "APPROVED", "commit_id": HEAD,
                   "submitted_at": "2026-10-23T21:00:00Z",

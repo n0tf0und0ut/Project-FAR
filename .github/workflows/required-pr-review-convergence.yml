@@ -54,8 +54,8 @@ jobs:
           if [[ "$(git rev-parse HEAD)" == e4d936ca0ba9770be6f72e0435220987882f4146 ]]; then
             [[ "$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR && "$PR_NUMBER" == 578 ]]
             collector="$RUNNER_TEMP/pr-review-policy-v1.1.py"
-            gh api "$api/contents/tools/pr_review_convergence.py?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71" --jq .content | base64 --decode > "$collector"
-            printf '%s  %s\n' 21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863 "$collector" | sha256sum --check --status
+            gh api "$api/contents/tools/pr_review_convergence.py?ref=e49608d92c42b661d094092c47f73837b83fcbf3" --jq .content | base64 --decode > "$collector"
+            printf '%s  %s\n' 7bad2a27d405fe203f00e48cde0c2b836af875a989e4caac0f746f0e4c0ec0e1 "$collector" | sha256sum --check --status
           fi
           python3 "$collector" \
             --repository "$GITHUB_REPOSITORY" \
