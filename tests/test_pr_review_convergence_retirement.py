@@ -443,9 +443,9 @@ class ManualWorkflowTests(unittest.TestCase):
             self.assertNotIn("continue-on-error", scripts[0])
             self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
             script = scripts[0]["run"]
-            self.assertIn("?ref=0f3e0225534678ed128701488d60c8732f4b60d5", script)
+            self.assertIn("?ref=7da4d20b242fe6d327e342d61ac06094b2a5ac6b", script)
             self.assertIn("?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65", script)
-            self.assertIn("977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee", script)
+            self.assertIn("7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3", script)
             self.assertIn("c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c", script)
             self.assertEqual(script.count("sha256sum --check --status"), 2)
         read_script = read["steps"][0]["run"]
@@ -471,7 +471,7 @@ class ManualWorkflowTests(unittest.TestCase):
                 read["permissions"]["checks"] = "write"
             elif mutation == "pin":
                 write["steps"][0]["run"] = write["steps"][0]["run"].replace(
-                    "?ref=0f3e0225534678ed128701488d60c8732f4b60d5", "?ref=branch")
+                    "?ref=7da4d20b242fe6d327e342d61ac06094b2a5ac6b", "?ref=branch")
             else:
                 write["steps"][0]["run"] = write["steps"][0]["run"].replace("sha256sum --check --status", "true")
             with self.subTest(mutation=mutation), self.assertRaises(AssertionError):
@@ -493,7 +493,7 @@ class ManualWorkflowTests(unittest.TestCase):
     def test_pinned_helper_and_collector_digests_match_the_actual_files(self):
         root = Path(__file__).resolve().parents[1] / "tools"
         self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
-                         "977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee")
+                         "7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3")
         self.assertEqual(hashlib.sha256((root / "pr_review_convergence_operator.py").read_bytes()).hexdigest(),
                          "c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c")
 
