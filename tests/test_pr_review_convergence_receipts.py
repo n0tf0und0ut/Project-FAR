@@ -188,6 +188,40 @@ class ReceiptContractTests(unittest.TestCase):
             with self.assertRaises(gate.EvidenceError):
                 evaluate([dict(first, body=body), receipt()])
 
+    def test_operator_cli_only_parses_receipts_when_completed_finding_state_is_null(self):
+        unknown = receipt()
+        unknown["body"] = unknown["body"].replace("Keep them coming!", "Swish!")
+        root = "https://api.github.com/repos/n0tf0und0ut/Project-FAR"
+        import tempfile
+        for unresolved, expected_code in ((False, 0), (None, 2)):
+            urls = []
+
+            def api(url, token, data=None):
+                urls.append(url)
+                self.assertEqual(token, "synthetic-read-only")
+                if url == root + "/pulls/578":
+                    return copy.deepcopy(PR)
+                if url == root + "/commits/" + PREFIX:
+                    return {"sha": HEAD}
+                raise AssertionError(url)
+
+            with self.subTest(unresolved=unresolved), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "operator-readonly.json"
+                with patch.dict("os.environ", {"GH_TOKEN": "synthetic-read-only"}), \
+                        patch.object(operator_gate, "api", side_effect=api), \
+                        patch.object(operator_gate, "threads_for", return_value=[]), \
+                        patch.object(operator_gate, "paginate",
+                                     side_effect=[[], [], [summary(unresolved=unresolved), unknown]]):
+                    code = operator_gate.main(["--repository", "n0tf0und0ut/Project-FAR",
+                                               "--pr", "578", "--expected-head", HEAD,
+                                               "--output", str(output)])
+                self.assertEqual(code, expected_code)
+                if unresolved is False:
+                    self.assertTrue(json.loads(output.read_text())["review_metadata_converged"])
+                    self.assertFalse(any("/commits/" in url for url in urls))
+                else:
+                    self.assertFalse(output.exists())
+
     def test_actual_cli_resolves_prefix_via_read_only_commit_endpoint(self):
         observed = []
         root = "https://api.github.com/repos/n0tf0und0ut/Project-FAR"
