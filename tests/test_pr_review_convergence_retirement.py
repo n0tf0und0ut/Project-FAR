@@ -93,7 +93,13 @@ class FakeClient:
             return {"workflow_runs": copy.deepcopy(self.schedules[(page-1)*100:page*100])}
         if route.startswith("/actions/runs/"):
             run_id = int(route.split("/")[3])
-            return {"jobs": copy.deepcopy(self.jobs[run_id])} if route.endswith("/jobs") else copy.deepcopy(self.runs[run_id])
+            if route.endswith("/jobs"):
+                jobs = self.jobs[run_id]
+                # Mimic GitHub's default newest attempt, and its explicit
+                # filter=all historical proof enumeration.
+                filtered = jobs if "filter=all" in query else jobs[-1:]
+                return {"jobs": copy.deepcopy(filtered)}
+            return copy.deepcopy(self.runs[run_id])
         if route.startswith("/check-runs/"):
             ident = int(route.rsplit("/", 1)[1])
             return copy.deepcopy(next(x for x in self.checks if x["id"] == ident))
@@ -277,6 +283,18 @@ class RetirementTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 repair.execute(client, SOURCE, Path(folder), apply=True, reviewer=reviewer)
         self.assertEqual(client.writes, [])
+
+    def test_scheduled_publisher_rerun_proof_in_earlier_attempt(self):
+        client = FakeClient()
+        # The original publication is in attempt 1 job 701. A later attempt
+        # returns only job 702 through GitHub's default jobs endpoint.
+        client.jobs[700].append({"id": 702, "name": "review-convergence (578)",
+                                 "status": "completed", "conclusion": "failure"})
+        client.logs[702] = "no matching publication"
+        result = self.execute(client)
+        self.assertEqual(result["plan"][0]["source"], {"run_id": 700, "job_id": 701})
+        self.assertTrue(any("/actions/runs/700/jobs?filter=all" in url for url in client.reads))
+        self.assertEqual([x["check_id"] for x in client.writes], [2000])
 
     def test_only_protected_main_scheduled_publisher_can_supply_the_proof(self):
         for field, value in (("head_sha", "b" * 40), ("event", "workflow_dispatch"),
