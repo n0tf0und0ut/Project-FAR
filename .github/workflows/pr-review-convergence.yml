@@ -193,7 +193,7 @@ jobs:
           fi
           api="/repos/$GITHUB_REPOSITORY/contents/tools"
           gh api "$api/retire_legacy_review_publications.py?ref=0f3e0225534678ed128701488d60c8732f4b60d5" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
-          gh api "$api/pr_review_convergence.py?ref=65565b155f29c0fbeb86466de0803efc508157b0" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
+          gh api "$api/pr_review_convergence_operator.py?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
           printf '%s  %s\n' 977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
           printf '%s  %s\n' c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
           python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
@@ -237,7 +237,7 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
           api="/repos/$GITHUB_REPOSITORY/contents/tools"
           gh api "$api/retire_legacy_review_publications.py?ref=0f3e0225534678ed128701488d60c8732f4b60d5" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
-          gh api "$api/pr_review_convergence.py?ref=65565b155f29c0fbeb86466de0803efc508157b0" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
+          gh api "$api/pr_review_convergence_operator.py?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
           printf '%s  %s\n' 977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
           printf '%s  %s\n' c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
           python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
