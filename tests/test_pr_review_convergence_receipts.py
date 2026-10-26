@@ -63,6 +63,17 @@ class ReceiptContractTests(unittest.TestCase):
         self.assertFalse(record["software_correctness_proven"])
         self.assertFalse(record["merge_authorization_verified"])
 
+    def test_observed_nice_work_suffix_is_authenticated_without_promoting_unknown(self):
+        updated = receipt()
+        updated["body"] = updated["body"].replace("Keep them coming!", "Nice work!")
+        record = evaluate([summary(), updated])
+        self.assertTrue(record["review_metadata_converged"])
+        source = record["trusted_codex_review_on_exact_head"]
+        self.assertEqual(source["completion_basis"], "authenticated_no_major_issues_receipt")
+        self.assertIsNone(source["unresolved"])
+        self.assertEqual(source["receipt_source"]["resolved_commit_sha"], HEAD)
+        self.assertFalse(record["substantive_review_verified"])
+
     def test_null_without_receipt_still_fails_even_with_human_approval(self):
         review = {"id": 4, "state": "APPROVED", "commit_id": HEAD,
                   "submitted_at": "2026-10-23T21:00:00Z",
