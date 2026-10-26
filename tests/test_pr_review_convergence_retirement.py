@@ -422,9 +422,9 @@ class ManualWorkflowTests(unittest.TestCase):
             self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
             script = scripts[0]["run"]
             self.assertIn("?ref=0f3e0225534678ed128701488d60c8732f4b60d5", script)
-            self.assertIn("?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71", script)
+            self.assertIn("?ref=65565b155f29c0fbeb86466de0803efc508157b0", script)
             self.assertIn("977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee", script)
-            self.assertIn("21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863", script)
+            self.assertIn("c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c", script)
             self.assertEqual(script.count("sha256sum --check --status"), 2)
         read_script = read["steps"][0]["run"]
         self.assertNotIn("--apply", read_script)
@@ -473,7 +473,7 @@ class ManualWorkflowTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
                          "977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee")
         self.assertEqual(hashlib.sha256((root / "pr_review_convergence.py").read_bytes()).hexdigest(),
-                         "21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863")
+                         "c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c")
 
     def test_operation_review_base_runs_the_read_only_contract_and_token_tests(self):
         path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence-contract.yml"
