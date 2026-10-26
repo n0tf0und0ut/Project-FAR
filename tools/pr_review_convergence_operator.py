@@ -167,8 +167,8 @@ def unique_json(pairs):
     return result
 
 
-def codex_status(issue_comments, expected_head, commit_resolutions=None):
-    """Only authenticated, unambiguous, exact-head Codex state; never human approval."""
+def codex_summary_candidates(issue_comments, expected_head):
+    """Authenticate exact-head machine states independently of receipt prose."""
     candidates = []
     prefix = "<!-- codex-review-state:v1 "
     for comment in issue_comments:
@@ -206,12 +206,18 @@ def codex_status(issue_comments, expected_head, commit_resolutions=None):
             raise EvidenceError("unrecognized or incomplete authenticated Codex state")
         cid, updated, _ = source_identity(comment)
         candidates.append((updated, cid, code))
+    candidates.sort(key=lambda x: (timestamp(x[0]), x[1]))
+    return candidates
+
+
+def codex_status(issue_comments, expected_head, commit_resolutions=None):
+    """Only authenticated, unambiguous, exact-head Codex state; never human approval."""
+    candidates = codex_summary_candidates(issue_comments, expected_head)
     if not candidates:
         return {"status": "missing", "unresolved": None, "passed": False,
                 "source_comment_id": None, "updated_at": None,
                 "review_state_sources": [], "completion_basis": None,
                 "receipt_source": None}
-    candidates.sort(key=lambda x: (timestamp(x[0]), x[1]))
     updated, cid, code = candidates[-1]
     # A pending rerun never clears a previously known unresolved result. Nor
     # may a human approval bypass the incomplete rerun on the same head.
@@ -374,13 +380,19 @@ def main(argv=None):
         comments = paginate(root + suffix + "/comments", token)
         issue_comments = paginate(root + "/issues/" + str(args.pr) + "/comments", token)
         resolutions = {}
-        for receipt in codex_receipts(issue_comments):
-            prefix = receipt["commit_prefix"]
-            if args.expected_head.startswith(prefix) and prefix not in resolutions:
-                resolved = api(root + "/commits/" + prefix, token)
-                if not isinstance(resolved, dict) or not SHA.fullmatch(resolved.get("sha", "")):
-                    raise EvidenceError("incomplete receipt commit resolution")
-                resolutions[prefix] = resolved["sha"]
+        candidates = codex_summary_candidates(issue_comments, args.expected_head)
+        # The authenticated explicit completed-clean state requires no prose
+        # receipt. Only the legacy completed/null path needs a provenance-bound
+        # no-major-issues receipt and a GitHub-resolved exact commit prefix.
+        if (candidates and candidates[-1][2]["status"] == "completed"
+                and candidates[-1][2]["has_unresolved_findings"] is None):
+            for receipt in codex_receipts(issue_comments):
+                prefix = receipt["commit_prefix"]
+                if args.expected_head.startswith(prefix) and prefix not in resolutions:
+                    resolved = api(root + "/commits/" + prefix, token)
+                    if not isinstance(resolved, dict) or not SHA.fullmatch(resolved.get("sha", "")):
+                        raise EvidenceError("incomplete receipt commit resolution")
+                    resolutions[prefix] = resolved["sha"]
         threads = threads_for(owner, name, args.pr, token)
         final = api(root + suffix, token)
         if not isinstance(final, dict) or (final.get("head") or {}).get("sha") != args.expected_head:
