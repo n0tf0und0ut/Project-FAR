@@ -370,15 +370,15 @@ class TransportTests(unittest.TestCase):
                "GITHUB_RUN_ATTEMPT": "2", "GH_TOKEN": "synthetic"}
         with tempfile.TemporaryDirectory() as folder:
             target = Path(folder) / "legacy-review-name-repair.json"
-            before = '{"state":"PREPARED","operations":[{"check_id":2000,"state":"PATCH_RETURNED"}]}\\n'
+            before = '{"state":"PREPARED","operations":[{"check_id":2000,"state":"PATCH_RETURNED"}]}\n'
             target.write_text(before)
-            with patch.dict(os.environ, env), patch.object(repair, "Client", return_value="fake"), \\
-                    patch.object(repair, "execute", return_value=report), \\
+            with patch.dict(os.environ, env), patch.object(repair, "Client", return_value="fake"), \
+                    patch.object(repair, "execute", return_value=report), \
                     patch.object(repair.os, "replace", side_effect=OSError("simulated atomic swap failure")):
                 result = repair.main(["--source-sha", SOURCE, "--output", str(target), "--apply"])
             self.assertEqual(result, 2)
             self.assertEqual(target.read_text(), before)
-            with patch.dict(os.environ, env), patch.object(repair, "Client", return_value="fake"), \\
+            with patch.dict(os.environ, env), patch.object(repair, "Client", return_value="fake"), \
                     patch.object(repair, "execute", return_value=report):
                 result = repair.main(["--source-sha", SOURCE, "--output", str(target), "--apply"])
             self.assertEqual(result, 0)
