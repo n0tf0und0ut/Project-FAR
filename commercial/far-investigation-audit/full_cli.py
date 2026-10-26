@@ -1,0 +1,315 @@
+"""Full offline/optional-online workflow and immutable audit-package writer."""
+from __future__ import annotations
+import argparse
+import json
+import os
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+from engine import InvalidBundle, canonical, digest
+from acquire import AcquisitionError
+from workflow import investigate
+from review import verify_review
+from bounded_io import read_bounded, BoundedInputError
+
+MAX_CONFIG = 450_000
+
+
+def parse_json_artifact(raw: bytes, name: str):
+    """Bound parser-depth failures for all hostile package JSON, not just size.
+
+    Stored-file size limits are enforced by verify_package before this helper.
+    RecursionError is *not* a ValueError; never leak parser tracebacks through
+    the public verification CLI or its imported API.
+    """
+    try:
+        def nonfinite(token):
+            raise ValueError("non-finite JSON artifact")
+        def unique_object(pairs):
+            found = {}
+            for key, value in pairs:
+                if key in found:
+                    raise ValueError("duplicate JSON object key")
+                found[key] = value
+            return found
+        return json.loads(raw, parse_constant=nonfinite, object_pairs_hook=unique_object)
+    except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
+        raise InvalidBundle("invalid or over-nested JSON artifact: " + name) from exc
+
+
+def read_json_artifact(path: Path, limit: int = 6_000_000):
+    try:
+        return parse_json_artifact(read_bounded(path, limit, path.name), path.name)
+    except BoundedInputError as exc:
+        raise InvalidBundle(str(exc)) from exc
+
+
+def write_package(destination: Path, package: dict, *, review: dict | None = None) -> dict:
+    if destination.exists():
+        raise InvalidBundle("output directory already exists; will not overwrite audit history")
+    parent = destination.resolve().parent
+    parent.mkdir(parents=True, exist_ok=True)
+    tmp = Path(tempfile.mkdtemp(prefix=".far-stage-", dir=parent))
+    try:
+        files = {"input.json": canonical(package["bundle"]) + b"\n",
+                 "audit.json": canonical(package["audit"]) + b"\n",
+                 "report.md": package["report_md"].encode("utf-8"),
+                 "acquisition.json": canonical(package["acquisition"]) + b"\n",
+                 "proposal.json": canonical(package["proposal"]) + b"\n",
+                 "critical_questions.json": canonical(package["critical_questions"]) + b"\n"}
+        if package.get("discovery"):
+            files["discovery.json"] = canonical(package["discovery"]) + b"\n"
+        if review is not None:
+            files["review.json"] = canonical(review) + b"\n"
+            files["review_verification.json"] = canonical(verify_review(review, package["audit"])) + b"\n"
+        if any(len(content) > 6_000_000 for content in files.values()):
+            raise InvalidBundle("audit artifact size limit exceeded")
+        if sum(map(len, files.values())) > 36_000_000:
+            raise InvalidBundle("aggregate audit artifact byte limit exceeded")
+        for name, content in files.items():
+            (tmp / name).write_bytes(content)
+        manifest = {**package["manifest"], "files_sha256": {name: digest(content) for name,content in sorted(files.items())},
+                    "self_digest_scope": "manifest.json intentionally excluded"}
+        manifest_raw = canonical(manifest) + b"\n"
+        if len(manifest_raw) > 6_000_000:
+            raise InvalidBundle("manifest input size limit exceeded")
+        (tmp / "manifest.json").write_bytes(manifest_raw)
+        os.replace(tmp, destination)
+        return manifest
+    except BaseException:
+        shutil.rmtree(tmp, ignore_errors=True)
+        raise
+
+
+def verify_package(directory: Path, *, include_verified_snapshots: bool = False) -> dict:
+    from engine import audit
+    from independent_check import check_report, IndependentCheckError
+    root = directory.resolve()
+    if not root.is_dir():
+        raise InvalidBundle("audit directory missing")
+    # This manifest is itself untracked by the file digest map. Enforce its
+    # untrusted-input bounds before allocation or JSON parsing.
+    manifest_path = root / "manifest.json"
+    if (manifest_path.is_symlink() or not manifest_path.is_file()
+            or manifest_path.stat().st_size > 6_000_000):
+        raise InvalidBundle("manifest input size/type limit exceeded")
+    manifest = read_json_artifact(manifest_path)
+    if not isinstance(manifest, dict) or manifest.get("schema") != "far-investigation-delivery/0.3":
+        raise InvalidBundle("unexpected manifest version")
+    permitted_manifest_fields = {
+        "schema", "investigation_id", "generated_at", "method", "input_sha256",
+        "report_sha256", "report_md_sha256", "source_snapshots_sha256",
+        "network_used", "open_world_completeness",
+        "semantic_mapping_independently_verified", "end_to_end_production_quality",
+        "files_sha256", "self_digest_scope",
+    }
+    if set(manifest) != permitted_manifest_fields or manifest["self_digest_scope"] != "manifest.json intentionally excluded":
+        raise InvalidBundle("unexpected manifest fields or self-digest scope")
+    if (manifest.get("semantic_mapping_independently_verified") is not False or
+        manifest.get("open_world_completeness") != "UNESTABLISHED" or
+        manifest.get("end_to_end_production_quality") != "UNESTABLISHED"):
+        raise InvalidBundle("manifest assurance boundary was changed")
+    stored = manifest.get("files_sha256")
+    if not isinstance(stored, dict) or not {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json", "critical_questions.json"}.issubset(stored):
+        raise InvalidBundle("manifest required files missing")
+    allowed = {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json",
+               "critical_questions.json", "discovery.json", "review.json", "review_verification.json"}
+    if not set(stored).issubset(allowed):
+        raise InvalidBundle("unrecognized audit artifact")
+    artifacts = {}
+    total_bytes = 0
+    for name, expected in stored.items():
+        if not isinstance(name, str) or name in {"", ".", ".."} or "/" in name or "\\" in name:
+            raise InvalidBundle("unsafe file path in manifest")
+        path = root / name
+        if path.is_symlink():
+            raise InvalidBundle("symlink audit artifact forbidden")
+        try:
+            snapshot = read_bounded(path, min(6_000_000, 36_000_000 - total_bytes), name)
+        except (OSError, BoundedInputError) as exc:
+            raise InvalidBundle("audit artifact size/type limit: " + name) from exc
+        if digest(snapshot) != expected:
+            raise InvalidBundle("audit artifact hash mismatch: " + name)
+        total_bytes += len(snapshot)
+        if total_bytes > 36_000_000:
+            raise InvalidBundle("aggregate audit artifact byte limit exceeded")
+        artifacts[name] = snapshot
+    def artifact(name):
+        return parse_json_artifact(artifacts[name], name)
+    # Detect extra files and checks that were removed, not just files in manifest.
+    expected_names = {*stored, "manifest.json"}
+    present = set()
+    with os.scandir(root) as entries:
+        for entry in entries:
+            if entry.name not in expected_names:
+                raise InvalidBundle("untracked audit-package files")
+            present.add(entry.name)
+    if present != expected_names:
+        raise InvalidBundle("untracked audit-package files")
+    if ("review.json" in stored) != ("review_verification.json" in stored):
+        raise InvalidBundle("incomplete signed-review record pair")
+    bundle = artifact("input.json")
+    reported = artifact("audit.json")
+    recalc = audit(bundle)
+    if canonical(recalc) != canonical(reported) or manifest.get("input_sha256") != recalc.get("input_sha256") or manifest.get("report_sha256") != recalc.get("report_sha256"):
+        raise InvalidBundle("auditor replay mismatch")
+    # Every interpretive and human-readable output is recomputed from the
+    # recorded inputs. A file hash inside an unsigned, freely editable manifest
+    # is NOT enough to establish the contents of the report.
+    from proposals import compile_proposal
+    from presentation import render_markdown
+    from diagnostics import critical_questions
+    sources = {s["id"]: s for s in bundle["sources"]}
+    if len(sources) != len(bundle["sources"]):
+        raise InvalidBundle("duplicate source identity in report")
+    acquisition = artifact("acquisition.json")
+    proposal = artifact("proposal.json")
+    questions = artifact("critical_questions.json")
+    discovery = artifact("discovery.json") if "discovery.json" in stored else None
+    if not isinstance(acquisition, list) or any(not isinstance(a, dict) or
+            a.get("source_id") not in sources for a in acquisition):
+        raise InvalidBundle("invalid acquisition source identity")
+    if len(acquisition) != len(sources) or {a["source_id"] for a in acquisition} != set(sources):
+        raise InvalidBundle("acquisition does not account for every source exactly once")
+    if not isinstance(proposal, dict):
+        raise InvalidBundle("malformed proposal artifact")
+    if bundle.get("proposal_sha256") != digest(canonical(proposal)):
+        raise InvalidBundle("proposal provenance commitment mismatch")
+    # Discovery network calls must remain visible even when none of their
+    # untrusted leads was expanded into an archived source.
+    expected_discovery_sha256 = digest(canonical(discovery)) if discovery is not None else None
+    if bundle.get("discovery_sha256") != expected_discovery_sha256:
+        raise InvalidBundle("discovery provenance commitment mismatch")
+    # The manifest is unsigned and deliberately excluded from its own hash.
+    # Reject a false privacy/network disclosure when archived data proves an
+    # external proposal, transcription, fetched URL or discovery route.
+    # Absence of a recorded route is NOT an assertion of offline execution.
+    if type(manifest.get("network_used")) is not bool:
+        raise InvalidBundle("network provenance flag invalid")
+    externally_sourced = (
+        proposal.get("method") == "model_proposed_unreviewed"
+        or discovery is not None
+        or any(a.get("extraction") == "external_speech_transcription_gpt_4o_transcribe_v1"
+               or isinstance(a.get("url"), str) for a in acquisition)
+    )
+    if externally_sourced and not manifest["network_used"]:
+        raise InvalidBundle("network provenance mismatch: externally sourced input reported offline")
+    # Replay source extraction when the original UTF-8 capture bytes are
+    # available. Recording only a raw digest cannot independently verify the
+    # transformation from downloaded HTML/captions to extracted text.
+    from acquire import normalize_html, parse_captions
+    independently_extracted = 0
+    not_replayable = []
+    replayable_methods = {"text_provided_v1", "utf8_identity_v1",
+        "html_provided_v1", "html_visible_text_v1", "srt_provided_v1",
+        "vtt_provided_v1", "yt_dlp_caption_vtt_v1"}
+    nonreplayable_methods = {"pypdf_text_v1", "external_speech_transcription_gpt_4o_transcribe_v1"}
+    for item in acquisition:
+        sid = item["source_id"]
+        raw = item.get("raw_snapshot_utf8")
+        method = item.get("extraction")
+        if method not in replayable_methods and method not in nonreplayable_methods:
+            raise InvalidBundle("unrecognized acquisition extraction method: " + str(method))
+        if raw is None:
+            if method in replayable_methods:
+                raise InvalidBundle("raw snapshot required for replayable extraction: " + sid)
+            if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
+                raise InvalidBundle("acquisition commitment mismatch: " + sid)
+            not_replayable.append(sid)
+            continue
+        if not isinstance(raw, str) or len(raw.encode("utf-8")) > 1_000_000:
+            raise InvalidBundle("invalid archived raw source")
+        if item.get("raw_sha256") != digest(raw.encode("utf-8")):
+            raise InvalidBundle("raw source snapshot digest mismatch: " + sid)
+        if method in {"text_provided_v1", "utf8_identity_v1"}:
+            extracted = {"text": raw}
+        elif method in {"html_provided_v1", "html_visible_text_v1"}:
+            extracted = {"text": normalize_html(raw)}
+        elif method in {"srt_provided_v1", "vtt_provided_v1", "yt_dlp_caption_vtt_v1"}:
+            extracted = parse_captions(raw)
+        else:
+            raise InvalidBundle("unknown replayable extraction method: " + str(method))
+        if extracted["text"] != sources[sid]["text"]:
+            raise InvalidBundle("raw-to-extracted source transformation mismatch: " + sid)
+        if "cues" in extracted and canonical(extracted["cues"]) != canonical(item.get("cues")):
+            raise InvalidBundle("caption cue anchor mismatch: " + sid)
+        if sources[sid].get("acquisition_sha256") != digest(canonical(item)):
+            raise InvalidBundle("acquisition commitment mismatch: " + sid)
+        independently_extracted += 1
+    rebuilt = compile_proposal(proposal, {k:v["text"] for k,v in sources.items()},
+        investigation_id=bundle["investigation_id"], captured_at=bundle["as_of"],
+        published_at_by_source={k:v.get("published_at") for k,v in sources.items()},
+        source_meta={k:{"origin_id":v.get("origin_id"),
+            "publication_date_verified":v.get("publication_date_verified",False),
+            "origin_verified":v.get("origin_verified",False),
+            "captured_at": v.get("captured_at"),
+            "acquisition_sha256": digest(canonical(next(a for a in acquisition if a["source_id"] == k)))}
+            for k,v in sources.items()})
+    rebuilt["discovery_sha256"] = expected_discovery_sha256
+    if canonical(rebuilt) != canonical(bundle):
+        raise InvalidBundle("proposal-to-audit input reconstruction mismatch")
+    expected_questions = critical_questions(bundle["claims"])
+    if canonical(questions) != canonical(expected_questions):
+        raise InvalidBundle("critical question advisory mismatch")
+    expected_md = render_markdown(bundle, recalc, acquisition=acquisition,
+                                 discovery=discovery, questions=expected_questions)
+    if artifacts["report.md"] != expected_md.encode("utf-8"):
+        raise InvalidBundle("human-readable report does not replay from source artifacts")
+    if manifest.get("report_md_sha256") != digest(expected_md.encode("utf-8")):
+        raise InvalidBundle("report digest mismatch")
+    if manifest.get("source_snapshots_sha256") != {k:v["sha256"] for k,v in sources.items()}:
+        raise InvalidBundle("manifest source snapshot identities mismatch")
+    if (manifest.get("investigation_id") != bundle["investigation_id"] or
+        manifest.get("generated_at") != bundle["as_of"] or
+        manifest.get("method") != proposal.get("method", "supplied")):
+        raise InvalidBundle("manifest and investigation identity mismatch")
+    try:
+        independent = check_report(bundle, recalc)
+    except IndependentCheckError as exc:
+        raise InvalidBundle("design-diverse formal cross-check failed: " + str(exc)) from exc
+    if "review.json" in stored:
+        reviewed = verify_review(artifact("review.json"), recalc)
+        if canonical(reviewed) != canonical(artifact("review_verification.json")):
+            raise InvalidBundle("review verification mismatch")
+    outcome = {"replay_match": True, "algorithm_cross_check": independent, "manifest_files_verified": len(stored),
+               "extraction_replayed": independently_extracted,
+               "extraction_not_replayable": not_replayable,
+               "report_sha256": recalc["report_sha256"], "external_truth_verified": False}
+    if include_verified_snapshots:
+        # These are validated in-memory objects, NOT second reads of mutable files.
+        outcome["_verified_manifest"] = manifest
+        outcome["_verified_audit"] = recalc
+    return outcome
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description="Investigate a source with explicit uncertainty and replayable evidence")
+    p.add_argument("request", nargs="?", type=Path, help="JSON configuration including source and proposed claims")
+    p.add_argument("--output", type=Path, help="new directory for immutable audit output")
+    p.add_argument("--allow-network", action="store_true", help="opt in to remote HTTPS/YouTube/discovery access")
+    p.add_argument("--allow-model", action="store_true", help="authorize sending source material to external model for proposals/transcription")
+    p.add_argument("--review", type=Path, help="optional signed third-party review record")
+    p.add_argument("--verify", type=Path, help="verify an already-produced package directory")
+    args = p.parse_args()
+    try:
+        if args.verify:
+            print(json.dumps(verify_package(args.verify), sort_keys=True))
+            return 0
+        if args.request is None or args.output is None:
+            p.error("request and --output required unless --verify is specified")
+        config = read_json_artifact(args.request, MAX_CONFIG)
+        result = investigate(config, permit_network=args.allow_network, permit_model=args.allow_model, permit_files=True)
+        rev = read_json_artifact(args.review, 2_000_000) if args.review else None
+        manifest = write_package(args.output, result, review=rev)
+        print(json.dumps({"output": str(args.output), "report_sha256": manifest["report_sha256"],
+                          "claims": len(result["bundle"]["claims"]), "readings": len(result["audit"]["interpretations"]),
+                          "semantic_fidelity_verified": False}, sort_keys=True))
+        return 0
+    except (InvalidBundle, AcquisitionError, OSError, UnicodeError, ValueError, TypeError) as exc:
+        print("FAR_END_TO_END_INVALID: " + str(exc), file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

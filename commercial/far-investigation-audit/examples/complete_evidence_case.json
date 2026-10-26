@@ -1,0 +1,36 @@
+{
+  "investigation_id": "hypothetical_checked_table",
+  "captured_at": "2026-10-17T08:00:00Z",
+  "source": {
+    "kind": "text",
+    "text": "2 experiments passed. Therefore the product is safe.",
+    "origin_id": "hypothetical_media_transcript"
+  },
+  "evidence_sources": [
+    {"kind":"text", "text":"{\"experiments\":[{\"passed\":true},{\"passed\":true},{\"passed\":false}]}",
+     "origin_id":"hypothetical_unverified_dataset"}
+  ],
+  "proposal_mode": "supplied",
+  "proposal": {
+    "method": "declared_unreviewed_proposal",
+    "atoms": {"P":"Exactly two experiment records are marked passed.", "Q":"The product is safe."},
+    "claims": [
+      {"id":"p", "source_id":"primary", "quote":"2 experiments passed.", "proposition":"Exactly 2 experiments passed", "formula":{"atom":"P"},
+       "quantity":{"value":"2","number_span":{"start":0,"end":1},"unit":"experiments"}},
+      {"id":"q", "source_id":"primary", "quote":"Therefore the product is safe.", "proposition":"The product is safe.", "formula":{"atom":"Q"}}
+    ],
+    "arguments": [
+      {"id":"literal", "premises":["p"], "conclusion":"q",
+       "interpretation":"Two records passed does not establish universal safety.",
+       "interpretation_card":{"quantifier":{"value":"all product deployments", "origin":"inferred"},
+                              "threshold":{"value":"unspecified threshold for safety", "origin":"unknown"}}}
+    ],
+    "evidence": [
+      {"id":"e1", "claim_id":"p", "source_id":"ev1",
+       "quote":"{\"experiments\":[{\"passed\":true},{\"passed\":true},{\"passed\":false}]}",
+       "relation":"supports",
+       "data_check":{"operation":"count_where","pointer":"/experiments","where":{"field":"passed","equals":true}}}
+    ],
+    "unknowns":["Neither experiment design nor independent source authenticity has been evaluated."]
+  }
+}

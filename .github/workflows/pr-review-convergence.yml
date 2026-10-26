@@ -1,8 +1,7 @@
 name: PR Review Convergence
 
-# Runs trusted protected-main code only. Never checks out PR source. A
-# distinct exact-head check-run is published for eligible and ineligible
-# workflow events alike, avoiding GitHub's event-attached job-check limitation.
+# Runs trusted protected-main code only. Required PR checks must originate
+# from eligible PR events; schedule/manual publications are advisory only.
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]
@@ -144,7 +143,7 @@ jobs:
             --arg conclusion "$conclusion" \
             --arg summary "$summary" \
             --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-            '{name:"pr-review-convergence-observation",head_sha:$sha,status:"completed",conclusion:$conclusion,details_url:$url,output:{title:"PR review convergence",summary:$summary}}' \
+            '{name:"pr-review-convergence-scheduled-observation",head_sha:$sha,status:"completed",conclusion:$conclusion,details_url:$url,output:{title:"PR review convergence (advisory)",summary:$summary}}' \
           | gh api --method POST "$api/check-runs" --input -
           if [[ "$rc" != 0 ]]; then
             echo "Review evidence incomplete or unconverged (exit $rc)" >&2
