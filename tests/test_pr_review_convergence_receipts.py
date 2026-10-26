@@ -43,7 +43,7 @@ def receipt(sha=PREFIX, ident=11, moment="2026-10-23T20:53:20Z"):
     return bot("<!-- codex-review-receipt:v1 -->\n\n"
                "Codex Review: Didn't find any major issues. Keep them coming!\n\n"
                "**Reviewed commit:** `" + sha + "`\n\n"
-               CANONICAL_BOT_FOOTER, ident, moment)
+               + CANONICAL_BOT_FOOTER, ident, moment)
 
 
 def evaluate(records=None, resolutions=None, **kwargs):
