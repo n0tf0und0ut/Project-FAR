@@ -219,7 +219,7 @@ def publication_proofs(client, legacy):
                     or run.get("head_branch") != "main"
                     or run.get("path") != ".github/workflows/pr-review-convergence.yml"):
                 continue
-            jobs = collection(client, ROOT + "/actions/runs/" + str(run["id"]) + "/jobs", "jobs")
+            jobs = collection(client, ROOT + "/actions/runs/" + str(run["id"]) + "/jobs?filter=all", "jobs")
             for job in jobs:
                 if job.get("name") != "review-convergence (578)" or job.get("status") != "completed":
                     continue
