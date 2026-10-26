@@ -192,9 +192,9 @@ jobs:
             [[ "$PR_NUMBER" =~ ^578([.]0+)?$ ]]
           fi
           api="/repos/$GITHUB_REPOSITORY/contents/tools"
-          gh api "$api/retire_legacy_review_publications.py?ref=7da4d20b242fe6d327e342d61ac06094b2a5ac6b" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
+          gh api "$api/retire_legacy_review_publications.py?ref=b782ca51b3f66e3571fe9f46f5f7263fe007c327" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
           gh api "$api/pr_review_convergence_operator.py?ref=57bfc75b2af375efb1774faf0c418147097c0d10" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
-          printf '%s  %s\n' 7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3 "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
+          printf '%s  %s\n' 4971ad3b0fdd6eab5068c759b3f3d49daf43a2967b1822067fd1b6a28bdbae23 "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
           printf '%s  %s\n' ff3bab0fcdc4d0eeb7e94af21eb1df2c2cde6858ca8cbfa14363b08b804644a0 "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
           python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
             --source-sha "$SOURCE_SHA" \
@@ -236,9 +236,9 @@ jobs:
           [[ "$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR ]]
           [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
           api="/repos/$GITHUB_REPOSITORY/contents/tools"
-          gh api "$api/retire_legacy_review_publications.py?ref=7da4d20b242fe6d327e342d61ac06094b2a5ac6b" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
+          gh api "$api/retire_legacy_review_publications.py?ref=b782ca51b3f66e3571fe9f46f5f7263fe007c327" --jq .content | base64 --decode > "$RUNNER_TEMP/retire_legacy_review_publications.py"
           gh api "$api/pr_review_convergence_operator.py?ref=57bfc75b2af375efb1774faf0c418147097c0d10" --jq .content | base64 --decode > "$RUNNER_TEMP/pr_review_convergence.py"
-          printf '%s  %s\n' 7fc2d125cf05c7f2dba80b013e25f44c45aaaceb7b019b2793a6ccce97fe64f3 "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
+          printf '%s  %s\n' 4971ad3b0fdd6eab5068c759b3f3d49daf43a2967b1822067fd1b6a28bdbae23 "$RUNNER_TEMP/retire_legacy_review_publications.py" | sha256sum --check --status
           printf '%s  %s\n' ff3bab0fcdc4d0eeb7e94af21eb1df2c2cde6858ca8cbfa14363b08b804644a0 "$RUNNER_TEMP/pr_review_convergence.py" | sha256sum --check --status
           python3 "$RUNNER_TEMP/retire_legacy_review_publications.py" \
             --source-sha "$SOURCE_SHA" \
