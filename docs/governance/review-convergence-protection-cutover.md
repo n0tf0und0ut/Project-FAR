@@ -46,3 +46,57 @@ The native GitHub Actions check is a process gate, not an adversarial security a
 Managed integrations cannot read or write the full administrative protection endpoint (HTTP 403). The ordinary branch endpoint reveals context/App bindings but not every protection invariant. No administrative mutation is needed or attempted. Keep agents out of the owner's separate gate repository and never expose its key.
 
 The existing read-only protection verifier's `--require-review-convergence` option checks the three-context profile. Its default two-context profile remains historical and is not evidence of the live configuration. If the eligible native job cannot satisfy the normal merge path, retain the failed result and report the actual blocker; never manufacture a green result or remove a required check.
+
+## Historical required-check recovery — October 26, 2026
+
+This section records an **operational** GitHub integration defect, not a correctness
+failure in the investigation lab and not a new scientific guarantee.
+
+- On PR #578, exact head `5cd1ff7a2d1847e2f6f91c1a99550b66efd96484`,
+  the native, eligible PR-event review job succeeded on fresh run
+  `40401034236` (job `121846616276`) after `pull_request: edited`.
+  The unchanged-head review was independently completed and all 56 inline
+  threads were resolved; exact-head assurance, merge-authority and the dedicated
+  protected repin App had successful hosted results.
+- The separately reviewed operator-only name repair (#591) completed in Actions
+  run `40384638350` (job `121837831130`), with durable artifact
+  `12688116993`. It reconciled **115** proven scheduled publications: 32
+  previously renamed plus 83 newly renamed, without changing a conclusion,
+  original proof fields, protected settings, or the target PR source. All 115
+  original failures remain in history under the distinct advisory name.
+- Even after those repairs, normal expected-head protected merges failed with
+  GitHub HTTP 405: `Required status check "pr-review-convergence-observation" is failing.`
+  Two prior failed native required-check runs (`120688761985`,
+  `120688941252`) were still present, though later native jobs succeeded.
+  **Attribution to those old runs is a hypothesis, not established fact.**
+  GitHub's protected-check evaluator is not exposed sufficiently through the
+  current connected integration to prove its internal choice. Do not mark any
+  historical failure as success or loosen branch protection.
+
+### New-head remediation and proof obligations
+
+Because the previous SHA's protected check evaluation did not converge, this
+versioned documentation correction advances the PR to a **new, real commit**
+without altering commercial executable behavior. Historical failed check runs
+remain attached to the predecessor SHA and are not erased or rewritten.
+The new candidate must independently satisfy every exact-head obligation:
+
+1. Run the full applicable hosted regression, health, formal-artifact, and
+   synthetic-merge assurance checks on the successor SHA, including the
+   owner-controlled protected repin gate.
+2. Obtain an **independently completed substantive review of the successor
+   exact head**. Prior head's review receipts do not constitute successor
+   authorization. Resolve all new findings, including findings about this
+   correction and the integration's trust boundaries.
+3. Confirm an eligible and successful native required review job from the
+   configured GitHub Actions App on the successor. Check the actual GitHub
+   protected merge response; a green UI or green CI alone does not authorize
+   merge.
+4. Only after all gates pass, use a normal expected-head merge, verify the
+   resulting main commit and incorporation of component histories #588/#589,
+   and reconcile their PR states. Leave the permanent inbox #490 unmerged.
+
+If the successor is still blocked, retain exact error evidence and report an
+operator-level GitHub protection/check evaluator blocker; never create a
+synthetic approval, change the old check conclusions, delete failures, or
+relax the required contexts.
