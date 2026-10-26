@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github/workflows/required-pr-review-convergence.yml"
 BASE = "e4d936ca0ba9770be6f72e0435220987882f4146"
 HEAD = "a" * 40
-PIN = "e49608d92c42b661d094092c47f73837b83fcbf3"
-DIGEST = "7bad2a27d405fe203f00e48cde0c2b836af875a989e4caac0f746f0e4c0ec0e1"
+PIN = "dc4924a288bb658c2a12e860d6c31ac7bff80c4c"
+DIGEST = "778404e527824a170041a5bd8e9ae67421291246a8eff19682b53af4f58909fc"
 
 
 def enforcement_script():
@@ -29,7 +29,7 @@ gh() {
   elif [[ "$#" -eq 4 && "$2" == "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" &&
           "$3" == --jq && "$4" == .head.sha ]]; then
     printf '%s\n' "$MOCK_CURRENT"
-  elif [[ "$#" -eq 4 && "$2" == "/repos/$GITHUB_REPOSITORY/contents/tools/pr_review_convergence.py?ref=e49608d92c42b661d094092c47f73837b83fcbf3" &&
+  elif [[ "$#" -eq 4 && "$2" == "/repos/$GITHUB_REPOSITORY/contents/tools/pr_review_convergence.py?ref=dc4924a288bb658c2a12e860d6c31ac7bff80c4c" &&
           "$3" == --jq && "$4" == .content ]]; then
     printf 'download\n' >> "$MOCK_CALLS"
     command python3 -c 'import pathlib,sys; sys.stdout.write(pathlib.Path(sys.argv[1]).read_text())' "$MOCK_PAYLOAD"
