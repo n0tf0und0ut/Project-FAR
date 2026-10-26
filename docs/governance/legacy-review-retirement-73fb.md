@@ -1,0 +1,15 @@
+# Current-candidate scheduled publication classification repair
+
+Status: Research/operator proposal; not executed or a merge authorization.
+
+Protected main remains `e4d936ca0ba9770be6f72e0435220987882f4146`. The reviewed integration PR #578 head is `73fb003db601e6453526b4aa64999bbc6a11a3f3`. Its native required review job 121909519949 passed after authenticated review completed; exact-head assurance 121858334849, merge-authority 121858610154, and dedicated App gate 121867262712 passed. A normal expected-head merge still returned HTTP 405 because the review context is failing.
+
+Old protected-main scheduled code continues publishing custom checks under that required name. The earlier #591 operation successfully reconciled 115 records on candidate 5cd1ff7a; its literal target binding correctly prevents applying it to this successor. Four such failures were observed on the successor before this proposal. Their live set can increase until protected integration installs the already reviewed distinct advisory publisher name.
+
+This successor uses the previously reviewed crash-safe helper from #591, changing only its literal target and repair branch. It retains workflow-scoped complete-until-found bounded publication proof, all job attempts, atomic fsync/replace journals, idempotent recovery, name-only PATCH/readback, authenticated current-head source and target review, native contract/assurance gate provenance, and unchanged three source-App bindings. It uses the exact same strict collector bytes as candidate #578, pinned at dc4924a288bb658c2a12e860d6c31ac7bff80c4c, SHA256 778404e527824a170041a5bd8e9ae67421291246a8eff19682b53af4f58909fc. No alternate parser, conclusion mutation, secret, candidate checkout, or protection update is introduced.
+
+The operator branch is `repair/legacy-review-publications-20261026-73fb`. Initial push stops with a read-only activation failure; the writer is skipped. Only after this exact operation source has its own substantive review and native contract CI may an explicit activation retry run read-only provenance planning followed by the dependent writer. Both stages repeat current source/target reviews and all preflight checks. This operator PR must remain unmerged into #578. The release candidate SHA stays fixed.
+
+After operation success, independently compare the complete before/after check records: only the scheduled advisory name may change, with every original failed result and provenance preserved. Refresh eligible native review if evidence changed, then use a normal expected-head protected merge. Verify actual main, all gate outcomes and #588/#589 ancestry before reporting release completion. Main moving from the fixed base disables future operation. New publications racing the final snapshot remain blocking observations to classify with the same proof requirements; they are never silently ignored. Record the actual operation artifact, merge result and cleanup disposition after execution.
+
+Immutable operator helper: `b45c9c95c27bcc1861b8b0260ea1b6d087ce7e57`, SHA256 `abfbe52a03fabb3bb61c143adf5a2f4ac402b421cf5fc3b91b4b866a697814d3`.

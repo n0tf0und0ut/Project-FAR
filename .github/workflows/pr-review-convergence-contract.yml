@@ -2,11 +2,13 @@ name: PR Review Convergence Contract
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/bounded-auditable-investigations-v01]
     paths:
       - '.github/workflows/pr-review-convergence.yml'
       - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/retire_legacy_review_publications.py'
+      - 'tests/test_pr_review_convergence_retirement.py'
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
@@ -20,6 +22,8 @@ on:
       - '.github/workflows/pr-review-convergence.yml'
       - '.github/workflows/required-pr-review-convergence.yml'
       - '.github/workflows/pr-review-convergence-contract.yml'
+      - 'tools/retire_legacy_review_publications.py'
+      - 'tests/test_pr_review_convergence_retirement.py'
       - 'tools/pr_review_convergence.py'
       - 'tests/test_pr_review_convergence.py'
       - 'tests/test_pr_review_convergence_dispatch.py'
@@ -43,6 +47,7 @@ jobs:
         run: |
           python3 -m py_compile tools/pr_review_convergence.py
           python3 -m unittest discover -s tests -p 'test_pr_review_convergence*.py' -v
+          python3 -m unittest discover -s tests -p 'test_workflow_token_permissions.py' -v
       - name: Live read-only GitHub review API compatibility smoke
         if: github.event_name == 'pull_request'
         env:
