@@ -34,11 +34,16 @@ def summary(unresolved=None, status="completed", ident=10,
                "<!-- codex-review-state:v1 " + json.dumps(state) + " -->", ident, moment)
 
 
+# Exact observed authenticated bot boilerplate, not derived from the parser
+# constant (so a parser change cannot silently move the test oracle).
+CANONICAL_BOT_FOOTER = "<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with 👍.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>"
+
+
 def receipt(sha=PREFIX, ident=11, moment="2026-10-23T20:53:20Z"):
     return bot("<!-- codex-review-receipt:v1 -->\n\n"
                "Codex Review: Didn't find any major issues. Keep them coming!\n\n"
                "**Reviewed commit:** `" + sha + "`\n\n"
-               "<details> <summary>About Codex</summary>\nInformation\n</details>", ident, moment)
+               CANONICAL_BOT_FOOTER, ident, moment)
 
 
 def evaluate(records=None, resolutions=None, **kwargs):
@@ -85,6 +90,20 @@ class ReceiptContractTests(unittest.TestCase):
             record["body"] = record["body"].replace(
                 "Keep them coming!", suffix)
             with self.subTest(suffix=suffix), self.assertRaises(gate.EvidenceError):
+                evaluate([summary(), record])
+
+    def test_unknown_or_contradictory_footer_content_never_qualifies(self):
+        original = receipt()
+        for body in (
+            original["body"] + "\nHowever, a critical bug remains.\n<details>unrecognized trailer</details>",
+            original["body"].replace("If Codex has suggestions", "However, a critical bug remains. If Codex has suggestions"),
+            original["body"].replace("Codex can also answer questions", "Unknown message. Codex can also answer questions"),
+            original["body"].replace("</details>", "</details>\n<details>Other</details>"),
+            original["body"].replace("https://chatgpt.com/codex/cloud/settings/general",
+                                     "https://attacker.example/review"),
+        ):
+            record = dict(original, body=body)
+            with self.subTest(body=body[-110:]), self.assertRaises(gate.EvidenceError):
                 evaluate([summary(), record])
 
     def test_null_without_receipt_still_fails_even_with_human_approval(self):

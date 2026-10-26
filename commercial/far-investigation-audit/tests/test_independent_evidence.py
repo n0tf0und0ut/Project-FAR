@@ -34,6 +34,26 @@ def evidence_bundle(evidence_formula, *, separate=True):
 
 
 class IndependentEvidenceCheckTests(unittest.TestCase):
+    def test_omitted_optional_evidence_and_unknowns_match_engine_defaults(self):
+        # An empty list and an absent key have the same *declared input*
+        # meaning, while the canonical input SHA still binds exact bytes.
+        for omitted in (("unknowns",), ("evidence",), ("evidence", "unknowns")):
+            bundle = evidence_bundle({"atom": "P"})
+            for name in omitted:
+                bundle.pop(name)
+            with self.subTest(omitted=omitted):
+                report = audit(bundle)
+                result = check_report(bundle, report)
+                self.assertTrue(result["independent_algorithm_agrees"])
+                self.assertEqual(report["unknowns"], [])
+                if "evidence" in omitted:
+                    self.assertEqual(report["claims"]["c1"]["evidence"], [])
+                tampered = copy.deepcopy(report)
+                tampered["unknowns"] = ["forged open question"]
+                with self.assertRaisesRegex(IndependentCheckError,
+                                            "assurance boundary mismatch: unknowns"):
+                    check_report(bundle, tampered)
+
     def test_rechecks_support_contradiction_and_inconsistency(self):
         cases = (
             ({"atom": "P"}, "FORMALLY_SUPPORTS_IF_MAPPINGS_CORRECT"),

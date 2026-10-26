@@ -124,12 +124,16 @@ def source_identity(comment):
 
 
 RECEIPT_MARKER = "<!-- codex-review-receipt:v1 -->"
+# Only the authenticated bot's observed informational footer is accepted.
+# Any unknown or conflicting prose, a second details block, or a changed
+# template fails closed until independently reviewed and repinned.
+RECEIPT_FOOTER = "<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with 👍.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>"
 RECEIPT = re.compile(
     r"\A<!-- codex-review-receipt:v1 -->\s*"
     r"Codex Review: Didn't find any major issues\."
     r"(?: (?:Chef's kiss\.|Keep them coming!|Swish!|Nice work!|:tada:))?\n\s*"
     r"\*\*Reviewed commit:\*\* `([a-f0-9]{10,40})`\s*"
-    r"(?:<details>.*</details>\s*)?\Z", re.DOTALL)
+    r"(?:" + re.escape(RECEIPT_FOOTER) + r")?\s*\Z", re.DOTALL)
 
 
 def codex_receipts(issue_comments):

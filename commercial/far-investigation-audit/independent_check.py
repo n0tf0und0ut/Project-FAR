@@ -373,7 +373,7 @@ def check_report(bundle:dict, report:dict)->dict:
         _check_source_span(c, sources)
     # Validate every coordinate before evidence routing or overlap predicates.
     # Slice equality alone admits negative/clamped offsets and bool-as-int.
-    for ev in bundle["evidence"]:
+    for ev in bundle.get("evidence", []):
         _check_source_span(ev, sources, evidence=True)
     # Independently recompute the admissibility routing and formal relations of
     # evidence. Checking argument entailment alone leaves evidence-derived claim
@@ -407,7 +407,7 @@ def check_report(bundle:dict, report:dict)->dict:
         raise IndependentCheckError("claim report coverage mismatch")
     expected_evidence = {cid: [] for cid in claims}
     evidence_formulas_rechecked = 0
-    for ev in bundle["evidence"]:
+    for ev in bundle.get("evidence", []):
         cid, sid = ev["claim_id"], ev["source_id"]
         claim = claims[cid]
         found = [f for f in report["claims"][cid].get("evidence", [])
@@ -526,7 +526,7 @@ def check_report(bundle:dict, report:dict)->dict:
             raise IndependentCheckError("unexpected claim report fields: " + cid)
     arithmetic_count=0
     numeric_by_claim = {cid: [] for cid in claims}
-    for ev in bundle["evidence"]:
+    for ev in bundle.get("evidence", []):
         text=sources[ev["source_id"]]["text"]
         if "data_check" in ev:
             claim=claims[ev["claim_id"]]
@@ -590,7 +590,7 @@ def check_report(bundle:dict, report:dict)->dict:
         }
         if not _same_json(claim_report.get("structured_value_checks"), expected_summary):
             raise IndependentCheckError("independent structured summary mismatch: " + cid)
-    if report.get("unknowns") != bundle.get("unknowns"):
+    if report.get("unknowns") != bundle.get("unknowns", []):
         raise IndependentCheckError("assurance boundary mismatch: unknowns")
     # Reify the declared non-production guarantees as a second explicit
     # checker contract. An audit-engine regression may not silently promote a
