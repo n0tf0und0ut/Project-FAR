@@ -497,13 +497,19 @@ class ManualWorkflowTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256((root / "pr_review_convergence_operator.py").read_bytes()).hexdigest(),
                          "c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c")
 
-    def test_operator_collector_has_only_one_narrow_grammar_extension(self):
+    def test_operator_collector_preserves_native_bytes_and_authenticated_boundaries(self):
         root = Path(__file__).resolve().parents[1] / "tools"
         stable = (root / "pr_review_convergence.py").read_text()
         operator = (root / "pr_review_convergence_operator.py").read_text()
-        expression = "Chef's kiss\\.|Keep them coming!"
-        self.assertEqual(stable.count(expression), 1)
-        self.assertEqual(operator, stable.replace(expression, expression + "|Nice work!"))
+        self.assertEqual(hashlib.sha256(stable.encode()).hexdigest(),
+                         "21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863")
+        self.assertIn("Chef's kiss\\.|Keep them coming!|Nice work!", operator)
+        self.assertNotIn("def codex_summary_candidates", stable)
+        self.assertIn("def codex_summary_candidates", operator)
+        self.assertIn("candidates[-1][2][", operator)
+        self.assertIn("if (candidates and candidates[-1][2]", operator)
+        self.assertIn('and candidates[-1][2]["has_unresolved_findings"] is None', operator)
+        self.assertIn("ambiguous or unrecognized authenticated Codex receipt", operator)
         self.assertIn("pr_review_convergence_operator.py?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65",
                       self.workflow()["jobs"]["legacy-review-retirement"]["steps"][0]["run"])
 
