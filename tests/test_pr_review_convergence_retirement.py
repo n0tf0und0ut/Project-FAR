@@ -87,8 +87,10 @@ class FakeClient:
             return {"check_runs": copy.deepcopy(self.checks)}
         if route == "/commits/" + SOURCE + "/check-runs":
             return {"check_runs": copy.deepcopy(self.operation_checks)}
-        if route == "/actions/runs":
-            return {"workflow_runs": copy.deepcopy(self.schedules)}
+        if route == "/actions/workflows/pr-review-convergence.yml/runs":
+            params = dict(pair.split("=", 1) for pair in query.split("&") if "=" in pair)
+            page = int(params.get("page", "1"))
+            return {"workflow_runs": copy.deepcopy(self.schedules[(page-1)*100:page*100])}
         if route.startswith("/actions/runs/"):
             run_id = int(route.split("/")[3])
             return {"jobs": copy.deepcopy(self.jobs[run_id])} if route.endswith("/jobs") else copy.deepcopy(self.runs[run_id])
@@ -221,6 +223,60 @@ class RetirementTests(unittest.TestCase):
             client = FakeClient()
             client.logs[701] = log
             self.assert_no_write(client)
+
+    def test_publisher_scoped_pagination_finds_old_receipt_on_page_three(self):
+        client = FakeClient()
+        originals = copy.deepcopy(client.schedules)
+        client.schedules = [
+            {"id": 3000 + i, "head_sha": "b" * 40,
+             "head_branch": "main", "event": "schedule",
+             "path": ".github/workflows/pr-review-convergence.yml"}
+            for i in range(200)] + originals
+        result = self.execute(client)
+        self.assertEqual(result["renamed_check_ids"], [2000])
+        self.assertTrue(any("/actions/workflows/pr-review-convergence.yml/runs?"
+                            in path and "page=3" in path for path in client.reads))
+        self.assertFalse(any(path.startswith(repair.ROOT + "/actions/runs?event=schedule")
+                             for path in client.reads))
+
+    def test_partial_patch_preserves_write_ahead_journal_and_reconciles_retry(self):
+        client = FakeClient()
+        original_get = client.get
+
+        def fail_postpatch_readback(path):
+            if path.endswith("/check-runs/2000") and client.writes:
+                raise OSError("simulated connection loss after successful PATCH")
+            return original_get(path)
+
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            client.get = fail_postpatch_readback
+            with self.assertRaises(OSError):
+                repair.execute(client, SOURCE, directory, apply=True, reviewer=reviewer)
+            journal_path = directory / "legacy-review-name-repair.json"
+            self.assertTrue(journal_path.exists())
+            journal = json.loads(journal_path.read_text())
+            self.assertEqual(journal["state"], "INCOMPLETE")
+            self.assertEqual(journal["error_type"], "OSError")
+            self.assertEqual(journal["operations"][0]["state"], "PATCH_RETURNED")
+            self.assertEqual(journal["plan"][0]["check_id"], 2000)
+            self.assertEqual(client.checks[-1]["name"], repair.ADVISORY)
+            self.assertEqual(client.checks[-1]["conclusion"], "failure")
+            client.get = original_get
+            recovered = repair.execute(client, SOURCE, directory, apply=True, reviewer=reviewer)
+            self.assertEqual(recovered["state"], "COMPLETE")
+            self.assertEqual(recovered["plan"][0]["old_name"], repair.ADVISORY)
+            self.assertEqual(recovered["operations"][0]["state"],
+                             "PREVIOUSLY_RENAMED_VERIFIED")
+            self.assertEqual(len(client.writes), 1)
+
+    def test_journal_write_failure_prevents_first_patch(self):
+        client = FakeClient()
+        with tempfile.TemporaryDirectory() as folder, patch.object(
+                repair, "persist_journal", side_effect=OSError("unwritable journal")):
+            with self.assertRaises(OSError):
+                repair.execute(client, SOURCE, Path(folder), apply=True, reviewer=reviewer)
+        self.assertEqual(client.writes, [])
 
     def test_only_protected_main_scheduled_publisher_can_supply_the_proof(self):
         for field, value in (("head_sha", "b" * 40), ("event", "workflow_dispatch"),
@@ -365,9 +421,9 @@ class ManualWorkflowTests(unittest.TestCase):
             self.assertNotIn("continue-on-error", scripts[0])
             self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
             script = scripts[0]["run"]
-            self.assertIn("?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380", script)
+            self.assertIn("?ref=0f3e0225534678ed128701488d60c8732f4b60d5", script)
             self.assertIn("?ref=a26d0aec9d1f82fb661c72cf06a0a3a72cc74b71", script)
-            self.assertIn("fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f", script)
+            self.assertIn("977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee", script)
             self.assertIn("21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863", script)
             self.assertEqual(script.count("sha256sum --check --status"), 2)
         read_script = read["steps"][0]["run"]
@@ -393,7 +449,7 @@ class ManualWorkflowTests(unittest.TestCase):
                 read["permissions"]["checks"] = "write"
             elif mutation == "pin":
                 write["steps"][0]["run"] = write["steps"][0]["run"].replace(
-                    "?ref=77662c7a4bea57c6f4a5f41df5a3f19a99474380", "?ref=branch")
+                    "?ref=0f3e0225534678ed128701488d60c8732f4b60d5", "?ref=branch")
             else:
                 write["steps"][0]["run"] = write["steps"][0]["run"].replace("sha256sum --check --status", "true")
             with self.subTest(mutation=mutation), self.assertRaises(AssertionError):
@@ -415,7 +471,7 @@ class ManualWorkflowTests(unittest.TestCase):
     def test_pinned_helper_and_collector_digests_match_the_actual_files(self):
         root = Path(__file__).resolve().parents[1] / "tools"
         self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
-                         "fe6c43cf8829d34c921e53d4b650265c8465799d0d6714c9b962f36640e13b9f")
+                         "977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee")
         self.assertEqual(hashlib.sha256((root / "pr_review_convergence.py").read_bytes()).hexdigest(),
                          "21fdbd425dcf9dbe00ee7c2798d25a92363d9b2ebe89f25e4dafa1cfb3aa9863")
 
