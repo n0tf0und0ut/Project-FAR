@@ -422,7 +422,7 @@ class ManualWorkflowTests(unittest.TestCase):
             self.assertEqual(scripts[0]["env"]["SOURCE_SHA"], "${{ github.sha }}")
             script = scripts[0]["run"]
             self.assertIn("?ref=0f3e0225534678ed128701488d60c8732f4b60d5", script)
-            self.assertIn("?ref=65565b155f29c0fbeb86466de0803efc508157b0", script)
+            self.assertIn("?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65", script)
             self.assertIn("977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee", script)
             self.assertIn("c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c", script)
             self.assertEqual(script.count("sha256sum --check --status"), 2)
@@ -472,8 +472,18 @@ class ManualWorkflowTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1] / "tools"
         self.assertEqual(hashlib.sha256((root / "retire_legacy_review_publications.py").read_bytes()).hexdigest(),
                          "977bdd1001c2262f1f7e4e6973346b07487d997cf0451613c8626d0d3ab242ee")
-        self.assertEqual(hashlib.sha256((root / "pr_review_convergence.py").read_bytes()).hexdigest(),
+        self.assertEqual(hashlib.sha256((root / "pr_review_convergence_operator.py").read_bytes()).hexdigest(),
                          "c929282ed08c586bc12d19c1757641bd1a9ba9262e7764db24f90bcf5064a07c")
+
+    def test_operator_collector_has_only_one_narrow_grammar_extension(self):
+        root = Path(__file__).resolve().parents[1] / "tools"
+        stable = (root / "pr_review_convergence.py").read_text()
+        operator = (root / "pr_review_convergence_operator.py").read_text()
+        expression = "Chef's kiss\\.|Keep them coming!"
+        self.assertEqual(stable.count(expression), 1)
+        self.assertEqual(operator, stable.replace(expression, expression + "|Nice work!"))
+        self.assertIn("pr_review_convergence_operator.py?ref=c17af8aae4eeb0b894c9681512e8fa67104b9a65",
+                      self.workflow()["jobs"]["legacy-review-retirement"]["steps"][0]["run"])
 
     def test_operation_review_base_runs_the_read_only_contract_and_token_tests(self):
         path = Path(__file__).resolve().parents[1] / ".github/workflows/pr-review-convergence-contract.yml"
