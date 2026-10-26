@@ -88,6 +88,7 @@ def freeze(path, noesis_root):
         raise ValueError('unregistered comparator version')
     record = {'schema': 'far-internal-exploratory-registration/1', 'status': 'FROZEN_INTERNAL_EXPLORATORY',
               'frozen_at': datetime.now(timezone.utc).isoformat(), 'external_verification': 'DEFERRED_BY_USER',
+              'harness_source_commit': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip(),
               'reference_independence': False, 'noesis_commit': head, 'versions': versions,
               'python': platform.python_version(), 'platform': platform.platform(),
               'noesis_root': str(noesis_root), 'noesis_cli_sha256': sha(Path(sys.executable).with_name('noesis').read_bytes()),
