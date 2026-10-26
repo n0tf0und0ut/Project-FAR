@@ -492,9 +492,18 @@ class ManualWorkflowTests(unittest.TestCase):
         for event in ("pull_request", "push"):
             self.assertIn("tools/retire_legacy_review_publications.py", workflow["on"][event]["paths"])
             self.assertIn("tests/test_pr_review_convergence_retirement.py", workflow["on"][event]["paths"])
+            self.assertIn("tools/pr_review_convergence_operator.py", workflow["on"][event]["paths"])
         job = workflow["jobs"]["convergence-contract"]
         self.assertIn("test_workflow_token_permissions.py", "\n".join(s.get("run", "") for s in job["steps"]))
         self.assertNotIn("write", workflow["permissions"].values())
+        smoke = job["steps"][2]
+        self.assertEqual(smoke["env"]["PR_BASE_REF"], "${{ github.event.pull_request.base.ref }}")
+        self.assertIn('"$PR_NUMBER" == 591', smoke["run"])
+        self.assertIn('"$PR_BASE_REF" == feature/bounded-auditable-investigations-v01',
+                      smoke["run"])
+        self.assertIn("collector=tools/pr_review_convergence_operator.py", smoke["run"])
+        self.assertIn("collector=tools/pr_review_convergence.py", smoke["run"])
+        self.assertIn('python3 "$collector"', smoke["run"])
 
 
 if __name__ == "__main__":
