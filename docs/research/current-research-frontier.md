@@ -3,8 +3,8 @@
 Status: **Generated dependency-aware Research synthesis; not scientific promotion authority**
 
 Corpus identity: `4dcc5ddb34e2d17b189c24bce5cb766ec3404ac883804bf1465a5b9daf261d50`
-Inventory identity: `356c84f4142673ba16d1a73c07128602475a2d015ebd5cb2711e46294a22b785`
-Synthesis-input identity: `9cf2f98c5de69795acbb3f60033e98c518b545972e535177eb43549639864ccb`
+Inventory identity: `91ddf6615521cf18d0e8c4839368d6ec7f7d18ceca39d5ebad2b6d4567c3d840`
+Synthesis-input identity: `6b7738efbba436a892e0c7f7d7edf0fc0df0c1b34a9eb1f060e631c985c75e34`
 
 ## Bounded completeness
 
