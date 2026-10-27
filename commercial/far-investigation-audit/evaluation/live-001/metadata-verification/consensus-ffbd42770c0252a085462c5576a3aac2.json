@@ -1,0 +1,14 @@
+{
+  "role": "Post-search identity verification only; not part of search score or scientific adjudication.",
+  "id": "ffbd42770c0252a085462c5576a3aac2",
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\": \"ffbd42770c0252a085462c5576a3aac2\", \"title\": \"Biased Assimilation and Attitude Polarization: The Effects of Prior Theories on Subsequently Considered Evidence\", \"text\": \"People who hold strong opinions on complex social issues are likely to examine relevant empirical evidence in a biased manner. They are apt to accept \\\"confirming\\\" evidence at face value while subjecting \\\"discontinuing\\\" evidence to critical evaluation, and as a result to draw undue support for their initial positions from mixed or random empirical findings. Thus, the result of exposing contending factions in a social dispute to an identical body of relevant empirical evidence may be not a narrowing of disagreement but rather an increase in polarization. To test these assumptions and predictions, subjects supporting and opposing capital punishment were exposed to two purported studies, one seemingly confirming and one seemingly disconfirming their existing beliefs about the deterrent efficacy of the death penalty. As predicted, both proponents and opponents of capital punishment rated those results and procedures that confirmed their own beliefs to be the more convincing and probative ones, and they reported corresponding shifts in their beliefs as the various results and procedures were presented. The net effect of such evaluations and opinion shifts was the postulated increase in attitude polarization. The human understanding when it has once adopted an opinion draws all things else to support and agree with it. And though there be a greater number and weight of instances to be found on the other side, yet these it either neglects and despises, or else by some distinction sets aside and rejects, in order that by this great and pernicious predetermination the authority of its former conclusion may remain inviolate. (Bacon, 1620/1960)\", \"url\": \"https://consensus.app/papers/biased-assimilation-and-attitude-polarization-the-lord-ross/ffbd42770c0252a085462c5576a3aac2/?utm_source=chatgpt\", \"metadata\": {\"authors\": \"Charles G. Lord, L. Ross, Mark R. Lepper\", \"publish_year\": \"1979\", \"journal\": \"Journal of Personality and Social Psychology\", \"volume\": \"37\", \"pages\": \"2098-2109\", \"citation_count\": \"4365\"}}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

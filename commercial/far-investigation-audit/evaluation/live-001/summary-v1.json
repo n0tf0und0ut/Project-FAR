@@ -1,0 +1,137 @@
+{
+  "comparative_superiority": "NOT_ESTABLISHED",
+  "customer_value_dollars": null,
+  "customer_value_established": false,
+  "far_local": {
+    "cases": 20,
+    "claim_candidates": 42,
+    "claim_statuses": {
+      "NOT_ESTABLISHED": 42
+    },
+    "errors": 0,
+    "inference_statuses": {
+      "NOT_CHECKED_UNFORMALIZED": 13
+    },
+    "replay_passes": 20
+  },
+  "general_reasoning_reliability_established": false,
+  "independent_semantic_accuracy": null,
+  "missing_calls": [],
+  "registration_sha256": "b359d7821ddaaad23cfe49f51fd66f9ebe6e1a4ce55949185b64a4e38bbd041f",
+  "retrieval": [
+    {
+      "case_id": "Q01",
+      "elapsed_ms": 1021,
+      "human_effort_seconds": null,
+      "payload_sha256": "fecce5ac4f907bfa45324d5dcbf3ef450cb54f297f06f0eb3286e7e4d08cd96e",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "5706d09e87f7e6de0bcd84edb22750c61a0be5976392f00b23a99f1858f76e28",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "ERROR_RECORDED",
+      "target_doi_present": null,
+      "target_title_present": null
+    },
+    {
+      "case_id": "Q02",
+      "elapsed_ms": 979,
+      "human_effort_seconds": null,
+      "payload_sha256": "fecce5ac4f907bfa45324d5dcbf3ef450cb54f297f06f0eb3286e7e4d08cd96e",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "202398642b438a62eb3a5caeb512ce07694bff9985a8b6feb719d3e26fdf9c74",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "ERROR_RECORDED",
+      "target_doi_present": null,
+      "target_title_present": null
+    },
+    {
+      "case_id": "Q03",
+      "elapsed_ms": 4489,
+      "human_effort_seconds": null,
+      "payload_sha256": "33ba3ec3b9c290577b0894b5870556ef50dbf2f2f0cdf5b137db3febc07098dc",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "f48fa8fbbe81db500c70f02e8ca1362ee58f3cdc3ec35bd915494cb146e65416",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": true
+    },
+    {
+      "case_id": "Q04",
+      "elapsed_ms": 1137,
+      "human_effort_seconds": null,
+      "payload_sha256": "fecce5ac4f907bfa45324d5dcbf3ef450cb54f297f06f0eb3286e7e4d08cd96e",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "799dc80f2a6905a29d492d223ffb66b7322acbbc03b2c708d2c469f73a245d1d",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "ERROR_RECORDED",
+      "target_doi_present": null,
+      "target_title_present": null
+    },
+    {
+      "case_id": "Q01",
+      "elapsed_ms": 5734,
+      "human_effort_seconds": null,
+      "payload_sha256": "017b4787f09a4018b2b603a3f93ccb3f4ab9f34c5bc64619f8cb5750c362690c",
+      "per_call_dollar_cost": null,
+      "provider": "scispace",
+      "receipt_sha256": "b5a59a8657ab522a81248b22a82e151a87916e7c2bc0f7d29fc4cedacf9f82a8",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": false
+    },
+    {
+      "case_id": "Q02",
+      "elapsed_ms": 7156,
+      "human_effort_seconds": null,
+      "payload_sha256": "990cca5d90afe96ce7d8a904e57e3548f02c5de8bc223ce946ced4ae1029995d",
+      "per_call_dollar_cost": null,
+      "provider": "scispace",
+      "receipt_sha256": "790d9db46720dfbdbdc9bc85e7992b0ac11341f00b8d923a31e96651e804d1bb",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": true,
+      "target_title_present": true
+    },
+    {
+      "case_id": "Q03",
+      "elapsed_ms": 6753,
+      "human_effort_seconds": null,
+      "payload_sha256": "161220b78bd73ffe23b6a870f026b98718d6d20062e645812b8152ef515e1ffb",
+      "per_call_dollar_cost": null,
+      "provider": "scispace",
+      "receipt_sha256": "44fb6a313307292cebe8c3c5bd8264d59283b4fbda4d0b2de2654206780a995a",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": false
+    },
+    {
+      "case_id": "Q04",
+      "elapsed_ms": 5796,
+      "human_effort_seconds": null,
+      "payload_sha256": "a6c649ff4258ec34eb60c7b4593117dac2be6cfe356b314e30c630b2f8264c3e",
+      "per_call_dollar_cost": null,
+      "provider": "scispace",
+      "receipt_sha256": "7837b995827d0379f59bc7397606fe0c66c681032bf24118aff28e1ffc08e5a7",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": false
+    }
+  ],
+  "schema": "far-live-summary/1",
+  "status": "Research"
+}

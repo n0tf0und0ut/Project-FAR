@@ -1,0 +1,21 @@
+{
+  "schema": "far-live-successor-registration/1",
+  "status": "Research",
+  "version": 2,
+  "reason": "Three initial concurrent Consensus requests returned rate-limit errors. Preserve initial outcomes; run the same four queries sequentially with no retries. Concurrency is a suspected cause, not established causally.",
+  "original_registration_sha256": "b359d7821ddaaad23cfe49f51fd66f9ebe6e1a4ce55949185b64a4e38bbd041f",
+  "cases_sha256": "2f83c53fbd31416863857387442fe18af1303f5d6d9a65a81fb52dd56b3a1e4d",
+  "scorer_sha256": "594537c7ed7b8bb8b0d969cb7842ae361e7fcd822d8507a3c58951193e279657",
+  "frozen_at": "2026-10-27T17:11:35.709973+00:00",
+  "provider": "consensus",
+  "case_ids": [
+    "Q01",
+    "Q02",
+    "Q03",
+    "Q04"
+  ],
+  "additional_calls": 4,
+  "execution": "sequential; zero retries; same queries and references; no prompt tuning",
+  "authority": "internal exploratory, not independent or confirmatory",
+  "metrics": "same original DOI/full-title payload-presence checks; rate-limit errors are missingness, not incorrect answers"
+}

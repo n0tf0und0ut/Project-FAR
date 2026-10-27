@@ -1,0 +1,692 @@
+{
+  "provider": "scispace",
+  "case_id": "Q01",
+  "request": "Which original studies tested whether describing identical risky outcomes as lives saved versus lives lost changes people's choices?",
+  "started_at": "2026-10-27T17:10:35.730Z",
+  "elapsed_ms": 5734,
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Found 10 relevant papers on 'Which original studies tested whether describing identical risky outcomes as lives saved versus lives lost changes people's choices?'.\n\n\n1. Risky-Choice Framing Effects Result Partly From Mismatched Option Descriptions in Gains and Losses\n   ID: 7g38950lkl\n   2024 · Michael L. DeKay, Shiyu Dou · Psychological Science\n   DOI: 10.1177/09567976241249183\n   Abstract: Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., “200 people will be saved”), only negative information (e.g., “400 people will not be saved”), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples ( Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. \n\n2. Risky-Choice Framing Effects Result Partly from Mismatched Option Descriptions in Gains and Losses\n   ID: 4ehek8rwgcfg\n   2025 · Michael L. DeKay, Shiyu Dou\n   DOI: 10.31234/osf.io/g3kv6\n   Abstract: Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. \n\n3. Are Risky-Choice Framing Effects Artifacts of Mismatched Comparisons?\n   ID: 6i7jgimgie2c\n   2024 · Shiyu Dou\n   DOI: 10.17605/osf.io/ws9n3\n   Abstract: Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. \n\n4. Fairness as a social cue and verbal framing in risky choices: An examination of the ambiguity and ambivalence hypothesis\n   ID: 4xmk70r4tg\n   2020 · Yuexia Mai, Chen Chen, Yanjun Zhang · Current Psychology\n   DOI: 10.1007/S12144-018-9922-7\n   Abstract: This research explores how fairness, as a social cue, affects one’s preference when making a choice between differently framed outcomes. To achieve this, we conducted two studies. In Study 1, we analyzed how the perception of fairness embedded in options for addressing a life-or-death problem (based on the Asian disease problem), framed either in terms of lives saved or lives lost, affects behavioral decision making. As existing data suggests that perceived fairness may mediate the effect the framing of a situation has on the decision made. In Study 2, we manipulated the fairness perception of “sure” options in order to investigate how participants’ choice preferences would consequently vary. We found that the framing effect only occurred when the distribution method was fair; it did not occur for distribution methods that were less fair. This result suggests that people assign differing priorities to social and verbal cues; when making the Asian disease problem decision, participants set the social cue of fairness as a high priority. We also found that verbal framing of choice outcomes as secondary cues is more effective in cases when using primary cues leads to conflicting preferences; this is consistent with the prediction of the ambiguity and ambivalence hypothesis, which provides an approach for exploring the social context mechanisms underlying inconsistency and bias when making risky choices.\n\n5. Lay, professional, and artificial intelligence perspectives on risky medical decisions and COVID-19: How does the number of lives matter in clinical trials framed as gains versus losses?\n   ID: 36cb1aw08c\n   2021 · Sumitava Mukherjee, Divya Reji · Quarterly Journal of Experimental Psychology\n   DOI: 10.1177/17470218211052037\n   Abstract: Outcomes of clinical trials need to be communicated effectively to make decisions that save lives. We investigated whether framing can bias these decisions and if risk preferences shift depending on the number of patients. Hypothetical information about two medicines used in clinical trials having a sure or a risky outcome was presented in either a gain frame (people would be saved) or a loss frame (people would die). The number of patients who signed up for the clinical trials was manipulated in both frames in all the experiments. Using an unnamed disease, lay participants (experiment 1) and would-be medical professionals (experiment 2) were asked to choose which medicine they would have administered. For COVID-19, lay participants were asked which medicine should medical professionals (experiment 3), artificially intelligent software (experiment 4), and they themselves (experiment 5) favour to be administered. Broadly consistent with prospect theory, people were more risk-seeking in the loss frames than the gain frames. However, risk-aversion in gain frames was sensitive to the number of lives with risk-neutrality at low magnitudes and risk-aversion at high magnitudes. In the loss frame, participants were mostly risk-seeking. This pattern was consistent across laypersons and medical professionals, further extended to preferences for choices that medical professionals and artificial intelligence programmes should make in the context of COVID-19. These results underscore how medical decisions can be impacted by the number of lives at stake while revealing inconsistent risk preferences for clinical trials during a real pandemic.\n\n6. Better Safe than Sorry: Risking Irresponsibility by Seeking Uncertainty\n   ID: 27lryr5kks\n   2018 · Gro Hege Haraldsen Nordbye, Anine H. Riege, Anine H. Riege · Journal of Behavioral Decision Making\n   DOI: 10.1002/BDM.2049\n   Abstract: Research findings differ as to whether choosing a risky option is an efficient strategy for decision makers seeking to avoid responsibility for potential failures. A risky choice may leave the final outcome to chance factors, but the decision maker can still be held responsible for choosing risk. Further, it is unclear whether a risky choice is a responsible choice. The present article investigates the putative relationship between risk‐ taking and responsibility by drawing a distinction between being responsible for the outcome (R1) versus acting responsibly (R2). Four experiments were performed, in which participants were presented with scenarios describing decision makers facing a choice between a risky (uncertain) option and a riskless (certain) option, framed in terms of losses or equivalent gains. The results showed that decision makers who chose the risky alternative were judged to have acted in a less responsible manner (R2), while still being held equally responsible for the outcome (R1), unless they were ignorant of the risks involved. Choosing risk did not absolve decision makers from blame, despite being less causal and less in control than those who chose the riskless option. Risky decision makers were also judged to be more personally involved. The dissociation between R1 and R2 ratings confirms earlier findings and serves to clarify an alleged relationship between risky choices and responsibility aversion. Framing effects for own choices were found in both scenarios. In contrast, responsibility ratings were only slightly affected by frame. Copyright © 2017 John Wiley & Sons, Ltd. In a variety of professional roles, and in their private lives, people find themselves in situations in which at least one of their options is fraught with uncertainty. For example, should a private equity broker invest the client's money in a fluctuating stock market with possible high gains, but also potential high losses, or keep the money in a low‐ risk, low‐ yield fund? Should the health authorities in Tversky and Kahneman's (1981) famous Asian Disease (AD) problem choose the “certain outcome” program, saving 200 lives for sure, or the “risky” program, where best case could save all 600, but in the worst case save none? The present paper investigates how people judge the decision maker's responsibility in choices between risky options and certain options. We do so by drawing a distinction between being personally responsible for the outcome (R1) versus acting responsibly (R2). Responsible for Outcome versus Acting Responsibly Debates about responsibility are not limited to assessing the causal contributions of the actors involved and who should be praised or blamed for more or less successful outcomes, but also include whether a decision maker has acted in a morally responsible way. We claim that such moral judgments are central for allocating responsibility, although largely overlooked in attribution research. Nordbye and Teigen (2014a) distinguished between two central aspects of the responsibility concept: R1—being personally responsible for a decision or its consequences, and R2—acting responsibly. The R1 sense of responsibility is related to the causal and the classical attribution way of looking at responsibility, or in other words, being personally responsible for the outcome. Acting responsibly (R2), on the other hand, reflects cultural expectancies, morality, duties, and obligations and is linked to social and professional roles (Cane, 2002; Hamilton & Hagiwara, 1992; Hart, 2008; Vincent, 2011). A highly responsible decision maker is assumed to perform careful, well‐ balanced decisions, without inflicting avoidable harm, which is a general value in our society. Social value theory states that the social value of risk (or rather to avoid risk) is a major determinant of decisions we make for others (Stone, Choi, de Bruin, & Mandel, 2013) and could also guide the moral evaluation of the decision maker in risky choice dilemmas. Risky decisions involve, by definition, a venture into the unknown with less control over the outcomes, including potentially damaging ones, which could be incompatible with acting in a responsible way. Nordbye and Teigen (2014a, Exp.2) accordingly found that high risk‐ takers were viewed as acting in a less responsible manner than low risk‐ takers (R2). They were at the same time deemed as having higher outcome responsibility (R1). However, the risks in these previous studies were not quantified in terms of probabilities and expected outcomes. Hence, it remains to be seen if risk‐ takers are still judged as behaving less responsibly (R2) while carrying more outcome responsibility (R1) in cases where the expected utilities of both decisions can be compared. Decisions between certain and risky options have been shown to be influenced by framing, where people usually prefer the certain option in a save frame and prefer the risky option in the loss frame (Tversky & Kahneman, 1981). The present paper will therefore investigate responsibility judgments within both frames, though the main aim is to compare the effect of risky and riskless choices (regardless of frame) upon R1 and R2 judgments. Responsibility and Risk It has recently been argued that decision makers may choose an uncertain option, not because of loss aversion, as suggested by prospect theory (Kahneman & Tversky, 1979), but because of responsibility aversion (Leonhardt, Keller, & Pechmann, 2011; Tykocinski, Amir, & Ayal, 2016). To be fully responsible for an event, a person needs to have caused the event to happen, been in control of the outcome, been able to foresee the consequences, and have had an intention of the outcome to happen (Alicke, 2000; Lagnado & Channon, 2008; Malle, Guglielmo, & Monroe, 2014; Shaver, 1985). It follows that an actor carries more responsibility the more he or she can be seen as an active contributor to the results (Cane, 2002; Chockler & Halpern, 2004; Lagnado, Gerstenberg, & Zultan, 2013; Weiner, 1995). Conversely, the more situational (external) determinants for the action, the less the actor can be held responsible. In line with this, Leonhardt et al. (2011) proposed that risk‐ seeking behavior could be a strategy for evading responsibility. In several experiments, the first of them using the AD paradigm, participants were asked how they would feel about the outcomes of a certain or an uncertain option. The results indicated that participants felt less accountable, less guilty, and less blameworthy for the uncertain (risky) options, perhaps because these involved an intervention of chance factors or other agents with which one could share the responsibility. In a more recent set of studies, Tykocinski et al. (2016) found risky choice framing effects only in situations where the actors were perceived to be highly responsible. They argue that such actors want to reduce their responsibility for losses but not for gains, which makes them prefer the “risky” option in a loss frame. By allowing chance factors to play a role in generating the final outcome, the actor appears less blameworthy, according to this account. Thus, the preference for the risky option may be seen as an impression management strategy to attenuate responsibility and blame. However, other research has shown that people are often reluctant to accept randomizers (e.g., coin‐ flipping) as a decision aid, even in choices between equivalent options, partly because it is perceived as an improper evasion of responsibility (Keren & Teigen, 2010). Nordbye and Teigen (2014a) found that risk‐ taking actors were considered more responsible for their decisions than actors choosing alternatives with less risk. Moreover, if a risk‐ taking actor could have made a different decision (namely, chosen the riskless alternative), he or she can be held responsible for making the risky choice itself, if not for its actual consequences. Such an actor could be made responsible for leaving the outcome to chance, and being blamed for behaving in a negligent way.\n\n7. Moral Judgments of Risky Choices: A Moral Echoing Effect\n   ID: lhx0m8kel398\n   Mary Parkinson, Ruth M. J. Byrne\n   DOI: 10.1017/s1930297500005854\n   Abstract: Two experiments examined moral judgments about a decision-maker’s choices when he chose a sure-thing, 400 out of 600 people will be saved, or a risk, a two-thirds probability to save everyone and a one-thirds probability to save no-one. The results establish a moral echoing effect — a tendency to credit a decision-maker with a good outcome when the decision-maker made the typical choices of the sure-thing in a gain frame or the risk in a loss frame, and to discredit the decision-maker when there is a bad outcome and the decision-maker made the atypical choices of a risk in a gain frame or a sure-thing in a loss frame. The moral echoing effect is established in Experiment 1 (n=207) in which participants supposed the outcome would turn well or badly, and it is replicated in Experiment 2 (n=173) in which they knew it had turned out well or badly, for judgments of moral responsibility and blame or praise. The effect does not occur for judgments of cause, control, counterfactual alternatives, or emotions.\n\n8. Risky-choice framing effects persist when option descriptions are matched and complete: A replication and extension of DeKay and Dou (2024)\n   ID: rup3bick9cq0\n   2026 · Michael L. DeKay · Psychonomic Bulletin & Review\n   DOI: 10.3758/s13423-025-02771-w\n   Abstract: People’s choices involving money, health, and other matters can often be steered toward safer or riskier options by framing the options as gains or losses. This risky-choice framing effect is well established, but its direction and magnitude depend on whether the options are described completely or incompletely and whether the descriptions are matched or mismatched (in terms of good and bad outcomes) in the gain and loss frames. In a recent experiment involving 18 combinations of option descriptions (nine in each frame), DeKay and Dou, Psychological Science, 35(8), 918–932 (2024) found that the valence or gist of the descriptions accounted for substantial variation in risk preferences, favoring categorical theories of framing over more mathematical theories. However, a residual framing effect and a framing effect in choices between completely described options contradicted the categorical theories and previous results. The effect for completely described options was especially surprising, but it was based on data from only 97 participants. The experiment reported here replicated all these effects in a large sample (\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$N = 1,697$$\\end{document}N=1,697) well matched to US Census data and with many more participants (477) making choices between completely described options. Risky-choice framing effects do stem partly from mismatched option descriptions, but a framing effect persists even when descriptions are matched and complete. The latter results expand the effect’s relevance to situations where it was thought to be absent. Among several theory specifications, only a new rescaled version of the explicated valence account explains these effects in the replication and in DeKay and Dou’s online and student samples. Supplementary Information The online version contains supplementary material available at 10.3758/s13423-025-02771-w.\n\n9. Are Risky-Choice Framing Effects Artifacts of Mismatched Comparisons?\n   ID: n560qcnt030f\n   2024 · Shiyu Dou\n   DOI: 10.17605/osf.io/37gvn\n   Abstract: This is the OSF registration for research reported in the following article, which was accepted for publication on March 11, 2024: DeKay, M. L., &amp; Dou, S. (in press). Risky-choice framing effects result partly from mismatched option descriptions in gains and losses. Psychological Science. Abstract: Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. \n\n10. Framing Effects in Choices With Somewhat Risky Options\n   ID: 58n12g4q88kt\n   2024 · Prachiti Garge, Michael L. DeKay\n   DOI: 10.31234/osf.io/dcqj8\n   Abstract: When a certain option and a risky option are both described as potential gains, most people choose the certain option. However, when the same two options are described as potential losses, most people choose the risky option. This famous preference pattern is known as the risky-choice framing effect. Despite the seeming rarity of sure things and all-or-none risks in real life, surprisingly little research on this framing effect has involved options with intermediate levels of risk. In this research, we identified four types of “somewhat risky” options, combined them with each other and with certain and all-or-none options to create 15 risk comparisons in both gains and losses in each of four domains (cancer, drought, investment, and wildfire), and conducted two preregistered experiments in which we varied risk comparisons between or within participants in both student and online samples (total N = 2,586 after exclusions). We found significant framing effects in almost all risk comparisons, greatly expanding the range of decisions in which framing is relevant. In addition, we used out-of-sample predictions from 13 versions of risky-choice theories to evaluate how well those theories accounted for participants’ choices. Versions of transfer-of-attention-exchange theory (TAX) generally outperformed versions of prospect theory, fuzzy-trace theory, the priority heuristic, and other accounts, although prospect theory without loss aversion outperformed TAX and the other accounts when we used an alternate set of parameter values. "
+      }
+    ],
+    "structuredContent": {
+      "searchTerm": "Which original studies tested whether describing identical risky outcomes as lives saved versus lives lost changes people's choices?",
+      "papers": [
+        {
+          "id": 4043480337,
+          "title": "Risky-Choice Framing Effects Result Partly From Mismatched Option Descriptions in Gains and Losses",
+          "is_archived": false,
+          "full_slug": "risky-choice-framing-effects-result-partly-from-mismatched-7g38950lkl",
+          "journal": {
+            "display_name": "Psychological Science",
+            "official_page": "http://pss.sagepub.com/",
+            "issn": "0956-7976",
+            "alias": [
+              "Psychol Sci"
+            ],
+            "id": 58854535,
+            "slug": "psychological-science",
+            "unique_id": "3stx2qo9",
+            "full_slug": "psychological-science-3stx2qo9"
+          },
+          "conference_series": null,
+          "date": "2024-06-18T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.1177/09567976241249183",
+          "unique_id": "7g38950lkl",
+          "abstract": "Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., “200 people will be saved”), only negative information (e.g., “400 people will not be saved”), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples ( Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. ",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Michael L. DeKay",
+                "full_slug": null
+              },
+              {
+                "display_name": "Shiyu Dou",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "fulltext_url": "pdf/risky-choice-framing-effects-result-partly-from-mismatched-7g38950lkl.pdf",
+          "fulltext_url_no_follow": false,
+          "paper_urls": {
+            "order": [
+              "Pdf"
+            ],
+            "data": {
+              "Pdf": [
+                "https://aspredicted.org/sq22k.pdf"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "Risky-choice framing effects are partly caused by mismatched option descriptions.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4050758173,
+          "title": "Risky-Choice Framing Effects Result Partly from Mismatched Option Descriptions in Gains and Losses",
+          "is_archived": false,
+          "full_slug": "risky-choice-framing-effects-result-partly-from-mismatched-4ehek8rwgcfg",
+          "journal": null,
+          "conference_series": null,
+          "date": "2025-01-06T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.31234/osf.io/g3kv6",
+          "unique_id": "4ehek8rwgcfg",
+          "abstract": "Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. ",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Michael L. DeKay",
+                "full_slug": null
+              },
+              {
+                "display_name": "Shiyu Dou",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "Framing effects in risky choices are partly due to mismatched option descriptions, but not entirely, as description valence also influences risk preferences, contradicting prospect theory's predictions in a balanced design with 81 framing-effect variants.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4089882265,
+          "title": "Are Risky-Choice Framing Effects Artifacts of Mismatched Comparisons?",
+          "is_archived": false,
+          "full_slug": "are-risky-choice-framing-effects-artifacts-of-mismatched-6i7jgimgie2c",
+          "journal": null,
+          "conference_series": null,
+          "date": "2024-03-14T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Repository",
+          "doi": "10.17605/osf.io/ws9n3",
+          "unique_id": "6i7jgimgie2c",
+          "abstract": "Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. ",
+          "authors": {
+            "total": 1,
+            "data": [
+              {
+                "display_name": "Shiyu Dou",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "Research suggests that framing effects in risky-choice decisions are partly due to mismatched comparisons, but a significant effect remains even when comparisons are balanced, contradicting prospect theory's predictions on description valence and risk preferences.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 2827775484,
+          "title": "Fairness as a social cue and verbal framing in risky choices: An examination of the ambiguity and ambivalence hypothesis",
+          "is_archived": false,
+          "full_slug": "fairness-as-a-social-cue-and-verbal-framing-in-risky-choices-4xmk70r4tg",
+          "journal": {
+            "display_name": "Current Psychology",
+            "official_page": "https://www.springer.com/journal/12144",
+            "issn": "1046-1310",
+            "alias": [
+              "Current psychology research and reviews",
+              "Current psychology research & reviews"
+            ],
+            "id": 203585231,
+            "slug": "current-psychology",
+            "unique_id": "bizqr9e5",
+            "full_slug": "current-psychology-bizqr9e5"
+          },
+          "conference_series": null,
+          "date": "2020-12-01T00:00:00Z",
+          "is_oa": false,
+          "publication_type": "Journal Article",
+          "doi": "10.1007/S12144-018-9922-7",
+          "unique_id": "4xmk70r4tg",
+          "abstract": "This research explores how fairness, as a social cue, affects one’s preference when making a choice between differently framed outcomes. To achieve this, we conducted two studies. In Study 1, we analyzed how the perception of fairness embedded in options for addressing a life-or-death problem (based on the Asian disease problem), framed either in terms of lives saved or lives lost, affects behavioral decision making. As existing data suggests that perceived fairness may mediate the effect the framing of a situation has on the decision made. In Study 2, we manipulated the fairness perception of “sure” options in order to investigate how participants’ choice preferences would consequently vary. We found that the framing effect only occurred when the distribution method was fair; it did not occur for distribution methods that were less fair. This result suggests that people assign differing priorities to social and verbal cues; when making the Asian disease problem decision, participants set the social cue of fairness as a high priority. We also found that verbal framing of choice outcomes as secondary cues is more effective in cases when using primary cues leads to conflicting preferences; this is consistent with the prediction of the ambiguity and ambivalence hypothesis, which provides an approach for exploring the social context mechanisms underlying inconsistency and bias when making risky choices.",
+          "authors": {
+            "total": 7,
+            "data": [
+              {
+                "display_name": "Yuexia Mai",
+                "id": 2768038129,
+                "slug": "yuexia-mai",
+                "unique_id": "je4zgjzpyo",
+                "full_slug": "yuexia-mai-je4zgjzpyo",
+                "affiliation_full_slug": "fourth-military-medical-university-6cw3c43c"
+              },
+              {
+                "display_name": "Chen Chen",
+                "id": 3216079298,
+                "slug": "chen-chen",
+                "unique_id": "2bz1yaaygw",
+                "full_slug": "chen-chen-2bz1yaaygw",
+                "affiliation_full_slug": "fourth-military-medical-university-6cw3c43c"
+              },
+              {
+                "display_name": "Yanjun Zhang",
+                "id": 2818810690,
+                "slug": "yanjun-zhang",
+                "unique_id": "3jvsl3057p",
+                "full_slug": "yanjun-zhang-3jvsl3057p"
+              },
+              {
+                "display_name": "Wei Xiao",
+                "id": 2638924495,
+                "slug": "wei-xiao",
+                "unique_id": "2zja78bu4k",
+                "full_slug": "wei-xiao-2zja78bu4k",
+                "affiliation_full_slug": "fourth-military-medical-university-6cw3c43c"
+              },
+              {
+                "display_name": "Hao Sun",
+                "id": 2767241679,
+                "slug": "hao-sun",
+                "unique_id": "4r4rqcfhop",
+                "full_slug": "hao-sun-4r4rqcfhop"
+              },
+              {
+                "display_name": "Danmin Miao",
+                "id": 2101425893,
+                "slug": "danmin-miao",
+                "unique_id": "2y8vinc2jm",
+                "full_slug": "danmin-miao-2y8vinc2jm",
+                "affiliation_full_slug": "fourth-military-medical-university-6cw3c43c"
+              },
+              {
+                "display_name": "Jiaxi Peng",
+                "id": 3064265377,
+                "slug": "jiaxi-peng",
+                "unique_id": "1kjmk9vn82",
+                "full_slug": "jiaxi-peng-1kjmk9vn82"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 1,
+            "data": [
+              {
+                "display_name": "Fourth Military Medical University",
+                "city": "Xi'an",
+                "region": "Shaanxi",
+                "country": "China",
+                "id": 9916479,
+                "slug": "fourth-military-medical-university",
+                "unique_id": "6cw3c43c",
+                "full_slug": "fourth-military-medical-university-6cw3c43c"
+              }
+            ]
+          },
+          "fulltext_url": null,
+          "fulltext_url_no_follow": true,
+          "paper_urls": {
+            "order": [
+              "Html"
+            ],
+            "data": {
+              "Html": [
+                "https://link.springer.com/article/10.1007/s12144-018-9922-7"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 3
+            }
+          },
+          "tldr": "This paper explored how fairness, as a social cue, affects one's preference when making a choice between differently framed outcomes and found that the framing effect only occurred when the distribution method was fair; it did not occur for distribution methods that were less fair.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 3202975906,
+          "title": "Lay, professional, and artificial intelligence perspectives on risky medical decisions and COVID-19: How does the number of lives matter in clinical trials framed as gains versus losses?",
+          "is_archived": false,
+          "full_slug": "lay-professional-and-artificial-intelligence-perspectives-on-36cb1aw08c",
+          "journal": {
+            "display_name": "Quarterly Journal of Experimental Psychology",
+            "official_page": "https://us.sagepub.com/en-us/nam/quarterly-journal-of-experimental-psychology/journal203389",
+            "issn": "1747-0218",
+            "alias": [
+              "Journal of experimental psychology",
+              "Experimental psychology",
+              "QJEP"
+            ],
+            "id": 59062809,
+            "slug": "quarterly-journal-of-experimental-psychology",
+            "unique_id": "1ehs9n1e",
+            "full_slug": "quarterly-journal-of-experimental-psychology-1ehs9n1e"
+          },
+          "conference_series": null,
+          "date": "2021-10-21T00:00:00Z",
+          "is_oa": false,
+          "publication_type": "Journal Article",
+          "doi": "10.1177/17470218211052037",
+          "unique_id": "36cb1aw08c",
+          "abstract": "Outcomes of clinical trials need to be communicated effectively to make decisions that save lives. We investigated whether framing can bias these decisions and if risk preferences shift depending on the number of patients. Hypothetical information about two medicines used in clinical trials having a sure or a risky outcome was presented in either a gain frame (people would be saved) or a loss frame (people would die). The number of patients who signed up for the clinical trials was manipulated in both frames in all the experiments. Using an unnamed disease, lay participants (experiment 1) and would-be medical professionals (experiment 2) were asked to choose which medicine they would have administered. For COVID-19, lay participants were asked which medicine should medical professionals (experiment 3), artificially intelligent software (experiment 4), and they themselves (experiment 5) favour to be administered. Broadly consistent with prospect theory, people were more risk-seeking in the loss frames than the gain frames. However, risk-aversion in gain frames was sensitive to the number of lives with risk-neutrality at low magnitudes and risk-aversion at high magnitudes. In the loss frame, participants were mostly risk-seeking. This pattern was consistent across laypersons and medical professionals, further extended to preferences for choices that medical professionals and artificial intelligence programmes should make in the context of COVID-19. These results underscore how medical decisions can be impacted by the number of lives at stake while revealing inconsistent risk preferences for clinical trials during a real pandemic.",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Sumitava Mukherjee",
+                "id": 2107648837,
+                "slug": "sumitava-mukherjee",
+                "unique_id": "2oa7mcom4y",
+                "full_slug": "sumitava-mukherjee-2oa7mcom4y",
+                "affiliation_full_slug": "indian-institute-of-technology-delhi-jlf7pn1o"
+              },
+              {
+                "display_name": "Divya Reji",
+                "id": 3202753685,
+                "slug": "divya-reji",
+                "unique_id": "4bcms5k4cs",
+                "full_slug": "divya-reji-4bcms5k4cs",
+                "affiliation_full_slug": "indian-institute-of-technology-gandhinagar-2bh30k5k"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Indian Institute of Technology Delhi",
+                "city": "New Delhi",
+                "region": null,
+                "country": "India",
+                "id": 68891433,
+                "slug": "indian-institute-of-technology-delhi",
+                "unique_id": "jlf7pn1o",
+                "full_slug": "indian-institute-of-technology-delhi-jlf7pn1o"
+              },
+              {
+                "display_name": "Indian Institute of Technology Gandhinagar",
+                "city": "Gandhinagar",
+                "region": null,
+                "country": "India",
+                "id": 27674431,
+                "slug": "indian-institute-of-technology-gandhinagar",
+                "unique_id": "2bh30k5k",
+                "full_slug": "indian-institute-of-technology-gandhinagar-2bh30k5k"
+              }
+            ]
+          },
+          "fulltext_url": null,
+          "fulltext_url_no_follow": true,
+          "paper_urls": {
+            "order": [
+              "Html"
+            ],
+            "data": {
+              "Html": [
+                "https://journals.sagepub.com/doi/abs/10.1177/17470218211052037"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 1
+            }
+          },
+          "tldr": "In this article, the authors investigated whether framing can bias these decisions and if risk preferences shift depending on the number of patients who signed up for clinical trials in all the experiments, finding that people were more risk-seeking in the loss frames than the gain frames.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 2768581851,
+          "title": "Better Safe than Sorry: Risking Irresponsibility by Seeking Uncertainty",
+          "is_archived": false,
+          "full_slug": "better-safe-than-sorry-risking-irresponsibility-by-seeking-27lryr5kks",
+          "journal": {
+            "display_name": "Journal of Behavioral Decision Making",
+            "official_page": "https://onlinelibrary.wiley.com/journal/10990771",
+            "issn": "0894-3257",
+            "alias": [
+              "Behavioral decision making"
+            ],
+            "id": 117214846,
+            "slug": "journal-of-behavioral-decision-making",
+            "unique_id": "ujlfc92h",
+            "full_slug": "journal-of-behavioral-decision-making-ujlfc92h"
+          },
+          "conference_series": null,
+          "date": "2018-01-01T00:00:00Z",
+          "is_oa": true,
+          "publication_type": "Journal Article",
+          "doi": "10.1002/BDM.2049",
+          "unique_id": "27lryr5kks",
+          "abstract": "Research findings differ as to whether choosing a risky option is an efficient strategy for decision makers seeking to avoid responsibility for potential failures. A risky choice may leave the final outcome to chance factors, but the decision maker can still be held responsible for choosing risk. Further, it is unclear whether a risky choice is a responsible choice. The present article investigates the putative relationship between risk‐ taking and responsibility by drawing a distinction between being responsible for the outcome (R1) versus acting responsibly (R2). Four experiments were performed, in which participants were presented with scenarios describing decision makers facing a choice between a risky (uncertain) option and a riskless (certain) option, framed in terms of losses or equivalent gains. The results showed that decision makers who chose the risky alternative were judged to have acted in a less responsible manner (R2), while still being held equally responsible for the outcome (R1), unless they were ignorant of the risks involved. Choosing risk did not absolve decision makers from blame, despite being less causal and less in control than those who chose the riskless option. Risky decision makers were also judged to be more personally involved. The dissociation between R1 and R2 ratings confirms earlier findings and serves to clarify an alleged relationship between risky choices and responsibility aversion. Framing effects for own choices were found in both scenarios. In contrast, responsibility ratings were only slightly affected by frame. Copyright © 2017 John Wiley & Sons, Ltd. In a variety of professional roles, and in their private lives, people find themselves in situations in which at least one of their options is fraught with uncertainty. For example, should a private equity broker invest the client's money in a fluctuating stock market with possible high gains, but also potential high losses, or keep the money in a low‐ risk, low‐ yield fund? Should the health authorities in Tversky and Kahneman's (1981) famous Asian Disease (AD) problem choose the “certain outcome” program, saving 200 lives for sure, or the “risky” program, where best case could save all 600, but in the worst case save none? The present paper investigates how people judge the decision maker's responsibility in choices between risky options and certain options. We do so by drawing a distinction between being personally responsible for the outcome (R1) versus acting responsibly (R2). Responsible for Outcome versus Acting Responsibly Debates about responsibility are not limited to assessing the causal contributions of the actors involved and who should be praised or blamed for more or less successful outcomes, but also include whether a decision maker has acted in a morally responsible way. We claim that such moral judgments are central for allocating responsibility, although largely overlooked in attribution research. Nordbye and Teigen (2014a) distinguished between two central aspects of the responsibility concept: R1—being personally responsible for a decision or its consequences, and R2—acting responsibly. The R1 sense of responsibility is related to the causal and the classical attribution way of looking at responsibility, or in other words, being personally responsible for the outcome. Acting responsibly (R2), on the other hand, reflects cultural expectancies, morality, duties, and obligations and is linked to social and professional roles (Cane, 2002; Hamilton & Hagiwara, 1992; Hart, 2008; Vincent, 2011). A highly responsible decision maker is assumed to perform careful, well‐ balanced decisions, without inflicting avoidable harm, which is a general value in our society. Social value theory states that the social value of risk (or rather to avoid risk) is a major determinant of decisions we make for others (Stone, Choi, de Bruin, & Mandel, 2013) and could also guide the moral evaluation of the decision maker in risky choice dilemmas. Risky decisions involve, by definition, a venture into the unknown with less control over the outcomes, including potentially damaging ones, which could be incompatible with acting in a responsible way. Nordbye and Teigen (2014a, Exp.2) accordingly found that high risk‐ takers were viewed as acting in a less responsible manner than low risk‐ takers (R2). They were at the same time deemed as having higher outcome responsibility (R1). However, the risks in these previous studies were not quantified in terms of probabilities and expected outcomes. Hence, it remains to be seen if risk‐ takers are still judged as behaving less responsibly (R2) while carrying more outcome responsibility (R1) in cases where the expected utilities of both decisions can be compared. Decisions between certain and risky options have been shown to be influenced by framing, where people usually prefer the certain option in a save frame and prefer the risky option in the loss frame (Tversky & Kahneman, 1981). The present paper will therefore investigate responsibility judgments within both frames, though the main aim is to compare the effect of risky and riskless choices (regardless of frame) upon R1 and R2 judgments. Responsibility and Risk It has recently been argued that decision makers may choose an uncertain option, not because of loss aversion, as suggested by prospect theory (Kahneman & Tversky, 1979), but because of responsibility aversion (Leonhardt, Keller, & Pechmann, 2011; Tykocinski, Amir, & Ayal, 2016). To be fully responsible for an event, a person needs to have caused the event to happen, been in control of the outcome, been able to foresee the consequences, and have had an intention of the outcome to happen (Alicke, 2000; Lagnado & Channon, 2008; Malle, Guglielmo, & Monroe, 2014; Shaver, 1985). It follows that an actor carries more responsibility the more he or she can be seen as an active contributor to the results (Cane, 2002; Chockler & Halpern, 2004; Lagnado, Gerstenberg, & Zultan, 2013; Weiner, 1995). Conversely, the more situational (external) determinants for the action, the less the actor can be held responsible. In line with this, Leonhardt et al. (2011) proposed that risk‐ seeking behavior could be a strategy for evading responsibility. In several experiments, the first of them using the AD paradigm, participants were asked how they would feel about the outcomes of a certain or an uncertain option. The results indicated that participants felt less accountable, less guilty, and less blameworthy for the uncertain (risky) options, perhaps because these involved an intervention of chance factors or other agents with which one could share the responsibility. In a more recent set of studies, Tykocinski et al. (2016) found risky choice framing effects only in situations where the actors were perceived to be highly responsible. They argue that such actors want to reduce their responsibility for losses but not for gains, which makes them prefer the “risky” option in a loss frame. By allowing chance factors to play a role in generating the final outcome, the actor appears less blameworthy, according to this account. Thus, the preference for the risky option may be seen as an impression management strategy to attenuate responsibility and blame. However, other research has shown that people are often reluctant to accept randomizers (e.g., coin‐ flipping) as a decision aid, even in choices between equivalent options, partly because it is perceived as an improper evasion of responsibility (Keren & Teigen, 2010). Nordbye and Teigen (2014a) found that risk‐ taking actors were considered more responsible for their decisions than actors choosing alternatives with less risk. Moreover, if a risk‐ taking actor could have made a different decision (namely, chosen the riskless alternative), he or she can be held responsible for making the risky choice itself, if not for its actual consequences. Such an actor could be made responsible for leaving the outcome to chance, and being blamed for behaving in a negligent way.",
+          "authors": {
+            "total": 5,
+            "data": [
+              {
+                "display_name": "Gro Hege Haraldsen Nordbye",
+                "id": 217316534,
+                "slug": "gro-hege-haraldsen-nordbye",
+                "unique_id": "4wsmga93gr",
+                "full_slug": "gro-hege-haraldsen-nordbye-4wsmga93gr",
+                "affiliation_full_slug": "university-of-oslo-1ir98blr"
+              },
+              {
+                "display_name": "Anine H. Riege",
+                "id": 2021855224,
+                "slug": "anine-h-riege",
+                "unique_id": "1171c97f2j",
+                "full_slug": "anine-h-riege-1171c97f2j",
+                "affiliation_full_slug": "university-of-oslo-1ir98blr"
+              },
+              {
+                "display_name": "Anine H. Riege",
+                "id": 2021855224,
+                "slug": "anine-h-riege",
+                "unique_id": "1171c97f2j",
+                "full_slug": "anine-h-riege-1171c97f2j",
+                "affiliation_full_slug": "kingston-university-2j5uaerg"
+              },
+              {
+                "display_name": "Karl Halvor Teigen",
+                "id": 1945621720,
+                "slug": "karl-halvor-teigen",
+                "unique_id": "jlz08abput",
+                "full_slug": "karl-halvor-teigen-jlz08abput",
+                "affiliation_full_slug": "university-of-oslo-1ir98blr"
+              },
+              {
+                "display_name": "Karl Halvor Teigen",
+                "id": 1945621720,
+                "slug": "karl-halvor-teigen",
+                "unique_id": "jlz08abput",
+                "full_slug": "karl-halvor-teigen-jlz08abput",
+                "affiliation_full_slug": "simula-research-laboratory-2m2b0idr"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 3,
+            "data": [
+              {
+                "display_name": "University of Oslo",
+                "city": "Oslo",
+                "region": "Oslo",
+                "country": "Norway",
+                "id": 184942183,
+                "slug": "university-of-oslo",
+                "unique_id": "1ir98blr",
+                "full_slug": "university-of-oslo-1ir98blr"
+              },
+              {
+                "display_name": "Kingston University",
+                "city": "London",
+                "region": null,
+                "country": "United Kingdom",
+                "id": 205051169,
+                "slug": "kingston-university",
+                "unique_id": "2j5uaerg",
+                "full_slug": "kingston-university-2j5uaerg"
+              },
+              {
+                "display_name": "Simula Research Laboratory",
+                "city": "Lysaker",
+                "region": null,
+                "country": "Norway",
+                "id": 2799829267,
+                "slug": "simula-research-laboratory",
+                "unique_id": "2m2b0idr",
+                "full_slug": "simula-research-laboratory-2m2b0idr"
+              }
+            ]
+          },
+          "fulltext_url": "/pdf/better-safe-than-sorry-risking-irresponsibility-by-seeking-27lryr5kks.pdf",
+          "fulltext_url_no_follow": false,
+          "paper_urls": {
+            "order": [
+              "Html",
+              "Others"
+            ],
+            "data": {
+              "Html": [
+                "https://onlinelibrary.wiley.com/doi/abs/10.1002/bdm.2049",
+                "https://www.duo.uio.no/handle/10852/66311"
+              ],
+              "Others": [
+                "https://www.duo.uio.no/bitstream/10852/66311/6/Nordbye-Riege-Teigen-JBDM-Postprint.pdf"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 5
+            }
+          },
+          "tldr": "Nordbye and Teigen as mentioned in this paper investigated the putative relationship between risk taking and responsibility by drawing a distinction between being responsible for the outcome (R1) versus acting responsibly (R2).",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4062960986,
+          "title": "Moral Judgments of Risky Choices: A Moral Echoing Effect",
+          "is_archived": false,
+          "full_slug": "moral-judgments-of-risky-choices-a-moral-echoing-effect-lhx0m8kel398",
+          "journal": null,
+          "conference_series": null,
+          "date": null,
+          "is_oa": null,
+          "publication_type": null,
+          "doi": "10.1017/s1930297500005854",
+          "unique_id": "lhx0m8kel398",
+          "abstract": "Two experiments examined moral judgments about a decision-maker’s choices when he chose a sure-thing, 400 out of 600 people will be saved, or a risk, a two-thirds probability to save everyone and a one-thirds probability to save no-one. The results establish a moral echoing effect — a tendency to credit a decision-maker with a good outcome when the decision-maker made the typical choices of the sure-thing in a gain frame or the risk in a loss frame, and to discredit the decision-maker when there is a bad outcome and the decision-maker made the atypical choices of a risk in a gain frame or a sure-thing in a loss frame. The moral echoing effect is established in Experiment 1 (n=207) in which participants supposed the outcome would turn well or badly, and it is replicated in Experiment 2 (n=173) in which they knew it had turned out well or badly, for judgments of moral responsibility and blame or praise. The effect does not occur for judgments of cause, control, counterfactual alternatives, or emotions.",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Mary Parkinson",
+                "full_slug": null
+              },
+              {
+                "display_name": "Ruth M. J. Byrne",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "Two experiments demonstrate a \"moral echoing effect\" where moral judgments of decision-makers are influenced by typical vs. atypical choices in gain or loss frames, with good outcomes credited to typical choices and bad outcomes blamed on atypical choices.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4125856415,
+          "title": "Risky-choice framing effects persist when option descriptions are matched and complete: A replication and extension of DeKay and Dou (2024)",
+          "is_archived": false,
+          "full_slug": "risky-choice-framing-effects-persist-when-option-rup3bick9cq0",
+          "journal": {
+            "display_name": "Psychonomic Bulletin & Review",
+            "official_page": "https://link.springer.com/journal/13423",
+            "issn": "1069-9384",
+            "alias": [
+              "PB & R (Online)",
+              "Psychonomic bulletin and review (Online)",
+              "PB & R (Print)",
+              "Psychonomic bulletin & review (Print)",
+              "Psychonomic bulletin and review"
+            ],
+            "id": 138679565,
+            "slug": "psychonomic-bulletin-review",
+            "unique_id": "k7ouateu",
+            "full_slug": "psychonomic-bulletin-review-k7ouateu"
+          },
+          "conference_series": null,
+          "date": "2026-04-01T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.3758/s13423-025-02771-w",
+          "unique_id": "rup3bick9cq0",
+          "abstract": "People’s choices involving money, health, and other matters can often be steered toward safer or riskier options by framing the options as gains or losses. This risky-choice framing effect is well established, but its direction and magnitude depend on whether the options are described completely or incompletely and whether the descriptions are matched or mismatched (in terms of good and bad outcomes) in the gain and loss frames. In a recent experiment involving 18 combinations of option descriptions (nine in each frame), DeKay and Dou, Psychological Science, 35(8), 918–932 (2024) found that the valence or gist of the descriptions accounted for substantial variation in risk preferences, favoring categorical theories of framing over more mathematical theories. However, a residual framing effect and a framing effect in choices between completely described options contradicted the categorical theories and previous results. The effect for completely described options was especially surprising, but it was based on data from only 97 participants. The experiment reported here replicated all these effects in a large sample (\\documentclass[12pt]{minimal} \\usepackage{amsmath} \\usepackage{wasysym} \\usepackage{amsfonts} \\usepackage{amssymb} \\usepackage{amsbsy} \\usepackage{mathrsfs} \\usepackage{upgreek} \\setlength{\\oddsidemargin}{-69pt} \\begin{document}$$N = 1,697$$\\end{document}N=1,697) well matched to US Census data and with many more participants (477) making choices between completely described options. Risky-choice framing effects do stem partly from mismatched option descriptions, but a framing effect persists even when descriptions are matched and complete. The latter results expand the effect’s relevance to situations where it was thought to be absent. Among several theory specifications, only a new rescaled version of the explicated valence account explains these effects in the replication and in DeKay and Dou’s online and student samples. Supplementary Information The online version contains supplementary material available at 10.3758/s13423-025-02771-w.",
+          "authors": {
+            "total": 1,
+            "data": [
+              {
+                "display_name": "Michael L. DeKay",
+                "id": 800165636,
+                "slug": "michael-l-dekay",
+                "unique_id": "30a960bubk",
+                "full_slug": "michael-l-dekay-30a960bubk",
+                "affiliation_full_slug": "ohio-state-university-2ty9afap"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 1,
+            "data": [
+              {
+                "display_name": "Ohio State University",
+                "city": "Columbus",
+                "region": "Ohio",
+                "country": "United States",
+                "id": 52357470,
+                "slug": "ohio-state-university",
+                "unique_id": "2ty9afap",
+                "full_slug": "ohio-state-university-2ty9afap"
+              }
+            ]
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": null,
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4100440263,
+          "title": "Are Risky-Choice Framing Effects Artifacts of Mismatched Comparisons?",
+          "is_archived": false,
+          "full_slug": "are-risky-choice-framing-effects-artifacts-of-mismatched-n560qcnt030f",
+          "journal": null,
+          "conference_series": null,
+          "date": "2024-04-06T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Repository",
+          "doi": "10.17605/osf.io/37gvn",
+          "unique_id": "n560qcnt030f",
+          "abstract": "This is the OSF registration for research reported in the following article, which was accepted for publication on March 11, 2024: DeKay, M. L., &amp; Dou, S. (in press). Risky-choice framing effects result partly from mismatched option descriptions in gains and losses. Psychological Science. Abstract: Textbook psychology holds that people usually prefer a certain option over a risky one when options are framed as gains but prefer the opposite when options are framed as losses. However, this pattern can be amplified, eliminated, or reversed depending on whether option descriptions include only positive information (e.g., 200 people will be saved), only negative information (e.g., 400 people will not be saved), or both. Previous studies suggest that framing effects arise only when option descriptions are mismatched across frames. Using online and student samples (Ns = 906 and 521), we investigated 81 framing-effect variants created from matched and mismatched pairs of 18 option descriptions (nine in each frame). Description valence or gist explained substantial variation in risk preferences (prospect theory does not predict such variation), but a considerable framing effect remained in our balanced design. Risky-choice framing effects appear to be partly—but not completely—the result of mismatched comparisons. ",
+          "authors": {
+            "total": 1,
+            "data": [
+              {
+                "display_name": "Shiyu Dou",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": null,
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4051103500,
+          "title": "Framing Effects in Choices With Somewhat Risky Options",
+          "is_archived": false,
+          "full_slug": "framing-effects-in-choices-with-somewhat-risky-options-58n12g4q88kt",
+          "journal": null,
+          "conference_series": null,
+          "date": "2024-12-30T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.31234/osf.io/dcqj8",
+          "unique_id": "58n12g4q88kt",
+          "abstract": "When a certain option and a risky option are both described as potential gains, most people choose the certain option. However, when the same two options are described as potential losses, most people choose the risky option. This famous preference pattern is known as the risky-choice framing effect. Despite the seeming rarity of sure things and all-or-none risks in real life, surprisingly little research on this framing effect has involved options with intermediate levels of risk. In this research, we identified four types of “somewhat risky” options, combined them with each other and with certain and all-or-none options to create 15 risk comparisons in both gains and losses in each of four domains (cancer, drought, investment, and wildfire), and conducted two preregistered experiments in which we varied risk comparisons between or within participants in both student and online samples (total N = 2,586 after exclusions). We found significant framing effects in almost all risk comparisons, greatly expanding the range of decisions in which framing is relevant. In addition, we used out-of-sample predictions from 13 versions of risky-choice theories to evaluate how well those theories accounted for participants’ choices. Versions of transfer-of-attention-exchange theory (TAX) generally outperformed versions of prospect theory, fuzzy-trace theory, the priority heuristic, and other accounts, although prospect theory without loss aversion outperformed TAX and the other accounts when we used an alternate set of parameter values. ",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Prachiti Garge",
+                "full_slug": null
+              },
+              {
+                "display_name": "Michael L. DeKay",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "This study investigates the framing effect in choices with \"somewhat risky\" options, finding significant framing effects in 14/15 risk comparisons across four domains, and evaluating the predictive power of 13 risky-choice theories, with transfer-of-attention-exchange theory outperforming others.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        }
+      ]
+    },
+    "isError": false
+  },
+  "error": null
+}

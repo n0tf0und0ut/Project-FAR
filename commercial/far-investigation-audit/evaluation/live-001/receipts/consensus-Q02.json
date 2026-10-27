@@ -1,0 +1,20 @@
+{
+  "provider": "consensus",
+  "case_id": "Q02",
+  "request": "Which original experiment tested whether people who disagree about capital punishment evaluate the same mixed evidence differently?",
+  "started_at": "2026-10-27T17:10:35.730Z",
+  "elapsed_ms": 979,
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Rate limit exceeded. Please wait a moment before searching again."
+      }
+    ],
+    "structuredContent": {
+      "error_code": "INVALID_ARGUMENT"
+    },
+    "isError": true
+  },
+  "error": null
+}

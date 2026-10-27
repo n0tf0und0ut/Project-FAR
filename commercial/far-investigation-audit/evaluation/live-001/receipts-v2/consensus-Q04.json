@@ -1,0 +1,244 @@
+{
+  "provider": "consensus",
+  "case_id": "Q04",
+  "request": "Which research review explains why misinformation can continue to influence reasoning after a correction?",
+  "started_at": "2026-10-27T17:11:54.146Z",
+  "elapsed_ms": 3812,
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"results\": [{\"id\": \"30b787f2c2e056a8aa0ff5d344a58d2f\", \"title\": \"The psychological drivers of misinformation belief and its resistance to correction\", \"text\": \"Misinformation has been identified as a major contributor to various contentious contemporary events ranging from elections and referenda to the response to the COVID-19 pandemic. Not only can belief ...\", \"url\": \"https://consensus.app/papers/details/30b787f2c2e056a8aa0ff5d344a58d2f/?utm_source=chatgpt\"}, {\"id\": \"84d2ddd6b1475f1ba8161a278ad3204c\", \"title\": \"A Meta-Analytic Examination of the Continued Influence of Misinformation in the Face of Correction: How Powerful Is It, Why Does It Happen, and How to Stop It?\", \"text\": \"A meta-analysis was conducted to examine the extent of continued influence of misinformation in the face of correction and the theoretical explanations of this phenomenon. Aggregation of results from ...\", \"url\": \"https://consensus.app/papers/details/84d2ddd6b1475f1ba8161a278ad3204c/?utm_source=chatgpt\"}, {\"id\": \"e96f3b499a9b5b1299457ab4531bf5e2\", \"title\": \"Mechanisms in continued influence: The impact of misinformation corrections on source perceptions\", \"text\": \"Research on the continued influence effect (CIE) of misinformation has demonstrated that misinformation continues to influence people's beliefs and judgments even after it has been corrected. Although...\", \"url\": \"https://consensus.app/papers/details/e96f3b499a9b5b1299457ab4531bf5e2/?utm_source=chatgpt\"}, {\"id\": \"649a3a8b1c955ebdba723f0cee3cc8c4\", \"title\": \"A meta-analysis of correction effects in science-relevant misinformation\", \"text\": \"Scientifically relevant misinformation, defined as false claims concerning a scientific measurement procedure or scientific evidence, regardless of the author's intent, is illustrated by the fiction t...\", \"url\": \"https://consensus.app/papers/details/649a3a8b1c955ebdba723f0cee3cc8c4/?utm_source=chatgpt\"}, {\"id\": \"26ead41bd17d5dacb93d3e0aa5e37c14\", \"title\": \"The Role of Familiarity in Correcting Inaccurate Information\", \"text\": \"People frequently continue to use inaccurate information in their reasoning even after a credible retraction has been presented. This phenomenon is often referred to as the continued influence effect ...\", \"url\": \"https://consensus.app/papers/details/26ead41bd17d5dacb93d3e0aa5e37c14/?utm_source=chatgpt\"}, {\"id\": \"0cc9d1bf872c501aafba316af03db329\", \"title\": \"Political Attitudes and the Processing of Misinformation Corrections\", \"text\": \"Misinformation often continues to influence people’s memory and inferential reasoning after it has been retracted; this is known as the continued influence effect (CIE). Previous research investigatin...\", \"url\": \"https://consensus.app/papers/details/0cc9d1bf872c501aafba316af03db329/?utm_source=chatgpt\"}, {\"id\": \"e5318886b01852ae979d87e5ef713dd1\", \"title\": \"The rational continued influence of misinformation.\", \"text\": \"Misinformation has become an increasingly topical field of research. Studies on the 'Continued Influence Effect' (CIE) show that misinformation continues to influence reasoning despite subsequent retr...\", \"url\": \"https://consensus.app/papers/details/e5318886b01852ae979d87e5ef713dd1/?utm_source=chatgpt\"}, {\"id\": \"0e151f470f7d5e0c90ad7eca8a8b048e\", \"title\": \"Misinformation as an Event-Model Problem.\", \"text\": \"Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance...\", \"url\": \"https://consensus.app/papers/details/0e151f470f7d5e0c90ad7eca8a8b048e/?utm_source=chatgpt\"}, {\"id\": \"9fde0ce99b0853728488ba40e408e0e4\", \"title\": \"Can corrections spread misinformation to new audiences? Testing for the elusive familiarity backfire effect\", \"text\": \"Misinformation often continues to influence inferential reasoning after clear and credible corrections are provided; this effect is known as the continued influence effect. It has been theorized that ...\", \"url\": \"https://consensus.app/papers/details/9fde0ce99b0853728488ba40e408e0e4/?utm_source=chatgpt\"}, {\"id\": \"90915edf66cc5a3eae8ef71c1f8a1d35\", \"title\": \"The role of relevance in the continued influence effect of misinformation under different retraction methods\", \"text\": \"The continued-influence effect of misinformation can have a negative impact on an individual's reasoning judgment. Previous studies less attention has been paid to the possible effects of information ...\", \"url\": \"https://consensus.app/papers/details/90915edf66cc5a3eae8ef71c1f8a1d35/?utm_source=chatgpt\"}]}"
+      }
+    ],
+    "structuredContent": {
+      "query": "Which research review explains why misinformation can continue to influence reasoning after a correction?",
+      "total_results": 10,
+      "returned_results": 10,
+      "top_papers": [
+        {
+          "title": "The psychological drivers of misinformation belief and its resistance to correction",
+          "authors": [
+            "Ullrich K. H. Ecker",
+            "S. Lewandowsky",
+            "J. Cook",
+            "P. Schmid",
+            "Lisa K. Fazio",
+            "Nadia M. Brashier",
+            "Panayiota Kendeou",
+            "E. Vraga",
+            "Michelle A. Amazeen"
+          ],
+          "year": 2022,
+          "citation_count": 1195,
+          "journal": "Nature Reviews Psychology",
+          "volume": "1",
+          "pages": "13 - 29",
+          "url": "https://consensus.app/papers/details/30b787f2c2e056a8aa0ff5d344a58d2f/?utm_source=chatgpt",
+          "abstract": "Misinformation has been identified as a major contributor to various contentious contemporary events ranging from elections and referenda to the response to the COVID-19 pandemic. Not only can belief in misinformation lead to poor judgements and decision-making, it also exerts a lingering influence on people’s reasoning after it has been corrected — an effect known as the continued influence effect. In this Review, we describe the cognitive, social and affective factors that lead people to form or endorse misinformed views, and the psychological barriers to knowledge revision after misinformation has been corrected, including theories of continued influence. We discuss the effectiveness of both pre-emptive (‘prebunking’) and reactive (‘debunking’) interventions to reduce the effects of misinformation, as well as implications for information consumers and practitioners in various areas including journalism, public health, policymaking and education."
+        },
+        {
+          "title": "A Meta-Analytic Examination of the Continued Influence of Misinformation in the Face of Correction: How Powerful Is It, Why Does It Happen, and How to Stop It?",
+          "authors": [
+            "Nathan Walter",
+            "R. Tukachinsky"
+          ],
+          "year": 2019,
+          "citation_count": 414,
+          "journal": "Communication Research",
+          "volume": "47",
+          "pages": "155 - 177",
+          "url": "https://consensus.app/papers/details/84d2ddd6b1475f1ba8161a278ad3204c/?utm_source=chatgpt",
+          "abstract": "A meta-analysis was conducted to examine the extent of continued influence of misinformation in the face of correction and the theoretical explanations of this phenomenon. Aggregation of results from 32 studies (N = 6,527) revealed that, on average, correction does not entirely eliminate the effect of misinformation (r = –.05, p = .045). Corrective messages were found to be more successful when they are coherent, consistent with the audience’s worldview, and delivered by the source of the misinformation itself. Corrections are less effective if the misinformation was attributed to a credible source, the misinformation has been repeated multiple times prior to correction, or when there was a time lag between the delivery of the misinformation and the correction. These findings are consistent with predictions based on theories of mental models and offer concrete recommendations for practitioners."
+        },
+        {
+          "title": "Mechanisms in continued influence: The impact of misinformation corrections on source perceptions",
+          "authors": [
+            "Victoria Westbrook",
+            "D. Wegener",
+            "Mark W. Susmann"
+          ],
+          "year": 2023,
+          "citation_count": 19,
+          "journal": "Memory & Cognition",
+          "volume": "51",
+          "pages": "1317-1330",
+          "url": "https://consensus.app/papers/details/e96f3b499a9b5b1299457ab4531bf5e2/?utm_source=chatgpt",
+          "abstract": "Research on the continued influence effect (CIE) of misinformation has demonstrated that misinformation continues to influence people's beliefs and judgments even after it has been corrected. Although most theorizing about the CIE attempts to explain why corrections do not eliminate belief in and influences of the misinformation, the present research takes a different approach and focuses instead on why corrections do reduce belief in misinformation (even if not entirely). We examined how a correction can change perceptions of the original source of the misinformation and how these changes in perceptions can mediate continued influence effects. We also examined causal evidence linking manipulations of misinformation source perceptions to continued belief and misinformation-relevant inferential reasoning. Study 1 demonstrated that an external correction (i.e., a new source labeling misinformation as false) influences perceptions of the misinformation source, and these perceptions of the misinformation source then correlated with belief in the misinformation. Study 2 replicated the results of Study 1 and used source derogation to manipulate misinformation source perceptions and further lessen continued belief. Study 3 was a preregistered replication of previous results using new methodology. These studies suggest that perceptions of the misinformation source is one mechanism that can cause changes in belief in misinformation, and changes in the perception of a source can be achieved simply by correcting the source or through other means. This approach can be used to find other mechanisms responsible for reducing belief in misinformation.\n\n© 2023. This is a U.S. Government work and not under copyright protection in the US; foreign copyright protection may apply."
+        }
+      ],
+      "papers": [
+        {
+          "title": "The psychological drivers of misinformation belief and its resistance to correction",
+          "authors": [
+            "Ullrich K. H. Ecker",
+            "S. Lewandowsky",
+            "J. Cook",
+            "P. Schmid",
+            "Lisa K. Fazio",
+            "Nadia M. Brashier",
+            "Panayiota Kendeou",
+            "E. Vraga",
+            "Michelle A. Amazeen"
+          ],
+          "year": 2022,
+          "citation_count": 1195,
+          "journal": "Nature Reviews Psychology",
+          "volume": "1",
+          "pages": "13 - 29",
+          "url": "https://consensus.app/papers/details/30b787f2c2e056a8aa0ff5d344a58d2f/?utm_source=chatgpt",
+          "abstract": "Misinformation has been identified as a major contributor to various contentious contemporary events ranging from elections and referenda to the response to the COVID-19 pandemic. Not only can belief in misinformation lead to poor judgements and decision-making, it also exerts a lingering influence on people’s reasoning after it has been corrected — an effect known as the continued influence effect. In this Review, we describe the cognitive, social and affective factors that lead people to form or endorse misinformed views, and the psychological barriers to knowledge revision after misinformation has been corrected, including theories of continued influence. We discuss the effectiveness of both pre-emptive (‘prebunking’) and reactive (‘debunking’) interventions to reduce the effects of misinformation, as well as implications for information consumers and practitioners in various areas including journalism, public health, policymaking and education."
+        },
+        {
+          "title": "A Meta-Analytic Examination of the Continued Influence of Misinformation in the Face of Correction: How Powerful Is It, Why Does It Happen, and How to Stop It?",
+          "authors": [
+            "Nathan Walter",
+            "R. Tukachinsky"
+          ],
+          "year": 2019,
+          "citation_count": 414,
+          "journal": "Communication Research",
+          "volume": "47",
+          "pages": "155 - 177",
+          "url": "https://consensus.app/papers/details/84d2ddd6b1475f1ba8161a278ad3204c/?utm_source=chatgpt",
+          "abstract": "A meta-analysis was conducted to examine the extent of continued influence of misinformation in the face of correction and the theoretical explanations of this phenomenon. Aggregation of results from 32 studies (N = 6,527) revealed that, on average, correction does not entirely eliminate the effect of misinformation (r = –.05, p = .045). Corrective messages were found to be more successful when they are coherent, consistent with the audience’s worldview, and delivered by the source of the misinformation itself. Corrections are less effective if the misinformation was attributed to a credible source, the misinformation has been repeated multiple times prior to correction, or when there was a time lag between the delivery of the misinformation and the correction. These findings are consistent with predictions based on theories of mental models and offer concrete recommendations for practitioners."
+        },
+        {
+          "title": "Mechanisms in continued influence: The impact of misinformation corrections on source perceptions",
+          "authors": [
+            "Victoria Westbrook",
+            "D. Wegener",
+            "Mark W. Susmann"
+          ],
+          "year": 2023,
+          "citation_count": 19,
+          "journal": "Memory & Cognition",
+          "volume": "51",
+          "pages": "1317-1330",
+          "url": "https://consensus.app/papers/details/e96f3b499a9b5b1299457ab4531bf5e2/?utm_source=chatgpt",
+          "abstract": "Research on the continued influence effect (CIE) of misinformation has demonstrated that misinformation continues to influence people's beliefs and judgments even after it has been corrected. Although most theorizing about the CIE attempts to explain why corrections do not eliminate belief in and influences of the misinformation, the present research takes a different approach and focuses instead on why corrections do reduce belief in misinformation (even if not entirely). We examined how a correction can change perceptions of the original source of the misinformation and how these changes in perceptions can mediate continued influence effects. We also examined causal evidence linking manipulations of misinformation source perceptions to continued belief and misinformation-relevant inferential reasoning. Study 1 demonstrated that an external correction (i.e., a new source labeling misinformation as false) influences perceptions of the misinformation source, and these perceptions of the misinformation source then correlated with belief in the misinformation. Study 2 replicated the results of Study 1 and used source derogation to manipulate misinformation source perceptions and further lessen continued belief. Study 3 was a preregistered replication of previous results using new methodology. These studies suggest that perceptions of the misinformation source is one mechanism that can cause changes in belief in misinformation, and changes in the perception of a source can be achieved simply by correcting the source or through other means. This approach can be used to find other mechanisms responsible for reducing belief in misinformation.\n\n© 2023. This is a U.S. Government work and not under copyright protection in the US; foreign copyright protection may apply."
+        },
+        {
+          "title": "A meta-analysis of correction effects in science-relevant misinformation",
+          "authors": [
+            "Man-pui Sally Chan",
+            "Dolores Albarracín"
+          ],
+          "year": 2023,
+          "citation_count": 98,
+          "journal": "Nature human behaviour",
+          "volume": "7",
+          "pages": "1514 - 1525",
+          "url": "https://consensus.app/papers/details/649a3a8b1c955ebdba723f0cee3cc8c4/?utm_source=chatgpt",
+          "abstract": "Scientifically relevant misinformation, defined as false claims concerning a scientific measurement procedure or scientific evidence, regardless of the author's intent, is illustrated by the fiction that the coronavirus disease 2019 vaccine contained microchips to track citizens. Updating science-relevant misinformation after a correction can be challenging, and little is known about what theoretical factors can influence the correction. Here this meta-analysis examined 205 effect sizes (that is, k, obtained from 74 reports; N = 60,861), which showed that attempts to debunk science-relevant misinformation were, on average, not successful (d = 0.19, P = 0.131, 95% confidence interval -0.06 to 0.43). However, corrections were more successful when the initial science-relevant belief concerned negative topics and domains other than health. Corrections fared better when they were detailed, when recipients were likely familiar with both sides of the issue ahead of the study and when the issue was not politically polarized.\n\n© 2023. The Author(s), under exclusive licence to Springer Nature Limited."
+        },
+        {
+          "title": "The Role of Familiarity in Correcting Inaccurate Information",
+          "authors": [
+            "Briony Swire",
+            "Ullrich K. H. Ecker",
+            "S. Lewandowsky"
+          ],
+          "year": 2017,
+          "citation_count": 273,
+          "journal": "Journal of Experimental Psychology: Learning, Memory, and Cognition",
+          "volume": "43",
+          "pages": "1948–1961",
+          "url": "https://consensus.app/papers/details/26ead41bd17d5dacb93d3e0aa5e37c14/?utm_source=chatgpt",
+          "abstract": "People frequently continue to use inaccurate information in their reasoning even after a credible retraction has been presented. This phenomenon is often referred to as the continued influence effect of misinformation. The repetition of the original misconception within a retraction could contribute to this phenomenon, as it could inadvertently make the \"myth\" more familiar-and familiar information is more likely to be accepted as true. From a dual-process perspective, familiarity-based acceptance of myths is most likely to occur in the absence of strategic memory processes. Thus, we examined factors known to affect whether strategic memory processes can be utilized: age, detail, and time. Participants rated their belief in various statements of unclear veracity, and facts were subsequently affirmed and myths were retracted. Participants then rerated their belief either immediately or after a delay. We compared groups of young and older participants, and we manipulated the amount of detail presented in the affirmative or corrective explanations, as well as the retention interval between encoding and a retrieval attempt. We found that (a) older adults over the age of 65 were worse at sustaining their postcorrection belief that myths were inaccurate, (b) a greater level of explanatory detail promoted more sustained belief change, and (c) fact affirmations promoted more sustained belief change in comparison with myth retractions over the course of 1 week (but not over 3 weeks), This supports the notion that familiarity is indeed a driver of continued influence effects. (PsycINFO Database Record\n\n(c) 2017 APA, all rights reserved)."
+        },
+        {
+          "title": "Political Attitudes and the Processing of Misinformation Corrections",
+          "authors": [
+            "Ullrich K. H. Ecker",
+            "Chang'an Li"
+          ],
+          "year": 2018,
+          "citation_count": 154,
+          "journal": "Unknown Journal",
+          "volume": "",
+          "pages": "",
+          "url": "https://consensus.app/papers/details/0cc9d1bf872c501aafba316af03db329/?utm_source=chatgpt",
+          "abstract": "Misinformation often continues to influence people’s memory and inferential reasoning after it has been retracted; this is known as the continued influence effect (CIE). Previous research investigating the role of attitude-based motivated reasoning in this context has found conflicting results: Some studies have found that worldview can have a strong impact on the magnitude of the CIE, such that retractions are less effective if the misinformation is congruent with a person’s relevant attitudes, in which case the retractions can even backfire. Other studies have failed to find evidence for an effect of attitudes on the processing of misinformation corrections. The present study used political misinformation— specifically fictional scenarios involving misconduct by politicians from left-wing and rightwing parties—and tested participants identifying with those political parties. Results showed that in this type of scenario, partisan attitudes have an impact on the processing of retractions, in particular (1) if the misinformation relates to a general assertion rather than just a specific singular event, and (2) if the misinformation is congruent with a conservative partisanship."
+        },
+        {
+          "title": "The rational continued influence of misinformation.",
+          "authors": [
+            "Toby D. Pilditch",
+            "J. K. Madsen"
+          ],
+          "year": 2019,
+          "citation_count": 42,
+          "journal": "Cognition",
+          "volume": "205",
+          "pages": "\n          104453\n",
+          "url": "https://consensus.app/papers/details/e5318886b01852ae979d87e5ef713dd1/?utm_source=chatgpt",
+          "abstract": "Misinformation has become an increasingly topical field of research. Studies on the 'Continued Influence Effect' (CIE) show that misinformation continues to influence reasoning despite subsequent retraction. Current explanatory theories of the CIE tacitly assume continued reliance on misinformation is the consequence of a biased process. In the present work, we show why this perspective may be erroneous. Using a Bayesian formalism, we conceptualize the CIE as a scenario involving contradictory testimonies and incorporate the previously overlooked factors of the temporal dependence (misinformation precedes its retraction) between, and the perceived reliability of, misinforming and retracting sources. When considering such factors, we show the CIE to have normative backing. We demonstrate that, on aggregate, lay reasoners (N = 101) intuitively endorse the necessary assumptions that demarcate CIE as a rational process, still exhibit the standard effect, and appropriately penalize the reliability of contradicting sources. Individual-level analyses revealed that although many participants endorsed assumptions for a rational CIE, very few were able to execute the complex model update that the Bayesian model entails. In sum, we provide a novel illustration of the pervasive influence of misinformation as the consequence of a rational process.\n\nCopyright © 2020 Elsevier B.V. All rights reserved."
+        },
+        {
+          "title": "Misinformation as an Event-Model Problem.",
+          "authors": [
+            "Markus Huff",
+            "J. Göbel",
+            "Helen Fischer"
+          ],
+          "year": 2026,
+          "citation_count": 0,
+          "journal": "Perspectives on psychological science : a journal of the Association for Psychological Science",
+          "volume": "",
+          "pages": "\n          17456916261475284\n",
+          "url": "https://consensus.app/papers/details/0e151f470f7d5e0c90ad7eca8a8b048e/?utm_source=chatgpt",
+          "abstract": "Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this view overlooks a key constraint on comprehension: Misinformation is typically encountered within temporally unfolding narratives and integrated into event-structured mental models. Drawing on event cognition, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, leaving incoherent representations that invite compensatory inference and the reemergence of misinformation. By contrast, our framework predicts that corrections that align with event boundaries and provide factually accurate, causally adequate replacements should be more likely to stabilize updated representations. This event-model perspective unifies continued influence effects, delayed resurgence of misinformation, and inference-based false memory. It suggests that effective interventions must not only revise beliefs but also restore coherence in narrative event models."
+        },
+        {
+          "title": "Can corrections spread misinformation to new audiences? Testing for the elusive familiarity backfire effect",
+          "authors": [
+            "Ullrich K. H. Ecker",
+            "S. Lewandowsky",
+            "M. Chadwick"
+          ],
+          "year": 2020,
+          "citation_count": 110,
+          "journal": "Cognitive Research: Principles and Implications",
+          "volume": "5",
+          "pages": "",
+          "url": "https://consensus.app/papers/details/9fde0ce99b0853728488ba40e408e0e4/?utm_source=chatgpt",
+          "abstract": "Misinformation often continues to influence inferential reasoning after clear and credible corrections are provided; this effect is known as the continued influence effect. It has been theorized that this effect is partly driven by misinformation familiarity. Some researchers have even argued that a correction should avoid repeating the misinformation, as the correction itself could serve to inadvertently enhance misinformation familiarity and may thus backfire, ironically strengthening the very misconception that it aims to correct. While previous research has found little evidence of such familiarity backfire effects, there remains one situation where they may yet arise: when correcting entirely novel misinformation, where corrections could serve to spread misinformation to new audiences who had never heard of it before. This article presents three experiments (total N = 1718) investigating the possibility of familiarity backfire within the context of correcting novel misinformation claims and after a 1-week study-test delay. While there was variation across experiments, overall there was substantial evidence against familiarity backfire. Corrections that exposed participants to novel misinformation did not lead to stronger misconceptions compared to a control group never exposed to the false claims or corrections. This suggests that it is safe to repeat misinformation when correcting it, even when the audience might be unfamiliar with the misinformation."
+        },
+        {
+          "title": "The role of relevance in the continued influence effect of misinformation under different retraction methods",
+          "authors": [
+            "Li-Na Jia",
+            "Hua Jin"
+          ],
+          "year": 2024,
+          "citation_count": 2,
+          "journal": "Current Psychology",
+          "volume": "43",
+          "pages": "21437 - 21447",
+          "url": "https://consensus.app/papers/details/90915edf66cc5a3eae8ef71c1f8a1d35/?utm_source=chatgpt",
+          "abstract": "The continued-influence effect of misinformation can have a negative impact on an individual's reasoning judgment. Previous studies less attention has been paid to the possible effects of information relevance on the continued-influence effect of misinformation, especially the role of relevance under different retraction methods. In this study, the role of information relevance was examined through four experiments with different retraction methods. An internal meta-analysis of the four experiments was also conducted to provide more evidence. It was found that the effect of information relevance on the continued-influence effect of misinformation did not differ by retraction method, and all showed that highly relevant misinformation was easier to retract and there was less continued-influence effect of misinformation. The results also found that the source of corrected information was high authority or providing alternative explanations was able to reduce the continued-influence effect of misinformation more effectively. The study extended the types of information in the material, enriched the factors influencing of the continued-influence effect of misinformation, and provides more evidence and foundation for further in-depth exploration of continued-influence effect of misinformation and its retraction effects, as well as provides some evidence for existing theoretical explanations."
+        }
+      ],
+      "tier": "free",
+      "utm_source": "chatgpt_widget",
+      "page": 0,
+      "is_end": false,
+      "next_page": null,
+      "usage": {
+        "searches_used": 5,
+        "searches_limit": 30,
+        "papers_per_search": 10
+      },
+      "instructions": "IMPORTANT: When presenting these results, you MUST: 1. Cite papers inline using numbered references [1], [2], etc. Example: 'Caffeine improves endurance performance [1] and reduces perceived exertion [3].' 2. Hyperlink paper titles to their URLs: [Paper Title](url). 3. Include the authors, year, journal, and citation count for each paper. If a paper has a `doi` field, surface it (e.g. 'DOI: 10.1038/...') so the user can cite it formally. 4. Use the exact paper URLs — do not modify or shorten them. 5. Include the sign-up/upgrade message at the END word-for-word.",
+      "cta": {
+        "text": "Upgrade to Consensus Pro to return 20 results per search instead of 10, and include more data like study design and key takeaways for every result.",
+        "url": "https://consensus.app/pricing/?utm_source=chatgpt"
+      },
+      "cta_message": "Upgrade to Consensus Pro to return 20 results per search instead of 10, and include more data like study design and key takeaways for every result.: https://consensus.app/pricing/?utm_source=chatgpt"
+    },
+    "isError": false
+  },
+  "error": null,
+  "successor_registration": "sequential-successor-registration-v2.json"
+}

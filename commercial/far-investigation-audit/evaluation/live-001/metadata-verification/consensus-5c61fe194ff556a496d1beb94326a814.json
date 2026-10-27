@@ -1,0 +1,14 @@
+{
+  "role": "Post-search identity verification only; not part of search score or scientific adjudication.",
+  "id": "5c61fe194ff556a496d1beb94326a814",
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"id\": \"5c61fe194ff556a496d1beb94326a814\", \"title\": \"Reconstruction of automobile destruction: An example of the interaction between language and memory\", \"text\": \"Abstract not available for this paper. See the paper URL for full details.\", \"url\": \"https://consensus.app/papers/reconstruction-of-automobile-destruction-an-example-of-loftus-palmer/5c61fe194ff556a496d1beb94326a814/?utm_source=chatgpt\", \"metadata\": {\"authors\": \"E. Loftus, J. Palmer\", \"publish_year\": \"1974\", \"journal\": \"Journal of Verbal Learning and Verbal Behavior\", \"volume\": \"13\", \"pages\": \"585-589\", \"citation_count\": \"1685\"}}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

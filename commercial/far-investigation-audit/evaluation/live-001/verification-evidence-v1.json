@@ -1,0 +1,22 @@
+{
+  "schema": "far-live-verification-evidence/1",
+  "initial_verifier_failure": {
+    "outcome": "archive identity mismatch",
+    "root_cause": "Archive entries sorted Q before R; local observations stored R before Q. Position-based zip comparison incorrectly treated ordering as identity.",
+    "repair": "Join by validated unique case IDs; no input, prediction, reference, scorer or summary changed."
+  },
+  "successful_portable_replays": 20,
+  "scoring_receipts_recomputed": 12,
+  "hostile_probes": [
+    {
+      "probe": "Changed raw receipt bytes",
+      "rejected": true,
+      "message": "artifact bytes changed: receipts/scispace-Q01.json"
+    },
+    {
+      "probe": "Unsupported customer-value promotion with recomputed file hash",
+      "rejected": true,
+      "message": "unsupported result promotion"
+    }
+  ]
+}
