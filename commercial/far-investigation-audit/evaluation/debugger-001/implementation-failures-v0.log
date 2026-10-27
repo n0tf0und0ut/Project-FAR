@@ -1,0 +1,121 @@
+..............E.....E............................E......EE..................................................EEE.............................s......................................................FAR_REPLAY_MISMATCH: supplied report differs from audited input
+..........EFFE..................
+======================================================================
+ERROR: test_local_service_rejects_foreign_origins_and_rebound_hosts (test_end_to_end.AdversarialPackageReplayTests.test_local_service_rejects_foreign_origins_and_rebound_hosts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_end_to_end.py", line 523, in test_local_service_rejects_foreign_origins_and_rebound_hosts
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_synthetic_test_hostname_is_not_allowed_for_real_loopback_clients (test_end_to_end.AdversarialPackageReplayTests.test_synthetic_test_hostname_is_not_allowed_for_real_loopback_clients)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_end_to_end.py", line 539, in test_synthetic_test_hostname_is_not_allowed_for_real_loopback_clients
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_browser_not_auth_provider_and_escapes_report (test_end_to_end.ReviewAndMediaTests.test_browser_not_auth_provider_and_escapes_report)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_end_to_end.py", line 260, in test_browser_not_auth_provider_and_escapes_report
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_upload_cannot_expose_arbitrary_operator_path_or_model (test_end_to_end.WebUploadsAndCommercialPathTests.test_upload_cannot_expose_arbitrary_operator_path_or_model)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_end_to_end.py", line 393, in test_upload_cannot_expose_arbitrary_operator_path_or_model
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_web_upload_text_and_pdf_file (test_end_to_end.WebUploadsAndCommercialPathTests.test_web_upload_text_and_pdf_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_end_to_end.py", line 373, in test_web_upload_text_and_pdf_file
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_chunked_json_is_stopped_before_the_whole_stream_is_consumed (test_failure_boundaries.WebFailureBoundaryTests.test_chunked_json_is_stopped_before_the_whole_stream_is_consumed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_failure_boundaries.py", line 97, in test_chunked_json_is_stopped_before_the_whole_stream_is_consumed
+    from webapp import app
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/webapp.py", line 13, in <module>
+    from fastapi import FastAPI, HTTPException, Request
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_over_nested_request_returns_422_and_releases_worker (test_failure_boundaries.WebFailureBoundaryTests.test_over_nested_request_returns_422_and_releases_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_failure_boundaries.py", line 139, in test_over_nested_request_returns_422_and_releases_worker
+    from fastapi.testclient import TestClient
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_upload_actual_bytes_override_understated_length_before_multipart (test_failure_boundaries.WebFailureBoundaryTests.test_upload_actual_bytes_override_understated_length_before_multipart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_failure_boundaries.py", line 119, in test_upload_actual_bytes_override_understated_length_before_multipart
+    from webapp import app
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/webapp.py", line 13, in <module>
+    from fastapi import FastAPI, HTTPException, Request
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_chunked_json_stops_consuming_at_the_byte_limit_and_recovers (test_review_578_cycle6.SixthReviewRegressions.test_chunked_json_stops_consuming_at_the_byte_limit_and_recovers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_review_578_cycle6.py", line 33, in test_chunked_json_stops_consuming_at_the_byte_limit_and_recovers
+    from fastapi import HTTPException
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+ERROR: test_upload_transport_cap_precedes_multipart_parsing_and_releases_worker (test_review_578_cycle6.SixthReviewRegressions.test_upload_transport_cap_precedes_multipart_parsing_and_releases_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_review_578_cycle6.py", line 68, in test_upload_transport_cap_precedes_multipart_parsing_and_releases_worker
+    from fastapi import HTTPException
+ModuleNotFoundError: No module named 'fastapi'
+
+======================================================================
+FAIL: test_supplied_provider_method_produces_replayable_network_disclosure (test_review_578_cycle6.SixthReviewRegressions.test_supplied_provider_method_produces_replayable_network_disclosure) (method='model_proposed_unreviewed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_review_578_cycle6.py", line 27, in test_supplied_provider_method_produces_replayable_network_disclosure
+    self.assertEqual(outcome["proposal"], proposal)
+AssertionError: {'cla[425 chars]unreviewed', 'debugger_contract': 'far-epistemic-debugger/1.0'} != {'cla[425 chars]unreviewed'}
+  {'arguments': [],
+   'claims': [{'id': 'c1',
+               'proposition': 'The bounded source makes a claim.',
+               'quote': 'The bounded source makes a claim.',
+               'role': 'unspecified',
+               'source_id': 'primary',
+               'start': 0}],
+-  'debugger_contract': 'far-epistemic-debugger/1.0',
+   'evidence': [],
+   'method': 'model_proposed_unreviewed',
+   'unknowns': ['Claim extraction is heuristic; skipped claims and implicit '
+                'premises may exist.',
+                'Source identity, meaning, and factual reliability have not been '
+                'independently verified.']}
+
+======================================================================
+FAIL: test_supplied_provider_method_produces_replayable_network_disclosure (test_review_578_cycle6.SixthReviewRegressions.test_supplied_provider_method_produces_replayable_network_disclosure) (method='deterministic_sentence_candidate_v1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_review_578_cycle6.py", line 27, in test_supplied_provider_method_produces_replayable_network_disclosure
+    self.assertEqual(outcome["proposal"], proposal)
+AssertionError: {'cla[435 chars]ndidate_v1', 'debugger_contract': 'far-epistemic-debugger/1.0'} != {'cla[435 chars]ndidate_v1'}
+Diff is 650 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 226 tests in 6.741s
+
+FAILED (failures=2, errors=10, skipped=1)

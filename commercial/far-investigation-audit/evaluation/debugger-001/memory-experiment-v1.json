@@ -1,0 +1,13 @@
+{
+  "schema": "far-debugger-memory-experiment/1.0",
+  "before_matches": 1,
+  "after_invalidated": 8,
+  "source": "source:0870eecb02f56ac323928e39371ac2e14cdd8b836e6d544cc5be77458824cc71",
+  "downstream_reading_invalidated": true,
+  "historical_pre_correction_invalidated": [],
+  "import_seconds": 0.024107154000375886,
+  "lookup_seconds": 0.00475452199952997,
+  "learning_accuracy_gain": null,
+  "efficiency_gain": null,
+  "limit": "Replay revalidates history. Reuse availability and correction propagation demonstrated; quality or speed improvement not established."
+}

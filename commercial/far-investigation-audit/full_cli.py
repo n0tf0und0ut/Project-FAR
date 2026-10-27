@@ -60,6 +60,8 @@ def write_package(destination: Path, package: dict, *, review: dict | None = Non
                  "critical_questions.json": canonical(package["critical_questions"]) + b"\n"}
         if package.get("discovery"):
             files["discovery.json"] = canonical(package["discovery"]) + b"\n"
+        if "debugger" in package:
+            files["debugger.json"] = canonical(package["debugger"]) + b"\n"
         if review is not None:
             files["review.json"] = canonical(review) + b"\n"
             files["review_verification.json"] = canonical(verify_review(review, package["audit"])) + b"\n"
@@ -114,7 +116,7 @@ def verify_package(directory: Path, *, include_verified_snapshots: bool = False)
     if not isinstance(stored, dict) or not {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json", "critical_questions.json"}.issubset(stored):
         raise InvalidBundle("manifest required files missing")
     allowed = {"input.json", "audit.json", "report.md", "acquisition.json", "proposal.json",
-               "critical_questions.json", "discovery.json", "review.json", "review_verification.json"}
+               "critical_questions.json", "discovery.json", "review.json", "review_verification.json", "debugger.json"}
     if not set(stored).issubset(allowed):
         raise InvalidBundle("unrecognized audit artifact")
     artifacts = {}
@@ -254,6 +256,14 @@ def verify_package(directory: Path, *, include_verified_snapshots: bool = False)
         raise InvalidBundle("critical question advisory mismatch")
     expected_md = render_markdown(bundle, recalc, acquisition=acquisition,
                                  discovery=discovery, questions=expected_questions)
+    if "debugger_contract" in bundle:
+        from debugger import debug, render_debugger
+        expected_debugger = debug(bundle, recalc, proposal)
+        if "debugger.json" not in stored or canonical(artifact("debugger.json")) != canonical(expected_debugger):
+            raise InvalidBundle("debugger replay mismatch")
+        expected_md += render_debugger(expected_debugger)
+    elif "debugger.json" in stored:
+        raise InvalidBundle("debugger artifact without declared contract")
     if artifacts["report.md"] != expected_md.encode("utf-8"):
         raise InvalidBundle("human-readable report does not replay from source artifacts")
     if manifest.get("report_md_sha256") != digest(expected_md.encode("utf-8")):
@@ -280,6 +290,10 @@ def verify_package(directory: Path, *, include_verified_snapshots: bool = False)
         # These are validated in-memory objects, NOT second reads of mutable files.
         outcome["_verified_manifest"] = manifest
         outcome["_verified_audit"] = recalc
+        outcome["_verified_bundle"] = bundle
+        outcome["_verified_proposal"] = proposal
+        if "debugger_contract" in bundle:
+            outcome["_verified_debugger"] = expected_debugger
     return outcome
 
 
@@ -287,6 +301,7 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Investigate a source with explicit uncertainty and replayable evidence")
     p.add_argument("request", nargs="?", type=Path, help="JSON configuration including source and proposed claims")
     p.add_argument("--output", type=Path, help="new directory for immutable audit output")
+    p.add_argument("--debugger", action="store_true", help="enable semantic fidelity, counterfactual and cognitive audit")
     p.add_argument("--allow-network", action="store_true", help="opt in to remote HTTPS/YouTube/discovery access")
     p.add_argument("--allow-model", action="store_true", help="authorize sending source material to external model for proposals/transcription")
     p.add_argument("--review", type=Path, help="optional signed third-party review record")
@@ -299,6 +314,10 @@ def main() -> int:
         if args.request is None or args.output is None:
             p.error("request and --output required unless --verify is specified")
         config = read_json_artifact(args.request, MAX_CONFIG)
+        if args.debugger:
+            if not isinstance(config,dict):
+                raise InvalidBundle("request must be object")
+            config["debugger"] = True
         result = investigate(config, permit_network=args.allow_network, permit_model=args.allow_model, permit_files=True)
         rev = read_json_artifact(args.review, 2_000_000) if args.review else None
         manifest = write_package(args.output, result, review=rev)

@@ -5,6 +5,8 @@
 
 Project FAR is a framework for representing, analyzing, and comparing structured, explicit, auditable reasoning under declared contracts.
 
+The [Epistemic Debugger Research application](commercial/far-investigation-audit/EPISTEMIC_DEBUGGER.md) adds bounded semantic checks, checked assumption edits and revisable investigation memory to the existing source-to-report workflow. General semantic/factual reliability and commercial advantage remain unestablished.
+
 ## Latest release: v1.0.0
 
 The latest published GitHub repository release is [v1.0.0](https://github.com/notfoundout/Project-FAR/releases/tag/v1.0.0). The executable package metadata currently declares a separate installable version. These are separate version surfaces: the GitHub release records the published repository release, while package metadata governs the installable software version.

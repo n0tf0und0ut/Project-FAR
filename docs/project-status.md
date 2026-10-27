@@ -74,6 +74,8 @@ Current authority for this correction is the [canonical FAR workflow](../framewo
 
 ## Additive epistemic assurance contracts
 
+The [Epistemic Debugger](../commercial/far-investigation-audit/EPISTEMIC_DEBUGGER.md) is an additive **Research application**, with a [frozen internal campaign](../commercial/far-investigation-audit/evaluation/debugger-001/README.md). It implements controlled-language fidelity checks, existing-verifier collision witnesses, bounded assumption edits, trace diagnostics and dependency-aware investigation history. It does not promote Accepted theory, external semantic/factual assurance, EFR, production readiness or commercial superiority. Full product and independent scientific comparisons remain open.
+
 The [FAR Epistemic Assurance Acceptance](governance/far-epistemic-assurance-promotion-acceptance-v1.0.md) accepts four bounded, additive contracts: source-dependence lineage, bitemporal state, deliberate verifier abstention, and audit self-assurance. The [specification](specification/far-epistemic-assurance-1.0.md) defines their scope, and the [hostile-source boundary](../methodology/hostile-source-boundary.md) keeps audited material from becoming control instructions. These records improve process auditability; they do not certify source truth or external-world claims.
 
 ## W4 domain-contract disposition

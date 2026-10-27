@@ -1,0 +1,67 @@
+test_answer_preservation_is_not_mental_state (test_debugger.CognitiveAcceptance.test_answer_preservation_is_not_mental_state) ... ok
+test_authority_anchor_and_selection_observations (test_debugger.CognitiveAcceptance.test_authority_anchor_and_selection_observations) ... ok
+test_justified_firm_disagreement_is_not_sycophancy (test_debugger.CognitiveAcceptance.test_justified_firm_disagreement_is_not_sycophancy) ... ok
+test_legitimate_evidence_update_is_not_inconsistency (test_debugger.CognitiveAcceptance.test_legitimate_evidence_update_is_not_inconsistency) ... ok
+test_unsupported_certainty_and_no_trace_abstention (test_debugger.CognitiveAcceptance.test_unsupported_certainty_and_no_trace_abstention) ... ok
+test_user_position_tracking_signal_and_limits (test_debugger.CognitiveAcceptance.test_user_position_tracking_signal_and_limits) ... ok
+test_added_assumption_is_distinct_from_new_evidence (test_debugger.CounterfactualAcceptance.test_added_assumption_is_distinct_from_new_evidence) ... ok
+test_all_equal_cost_repairs_retained (test_debugger.CounterfactualAcceptance.test_all_equal_cost_repairs_retained) ... ok
+test_checked_minimum_cost_withdrawals (test_debugger.CounterfactualAcceptance.test_checked_minimum_cost_withdrawals) ... ok
+test_design_diverse_sympy_oracle (test_debugger.CounterfactualAcceptance.test_design_diverse_sympy_oracle) ... ok
+test_inconsistent_premises_do_not_win_by_explosion (test_debugger.CounterfactualAcceptance.test_inconsistent_premises_do_not_win_by_explosion) ... ok
+test_invalid_counterfactual_not_reported_as_repair (test_debugger.CounterfactualAcceptance.test_invalid_counterfactual_not_reported_as_repair) ... ok
+test_limits_abstain_instead_of_claiming_optimum (test_debugger.CounterfactualAcceptance.test_limits_abstain_instead_of_claiming_optimum) ... ok
+test_contamination_rejected_and_event_hash_checked (test_debugger.ReplayMemoryAcceptance.test_contamination_rejected_and_event_hash_checked) ... ok
+test_duplicate_import_and_independent_investigation_reuse (test_debugger.ReplayMemoryAcceptance.test_duplicate_import_and_independent_investigation_reuse) ... ok
+test_future_valid_time_does_not_change_present_state (test_debugger.ReplayMemoryAcceptance.test_future_valid_time_does_not_change_present_state) ... ok
+test_omitted_debugger_cannot_silently_downgrade (test_debugger.ReplayMemoryAcceptance.test_omitted_debugger_cannot_silently_downgrade) ... ok
+test_replayed_history_is_deterministic (test_debugger.ReplayMemoryAcceptance.test_replayed_history_is_deterministic) ... ok
+test_resume_retains_parent_and_accepts_additional_evidence (test_debugger.ReplayMemoryAcceptance.test_resume_retains_parent_and_accepts_additional_evidence) ... ok
+test_retraction_propagation_restore_history_and_unrelated_preservation (test_debugger.ReplayMemoryAcceptance.test_retraction_propagation_restore_history_and_unrelated_preservation) ... ok
+test_tampered_debugger_rejected_even_if_manifest_rehashed (test_debugger.ReplayMemoryAcceptance.test_tampered_debugger_rejected_even_if_manifest_rehashed) ... ok
+test_unknown_target_rolls_back (test_debugger.ReplayMemoryAcceptance.test_unknown_target_rolls_back) ... ok
+test_controlled_conditional_composition (test_debugger.SemanticAcceptance.test_controlled_conditional_composition) ... ok
+test_envelope_and_existing_assurance_schema (test_debugger.SemanticAcceptance.test_envelope_and_existing_assurance_schema) ... ERROR
+test_equivalent_count_forms_are_not_called_distortions (test_debugger.SemanticAcceptance.test_equivalent_count_forms_are_not_called_distortions) ... ok
+test_existing_epistemic_and_elenchus_composition (test_debugger.SemanticAcceptance.test_existing_epistemic_and_elenchus_composition) ... ok
+test_frozen_semantic_cases (test_debugger.SemanticAcceptance.test_frozen_semantic_cases) ... ok
+test_injection_is_data (test_debugger.SemanticAcceptance.test_injection_is_data) ... ok
+test_invalid_calendar_and_modal_scope_abstain (test_debugger.SemanticAcceptance.test_invalid_calendar_and_modal_scope_abstain) ... ok
+test_lineage_forged_roots_rejected (test_debugger.SemanticAcceptance.test_lineage_forged_roots_rejected) ... ERROR
+test_prior_threshold_collapse_is_detected (test_debugger.SemanticAcceptance.test_prior_threshold_collapse_is_detected) ... ok
+test_quantifier_proof_gate (test_debugger.SemanticAcceptance.test_quantifier_proof_gate) ... ok
+test_surface_paraphrase_every_all (test_debugger.SemanticAcceptance.test_surface_paraphrase_every_all) ... ok
+test_threshold_witnesses_against_independent_counts (test_debugger.SemanticAcceptance.test_threshold_witnesses_against_independent_counts) ... ok
+test_unformalized_reading_never_accepted (test_debugger.SemanticAcceptance.test_unformalized_reading_never_accepted) ... ok
+test_outer_modal_negation_does_not_move_inside (test_debugger_properties.GeneratedSemanticProperties.test_outer_modal_negation_does_not_move_inside) ... ok
+test_roundtrip_identity_is_deterministic (test_debugger_properties.GeneratedSemanticProperties.test_roundtrip_identity_is_deterministic) ... ok
+test_thresholds_do_not_collapse (test_debugger_properties.GeneratedSemanticProperties.test_thresholds_do_not_collapse) ... ok
+
+======================================================================
+ERROR: test_envelope_and_existing_assurance_schema (test_debugger.SemanticAcceptance.test_envelope_and_existing_assurance_schema)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_debugger.py", line 99, in test_envelope_and_existing_assurance_schema
+    jsonschema.validate(p["debugger"],json.loads((base/"debugger-1.0.schema.json").read_text()))
+    ^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'jsonschema' has no attribute 'validate'. Did you mean: '_validator'?
+
+======================================================================
+ERROR: test_lineage_forged_roots_rejected (test_debugger.SemanticAcceptance.test_lineage_forged_roots_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_debugger.py", line 112, in test_lineage_forged_roots_rejected
+    with self.assertRaises(ValueError):investigate(cfg)
+                                       ^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/workflow.py", line 196, in investigate
+    debugger = debug(bundle, result, proposal) if "debugger_contract" in proposal else None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/debugger.py", line 150, in debug
+    jsonschema.Draft202012Validator(schema).validate(record)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Draft202012Validator' object has no attribute 'validate'
+
+----------------------------------------------------------------------
+Ran 38 tests in 1.420s
+
+FAILED (errors=2)

@@ -191,6 +191,8 @@ Each concept should have one canonical source. Other documents should link to th
 
 ## Related Documents
 
+- [Epistemic Debugger Research application and architecture](../commercial/far-investigation-audit/EPISTEMIC_DEBUGGER.md): downstream controlled-language, counterfactual, memory and trace-audit implementation. Its [internal evaluation](../commercial/far-investigation-audit/evaluation/debugger-001/README.md) and [prior-art inventory](../commercial/far-investigation-audit/evaluation/debugger-001/prior-art-v1.json) are Research records, not new theory or scientific promotion authority.
+
 - [Central Research Program](governance/central-research-program.md)
 - [Post-Closure Assurance and Application Program](governance/post-closure-assurance-and-application-program-v1.0.md)
 - [Project roadmap](ROADMAP.md)
