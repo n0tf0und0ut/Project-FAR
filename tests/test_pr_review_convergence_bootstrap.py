@@ -14,6 +14,9 @@ BASE = "e4d936ca0ba9770be6f72e0435220987882f4146"
 HEAD = "a" * 40
 PIN = "dc4924a288bb658c2a12e860d6c31ac7bff80c4c"
 DIGEST = "778404e527824a170041a5bd8e9ae67421291246a8eff19682b53af4f58909fc"
+# The dormant e4d/#578 exception pins this historical file, not whichever
+# collector a later protected main supplies. Retain its actual original bytes.
+PINNED_COLLECTOR = ROOT / "tests/fixtures/pr-review-collector-dc4924a.py.txt"
 
 
 def enforcement_script():
@@ -77,7 +80,7 @@ class BootstrapTests(unittest.TestCase):
                 event_head=HEAD, current=HEAD):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            raw = (ROOT / "tools/pr_review_convergence.py").read_bytes() if payload is None else payload
+            raw = PINNED_COLLECTOR.read_bytes() if payload is None else payload
             (root / "payload").write_bytes(base64.b64encode(raw))
             env = dict(os.environ, GITHUB_REPOSITORY=repository, PR_NUMBER=pr,
                        EVENT_HEAD=event_head, RUNNER_TEMP=directory, GH_TOKEN="synthetic",
@@ -90,7 +93,7 @@ class BootstrapTests(unittest.TestCase):
             return result, calls
 
     def test_pin_digest_matches_the_exact_collector(self):
-        self.assertEqual(hashlib.sha256((ROOT / "tools/pr_review_convergence.py").read_bytes()).hexdigest(),
+        self.assertEqual(hashlib.sha256(PINNED_COLLECTOR.read_bytes()).hexdigest(),
                          DIGEST)
         self.assertIn("?ref=" + PIN, enforcement_script())
         self.assertIn(DIGEST, enforcement_script())

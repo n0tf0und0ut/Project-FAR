@@ -241,7 +241,40 @@ class ReceiptContractTests(unittest.TestCase):
             self.assertEqual(result, 0)
             self.assertTrue(json.loads(output.read_text())["review_metadata_converged"])
         self.assertEqual([url for url, _ in observed].count(root + "/commits/" + PREFIX), 1)
+        self.assertEqual(observed[-1][0], root + "/pulls/578")
         self.assertTrue(all(data is None for _, data in observed))
+
+    def test_cli_explicit_state_does_not_require_unused_receipt_grammar(self):
+        # Observed on #593: authenticated completed/false summary and the new
+        # cosmetic receipt suffix "You're on a roll.". Receipt fallback is
+        # relevant only to completed/null, never an extra clean-state gate.
+        import tempfile
+        for status, unresolved, expected in (("completed", False, 0),
+                                             ("completed", True, 1),
+                                             ("running", None, 1),
+                                             ("failed", None, 1),
+                                             ("completed", None, 2)):
+            observed = []
+            def api(url, token, data=None):
+                observed.append(url)
+                self.assertTrue(url.endswith('/pulls/578'))
+                return copy.deepcopy(PR)
+            unfamiliar = receipt()
+            unfamiliar['body'] = unfamiliar['body'].replace('Keep them coming!', "You're on a roll.")
+            with self.subTest(status=status, unresolved=unresolved), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / 'evidence.json'
+                with patch.dict('os.environ', {'GH_TOKEN': 'synthetic-read-only'}), \
+                        patch.object(gate, 'api', side_effect=api), \
+                        patch.object(gate, 'threads_for', return_value=[]), \
+                        patch.object(gate, 'paginate', side_effect=[[], [], [summary(unresolved, status), unfamiliar]]):
+                    result = gate.main(['--repository', 'n0tf0und0ut/Project-FAR', '--pr', '578',
+                                        '--expected-head', HEAD, '--output', str(output)])
+                self.assertEqual(result, expected)
+                if expected != 2:
+                    evidence = json.loads(output.read_text())
+                    self.assertEqual(evidence['review_metadata_converged'], expected == 0)
+                    self.assertIsNone(evidence['trusted_codex_review_on_exact_head']['receipt_source'])
+                self.assertFalse(any('/commits/' in url for url in observed))
 
 
 if __name__ == "__main__":
