@@ -11,6 +11,14 @@ release obligations. [Scope and results](../../research/cognitive-audit/README.m
 | A current-navigation change must rebuild dependent living/corpus views; the living validator reconciles surface hashes before checking synthesis | Hosted living `validate` rejected 016d7f8's stale synthesis. Run the existing living reconciler to a fixed point, then the corpus generator | Idempotence verified. Only five synthesis hash fields change; semantic observations, conclusions, governed source inputs, candidate set and 2,068-lead count remain identical |
 | Missing information cannot prove a negative predicate; null confidence, unknown locator and unknown upstream lineage were not propagated on three boundary paths | Exposed hostile follow-up corrects all three to UNKNOWN unless other observed evidence already supports the predicate; malformed JSON now consistently raises a contract error/CLI exit 2 | `test_cognitive_missing_data.py`; original 71-case inputs/references and prior outputs preserved; successor run is exposed, not confirmatory |
 
+Independent Codex P2 finding `4390527818` on review `5669612489` identifies the
+unknown-locator instance of that missing-information invariant. It is reproduced
+by `test_unknown_locator_cannot_be_silently_treated_as_resolved` and corrected in
+`531f76b8a305cb6e6a85fcfcf523b183b72c3f99`. The new hostile tests also retain a
+positive overclaim control when the passage is contradicted, so UNKNOWN does not
+mask an independently observed defect. All fourteen focused cognitive tests
+pass; the frozen 71-case status decisions remain unchanged on exposed replay.
+
 Source-only freeze: `19424b98f5d42660d3f44eaa90c82236f9280679`, before predictions.
 Explanatory correction/reconciliation: `75556e1f2aeef68c73b7306639fb1c803ac8d499`.
 The successor manifest records that the follow-up is exposed and already
