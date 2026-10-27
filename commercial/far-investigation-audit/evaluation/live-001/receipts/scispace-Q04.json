@@ -1,0 +1,635 @@
+{
+  "provider": "scispace",
+  "case_id": "Q04",
+  "request": "Which research review explains why misinformation can continue to influence reasoning after a correction?",
+  "started_at": "2026-10-27T17:10:35.730Z",
+  "elapsed_ms": 5796,
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Found 10 relevant papers on 'Which research review explains why misinformation can continue to influence reasoning after a correction?'.\n\n\n1. When Corrections Don't Stick: How Attitudes and Knowledge Shape the Persistence of Misinformation About Genetically Modified Food\n   ID: yteaakuc7ygc\n   2026 · Sebastian Scholz, Stephan Dutke · Applied Cognitive Psychology\n   DOI: 10.1002/acp.70210\n   Abstract: ABSTRACT Misinformation can continue to influence reasoning even after it has been corrected. The present study examined whether misinformation reliance following correction is mediated by prior knowledge and attitudes toward the topic of misinformation. Participants ( n = 215) completed questionnaires assessing their knowledge and attitudes regarding genetically modified (GM) food before reading statements on this topic, one of which contained misinformation. For half of the participants, the misinformation was later corrected. Participants then generated inferences based on the statements. The correction reduced, but did not eliminate, references to the misinformation. Positive attitudes toward GM food were associated with fewer misinformation‐based references but did not mediate the correction effect. Knowledge did not influence misinformation processing or correction efficacy. Crucially, correction effectiveness was independent of participants' belief in the correction. This supports Bayesian belief‐updating accounts of the misinformation persistence following correction; it reflects conservative updating under uncertainty rather than a failure of memory revision. \n\n2. Executive Function and the Continued Influence of Misinformation: A Latent Variable Analysis\n   ID: ahu5tx46\n   2022\n   DOI: 10.31234/osf.io/pgsyd\n   Abstract: Misinformation can continue to influence reasoning after correction; this is known as the continued influence effect (CIE). Theoretical accounts of the CIE suggest failure of two cognitive processes to be causal, namely memory updating and suppression of misinformation reliance. Both processes can also be conceptualised as subcomponents of contemporary executive function (EF) models; specifically, working-memory updating and prepotent-response inhibition. EF may thus predict susceptibility to the CIE. The current study investigated whether individual differences in EF could predict individual differences in CIE susceptibility. Participants completed several measures of EF subcomponents, including those of updating and inhibition, as well as set shifting, and a standard CIE task. The relationship between EF and CIE was then assessed using a correlation analysis of the EF and CIE measures, as well as structural equation modelling of the EF-subcomponent latent variable and CIE latent variable. Results showed that EF can predict susceptibility to the CIE, especially the factor of working-memory updating. These results further our understanding of the CIE’s cognitive antecedents and provide potential directions for real-world CIE intervention. \n\n3. Executive function and the continued influence of misinformation: A latent-variable analysis\n   ID: 22u33mge\n   2023 · Paul McIlhiney, Gilles E. Gignac, Ullrich K. H. Ecker · PLOS ONE\n   DOI: 10.1371/journal.pone.0283951\n   Abstract: Misinformation can continue to influence reasoning after correction; this is known as the continued influence effect (CIE). Theoretical accounts of the CIE suggest failure of two cognitive processes to be causal, namely memory updating and suppression of misinformation reliance. Both processes can also be conceptualised as subcomponents of contemporary executive function (EF) models; specifically, working-memory updating and prepotent-response inhibition. EF may thus predict susceptibility to the CIE. The current study investigated whether individual differences in EF could predict individual differences in CIE susceptibility. Participants completed several measures of EF subcomponents, including those of updating and inhibition, as well as set shifting, and a standard CIE task. The relationship between EF and CIE was then assessed using a correlation analysis of the EF and CIE measures, as well as structural equation modelling of the EF-subcomponent latent variable and CIE latent variable. Results showed that EF can predict susceptibility to the CIE, especially the factor of working-memory updating. These results further our understanding of the CIE’s cognitive antecedents and provide potential directions for real-world CIE intervention.\n\n4. The psychological drivers of misinformation belief and its resistance to correction\n   ID: 2x2d8re6\n   2022 · Ullrich K. H. Ecker, Stephan Lewandowsky, Jonathan Cook · Nature Reviews Psychology\n   DOI: 10.1038/s44159-021-00006-y\n   Abstract: Misinformation has been identified as a major contributor to various contentious contemporary events ranging from elections and referenda to the response to the COVID-19 pandemic. Not only can belief in misinformation lead to poor judgements and decision-making, it also exerts a lingering influence on people’s reasoning after it has been corrected — an effect known as the continued influence effect. In this Review, we describe the cognitive, social and affective factors that lead people to form or endorse misinformed views, and the psychological barriers to knowledge revision after misinformation has been corrected, including theories of continued influence. We discuss the effectiveness of both pre-emptive (‘prebunking’) and reactive (‘debunking’) interventions to reduce the effects of misinformation, as well as implications for information consumers and practitioners in various areas including journalism, public health, policymaking and education. Misinformation is influential despite unprecedented access to high-quality, factual information. In this Review, Ecker et al. describe the cognitive, social and affective factors that drive sustained belief in misinformation, synthesize the evidence for interventions to reduce its effects and offer recommendations for information consumers and practitioners. \n\n5. Misinformation as an Event Model Problem\n   ID: rwce52ki28xe\n   2026 · Markus Huff, Jan Pascal Göbel, Helen Fischer\n   DOI: 10.23668/psycharchives.21596\n   Abstract: Why does misinformation often continue to influence reasoning even after it has been explicitly corrected? Dominant accounts in misinformation research treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this framing overlooks a fundamental constraint on comprehension: misinformation is typically encountered as part of a temporally unfolding narrative and is therefore integrated into event-structured mental models. Drawing on research in event cognition and narrative comprehension, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, yielding incoherent event models that invite compensatory inference and the reinstatement of misinformation over time. By contrast, corrections that align with event boundaries and provide causally adequate replacements are more likely to stabilize updated representations. This event-model perspective offers a unifying explanation for continued influence effects, delayed resurgence of misinformation, and inference-based false memory, and it suggests that effective interventions must aim not only to change beliefs but to complete narrative event models. We conclude that misinformation research must move beyond propositional frameworks and treat narrative event structure as a central cognitive constraint on belief and correction. \n\n6. Misinformation as an Event-Model Problem.\n   ID: vn6811zuevkm\n   2026 · Markus Huff, J. Göbel, Helen Fischer · Perspectives on Psychological Science\n   DOI: 10.1177/17456916261475284\n   Abstract: Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this view overlooks a key constraint on comprehension: Misinformation is typically encountered within temporally unfolding narratives and integrated into event-structured mental models. Drawing on event cognition, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, leaving incoherent representations that invite compensatory inference and the reemergence of misinformation. By contrast, our framework predicts that corrections that align with event boundaries and provide factually accurate, causally adequate replacements should be more likely to stabilize updated representations. This event-model perspective unifies continued influence effects, delayed resurgence of misinformation, and inference-based false memory. It suggests that effective interventions must not only revise beliefs but also restore coherence in narrative event models.\n\n7. Misinformation as an Event Model Problem\n   ID: xf2yhwkoezqt\n   2026 · Markus Huff, Jan Pascal Göbel, Helen Fischer\n   DOI: 10.23668/psycharchives.21904\n   Abstract: Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this view overlooks a key constraint on comprehension: misinformation is typically encountered within temporally unfolding narratives and integrated into event-structured mental models. Drawing on event cognition, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, leaving incoherent representations that invite compensatory inference and the reemergence of misinformation. By contrast, our framework predicts that corrections that align with event boundaries and provide factually accurate, causally adequate replacements should be more likely to stabilize updated representations. This event-model perspective unifies continued influence effects, delayed resurgence of misinformation, and inference-based false memory. It suggests that effective interventions must not only revise beliefs but also restore coherence in narrative event models. \n\n8. Don’t Believe Them! Reducing Misinformation Influence Through Source Discreditation\n   ID: 3otojvcuf0\n   2024 · Ullrich K. H. Ecker, Toby Prike, Antonia Paver\n   DOI: 10.31234/osf.io/5yj2v\n   Abstract: Misinformation often continues to influence people’s reasoning even after it has been corrected. Therefore, an important aim of applied cognition research is to identify effective measures to counter misinformation. One frequently recommended but hitherto insufficiently tested strategy is source discreditation, that is, attacking the credibility of a misinformation source. In two experiments, we tested whether source-discreditation interventions could reduce people’s subsequent reliance on fictional event-related misinformation. In Experiment 1, the discreditation targeted a person source of misinformation, pointing to a conflict of interest. This intervention was compared with a commonly employed message-focused correction and a combination of both a correction and discreditation. The discreditation alone was effective, but less effective than a correction, with the combination of both most effective. Experiment 2 compared discreditations that targeted a person versus a media source of misinformation, pointing either to a conflict of interest or a poor track record of communication. Discreditations were effective for both types of sources, although track-record discreditations were less effective when the misinformation source was a media outlet compared to a person. Results demonstrate that continued influence of misinformation is shaped by social as well as cognitive factors, and that source discreditation is a broadly applicable misinformation countermeasure. \n\n9. To be continued: misinformation’s bizarre adventure beyond memory failures – exploring non-memory-based mechanisms driving the continued influence effect (CIE)\n   ID: hyk74eubphq4\n   2025 · Klara Austeja Buczel, Adam Siwiak, Magdalena Kękuś\n   DOI: 10.31219/osf.io/j79yn_v1\n   Abstract: The Continued Influence Effect (CIE) refers to the persistent impact of misinformation on beliefs or reasoning, even after its retraction. Traditional accounts attribute CIE to memory failures – either in updating mental models or retrieving corrections. In contrast, newer theories propose that CIE persists despite successful encoding and retrieval of retractions, due to motivational and reasoning-based processes. Across six experiments (N = 1,446), we tested these competing explanations. Participants frequently relied on misinformation even when recognizing it as misleading, and those who knowingly used it showed greater overall reliance. However, after debriefing, CIE declined most among participants who identified it as misleading. Furthermore, participants cited perceived relevance and explanatory value as reasons for misinformation use, highlighting goal-directed reasoning. These patterns were robust across various conditions, including prebunking interventions and source credibility manipulations.To integrate these findings, we propose the Dynamic Inference Optimization (DIO) model, framing CIE as a trade-off between conserving cognitive resources and minimizing uncertainty (i.e., model entropy). DIO suggests that CIE occurs because misinformation is weighted over retraction due to its explanatory power, forming a low-entropy model that requires minimal cognitive effort. However, maladaptive mismatches between cognition and environment may strategically increase model entropy, enabling belief revision by reweighting information probabilities, at the cost of increased cognitive effort. This model offers a unified, process-level account of CIE grounded in principles of adaptive reasoning and cognitive effort. Importantly, DIO fits into dynamic models of cognition, offering a more nuanced and ecologically valid explanation of how misinformation continues to influence reasoning. \n\n10. Don’t believe them! Reducing misinformation influence through source discreditation\n   ID: 3ng3nvwzwn49\n   2024 · Ullrich K. H. Ecker, Toby Prike, Antonia B. Paver · Cognitive Research: Principles and Implications\n   DOI: 10.1186/s41235-024-00581-7\n   Abstract: Abstract Misinformation often continues to influence people’s reasoning even after it has been corrected. Therefore, an important aim of applied cognition research is to identify effective measures to counter misinformation. One frequently recommended but hitherto insufficiently tested strategy is source discreditation, that is, attacking the credibility of a misinformation source. In two experiments, we tested whether immediate source discreditation could reduce people’s subsequent reliance on fictional event-related misinformation. In Experiment 1, the discreditation targeted a person source of misinformation, pointing to a conflict of interest. This intervention was compared with a commonly employed message-focused correction and a combination of correction and discreditation. The discreditation alone was effective, but less effective than a correction, with the combination of both most effective. Experiment 2 compared discreditations that targeted a person versus a media source of misinformation, pointing either to a conflict of interest or a poor track record of communication. Discreditations were effective for both types of sources, although track-record discreditations were less effective when the misinformation source was a media outlet compared to a person. Results demonstrate that continued influence of misinformation is shaped by social as well as cognitive factors and that source discreditation is a broadly applicable misinformation countermeasure. "
+      }
+    ],
+    "structuredContent": {
+      "searchTerm": "Which research review explains why misinformation can continue to influence reasoning after a correction?",
+      "papers": [
+        {
+          "id": 4127028171,
+          "title": "When Corrections Don't Stick: How Attitudes and Knowledge Shape the Persistence of Misinformation About Genetically Modified Food",
+          "is_archived": false,
+          "full_slug": "when-corrections-don-t-stick-how-attitudes-and-knowledge-yteaakuc7ygc",
+          "journal": {
+            "display_name": "Applied Cognitive Psychology",
+            "official_page": "https://onlinelibrary.wiley.com/journal/10990720",
+            "issn": "0888-4080",
+            "alias": [
+              "ACP"
+            ],
+            "id": 91386000,
+            "slug": "applied-cognitive-psychology",
+            "unique_id": "1xdpd8mt",
+            "full_slug": "applied-cognitive-psychology-1xdpd8mt"
+          },
+          "conference_series": null,
+          "date": "2026-05-01T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.1002/acp.70210",
+          "unique_id": "yteaakuc7ygc",
+          "abstract": "ABSTRACT Misinformation can continue to influence reasoning even after it has been corrected. The present study examined whether misinformation reliance following correction is mediated by prior knowledge and attitudes toward the topic of misinformation. Participants ( n = 215) completed questionnaires assessing their knowledge and attitudes regarding genetically modified (GM) food before reading statements on this topic, one of which contained misinformation. For half of the participants, the misinformation was later corrected. Participants then generated inferences based on the statements. The correction reduced, but did not eliminate, references to the misinformation. Positive attitudes toward GM food were associated with fewer misinformation‐based references but did not mediate the correction effect. Knowledge did not influence misinformation processing or correction efficacy. Crucially, correction effectiveness was independent of participants' belief in the correction. This supports Bayesian belief‐updating accounts of the misinformation persistence following correction; it reflects conservative updating under uncertainty rather than a failure of memory revision. ",
+          "authors": {
+            "total": 2,
+            "data": [
+              {
+                "display_name": "Sebastian Scholz",
+                "full_slug": null
+              },
+              {
+                "display_name": "Stephan Dutke",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": null,
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4018556826,
+          "title": "Executive Function and the Continued Influence of Misinformation: A Latent Variable Analysis",
+          "is_archived": false,
+          "full_slug": "executive-function-and-the-continued-influence-of-ahu5tx46",
+          "journal": null,
+          "conference_series": null,
+          "date": "2022-06-03T00:00:00Z",
+          "is_oa": false,
+          "publication_type": "Posted Content",
+          "doi": "10.31234/osf.io/pgsyd",
+          "unique_id": "ahu5tx46",
+          "abstract": "Misinformation can continue to influence reasoning after correction; this is known as the continued influence effect (CIE). Theoretical accounts of the CIE suggest failure of two cognitive processes to be causal, namely memory updating and suppression of misinformation reliance. Both processes can also be conceptualised as subcomponents of contemporary executive function (EF) models; specifically, working-memory updating and prepotent-response inhibition. EF may thus predict susceptibility to the CIE. The current study investigated whether individual differences in EF could predict individual differences in CIE susceptibility. Participants completed several measures of EF subcomponents, including those of updating and inhibition, as well as set shifting, and a standard CIE task. The relationship between EF and CIE was then assessed using a correlation analysis of the EF and CIE measures, as well as structural equation modelling of the EF-subcomponent latent variable and CIE latent variable. Results showed that EF can predict susceptibility to the CIE, especially the factor of working-memory updating. These results further our understanding of the CIE’s cognitive antecedents and provide potential directions for real-world CIE intervention. ",
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "The authors investigated whether individual differences in EF could predict individuals' susceptibility to the continued influence effect (CIE) and found that EF can predict susceptibility to CIE, especially the factor of working-memory updating.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4005437080,
+          "title": "Executive function and the continued influence of misinformation: A latent-variable analysis",
+          "is_archived": false,
+          "full_slug": "executive-function-and-the-continued-influence-of-22u33mge",
+          "journal": {
+            "display_name": "PLOS ONE",
+            "official_page": "http://www.plosone.org/",
+            "issn": "1932-6203",
+            "alias": [
+              "PLoS ONE",
+              "Public Library of Science one",
+              "PLoS 1"
+            ],
+            "id": 202381698,
+            "slug": "plos-one",
+            "unique_id": "5sec6bof",
+            "full_slug": "plos-one-5sec6bof"
+          },
+          "conference_series": null,
+          "date": "2023-04-05T00:00:00Z",
+          "is_oa": true,
+          "publication_type": "Journal Article",
+          "doi": "10.1371/journal.pone.0283951",
+          "unique_id": "22u33mge",
+          "abstract": "Misinformation can continue to influence reasoning after correction; this is known as the continued influence effect (CIE). Theoretical accounts of the CIE suggest failure of two cognitive processes to be causal, namely memory updating and suppression of misinformation reliance. Both processes can also be conceptualised as subcomponents of contemporary executive function (EF) models; specifically, working-memory updating and prepotent-response inhibition. EF may thus predict susceptibility to the CIE. The current study investigated whether individual differences in EF could predict individual differences in CIE susceptibility. Participants completed several measures of EF subcomponents, including those of updating and inhibition, as well as set shifting, and a standard CIE task. The relationship between EF and CIE was then assessed using a correlation analysis of the EF and CIE measures, as well as structural equation modelling of the EF-subcomponent latent variable and CIE latent variable. Results showed that EF can predict susceptibility to the CIE, especially the factor of working-memory updating. These results further our understanding of the CIE’s cognitive antecedents and provide potential directions for real-world CIE intervention.",
+          "authors": {
+            "total": 5,
+            "data": [
+              {
+                "display_name": "Paul McIlhiney",
+                "id": 4002484621,
+                "slug": "paul-mcilhiney",
+                "unique_id": "1q7lon3t",
+                "full_slug": "paul-mcilhiney-1q7lon3t"
+              },
+              {
+                "display_name": "Gilles E. Gignac",
+                "id": 313663924,
+                "slug": "gilles-e-gignac",
+                "unique_id": "2w57ajfp28",
+                "full_slug": "gilles-e-gignac-2w57ajfp28"
+              },
+              {
+                "display_name": "Ullrich K. H. Ecker",
+                "id": 2016588879,
+                "slug": "ullrich-k-h-ecker",
+                "unique_id": "4wblp31ztq",
+                "full_slug": "ullrich-k-h-ecker-4wblp31ztq"
+              },
+              {
+                "display_name": "Briana L. Kennedy",
+                "id": 2113434740,
+                "slug": "briana-l-kennedy",
+                "unique_id": "4daw4gq4pe",
+                "full_slug": "briana-l-kennedy-4daw4gq4pe"
+              },
+              {
+                "display_name": "Michael Weinborn",
+                "id": 2037693542,
+                "slug": "michael-weinborn",
+                "unique_id": "17th4505d2",
+                "full_slug": "michael-weinborn-17th4505d2"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "fulltext_url": "/pdf/executive-function-and-the-continued-influence-of-22u33mge.pdf",
+          "fulltext_url_no_follow": false,
+          "paper_urls": {
+            "order": [
+              "Pdf"
+            ],
+            "data": {
+              "Pdf": [
+                "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0283951&type=printable"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 6
+            }
+          },
+          "tldr": "The authors investigated whether individual differences in EF could predict individual differences of susceptibility to the continued influence effect (CIE) and found that EF can predict susceptibility to CIE, especially the factor of working-memory updating.",
+          "podcast": {
+            "unique_id": "bwacfmox6x2okkj",
+            "status": "SUCCESS",
+            "created_at": "2025-06-11T08:03:58.511Z",
+            "updated_at": "2025-06-11T08:04:15.576Z",
+            "audio_url": "https://scispace-production-podcasts.s3-accelerate.amazonaws.com/executive-function-and-the-continued-influence-of-22u33mge_2025-06-11-08-03-58.mp3?AWSAccessKeyId=AKIARG2S6JBA67NXIGSE&Signature=%2F5G9jCdebsW7vV%2Bg%2F1uG2xo9F3M%3D&Expires=1793271041",
+            "length": 336431
+          },
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4004069630,
+          "title": "The psychological drivers of misinformation belief and its resistance to correction",
+          "is_archived": false,
+          "full_slug": "the-psychological-drivers-of-misinformation-belief-and-its-2x2d8re6",
+          "journal": {
+            "display_name": "Nature Reviews Psychology",
+            "official_page": "https://www.nature.com/nrpsychol/",
+            "issn": "2731-0574",
+            "alias": null,
+            "id": 4000068563,
+            "slug": "nature-reviews-psychology",
+            "unique_id": "vwh87ko4",
+            "full_slug": "nature-reviews-psychology-vwh87ko4"
+          },
+          "conference_series": null,
+          "date": "2022-01-01T00:00:00Z",
+          "is_oa": true,
+          "publication_type": "Journal Article",
+          "doi": "10.1038/s44159-021-00006-y",
+          "unique_id": "2x2d8re6",
+          "abstract": "Misinformation has been identified as a major contributor to various contentious contemporary events ranging from elections and referenda to the response to the COVID-19 pandemic. Not only can belief in misinformation lead to poor judgements and decision-making, it also exerts a lingering influence on people’s reasoning after it has been corrected — an effect known as the continued influence effect. In this Review, we describe the cognitive, social and affective factors that lead people to form or endorse misinformed views, and the psychological barriers to knowledge revision after misinformation has been corrected, including theories of continued influence. We discuss the effectiveness of both pre-emptive (‘prebunking’) and reactive (‘debunking’) interventions to reduce the effects of misinformation, as well as implications for information consumers and practitioners in various areas including journalism, public health, policymaking and education. Misinformation is influential despite unprecedented access to high-quality, factual information. In this Review, Ecker et al. describe the cognitive, social and affective factors that drive sustained belief in misinformation, synthesize the evidence for interventions to reduce its effects and offer recommendations for information consumers and practitioners. ",
+          "authors": {
+            "total": 9,
+            "data": [
+              {
+                "display_name": "Ullrich K. H. Ecker",
+                "id": 2016588879,
+                "slug": "ullrich-k-h-ecker",
+                "unique_id": "4wblp31ztq",
+                "full_slug": "ullrich-k-h-ecker-4wblp31ztq"
+              },
+              {
+                "display_name": "Stephan Lewandowsky",
+                "id": 2148204933,
+                "slug": "stephan-lewandowsky",
+                "unique_id": "5d8mhqrrk1",
+                "full_slug": "stephan-lewandowsky-5d8mhqrrk1"
+              },
+              {
+                "display_name": "Jonathan Cook",
+                "id": 2130948941,
+                "slug": "jonathan-cook",
+                "unique_id": "45lwvba2d0",
+                "full_slug": "jonathan-cook-45lwvba2d0"
+              },
+              {
+                "display_name": "P. Schmid",
+                "full_slug": null
+              },
+              {
+                "display_name": "Lisa K. Fazio",
+                "id": 1998011915,
+                "slug": "lisa-k-fazio",
+                "unique_id": "1vvtdznpw2",
+                "full_slug": "lisa-k-fazio-1vvtdznpw2"
+              },
+              {
+                "display_name": "Nadia M. Brashier",
+                "id": 2461126917,
+                "slug": "nadia-m-brashier",
+                "unique_id": "wz4nzncmee",
+                "full_slug": "nadia-m-brashier-wz4nzncmee"
+              },
+              {
+                "display_name": "Panayiota Kendeou",
+                "id": 2013413842,
+                "slug": "panayiota-kendeou",
+                "unique_id": "3bw6stt8t3",
+                "full_slug": "panayiota-kendeou-3bw6stt8t3"
+              },
+              {
+                "display_name": "Emily K. Vraga",
+                "id": 1763456042,
+                "slug": "emily-k-vraga",
+                "unique_id": "22zylion2o",
+                "full_slug": "emily-k-vraga-22zylion2o"
+              },
+              {
+                "display_name": "Michelle A. Amazeen",
+                "id": 2893003254,
+                "slug": "michelle-a-amazeen",
+                "unique_id": "15i0o7jcng",
+                "full_slug": "michelle-a-amazeen-15i0o7jcng"
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "fulltext_url": "/pdf/the-psychological-drivers-of-misinformation-belief-and-its-2x2d8re6.pdf",
+          "fulltext_url_no_follow": false,
+          "paper_urls": {
+            "order": [
+              "Pdf"
+            ],
+            "data": {
+              "Pdf": [
+                "https://www.nature.com/articles/s44159-021-00006-y.pdf"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 828
+            }
+          },
+          "tldr": "Ecker et al. as mentioned in this paper describe the cognitive, social and affective factors that lead people to form or endorse misinformed views, and the psychological barriers to knowledge revision after misinformation has been corrected, including theories of continued influence.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4111315094,
+          "title": "Misinformation as an Event Model Problem",
+          "is_archived": false,
+          "full_slug": "misinformation-as-an-event-model-problem-rwce52ki28xe",
+          "journal": null,
+          "conference_series": null,
+          "date": "2026-01-26T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.23668/psycharchives.21596",
+          "unique_id": "rwce52ki28xe",
+          "abstract": "Why does misinformation often continue to influence reasoning even after it has been explicitly corrected? Dominant accounts in misinformation research treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this framing overlooks a fundamental constraint on comprehension: misinformation is typically encountered as part of a temporally unfolding narrative and is therefore integrated into event-structured mental models. Drawing on research in event cognition and narrative comprehension, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, yielding incoherent event models that invite compensatory inference and the reinstatement of misinformation over time. By contrast, corrections that align with event boundaries and provide causally adequate replacements are more likely to stabilize updated representations. This event-model perspective offers a unifying explanation for continued influence effects, delayed resurgence of misinformation, and inference-based false memory, and it suggests that effective interventions must aim not only to change beliefs but to complete narrative event models. We conclude that misinformation research must move beyond propositional frameworks and treat narrative event structure as a central cognitive constraint on belief and correction. ",
+          "authors": {
+            "total": 3,
+            "data": [
+              {
+                "display_name": "Markus Huff",
+                "full_slug": null
+              },
+              {
+                "display_name": "Jan Pascal Göbel",
+                "full_slug": null
+              },
+              {
+                "display_name": "Helen Fischer",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "Misinformation persists due to its integration into event-structured mental models, which support prediction and inference, and corrections that merely negate false information can lead to incoherent event models and reinstatement of misinformation.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4132497026,
+          "title": "Misinformation as an Event-Model Problem.",
+          "is_archived": false,
+          "full_slug": "misinformation-as-an-event-model-problem-vn6811zuevkm",
+          "journal": {
+            "display_name": "Perspectives on Psychological Science",
+            "official_page": "http://www.sagepub.com/journals/Journal201964/title",
+            "issn": "1745-6916",
+            "alias": [
+              "PPSC"
+            ],
+            "id": 27228949,
+            "slug": "perspectives-on-psychological-science",
+            "unique_id": "3oc4fijo",
+            "full_slug": "perspectives-on-psychological-science-3oc4fijo"
+          },
+          "conference_series": null,
+          "date": "2026-09-21T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.1177/17456916261475284",
+          "unique_id": "vn6811zuevkm",
+          "abstract": "Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this view overlooks a key constraint on comprehension: Misinformation is typically encountered within temporally unfolding narratives and integrated into event-structured mental models. Drawing on event cognition, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, leaving incoherent representations that invite compensatory inference and the reemergence of misinformation. By contrast, our framework predicts that corrections that align with event boundaries and provide factually accurate, causally adequate replacements should be more likely to stabilize updated representations. This event-model perspective unifies continued influence effects, delayed resurgence of misinformation, and inference-based false memory. It suggests that effective interventions must not only revise beliefs but also restore coherence in narrative event models.",
+          "authors": {
+            "total": 3,
+            "data": [
+              {
+                "display_name": "Markus Huff",
+                "full_slug": null
+              },
+              {
+                "display_name": "J. Göbel",
+                "full_slug": null
+              },
+              {
+                "display_name": "Helen Fischer",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": null,
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4126330894,
+          "title": "Misinformation as an Event Model Problem",
+          "is_archived": false,
+          "full_slug": "misinformation-as-an-event-model-problem-xf2yhwkoezqt",
+          "journal": null,
+          "conference_series": null,
+          "date": "2026-01-26T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.23668/psycharchives.21904",
+          "unique_id": "xf2yhwkoezqt",
+          "abstract": "Why does misinformation continue to influence reasoning even after it has been corrected? Dominant accounts treat this persistence as a failure of belief updating, emphasizing propositional acceptance, motivational resistance, or memory decay. We argue that this view overlooks a key constraint on comprehension: misinformation is typically encountered within temporally unfolding narratives and integrated into event-structured mental models. Drawing on event cognition, we propose that misinformation often acquires a causal role within an event representation, supporting prediction, explanation, and inference. Corrections that merely negate false information remove a causal element without restoring model completeness, leaving incoherent representations that invite compensatory inference and the reemergence of misinformation. By contrast, our framework predicts that corrections that align with event boundaries and provide factually accurate, causally adequate replacements should be more likely to stabilize updated representations. This event-model perspective unifies continued influence effects, delayed resurgence of misinformation, and inference-based false memory. It suggests that effective interventions must not only revise beliefs but also restore coherence in narrative event models. ",
+          "authors": {
+            "total": 3,
+            "data": [
+              {
+                "display_name": "Markus Huff",
+                "full_slug": null
+              },
+              {
+                "display_name": "Jan Pascal Göbel",
+                "full_slug": null
+              },
+              {
+                "display_name": "Helen Fischer",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": null,
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4037240940,
+          "title": "Don’t Believe Them! Reducing Misinformation Influence Through Source Discreditation",
+          "is_archived": false,
+          "full_slug": "dont-believe-them-reducing-misinformation-influence-through-3otojvcuf0",
+          "journal": null,
+          "conference_series": null,
+          "date": "2024-03-20T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Preprint",
+          "doi": "10.31234/osf.io/5yj2v",
+          "unique_id": "3otojvcuf0",
+          "abstract": "Misinformation often continues to influence people’s reasoning even after it has been corrected. Therefore, an important aim of applied cognition research is to identify effective measures to counter misinformation. One frequently recommended but hitherto insufficiently tested strategy is source discreditation, that is, attacking the credibility of a misinformation source. In two experiments, we tested whether source-discreditation interventions could reduce people’s subsequent reliance on fictional event-related misinformation. In Experiment 1, the discreditation targeted a person source of misinformation, pointing to a conflict of interest. This intervention was compared with a commonly employed message-focused correction and a combination of both a correction and discreditation. The discreditation alone was effective, but less effective than a correction, with the combination of both most effective. Experiment 2 compared discreditations that targeted a person versus a media source of misinformation, pointing either to a conflict of interest or a poor track record of communication. Discreditations were effective for both types of sources, although track-record discreditations were less effective when the misinformation source was a media outlet compared to a person. Results demonstrate that continued influence of misinformation is shaped by social as well as cognitive factors, and that source discreditation is a broadly applicable misinformation countermeasure. ",
+          "authors": {
+            "total": 5,
+            "data": [
+              {
+                "display_name": "Ullrich K. H. Ecker",
+                "full_slug": null
+              },
+              {
+                "display_name": "Toby Prike",
+                "full_slug": null
+              },
+              {
+                "display_name": "Antonia Paver",
+                "full_slug": null
+              },
+              {
+                "display_name": "Rachel K. Scott",
+                "full_slug": null
+              },
+              {
+                "display_name": "Briony Swire‐Thompson",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "fulltext_url": "pdf/dont-believe-them-reducing-misinformation-influence-through-3otojvcuf0.pdf",
+          "fulltext_url_no_follow": false,
+          "paper_urls": {
+            "order": [
+              "Pdf"
+            ],
+            "data": {
+              "Pdf": [
+                "https://osf.io/5yj2v/download"
+              ]
+            },
+            "is_show": true
+          },
+          "metrics": {
+            "citations": {
+              "total": 1
+            }
+          },
+          "tldr": "Source discreditation effectively reduces the influence of misinformation.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4069782982,
+          "title": "To be continued: misinformation’s bizarre adventure beyond memory failures – exploring non-memory-based mechanisms driving the continued influence effect (CIE)",
+          "is_archived": false,
+          "full_slug": "to-be-continued-misinformations-bizarre-adventure-beyond-hyk74eubphq4",
+          "journal": null,
+          "conference_series": null,
+          "date": "2025-04-22T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.31219/osf.io/j79yn_v1",
+          "unique_id": "hyk74eubphq4",
+          "abstract": "The Continued Influence Effect (CIE) refers to the persistent impact of misinformation on beliefs or reasoning, even after its retraction. Traditional accounts attribute CIE to memory failures – either in updating mental models or retrieving corrections. In contrast, newer theories propose that CIE persists despite successful encoding and retrieval of retractions, due to motivational and reasoning-based processes. Across six experiments (N = 1,446), we tested these competing explanations. Participants frequently relied on misinformation even when recognizing it as misleading, and those who knowingly used it showed greater overall reliance. However, after debriefing, CIE declined most among participants who identified it as misleading. Furthermore, participants cited perceived relevance and explanatory value as reasons for misinformation use, highlighting goal-directed reasoning. These patterns were robust across various conditions, including prebunking interventions and source credibility manipulations.To integrate these findings, we propose the Dynamic Inference Optimization (DIO) model, framing CIE as a trade-off between conserving cognitive resources and minimizing uncertainty (i.e., model entropy). DIO suggests that CIE occurs because misinformation is weighted over retraction due to its explanatory power, forming a low-entropy model that requires minimal cognitive effort. However, maladaptive mismatches between cognition and environment may strategically increase model entropy, enabling belief revision by reweighting information probabilities, at the cost of increased cognitive effort. This model offers a unified, process-level account of CIE grounded in principles of adaptive reasoning and cognitive effort. Importantly, DIO fits into dynamic models of cognition, offering a more nuanced and ecologically valid explanation of how misinformation continues to influence reasoning. ",
+          "authors": {
+            "total": 6,
+            "data": [
+              {
+                "display_name": "Klara Austeja Buczel",
+                "full_slug": null
+              },
+              {
+                "display_name": "Adam Siwiak",
+                "full_slug": null
+              },
+              {
+                "display_name": "Magdalena Kękuś",
+                "full_slug": null
+              },
+              {
+                "display_name": "Hanna Kucwaj",
+                "full_slug": null
+              },
+              {
+                "display_name": "Wiktoria Rabińska",
+                "full_slug": null
+              },
+              {
+                "display_name": "Malwina Szpitalak",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": null
+            }
+          },
+          "tldr": "This study explores the Continued Influence Effect (CIE) of misinformation, finding that it persists due to goal-directed reasoning and perceived relevance, rather than memory failures, and proposes the Dynamic Inference Optimization (DIO) model to explain this phenomenon.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        },
+        {
+          "id": 4046812926,
+          "title": "Don’t believe them! Reducing misinformation influence through source discreditation",
+          "is_archived": false,
+          "full_slug": "dont-believe-them-reducing-misinformation-influence-through-3ng3nvwzwn49",
+          "journal": {
+            "display_name": "Cognitive Research: Principles and Implications",
+            "official_page": "https://cognitiveresearchjournal.springeropen.com",
+            "issn": "2365-7464",
+            "alias": null,
+            "id": 3035657644,
+            "slug": "cognitive-research-principles-and-implications",
+            "unique_id": "244dvu6d",
+            "full_slug": "cognitive-research-principles-and-implications-244dvu6d"
+          },
+          "conference_series": null,
+          "date": "2024-08-26T00:00:00Z",
+          "is_oa": null,
+          "publication_type": "Journal Article",
+          "doi": "10.1186/s41235-024-00581-7",
+          "unique_id": "3ng3nvwzwn49",
+          "abstract": "Abstract Misinformation often continues to influence people’s reasoning even after it has been corrected. Therefore, an important aim of applied cognition research is to identify effective measures to counter misinformation. One frequently recommended but hitherto insufficiently tested strategy is source discreditation, that is, attacking the credibility of a misinformation source. In two experiments, we tested whether immediate source discreditation could reduce people’s subsequent reliance on fictional event-related misinformation. In Experiment 1, the discreditation targeted a person source of misinformation, pointing to a conflict of interest. This intervention was compared with a commonly employed message-focused correction and a combination of correction and discreditation. The discreditation alone was effective, but less effective than a correction, with the combination of both most effective. Experiment 2 compared discreditations that targeted a person versus a media source of misinformation, pointing either to a conflict of interest or a poor track record of communication. Discreditations were effective for both types of sources, although track-record discreditations were less effective when the misinformation source was a media outlet compared to a person. Results demonstrate that continued influence of misinformation is shaped by social as well as cognitive factors and that source discreditation is a broadly applicable misinformation countermeasure. ",
+          "authors": {
+            "total": 5,
+            "data": [
+              {
+                "display_name": "Ullrich K. H. Ecker",
+                "full_slug": null
+              },
+              {
+                "display_name": "Toby Prike",
+                "full_slug": null
+              },
+              {
+                "display_name": "Antonia B. Paver",
+                "full_slug": null
+              },
+              {
+                "display_name": "Rachel K. Scott",
+                "full_slug": null
+              },
+              {
+                "display_name": "Briony Swire‐Thompson",
+                "full_slug": null
+              }
+            ]
+          },
+          "affiliations": {
+            "total": 0,
+            "data": []
+          },
+          "metrics": {
+            "citations": {
+              "total": 3
+            }
+          },
+          "tldr": "This study investigates the effectiveness of source discreditation in reducing misinformation influence, finding that immediate discreditation can counter misinformation, particularly when combined with message-focused corrections, and that social factors play a significant role in continued influence.",
+          "podcast": null,
+          "podcast_generation_allowed": true,
+          "entity_type": "PAPER"
+        }
+      ]
+    },
+    "isError": false
+  },
+  "error": null
+}
