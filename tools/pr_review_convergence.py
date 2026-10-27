@@ -171,7 +171,8 @@ def unique_json(pairs):
     return result
 
 
-def codex_status(issue_comments, expected_head, commit_resolutions=None):
+def codex_status(issue_comments, expected_head, commit_resolutions=None,
+                 resolve_commit=None):
     """Only authenticated, unambiguous, exact-head Codex state; never human approval."""
     candidates = []
     prefix = "<!-- codex-review-state:v1 "
@@ -243,7 +244,10 @@ def codex_status(issue_comments, expected_head, commit_resolutions=None):
             elapsed = (timestamp(updated) - timestamp(receipt["created_at"])).total_seconds()
             if not 0 <= elapsed <= 5:
                 continue
-            if (commit_resolutions or {}).get(prefix) != expected_head:
+            resolved = (commit_resolutions or {}).get(prefix)
+            if resolved is None and resolve_commit is not None:
+                resolved = resolve_commit(prefix)
+            if resolved != expected_head:
                 raise EvidenceError("Codex receipt commit prefix is not API-resolved to exact head")
             matching.append(receipt)
         if len(matching) != 1:
@@ -264,7 +268,7 @@ def codex_status(issue_comments, expected_head, commit_resolutions=None):
                 for t, n, c in candidates]}
 
 def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None,
-             commit_resolutions=None):
+             commit_resolutions=None, resolve_commit=None):
     """Only metadata closure; no claim of independent substantive correctness."""
     if not isinstance(pr, dict) or not SHA.fullmatch(expected_head):
         raise EvidenceError("invalid expected head or PR data")
@@ -317,7 +321,7 @@ def evaluate(pr, reviews, threads, comments, expected_head, issue_comments=None,
     duplicates = [{"path": path, "normalized_sha256": digest, "comment_ids": sorted(ids)}
                   for (path, digest), ids in sorted(groups.items()) if len(ids) > 1]
     automated = codex_status([] if issue_comments is None else issue_comments,
-                             expected_head, commit_resolutions)
+                             expected_head, commit_resolutions, resolve_commit)
     blockers = []
     if not current and not automated["passed"]:
         blockers.append("missing exact-head independent human approval or completed trusted Codex review")
@@ -378,19 +382,22 @@ def main(argv=None):
         comments = paginate(root + suffix + "/comments", token)
         issue_comments = paginate(root + "/issues/" + str(args.pr) + "/comments", token)
         resolutions = {}
-        for receipt in codex_receipts(issue_comments):
-            prefix = receipt["commit_prefix"]
-            if args.expected_head.startswith(prefix) and prefix not in resolutions:
+        def resolve_commit(prefix):
+            # Resolve lazily, only when codex_status actually needs the strict
+            # completed/null receipt fallback. Explicit structured finding
+            # state must not depend on unused cosmetic receipt prose.
+            if prefix not in resolutions:
                 resolved = api(root + "/commits/" + prefix, token)
                 if not isinstance(resolved, dict) or not SHA.fullmatch(resolved.get("sha", "")):
                     raise EvidenceError("incomplete receipt commit resolution")
                 resolutions[prefix] = resolved["sha"]
+            return resolutions[prefix]
         threads = threads_for(owner, name, args.pr, token)
+        record = evaluate(pr, reviews, threads, comments, args.expected_head,
+                          issue_comments, resolutions, resolve_commit)
         final = api(root + suffix, token)
         if not isinstance(final, dict) or (final.get("head") or {}).get("sha") != args.expected_head:
             raise EvidenceError("PR head advanced during evidence retrieval")
-        record = evaluate(pr, reviews, threads, comments, args.expected_head,
-                          issue_comments, resolutions)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         report = "\n".join([
