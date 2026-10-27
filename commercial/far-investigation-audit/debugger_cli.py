@@ -2,6 +2,8 @@
 from __future__ import annotations
 import argparse
 import json
+import sqlite3
+import copy
 from datetime import datetime, timezone
 from pathlib import Path
 from engine import InvalidBundle, canonical
@@ -23,11 +25,20 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
     evidence_sources=[source(s) for s in bundle["sources"] if s["id"]!="primary"]
     if not isinstance(evidence,list):
         raise InvalidBundle("resume evidence must be a list of source configurations")
-    chosen=dict(proposal if proposal is not None else old["_verified_proposal"])
+    chosen=copy.deepcopy(proposal if proposal is not None else old["_verified_proposal"])
+    if proposal is None:
+        remap={s["id"]:f"ev{i+1}" for i,s in enumerate(s for s in bundle["sources"] if s["id"]!="primary")}
+        for entry in chosen.get("evidence",[]):
+            entry["source_id"]=remap.get(entry["source_id"],entry["source_id"])
+        for entry in chosen.get("debugger_options",{}).get("source_lineage",[]):
+            entry["source_id"]=remap.get(entry["source_id"],entry["source_id"])
+            entry["upstream_source_ids"]=[remap.get(x,x) for x in entry["upstream_source_ids"]]
     chosen["resumes_input_sha256"]=old["_verified_audit"]["input_sha256"]
-    return {"investigation_id":bundle["investigation_id"],"source":source(original),
-            "captured_at":captured_at or now(),"evidence_sources":evidence_sources+evidence,
-            "proposal_mode":"supplied","proposal":chosen,"debugger":True}
+    config={"investigation_id":bundle["investigation_id"],"source":source(original),
+            "evidence_sources":evidence_sources+evidence,"proposal_mode":"supplied","proposal":chosen,"debugger":True}
+    if captured_at is not None:
+        config["captured_at"]=captured_at
+    return config
 
 
 def main(argv=None):
@@ -95,7 +106,7 @@ def main(argv=None):
                                         known_time=now(),valid_time=args.valid_time)
         print(canonical(out).decode())
         return 0
-    except (ValueError, OSError, TypeError, KeyError, RecursionError) as exc:
+    except (ValueError, OSError, TypeError, KeyError, RecursionError, sqlite3.Error) as exc:
         print(canonical({"status":"INVALID","error":str(exc)[:500]}).decode())
         return 2
     finally:

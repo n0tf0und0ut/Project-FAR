@@ -12,6 +12,25 @@ from cognitive import audit_traces
 CONTRACT = "far-epistemic-debugger/1.0"
 
 
+def runtime_identity(*,include_cognitive=False):
+    """Deterministic source/version commitments, not an authenticated runtime seal."""
+    from pathlib import Path
+    import sys
+    component=Path(__file__).resolve().parent
+    root=component.parents[1]
+    files=[*component.glob("*.py"),component/"debugger-1.0.schema.json",
+           *root.glob("mechanization/far_mechanization/*.py"),
+           root/"far_validation/epistemic_assurance.py",*root.glob("jsonschema/*.py"),
+           *root.glob("schemas/*.json")]
+    sources={str(p.relative_to(root)):digest(p.read_bytes()) for p in sorted(set(files))}
+    optional=sys.modules.get("mechanization.far_mechanization.cognitive") if include_cognitive else None
+    if optional is not None:
+        sources["loaded_optional_cognitive_module"]=digest(Path(optional.__file__).read_bytes())
+    payload={"schema":"far-debugger-runtime/1.0","python":".".join(map(str,sys.version_info[:3])),
+             "source_sha256":sources,"boundary":"Source/version consistency only; no identity, timestamp, external truth or full-environment seal."}
+    return {**payload,"identity_sha256":digest(canonical(payload))}
+
+
 def repairs(premises, conclusion, *, atoms, costs=None, additions=None):
     """Exhaustive minimum-cost edit sets in a declared finite operation universe."""
     costs = {} if costs is None else costs
@@ -75,7 +94,7 @@ def repairs(premises, conclusion, *, atoms, costs=None, additions=None):
 def debug(bundle, audit, proposal):
     required(proposal.get("debugger_contract")==CONTRACT, "unknown debugger contract")
     options=proposal.get("debugger_options",{})
-    required(isinstance(options,dict) and set(options)<={"costs","admissible_assumptions","traces","epistemic_document","source_lineage"}, "unknown debugger options")
+    required(isinstance(options,dict) and set(options)<={"costs","admissible_assumptions","traces","epistemic_document","source_lineage","cognitive_audit"}, "unknown debugger options")
     costs=options.get("costs",{})
     adds=options.get("admissible_assumptions",{})
     reading_ids={r["id"] for r in bundle["interpretations"]}
@@ -160,7 +179,8 @@ def debug(bundle, audit, proposal):
                 raise ValueError("invalid source lineage contract")
         validate_source_lineage_set(lineage)
         required({s["source_id"] for s in lineage}=={s["id"] for s in bundle["sources"]},"lineage must cover actual sources")
-    semantic_states=[x["status"] for x in semantics.values()]
+    semantic_states=[x["status"] for x in semantics.values()]+[
+        evidence_semantics.get(e["id"],{"status":"ABSTAIN"})["status"] for e in bundle["evidence"]]
     semantic_status="fail" if "CONTRADICTED" in semantic_states else "unknown" if "ABSTAIN" in semantic_states else "pass"
     checks={k:{"status":"unknown","evidence":[],"limitations":["External assurance unestablished"]} for k in
             ("source_integrity","interpretation_fidelity","search_coverage","evidence_adjudication","inference_adjudication","reproducibility","hostile_source_isolation")}
@@ -169,6 +189,12 @@ def debug(bundle, audit, proposal):
     assurance={"schema":"far-audit-assurance/1.0","audit_id":audit["input_sha256"],"overall_status":"not_assured" if semantic_status=="fail" else "bounded", "checks":checks,"unresolved_defeaters":[]}
     validate_audit_assurance(assurance)
     cognition=audit_traces(options.get("traces",[]))
+    if "cognitive_audit" in options:
+        try:
+            from mechanization.far_mechanization.cognitive import CognitiveDocument, audit as cognitive_audit
+        except ImportError as exc:
+            raise ValueError("canonical FAR-COG audit dependency is unavailable; no substitute diagnosis is emitted") from exc
+        cognition["canonical_audit"]=cognitive_audit(CognitiveDocument.from_dict(options["cognitive_audit"]))
     dependencies={r["id"]:set() for r in bundle["interpretations"]}
     for left in bundle["interpretations"]:
         for right in bundle["interpretations"]:
@@ -197,7 +223,7 @@ def debug(bundle, audit, proposal):
     collision_records=collisions(list(claims.values()))
     for c in collision_records:
         c["far_ir_2_0"]=collision_contract(c,claims,as_of=bundle["as_of"])
-    return {"schema":CONTRACT,"input_sha256":audit["input_sha256"], "claims":semantics,
+    return {"schema":CONTRACT,"runtime_identity":runtime_identity(include_cognitive="cognitive_audit" in options),"input_sha256":audit["input_sha256"], "claims":semantics,
             "evidence_semantics":evidence_semantics,"collisions":collision_records,
             "readings":readings,"graph":{"nodes":nodes,"edges":edges},"cognitive":cognition,
             "epistemic_interchange":epistemic,"source_lineage":lineage,"audit_assurance":assurance,

@@ -1,7 +1,7 @@
 """Operational trace diagnostics, explicitly not psychological diagnoses."""
 from engine import canonical, digest, required
 
-VERSION = "far-cog/0.1"
+VERSION = "far-debugger-trace-observations/1.0"
 
 
 def audit_traces(traces):
@@ -13,6 +13,7 @@ def audit_traces(traces):
               "available_evidence","used_evidence","contradicting_evidence"}
     for t in traces:
         required(isinstance(t,dict) and set(t)<=fields and
+                 isinstance(t.get("id"),str) and 0<len(t["id"])<=80 and
                  all(isinstance(t.get(k),str) and len(t[k])<=2000 for k in
                      ("id","evidence_before","evidence_after","answer_before","answer_after")),
                  "invalid cognitive trace")

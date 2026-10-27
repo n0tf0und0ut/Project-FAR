@@ -7,6 +7,7 @@ import importlib.util
 from pathlib import Path
 import sys
 import tempfile
+import subprocess
 import unittest
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
@@ -98,6 +99,10 @@ class SemanticAcceptance(unittest.TestCase):
         root=base.parents[1]
         self.assertFalse(list(jsonschema.Draft202012Validator(json.loads((base/"debugger-1.0.schema.json").read_text())).iter_errors(p["debugger"])))
         self.assertFalse(list(jsonschema.Draft202012Validator(json.loads((root/"schemas/far-audit-assurance-v1.schema.json").read_text())).iter_errors(p["debugger"]["audit_assurance"])))
+        runtime=p["debugger"]["runtime_identity"]
+        original={k:v for k,v in runtime.items() if k!="identity_sha256"}
+        self.assertEqual(runtime["identity_sha256"],digest(canonical(original)))
+        self.assertIn("commercial/far-investigation-audit/semantic.py",runtime["source_sha256"])
 
     def test_existing_epistemic_and_elenchus_composition(self):
         base=Path(__file__).resolve().parents[3]
@@ -109,6 +114,10 @@ class SemanticAcceptance(unittest.TestCase):
     def test_lineage_forged_roots_rejected(self):
         cfg=request(True)
         cfg["debugger_options"]={"source_lineage":[{"schema":"far-source-lineage/1.0","source_id":"primary","relationship":"independent","root_lineage_ids":["a","b"],"upstream_source_ids":[]}]}
+        with self.assertRaises(ValueError):investigate(cfg)
+
+    def test_canonical_cognitive_absence_never_uses_trace_substitute(self):
+        cfg=request(True);cfg["debugger_options"]={"cognitive_audit":{}}
         with self.assertRaises(ValueError):investigate(cfg)
 
 
@@ -247,6 +256,14 @@ class ReplayMemoryAcceptance(unittest.TestCase):
         self.m.source_state(target,active=False,reason="future applicability",known_time=T,valid_time="2027-01-01T00:00:00Z")
         self.assertFalse(self.m.replay()["invalidated"])
         self.assertTrue(self.m.replay(valid_at="2027-01-01T00:00:00Z")["invalidated"])
+
+    def test_invalid_database_is_bounded_cli_failure(self):
+        bad=self.root/"broken.sqlite";bad.write_text("invalid database bytes")
+        cli=Path(__file__).resolve().parents[1]/"debugger_cli.py"
+        result=subprocess.run([sys.executable,str(cli),"replay","--memory",str(bad)],text=True,capture_output=True)
+        self.assertEqual(result.returncode,2)
+        self.assertEqual(json.loads(result.stdout)["status"],"INVALID")
+        self.assertNotIn("Traceback",result.stderr)
 
 
 class CognitiveAcceptance(unittest.TestCase):

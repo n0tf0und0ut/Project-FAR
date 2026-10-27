@@ -16,7 +16,8 @@
     "epistemic_interchange",
     "source_lineage",
     "audit_assurance",
-    "unknowns"
+    "unknowns",
+    "runtime_identity"
   ],
   "properties": {
     "schema": {
@@ -55,6 +56,9 @@
     },
     "unknowns": {
       "type": "array"
+    },
+    "runtime_identity": {
+      "type": "object"
     }
   }
 }

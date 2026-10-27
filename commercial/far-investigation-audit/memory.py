@@ -11,6 +11,7 @@ from engine import InvalidBundle, canonical, digest, required, timestamp, audit
 
 SCHEMA="far-investigation-memory/1.0"
 MAX_EVENTS=5000
+MAX_HISTORY_BYTES=250_000_000
 
 
 class Memory:
@@ -18,8 +19,12 @@ class Memory:
         self.path=Path(path)
         required(not self.path.is_symlink(),"symlink memory database forbidden")
         self.db=sqlite3.connect(str(self.path),timeout=10,isolation_level=None)
-        self.db.execute("PRAGMA trusted_schema=OFF")
-        self.db.execute("CREATE TABLE IF NOT EXISTS events (seq INTEGER PRIMARY KEY, previous TEXT NOT NULL, payload BLOB NOT NULL, sha256 TEXT NOT NULL UNIQUE)")
+        try:
+            self.db.execute("PRAGMA trusted_schema=OFF")
+            self.db.execute("CREATE TABLE IF NOT EXISTS events (seq INTEGER PRIMARY KEY, previous TEXT NOT NULL, payload BLOB NOT NULL, sha256 TEXT NOT NULL UNIQUE)")
+        except sqlite3.Error as exc:
+            self.db.close()
+            raise InvalidBundle("memory database unavailable or invalid") from exc
 
     def close(self):
         self.db.close()
@@ -35,7 +40,7 @@ class Memory:
         for expected,(seq,parent,raw,identity) in enumerate(rows,1):
             required(isinstance(raw,bytes) and len(raw)<=6_000_000,"memory payload limit exceeded")
             total+=len(raw)
-            required(total<=250_000_000,"memory history byte limit exceeded")
+            required(total<=MAX_HISTORY_BYTES,"memory history byte limit exceeded")
             required(seq==expected and parent==previous and digest(canonical({"seq":seq,"previous":parent,"payload_sha256":digest(raw)}))==identity,"memory chain integrity failure")
             payload=parse_json_artifact(raw,"memory event")
             required(raw==canonical(payload),"noncanonical memory event")
@@ -86,6 +91,8 @@ class Memory:
                 state=self._project(events)
                 required(payload["target"] in state["nodes"] and state["nodes"][payload["target"]]["type"]=="source","source-state target not found")
             seq=len(events)+1
+            current_bytes=self.db.execute("SELECT COALESCE(SUM(length(payload)),0) FROM events").fetchone()[0]
+            required(current_bytes+len(raw)<=MAX_HISTORY_BYTES,"memory history byte limit exceeded")
             parent=events[-1]["sha256"] if events else "0"*64
             identity=digest(canonical({"seq":seq,"previous":parent,"payload_sha256":digest(raw)}))
             self.db.execute("INSERT INTO events VALUES (?,?,?,?)",(seq,parent,raw,identity))

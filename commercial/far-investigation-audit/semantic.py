@@ -33,7 +33,9 @@ def compile_text(text, *, depth=0):
     s = normalize(text)
     # Only this finite table is admitted; arbitrary number words remain unknown.
     words=re.fullmatch(r"(at least|at most|more than|less than|exactly) ([a-z]+) (.+)",s)
-    if words and words[2] in NUMBER_WORDS:
+    if words:
+        if words[2] not in NUMBER_WORDS:
+            return None
         s=f"{words[1]} {NUMBER_WORDS[words[2]]} {words[3]}"
     m = re.fullmatch(r"if (.+?)(?:,)? then (.+)", s)
     if m:
@@ -55,6 +57,11 @@ def compile_text(text, *, depth=0):
     if not m or not _term(m[4]) or not (_term(m[7]) or m[7] in {"on","off"}):
         return None
     q, comparison, number, subject, copula, negation, predicate = m.groups()
+    # Unquantified plural descriptions and long subjects cannot acquire
+    # singular negation semantics just because the count prefix was unknown.
+    if q is None and comparison is None:
+        if copula in {"are","were"} or re.fullmatch(r"(?:the )?[a-z][a-z0-9_-]*",subject) is None:
+            return None
     if q == "every":
         q = "all"
     return {"kind": "predication", "quantifier": q or ("count" if comparison else "singular"),
@@ -81,7 +88,7 @@ def formula_meaning(formula, atoms):
             child["quantifier"]={"some":"no","no":"some"}[child["quantifier"]]
             return child
         if child["quantifier"]=="all":
-            if child["copula"] not in {"is","was","are","were"}:
+            if child["copula"] not in {"is","was","are","were"} or child["time"] is not None:
                 return None
             child["quantifier"]="some"
             child["negative"]=not child["negative"]
@@ -189,7 +196,7 @@ def collision_contract(collision,claims,*,as_of):
     from pathlib import Path
     root=str(Path(__file__).resolve().parents[2])
     if root not in sys.path:sys.path.insert(0,root)
-    from mechanization.far_mechanization.contract_v2 import contract_sha256,validate_contract
+    from mechanization.far_mechanization.contract_v2_strict_v11 import contract_sha256,validate_contract
     ids=collision["claim_ids"]
     contract={"id":"debugger.collision.contract","contract_version":"2.0","mode":"exact",
         "source_domain":{"status":"EXPLICIT","kind":"finite_explicit","description":"Only the two listed claim occurrences","cases":[{"id":c,"value":claims[c]["span"]} for c in ids]},

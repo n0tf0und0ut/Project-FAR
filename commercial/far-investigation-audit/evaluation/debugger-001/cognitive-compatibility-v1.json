@@ -1,0 +1,66 @@
+{
+  "scope": "Explicit compatibility composition using the actual concurrent Research dependency in an isolated worktree, not merged or automatically available on main",
+  "dependency_pr": 596,
+  "dependency_sha": "a591f9d3699ca881717edf484db072b99cfa52f8",
+  "module_sha256": "fa3cdcbb5990b96ec1ee64e63368d1252d1453ed8eb615afa576e22cd58e1efd",
+  "fixture_sha256": "38a9c5cdb21333ef1346f363e741d5ed1b67ce7d572027f17957b135be28e427",
+  "canonical_audit": {
+    "format_version": "FAR-COG/0.1",
+    "status": "Research",
+    "input_sha256": "f8a584806a8b6c1fd8590a3dcd80637a0fa76a98ba649849ecd228bc7fc824be",
+    "diagnoses": [
+      {
+        "id": "intent-contradiction",
+        "status": "SUPPORTED",
+        "dimension": "argument_epistemology",
+        "source_span_or_trace": [
+          {
+            "end_byte": 118,
+            "quote": "At noon: I support A. At one: I oppose A. Therefore deliberately lied. No evidence of knowledge or intent is supplied.",
+            "source_ref": "s",
+            "start_byte": 0
+          }
+        ],
+        "observation": "Submitted coding: {\"inconsistent\": true, \"intent_evidence\": false, \"same_context\": true}",
+        "scoped_predicate": "Inconsistency does not establish deliberate deception.",
+        "candidate_failure_mode": "intent-gap",
+        "diagnostic_rule_version": "FAR-COG/0.1:intent-gap",
+        "alternative_explanations": [
+          "Submitted semantic coding or control equivalence may be wrong.",
+          "Unprovided context, evidence or a different framework may change the interpretation."
+        ],
+        "counterevidence": {
+          "supplied": [],
+          "search_complete": false
+        },
+        "assurance_level": "INTERNAL_DETERMINISTIC_RECOMPUTATION_OF_SUBMITTED_CODING",
+        "scope": "This bundle and declared rule only; status concerns the named pattern, not a person or source's truth.",
+        "diagnostic_confidence": {
+          "status": "UNKNOWN",
+          "probability": null
+        },
+        "coding_fidelity": "UNKNOWN",
+        "mental_cause": "UNKNOWN",
+        "retest_or_falsifier": "Supply contrary coding anchored to evidence; change the controlling premise and rerun the same versioned rule.",
+        "limitations": [
+          "No automatic semantic extraction or psychological diagnosis.",
+          "No external, population, causal or ontological validity established.",
+          "SUPPORTED and CONTRADICTED are conditional on submitted coding."
+        ],
+        "computed": {
+          "countermodel": {
+            "inconsistent": true,
+            "knows_false": false,
+            "intends_deception": false
+          }
+        }
+      }
+    ],
+    "existing_epistemic_scores": [],
+    "population_calibration": "UNKNOWN",
+    "external_effectiveness": "OPEN",
+    "scientific_promotion_authority": false
+  },
+  "same_result_as_direct_call": true,
+  "production_or_scientific_promotion": false
+}
