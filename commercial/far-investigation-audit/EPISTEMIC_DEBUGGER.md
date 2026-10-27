@@ -22,7 +22,7 @@ The example intentionally assigns one atom to “some reviewed deployments” an
 
 `full_cli.py REQUEST --debugger --output NEW_DIRECTORY` enables the same capability. Existing supplied proposals and legacy workflows remain unchanged unless the additive debugger contract is explicitly enabled. No historical audit package is rewritten. Replay old packages with their recorded runtime; the earlier campaign preserves its original runtime and outputs.
 
-The existing local UI runs with `python -m uvicorn webapp:app --app-dir commercial/far-investigation-audit --host 127.0.0.1 --port 8000` after installing `requirements-dev.txt`. Pasted sources enable the debugger and show the same human report. JSON package downloads contain the graph and witnesses. Network acquisition remains explicit server opt-in. There is no public hosting or authentication claim.
+The existing local UI runs with `python -m uvicorn webapp:app --app-dir commercial/far-investigation-audit --host 127.0.0.1 --port 8000` after installing `requirements-dev.txt`. Pasted and uploaded sources enable the debugger and show the same human report. JSON package downloads contain the graph and witnesses. Network acquisition remains explicit server opt-in. There is no public hosting or authentication claim.
 
 ## Resume and correct
 

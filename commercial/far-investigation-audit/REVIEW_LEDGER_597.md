@@ -45,3 +45,7 @@ Reviewed head: `cf26c031609f4c3760fd2f76a38f8d90aa0fe691`. Two additional findin
 | ED-R8 / 4391124913 | Equivalent quantified leaves became definitive contradictions inside conditionals | Recursively propagate unresolved leaf equivalence through matching logical contexts in fidelity and collision detection; `test_4391124913_nested_count_equivalence_abstains_and_never_collides` |
 
 Protected-main integration reuses canonical FAR-COG/0.1 from merged PR #596. Its source records and validated lineage participate in the same memory graph; its auditor remains the sole implementation of that contract. Registrations v7–v9 preserve intermediate and corrected combined runtimes.
+
+## Local user-interface integration finding
+
+ED-I1: The same text sent through `/api/investigate` enabled the debugger, while `/api/upload` omitted it and emitted only the legacy report. A transport-level regression failed before correction (`ui-before.log`) and passes afterward (`ui-after.log`). Uploads now enable the same canonical debugger; no second reasoning implementation is added. `test_pasted_and_uploaded_text_share_debugger_report` checks both actual request paths and nonacceptance of unsupported formal readings. The complete component suite passes 277 tests, including 51 debugger tests. Registration/runtime v10 and run 010 retain the successor configuration; all earlier runs remain intact.

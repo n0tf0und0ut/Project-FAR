@@ -167,7 +167,7 @@ async def upload_document(request: Request):
                      and form.get("transcription_consent")=="yes")
         kind=kinds[ext]
         source={"kind":kind}
-        request_config={"investigation_id":inv_id,"source":source,
+        request_config={"debugger":True,"investigation_id":inv_id,"source":source,
                         "evidence_sources":([{"kind":"text","text":evidence}] if evidence.strip() else [])}
         if kind in {"text","html","srt","vtt"}:
             try:
