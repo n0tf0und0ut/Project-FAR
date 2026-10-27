@@ -247,6 +247,16 @@ def _epistemic(args: argparse.Namespace) -> tuple[int, str, str]:
         return 1, json.dumps({"valid": False, "errors": details}, indent=2, sort_keys=True) + "\n", ""
     return 0, json.dumps(payload, indent=2, sort_keys=True) + "\n", ""
 
+def _cognitive(args: argparse.Namespace) -> tuple[int, str, str]:
+    from .cognitive import CognitiveDocument, CognitiveValidationError, audit
+    try:
+        document = CognitiveDocument.load(args.file)
+        payload = audit(document) if args.cognitive_command == "audit" else {"valid": True, "status": "Research", "input_sha256": document.digest}
+        return 0, json.dumps(payload, sort_keys=True, indent=2) + "\n", ""
+    except (OSError, UnicodeError, CognitiveValidationError) as exc:
+        return 2, json.dumps({"valid": False, "errors": [str(exc)]}, sort_keys=True) + "\n", ""
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="far", description="Project FAR mechanization CLI")
     p.add_argument("--config"); p.add_argument("--output", choices=["text","json","yaml"], default=None); p.add_argument("--quiet", action="store_true"); p.add_argument("--verbose", action="store_true"); p.add_argument("--color", choices=["auto","always","never"], default=None)
@@ -272,6 +282,10 @@ def build_parser() -> argparse.ArgumentParser:
     eps = ep.add_subparsers(dest="epistemic_command", required=True)
     cmd = eps.add_parser("validate"); cmd.add_argument("file"); cmd.set_defaults(func=_epistemic)
     cal = eps.add_parser("calibration"); cal.add_argument("file"); cal.add_argument("--bin-edges", default="0,0.5,1"); cal.set_defaults(func=_epistemic)
+    cog = sub.add_parser("cognitive", help="Research FAR-COG/0.1 audit of anchored, explicitly coded observations")
+    cogs = cog.add_subparsers(dest="cognitive_command", required=True)
+    for name in ("validate", "audit"):
+        cmd = cogs.add_parser(name); cmd.add_argument("file"); cmd.set_defaults(func=_cognitive)
     add_common(sub.add_parser("version", help="show versions")).set_defaults(func=_version)
     sub.add_parser("help", help="show help").set_defaults(func=lambda args: (0, p.format_help(), ""))
     return p
