@@ -76,8 +76,6 @@ Current authority for this correction is the [canonical FAR workflow](../framewo
 
 The [FAR Epistemic Assurance Acceptance](governance/far-epistemic-assurance-promotion-acceptance-v1.0.md) accepts four bounded, additive contracts: source-dependence lineage, bitemporal state, deliberate verifier abstention, and audit self-assurance. The [specification](specification/far-epistemic-assurance-1.0.md) defines their scope, and the [hostile-source boundary](../methodology/hostile-source-boundary.md) keeps audited material from becoming control instructions. These records improve process auditability; they do not certify source truth or external-world claims.
 
-The additive [FAR-COG/0.1 proposal](specification/far-cognitive-audit-v0.1.md) remains **Research**. Its executable audit verifies explicitly coded, anchored observations and reuses existing epistemic snapshots, scores and ELENCHUS. [Internal synthetic controls](../research/cognitive-audit/README.md) do not establish raw-text interpretation, psychological causes, ontological status or external utility. The [October 27 source reconciliation](../research/scheduled-task-reconciliation/reconciliation-2026-10-27.md) dispositions all recoverable signals while retaining unknown historical coverage and inaccessible primary content. External scientific verification and recruitment remain deferred by user instruction; accepted core and W1–W6 assurances are unchanged.
-
 ## W4 domain-contract disposition
 
 `PCA-W4-DOMAIN-CONTRACTS` is complete at six finite-explicit domain scopes. Native memos for formal logic, Bayesian/causal reasoning, argumentation, model-based reasoning, type theory, and proof theory were frozen before controlled `far-ir/2.0` mapping.

@@ -6,6 +6,10 @@ source-anchored coding; automatic interpretation and external effectiveness are
 OPEN. The [source reconciliation](../scheduled-task-reconciliation/reconciliation-2026-10-27.md)
 records primary-source scope and outstanding access limits.
 
+The [PR convergence record](../../docs/audits/pr-596-review-convergence.md)
+tracks underlying defects and regressions separately from independent software
+review and protected merge authorization.
+
 The [frozen protocol](frozen-v1/protocol.md) and [71 synthetic inputs and exposed
 reference labels](frozen-v1/cases.json) were published before predictions in
 commit `19424b98f5d42660d3f44eaa90c82236f9280679`. The [first manifest](freeze-v1.json)
