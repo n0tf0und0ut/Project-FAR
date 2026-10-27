@@ -258,7 +258,9 @@ def audit(document: CognitiveDocument):
         status, computed = _decide(data, probe)
         dimension, observation = RULES[probe["rule"]]
         diagnoses.append({"id": probe["id"], "status": status, "dimension": dimension,
-            "source_span_or_trace": probe["source_span_or_trace"], "observation": observation,
+            "source_span_or_trace": probe["source_span_or_trace"],
+            "observation": "Submitted coding: " + json.dumps(probe["facts"], sort_keys=True, ensure_ascii=False),
+            "scoped_predicate": observation,
             "candidate_failure_mode": probe["rule"], "diagnostic_rule_version": VERSION + ":" + probe["rule"],
             "alternative_explanations": ["Submitted semantic coding or control equivalence may be wrong.", "Unprovided context, evidence or a different framework may change the interpretation."],
             "counterevidence": {"supplied": probe["counterevidence"], "search_complete": False},

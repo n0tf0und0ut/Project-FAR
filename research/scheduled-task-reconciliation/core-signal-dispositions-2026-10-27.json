@@ -1,0 +1,297 @@
+{
+  "schema": "far-core-signal-triage/1",
+  "status": "Research",
+  "source_head": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+  "scientific_promotion_authority": false,
+  "entries": [
+    {
+      "id": "FAR-LIT-08D830727E615B57",
+      "doi": "10.21203/rs.3.rs-11340098/v1",
+      "title": "A counterexample to the complex polynomial Koebe radius conjecture",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "d8ea845794fc7709c188eea4e89141a840664dd3",
+      "metadata_url": "https://api.crossref.org/works/10.21203%2Frs.3.rs-11340098%2Fv1",
+      "metadata_sha256": "4f5ca4f5e9b809ef23ccf131c8e85a1e33a1ffce04912643e53ba32db5dcdb42",
+      "primary_url": "https://www.researchsquare.com/article/rs-11340098/v1",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Metadata abstract concerns complex versus real polynomial univalence/Koebe radius. It supplies no fixed FAR representation/behavior factorization witness.",
+      "next_test": "Recover and check exact polynomial/proof before any mathematical analogy. CORE-001/004 do not assert that specialized conjecture.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-08D830727E615B57",
+          "requested_url": "https://www.researchsquare.com/article/rs-11340098/v1",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-0BFA8B7937DAC941",
+      "doi": "10.21203/rs.3.rs-11047092/v1",
+      "title": "What Would an Empirical Counterexample to Motivational Internalism Require?",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "88ae24e2e40975e37d5f3c72ebffbc8ed849c74f",
+      "metadata_url": "https://api.crossref.org/works/10.21203%2Frs.3.rs-11047092%2Fv1",
+      "metadata_sha256": "5a228da212bb27996754ec55346b6e533b3a49d4d5e41b031ed81d80affa2232",
+      "primary_url": "https://www.researchsquare.com/article/rs-11047092/v1",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Motivational-internalism counterexample criteria distinguish masked/weak motivation from absence. Relevant to CORE-012 and unknown mental causes, not an established core contradiction.",
+      "next_test": "Keep separate from SSRN version until exact texts are compared; inspect prospective detection/temporal conditions.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-0BFA8B7937DAC941",
+          "requested_url": "https://www.researchsquare.com/article/rs-11047092/v1",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-4A478DDEFA2F7C61",
+      "doi": "10.13001/ela.2026.10718",
+      "title": "A Real Counterexample to the Drury Permanent Conjecture",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "46c92182a34b97f493960cf7f83a89ab6ce83cf5",
+      "metadata_url": "https://api.crossref.org/works/10.13001%2Fela.2026.10718",
+      "metadata_sha256": "5fa13e4fbea4d684ad957339bdaf6cd1a911484f8fdd8996da224c40d2d9717f",
+      "primary_url": "https://journals.uwyo.edu/index.php/ela/article/view/10718",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Abstract describes an 8x8 real PSD permanent-inequality counterexample, not a factorization theorem countermodel.",
+      "next_test": "Recover integer certificate/full version and reproduce that specialized claim before using it.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-4A478DDEFA2F7C61",
+          "requested_url": "https://journals.uwyo.edu/index.php/ela/article/view/10718",
+          "error": "HTTPError: HTTP Error 502: Bad Gateway"
+        },
+        {
+          "id": "FAR-LIT-4A478DDEFA2F7C61-pdf",
+          "requested_url": "https://journals.uwyo.edu/index.php/ela/article/download/10718/7526",
+          "error": "HTTPError: HTTP Error 502: Bad Gateway"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-512B1D869EA712B8",
+      "doi": "10.1109/itw.2012.6404649",
+      "title": "On Witsenhausen's counterexample: The asymptotic vector case",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "cef69da0a49d324d368ffe518fb3981e858e6245",
+      "metadata_url": "https://api.crossref.org/works/10.1109%2Fitw.2012.6404649",
+      "metadata_sha256": "f0ca917216e1bb737df7acc2344a92100229955a5a93f993014c961844130cf7",
+      "primary_url": "http://ieeexplore.ieee.org/document/6404649/",
+      "deposited_abstract_inspected": false,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Only bibliographic metadata verified; decentralized control/asymptotic optimization is not itself a submitted counterexample to CORE-001/002.",
+      "next_test": "Recover primary theorem, assumptions and exact FAR premise/conclusion bridge; full content UNKNOWN.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-512B1D869EA712B8",
+          "requested_url": "https://ieeexplore.ieee.org/document/6404649/",
+          "status": 202,
+          "final_url": "https://ieeexplore.ieee.org/document/6404649/",
+          "content_type": "text/html; charset=UTF-8",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "id": "FAR-LIT-512B1D869EA712B8-pdf",
+          "requested_url": "https://xplorestaging.ieee.org/ielx5/6389798/6404631/06404649.pdf?arnumber=6404649",
+          "error": "HTTPError: HTTP Error 418: Unknown"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-58F10778F9AAE4CA",
+      "doi": "10.1525/9780520423671-009",
+      "title": "A Counterexample on Measurable Processes",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "b7aee7aa3e9a2e71c47537f5a474a5afc4eb0f11",
+      "metadata_url": "https://api.crossref.org/works/10.1525%2F9780520423671-009",
+      "metadata_sha256": "43f1a5e786d3f94bbc6c0c1cffd777e61bc3a24e120f38b87378968702cb245f",
+      "primary_url": "https://www.degruyterbrill.com/document/doi/10.1525/9780520423671-009/html",
+      "deposited_abstract_inspected": false,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Original Berkeley text concerns measurability of evaluation under continuum-hypothesis conditions. FAR fixed Set contracts do not assert a measurable/efficient decoder. The 1973 correction content remains unverified.",
+      "next_test": "Read original together with correction 10.1214/aop/1176997038 before adopting its proof; neither original nor correction is accepted here.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-58F10778F9AAE4CA",
+          "requested_url": "https://www.degruyterbrill.com/document/doi/10.1525/9780520423671-009/html",
+          "status": 202,
+          "final_url": "https://www.degruyterbrill.com/document/doi/10.1525/9780520423671-009/html",
+          "content_type": "text/html; charset=UTF-8",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "id": "FAR-LIT-58F10778F9AAE4CA-pdf",
+          "requested_url": "https://www.degruyterbrill.com/document/doi/10.1525/9780520423671-009/pdf",
+          "status": 202,
+          "final_url": "https://www.degruyterbrill.com/document/doi/10.1525/9780520423671-009/pdf",
+          "content_type": "text/html; charset=UTF-8",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-7884C7226C5719B0",
+      "doi": "10.4310/jdg/1214427885",
+      "title": "The Lewy counterexample and the local equivalence problem for $G$-structures",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "514f5403f2fa8f1155513b85dfd8e386e6bb2a7d",
+      "metadata_url": "https://api.crossref.org/works/10.4310%2Fjdg%2F1214427885",
+      "metadata_sha256": "96dc39e47ebd8f3e3eb15d30cb7e1759f3a9619b1e40d9b9a889726f6bb6b11e",
+      "primary_url": "https://projecteuclid.org/journals/journal-of-differential-geometry/volume-1/issue-1-2/The-Lewy-counterexample-and-the-local-equivalence-problem-for-G/10.4310/jdg/1214427885.full",
+      "deposited_abstract_inspected": false,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Only metadata verified; local smooth/PDE solvability is not an asserted premise of Set-based exact factorization. No exact FAR witness supplied.",
+      "next_test": "Recover original and distinguish regularity-restricted decoder claims from extensional Set claims; full content UNKNOWN.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-7884C7226C5719B0",
+          "requested_url": "https://projecteuclid.org/journals/journal-of-differential-geometry/volume-1/issue-1-2/The-Lewy-counterexample-and-the-local-equivalence-problem-for-G/10.4310/jdg/1214427885.full",
+          "status": 200,
+          "final_url": "https://projecteuclid.org/journals/journal-of-differential-geometry/volume-1/issue-1-2/The-Lewy-counterexample-and-the-local-equivalence-problem-for-G/10.4310/jdg/1214427885.full",
+          "content_type": "text/html",
+          "sha256": "8d38ef19378b1ff3058a5cddc36e8f6e5177388c5b160d39f136b8330733dae9",
+          "size_bytes": 1156
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-88EFFC257A61E199",
+      "doi": "10.2139/ssrn.7659838",
+      "title": "A Counterexample to Lemma 64 of the Kahrs and Smith Proof for RTA-79",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "bb49fb31e466c0e9a6fe6256fc62ffeda709cef8",
+      "metadata_url": "https://api.crossref.org/works/10.2139%2Fssrn.7659838",
+      "metadata_sha256": "47dabc88f2b5059eaaebf6877c449450d9e3c093c80c13d7a83c0f1c59da3907",
+      "primary_url": "https://www.ssrn.com/abstract=7659838",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Abstract targets a specific RTA79 proof-graph lemma via a three-term carrier. It is not automatically a counterexample to declared closure CORE-003 or finite-panel CORE-009.",
+      "next_test": "Recover the full three-term construction and lemma dependencies; test exact carrier/action closure before drawing an analogy.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-88EFFC257A61E199",
+          "requested_url": "https://www.ssrn.com/abstract=7659838",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-A1CD15E3E7CB92CB",
+      "doi": "10.2139/ssrn.7657184",
+      "title": "Does the order of drivers matter?A counterexample and an open problem for mixed drivers on a ring road",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "9ea5e1e07ad115fcb60df68e703a7465ba981cd8",
+      "metadata_url": "https://api.crossref.org/works/10.2139%2Fssrn.7657184",
+      "metadata_sha256": "693a369140341558d60604b9090525b45851cdc3436b43ece223f697c52f58c8",
+      "primary_url": "https://www.ssrn.com/abstract=7657184",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Abstract challenges a traffic stability summary by driver ordering. It motivates consequence-affecting omissions (CORE-011), not a checked FAR theorem refutation.",
+      "next_test": "Recover dynamics/order assumptions and exact counterexample before reuse; preserve model-specific limits.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-A1CD15E3E7CB92CB",
+          "requested_url": "https://www.ssrn.com/abstract=7657184",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-C82CDFD61E500959",
+      "doi": "10.1080/03605309408821069",
+      "title": "A Counterexample to Strong Uniqueness for Partial Differential Equations of Schr\u00f6dinger's Type",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "9a2f8a7ba72ba188020d605c9656c9b77465e27c",
+      "metadata_url": "https://api.crossref.org/works/10.1080%2F03605309408821069",
+      "metadata_sha256": "6b57f3f42929c971f00fd3c786bae33c25eb8a8537a7d93aeac6653b26b897e1",
+      "primary_url": "http://www.tandfonline.com/doi/abs/10.1080/03605309408821069",
+      "deposited_abstract_inspected": false,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Only metadata verified; strong uniqueness of Schrodinger equations is a specialized analytic claim, not Set-based factorization or a universal minimality result.",
+      "next_test": "Recover hypotheses and proof; no detailed adjudication from title alone.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-C82CDFD61E500959",
+          "requested_url": "https://www.tandfonline.com/doi/abs/10.1080/03605309408821069",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        },
+        {
+          "id": "FAR-LIT-C82CDFD61E500959-pdf",
+          "requested_url": "https://www.tandfonline.com/doi/pdf/10.1080/03605309408821069",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    },
+    {
+      "id": "FAR-LIT-DD283139285EDBA1",
+      "doi": "10.2139/ssrn.7481718",
+      "title": "What Would an Empirical Counterexample to Motivational Internalism Require?",
+      "source_commit": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "source_blob": "9574c18cdc266c758edcc3f72b273978bc7aae29",
+      "metadata_url": "https://api.crossref.org/works/10.2139%2Fssrn.7481718",
+      "metadata_sha256": "3139dd3b7a0fab356e5be769283f108a4393195d0eb4fabd57ad046b40968579",
+      "primary_url": "https://www.ssrn.com/abstract=7481718",
+      "deposited_abstract_inspected": true,
+      "full_paper_and_corrections_verified": false,
+      "disposition": "NO_CHECKED_CORE_COUNTEREXAMPLE_SUBMITTED_CONTENT_REVIEW_OPEN",
+      "core_claim_bridge": "Possible same-author/title cross-host version of motivational-internalism paper; byte/version identity unresolved. CORE-012 relevance is methodological only.",
+      "next_test": "Retain both identifiers; compare exact bytes and references before merging evidence identities.",
+      "accepted_core_changed": false,
+      "owner_role": "project-controlled internal semantic reviewer",
+      "access_receipts": [
+        {
+          "id": "FAR-LIT-DD283139285EDBA1",
+          "requested_url": "https://www.ssrn.com/abstract=7481718",
+          "error": "HTTPError: HTTP Error 403: Forbidden"
+        }
+      ]
+    }
+  ],
+  "additional_obligations": [
+    {
+      "doi": "10.1214/aop/1176997038",
+      "role": "Dudley correction",
+      "content_verified": false
+    },
+    {
+      "id": "FAR-LIT-58F10778F9AAE4CA",
+      "role": "Original Berkeley primary PDF inspected pages 57-59; proof and correction not accepted",
+      "url": "https://digicoll.lib.berkeley.edu/record/113218/files/math_s6_v2_article-07.pdf",
+      "sha256": "dfea8b2e799ca205b6ab4fe900d0df4a8881ac19ef997d81fb6467058431dfb3"
+    }
+  ]
+}

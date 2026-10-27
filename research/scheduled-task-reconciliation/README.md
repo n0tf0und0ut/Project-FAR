@@ -1,5 +1,7 @@
 # Scheduled FAR research streams — bounded reconciliation (2026-10-20)
 
+Current operational view: [current.json](current.json), with the [October 27 reconciliation](reconciliation-2026-10-27.md), [v2 dispositions](operations-v2.json), [generated index](operations-index-v2.json) and [monitor readback](monitoring-state-v2.json). The October 20 intake and v1 records below are preserved historical artifacts. The current view contains 40 observations; complete historical scheduler coverage remains unknown and no source receives scientific promotion here.
+
 **Status: Research intake, non-authoritative. No scientific acceptance, v0.5 amendment, FAR-CORE/FARA/EFR status change, or commercial-performance determination.**
 
 Machine-readable, testable source register: [`intake-2026-10-20.json`](intake-2026-10-20.json). This report summarizes four ChatGPT scheduled streams: *Project FAR Research Brief*, *FAR Research Watch*, *Project FAR Competitive Brief*, and *FAR Saturation Watch*. The current schedules and last-run timestamps were inspected, but their **complete historical run outputs, frozen raw pages, notifications, and all prior manual catch-up files were not accessible together**. This is a bounded reconstruction of retrievable dated findings with fresh primary-source cross-checks, **not** a claim to have replayed missed runs or exhaustively ingested every automation result.

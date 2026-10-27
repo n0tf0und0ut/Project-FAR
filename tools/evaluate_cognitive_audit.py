@@ -16,8 +16,8 @@ from mechanization.far_mechanization.cognitive import CognitiveDocument, audit
 
 FOLDER = ROOT / "research/cognitive-audit"
 CORPUS = FOLDER / "frozen-v1/cases.json"
-REPORT = FOLDER / "internal-001-results.json"
-FREEZE = FOLDER / "freeze-v1.json"
+REPORT = FOLDER / "internal-001-r2-results.json"
+FREEZE = FOLDER / "freeze-v2.json"
 
 
 def encoded(data):
