@@ -1,0 +1,56 @@
+[
+  {
+    "case_id": "Q01",
+    "url": "https://api.crossref.org/works/10.1126%2Fscience.7455683",
+    "retrieved_at": "2026-10-27T17:09:30.986608+00:00",
+    "response_sha256": "e74d4a2042ca5365639ea61dfb895ae0481e5cfc98e4e0200ce7607e33d96e1e",
+    "doi": "10.1126/science.7455683",
+    "title": [
+      "The Framing of Decisions and the Psychology of Choice"
+    ],
+    "subtitle": [],
+    "publisher": "American Association for the Advancement of Science (AAAS)",
+    "reference_scope": "Metadata identity only; no experimental results verified."
+  },
+  {
+    "case_id": "Q02",
+    "url": "https://api.crossref.org/works/10.1037%2F0022-3514.37.11.2098",
+    "retrieved_at": "2026-10-27T17:09:30.945503+00:00",
+    "response_sha256": "f1aad6fd696adccb285dcca539f4860e51f1148635ac6bf2d149f2a14292f7ed",
+    "doi": "10.1037/0022-3514.37.11.2098",
+    "title": [
+      "Biased assimilation and attitude polarization: The effects of prior theories on subsequently considered evidence."
+    ],
+    "subtitle": [],
+    "publisher": "American Psychological Association (APA)",
+    "reference_scope": "Metadata identity only; no experimental results verified."
+  },
+  {
+    "case_id": "Q03",
+    "url": "https://api.crossref.org/works/10.1016%2Fs0022-5371%2874%2980011-3",
+    "retrieved_at": "2026-10-27T17:09:30.908119+00:00",
+    "response_sha256": "e23e5d83331e30d66eb14e8ec23942d5f4496206aca9383f8a14742008ce4299",
+    "doi": "10.1016/s0022-5371(74)80011-3",
+    "title": [
+      "Reconstruction of automobile destruction: An example of the interaction between language and memory"
+    ],
+    "subtitle": [],
+    "publisher": "Elsevier BV",
+    "reference_scope": "Metadata identity only; no experimental results verified."
+  },
+  {
+    "case_id": "Q04",
+    "url": "https://api.crossref.org/works/10.1177%2F1529100612451018",
+    "retrieved_at": "2026-10-27T17:09:30.970975+00:00",
+    "response_sha256": "831425213ca870fe136f4588221cd91fe190e9e44f431917c50a7b572a40dcd1",
+    "doi": "10.1177/1529100612451018",
+    "title": [
+      "Misinformation and Its Correction"
+    ],
+    "subtitle": [
+      "Continued Influence and Successful Debiasing"
+    ],
+    "publisher": "SAGE Publications",
+    "reference_scope": "Metadata identity only; no experimental results verified."
+  }
+]
