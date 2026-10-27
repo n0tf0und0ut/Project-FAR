@@ -63,9 +63,10 @@ class InternalCampaignTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'incomplete'): evaluation.validate_registration('unused')
 
     def test_changed_bound_bytes_fail_closed(self):
-        with tempfile.TemporaryDirectory(dir=ROOT) as d:
+        # Keep fixtures outside the checkout, including under traced validation.
+        with tempfile.TemporaryDirectory() as d, patch.object(evaluation, 'ROOT', Path(d)):
             path = Path(d) / 'control.txt'; path.write_text('original')
-            name = str(path.relative_to(ROOT))
+            name = str(path.relative_to(evaluation.ROOT))
             record = {'schema': 'far-internal-exploratory-registration/1', 'external_verification': 'DEFERRED_BY_USER',
                       'reference_independence': False, 'files': {name: evaluation.sha(path.read_bytes())}}
             path.write_text('changed')

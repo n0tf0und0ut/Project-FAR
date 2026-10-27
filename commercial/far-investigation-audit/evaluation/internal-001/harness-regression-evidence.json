@@ -30,6 +30,27 @@
         "test_retained_history_import_binds_read_once_bytes_to_verified_manifest"
       ],
       "correction_source_commit": "29a2095ef719820a654e2fb1b5a50379e7af71bc"
+    },
+    {
+      "id": "H-004",
+      "root_cause": "The changed-bound-byte unit test created its temporary fixture inside the repository, violating the read-only traced validation contract despite a passing assertion.",
+      "source": "GitHub Actions exact-head-assurance job 121934555595, head 484ff60e5056f58ac4e09934753318b435f8611c",
+      "violated_invariant": "Tests may not create undeclared repository outputs.",
+      "observed_failed_checks": [
+        "tests.canonical",
+        "repository.health-full"
+      ],
+      "observed_error": "FAR-VAL-TRACE-001 undeclared write: tmp*/control.txt and parent directory",
+      "disposition": "Fixed by using an OS temporary directory and patching the isolated evaluation ROOT; no trace/runtime dependency policy change.",
+      "regression": "test_changed_bound_bytes_fail_closed",
+      "before_after_fixture_observation": {
+        "before_repository_fixture": true,
+        "after_repository_fixture": false,
+        "test_passed_before": true,
+        "test_passed_after": true
+      },
+      "local_strace_limit": "ptrace is denied by this execution environment; hosted trace remains required.",
+      "frozen_harness_cases_references_or_outputs_changed": false
     }
   ],
   "scientific_independence": false,

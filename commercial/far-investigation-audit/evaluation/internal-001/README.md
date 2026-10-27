@@ -46,7 +46,7 @@ All protocol/case/runtime hashes were frozen before each corresponding execution
 | [v2](registration-v2.json) | `703da0d62b8c2b13954d2a46d9a01e327cbee48d` | Absolute-path repair; all declared runs completed. History was an availability-only control; FAR timing did not yet include all parent-side verification. |
 | [v3](registration-v3.json) | `29a2095ef719820a654e2fb1b5a50379e7af71bc` | Declared timing/history procedural extension before its outcomes; same case bytes; actual reuse and full-workflow timing. Primary report above uses this version. |
 
-Regressions preserve root causes: relative-path adapter binding, complete timing scope, read-once verified-history import, reuse of the prior warehouse, source/registration drift and duplicate-key rejection. No failed run, null result, boundary abstention, reference or original registration was erased to improve the report. Independent software PR review does not make the experiment scientifically independent.
+Regressions preserve root causes: relative-path adapter binding, complete timing scope, read-once verified-history import, reuse of the prior warehouse, source/registration drift and duplicate-key rejection. No failed run, null result, boundary abstention, reference or original registration was erased to improve the report. A subsequent software-only test-isolation repair moves the changed-byte regression fixture outside the checkout after hosted tracing correctly rejected its temporary writes; trace policy and all frozen campaign bytes/results remain unchanged. Independent software PR review does not make the experiment scientifically independent.
 
 ## Exact comparators and unavailable arms
 
