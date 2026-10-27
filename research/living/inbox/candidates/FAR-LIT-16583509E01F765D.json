@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-16583509E01F765D",
+  "discovery": {
+    "first_seen_utc": "2026-09-20T05:26:27Z",
+    "last_seen_utc": "2026-09-21T17:04:41Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning audit workload efficiency",
+        "seen_utc": "2026-09-20T05:26:27Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.21236/ada377300",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Diane K. Mitchell"
+      ],
+      "container": null,
+      "doi": "10.21236/ada377300",
+      "provider": "Crossref",
+      "provider_id": "10.21236/ada377300",
+      "published_date": "2000-04-01",
+      "publisher": "Defense Technical Information Center",
+      "title": "Mental Workload and ARL Workload Modeling Tools",
+      "url": "https://doi.org/10.21236/ada377300",
+      "work_type": "report"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

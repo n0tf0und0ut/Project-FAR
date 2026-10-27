@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-24A8B1003F32436D",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T01:10:31Z",
+    "last_seen_utc": "2026-09-13T01:26:04Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "formal audit representation cost effectiveness",
+        "seen_utc": "2026-09-10T01:10:31Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1186/s12962-023-00424-0",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Iris Megido",
+        "Yael Sela",
+        "Keren Grinberg"
+      ],
+      "container": "Cost Effectiveness and Resource Allocation",
+      "doi": "10.1186/s12962-023-00424-0",
+      "provider": "Crossref",
+      "provider_id": "10.1186/s12962-023-00424-0",
+      "published_date": "2023-02-02",
+      "publisher": "Springer Science and Business Media LLC",
+      "title": "Cost effectiveness of home care versus hospital care: a retrospective analysis",
+      "url": "https://doi.org/10.1186/s12962-023-00424-0",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

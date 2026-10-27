@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-293E9CA5EB6191E6",
+  "discovery": {
+    "first_seen_utc": "2026-09-09T20:57:27Z",
+    "last_seen_utc": "2026-09-12T01:35:23Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning audit workload efficiency",
+        "seen_utc": "2026-09-09T20:57:27Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.3102/2193948",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Vo Ram Yoon"
+      ],
+      "container": "Proceedings of the 2025 AERA Annual Meeting",
+      "doi": "10.3102/2193948",
+      "provider": "Crossref",
+      "provider_id": "10.3102/2193948",
+      "published_date": "2025-01-01",
+      "publisher": "AERA",
+      "title": "Improving Measurement Efficiency of a Curriculum Audit Tool With Item Response Theory",
+      "url": "https://doi.org/10.3102/2193948",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

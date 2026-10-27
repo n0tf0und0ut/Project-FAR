@@ -4,8 +4,28 @@
   "candidate_id": "FAR-LIT-FA968B2D6AE5DDFA",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:12:39Z",
-    "last_seen_utc": "2026-09-08T14:12:39Z",
+    "last_seen_utc": "2026-09-08T14:55:01Z",
     "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "HIST-BISIMULATION",
+        "lens": "formal_mathematics",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          2017,
+          2026
+        ],
+        "query": "bisimulation behavioral equivalence coalgebra minimization",
+        "seen_utc": "2026-09-08T14:55:01Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
       {
         "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
         "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
