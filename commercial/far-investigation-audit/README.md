@@ -456,3 +456,8 @@ rejected before comparison. HTTP receive quotas count actual bytes before JSON
 or multipart parsing (450 KB investigation, 16 MB upload), including chunked or
 understated-length traffic. These are per-input limits, with no claim of global
 concurrency admission control or production readiness.
+
+
+## Internal adversarial and comparator execution
+
+The [FAR-INTERNAL-EVAL-001 report](evaluation/internal-001/README.md) records a separately registered, project-controlled exploratory campaign: source-to-report failure controls, identical-formula SymPy comparison, actual Noesis minimal CLI execution, portable replay and actual retained-history treatment. The first harness failure and procedural corrections remain preserved with their registrations and outputs. These results expose semantic and factual coverage limits; they do not execute the frozen benchmark, establish commercial advantage or supply external verification. Research operations share the [single disposition view](../../research/scheduled-task-reconciliation/operations-v1.json).

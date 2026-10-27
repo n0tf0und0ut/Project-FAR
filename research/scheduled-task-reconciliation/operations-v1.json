@@ -1,0 +1,250 @@
+{
+  "schema": "far-research-operations/1",
+  "status": "Research",
+  "scientific_promotion_authority": false,
+  "external_verification": "DEFERRED_BY_USER",
+  "authority": "User requested steps 2,3,5 while deferring step4 external scientific verification; no EFR/frozen confirmatory execution or external outreach.",
+  "controlled_cadence": {
+    "decision_brief": "Monday 08:00 America/New_York",
+    "urgent_watch": "Hourly check; notify only concrete reproducible falsification or material competitive change."
+  },
+  "source_identity_authority": "Reuse intake SR IDs, living candidate identities and governed corpus records; this is an operational disposition view, not a replacement scientific corpus.",
+  "entries": [
+    {
+      "source_id": "SR-001",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_TEMPORAL_PROBE_EXECUTED",
+      "next_test": "Replay hindsight-later-capture and unverified-source-date from registered internal campaign.",
+      "exit_condition": "Known later capture is excluded; unverified historical date stays unknown; factual output stays ABSTAIN.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://arxiv.org/abs/2610.04888",
+        "scope": "Primary abstract/title/date located; author-reported study is not replicated.",
+        "observed_version": "UNSPECIFIED",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-002",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_CITATION_PROBE_EXECUTED",
+      "next_test": "Replay exact-citation-irrelevant with its separate controlled auditor input.",
+      "exit_condition": "An exact quotation of an irrelevant proposition does not establish the target claim.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-003",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "QUEUED_INTERNAL_ASSURANCE_TEST",
+      "next_test": "Construct a bounded policy/record test with an internally signed but unobserved action; preserve an absent external seal.",
+      "exit_condition": "A self-authored record cannot satisfy an independently observed action requirement.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-004",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_APPLICABILITY_PROBE_EXECUTED",
+      "next_test": "Replay copied-origin and exact-citation-irrelevant; separately inspect extraction and inference outcomes.",
+      "exit_condition": "Copied origins do not become independent corroboration; citation presence is distinct from support.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-005",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_INTERPRETATION_PROBE_EXECUTED",
+      "next_test": "Compare quantifier-faithful/collapsed and threshold-faithful/collapsed from frozen cases.",
+      "exit_condition": "Changed mapping changes audit identity/verdict; a formally valid collapsed interpretation remains semantically unverified.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://arxiv.org/abs/2610.20457",
+        "scope": "Primary title/authors and v1 submission date located; no independent semantic agreement result established.",
+        "observed_version": "v1 (metadata label only)",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-006",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_LOGIC_COMPARISON_EXECUTED",
+      "next_test": "Replay the frozen finite formula comparison against SymPy.",
+      "exit_condition": "Agreement/countermodels are reported only for supplied formulas; answer uncertainty is not entailment.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-007",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_PREMISE_INFERENCE_PROBE_EXECUTED",
+      "next_test": "Compare true-premises-invalid with false-premise-valid and the valid/inconsistent controls.",
+      "exit_condition": "Internal premise truth and formal validity remain independent columns; no factual verdict is inferred from validity.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://arxiv.org/abs/2610.21046",
+        "scope": "Primary abstract/title/date and v1 label located; premise checking remains distinct from conclusion entailment.",
+        "observed_version": "v1 (metadata label only)",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-008",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "QUEUED_INTERNAL_EFFECT_BINDING_TEST",
+      "next_test": "Create a separate bounded mutation that changes one authorized target/argument after recorded approval.",
+      "exit_condition": "The mutated effect is rejected rather than inheriting approval; do not execute untrusted inbox code.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-009",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "COMMERCIAL_SIGNAL",
+      "disposition": "NOT_RUN_AUTHENTICATED_ACCESS_MISSING",
+      "next_test": "After authorized access exists, freeze a paid-comparator run on the identical source corpus and budget; no calls are authorized by this register.",
+      "exit_condition": "Record exact model/version, denominator, errors/abstentions and actual cost; unavailable access yields no win/loss.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://fact.engineering/docs/api",
+        "scope": "Official documentation confirms token authentication and credit-priced execution. No authenticated run or reproduced vendor benchmark.",
+        "observed_version": "documentation observed 2026-10-26",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-010",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "COMMERCIAL_SIGNAL",
+      "disposition": "NOT_RUN_LOCAL_STACK_UNCONFIGURED",
+      "next_test": "Configure a separately frozen Minerval instance or authorized service and expose identical inputs before a comparator run.",
+      "exit_condition": "Only completed working outputs enter a score; public architecture overlap alone does not imply performance.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://github.com/minerval-ai/minerval/blob/745f061580e084b499dcb3fed267874adfb1909e/web/content/architecture.md",
+        "scope": "Official architecture and current repository commit located; no local deployment, paid model calls or performance run.",
+        "observed_version": "git:745f061580e084b499dcb3fed267874adfb1909e",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-011",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "COMMERCIAL_SIGNAL",
+      "disposition": "INTERNAL_MINIMAL_COMPARATOR_EXECUTION",
+      "next_test": "Reproduce pinned Noesis minimal CLI ingest/ask/export/verify and the fresh/retained-source conditions.",
+      "exit_condition": "Preserve missing-classifier warnings/refusals; distinguish minimal configuration from full Noesis capability and retained sources from utility.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "url": "https://github.com/Ikey168/Noesis/tree/d38eb1fd956843b6eeeaeb582d3b4e1092255d94",
+        "scope": "Pinned source cloned unchanged, minimal package executed locally, actual degraded/refusal and evidence-bundle outputs retained. Not full-model or external validation.",
+        "observed_version": "git:d38eb1fd956843b6eeeaeb582d3b4e1092255d94",
+        "checked_on_local": "2026-10-26 America/New_York",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-012",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "QUEUED_INTERNAL_INFORMATION_FLOW_TEST",
+      "next_test": "Register a quoted hostile instruction fixture and compare expected allowed effects with observed effects.",
+      "exit_condition": "Untrusted text does not itself authorize an effect; include benign quotation controls.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-013",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "INTERNAL_DETERMINISTIC_REPLAY_ONLY",
+      "next_test": "Replay identical frozen local inputs and retained packages; register any model-branching study separately.",
+      "exit_condition": "Byte/digest replay is stable under local deterministic mode; no model-variance estimate is inferred.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      },
+      "internal_execution_reference": "commercial/far-investigation-audit/evaluation/internal-001/summary-v1.json"
+    },
+    {
+      "source_id": "SR-014",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "RESEARCH_SIGNAL",
+      "disposition": "QUEUED_SOURCE_CONTRACT_RECONSTRUCTION",
+      "next_test": "Reconstruct the primary paper model, assumptions and claimed contract before proposing an internal numerical test.",
+      "exit_condition": "Identify an exact applicable proposition or retain UNKNOWN; no broad architecture requirement from the title.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      }
+    },
+    {
+      "source_id": "SR-015",
+      "owner_role": "Project-controlled internal evaluation maintainer; tracker #590",
+      "classification": "COMMERCIAL_SIGNAL",
+      "disposition": "QUEUED_CERTIFICATION_SCOPE_RECONSTRUCTION",
+      "next_test": "Obtain dated primary certification/test-scope material and map specific tested obligations to FAR assurance surfaces.",
+      "exit_condition": "Marketing certification is not imported as a FAR reliability or independence result.",
+      "source_evidence_promoted": false,
+      "evidence_limit": "Original intake evidence class retained. Internal mechanism tests do not verify the source authors' result, source authenticity, external independence or customer value.",
+      "primary_access_receipt": {
+        "scope": "No fresh primary reconstruction in this campaign; existing intake category and access limits retained.",
+        "primary_study_result_independently_verified": false
+      }
+    }
+  ]
+}

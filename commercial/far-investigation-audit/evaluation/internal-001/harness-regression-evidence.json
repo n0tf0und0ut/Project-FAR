@@ -1,0 +1,37 @@
+{
+  "schema": "far-internal-harness-root-cause-ledger/1",
+  "status": "Research",
+  "findings": [
+    {
+      "id": "H-001",
+      "root_cause": "Relative source/config paths were interpreted after changing Noesis subprocess working directory.",
+      "observed_failed_run": "run-001",
+      "actual_error": "source_not_found",
+      "red_source_commit": "97524e4ea9c8944d559966a08b8ae6cecc367935",
+      "red_failures": 1,
+      "regression": "test_relative_run_path_becomes_absolute_before_subprocess_adapters",
+      "green_source_commit": "703da0d62b8c2b13954d2a46d9a01e327cbee48d",
+      "current_regression_passed": true,
+      "reference_or_case_bytes_changed": false
+    },
+    {
+      "id": "H-002",
+      "root_cause": "Original FAR raw timing excluded parent-side replay and field-adapter verification, while the Noesis clock included its full command sequence.",
+      "disposition": "Run-002 timing retained and excluded from the reported comparison; run-003 records complete workflow timing.",
+      "regression": "test_far_elapsed_time_includes_replay_and_field_adapter",
+      "correction_source_commit": "29a2095ef719820a654e2fb1b5a50379e7af71bc"
+    },
+    {
+      "id": "H-003",
+      "root_cause": "Original history control supplied extra source bytes but did not execute and reuse an actual prior investigation.",
+      "disposition": "Availability-only results retained; separately registered run-003 executes prior studies and real persistent/verified-source reuse.",
+      "regressions": [
+        "test_history_treatment_reuses_prior_warehouse_and_verified_source_bytes",
+        "test_retained_history_import_binds_read_once_bytes_to_verified_manifest"
+      ],
+      "correction_source_commit": "29a2095ef719820a654e2fb1b5a50379e7af71bc"
+    }
+  ],
+  "scientific_independence": false,
+  "source_or_field_accuracy_promoted": false
+}
