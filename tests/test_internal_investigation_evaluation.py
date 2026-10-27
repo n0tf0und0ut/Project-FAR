@@ -88,6 +88,22 @@ class InternalCampaignTests(unittest.TestCase):
             self.assertEqual(set(files), {'receipt.json'})
             self.assertEqual(files['receipt.json'], evaluation.sha(b'retained'))
 
+    def test_relative_run_path_becomes_absolute_before_subprocess_adapters(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d) / 'case'
+            relative = Path(evaluation.os.path.relpath(target, Path.cwd()))
+            seen = []
+            def far(config, destination):
+                seen.append(destination); return {'claim_quotes': []}
+            def noesis(config, question, destination, cli):
+                seen.append(destination); return {'claim_quotes': []}
+            case = {'case_id': 'path-control', 'config': {'source': {'kind': 'text', 'text': 'A control.'}}}
+            with patch.object(evaluation, 'raw_far', side_effect=far), patch.object(evaluation, 'raw_noesis', side_effect=noesis):
+                evaluation.raw_pair(case, relative, Path('/unused/cli'))
+            self.assertTrue(all(path.is_absolute() for path in seen))
+            self.assertEqual(seen, [target/'far', target/'noesis'])
+            self.assertTrue((target/'common-input.json').is_file())
+
     def test_runtime_logic_bound_and_frozen_study_bytes_are_not_changed(self):
         # This exploratory harness does not modify engine, field adapter or frozen study contracts.
         source = (ROOT / 'tools/run_internal_investigation_evaluation.py').read_text()

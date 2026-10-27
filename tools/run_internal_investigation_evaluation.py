@@ -74,7 +74,7 @@ def bound_files():
                    *AUDIT_DIR.glob('*.py')])
 
 
-def freeze(path, noesis_root):
+def freeze(path, noesis_root, predecessor=None):
     path, noesis_root = Path(path), Path(noesis_root).resolve()
     if path.exists():
         raise ValueError('registration exists; preserve history')
@@ -95,6 +95,13 @@ def freeze(path, noesis_root):
               'files': {str(p.relative_to(ROOT)): sha(p.read_bytes()) for p in bound_files()},
               'source_case_ids': [r['case_id'] for r in corpus['source_to_report']],
               'formal_case_ids': [r['case_id'] for r in corpus['formal_comparison']]}
+    if predecessor is not None:
+        previous = read(predecessor)
+        record['repair_of_registration_sha256'] = sha(Path(predecessor).read_bytes())
+        record['repair_reason'] = 'Resolve artifact and input paths before changing comparator subprocess working directory.'
+        record['same_case_bytes_as_predecessor'] = previous['files']['commercial/far-investigation-audit/evaluation/internal-001/cases-v1.json'] == record['files']['commercial/far-investigation-audit/evaluation/internal-001/cases-v1.json']
+        if record['same_case_bytes_as_predecessor'] is not True:
+            raise ValueError('adapter repair may not change case/reference bytes')
     write(path, record)
     return record
 
@@ -270,6 +277,7 @@ def raw_noesis(config, question, destination, noesis_cli):
 
 
 def raw_pair(case, output, noesis_cli, *, question=None):
+    output = Path(output).resolve()
     config = json.loads(json.dumps(case['config']))
     config.pop('proposal', None); config['proposal_mode'] = 'heuristic'
     output.mkdir(parents=True)
@@ -302,7 +310,7 @@ def run(registration, output, noesis_cli):
     dirty = subprocess.check_output(['git', '-C', manifest['noesis_root'], 'status', '--porcelain', '--untracked-files=no'], text=True)
     if head != manifest['noesis_commit'] or dirty or sha(Path(noesis_cli).read_bytes()) != manifest['noesis_cli_sha256']:
         raise ValueError('comparator source or executable drift')
-    output = Path(output)
+    output = Path(output).resolve()
     if output.exists(): raise ValueError('run exists; preserve outcomes')
     output.mkdir(parents=True)
     write(output / 'registration-copy.json', manifest)
@@ -399,12 +407,12 @@ def verify_run(output):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest='command', required=True)
-    f = sub.add_parser('freeze'); f.add_argument('--output', type=Path, required=True); f.add_argument('--noesis-root', type=Path, required=True)
+    f = sub.add_parser('freeze'); f.add_argument('--output', type=Path, required=True); f.add_argument('--noesis-root', type=Path, required=True); f.add_argument('--predecessor', type=Path)
     r = sub.add_parser('run'); r.add_argument('--registration', type=Path, required=True); r.add_argument('--output', type=Path, required=True); r.add_argument('--noesis-cli', type=Path, required=True)
     v = sub.add_parser('verify'); v.add_argument('output', type=Path)
     args = p.parse_args()
     try:
-        if args.command == 'freeze': value = freeze(args.output, args.noesis_root)
+        if args.command == 'freeze': value = freeze(args.output, args.noesis_root, args.predecessor)
         elif args.command == 'run': value = run(args.registration, args.output, args.noesis_cli)
         else: value = verify_run(args.output)
         print(json.dumps(value if args.command != 'run' else {'status': value['status'], 'failures': value['failures']}, indent=2))
