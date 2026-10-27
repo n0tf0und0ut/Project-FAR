@@ -74,7 +74,7 @@ def bound_files():
                    *AUDIT_DIR.glob('*.py')])
 
 
-def freeze(path, noesis_root, predecessor=None):
+def freeze(path, noesis_root, predecessor=None, repair_reason=None):
     path, noesis_root = Path(path), Path(noesis_root).resolve()
     if path.exists():
         raise ValueError('registration exists; preserve history')
@@ -98,7 +98,7 @@ def freeze(path, noesis_root, predecessor=None):
     if predecessor is not None:
         previous = read(predecessor)
         record['repair_of_registration_sha256'] = sha(Path(predecessor).read_bytes())
-        record['repair_reason'] = 'Resolve artifact and input paths before changing comparator subprocess working directory.'
+        record['repair_reason'] = repair_reason or 'Resolve artifact and input paths before changing comparator subprocess working directory.'
         record['same_case_bytes_as_predecessor'] = previous['files']['commercial/far-investigation-audit/evaluation/internal-001/cases-v1.json'] == record['files']['commercial/far-investigation-audit/evaluation/internal-001/cases-v1.json']
         if record['same_case_bytes_as_predecessor'] is not True:
             raise ValueError('adapter repair may not change case/reference bytes')
@@ -227,6 +227,7 @@ def command(argv, destination, *, cwd):
 
 
 def raw_far(config, destination):
+    started = time.perf_counter()
     # Run a separate CLI process so startup and serialization cost is visible.
     cfg = destination / 'config.json'
     write(cfg, config)
@@ -235,20 +236,29 @@ def raw_far(config, destination):
     _, _, full_cli, field, _, _ = modules()
     verify = full_cli.verify_package(destination / 'package')
     bundle = read(destination / 'package/input.json')
-    return {'elapsed_seconds': proc['elapsed_seconds'], 'claim_quotes': [x['span']['quote'] for x in bundle['claims']],
-            'claims_detected': len(bundle['claims']), 'factual_verdicts': [x['verdict'] for x in field.predictions_from_far_bundle(destination / 'package')],
+    predictions = field.predictions_from_far_bundle(destination / 'package')
+    return {'elapsed_seconds': time.perf_counter() - started, 'cli_elapsed_seconds': proc['elapsed_seconds'], 'claim_quotes': [x['span']['quote'] for x in bundle['claims']],
+            'claims_detected': len(bundle['claims']), 'factual_verdicts': [x['verdict'] for x in predictions],
             'sources_retained': len(bundle['sources']), 'replay_match': verify['replay_match'],
             'semantic_mapping_verified': False}
 
 
-def raw_noesis(config, question, destination, noesis_cli):
-    workspace = destination / 'workspace'
+def raw_noesis(config, question, destination, noesis_cli, *, reuse_workspace=None, retained_source_hashes=()):
+    started = time.perf_counter()
+    workspace = Path(reuse_workspace).resolve() if reuse_workspace else destination / 'workspace'
     cfg = workspace / 'config.json'
     logs = []
     prefix = [str(noesis_cli), '--config', str(cfg)]
-    logs.append(command([*prefix, 'init', '--root', str(workspace), '--non-interactive', '--json'], destination / 'init.json', cwd=destination))
+    if reuse_workspace:
+        if not cfg.is_file(): raise ValueError('retained Noesis configuration is absent')
+        write(destination/'retained-state.json', {'workspace':str(workspace), 'config_sha256':sha(cfg.read_bytes()),
+                                                 'retained_source_hashes':list(retained_source_hashes)})
+    else:
+        logs.append(command([*prefix, 'init', '--root', str(workspace), '--non-interactive', '--json'], destination / 'init.json', cwd=destination))
     warnings, extracted = [], 0
     for index, source in enumerate([config['source'], *config.get('evidence_sources', [])]):
+        if index > 0 and sha(source['text'].encode()) in retained_source_hashes:
+            continue  # Already ingested during the preceding investigation in this SAME warehouse.
         path = destination / ('source-' + str(index) + '.txt')
         path.write_text(source['text'])
         log = command([*prefix, 'ingest', str(path), '--domain', 'local', '--json'], destination / ('ingest-' + str(index) + '.json'), cwd=destination)
@@ -268,7 +278,8 @@ def raw_noesis(config, question, destination, noesis_cli):
         raise ValueError('Noesis evidence bundle did not verify')
     # These are extractive evidence verdicts, not external world-truth labels.
     statements = answer.get('statements', [])
-    return {'elapsed_seconds': sum(x['elapsed_seconds'] for x in logs), 'claims_detected': extracted,
+    return {'elapsed_seconds': time.perf_counter() - started, 'cli_elapsed_seconds': sum(x['elapsed_seconds'] for x in logs),
+            'reused_prior_warehouse': bool(reuse_workspace), 'claims_detected': extracted,
             'claim_quotes': [s['text'] for s in statements if s.get('claim_id')],
             'evidence_bundle_verified': True, 'answer_status': answer.get('answer_status'), 'reported_verdicts': [s.get('verdict') for s in statements],
             'world_truth_verdicts': [], 'degradation_warnings': warnings,
@@ -276,7 +287,7 @@ def raw_noesis(config, question, destination, noesis_cli):
             'scope': 'MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY'}
 
 
-def raw_pair(case, output, noesis_cli, *, question=None):
+def raw_pair(case, output, noesis_cli, *, question=None, history_state=None):
     output = Path(output).resolve()
     config = json.loads(json.dumps(case['config']))
     config.pop('proposal', None); config['proposal_mode'] = 'heuristic'
@@ -285,7 +296,9 @@ def raw_pair(case, output, noesis_cli, *, question=None):
     write(output / 'common-input.json', config)
     far = raw_far(config, output / 'far')
     (output / 'noesis').mkdir()
-    noesis = raw_noesis(config, question or 'Identify the checkable claims and the reasoning errors in the supplied documents.', output / 'noesis', noesis_cli)
+    kwargs = ({'reuse_workspace': history_state['noesis_workspace'],
+               'retained_source_hashes': history_state['source_hashes']} if history_state else {})
+    noesis = raw_noesis(config, question or 'Identify the checkable claims and the reasoning errors in the supplied documents.', output / 'noesis', noesis_cli, **kwargs)
     references = [c['quote'] for c in case.get('config', {}).get('proposal', {}).get('claims', [])]
     for result in [far, noesis]:
         result['reference_claims'] = len(references)
@@ -295,6 +308,43 @@ def raw_pair(case, output, noesis_cli, *, question=None):
         result['fully_attributed_compute_and_human_usd'] = None
         result['human_reviewer_corrections'] = None
     return {'case_id': case['case_id'], 'common_input_sha256': sha(canonical(config)), 'far': far, 'noesis': noesis}
+
+
+def retained_history_state(prior):
+    # Read once, then bind those exact bytes to the independently replayed
+    # in-memory manifest; do not reopen a mutable input after verification.
+    _, _, full_cli, _, _, _ = modules()
+    prior = Path(prior)
+    raw = (prior/'far/package/input.json').read_bytes()
+    proof = full_cli.verify_package(prior/'far/package', include_verified_snapshots=True)
+    if sha(raw) != proof['_verified_manifest']['files_sha256']['input.json']:
+        raise ValueError('retained input changed across verification')
+    bundle = json.loads(raw)
+    primary = next(s for s in bundle['sources'] if s['id'] == 'primary')
+    if sha(primary['text'].encode()) != primary['sha256']:
+        raise ValueError('retained source hash mismatch')
+    return {'prior_text': primary['text'], 'source_hashes': [primary['sha256']],
+            'noesis_workspace': str((prior/'noesis/workspace').resolve()),
+            'prior_input_sha256': sha(raw), 'far_import_mode': 'caller explicitly imports verified prior bytes; no automatic FAR memory'}
+
+
+def history_comparison(pair, output, noesis_cli):
+    output = Path(output).resolve()
+    base = {'investigation_id': pair['id'], 'captured_at': '2026-10-26T12:00:00Z',
+            'source': {'kind':'text','text':pair['followup_text']}, 'evidence_sources': []}
+    fresh = raw_pair({'case_id':pair['id']+'-fresh','config':base}, output/'fresh', noesis_cli, question=pair['question'])
+    prior_config = {**base, 'investigation_id':pair['id']+'-prior', 'source':{'kind':'text','text':pair['prior_text']}}
+    prior = raw_pair({'case_id':pair['id']+'-prior','config':prior_config}, output/'prior', noesis_cli, question=pair['question'])
+    started = time.perf_counter(); state = retained_history_state(output/'prior'); import_seconds = time.perf_counter()-started
+    retained_config = {**base,'evidence_sources':[{'kind':'text','text':state['prior_text']}]}
+    retained = raw_pair({'case_id':pair['id']+'-retained','config':retained_config}, output/'retained', noesis_cli,
+                        question=pair['question'], history_state=state)
+    retained['far']['verified_history_import_seconds'] = import_seconds
+    retained['far']['elapsed_seconds'] += import_seconds
+    return {'pair_id':pair['id'], 'prior_investigation':prior, 'conditions':[fresh,retained],
+            'retained_state_binding':state,
+            'treatment':'prior investigation actually executed; Noesis warehouse reused without reingesting prior text; FAR explicitly imports verified prior package bytes',
+            'customer_value_established':False}
 
 
 def artifact_inventory(output):
@@ -350,17 +400,8 @@ def run(registration, output, noesis_cli):
         except Exception as exc: results['failures'].append({'case_id': row['case_id'], 'raw_error': str(exc)})
         checkpoint()
     for pair in corpus['history_pairs']:
-        conditions = []
-        for retained in [False, True]:
-            case = {'case_id': pair['id'] + ('-retained' if retained else '-fresh'), 'config': {
-                'investigation_id': pair['id'], 'captured_at': '2026-10-26T12:00:00Z',
-                'source': {'kind': 'text', 'text': pair['followup_text']},
-                'evidence_sources': [{'kind': 'text', 'text': pair['prior_text']}] if retained else []}}
-            try: conditions.append(raw_pair(case, output / 'history' / case['case_id'], noesis_cli, question=pair['question']))
-            except Exception as exc: results['failures'].append({'case_id': case['case_id'], 'history_error': str(exc)})
-        results['history'].append({'pair_id': pair['id'], 'conditions': conditions,
-              'treatment': 'same retained source bytes made available to both callers; not automatic FAR memory',
-              'customer_value_established': False})
+        try: results['history'].append(history_comparison(pair, output/'history'/pair['id'], noesis_cli))
+        except Exception as exc: results['failures'].append({'case_id':pair['id'], 'history_error':str(exc)})
         checkpoint()
     results['status'] = 'COMPLETED_WITH_RECORDED_FAILURES' if results['failures'] else 'COMPLETED_INTERNAL_EXPLORATORY'
     results['finished_at'] = datetime.now(timezone.utc).isoformat()
@@ -389,7 +430,7 @@ def verify_run(output):
         if not path.is_relative_to(output) or sha(path.read_bytes()) != expected:
             raise ValueError('recorded output drift: ' + name)
     _, _, full_cli, _, _, _ = modules()
-    packages = list((output / 'source-to-report').glob('*/manifest.json')) + list(output.glob('raw/*/far/package/manifest.json')) + list(output.glob('history/*/far/package/manifest.json'))
+    packages = list((output / 'source-to-report').glob('*/manifest.json')) + [p for p in output.rglob('manifest.json') if p.parent.name == 'package' and 'workspace' not in p.relative_to(output).parts]
     for path in packages:
         if not full_cli.verify_package(path.parent)['replay_match']: raise ValueError('package replay failed')
     engine, _, _, _, independent, _ = modules()
@@ -407,12 +448,12 @@ def verify_run(output):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest='command', required=True)
-    f = sub.add_parser('freeze'); f.add_argument('--output', type=Path, required=True); f.add_argument('--noesis-root', type=Path, required=True); f.add_argument('--predecessor', type=Path)
+    f = sub.add_parser('freeze'); f.add_argument('--output', type=Path, required=True); f.add_argument('--noesis-root', type=Path, required=True); f.add_argument('--predecessor', type=Path); f.add_argument('--repair-reason')
     r = sub.add_parser('run'); r.add_argument('--registration', type=Path, required=True); r.add_argument('--output', type=Path, required=True); r.add_argument('--noesis-cli', type=Path, required=True)
     v = sub.add_parser('verify'); v.add_argument('output', type=Path)
     args = p.parse_args()
     try:
-        if args.command == 'freeze': value = freeze(args.output, args.noesis_root, args.predecessor)
+        if args.command == 'freeze': value = freeze(args.output, args.noesis_root, args.predecessor, args.repair_reason)
         elif args.command == 'run': value = run(args.registration, args.output, args.noesis_cli)
         else: value = verify_run(args.output)
         print(json.dumps(value if args.command != 'run' else {'status': value['status'], 'failures': value['failures']}, indent=2))

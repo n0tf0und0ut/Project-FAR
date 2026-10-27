@@ -104,6 +104,52 @@ class InternalCampaignTests(unittest.TestCase):
             self.assertEqual(seen, [target/'far', target/'noesis'])
             self.assertTrue((target/'common-input.json').is_file())
 
+    def test_retained_history_import_binds_read_once_bytes_to_verified_manifest(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as d:
+            prior=Path(d); package=prior/'far/package';package.mkdir(parents=True)
+            payload={'sources':[{'id':'primary','text':'retained control','sha256':evaluation.sha(b'retained control')}]}
+            raw=evaluation.canonical(payload);(package/'input.json').write_bytes(raw)
+            proof={'_verified_manifest':{'files_sha256':{'input.json':evaluation.sha(raw)}}}
+            verifier=SimpleNamespace(verify_package=lambda *a,**kw:proof)
+            with patch.object(evaluation,'modules',return_value=(None,None,verifier,None,None,None)):
+                state=evaluation.retained_history_state(prior)
+                self.assertEqual(state['prior_text'],'retained control')
+                proof['_verified_manifest']['files_sha256']['input.json']='0'*64
+                with self.assertRaisesRegex(ValueError,'across verification'):evaluation.retained_history_state(prior)
+
+    def test_history_treatment_reuses_prior_warehouse_and_verified_source_bytes(self):
+        with tempfile.TemporaryDirectory() as d:
+            calls=[]
+            def arm(case,destination,cli,**kwargs):
+                calls.append((case,kwargs));return {'far':{'elapsed_seconds':1.0},'noesis':{}}
+            state={'prior_text':'verified retained bytes','source_hashes':['a'*64], 'noesis_workspace':'/fixed/prior/warehouse'}
+            pair={'id':'history-control','prior_text':'original control','followup_text':'later control','question':'control?'}
+            with patch.object(evaluation,'raw_pair',side_effect=arm),patch.object(evaluation,'retained_history_state',return_value=state):
+                result=evaluation.history_comparison(pair,Path(d)/'case',Path('/unused'))
+            self.assertEqual(len(calls),3)
+            self.assertEqual(calls[1][0]['config']['source']['text'],'original control')
+            self.assertEqual(calls[2][0]['config']['evidence_sources'][0]['text'],'verified retained bytes')
+            self.assertEqual(calls[2][1]['history_state']['noesis_workspace'],'/fixed/prior/warehouse')
+            self.assertFalse(result['customer_value_established'])
+
+    def test_far_elapsed_time_includes_replay_and_field_adapter(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as d:
+            destination=Path(d);package=destination/'package';package.mkdir()
+            (package/'input.json').write_text(json.dumps({'claims':[{'span':{'quote':'control'}}],'sources':[]}))
+            phases=[]
+            def clock():
+                if not phases:return 0.0
+                self.assertEqual(phases,['cli','replay','field']);return 9.0
+            def command(*a,**kw):phases.append('cli');return {'elapsed_seconds':2.0}
+            def replay(*a,**kw):phases.append('replay');return {'replay_match':True}
+            def predictions(*a,**kw):phases.append('field');return [{'verdict':'ABSTAIN'}]
+            with patch.object(evaluation,'time',SimpleNamespace(perf_counter=clock)),patch.object(evaluation,'command',side_effect=command),patch.object(evaluation,'modules',return_value=(None,None,SimpleNamespace(verify_package=replay),SimpleNamespace(predictions_from_far_bundle=predictions),None,None)):
+                result=evaluation.raw_far({'source':{'kind':'text','text':'control'}},destination)
+            self.assertEqual(result['elapsed_seconds'],9.0)
+            self.assertEqual(result['cli_elapsed_seconds'],2.0)
+
     def test_runtime_logic_bound_and_frozen_study_bytes_are_not_changed(self):
         # This exploratory harness does not modify engine, field adapter or frozen study contracts.
         source = (ROOT / 'tools/run_internal_investigation_evaluation.py').read_text()
