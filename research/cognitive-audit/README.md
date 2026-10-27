@@ -62,6 +62,13 @@ error and CLI exit 2. The [third source manifest](freeze-v3.json) and
 `test_cognitive_missing_data.py` tests those boundary cases separately. Earlier
 results and frozen references are retained rather than relabeled.
 
+A second independent finding (`4390630419`) identified the dual error: an
+observed confidence change must remain SUPPORTED even when position is unknown.
+The repair uses three-valued disjunction and tests all 81 combinations for
+sensitivity plus 81 for the separate position-only cross-turn predicate.
+The [fourth source manifest](freeze-v4.json) and [fourth run](internal-001-r4-results.json)
+preserve this exposed follow-up without replacing earlier runs or labels.
+
 ## What this does and does not demonstrate
 
 - Demonstrated: deterministic rule replay, byte-bound inputs, strict references,

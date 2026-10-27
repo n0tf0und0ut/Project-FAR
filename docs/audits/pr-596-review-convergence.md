@@ -19,6 +19,15 @@ positive overclaim control when the passage is contradicted, so UNKNOWN does not
 mask an independently observed defect. All fourteen focused cognitive tests
 pass; the frozen 71-case status decisions remain unchanged on exposed replay.
 
+Independent P2 `4390630419` at head `50ac5d5` exposed the dual boundary: the
+confidence-change disjunct was suppressed when position coding was UNKNOWN.
+Reproduced on a schema-valid frozen-case mutation (actual UNKNOWN, required
+SUPPORTED). The repair evaluates observed positive disjuncts before uncertainty;
+only a fully observed false disjunction is CONTRADICTED. Cross-turn conflict
+still requires known positions. The separate pair truth-table tests enumerate
+all 81 position/confidence combinations for each predicate. Frozen references
+and prior outputs remain unchanged; R4 records the exposed repair replay.
+
 Source-only freeze: `19424b98f5d42660d3f44eaa90c82236f9280679`, before predictions.
 Explanatory correction/reconciliation: `75556e1f2aeef68c73b7306639fb1c803ac8d499`.
 The successor manifest records that the follow-up is exposed and already

@@ -184,15 +184,17 @@ def _pair(data, facts, rule):
     expected = {facts["factor"]} if rule == "controlled-sensitivity" else set()
     if changed != expected:
         return "UNKNOWN", {"control_failure": "non-treatment conditions changed or treatment absent"}
-    if "UNKNOWN" in (left["position"], right["position"]):
-        return "UNKNOWN", {"control_failure": "position coding incomplete"}
-    difference = left["position"] != right["position"]
+    positions_known = "UNKNOWN" not in (left["position"], right["position"])
+    difference = positions_known and left["position"] != right["position"]
     if rule == "controlled-sensitivity":
-        if not difference and (left["confidence"] is None or right["confidence"] is None):
-            return "UNKNOWN", {"control_failure": "confidence coding incomplete"}
-        if left["confidence"] is not None and right["confidence"] is not None:
+        confidence_known = left["confidence"] is not None and right["confidence"] is not None
+        if confidence_known:
             difference = difference or left["confidence"] != right["confidence"]
-    return _bool_status(difference), {"different_position": left["position"] != right["position"], "factor": facts.get("factor")}
+        if not difference and not (positions_known and confidence_known):
+            return "UNKNOWN", {"control_failure": "position or confidence coding incomplete"}
+    elif not positions_known:
+        return "UNKNOWN", {"control_failure": "position coding incomplete"}
+    return _bool_status(difference), {"different_position": left["position"] != right["position"] if positions_known else None, "factor": facts.get("factor")}
 
 
 def _decide(data, probe):
