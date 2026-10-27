@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-688562646950539F",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:12:39Z",
-    "last_seen_utc": "2026-09-08T14:35:12Z",
+    "last_seen_utc": "2026-10-27T00:09:45Z",
     "query_bindings": [
       {
         "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
@@ -18,6 +18,32 @@
         "target_ids": [
           "FAR-RQ-003"
         ]
+      },
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information bottleneck decision loss sufficient statistic",
+        "seen_utc": "2026-09-11T11:24:20Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      },
+      {
+        "candidate_relation": "POTENTIAL_COUNTEREXAMPLE_OR_RELATED_THEOREM",
+        "governed_question_sha256": "75813771b97aa4e80b8f54148c7371b88b82da661cf90247b1db564066444e39",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "minimal sufficient statistic counterexample observational equivalence",
+        "seen_utc": "2026-09-11T11:24:20Z",
+        "target_id": "FAR-RQ-009",
+        "target_ids": [
+          "FAR-RQ-009"
+        ]
       }
     ]
   },
@@ -29,7 +55,20 @@
     "stage": "DISCOVERED"
   },
   "potential_claim_ids": [
-    "FAR-CORE-002"
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
   ],
   "record_type": "CANDIDATE_LITERATURE",
   "schema_version": "1.0",

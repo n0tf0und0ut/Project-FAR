@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-2F97132153FFA6F6",
+  "discovery": {
+    "first_seen_utc": "2026-09-24T11:49:10Z",
+    "last_seen_utc": "2026-09-26T10:17:34Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-09-24T11:49:10Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1145/1411204.1411227",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Amal Ahmed",
+        "Matthias Blume"
+      ],
+      "container": "Proceedings of the 13th ACM SIGPLAN international conference on Functional programming",
+      "doi": "10.1145/1411204.1411227",
+      "provider": "Crossref",
+      "provider_id": "10.1145/1411204.1411227",
+      "published_date": "2008-09-20",
+      "publisher": "ACM",
+      "title": "Typed closure conversion preserves observational equivalence",
+      "url": "https://doi.org/10.1145/1411204.1411227",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

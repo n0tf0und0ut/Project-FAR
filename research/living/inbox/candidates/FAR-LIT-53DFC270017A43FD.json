@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-53DFC270017A43FD",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:12:39Z",
-    "last_seen_utc": "2026-09-08T14:35:12Z",
+    "last_seen_utc": "2026-09-11T01:07:54Z",
     "query_bindings": [
       {
         "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",

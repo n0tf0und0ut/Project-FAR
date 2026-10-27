@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-F5D104F10EA6F288",
+  "discovery": {
+    "first_seen_utc": "2026-10-19T22:12:50Z",
+    "last_seen_utc": "2026-10-20T16:19:11Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multi agent debate correlated errors independence evaluation",
+        "seen_utc": "2026-10-19T22:12:50Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1145/3706599.3721207",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Bogyeom Park",
+        "Kyoungwon Seo"
+      ],
+      "container": "Proceedings of the Extended Abstracts of the CHI Conference on Human Factors in Computing Systems",
+      "doi": "10.1145/3706599.3721207",
+      "provider": "Crossref",
+      "provider_id": "10.1145/3706599.3721207",
+      "published_date": "2025-04-25",
+      "publisher": "ACM",
+      "title": "Assessing Critical Thinking through a Multi-Agent LLM-Based Debate Chatbot",
+      "url": "https://doi.org/10.1145/3706599.3721207",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

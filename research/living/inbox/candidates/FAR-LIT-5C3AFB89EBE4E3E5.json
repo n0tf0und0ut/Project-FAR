@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-5C3AFB89EBE4E3E5",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T05:59:36Z",
+    "last_seen_utc": "2026-09-10T05:59:36Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "bisimulation quotient minimization computation",
+        "seen_utc": "2026-09-10T05:59:36Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1021/ct9005147",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Cheng Shang",
+        "Zhi-Pan Liu"
+      ],
+      "container": "Journal of Chemical Theory and Computation",
+      "doi": "10.1021/ct9005147",
+      "provider": "Crossref",
+      "provider_id": "10.1021/ct9005147",
+      "published_date": "2010-03-10",
+      "publisher": "American Chemical Society (ACS)",
+      "title": "Constrained Broyden Minimization Combined with the Dimer Method for Locating Transition State of Complex Reactions",
+      "url": "https://doi.org/10.1021/ct9005147",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-A947DB5CFFDEC7D6",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T06:02:08Z",
+    "last_seen_utc": "2026-09-11T11:24:20Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "historical_query_id": "HIST-INVARIANCE",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          2007,
+          2016
+        ],
+        "query": "invariance transformation representation structure mathematics",
+        "seen_utc": "2026-09-11T06:02:08Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "historical_query_id": "PHIL-SCIENTIFIC-REPRESENTATION",
+        "lens": "philosophy_of_science",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          2007,
+          2016
+        ],
+        "query": "scientific representation model equivalence structure invariance",
+        "seen_utc": "2026-09-11T11:24:20Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.4159/9780674034136-004",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [],
+      "container": "Objectivity, Invariance, and Convention",
+      "doi": "10.4159/9780674034136-004",
+      "provider": "Crossref",
+      "provider_id": "10.4159/9780674034136-004",
+      "published_date": "2007-12-31",
+      "publisher": "Harvard University Press",
+      "title": "1 Scientific Representation",
+      "url": "https://doi.org/10.4159/9780674034136-004",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "historical_foundations",
+      "philosophy_of_science"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

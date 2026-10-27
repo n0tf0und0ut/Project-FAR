@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-B5CF3B3D947D53BD",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:12:39Z",
-    "last_seen_utc": "2026-09-08T14:35:12Z",
+    "last_seen_utc": "2026-09-21T00:17:34Z",
     "query_bindings": [
       {
         "candidate_relation": "POTENTIAL_COUNTEREXAMPLE_OR_RELATED_THEOREM",

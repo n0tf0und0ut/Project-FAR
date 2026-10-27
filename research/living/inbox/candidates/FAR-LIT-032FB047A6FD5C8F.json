@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-032FB047A6FD5C8F",
+  "discovery": {
+    "first_seen_utc": "2026-09-09T14:37:59Z",
+    "last_seen_utc": "2026-09-12T01:35:23Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multiobjective cost preorder Pareto representation",
+        "seen_utc": "2026-09-09T14:37:59Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/cec.2015.7257247",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Jinyuan Zhang",
+        "Aimin Zhou",
+        "Guixu Zhang"
+      ],
+      "container": "2015 IEEE Congress on Evolutionary Computation (CEC)",
+      "doi": "10.1109/cec.2015.7257247",
+      "provider": "Crossref",
+      "provider_id": "10.1109/cec.2015.7257247",
+      "published_date": "2015-05-01",
+      "publisher": "IEEE",
+      "title": "A classification and Pareto domination based multiobjective evolutionary algorithm",
+      "url": "https://doi.org/10.1109/cec.2015.7257247",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-205CAE475AD84994",
+  "discovery": {
+    "first_seen_utc": "2026-10-20T01:01:11Z",
+    "last_seen_utc": "2026-10-20T02:12:30Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning representation audit provenance failure unknown factorization",
+        "seen_utc": "2026-10-20T01:01:11Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/sp54263.2024.00139",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Mati Ur Rehman",
+        "Hadi Ahmadi",
+        "Wajih Ul Hassan"
+      ],
+      "container": "2024 IEEE Symposium on Security and Privacy (SP)",
+      "doi": "10.1109/sp54263.2024.00139",
+      "provider": "Crossref",
+      "provider_id": "10.1109/sp54263.2024.00139",
+      "published_date": "2024-05-19",
+      "publisher": "IEEE",
+      "title": "Flash: A Comprehensive Approach to Intrusion Detection via Provenance Graph Representation Learning",
+      "url": "https://doi.org/10.1109/sp54263.2024.00139",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

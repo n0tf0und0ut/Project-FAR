@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-638CA1E77FFD8E4D",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:07:29Z",
-    "last_seen_utc": "2026-09-08T14:07:29Z",
+    "last_seen_utc": "2026-10-01T07:49:58Z",
     "query_bindings": [
       {
         "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
