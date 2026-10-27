@@ -1,0 +1,11 @@
+test_4390863035_unsupported_cardinal_cannot_be_singular (test_debugger_review.ReviewRegressions.test_4390863035_unsupported_cardinal_cannot_be_singular) ... ok
+test_4390863050_universal_negation_keeps_temporal_scope_unknown (test_debugger_review.ReviewRegressions.test_4390863050_universal_negation_keeps_temporal_scope_unknown) ... ok
+test_4390863057_aggregate_limit_rejects_before_commit (test_debugger_review.ReviewRegressions.test_4390863057_aggregate_limit_rejects_before_commit) ... ok
+test_4390863070_failed_evidence_mapping_blocks_assurance_pass (test_debugger_review.ReviewRegressions.test_4390863070_failed_evidence_mapping_blocks_assurance_pass) ... ok
+test_4390863082_resume_live_url_assigns_capture_during_acquisition (test_debugger_review.ReviewRegressions.test_4390863082_resume_live_url_assigns_capture_during_acquisition) ... ok
+test_4390863105_discovery_source_refs_survive_resume (test_debugger_review.ReviewRegressions.test_4390863105_discovery_source_refs_survive_resume) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.277s
+
+OK

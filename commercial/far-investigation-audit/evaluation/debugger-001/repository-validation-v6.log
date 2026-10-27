@@ -1,0 +1,35 @@
+Project FAR validation profile: pr-full
+Commit: 282c529fcad1d49943f4494074e6822b6d85a555
+Tree: 708465f27c238f121a0e308f14d0af2e9da80307
+Checks: 30
+[PASS] bootstrap.manifest (151 ms) — command completed successfully
+[PASS] selection.completeness (0 ms) — all checks have profiles and manifest dependency closure is valid
+[PASS] tests.canonical (236720 ms) — command completed successfully
+[PASS] governance.research-gates (229 ms) — command completed successfully
+[PASS] governance.claim-boundaries (11727 ms) — command completed successfully
+[PASS] governance.w5-authorization (1101 ms) — command completed successfully
+[PASS] repository.health-full (272536 ms) — command completed successfully
+[PASS] repository.hygiene (893 ms) — command completed successfully
+[PASS] repository.markdown (1214 ms) — command completed successfully
+[PASS] repository.links (793 ms) — command completed successfully
+[PASS] research.deduction-program (101 ms) — command completed successfully
+[PASS] research.theorem-target (293 ms) — command completed successfully
+[PASS] research.faithful-representation (94 ms) — command completed successfully
+[PASS] research.p8-role (148 ms) — command completed successfully
+[PASS] research.s-core-ledger (54 ms) — command completed successfully
+[PASS] research.w0 (299 ms) — command completed successfully
+[PASS] research.w1 (361 ms) — command completed successfully
+[PASS] research.w2 (226 ms) — command completed successfully
+[PASS] research.w3 (1859 ms) — command completed successfully
+[PASS] adj.candidate-architectures (238 ms) — command completed successfully
+[PASS] adj.reasoning-domain (245 ms) — command completed successfully
+[PASS] adj.independent-reasoning (254 ms) — command completed successfully
+[PASS] adj.preservation-basis (132 ms) — command completed successfully
+[PASS] adj.pb001-suite (120 ms) — command completed successfully
+[PASS] adj.pb001-execution (337 ms) — command completed successfully
+[PASS] adj.pbts-package (272 ms) — command completed successfully
+[PASS] adj.pbts-controls (281 ms) — command completed successfully
+[PASS] generator.next-actions (24354 ms) — command completed successfully
+[PASS] generator.project-status (24606 ms) — command completed successfully
+[PASS] generator.dashboard (25732 ms) — command completed successfully
+Result: SUCCESS in 295787 ms

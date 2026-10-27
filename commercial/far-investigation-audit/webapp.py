@@ -34,7 +34,7 @@ PAGE = r'''<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>FAR Investigation Lab</title><style>
 :root{font-family:system-ui,sans-serif;color:#e1e7ee;background:#0c1119}body{max-width:960px;margin:32px auto;padding:0 18px}
 h1{font-size:30px}p{line-height:1.55;color:#aebac9}textarea,input,select{box-sizing:border-box;width:100%;background:#141d29;color:#e1e7ee;border:1px solid #344054;border-radius:7px;padding:12px;font:inherit}button{background:#b6d7ff;color:#111927;border:0;border-radius:7px;padding:13px 18px;font-weight:700;cursor:pointer}button:disabled{opacity:.5}label{display:block;margin:16px 0 6px}pre{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #293649;padding:20px;background:#111923;border-radius:8px;font-size:13px;line-height:1.45}.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:650px){.cols{grid-template-columns:1fr}}.small{font-size:13px}
-</style></head><body><h1>FAR Investigation Lab</h1><p>Analyze an article, transcript, or other plain-text source. The output is a traceable research proposal, <strong>not</strong> an independently verified verdict. Citation presence does not prove source reliability or entailment.</p>
+</style></head><body><h1>FAR Epistemic Debugger</h1><p>Analyze an article, transcript, or other plain-text source. The output is a traceable research proposal, <strong>not</strong> an independently verified verdict. Citation presence does not prove source reliability or entailment.</p>
 <label for="type">Source</label><select id="type"><option value="text">Paste text / transcript</option><option value="srt">SRT transcript</option><option value="vtt">WebVTT transcript</option><option value="html">HTML snippet</option><option value="url">Public HTTPS article (network opt-in at server)</option><option value="youtube">YouTube captions (optional yt-dlp and server network opt-in)</option></select>
 <label for="source">Source text or URL</label><textarea rows="10" id="source" placeholder="Paste a claim-bearing speech, article, or transcript..."></textarea>
 <label for="file">Or upload a local document or recording</label><input type="file" id="file" accept=".txt,.md,.html,.srt,.vtt,.pdf,.mp3,.wav,.m4a,.mp4,.mov,.webm,.ogg">
@@ -46,7 +46,7 @@ const e=id=>document.getElementById(id);
 e('run').addEventListener('click',async()=>{
  e('run').disabled=true;e('status').textContent='Investigating...';e('report').hidden=true;e('download').hidden=true;
  try{let kind=e('type').value;let field=e('source').value;let source=(kind==='url'||kind==='youtube')?{kind,url:field}:{kind,text:field};
- let evidence=e('evidence').value.trim();let payload={investigation_id:e('id').value,source,evidence_sources:evidence?[{kind:'text',text:evidence}]:[]};
+ let evidence=e('evidence').value.trim();let payload={debugger:true,investigation_id:e('id').value,source,evidence_sources:evidence?[{kind:'text',text:evidence}]:[]};
  let result;
  if(e('file').files.length){const data=new FormData();data.set('file',e('file').files[0]);data.set('investigation_id',e('id').value);data.set('evidence_text',evidence);data.set('transcription_consent',e('consent').checked?'yes':'no');result=await fetch('/api/upload',{method:'POST',body:data});}
  else{result=await fetch('/api/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}
@@ -167,7 +167,7 @@ async def upload_document(request: Request):
                      and form.get("transcription_consent")=="yes")
         kind=kinds[ext]
         source={"kind":kind}
-        request_config={"investigation_id":inv_id,"source":source,
+        request_config={"debugger":True,"investigation_id":inv_id,"source":source,
                         "evidence_sources":([{"kind":"text","text":evidence}] if evidence.strip() else [])}
         if kind in {"text","html","srt","vtt"}:
             try:

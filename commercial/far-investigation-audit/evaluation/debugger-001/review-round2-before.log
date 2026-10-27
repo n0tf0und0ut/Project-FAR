@@ -1,0 +1,32 @@
+test_4390863035_unsupported_cardinal_cannot_be_singular (test_debugger_review.ReviewRegressions.test_4390863035_unsupported_cardinal_cannot_be_singular) ... ok
+test_4390863050_universal_negation_keeps_temporal_scope_unknown (test_debugger_review.ReviewRegressions.test_4390863050_universal_negation_keeps_temporal_scope_unknown) ... ok
+test_4390863057_aggregate_limit_rejects_before_commit (test_debugger_review.ReviewRegressions.test_4390863057_aggregate_limit_rejects_before_commit) ... ok
+test_4390863070_failed_evidence_mapping_blocks_assurance_pass (test_debugger_review.ReviewRegressions.test_4390863070_failed_evidence_mapping_blocks_assurance_pass) ... ok
+test_4390863082_resume_live_url_assigns_capture_during_acquisition (test_debugger_review.ReviewRegressions.test_4390863082_resume_live_url_assigns_capture_during_acquisition) ... ok
+test_4390863105_discovery_source_refs_survive_resume (test_debugger_review.ReviewRegressions.test_4390863105_discovery_source_refs_survive_resume) ... ok
+test_4391124909_declared_lineage_propagates_retraction_and_restore (test_debugger_review.ReviewRegressions.test_4391124909_declared_lineage_propagates_retraction_and_restore) ... FAIL
+test_4391124913_nested_count_equivalence_abstains_and_never_collides (test_debugger_review.ReviewRegressions.test_4391124913_nested_count_equivalence_abstains_and_never_collides) ... FAIL
+
+======================================================================
+FAIL: test_4391124909_declared_lineage_propagates_retraction_and_restore (test_debugger_review.ReviewRegressions.test_4391124909_declared_lineage_propagates_retraction_and_restore)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_debugger_review.py", line 109, in test_4391124909_declared_lineage_propagates_retraction_and_restore
+    self.assertIn(p["audit"]["input_sha256"]+":reading:r1",m.replay()["invalidated"])
+AssertionError: 'edef94a3eb0d8769b9a973c7a7564afffb8162aa39098e664cf7428bb8eb13c4:reading:r1' not found in ['source:05eb0811539758b7f421c1cd623a64d47deafc554dc4e5226b7fa211a705618f']
+
+======================================================================
+FAIL: test_4391124913_nested_count_equivalence_abstains_and_never_collides (test_debugger_review.ReviewRegressions.test_4391124913_nested_count_equivalence_abstains_and_never_collides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/commercial/far-investigation-audit/tests/test_debugger_review.py", line 118, in test_4391124913_nested_count_equivalence_abstains_and_never_collides
+    self.assertEqual(fidelity(a,formula,{"P":"All birds are not blue.","Q":"Rain is wet."})["status"],"ABSTAIN")
+AssertionError: 'CONTRADICTED' != 'ABSTAIN'
+- CONTRADICTED
++ ABSTAIN
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.449s
+
+FAILED (failures=2)

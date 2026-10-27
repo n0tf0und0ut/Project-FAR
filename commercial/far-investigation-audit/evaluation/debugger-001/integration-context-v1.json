@@ -1,0 +1,10 @@
+{
+  "protected_main": "9f17433abb55f6359524845e84fe420d70d7b195",
+  "protected_main_tree": "c6883d25832a669c9ed08b716aad98bf05ffedf4",
+  "merged_dependency_pr": 596,
+  "merged_dependency_head": "a591f9d3699ca881717edf484db072b99cfa52f8",
+  "registration": "registration-v7.json",
+  "baseline_comparator_remains": "8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6",
+  "canonical_cognitive_module_sha256": "fa3cdcbb5990b96ec1ee64e63368d1252d1453ed8eb615afa576e22cd58e1efd",
+  "scope": "Current-main dependency integration, no new external scientific assurance."
+}

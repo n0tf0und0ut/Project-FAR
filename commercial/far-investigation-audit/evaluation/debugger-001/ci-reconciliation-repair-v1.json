@@ -1,0 +1,34 @@
+{
+  "cause": "Merged navigation/status bytes had not been propagated through living repository state before corpus synthesis. The canonical hosted sequence exposes the missing dependency refresh.",
+  "changed_generated_files": [
+    {
+      "after_sha256": "98730f48a91ae4baf9f570199eb9e8ba5d0b7df48b9002107d761e7df6285015",
+      "before_sha256": "7efe236a8fc7c9b971e8a2f3cec600fa6b5c86afd9252d39a5f5b09e3744eb42",
+      "path": "docs/research/current-research-frontier.md"
+    },
+    {
+      "after_sha256": "76ee12af68dfb886bd4fed557fbe1de7e156e59adc3ad968dd00ed022d0e196a",
+      "before_sha256": "17a46dda67bceceb45e02efb633880fb93238656caaf319fbcdd4c8aa0493c1a",
+      "path": "research/corpus/synthesis-v1.0.json"
+    },
+    {
+      "after_sha256": "0798d385aebce7d59641d8a4dd5275ce85b6680d204335b9305eae802288968c",
+      "before_sha256": "ed98a4ba00077473caa7e69e06fc177d9adbf9fbc7ae4cfbbc875d1fc448075c",
+      "path": "research/living/repository-state-v1.0.json"
+    }
+  ],
+  "failed_hosted_run": 40541298166,
+  "failed_job": 122320072243,
+  "head": "df87ca717b9d34818884498cc204081de5c091e1",
+  "observed_error": "stale generated output: research/corpus/synthesis-v1.0.json",
+  "preceding_local_validation": {
+    "checks_passed": 30,
+    "checks_total": 30,
+    "commit": "b5f146ba4922d5cf10bee88daf1ef7df2855332e",
+    "duration_ms": 314294,
+    "limit": "This local profile does not execute the hosted living-state rebuild sequence. Hosted failure remains a failure and requires a corrected successor.",
+    "tree": "c1c1423d0adcc1739eb0372b0805ff54bf12c10d"
+  },
+  "repair": "Reconcile living state to a stable fixed point, regenerate corpus/frontier, and rerun the exact hosted sequence on a clean tree. No source observation or promotion authority changes.",
+  "schema": "far-debugger-integration-repair/1.0"
+}

@@ -1,0 +1,83 @@
+{
+  "investigation_id": "semantic-quantifier-debugger",
+  "captured_at": "2026-10-27T12:00:00Z",
+  "debugger": true,
+  "source": {
+    "kind": "text",
+    "text": "Some reviewed deployments were safe. All reviewed deployments were safe.",
+    "origin_id": "hypothetical-demonstration"
+  },
+  "proposal_mode": "supplied",
+  "proposal": {
+    "atoms": {
+      "P": "Some reviewed deployments were safe."
+    },
+    "claims": [
+      {
+        "id": "some",
+        "quote": "Some reviewed deployments were safe.",
+        "formula": {
+          "atom": "P"
+        }
+      },
+      {
+        "id": "all",
+        "quote": "All reviewed deployments were safe.",
+        "formula": {
+          "atom": "P"
+        }
+      }
+    ],
+    "arguments": [
+      {
+        "id": "collapsed",
+        "premises": [
+          "some"
+        ],
+        "conclusion": "all",
+        "interpretation": "Intentionally wrong shared atom; proof passes but meaning must fail."
+      }
+    ],
+    "evidence": [],
+    "unknowns": [
+      "No real deployment safety claim is established by this hypothetical example."
+    ]
+  },
+  "debugger_options": {
+    "cognitive_audit": {
+      "format_version": "FAR-COG/0.1",
+      "status": "Research",
+      "id": "intent-contradiction",
+      "sources": [
+        {
+          "id": "s",
+          "text": "At noon: I support A. At one: I oppose A. Therefore deliberately lied. No evidence of knowledge or intent is supplied.",
+          "sha256": "92ebba4c74a0ab047fb147972651c5ee0623a498bfe0b9a0c44a7b7a07f7846b"
+        }
+      ],
+      "traces": [],
+      "source_lineage": [],
+      "epistemic_document": null,
+      "probes": [
+        {
+          "id": "intent-contradiction",
+          "rule": "intent-gap",
+          "facts": {
+            "inconsistent": true,
+            "same_context": true,
+            "intent_evidence": false
+          },
+          "source_span_or_trace": [
+            {
+              "source_ref": "s",
+              "start_byte": 0,
+              "end_byte": 118,
+              "quote": "At noon: I support A. At one: I oppose A. Therefore deliberately lied. No evidence of knowledge or intent is supplied."
+            }
+          ],
+          "counterevidence": []
+        }
+      ]
+    }
+  }
+}

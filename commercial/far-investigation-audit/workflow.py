@@ -164,6 +164,19 @@ def investigate(config: dict, *, permit_network: bool = False,
                                   model=config.get("model", "gpt-4.1"), client=model_client)
     else:
         raise InvalidBundle("unknown proposal mode")
+    # Explicit additive contract; preserve supplied legacy proposals verbatim.
+    from debugger import CONTRACT, debug, render_debugger
+    proposal = dict(proposal) if isinstance(proposal, dict) else proposal
+    if not isinstance(proposal, dict):
+        raise InvalidBundle("proposal must be an object")
+    if type(config.get("debugger",False)) is not bool:
+        raise InvalidBundle("debugger flag must be boolean")
+    if config.get("debugger"):
+        proposal["debugger_contract"] = CONTRACT
+    if "debugger_options" in config and not config.get("debugger"):
+        raise InvalidBundle("debugger options require debugger opt-in")
+    if "debugger_options" in config:
+        proposal["debugger_options"] = config["debugger_options"]
     # Bind exact acquisition records, including method and archived bytes,
     # into the hashed audit input. Not an external authenticity guarantee.
     for item in acquisitions:
@@ -180,6 +193,9 @@ def investigate(config: dict, *, permit_network: bool = False,
     # Proposal notes/cue offsets remain outside formal report and cannot alter its outcome.
     rendered = render_markdown(bundle, result, acquisition=acquisitions, discovery=discovery,
                                questions=questions)
+    debugger = debug(bundle, result, proposal) if "debugger_contract" in proposal else None
+    if debugger is not None:
+        rendered += render_debugger(debugger)
     # Model proposals and externally transcribed media transmit source material
     # to a provider even when the separate web-retrieval flag is disabled.
     # Network provenance must account for both trust boundaries.
@@ -201,6 +217,9 @@ def investigate(config: dict, *, permit_network: bool = False,
                         any(s.get("kind") == "url" for s in evidence_configs) or discovery))),
                 "open_world_completeness": "UNESTABLISHED", "semantic_mapping_independently_verified": False,
                 "end_to_end_production_quality": "UNESTABLISHED"}
-    return {"bundle": bundle, "audit": result, "report_md": rendered, "manifest": manifest,
+    package = {"bundle": bundle, "audit": result, "report_md": rendered, "manifest": manifest,
             "acquisition": acquisitions, "discovery": discovery, "proposal": proposal,
             "critical_questions": questions}
+    if debugger is not None:
+        package["debugger"] = debugger
+    return package

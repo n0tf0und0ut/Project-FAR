@@ -1,0 +1,40 @@
+{
+  "schema": "far-debugger-internal-protocol/1.0",
+  "status": "Research",
+  "created_at": "2026-10-27T14:59:48.942522+00:00",
+  "base_commit": "8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6",
+  "independent": false,
+  "implementation_exposure": "Acceptance cases authored before debugger implementation; same developer, not independent/unseen confirmation.",
+  "frozen_inputs": {
+    "semantic-cases-v1.json": "3f25e6c7c6fc66bd3ea4b2d594e62712849dc0540c46dafd8974954417d0b985"
+  },
+  "criteria": [
+    "Controlled grammar: preserve quantifier, threshold, time, causal/correlation, modality, negation, conditional direction, normative/descriptive distinctions. Unsupported/ambiguous forms abstain.",
+    "Reject semantic acceptance of a formally valid reading containing a distorted premise.",
+    "Verify exact finite countermodels and enumerate/recheck minimum-cost premise withdrawals within declared bounds; invalid repairs never accepted.",
+    "Memory: append-only chain, exact semantic/source identities, deduplication, transitive correction invalidation, reversible status events, deterministic historical replay, no imported trust promotion.",
+    "Cognitive diagnostics: directly observable trace comparison; no mental-state or consciousness attribution.",
+    "Packages: tampering with debugger or prose is rejected even after unsigned manifest rehash.",
+    "Frozen source-to-report 16-case internal-001 corpus: replay both engines in isolated imports; report unknown mappings and any adverse effects.",
+    "Property/oracle: exhaustive small formula contracts against SymPy, semantic contrast witnesses; explicit mutation controls."
+  ],
+  "metrics": [
+    "semantic confusion counts and abstention",
+    "formal conditional validity versus acceptance",
+    "correction impact coverage and unrelated-node preservation",
+    "memory reuse availability and repeated-source work avoided; factual benefit UNKNOWN",
+    "latency per case and zero external calls for local runs",
+    "competitor missingness reported by arm"
+  ],
+  "comparators": {
+    "previous_FAR": "execute pinned base revision",
+    "SymPy": "execute installed version, same formulas",
+    "generic_evidence_control": "frozen deterministic source/quote/link checking; internal control",
+    "argument_control": "frozen scheme-question heuristic; internal control",
+    "frontier_model": "NOT_RUN unless authorized provider and exact model available",
+    "Noesis": "prior pinned internal-001 execution available; fresh execution if dependencies accessible",
+    "QURI_Factiverse_FactEngineering_Minerval_scite": "documented overlap; NOT_RUN absent authenticated executable configuration"
+  },
+  "external_EFR": "DEFERRED_BY_USER",
+  "failure_preservation": "Numbered run records; never overwrite failed runs or frozen inputs."
+}
