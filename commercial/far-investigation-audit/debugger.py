@@ -179,6 +179,9 @@ def debug(bundle, audit, proposal):
                 raise ValueError("invalid source lineage contract")
         validate_source_lineage_set(lineage)
         required({s["source_id"] for s in lineage}=={s["id"] for s in bundle["sources"]},"lineage must cover actual sources")
+        for record in lineage:
+            for upstream in record["upstream_source_ids"]:
+                edge("source:"+upstream,"source:"+record["source_id"],"declared_source_lineage")
     semantic_states=[x["status"] for x in semantics.values()]+[
         evidence_semantics.get(e["id"],{"status":"ABSTAIN"})["status"] for e in bundle["evidence"]]
     semantic_status="fail" if "CONTRADICTED" in semantic_states else "unknown" if "ABSTAIN" in semantic_states else "pass"
@@ -195,6 +198,14 @@ def debug(bundle, audit, proposal):
         except ImportError as exc:
             raise ValueError("canonical FAR-COG audit dependency is unavailable; no substitute diagnosis is emitted") from exc
         cognition["canonical_audit"]=cognitive_audit(CognitiveDocument.from_dict(options["cognitive_audit"]))
+        node("cognitive:audit","canonical_cognitive_audit",cognition["canonical_audit"])
+        for source in options["cognitive_audit"]["sources"]:
+            ident="cognitive_source:"+source["id"]
+            node(ident,"source",source)
+            edge(ident,"cognitive:audit","canonical_audit_input_dependency")
+        for record in options["cognitive_audit"]["source_lineage"]:
+            for upstream in record["upstream_source_ids"]:
+                edge("cognitive_source:"+upstream,"cognitive_source:"+record["source_id"],"declared_source_lineage")
     dependencies={r["id"]:set() for r in bundle["interpretations"]}
     for left in bundle["interpretations"]:
         for right in bundle["interpretations"]:

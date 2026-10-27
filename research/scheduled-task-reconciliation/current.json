@@ -1,0 +1,12 @@
+{
+  "schema": "far-research-current-register/1",
+  "status": "Research",
+  "intakes": [
+    "intake-2026-10-20.json",
+    "intake-delta-2026-10-27.json"
+  ],
+  "operations": "operations-v2.json",
+  "index": "operations-index-v2.json",
+  "complete_historical_outputs": false,
+  "scientific_promotion_authority": false
+}

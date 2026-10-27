@@ -138,10 +138,9 @@ class Memory:
                 continue
             run=p["audit"]["input_sha256"]
             versions.setdefault(p["bundle"]["investigation_id"],[]).append(run)
-            source_map={s["id"]:"source:"+s["sha256"] for s in p["bundle"]["sources"]}
             mapped={}
             for n in p["debugger"]["graph"]["nodes"]:
-                key=source_map[n["record"]["id"]] if n["type"]=="source" else run+":"+n["id"]
+                key="source:"+n["record"]["sha256"] if n["type"]=="source" else run+":"+n["id"]
                 mapped[n["id"]]=key
                 if n["type"]=="source":
                     if key not in nodes:

@@ -440,7 +440,7 @@
       "changed_since_last_reconciliation": false,
       "path": "README.md",
       "role": "canonical_entry",
-      "sha256": "713fefc34ba1ade608c5b03ebca972309b3443ee83ad25e6e850fd5b22c0597c"
+      "sha256": "f4a325e57be9ead376f765e6581baf5d1f3314daa7efab0959105127c696ec25"
     },
     {
       "changed_since_last_reconciliation": false,
@@ -452,7 +452,7 @@
       "changed_since_last_reconciliation": false,
       "path": "docs/CANONICAL_MAP.md",
       "role": "authority_map",
-      "sha256": "94fac5a8527f8574aa488fe3cb0cca4654a522014d3ac8aa0d8f820e3cd50c3e"
+      "sha256": "50090d09629bfb411dafcdf942b25f5ea2e1fa3d879d5a5c59d8f0cf1318f40d"
     },
     {
       "changed_since_last_reconciliation": false,

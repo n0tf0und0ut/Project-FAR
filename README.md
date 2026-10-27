@@ -43,6 +43,8 @@ For what these labels do and do not mean across claims, read the [FAR core epist
 
 Project FAR also provides an additive [`far-epistemic/1.0` learning interchange](docs/specification/far-epistemic-learning-v1.md) for provenance-bound beliefs, predictions, decisions, canonical FAR-ELENCHUS-1.0 sessions, typed causal models, outcomes, deterministic scoring, and evidence-linked error-driven revision. It is an application-layer contract and does not alter FAR Core or reuse approximation/provenance cost as probability or utility.
 
+The [FAR-COG/0.1 Research audit](docs/specification/far-cognitive-audit-v0.1.md) adds source-anchored checks of submitted epistemic, cognitive and AI-behavior coding while leaving mental causes and ontological attribution UNKNOWN. Its [internal evaluation and limits](research/cognitive-audit/README.md) and [scheduled-source reconciliation](research/scheduled-task-reconciliation/reconciliation-2026-10-27.md) establish no external effectiveness or accepted-core change.
+
 Canonical links:
 
 - [Corrected core theory v1.1](theory/theorems/Project-FAR-Theory-Closure-v1.1.md)

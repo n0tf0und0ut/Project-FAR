@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from semantic import fidelity
+from semantic import fidelity,collisions
 from engine import InvalidBundle,canonical,digest
 from memory import Memory,SCHEMA
 from workflow import investigate
@@ -88,6 +88,35 @@ class ReviewRegressions(unittest.TestCase):
             self.assertEqual(resumed["proposal"]["evidence"][0]["source_id"],"ev1")
             write_package(Path(t)/"resumed",resumed)
             self.assertTrue(verify_package(Path(t)/"resumed")["replay_match"])
+
+    def test_4391124909_declared_lineage_propagates_retraction_and_restore(self):
+        cfg=request(False)
+        cfg["source"]["text"]="Some birds are blue. Therefore some birds are blue."
+        cfg["proposal"]["claims"][0]["start"]=0
+        cfg["proposal"]["claims"][1].update(quote="Therefore some birds are blue.",formula={"atom":"P"})
+        cfg["evidence_sources"]=[{"kind":"text","text":"Upstream record of blue birds."}]
+        cfg["debugger_options"]={"source_lineage":[
+            {"schema":"far-source-lineage/1.0","source_id":"primary","relationship":"derived","upstream_source_ids":["ev1"],"root_lineage_ids":["origin"]},
+            {"schema":"far-source-lineage/1.0","source_id":"ev1","relationship":"origin","upstream_source_ids":[],"root_lineage_ids":["origin"]}]}
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);p=investigate(cfg);write_package(root/"package",p)
+            self.assertEqual(p["debugger"]["readings"][0]["acceptance"],"CONDITIONAL_ON_GRAMMAR_AND_PREMISES")
+            m=Memory(root/"memory.sqlite")
+            try:
+                m.remember(root/"package",known_time=T)
+                target="source:"+p["bundle"]["sources"][1]["sha256"]
+                m.source_state(target,active=False,reason="upstream withdrawn",known_time=T,valid_time=T)
+                self.assertIn(p["audit"]["input_sha256"]+":reading:r1",m.replay()["invalidated"])
+                m.source_state(target,active=True,reason="restored",known_time=T,valid_time=T)
+                self.assertFalse(m.replay()["invalidated"])
+            finally:m.close()
+
+    def test_4391124913_nested_count_equivalence_abstains_and_never_collides(self):
+        a="If no birds are blue, then rain is wet."
+        b="If all birds are not blue, then rain is wet."
+        formula={"implies":[{"atom":"P"},{"atom":"Q"}]}
+        self.assertEqual(fidelity(a,formula,{"P":"All birds are not blue.","Q":"Rain is wet."})["status"],"ABSTAIN")
+        self.assertFalse(collisions([{"id":"a","text":a,"formula":formula},{"id":"b","text":b,"formula":formula}]))
 
 
 if __name__=="__main__":unittest.main()

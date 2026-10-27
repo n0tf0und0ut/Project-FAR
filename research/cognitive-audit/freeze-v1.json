@@ -1,0 +1,19 @@
+{
+  "campaign": "FAR-COG-INTERNAL-001",
+  "file_sha256": {
+    "docs/specification/far-cognitive-audit-v0.1.md": "03b45acd05f4a3c6354afe8a295a5f77e73a0e8be91ce5f3335088eb5dae4516",
+    "examples/cognitive/inconsistency-is-not-intent.json": "38a9c5cdb21333ef1346f363e741d5ed1b67ce7d572027f17957b135be28e427",
+    "far_build_backend.py": "4f3818ef3273611cd672163712a7838f09c4fba542bc4452adc5f580311383b9",
+    "mechanization/far_mechanization/cli.py": "31cfa4fbfc380407a4094d7431be35832ca5c0f1bdee30bdf725bf66f9a3a246",
+    "mechanization/far_mechanization/cognitive.py": "46b9e50b8e3560817529e36fbb9cc4bbc47758f92737448a5e9659532bb2ee94",
+    "research/cognitive-audit/frozen-v1/cases.json": "6e80d22274baa25ab758c98a8118c04d428b7e8d585b27666accef72417960c7",
+    "research/cognitive-audit/frozen-v1/protocol.md": "79b037aa952de03b71287421ec80a44a99df4a0e01e5408b87fabbb3f6d822b4",
+    "schemas/far-cognitive-audit-v0.1.schema.json": "3b18b4ed00028cbcba53752b10b9453f23f431d62a705024f2e9a8beaaea3d87",
+    "tests/test_cognitive_audit.py": "3ce0ddfecb0859a29dd3bddfe5e457e52e2ff548db5b6ff6c2d15f3549d6ea34",
+    "tools/evaluate_cognitive_audit.py": "5a90789c6a10e57bf4069881c20218100e55c1fa883ff2810c06b85743682389"
+  },
+  "predictions_executed_before_freeze": false,
+  "reference_assurance": "PROJECT_AUTHORED_IMPLEMENTATION_EXPOSED",
+  "source_commit": "19424b98f5d42660d3f44eaa90c82236f9280679",
+  "status": "Research"
+}

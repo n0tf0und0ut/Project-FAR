@@ -75,7 +75,7 @@ def _write_wheel(path: Path, files: dict[str, bytes]) -> None:
 def _runtime_files(root: Path) -> dict[str, bytes]:
     """Collect the pure-Python runtime and schemas needed by a relocated wheel."""
     files: dict[str, bytes] = {}
-    for directory in (root / "mechanization" / "far_mechanization", root / "jsonschema"):
+    for directory in (root / "mechanization" / "far_mechanization", root / "jsonschema", root / "far_validation"):
         for path in sorted(directory.rglob("*.py")):
             if "__pycache__" in path.parts:
                 continue

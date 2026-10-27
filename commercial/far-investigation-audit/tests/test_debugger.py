@@ -116,9 +116,17 @@ class SemanticAcceptance(unittest.TestCase):
         cfg["debugger_options"]={"source_lineage":[{"schema":"far-source-lineage/1.0","source_id":"primary","relationship":"independent","root_lineage_ids":["a","b"],"upstream_source_ids":[]}]}
         with self.assertRaises(ValueError):investigate(cfg)
 
-    def test_canonical_cognitive_absence_never_uses_trace_substitute(self):
+    def test_canonical_cognitive_invalid_bundle_never_uses_trace_substitute(self):
         cfg=request(True);cfg["debugger_options"]={"cognitive_audit":{}}
         with self.assertRaises(ValueError):investigate(cfg)
+
+    def test_integrated_canonical_cognitive_audit_matches_existing_auditor(self):
+        from mechanization.far_mechanization.cognitive import CognitiveDocument, audit as cognitive_audit
+        root=Path(__file__).resolve().parents[3]
+        document=json.loads((root/"examples/cognitive/inconsistency-is-not-intent.json").read_text())
+        cfg=request(True);cfg["debugger_options"]={"cognitive_audit":document}
+        result=investigate(cfg)["debugger"]["cognitive"]["canonical_audit"]
+        self.assertEqual(result,cognitive_audit(CognitiveDocument.from_dict(document)))
 
 
 class CounterfactualAcceptance(unittest.TestCase):
@@ -264,6 +272,17 @@ class ReplayMemoryAcceptance(unittest.TestCase):
         self.assertEqual(result.returncode,2)
         self.assertEqual(json.loads(result.stdout)["status"],"INVALID")
         self.assertNotIn("Traceback",result.stderr)
+
+    def test_canonical_cognitive_sources_propagate_corrections(self):
+        root=Path(__file__).resolve().parents[3]
+        document=json.loads((root/"examples/cognitive/inconsistency-is-not-intent.json").read_text())
+        cfg=request(True);cfg["debugger_options"]={"cognitive_audit":document}
+        path,p=self.package(cfg=cfg);self.m.remember(path,known_time=T)
+        target="source:"+document["sources"][0]["sha256"]
+        self.m.source_state(target,active=False,reason="canonical source corrected",known_time=T,valid_time=T)
+        state=self.m.replay()
+        self.assertIn(p["audit"]["input_sha256"]+":cognitive:audit",state["invalidated"])
+        self.assertNotIn(p["audit"]["input_sha256"]+":reading:r1",state["invalidated"])
 
 
 class CognitiveAcceptance(unittest.TestCase):

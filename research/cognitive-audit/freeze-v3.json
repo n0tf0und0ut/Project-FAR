@@ -1,0 +1,25 @@
+{
+  "campaign": "FAR-COG-INTERNAL-001-R3",
+  "correction": "Exposed missing-data/JSON boundary corrections. Original frozen 71 references retained; new hostile boundary tests are separate. No external or unseen confirmatory evidence.",
+  "file_sha256": {
+    "docs/specification/far-cognitive-audit-v0.1.md": "03b45acd05f4a3c6354afe8a295a5f77e73a0e8be91ce5f3335088eb5dae4516",
+    "examples/cognitive/inconsistency-is-not-intent.json": "38a9c5cdb21333ef1346f363e741d5ed1b67ce7d572027f17957b135be28e427",
+    "far_build_backend.py": "4f3818ef3273611cd672163712a7838f09c4fba542bc4452adc5f580311383b9",
+    "mechanization/far_mechanization/cli.py": "31cfa4fbfc380407a4094d7431be35832ca5c0f1bdee30bdf725bf66f9a3a246",
+    "mechanization/far_mechanization/cognitive.py": "980e30fffc3111dbf00a9fff2d44f6d7cec20a93cdf01225c3fd81db3573d525",
+    "research/cognitive-audit/frozen-v1/cases.json": "6e80d22274baa25ab758c98a8118c04d428b7e8d585b27666accef72417960c7",
+    "research/cognitive-audit/frozen-v1/protocol.md": "79b037aa952de03b71287421ec80a44a99df4a0e01e5408b87fabbb3f6d822b4",
+    "schemas/far-cognitive-audit-v0.1.schema.json": "3b18b4ed00028cbcba53752b10b9453f23f431d62a705024f2e9a8beaaea3d87",
+    "tests/test_cognitive_audit.py": "3ce0ddfecb0859a29dd3bddfe5e457e52e2ff548db5b6ff6c2d15f3549d6ea34",
+    "tests/test_cognitive_missing_data.py": "c2aec04e3dc00792fe3cc893d38ba3c55b128b73f6bfad44ba9326acdaade4ad",
+    "tests/test_cognitive_replay.py": "b323618b1738eaad85d181ab84dfbe2a38b1efb21a3443f36d664212953ac3d8",
+    "tests/test_cognitive_source_obligations.py": "30a064a2b4c8e1daeea0fc374812e9387642eec9f15541d5dba672c87a8f1325",
+    "tools/evaluate_cognitive_audit.py": "b3ace6ead8d448350d2fe7321c1e909dedf0f0d4662f3a7ac55d53d30c73c7ce"
+  },
+  "initial_freeze_commit": "19424b98f5d42660d3f44eaa90c82236f9280679",
+  "new_missing_data_followups_executed_before_source_pin": false,
+  "predictions_executed_before_freeze": true,
+  "reference_assurance": "PROJECT_AUTHORED_IMPLEMENTATION_EXPOSED",
+  "source_commit": "531f76b8a305cb6e6a85fcfcf523b183b72c3f99",
+  "status": "Research"
+}

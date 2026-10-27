@@ -144,6 +144,19 @@ def contrast(a, b):
             "rechecked": a != b, "limit": "Syntactic semantic distinction; not a causal intervention or world countermodel."}
 
 
+def unresolved_equivalence(a, b):
+    """Do not promote unresolved leaf equivalence through a logical context."""
+    if a == b:
+        return False
+    if (a.get("kind")==b.get("kind")=="predication" and
+        all(a.get(k)==b.get(k) for k in ("subject","predicate","copula","time"))):
+        return contrast(a,b)["type"]!="FORMAL_COUNTERMODEL"
+    if (a.get("kind")==b.get("kind") and "operands" in a and "operands" in b and
+        len(a["operands"])==len(b["operands"])):
+        return any(unresolved_equivalence(x,y) for x,y in zip(a["operands"],b["operands"]))
+    return False
+
+
 def fidelity(text, formula, atoms):
     a, b = compile_text(text), formula_meaning(formula, atoms)
     reconstructed = round_trip(formula, atoms)
@@ -155,9 +168,7 @@ def fidelity(text, formula, atoms):
         witness = contrast(a,b)
         # Different syntax is not by itself proof of different truth conditions.
         # Count/polarity equivalents lacking a distinguishing witness abstain.
-        same_predicate=(a.get("kind")==b.get("kind")=="predication" and
-                        all(a.get(k)==b.get(k) for k in ("subject","predicate","copula","time")))
-        if same_predicate and witness["type"]!="FORMAL_COUNTERMODEL":
+        if unresolved_equivalence(a,b):
             status, witness = "ABSTAIN", None
         else:
             status = "CONTRADICTED"
@@ -181,9 +192,7 @@ def collisions(records):
             left, right = compile_text(a["text"]), compile_text(b["text"])
             if left is not None and right is not None and left != right:
                 witness=contrast(left,right)
-                if (left.get("kind")==right.get("kind")=="predication" and
-                    all(left.get(k)==right.get(k) for k in ("subject","predicate","copula","time")) and
-                    witness["type"]!="FORMAL_COUNTERMODEL"):
+                if unresolved_equivalence(left,right):
                     continue
                 out.append({"claim_ids": [a["id"],b["id"]], "representation": a["formula"],
                             "lost_distinction": witness})

@@ -1,0 +1,38 @@
+# PR #596 — internal defect and convergence record
+
+Status: Research implementation record, not an independent scientific review.
+Independent exact-head software review and protected merge authority are separate
+release obligations. [Scope and results](../../research/cognitive-audit/README.md).
+
+| Violated invariant / root cause | Evidence and disposition | Regression / remaining scope |
+|---|---|---|
+| Observation must not assert a failure on a negative/unknown diagnosis; predicate text was reused as observation | First run preserved; correction separates submitted coding from scoped predicate without changing status decisions | All 71 outputs checked by the hostile source-obligation test; coding fidelity remains UNKNOWN |
+| Navigation must preserve executed-byte provenance and corpus-source identity; three pages were changed without coupled byte records | Hosted PCA-W6/local corpus tests rejected d5b8550. Restore project-status to original SRC-STATUS bytes; update existing W4/W6 supplements only for README/canonical-map navigation | W4/W6 and corpus tests; frozen manifests, results and corpus unchanged |
+| A current-navigation change must rebuild dependent living/corpus views; the living validator reconciles surface hashes before checking synthesis | Hosted living `validate` rejected 016d7f8's stale synthesis. Run the existing living reconciler to a fixed point, then the corpus generator | Idempotence verified. Only five synthesis hash fields change; semantic observations, conclusions, governed source inputs, candidate set and 2,068-lead count remain identical |
+| Missing information cannot prove a negative predicate; null confidence, unknown locator and unknown upstream lineage were not propagated on three boundary paths | Exposed hostile follow-up corrects all three to UNKNOWN unless other observed evidence already supports the predicate; malformed JSON now consistently raises a contract error/CLI exit 2 | `test_cognitive_missing_data.py`; original 71-case inputs/references and prior outputs preserved; successor run is exposed, not confirmatory |
+
+Independent Codex P2 finding `4390527818` on review `5669612489` identifies the
+unknown-locator instance of that missing-information invariant. It is reproduced
+by `test_unknown_locator_cannot_be_silently_treated_as_resolved` and corrected in
+`531f76b8a305cb6e6a85fcfcf523b183b72c3f99`. The new hostile tests also retain a
+positive overclaim control when the passage is contradicted, so UNKNOWN does not
+mask an independently observed defect. All fourteen focused cognitive tests
+pass; the frozen 71-case status decisions remain unchanged on exposed replay.
+
+Independent P2 `4390630419` at head `50ac5d5` exposed the dual boundary: the
+confidence-change disjunct was suppressed when position coding was UNKNOWN.
+Reproduced on a schema-valid frozen-case mutation (actual UNKNOWN, required
+SUPPORTED). The repair evaluates observed positive disjuncts before uncertainty;
+only a fully observed false disjunction is CONTRADICTED. Cross-turn conflict
+still requires known positions. The separate pair truth-table tests enumerate
+all 81 position/confidence combinations for each predicate. Frozen references
+and prior outputs remain unchanged; R4 records the exposed repair replay.
+
+Source-only freeze: `19424b98f5d42660d3f44eaa90c82236f9280679`, before predictions.
+Explanatory correction/reconciliation: `75556e1f2aeef68c73b7306639fb1c803ac8d499`.
+The successor manifest records that the follow-up is exposed and already
+exercised by regression tests, not a new confirmatory experiment. Existing
+score/ELENCHUS meanings and accepted core theorem/assurance bytes are unchanged.
+
+No external scientific seals, paper replication, customer validation or complete
+historical-scheduler coverage are claimed.

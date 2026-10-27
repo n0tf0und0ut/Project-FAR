@@ -7,7 +7,7 @@ Base: `8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6`.
 Review submission: `5670073956` by the authenticated Codex review service.
 Software review does not provide external scientific independence.
 
-Every finding below was accepted and reproduced before correction. The six
+Every finding below was accepted and reproduced before correction. The initial six
 root-cause regressions produced nine failed subcases and one error before the
 fixes, then six passing tests afterward. Exact before/after logs are preserved
 in the campaign directory. The successor commit containing this ledger carries
@@ -34,3 +34,14 @@ the original frozen campaign, correction/mutation controls, changed coverage on
 the public-source shift set, full repository validation, final-head substantive
 review and the existing protected checks. Original findings are not cleared by
 stale green CI or by marking threads resolved. No protected gate is weakened.
+
+## Second material-head review
+
+Reviewed head: `cf26c031609f4c3760fd2f76a38f8d90aa0fe691`. Two additional findings were accepted and reproduced as failing tests before correction; both now pass. Exact `review-round2-before.log` and `review-round2-after.log` preserve those outcomes. The complete integrated component suite passes 276 tests (50 debugger acceptance/property/review tests).
+
+| Root cause / source comment | Violated invariant | Correction and regression |
+| --- | --- | --- |
+| ED-R7 / 4391124909 | Validated upstream source lineage was absent from correction adjacency | Add validated upstream-to-dependent source graph edges, including canonical cognitive source lineage; `test_4391124909_declared_lineage_propagates_retraction_and_restore` checks retraction and restoration |
+| ED-R8 / 4391124913 | Equivalent quantified leaves became definitive contradictions inside conditionals | Recursively propagate unresolved leaf equivalence through matching logical contexts in fidelity and collision detection; `test_4391124913_nested_count_equivalence_abstains_and_never_collides` |
+
+Protected-main integration reuses canonical FAR-COG/0.1 from merged PR #596. Its source records and validated lineage participate in the same memory graph; its auditor remains the sole implementation of that contract. Registrations v7–v9 preserve intermediate and corrected combined runtimes.
