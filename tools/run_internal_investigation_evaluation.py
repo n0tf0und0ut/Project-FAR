@@ -251,11 +251,19 @@ def raw_noesis(config, question, destination, noesis_cli):
     log = command([*prefix, 'ask', question, '--domain', 'local', '--format', 'json'], destination / 'ask.json', cwd=destination)
     logs.append(log)
     answer = json.loads(log['stdout'])['data']['data']
+    bundle_path = destination / 'answer.bundle.json'
+    logs.append(command([*prefix, 'export', 'answer', '--domain', 'local', '--question', question,
+                         '--include-private', '--output', str(bundle_path), '--json'], destination / 'export.json', cwd=destination))
+    verification = command([*prefix, 'verify', str(bundle_path), '--json'], destination / 'verify.json', cwd=destination)
+    logs.append(verification)
+    verified = json.loads(verification['stdout'])
+    if verified.get('valid') is not True:
+        raise ValueError('Noesis evidence bundle did not verify')
     # These are extractive evidence verdicts, not external world-truth labels.
     statements = answer.get('statements', [])
     return {'elapsed_seconds': sum(x['elapsed_seconds'] for x in logs), 'claims_detected': extracted,
             'claim_quotes': [s['text'] for s in statements if s.get('claim_id')],
-            'answer_status': answer.get('answer_status'), 'reported_verdicts': [s.get('verdict') for s in statements],
+            'evidence_bundle_verified': True, 'answer_status': answer.get('answer_status'), 'reported_verdicts': [s.get('verdict') for s in statements],
             'world_truth_verdicts': [], 'degradation_warnings': warnings,
             'documents_considered': answer.get('evidence_plan', {}).get('documents_considered'),
             'scope': 'MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY'}
@@ -279,6 +287,13 @@ def raw_pair(case, output, noesis_cli, *, question=None):
         result['fully_attributed_compute_and_human_usd'] = None
         result['human_reviewer_corrections'] = None
     return {'case_id': case['case_id'], 'common_input_sha256': sha(canonical(config)), 'far': far, 'noesis': noesis}
+
+
+def artifact_inventory(output):
+    output = Path(output)
+    return {str(p.relative_to(output)): sha(p.read_bytes()) for p in sorted(output.rglob('*'))
+            if p.is_file() and 'workspace' not in p.relative_to(output).parts
+            and p.name != 'artifact-manifest.json'}
 
 
 def run(registration, output, noesis_cli):
@@ -346,16 +361,14 @@ def run(registration, output, noesis_cli):
         'unrun_commercial_arms_are_missing_not_losses': True}
     checkpoint()
     write(output / 'artifact-manifest.json', {'schema': 'far-internal-run-artifacts/1',
-          'files': {str(p.relative_to(output)): sha(p.read_bytes()) for p in sorted(output.rglob('*'))
-                    if p.is_file() and 'workspace' not in p.relative_to(output).parts and p.name != 'artifact-manifest.json'}})
+          'files': artifact_inventory(output)})
     return results
 
 
 def verify_run(output):
     output = Path(output).resolve()
     manifest = read(output / 'artifact-manifest.json')
-    actual = {str(p.relative_to(output)) for p in output.rglob('*')
-              if p.is_file() and 'workspace' not in p.relative_to(output).parts and p.name != 'artifact-manifest.json'}
+    actual = set(artifact_inventory(output))
     if set(manifest['files']) != actual:
         raise ValueError('incomplete artifact manifest')
     results = read(output / 'results.json')
@@ -371,7 +384,15 @@ def verify_run(output):
     packages = list((output / 'source-to-report').glob('*/manifest.json')) + list(output.glob('raw/*/far/package/manifest.json')) + list(output.glob('history/*/far/package/manifest.json'))
     for path in packages:
         if not full_cli.verify_package(path.parent)['replay_match']: raise ValueError('package replay failed')
+    engine, _, _, _, independent, _ = modules()
+    controlled = list((output / 'source-to-report').glob('*-controlled-auditor.json'))
+    for path in controlled:
+        record = read(path)
+        if engine.audit(record['input']) != record['audit']:
+            raise ValueError('controlled auditor replay failed')
+        independent.check_report(record['input'], record['audit'])
     return {'verified_files': len(manifest['files']), 'far_packages_replayed': len(packages),
+            'controlled_audits_replayed': len(controlled),
             'external_independence': False, 'scope': 'retained bytes and software replay only'}
 
 

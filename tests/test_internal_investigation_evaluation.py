@@ -81,10 +81,12 @@ class InternalCampaignTests(unittest.TestCase):
         self.assertEqual(env['HF_HUB_OFFLINE'], '1')
 
     def test_workspace_exclusion_is_relative_to_the_run_not_host_root(self):
-        # A host often lives under /workspace; that must not erase every receipt.
-        source = (ROOT / 'tools/run_internal_investigation_evaluation.py').read_text()
-        self.assertNotIn("'workspace' not in p.parts", source)
-        self.assertEqual(source.count("'workspace' not in p.relative_to(output).parts"), 2)
+        with tempfile.TemporaryDirectory(prefix='workspace-') as d:
+            root = Path(d); (root/'receipt.json').write_text('retained')
+            (root/'workspace').mkdir(); (root/'workspace'/'db').write_text('generated')
+            files = evaluation.artifact_inventory(root)
+            self.assertEqual(set(files), {'receipt.json'})
+            self.assertEqual(files['receipt.json'], evaluation.sha(b'retained'))
 
     def test_runtime_logic_bound_and_frozen_study_bytes_are_not_changed(self):
         # This exploratory harness does not modify engine, field adapter or frozen study contracts.
