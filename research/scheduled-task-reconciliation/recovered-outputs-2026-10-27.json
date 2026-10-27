@@ -1,0 +1,129 @@
+{
+  "schema": "far-scheduler-recovery/1",
+  "status": "Research",
+  "observed_on": "2026-10-27",
+  "primary_evidence": false,
+  "complete_historical_outputs": false,
+  "limits": [
+    "Latest-result lookup exposes no complete run-history archive.",
+    "The last run and latest nonempty result can differ; a null result does not prove no prior signals.",
+    "Preserved project-generated summaries contain stale repository states and opaque old citation IDs. They are navigation, not source verification.",
+    "Private conversation references omitted; Library date-filtered archive search found no matching files."
+  ],
+  "tasks": [
+    {
+      "id": "6ab969e0e5dc81919a603eb22a35e490",
+      "title": "FAR Research Watch",
+      "last_run_time": "2026-10-27T14:30:02.042904+00:00",
+      "is_enabled": true,
+      "run_details": {
+        "last_run": {
+          "id": "8847c854-8624-8327-bfa2-b7f5ee7fd412",
+          "recorded_status": "completed",
+          "scheduled_for": "2026-10-27T14:10:20Z",
+          "started_at": "2026-10-27T14:28:44.991118Z",
+          "completed_at": "2026-10-27T14:30:01.783623Z"
+        },
+        "latest_result": null
+      }
+    },
+    {
+      "id": "6aa0a49cdf2481919cb6a86642073c9c",
+      "title": "FAR Decision Brief",
+      "last_run_time": "2026-10-26T12:56:24.087160+00:00",
+      "is_enabled": true,
+      "run_details": {
+        "last_run": {
+          "id": "c2ae1f85-431c-8322-9b5c-729a610bdd3f",
+          "recorded_status": "completed",
+          "scheduled_for": "2026-10-26T12:00:00Z",
+          "started_at": "2026-10-26T12:52:43.256071Z",
+          "completed_at": "2026-10-26T12:56:21.459504Z"
+        },
+        "latest_result": {
+          "run_id": "c2ae1f85-431c-8322-9b5c-729a610bdd3f",
+          "created_at": "2026-10-26T12:56:21.040439Z",
+          "scheduled_for": "2026-10-26T12:00:00Z",
+          "completed_at": "2026-10-26T12:56:21.459504Z",
+          "content_text": "## FAR decision brief \u2014 October 26, 2026\n\n### Decision\n\nKeep all execution capacity on release convergence. Do not start #590, merge #591, promote the October intake, or initiate EFR outreach.\n\n### Execution state\n\n- Protected `main` remains [`e4d936ca0ba9770be6f72e0435220987882f4146`](https://github.com/n0tf0und0ut/Project-FAR/commit/e4d936ca0ba9770be6f72e0435220987882f4146).\n- [#578](https://github.com/n0tf0und0ut/Project-FAR/pull/578): open/unmerged at `5cd1ff7a2d1847e2f6f91c1a99550b66efd96484`.\n- [#591](https://github.com/n0tf0und0ut/Project-FAR/pull/591): open/unmerged at `92f17ad1b6c5527039f1cdd447d999082ead1458`; independent review still reports **running**, with no submitted review.\n- #591 activation remains intentionally failed read-only; its writer remains skipped. No check metadata was changed.\n- #578\u2019s exact-head assurance, merge-authority, dedicated gate and native review remain successful, but the legacy required-check namespace collision still blocks a normal protected merge.\n- [#590](https://github.com/n0tf0und0ut/Project-FAR/issues/590) remains unassigned and **NOT EXECUTED**.\n\n### Source-register delta\n\n[#490](https://github.com/n0tf0und0ut/Project-FAR/pull/490) advanced to `fa6c71061067f6c8ccd84c1354e344b9c3521585` on October 26. It remains open, draft, noncanonical and permanently unmerged.\n\n[#513](https://github.com/n0tf0und0ut/Project-FAR/issues/513) now routes nine `FAR-LIT-*` records for review. This is automated research metadata\u2014not a contradiction or claim-status change.\n\n- `FAR-LIT-0BFA8B7937DAC941` and `FAR-LIT-DD283139285EDBA1` are possible cross-host duplicates with matching author/title but unverified text/version identity. Retain both until exact bytes are compared.\n- `FAR-LIT-58F10778F9AAE4CA` requires joint review of the original Dudley paper and DOI `10.1214/aop/1176997038`, its 1973 correction.\n- **Owner:** semantic reviewer unassigned.\n- **Disposition:** `RESEARCH_TRIAGE_ONLY`.\n- **Exit criterion:** freeze and hash every exact primary version, normalize DOI/version identities, reconstruct the specific FAR premise and conclusion, and complete governed attack/replication/adjudication before any deduplication or theory disposition.\n\nCanonical main remains unchanged: 2,068 living candidates, candidate-set SHA-256 `df69f91fc50ea12016b649faef7fde5ff7fbbfb7190da35c6446f534e55150b3`, zero reviewed-input entries and four `ADJACENT_NO_CONTRADICTION` snapshot dispositions. The 15-source October intake remains absent from main and unpromoted. The connected Drive still exposes no matching shared FAR register.\n\n### New watch signals\n\n| Stable ID | Evidence and disposition | Owner / next executable test |\n|---|---|---|\n| `WATCH-ROOK-0.1.13` | October 23 TestMu AI Rook release; public pre-alpha repository and vendor documentation. It tests live agent behavior and preserves \u201cunverifiable\u201d separately, but supplies no independent benchmark or customer-value result. \ue200genui\ue202{\"citation\":{\"ref\":\"turn574search0\"}}\ue201 **Candidate release-assurance comparator; no v0.5 contradiction.** | Unassigned. After #578, run identical seeded workflows against FAR and Rook; independently score false passes, side-effect recall, unverifiable rate, corrections, latency and cost. |\n| `WATCH-AICPA-AIUC-2026-10-19` | Joint SOC 2 + AIUC-1 assurance announcement. Several firms are beginning engagements, but full launch is expected in early 2027; the cited 40,000 organizations used either predecessor assurance, not the combined offering. \ue200genui\ue202{\"citation\":{\"ref\":\"turn573view2\"}}\ue201 **Procurement-evidence signal only.** | Unassigned. Produce an evidence crosswalk and obtain an external CPA gap assessment; exit at \u226590% automatic population of applicable evidence requests with every gap explicit. |\n| `WATCH-HAPS-2026-10-22` | iProov launched a hosted action-specific human-authorization service with agentgateway/Cerbos integrations. The open HAPS artifact remains an experimental specification with a partial Rust implementation and test vectors. \ue200genui\ue202{\"citation\":{\"ref\":\"turn573view3\"}}\ue201 **FAR/FARO control candidate\u2014not entailment or production proof.** | Unassigned. Run 1,000 replay, substitution, stale-credential and action-mutation trials; require zero invalid acceptances and complete action, approver, audience and timestamp evidence. |\n\nNone validates premise-to-conclusion entailment or changes FARA\u2019s boundary.\n\n### Five-workstream status\n\n| Workstream | Status |\n|---|---|\n| Release convergence | Blocked on #591 independent review, controlled activation/readback, then refreshed #578 gates and normal merge |\n| Source-register reconciliation | Nine noncanonical triage records added; 15-source intake still unpromoted |\n| Investigation correctness | #590 queued; independent cases and adjudicators absent |\n| Matched substitute evaluation | Rook/HAPS are candidates only; no identical-input measurements exist |\n| EFR recruitment | No authorized outreach, custodian, eligible teams, ethics determination or external seals |\n\nRetained evidence-history benefit remains an untested hypothesis.",
+          "content_truncated": false,
+          "requires_user_action": false,
+          "is_failure_message": false
+        }
+      }
+    },
+    {
+      "id": "6ab2db81578481919adb17624c0cf570",
+      "title": "FAR Saturation Watch",
+      "last_run_time": "2026-10-23T19:10:19.782235+00:00",
+      "is_enabled": false,
+      "run_details": {
+        "last_run": {
+          "id": "9f04c741-57f4-8326-8031-78dbed51ab00",
+          "recorded_status": "no_update",
+          "scheduled_for": "2026-10-23T18:58:20Z",
+          "started_at": "2026-10-23T19:09:52.777165Z",
+          "completed_at": "2026-10-23T19:10:19.696486Z"
+        },
+        "latest_result": {
+          "run_id": "b0839a51-fc1c-8324-9ff9-d5df0318ab52",
+          "created_at": "2026-09-24T16:48:42.595613Z",
+          "scheduled_for": "2026-09-24T16:58:20Z",
+          "completed_at": "2026-09-24T16:48:43.357280Z",
+          "content_text": "One development crosses the notification threshold.\n\nA TMLR-accepted paper submitted September 22, 2026, \u201cGreedy Decoding Is Not Precision-Invariant,\u201d demonstrates that nominally deterministic LLM inference is not reproducible from `(model, prompt, decoding algorithm)` alone. On identical hardware, merely switching BF16 \u2194 FP16 caused output divergence on **49\u2013100% of prompts** across six models, four model families, and three benchmarks; a single token difference frequently cascaded into a different trajectory. The authors also derived five intervention predictions and report that all five matched experiment. \ue200cite\ue202turn2view0\ue201\n\n**Exact capability/invariant affected:** computational provenance and reproducibility. This is not a new first-class capability class, but it materially strengthens v0.4's existing invariant that consequential transformations be inspectable and its requirement that rerunnable activities preserve \u201cexact inputs, code or method identity, parameters, environment where material.\u201d The new result establishes that numerical execution semantics are sometimes epistemically material rather than merely implementation metadata.\n\n**Why v0.4 is insufficient as currently written:** v0.4 can represent the phenomenon through its existing computational-lineage/provenance machinery, so no new primitive is justified. The weakness is normative: \u201cenvironment where material\u201d permits an implementation to omit numerical precision/backend details because the specification does not identify them as reproducibility-critical. The experiment shows that omission can make two apparently identical deterministic audit runs produce different claims or reasoning trajectories. In FAR, that can propagate into extraction, evidence selection, inference, adjudication, or synthesis.\n\n**Minimal architectural change:** do **not** add a capability class. Tighten the existing computational-lineage contract so consequential model executions record, when applicable, at least model/artifact hash, inference implementation/version, numeric precision or quantization mode, hardware/backend and materially relevant kernel/runtime configuration, decoding parameters, and determinism controls. Reproducibility claims should be scoped to that execution environment rather than treating greedy decoding as intrinsically deterministic. Where exact replay matters, validation should test replay under the recorded environment or explicitly report cross-environment instability.\n\nThe other new material I screened\u2014including SEMV's provenance-bearing contestation/memory consolidation, Agentic-IC3's verifier-gated semantic proof search, TwinCheck's counterfactual tool-call verification, and loss-tolerant quantum spacetime attestation\u2014fits existing v0.4 extension points for challenges/updating, formal assurance, inference validation, and provenance/attestation respectively. None clears v0.4's burden for a new first-class primitive. \ue200cite\ue202turn1academia39\ue202turn1academia42\ue202turn1search14\ue202turn1academia40\ue201",
+          "content_truncated": false,
+          "requires_user_action": false,
+          "is_failure_message": false
+        }
+      }
+    },
+    {
+      "id": "6a8805bccd848191a7146a9f80d5720b",
+      "title": "Project FAR Research Brief",
+      "last_run_time": "2026-10-22T18:13:52.813913+00:00",
+      "is_enabled": false,
+      "run_details": {
+        "last_run": {
+          "id": "cea15113-e8a8-8333-87f6-90ff88f3102e",
+          "recorded_status": "completed",
+          "scheduled_for": "2026-10-22T18:10:06Z",
+          "started_at": "2026-10-22T18:12:35.297608Z",
+          "completed_at": "2026-10-22T18:13:50.867250Z"
+        },
+        "latest_result": {
+          "run_id": "cea15113-e8a8-8333-87f6-90ff88f3102e",
+          "created_at": "2026-10-22T18:13:50.635854Z",
+          "scheduled_for": "2026-10-22T18:10:06Z",
+          "completed_at": "2026-10-22T18:13:50.867250Z",
+          "content_text": "One previously omitted argument-validation paper merits inclusion: **a verifier cannot enforce a property the representation never declares**.\n\nThis is an overlap-based omission check, not a replay of missed executions. Drive still does not expose the October catch-up report or JSON ledger, so exact ledger-level deduplication remains unavailable.\n\n### On the LLM Verification for Argument Graph Generation\n\n**Jakub B\u0105ba and Jaros\u0142aw A. Chudziak \u2014 October 19, 2026, arXiv:2610.27361v1.** [Primary paper](https://arxiv.org/html/2610.27361v1).\n\n**Experiment and evidence status.** The authors converted 112 human-annotated microtext graphs, injected 404 single structural defects, and compared an exact deterministic validator with Gemini 3.7 Flash across three calls per graph. The LLM attained 96\u2013100% \u201cdetected at least once\u201d rates, but objected to 11/112 structurally correct graphs, changed its verdict on 6.2% of identical inputs, and had roughly 2,758-ms median latency versus approximately 1 ms for the validator. **Evidence: author-observed bounded experiment plus deterministic checking on declared structural properties\u2014not a machine-checked theorem or independent replication.** \ue200genui\ue202{\"citation\":{\"ref\":\"turn446view0\"}}\ue201\n\nThe sharper result concerns specification coverage: statement types, proof standards and polarities were closed enumerations and were never violated; argument scheme was only a free string, producing 27 non-taxonomic assignments across 24/112 graphs. Neither verifier detected them because no permitted vocabulary had been formally declared. \ue200genui\ue202{\"citation\":{\"ref\":\"turn446view0\"}}\ue201\n\n**Proposed, not demonstrated end-to-end.** The paper recommends deterministic structural validation, followed by solver evaluation of formal argument semantics, then LLM review or debate only for contextual properties. However, its solver tier was analyzed rather than implemented or experimentally evaluated. Results use one small corpus, one schema and one model; the graphs contain only three to ten nodes. \ue200genui\ue202{\"citation\":{\"ref\":\"turn446view0\"}}\ue201\n\n**FAR obligation implicated \u2014 my assessment.** CORE-010 must preserve not only a graph but its declared vocabulary, closed/open-world status and ownership of each validation obligation under fixed \\(L,J,I\\). Exact checking of represented constraints cannot establish validity for omitted constraints. This complements *Argument Graph Uncertainty*: uncertainty propagation cannot repair an unspecified admissible-value set.\n\n**Strongest alternate/subsuming explanation.** Conventional schema validation and design-by-contract fully explain the demonstrated failure. The paper does not establish a new argumentation theorem or a distinctive FARA necessity; its value is a clean assurance counterexample separating checker exactness from specification completeness.\n\n**Single executable next test.** Define `scheme` initially as an unconstrained string and submit a structurally valid graph containing `scheme=\"supports_somehow\"`. Require FAR to report **structure valid; scheme-vocabulary obligation unspecified**, not \u201cgraph verified.\u201d Then replace the field with a closed enumeration and require deterministic rejection of the unchanged graph.\n\nNothing selected materially challenges **PROJECT-FAR-CORE-THEORY-1.1**. FAR-CORE-004 remains contract-free **MINIMALITY impossibility**, not universal sufficiency impossibility. FAR-CORE-010 retains exact theory indexed by \\(L,J,I\\) and frame-subtracted residue indexed by \\(\\Gamma\\). The 14 bounded Lean formalizations establish neither global universality, I3 independent replication, priority, commercial performance nor moat. No global saturation is claimed.",
+          "content_truncated": false,
+          "requires_user_action": false,
+          "is_failure_message": false
+        }
+      }
+    }
+  ],
+  "additional_observations": [
+    {
+      "id": "6ab969e0e5dc81919a603eb22a35e490",
+      "title": "FAR Research Watch",
+      "last_run": {
+        "id": "4fc1f270-ed94-8332-91ea-6ca725f8d39e",
+        "recorded_status": "completed",
+        "scheduled_for": "2026-10-27T15:10:20Z",
+        "started_at": "2026-10-27T15:03:17.597954Z",
+        "completed_at": "2026-10-27T15:04:17.006013Z"
+      },
+      "latest_result": {
+        "run_id": "4fc1f270-ed94-8332-91ea-6ca725f8d39e",
+        "created_at": "2026-10-27T15:04:16.226186Z",
+        "scheduled_for": "2026-10-27T15:10:20Z",
+        "completed_at": "2026-10-27T15:04:17.006013Z",
+        "content_text": "No new evidence met Project FAR's urgent research-falsification, v0.5 architectural-contradiction, or material competitive-change threshold on October 27, 2026.\n\nGitHub verification confirms `main` remains at `8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6`, with zero intervening commits. PRs #578, #588, #593 and #594 remain merged. PR #490 is confirmed open, draft and unmerged. Issue #590 remains open, with internal exploratory execution completed and independent scientific validation deferred. The protected operational register retains 15 source dispositions; its generated index does not establish complete historical discovery coverage. No scientific evidence was promoted.\n\nOne incremental competitor change was identified: \ue200url\ue202Minerval commit 96d9ced\ue202https://github.com/minerval-ai/minerval/commit/96d9ced471d5a93d6bfe6661a3b7a09a97876a2e\ue201, dated October 27 at 14:50 UTC. It removes the homepage tour and associated interface elements. It supplies no new verification capability, performance result, adoption denominator or pricing evidence. Noesis remains at its October 10 commit. \ue200url\ue202Fact Engineering's official changelog\ue202https://fact.engineering/changelog\ue201 still ends October 16.\n\nThe \ue200url\ue202October 27 arXiv AI listings\ue202https://arxiv.org/list/cs.AI/new\ue201 were checked against previously reported research leads. No newly established FAR-specific counterexample, failed v0.5 representation attempt or independently reproduced result justified changing an existing decision. Source-byte equivalence and independent scientific replication were not established. No repository modifications, external recruitment or frozen benchmark executions were performed. Routine synthesis remains assigned to the Monday decision brief.",
+        "content_truncated": false,
+        "requires_user_action": false,
+        "is_failure_message": false
+      }
+    }
+  ]
+}

@@ -89,9 +89,18 @@ def validate_operations(operations, source_ids):
 
 def compile_register(root=ROOT):
     root = Path(root)
-    intake_path, ops_path = root/FOLDER/'intake-2026-10-20.json', root/FOLDER/'operations-v1.json'
-    intake, operations = read(intake_path), read(ops_path)
-    sources = intake['entries']; ids = [s['id'] for s in sources]
+    manifest_path = root/FOLDER/'current.json'
+    manifest = read(manifest_path) if manifest_path.exists() else {'intakes':['intake-2026-10-20.json'],'operations':'operations-v1.json','index':'operations-index-v1.json'}
+    def member(name):
+        if not isinstance(name,str) or Path(name).name != name or not name.endswith('.json'):
+            raise ValueError('register manifest requires local JSON filenames')
+        return root/FOLDER/name
+    if not isinstance(manifest.get('intakes'),list) or not manifest['intakes'] or len(set(manifest['intakes'])) != len(manifest['intakes']):
+        raise ValueError('intake files must be a nonempty unique list')
+    intake_paths = [member(x) for x in manifest['intakes']]
+    ops_path = member(manifest['operations']); member(manifest['index'])
+    operations = read(ops_path)
+    sources = [s for path in intake_paths for s in read(path)['entries']]; ids = [s['id'] for s in sources]
     if len(ids) != len(set(ids)): raise ValueError('duplicate intake identity')
     rows = {x['source_id']: x for x in validate_operations(operations, ids)}
     aliases, inventory = {}, []
@@ -125,7 +134,7 @@ def compile_register(root=ROOT):
         group['existing_identity_links'] = [linked[k] for k in sorted(linked)]
     return {'schema': 'far-research-operations-index/1', 'status': 'Research',
             'scientific_promotion_authority': False, 'external_verification': 'DEFERRED_BY_USER',
-            'input_hashes': {'intake': sha(intake_path.read_bytes()), 'operations': sha(ops_path.read_bytes()),
+            'input_hashes': {'intakes': {str(path.relative_to(root)):sha(path.read_bytes()) for path in intake_paths}, 'operations': sha(ops_path.read_bytes()),
                              'corpus': sha(corpus_path.read_bytes()), 'candidate_inventory': sha(encoded(inventory))},
             'coverage': {'intake_sources': len(sources), 'deduplicated_work_keys': len(groups),
                          'living_candidate_files_inspected': len(candidates), 'complete_historical_scheduler_outputs': False,
@@ -138,7 +147,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__); p.add_argument('--write', action='store_true'); args = p.parse_args()
     try:
         result = compile_register()
-        path = ROOT/FOLDER/'operations-index-v1.json'
+        manifest_path = ROOT/FOLDER/'current.json'
+        output_name = read(manifest_path)['index'] if manifest_path.exists() else 'operations-index-v1.json'
+        path = ROOT/FOLDER/output_name
         raw = encoded(result)
         if args.write: path.write_bytes(raw)
         elif not path.exists() or path.read_bytes() != raw: raise ValueError('operational index stale; regenerate intentionally with --write')

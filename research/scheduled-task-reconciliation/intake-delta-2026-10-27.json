@@ -1,0 +1,249 @@
+{
+  "schema_version": "1.0",
+  "status": "RESEARCH_INTAKE_UNREVIEWED_NO_PROMOTION",
+  "generated_date": "2026-10-27",
+  "repository_baseline": "8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6",
+  "coverage_limit": "All recoverable latest nonempty outputs and ten issue-513 metadata records; complete historical schedule archive unavailable.",
+  "entries": [
+    {
+      "id": "SR-016",
+      "title": "On the LLM Verification for Argument Graph Generation",
+      "primary_url": "https://arxiv.org/html/2610.27361v1",
+      "evidence_class": "primary_full_text_inspected",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors distinguish exact structural checking from undeclared scheme-vocabulary and contextual semantics. Solver tier proposed, not experimentally implemented.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "Project FAR Research Brief"
+    },
+    {
+      "id": "SR-017",
+      "title": "Greedy Decoding Is Not Precision-Invariant",
+      "primary_url": "https://arxiv.org/abs/2609.26621v1",
+      "evidence_class": "primary_pdf_and_abstract_inspected",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors report precision-dependent divergence on six models and three benchmarks; greedy decoding does not by itself guarantee replay.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Saturation Watch"
+    },
+    {
+      "id": "WATCH-ROOK-0.1.13",
+      "title": "Rook v0.1.13",
+      "primary_url": "https://github.com/LambdaTest/rook/releases/tag/v0.1.13",
+      "evidence_class": "publisher_release_and_repository_metadata",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Publisher release exists October 23; credits and platform behavior changes documented. Public agent-assurance workflow is a comparator lead.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Decision Brief"
+    },
+    {
+      "id": "WATCH-AICPA-AIUC-2026-10-19",
+      "title": "AICPA / AIUC combined assurance announcement",
+      "primary_url": "https://www.journalofaccountancy.com/news/2026/oct/aicpa-partners-on-new-offering-that-assures-ai-systems-and-agents/",
+      "evidence_class": "primary_organization_announcement",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "AICPA publication describes one CPA-led combined engagement. Prior 40,000 count covers predecessor attestations/certifications, not combined-offering customers.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Decision Brief"
+    },
+    {
+      "id": "WATCH-HAPS-2026-10-22",
+      "title": "iProov hosted HAPS authorization service",
+      "primary_url": "https://www.iproov.com/press/human-authorization-service-ai-agent-gateways-integrations",
+      "evidence_class": "primary_vendor_announcement",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Vendor announces action-specific signed single-use approval with agentgateway and Cerbos integrations. Vendor claim, not independent conformance.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Decision Brief"
+    },
+    {
+      "id": "SR-018",
+      "title": "SEMV: Self-Evolving Multimedia Verification",
+      "primary_url": "https://arxiv.org/abs/2609.27175v1",
+      "evidence_class": "primary_abstract_or_metadata",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors describe provenance-bearing arguments, scoped revision, conflict retention and verification-gated memory.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Saturation Watch"
+    },
+    {
+      "id": "SR-019",
+      "title": "Agentic-IC3",
+      "primary_url": "https://arxiv.org/abs/2609.27162v1",
+      "evidence_class": "primary_abstract_or_metadata",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors describe agent-guided lemma proposals checked by a persistent IC3 backend.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Saturation Watch"
+    },
+    {
+      "id": "SR-020",
+      "title": "TwinCheck",
+      "primary_url": "https://arxiv.org/abs/2609.26911v1",
+      "evidence_class": "primary_abstract_or_metadata",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors describe trace-grounded negative twins and order-reversed verifier comparisons. October v2 exists and is not identical evidence by assumption.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Saturation Watch"
+    },
+    {
+      "id": "SR-021",
+      "title": "Loss-Tolerant Quantum Position Verification for Metropolitan Area Networks",
+      "primary_url": "https://arxiv.org/abs/2609.23234v1",
+      "evidence_class": "primary_abstract_or_metadata",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Authors propose quantum spacetime-position attestation under physical and adversary assumptions.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "scheduler_stream": "FAR Saturation Watch"
+    },
+    {
+      "id": "FAR-LIT-08D830727E615B57",
+      "title": "A counterexample to the complex polynomial Koebe radius conjecture",
+      "primary_url": "https://doi.org/10.21203/rs.3.rs-11340098/v1",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-0BFA8B7937DAC941",
+      "title": "What Would an Empirical Counterexample to Motivational Internalism Require?",
+      "primary_url": "https://doi.org/10.21203/rs.3.rs-11047092/v1",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-4A478DDEFA2F7C61",
+      "title": "A Real Counterexample to the Drury Permanent Conjecture",
+      "primary_url": "https://doi.org/10.13001/ela.2026.10718",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-512B1D869EA712B8",
+      "title": "On Witsenhausen's counterexample: The asymptotic vector case",
+      "primary_url": "https://doi.org/10.1109/itw.2012.6404649",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; no abstract available. No full-paper verification inferred.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-58F10778F9AAE4CA",
+      "title": "A Counterexample on Measurable Processes",
+      "primary_url": "https://doi.org/10.1525/9780520423671-009",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; no abstract available. No full-paper verification inferred.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-7884C7226C5719B0",
+      "title": "The Lewy counterexample and the local equivalence problem for $G$-structures",
+      "primary_url": "https://doi.org/10.4310/jdg/1214427885",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; no abstract available. No full-paper verification inferred.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-88EFFC257A61E199",
+      "title": "A Counterexample to Lemma 64 of the Kahrs and Smith Proof for RTA-79",
+      "primary_url": "https://doi.org/10.2139/ssrn.7659838",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-A1CD15E3E7CB92CB",
+      "title": "Does the order of drivers matter?A counterexample and an open problem for mixed drivers on a ring road",
+      "primary_url": "https://doi.org/10.2139/ssrn.7657184",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-C82CDFD61E500959",
+      "title": "A Counterexample to Strong Uniqueness for Partial Differential Equations of Schr\u00f6dinger's Type",
+      "primary_url": "https://doi.org/10.1080/03605309408821069",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; no abstract available. No full-paper verification inferred.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "FAR-LIT-DD283139285EDBA1",
+      "title": "What Would an Empirical Counterexample to Motivational Internalism Require?",
+      "primary_url": "https://doi.org/10.2139/ssrn.7481718",
+      "evidence_class": "primary_bibliographic_metadata_not_proof",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Crossref bibliographic record verified; deposited abstract inspected.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence."
+    },
+    {
+      "id": "COG-001",
+      "title": "Sycophantic AI decreases prosocial intentions and promotes dependence",
+      "primary_url": "https://doi.org/10.1126/science.aec8352",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Published abstract: 11 models, relative 49% greater affirmation, three preregistered experiments N=2405; bounded interpersonal-advice setting. Preprint v1 differs (50%, two experiments N=1604).",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Primary published abstract checked; full Science methods not retrieved. Do not collapse arXiv:2510.01395v1 into published version."
+    },
+    {
+      "id": "COG-002",
+      "title": "Competing biases in LLM confidence and belief updating",
+      "primary_url": "https://www.nature.com/articles/s42256-026-01217-9",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Model/task experiments report choice-supportive and contrary-advice update biases. This is not proof of human-like belief mechanisms.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Official full PDF inspected; exact model/task scope only."
+    },
+    {
+      "id": "COG-003",
+      "title": "A Comprehensive Evaluation of Cognitive Biases in LLMs",
+      "primary_url": "https://aclanthology.org/2025.nlp4dh-1.50/",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Author evaluation spans multiple models/bias manipulations; effects depend on task and operational definitions.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Official anthology record/abstract inspected; generalization not established."
+    },
+    {
+      "id": "COG-004",
+      "title": "Position: Theory of Mind Benchmarks are Broken for Large Language Models",
+      "primary_url": "https://proceedings.mlr.press/v267/riemer25a.html",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Position paper distinguishes benchmark behavior from richer theory-of-mind attribution.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Official proceedings paper/abstract; position argument, not empirical proof of absent/present consciousness."
+    },
+    {
+      "id": "COG-005",
+      "title": "Cognitive Forcing for Better Decision-Making",
+      "primary_url": "https://doi.org/10.1145/3710946",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Two studies: partial explanations reduce overreliance versus baseline but underperform full explanations; task/user effects constrain transfer.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Primary-author university abstract checked; no human study executed or medical benefit asserted."
+    },
+    {
+      "id": "COG-006",
+      "title": "Epistemology of Artificial Intelligence",
+      "primary_url": "https://plato.stanford.edu/entries/epistemology-ai/",
+      "evidence_class": "research_anchor_primary_scope_record",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Philosophical survey of AI knowledge, justification and contested attribution.",
+      "inference_limit": "Research triage; not independently reproduced or accepted scientific evidence.",
+      "access_limit": "Primary encyclopedia entry inspected; survey argument, not a new scientific experiment."
+    }
+  ]
+}

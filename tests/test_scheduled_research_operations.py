@@ -88,7 +88,7 @@ class OperationalSourceTests(unittest.TestCase):
             self.assertFalse(result['coverage']['complete_historical_scheduler_outputs'])
 
     def test_monitoring_snapshot_has_one_monday_brief_and_one_urgent_watch(self):
-        state=ops.read(ROOT/ops.FOLDER/'monitoring-state-v1.json')
+        state=ops.read(ROOT/ops.FOLDER/'monitoring-state-v2.json')
         tasks={x['title']:x for x in state['tasks']}
         self.assertEqual(set(tasks),{'FAR Decision Brief','FAR Research Watch'})
         self.assertIn('BYDAY=MO',tasks['FAR Decision Brief']['schedule'])
@@ -96,15 +96,25 @@ class OperationalSourceTests(unittest.TestCase):
         self.assertIn('FREQ=HOURLY',tasks['FAR Research Watch']['schedule'])
         for task in tasks.values():
             self.assertEqual(task['timezone'],'America/New_York')
-            self.assertIn('operations-index-v1.json',task['prompt'])
+            self.assertIn('current.json',task['prompt'])
             self.assertIn('explicitly deferred external scientific verification',task['prompt'])
         self.assertTrue(all(not x['is_enabled'] for x in state['overlapping_tasks_left_paused']))
         self.assertFalse(state['scientific_promotion_authority'])
 
     def test_committed_index_rebuilds_from_one_operational_source(self):
         expected=ops.encoded(ops.compile_register())
-        self.assertEqual((ROOT/ops.FOLDER/'operations-index-v1.json').read_bytes(),expected)
-        self.assertEqual(ops.compile_register()['coverage']['intake_sources'],15)
+        self.assertEqual((ROOT/ops.FOLDER/'operations-index-v2.json').read_bytes(),expected)
+        self.assertEqual(ops.compile_register()['coverage']['intake_sources'],40)
+        self.assertEqual(len(ops.read(ROOT/ops.FOLDER/'intake-2026-10-20.json')['entries']),15)
+
+    def test_current_pointer_cannot_escape_register_or_repeat_an_intake(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d); shutil.copytree(ROOT/ops.FOLDER,root/ops.FOLDER)
+            manifest=ops.read(root/ops.FOLDER/'current.json')
+            for change in ({'operations':'../escape.json'}, {'intakes':['intake-2026-10-20.json']*2}):
+                changed={**manifest,**change}; (root/ops.FOLDER/'current.json').write_text(json.dumps(changed))
+                with self.subTest(change=change),self.assertRaises(ValueError):ops.compile_register(root)
 
 
 if __name__=='__main__':unittest.main()
