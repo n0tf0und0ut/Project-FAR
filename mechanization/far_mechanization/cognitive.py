@@ -82,7 +82,10 @@ class CognitiveDocument:
 
     @classmethod
     def loads(cls, raw: str):
-        return cls.from_dict(_strict_json(raw))
+        try:
+            return cls.from_dict(_strict_json(raw))
+        except json.JSONDecodeError as exc:
+            raise CognitiveValidationError("invalid JSON: " + str(exc)) from exc
 
     @classmethod
     def load(cls, path):
@@ -184,8 +187,11 @@ def _pair(data, facts, rule):
     if "UNKNOWN" in (left["position"], right["position"]):
         return "UNKNOWN", {"control_failure": "position coding incomplete"}
     difference = left["position"] != right["position"]
-    if rule == "controlled-sensitivity" and left["confidence"] is not None and right["confidence"] is not None:
-        difference = difference or left["confidence"] != right["confidence"]
+    if rule == "controlled-sensitivity":
+        if not difference and (left["confidence"] is None or right["confidence"] is None):
+            return "UNKNOWN", {"control_failure": "confidence coding incomplete"}
+        if left["confidence"] is not None and right["confidence"] is not None:
+            difference = difference or left["confidence"] != right["confidence"]
     return _bool_status(difference), {"different_position": left["position"] != right["position"], "factor": facts.get("factor")}
 
 
@@ -226,11 +232,17 @@ def _decide(data, probe):
         extra = {"expected_posterior": None if expected is None else str(expected), "observed_posterior": str(observed), "likelihood_justification": "UNKNOWN"}
     elif rule == "lineage-overcount":
         rows = {x["source_id"]: x for x in data["source_lineage"]}
+        unresolved_cache = {}
+        def unresolved(source):
+            if source not in unresolved_cache:
+                row = rows[source]
+                unresolved_cache[source] = row["relationship"] == "unknown" or any(unresolved(x) for x in row["upstream_source_ids"])
+            return unresolved_cache[source]
         roots = set().union(*(set(rows[x]["root_lineage_ids"]) for x in f["source_refs"]))
-        result = None if any(rows[x]["relationship"] == "unknown" for x in f["source_refs"]) else f["claimed_independent_count"] > len(roots)
+        result = None if any(unresolved(x) for x in f["source_refs"]) else f["claimed_independent_count"] > len(roots)
         extra = {"declared_root_count": len(roots), "actual_independence": "UNKNOWN"}
     elif rule == "citation-overclaim":
-        result = False if not f["claimed_verified"] else (True if f["locator_state"] == "UNRESOLVED" or f["passage_support"] == "CONTRADICTED" else None if f["passage_support"] == "UNKNOWN" else False)
+        result = False if not f["claimed_verified"] else (True if f["locator_state"] == "UNRESOLVED" or f["passage_support"] == "CONTRADICTED" else None if f["passage_support"] == "UNKNOWN" or f["locator_state"] == "UNKNOWN" else False)
     elif rule == "certainty-gap":
         result = False if not f["categorical"] else True if f["basis"] in ("CONTRADICTED", "INCOMPLETE") else None if f["basis"] == "UNKNOWN" else False
     elif rule == "verification-overclaim":

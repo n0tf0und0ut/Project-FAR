@@ -52,6 +52,16 @@ there. Its four false negatives on warrant cases reflect premise support alone
 being insufficient to check the declared inference warrant. No claim of market
 superiority follows from this comparison.
 
+An additional exposed hostile pass found missing-data boundaries absent from the
+71-case corpus: missing confidence in an otherwise stable pair, an unknown
+citation locator with supported passage coding, and unknown lineage upstream of
+a derived source. These now propagate UNKNOWN unless other observed evidence
+already supports the predicate. Malformed JSON consistently produces a contract
+error and CLI exit 2. The [third source manifest](freeze-v3.json) and
+[third run](internal-001-r3-results.json) preserve a further exposed replay;
+`test_cognitive_missing_data.py` tests those boundary cases separately. Earlier
+results and frozen references are retained rather than relabeled.
+
 ## What this does and does not demonstrate
 
 - Demonstrated: deterministic rule replay, byte-bound inputs, strict references,
