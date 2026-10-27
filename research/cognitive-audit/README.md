@@ -1,5 +1,10 @@
 # Cognitive and philosophical audit — internal Research
 
+The [later prior-art reconciliation](prior-art-2026-10-27.md) records close
+conceptual/product antecedents and a pinned, unexecuted QURI comparator packet.
+The cognitive/philosophical combination is not claimed as original; actual
+matched live comparisons remain OPEN.
+
 The [FAR-COG/0.1 proposal](../../docs/specification/far-cognitive-audit-v0.1.md)
 extends the existing learning and assurance contracts. It verifies submitted,
 source-anchored coding; automatic interpretation and external effectiveness are

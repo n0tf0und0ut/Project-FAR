@@ -1,0 +1,91 @@
+{
+  "schema": "far-cog-comparator-plan/0.1",
+  "status": "Research",
+  "execution_status": "NOT_EXECUTED",
+  "scientific_promotion_authority": false,
+  "origin": "https://github.com/n0tf0und0ut/Project-FAR/issues/595#issuecomment-6444904798",
+  "repository_baseline": "9f17433abb55f6359524845e84fe420d70d7b195",
+  "quri": {
+    "repository": "https://github.com/quantified-uncertainty/roast-my-post",
+    "commit": "e3abee53a9e4af3c3e0574a439dfa336057ce464",
+    "code_receipts": [
+      {
+        "path": "README.md",
+        "git_blob": "ea6212716633d0698cc6bb090f96b098c0909df9"
+      },
+      {
+        "path": "internal-packages/ai/src/analysis-plugins/plugins/fallacy-check/profile-loader.ts",
+        "git_blob": "9f42e25e702f396aa04a9dce2a3ac84bf0487604"
+      },
+      {
+        "path": "internal-packages/ai/src/analysis-plugins/plugins/fallacy-check/profile-types.ts",
+        "git_blob": "5f1b37ff0ec56afe69e06e76aa9b587947ca2b0e"
+      },
+      {
+        "path": "internal-packages/ai/src/analysis-plugins/plugins/fallacy-check/extraction/config.ts",
+        "git_blob": "d0244c5efc5b28f5e1edb3abc1878ae8cb49f4e9"
+      },
+      {
+        "path": "internal-packages/ai/src/analysis-plugins/plugins/fact-check/constants.ts",
+        "git_blob": "f97dcac7f8d6b41dfaf6092bb182b618fb8ccaab"
+      }
+    ],
+    "configuration_target": {
+      "plugin": "fallacy-check",
+      "factory": "createDefaultProfileConfig",
+      "source": "internal-packages/ai/src/analysis-plugins/plugins/fallacy-check/profile-types.ts",
+      "version": 1,
+      "extractor_count": 1,
+      "judge_enabled": false,
+      "prompts": "tool defaults at pinned commit",
+      "thresholds": "DEFAULT_THRESHOLDS at pinned commit",
+      "filters": "DEFAULT_FILTER_CHAIN at pinned commit",
+      "resolved_runtime_profile": "NOT_FROZEN_DATABASE_OR_ENVIRONMENT_CAN_OVERRIDE"
+    },
+    "access_evidence": "Pinned README requires PostgreSQL and Anthropic and/or OpenRouter API keys for evaluation; end-to-end/LLM tests require provider calls. CI-safe tests do not constitute matched document evaluation.",
+    "availability_status": "NOT_EXECUTED_PROVIDER_AUTHORIZATION_AND_RESOLVED_PROFILE_REQUIRED"
+  },
+  "arms": [
+    {
+      "id": "far-raw-document",
+      "status": "OPEN",
+      "limit": "FAR-COG audits supplied coding; it does not automatically extract semantic verdicts from arbitrary documents. Score abstention and coding labor, not fictitious decisive coverage."
+    },
+    {
+      "id": "quri-pinned-fallacy",
+      "status": "NOT_EXECUTED",
+      "limit": "Freeze actual exported profile, prompt bytes, model version and budget before execution; generic internal lexical control is not this arm."
+    },
+    {
+      "id": "generic-llm-critique",
+      "status": "NOT_EXECUTED",
+      "limit": "Needs authorized model/provider/version and equal resources; no model agreement as independent truth."
+    },
+    {
+      "id": "fact-engineering",
+      "source_identity": "SR-009",
+      "status": "NOT_EXECUTED",
+      "limit": "Authenticated configuration and scope match required; vendor benchmarks do not supply this arm's results."
+    }
+  ],
+  "matched_input_requirements": [
+    "Freeze identical raw document and evidence bytes before predictions; no label leakage.",
+    "Record separately any operator-supplied semantic coding and labor; do not give one arm hidden oracle annotations.",
+    "Use the same interpretation/time/source-eligibility constraints, not just matching topic names.",
+    "Register new exploratory cases separately from EFR and the frozen #518 benchmark.",
+    "Use a separate, disclosed adjudication process before any effectiveness claim; independent/human execution remains deferred."
+  ],
+  "measurements": {
+    "claim_recall": null,
+    "factual_support": null,
+    "invalid_inference_detection": null,
+    "false_positive_rate": null,
+    "abstention": null,
+    "reviewer_corrections": null,
+    "elapsed_time": null,
+    "provider_cost": null,
+    "operator_labor": null
+  },
+  "exit_condition": "Every arm has actual replayable output under a frozen configuration and scoped adjudication, or an explicit unavailable/NOT_EXECUTED result; no advantage or disadvantage inferred from absent access.",
+  "external_scientific_verification": "DEFERRED_BY_USER"
+}
