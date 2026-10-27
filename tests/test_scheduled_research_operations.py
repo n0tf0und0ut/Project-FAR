@@ -103,8 +103,8 @@ class OperationalSourceTests(unittest.TestCase):
 
     def test_committed_index_rebuilds_from_one_operational_source(self):
         expected=ops.encoded(ops.compile_register())
-        self.assertEqual((ROOT/ops.FOLDER/'operations-index-v2.json').read_bytes(),expected)
-        self.assertEqual(ops.compile_register()['coverage']['intake_sources'],40)
+        self.assertEqual((ROOT/ops.FOLDER/'operations-index-v3.json').read_bytes(),expected)
+        self.assertEqual(ops.compile_register()['coverage']['intake_sources'],48)
         self.assertEqual(len(ops.read(ROOT/ops.FOLDER/'intake-2026-10-20.json')['entries']),15)
 
     def test_current_pointer_cannot_escape_register_or_repeat_an_intake(self):
