@@ -1,0 +1,60 @@
+{
+  "schema": "far-internal-exploratory-protocol/1",
+  "status": "Research",
+  "campaign_id": "FAR-INTERNAL-EVAL-001",
+  "base_commit": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+  "authorization": "User authorized steps 2,3,5 and explicitly deferred external scientific verification and recruitment; separate internal exploratory execution only.",
+  "external_verification": "DEFERRED_BY_USER",
+  "registration": "Hash protocol, input cases, executable harness, FAR runtime source and exact comparator versions BEFORE first campaign prediction. Preserve all versions and failures.",
+  "controls": [
+    "All cases and reference labels are project-authored, implementation-exposed, synthetic, not unseen or representative.",
+    "Keep premise truth, interpretation fidelity, source applicability, formal inference and factual verdict separate.",
+    "Formulas are supplied identically to FAR and SymPy only in the formula track.",
+    "Raw-source comparator arms get identical primary/evidence text without one-sided supplied formulas.",
+    "Noesis minimal mode is model-free and degraded; absence of its classifier is a configuration limitation, never a FAR superiority claim.",
+    "History treatment supplies the same prior source bytes to both systems; compare with a fresh follow-up-only condition.",
+    "No external model/API calls, frozen benchmark execution, EFR enrollment or claim promotion."
+  ],
+  "comparators": {
+    "far": {
+      "engine": "0.4.6",
+      "source_commit": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a"
+    },
+    "sympy": {
+      "version": "1.14.0",
+      "scope": "conditional finite propositional logic only"
+    },
+    "noesis": {
+      "source_commit": "d38eb1fd956843b6eeeaeb582d3b4e1092255d94",
+      "version": "0.1.0",
+      "configuration": "minimal; no external providers or classifier weights"
+    },
+    "minerval": {
+      "execution": "NOT_RUN",
+      "reason": "No configured local stack or authenticated service access; no inferred failure score."
+    },
+    "fact_engineering": {
+      "execution": "NOT_RUN",
+      "reason": "No authenticated API/account or funded calls configured; no inferred failure score."
+    }
+  },
+  "metrics": {
+    "formal": "Status agreement, decisive coverage and checked countermodels, with atom-bound abstentions separate.",
+    "raw": "Exact reference claim-span recall, citation presence/support assertions kept distinct from truth, factual abstention, actual refusal/degradation, package replay, stage/total elapsed time.",
+    "history": "Paired follow-up-only versus retained-source conditions; source retention alone is not semantic/customer utility.",
+    "unmeasured": [
+      "independent factual accuracy",
+      "independent semantic accuracy",
+      "customer benefit",
+      "human reviewer correction/time",
+      "fully attributed compute and human dollar cost"
+    ],
+    "uncertainty": "Exact counts for this enumerated developer corpus only. Repeated local timing is operational observation, not population inference. No binomial CI for dependent synthetic developer cases."
+  },
+  "budgets": {
+    "per_subprocess_seconds": 45,
+    "external_api_calls": 0,
+    "model_tokens": 0
+  },
+  "stopping": "Stop and retain evidence on integrity drift; capture execution errors and null/adverse outcomes. Do not replace cases after observing outcomes."
+}

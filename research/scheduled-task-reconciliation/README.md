@@ -60,3 +60,22 @@ Machine-readable, testable source register: [`intake-2026-10-20.json`](intake-20
 2. For any source proposed to affect a governed claim, freeze the actual primary material, complete adversarial review and supply the exact authorization required by `research/living/README.md`. A scheduled task summary is neither a reviewed candidate nor an authorization.
 3. Record new experimental observations in their own governed evaluation artifacts. Do not rewrite the Accepted theory, frozen tests, benchmark endpoints, saturations or the PR #490 rolling inbox as a shortcut.
 4. Rerun this bounded reconciliation against archived scheduled-run outputs if they become accessible. Their current unavailability is an explicit **coverage gap**, not proof that no other consequential research exists.
+
+
+## Current operational process — internal execution, external verification deferred
+
+The historical October 20 intake above is preserved. Current operational dispositions live once in [operations-v1.json](operations-v1.json); [operations-index-v1.json](operations-index-v1.json) is a deterministic generated view, not another scientific corpus or promotion authority. The index joins the existing fifteen SR identifiers to normalized DOI/arXiv work/version/URL identities, existing living candidates and governed corpus records. Unknown versions stay unknown; two versions are not silently collapsed into equal evidence. Tracking-normalized URLs are locator hints, never primary-byte or correctness proofs.
+
+Every consequential intake record has a responsible **project-controlled internal evaluation maintainer** role, evidence classification/limits, disposition, next test and exit condition. This role is not an independently eligible EFR evaluator. Queued source reconstructions stay queued; executing a related synthetic mechanism test does not verify its motivating paper or vendor claim. Fresh access receipts distinguish primary metadata, runnable pinned code and unavailable authenticated arms. No source is promoted here.
+
+The user authorized the separate [internal exploratory campaign](../../commercial/far-investigation-audit/evaluation/internal-001/README.md) and deferred external scientific verification/recruitment. PR #578 release convergence is complete on protected main; #590 now tracks internal correctness/comparator execution and explicitly deferred independent work. EFR and the frozen #518 benchmark remain unchanged and unexecuted under this authorization. No outreach, paid model call or independent seal is implied.
+
+The consolidated **Monday 08:00 America/New_York decision brief** and **hourly urgent-only watch** read this same view and prior outputs. The old overlapping briefs/watches remain paused. The regular brief reports changed decisions, owners, dispositions and next tests. The watch suppresses routine updates and alerts only on a concrete reproducible falsification or material competitive change. A proposed architecture contradiction needs an exact baseline anchor, failed representation attempt, extension-point insufficiency, strongest counterargument and a reproducer. This is an alert admissibility requirement, not proof supplied by filling fields.
+
+```bash
+python tools/reconcile_scheduled_research.py --write  # intentional regeneration
+python tools/reconcile_scheduled_research.py          # detect drift/missing dispositions
+python -m unittest discover -s tests -p test_scheduled_research_operations.py
+```
+
+The index's explicit coverage is the merged intake and candidate/corpus files it actually inspected. It does not establish complete historical scheduler output coverage, primary-source verification, global saturation or search completeness. New primary bytes enter the existing living/corpus discovery and review mechanisms; scientific acceptance still requires their governed lifecycle. Keep #490 permanently open, draft and unmerged. Propose consequential register changes through reviewed repository changes, not direct auto-promotion.

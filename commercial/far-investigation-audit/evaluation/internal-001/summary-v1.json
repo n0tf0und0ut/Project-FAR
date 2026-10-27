@@ -1,0 +1,85 @@
+{
+  "schema": "far-internal-exploratory-summary/1",
+  "status": "Research",
+  "execution_source_commit": "29a2095ef719820a654e2fb1b5a50379e7af71bc",
+  "primary_run": "run-003",
+  "run_003_result_sha256": "93a93915104d0eabcf7860efcc363c969156c87289733f033f879f22677750a1",
+  "external_verification": "DEFERRED_BY_USER",
+  "case_or_reference_independence": false,
+  "source_to_report": {
+    "cases": 16,
+    "declared_contract_checks_passed": 16,
+    "deliberately_unfaithful_interpretations_with_formally_valid_inference": 2,
+    "factual_abstentions": 37,
+    "decisive_factual_verdicts": 0
+  },
+  "formal": {
+    "cases": 46,
+    "far_decisive": 40,
+    "far_bound_abstentions": 6,
+    "agreement_among_far_decisive": 40,
+    "sympy_decisive": 46,
+    "sympy_verified_far_countermodels": 15
+  },
+  "raw_comparison": {
+    "cases": 6,
+    "reference_quote_targets": 13,
+    "far_exact_quote_hits": 13,
+    "noesis_exact_quote_hits": 0,
+    "noesis_refusals": 6,
+    "noesis_degraded_cases": 6,
+    "far_median_workflow_seconds": 0.13272665699992103,
+    "noesis_minimal_median_workflow_seconds": 5.388251366000077,
+    "timing_scope": "Input serialization through CLI execution, artifact verification and verdict extraction; startup/CLI architecture differs; one local trial per case.",
+    "comparison_limit": "Noesis minimal has no classifier; these figures do not estimate full Noesis performance or establish a FAR advantage."
+  },
+  "history": {
+    "pairs": 2,
+    "real_prior_warehouses_reused": 2,
+    "verified_prior_far_imports": 2,
+    "retained_noesis_refusals": 2,
+    "factual_answer_benefit_demonstrated": false,
+    "scope": "FAR explicit verified-source import versus Noesis persistent warehouse; not automatic FAR memory or a graph moat."
+  },
+  "cost": {
+    "experiment_external_api_calls": 0,
+    "experiment_model_tokens": 0,
+    "experiment_external_api_usd": 0,
+    "fully_attributed_compute_and_human_usd": null,
+    "human_reviewer_correction_rate": null
+  },
+  "commercial_advantage_established": false,
+  "independent_factual_accuracy": null,
+  "artifacts": [
+    {
+      "run": "run-001",
+      "archive": "run-001-portable.zip",
+      "archive_sha256": "ae6a797c98807beceadc7e0d9c5ffe3b2b42da060c63dd7564b1f08339595f1e",
+      "archive_bytes": 201585,
+      "artifact_files": 247,
+      "result_sha256": "8d5207fabef04dc447a651c2f261087558594d172e6c672f9f447782ed363272",
+      "state": "COMPLETED_WITH_RECORDED_FAILURES",
+      "recorded_failures": 10
+    },
+    {
+      "run": "run-002",
+      "archive": "run-002-portable.zip",
+      "archive_sha256": "d73857c80cb17d5f93f161a72560bb305fc095a754717f28ea37ee2c238b6b2b",
+      "archive_bytes": 256161,
+      "artifact_files": 295,
+      "result_sha256": "a177610649dbf9f99ebd37be6e14230a2cdc83e4275b08e5e115da9ce6ed549a",
+      "state": "COMPLETED_INTERNAL_EXPLORATORY",
+      "recorded_failures": 0
+    },
+    {
+      "run": "run-003",
+      "archive": "run-003-portable.zip",
+      "archive_sha256": "a317735c022174fc22b4b069c6750a9924a3fadfdf03ea3e54436b7f10b4a5b1",
+      "archive_bytes": 281349,
+      "artifact_files": 325,
+      "result_sha256": "93a93915104d0eabcf7860efcc363c969156c87289733f033f879f22677750a1",
+      "state": "COMPLETED_INTERNAL_EXPLORATORY",
+      "recorded_failures": 0
+    }
+  ]
+}
