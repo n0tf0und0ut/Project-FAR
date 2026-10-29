@@ -61,11 +61,33 @@ class WorldModelTests(unittest.TestCase):
         self.fails(lambda d: d['christological_foundation'].update(source_refs=['report-on']))
         self.fails(lambda d: d['christological_foundation'].update(source_refs=['exodus']))
 
-    def test_christological_rule_dependency_cannot_be_removed(self):
-        def strip_root(doc):
-            rule = doc['rules'][0]
-            rule['premises'] = [p for p in rule['premises'] if p['proposition_ref'] != 'jesus-is-god']
-        self.fails(strip_root)
+    def test_logos_grounding_is_not_extra_formal_antecedent(self):
+        model = self.load()
+        founding = model.foundational_confession()
+        relation = founding["ontological_grounding"]
+        self.assertEqual(relation["relation"], "METAPHYSICAL_GROUNDING_NOT_ENTAILMENT")
+        self.assertEqual(relation["realism"], "DISCOVERED_NOT_HUMAN_INVENTED")
+        self.assertEqual(set(relation["targets"]),
+                         {"logical_order", "mathematical_order", "created_intelligibility"})
+        # An independent, sourced moral rule need not include the root as an
+        # extraneous logical premise: ontology and entailment are different.
+        rule = model.to_dict()["rules"][0]
+        self.assertNotIn("jesus-is-god", [p["proposition_ref"] for p in rule["premises"]])
+        state = model.derive(known_at="2026-10-29T23:00:00Z")
+        self.assertEqual(state.status("false-witness-wrong"), "SUPPORTED")
+        self.assertEqual(state.inspect("false-witness-wrong")["supports"]["positive"]["assertions"],
+                         ["scriptural-reading"])
+
+    def test_metaphysical_realism_contract_is_inspectable_not_empirical(self):
+        self.fails(lambda d: d["christological_foundation"].pop("ontological_grounding"))
+        self.fails(lambda d: d["christological_foundation"]["ontological_grounding"].update(
+            relation="DEDUCTIVE_ENTAILMENT"))
+        self.fails(lambda d: d["christological_foundation"]["ontological_grounding"].update(
+            realism="HUMAN_INVENTED"))
+        self.fails(lambda d: d["christological_foundation"]["ontological_grounding"].update(
+            targets=["logical_order", "logical_order"]))
+        self.assertNotIn("ontological_grounding", self.load().derive(
+            known_at="2026-10-29T23:00:00Z").project("empirical")[0])
 
     def test_foundation_requires_positive_source_committed_confession(self):
         def remove_root(doc):
@@ -125,9 +147,9 @@ class WorldModelTests(unittest.TestCase):
         self.assertEqual({x['domain'] for x in biblical}, {'normative','theological'})
         self.assertEqual(next(p for p in biblical if p['domain']=='normative')['framework_id'], ORTHODOX)
         audit = state.inspect('false-witness-wrong')
-        self.assertEqual(audit['supports']['positive']['assertions'], ['nicene-confession', 'scriptural-reading'])
+        self.assertEqual(audit['supports']['positive']['assertions'], ['scriptural-reading'])
         self.assertEqual(audit['supports']['positive']['rules'], ['orthodox-prohibition-to-norm'])
-        self.assertEqual(audit['supports']['positive']['sources'], ['exodus', 'nicene-creed'])
+        self.assertEqual(audit['supports']['positive']['sources'], ['exodus'])
 
     def test_inspection_cannot_mutate_active_world_state(self):
         state = self.load().derive(known_at='2026-10-29T23:00:00Z')
