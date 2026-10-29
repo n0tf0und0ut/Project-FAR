@@ -67,6 +67,8 @@ class WorldModelTests(unittest.TestCase):
         relation = founding["ontological_grounding"]
         self.assertEqual(relation["relation"], "METAPHYSICAL_GROUNDING_NOT_ENTAILMENT")
         self.assertEqual(relation["realism"], "DISCOVERED_NOT_HUMAN_INVENTED")
+        self.assertEqual(relation["source_refs"], ["orthodox-creation"])
+        self.assertEqual(relation["claim_classification"]["mathematical_order"], "RESEARCH_EXTENSION")
         self.assertEqual(set(relation["targets"]),
                          {"logical_order", "mathematical_order", "created_intelligibility"})
         # An independent, sourced moral rule need not include the root as an
