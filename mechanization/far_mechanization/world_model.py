@@ -121,6 +121,14 @@ def _validate(data: dict) -> None:
                    set(a["source_refs"]) & set(foundation["source_refs"])
                    for a in assertions.values()):
             raise WorldModelError("foundation must have a source-committed positive confession")
+        if any(a["proposition_ref"] == root_id and a["polarity"] is False
+               for a in assertions.values()):
+            raise WorldModelError("a negative root assertion is incompatible with the fixed confessional profile")
+        if any(a["supersedes"] is not None and
+               assertions.get(a["supersedes"], {}).get("proposition_ref") == root_id
+               for a in assertions.values()):
+            raise WorldModelError("the confessional root is fixed and cannot be superseded")
+
         for row in sources.values():
             if hashlib.sha256(row["text"].encode("utf-8")).hexdigest() != row["sha256"]:
                 raise WorldModelError(f"source digest mismatch: {row['id']}")
