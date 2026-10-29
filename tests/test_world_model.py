@@ -72,6 +72,20 @@ class WorldModelTests(unittest.TestCase):
             doc['assertions'] = [a for a in doc['assertions'] if a['id'] != 'nicene-confession']
         self.fails(remove_root)
 
+    def test_christological_root_is_not_revisable_inside_profile(self):
+        def contradictory_root(doc):
+            row = dict(doc['assertions'][0])
+            row.update(id='deny-root', polarity=False, supersedes=None)
+            doc['assertions'].append(row)
+        self.fails(contradictory_root)
+
+        def supersede_root(doc):
+            row = dict(doc['assertions'][0])
+            row.update(id='replace-root', recorded_at='2026-10-30T00:00:00Z',
+                       supersedes='nicene-confession')
+            doc['assertions'].append(row)
+        self.fails(supersede_root)
+
     def test_empirical_projection_excludes_christological_premise(self):
         model = self.load()
         state = model.derive(known_at='2026-10-29T23:00:00Z')
