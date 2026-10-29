@@ -58,6 +58,9 @@ def configure(document: dict, *, keep_profile: bool, normative: bool) -> dict:
         "status": "EXPLICIT",
     }
     contract["target_model_class"]["description"] = "Exactly these two synthetic cases"
+    if doc["report"]["evidence"]["kind"] == "collision":
+        doc["report"]["evidence"]["left_case_id"] = CASE_IDS[0]
+        doc["report"]["evidence"]["right_case_id"] = CASE_IDS[1]
     doc["freeze"]["contract_sha256"] = contract_sha256(contract)
     return doc
 
