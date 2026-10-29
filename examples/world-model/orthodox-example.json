@@ -133,10 +133,6 @@
       "id": "orthodox-prohibition-to-norm",
       "premises": [
         {
-          "proposition_ref": "jesus-is-god",
-          "polarity": true
-        },
-        {
           "proposition_ref": "scriptural-prohibition",
           "polarity": true
         }
@@ -182,6 +178,16 @@
     "kind": "CONFESSIONAL_AXIOM",
     "source_refs": [
       "nicene-creed"
-    ]
+    ],
+    "ontological_grounding": {
+      "relation": "METAPHYSICAL_GROUNDING_NOT_ENTAILMENT",
+      "targets": [
+        "logical_order",
+        "mathematical_order",
+        "created_intelligibility"
+      ],
+      "realism": "DISCOVERED_NOT_HUMAN_INVENTED",
+      "assurance": "ORTHODOX_INTERPRETIVE_COMMITMENT"
+    }
   }
 }
