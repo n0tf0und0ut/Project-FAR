@@ -334,7 +334,7 @@ class ModelState:
             entry = self._proofs.get((proposition_id, polarity), {})
             supports["positive" if polarity else "negative"] = {key: sorted(entry.get(key, ()))
                                                                   for key in ("assertions", "rules", "sources")}
-        return {"proposition": p, "status": self.status(proposition_id),
+        return {"proposition": dict(p), "status": self.status(proposition_id),
                 "supports": supports, "known_at": self.known_at, "valid_at": self.valid_at,
                 "world_sha256": self.model_sha256, "assurance": "MODEL_RELATIVE_DECLARED_PREMISES"}
 
