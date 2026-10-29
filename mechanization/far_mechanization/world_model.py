@@ -123,6 +123,10 @@ def _validate(data: dict) -> None:
         # mathematical, or moral propositions without explicit premises.
         if len(grounding["targets"]) != len(set(grounding["targets"])):
             raise WorldModelError("duplicate ontological grounding target")
+        if not grounding["source_refs"] or not set(grounding["source_refs"]) <= sources.keys():
+            raise WorldModelError("missing grounding source")
+        if any(sources[x]["kind"] not in {"scripture", "tradition"} for x in grounding["source_refs"]):
+            raise WorldModelError("invalid grounding source type")
         if not any(a["proposition_ref"] == root_id and a["polarity"] is True and
                    set(a["source_refs"]) & set(foundation["source_refs"])
                    for a in assertions.values()):
