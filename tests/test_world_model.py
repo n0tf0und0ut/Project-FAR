@@ -31,7 +31,7 @@ class WorldModelTests(unittest.TestCase):
         model = self.load()
         self.assertEqual(model.digest, self.load(model.to_dict()).digest)
         self.assertEqual(model.digest, hashlib.sha256(model._raw).hexdigest())
-        self.assertEqual(len(model.to_dict()['sources']), 5)
+        self.assertEqual(len(model.to_dict()['sources']), 6)
         self.assertEqual(model.to_dict()['worldview_profile'], ORTHODOX)
 
     def test_no_hindsight_leakage_and_four_valued_conflict(self):
