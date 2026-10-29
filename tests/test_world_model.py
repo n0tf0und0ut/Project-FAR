@@ -45,6 +45,15 @@ class WorldModelTests(unittest.TestCase):
         self.assertEqual(state.status('jesus-is-god'), 'SUPPORTED')
         self.assertEqual(state.inspect('jesus-is-god')['supports']['positive']['assertions'], ['nicene-confession'])
 
+    def test_invalid_grounding_source_or_unsupported_claim_promotion_rejected(self):
+        def non_theological_source(data):
+            data["christological_foundation"]["ontological_grounding"]["source_refs"] = ["report-on"]
+        self.fails(non_theological_source)
+
+        def wrong_status(data):
+            data["christological_foundation"]["ontological_grounding"]["claim_classification"]["mathematical_order"] = "ORTHODOX_THEOLOGICAL_INTERPRETATION"
+        self.fails(wrong_status)
+
     def test_christological_axiom_does_not_imply_unrelated_facts(self):
         doc = copy.deepcopy(self.doc)
         excluded = {'scriptural-reading', 'report-a', 'report-b', 'correction-b'}
