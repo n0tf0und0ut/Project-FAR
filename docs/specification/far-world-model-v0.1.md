@@ -10,6 +10,22 @@ Represent a scoped world state with propositions, positive and negative observat
 
 This component must not be confused with the FAR-COG answer-routing work previously proposed in PR #600. It replaces that approach. It has no user prompt classifier, LLM policy, answer formatting, chat integration, or output-text suppression mechanism.
 
+## Christological foundation
+
+This research profile has the explicit *confessional* root:
+
+`christological_foundation.kind = CONFESSIONAL_AXIOM`, with a committed theological proposition whose exact statement is **“Jesus Christ is God.”** The sample corpus sources this confession to the Nicene-Constantinopolitan Creed as published by the Orthodox Church in America. The Church identifies Jesus with the eternal divine **Logos** and confesses His full divinity and full humanity; this is a doctrinal commitment adopted by the profile, not an independently proven empirical result. See [OCA Nicene Creed](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-symbol-of-faith/nicene-creed) and [OCA Incarnation](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-symbol-of-faith/incarnation).
+
+**Three distinctions are mandatory:**
+
+1. *Ontological/metaphysical grounding:* Orthodox theology regards Christ the Logos as the ultimate ground of created existence, order and intelligibility. This is a confessional interpretation of reality.
+2. *Formal entailment:* The proposition `Jesus Christ is God` alone does **not** syntactically entail every mathematical theorem, descriptive fact, scriptural interpretation, or moral obligation. Additional explicit premises and justified inference rules are necessary. The engine never uses explosion from contradictions.
+3. *Empirical identification:* Physical mechanisms and contingent events need observations and independently supported causal modeling. A Christological commitment cannot replace measurement.
+
+The versioned validator requires an exact, positively asserted, byte-committed Christological confession. Every **theological and normative inference rule** must contain this foundation as a positive premise, alongside any additional source-bearing premises and warrants. This is a deliberately *strong and restrictive profile dependency*; it does not claim to derive Orthodox dogma from one sentence or represent the full reasoning practices of the Church. Independent theological *source assertions* remain separately sourced; a direct citation does not itself establish interpretive correctness. A rule may be syntactically conforming but still be substantively invalid, so a human or stronger semantic verifier must assess each purported inference before accepting it.
+
+`WorldModel.foundational_confession()` exposes the root, authority references and its `ADOPTED_CONFESSIONAL_AXIOM_NOT_EMPIRICALLY_PROVED` assurance label. `ModelState.inspect()` maintains traceable rule/assumption dependencies. Ordinary `project('moral')` returns normative state without routine doctrinal metadata; `project('biblical')` and `inspect()` expose the basis. No answer generator is involved.
+
 ## Worldview contract
 
 `worldview_profile = eastern-orthodox/0.1` indicates that theological and normative propositions are interpreted within an Orthodox Christian profile: Scripture read in Holy Tradition with attention to the Church's liturgical experience, Fathers and councils. No particular rule becomes Church doctrine merely because it is in this document. In the provisional model, **every theological/normative asserted proposition and rule must cite a declared scriptural or traditional source**, carry the Orthodox framework ID, and remain inspectable. An Orthodox interpretation is an explicitly *adopted* normative/theological assumption, not a premise-free proof of truth.
