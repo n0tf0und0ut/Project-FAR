@@ -244,7 +244,8 @@
       "required": [
         "proposition_ref",
         "kind",
-        "source_refs"
+        "source_refs",
+        "ontological_grounding"
       ],
       "additionalProperties": false,
       "properties": {
@@ -256,6 +257,39 @@
         },
         "source_refs": {
           "$ref": "#/$defs/sources"
+        },
+        "ontological_grounding": {
+          "type": "object",
+          "required": [
+            "relation",
+            "targets",
+            "realism",
+            "assurance"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "relation": {
+              "const": "METAPHYSICAL_GROUNDING_NOT_ENTAILMENT"
+            },
+            "targets": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "logical_order",
+                  "mathematical_order",
+                  "created_intelligibility"
+                ]
+              }
+            },
+            "realism": {
+              "const": "DISCOVERED_NOT_HUMAN_INVENTED"
+            },
+            "assurance": {
+              "const": "ORTHODOX_INTERPRETIVE_COMMITMENT"
+            }
+          }
         }
       }
     }
