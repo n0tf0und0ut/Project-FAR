@@ -264,7 +264,9 @@
             "relation",
             "targets",
             "realism",
-            "assurance"
+            "assurance",
+            "claim_classification",
+            "source_refs"
           ],
           "additionalProperties": false,
           "properties": {
@@ -288,6 +290,29 @@
             },
             "assurance": {
               "const": "ORTHODOX_INTERPRETIVE_COMMITMENT"
+            },
+            "claim_classification": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "logical_order",
+                "mathematical_order",
+                "created_intelligibility"
+              ],
+              "properties": {
+                "logical_order": {
+                  "const": "RESEARCH_EXTENSION"
+                },
+                "mathematical_order": {
+                  "const": "RESEARCH_EXTENSION"
+                },
+                "created_intelligibility": {
+                  "const": "ORTHODOX_THEOLOGICAL_INTERPRETATION"
+                }
+              }
+            },
+            "source_refs": {
+              "$ref": "#/$defs/sources"
             }
           }
         }
