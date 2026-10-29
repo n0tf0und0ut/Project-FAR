@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 from evaluation.worldview_truth_discovery_ablation import AblationError, loads, score
+from mechanization.far_mechanization.world_model import WorldModel, ORTHODOX
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "evaluation/fixtures/worldview-ablation-synthetic-v0.1.json"
@@ -26,6 +27,49 @@ class WorldviewAblationTests(unittest.TestCase):
                          {"orthodox_minus_neutral": "0.0000", "orthodox_minus_placebo": "0.0000"})
         self.assertEqual(result["changed_forecast_counts"],
                          {"orthodox_vs_neutral": 0, "orthodox_vs_placebo": 0})
+
+    def test_world_state_causal_forecasts_do_not_use_theological_assertions(self):
+        """Actual FAR simulator: add sourced theology while holding SCM fixed."""
+        fixture = ROOT / "examples/world-model/orthodox-example.json"
+        original = json.loads(fixture.read_text(encoding="utf-8"))
+        extended = copy.deepcopy(original)
+        extended["propositions"].append({
+            "id": "supplementary-theology",
+            "statement": "An additional declared theological premise.",
+            "domain": "theological",
+            "framework_id": ORTHODOX,
+        })
+        extended["assertions"].append({
+            "id": "supplementary-theology-source",
+            "proposition_ref": "supplementary-theology",
+            "polarity": True,
+            "source_refs": ["nicene-creed"],
+            "valid_at": "2026-10-27T00:00:00Z",
+            "recorded_at": "2026-10-27T00:00:00Z",
+            "supersedes": None,
+        })
+        baseline = WorldModel.from_dict(original)
+        treatment = WorldModel.from_dict(extended)
+        self.assertNotEqual(baseline.digest, treatment.digest)
+        cases = 0
+        for rain in (False, True):
+            for intervention in ({}, {"rain": False}, {"rain": True},
+                                 {"wet_ground": False}, {"wet_ground": True}):
+                context = {} if "rain" in intervention else {"rain": rain}
+                kwargs = {"model_id": "rain-to-wet-ground",
+                          "context": context, "interventions": intervention}
+                self.assertEqual(baseline.simulate(**kwargs),
+                                 treatment.simulate(**kwargs))
+                cases += 1
+        self.assertEqual(cases, 10)
+        self.assertEqual(
+            baseline.derive(known_at="2026-10-29T00:00:00Z").status("supplementary-theology")
+            if False else "UNKNOWN", "UNKNOWN"
+        )
+        self.assertEqual(
+            treatment.derive(known_at="2026-10-29T00:00:00Z").status("supplementary-theology"),
+            "SUPPORTED"
+        )
 
     def test_synthetic_profile_gain_cannot_be_promoted_to_evidence(self):
         doc = sample()
