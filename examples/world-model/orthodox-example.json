@@ -10,6 +10,13 @@
       "sha256": "228dbc2373769fddd8632b6bc6d2aadbc8a924d362655b9735a8424b19720fa6"
     },
     {
+      "id": "orthodox-creation",
+      "kind": "tradition",
+      "uri": "https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-holy-trinity/the-holy-trinity-in-creation",
+      "text": "God the Father created the world through the Son (Word) in the Holy Spirit.",
+      "sha256": "18ff5c374eea04bd052a1bdd6fd82bf5fbf663da98c6d96d0fe232bf8583eb86"
+    },
+    {
       "id": "exodus",
       "kind": "scripture",
       "uri": "https://www.biblegateway.com/passage/?search=Exodus%2020%3A16&version=KJV",
@@ -186,7 +193,15 @@
         "created_intelligibility"
       ],
       "realism": "DISCOVERED_NOT_HUMAN_INVENTED",
-      "assurance": "ORTHODOX_INTERPRETIVE_COMMITMENT"
+      "assurance": "ORTHODOX_INTERPRETIVE_COMMITMENT",
+      "source_refs": [
+        "orthodox-creation"
+      ],
+      "claim_classification": {
+        "logical_order": "RESEARCH_EXTENSION",
+        "mathematical_order": "RESEARCH_EXTENSION",
+        "created_intelligibility": "ORTHODOX_THEOLOGICAL_INTERPRETATION"
+      }
     }
   }
 }
