@@ -31,7 +31,7 @@ class WorldModelTests(unittest.TestCase):
         model = self.load()
         self.assertEqual(model.digest, self.load(model.to_dict()).digest)
         self.assertEqual(model.digest, hashlib.sha256(model._raw).hexdigest())
-        self.assertEqual(len(model.to_dict()['sources']), 6)
+        self.assertEqual(len(model.to_dict()['sources']), 7)
         self.assertEqual(model.to_dict()['worldview_profile'], ORTHODOX)
 
     def test_christological_foundation_is_a_confessional_premise(self):
