@@ -3,6 +3,13 @@
   "worldview_profile": "eastern-orthodox/0.1",
   "sources": [
     {
+      "id": "nicene-creed",
+      "kind": "tradition",
+      "uri": "https://www.oca.org/orthodoxy/prayers/symbol-of-faith",
+      "text": "true God of true God; begotten, not made; of one essence with the Father",
+      "sha256": "228dbc2373769fddd8632b6bc6d2aadbc8a924d362655b9735a8424b19720fa6"
+    },
+    {
       "id": "exodus",
       "kind": "scripture",
       "uri": "https://www.biblegateway.com/passage/?search=Exodus%2020%3A16&version=KJV",
@@ -40,6 +47,12 @@
   ],
   "propositions": [
     {
+      "id": "jesus-is-god",
+      "statement": "Jesus Christ is God.",
+      "domain": "theological",
+      "framework_id": "eastern-orthodox/0.1"
+    },
+    {
       "id": "scriptural-prohibition",
       "statement": "The cited passage prohibits bearing false witness against a neighbor.",
       "domain": "theological",
@@ -59,6 +72,17 @@
     }
   ],
   "assertions": [
+    {
+      "id": "nicene-confession",
+      "proposition_ref": "jesus-is-god",
+      "polarity": true,
+      "source_refs": [
+        "nicene-creed"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-27T00:00:00Z",
+      "supersedes": null
+    },
     {
       "id": "scriptural-reading",
       "proposition_ref": "scriptural-prohibition",
@@ -109,6 +133,10 @@
       "id": "orthodox-prohibition-to-norm",
       "premises": [
         {
+          "proposition_ref": "jesus-is-god",
+          "polarity": true
+        },
+        {
           "proposition_ref": "scriptural-prohibition",
           "polarity": true
         }
@@ -119,6 +147,7 @@
       },
       "framework_id": "eastern-orthodox/0.1",
       "justification_refs": [
+        "nicene-creed",
         "exodus"
       ]
     }
@@ -147,5 +176,12 @@
         }
       ]
     }
-  ]
+  ],
+  "christological_foundation": {
+    "proposition_ref": "jesus-is-god",
+    "kind": "CONFESSIONAL_AXIOM",
+    "source_refs": [
+      "nicene-creed"
+    ]
+  }
 }
