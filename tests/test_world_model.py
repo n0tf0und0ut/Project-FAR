@@ -61,6 +61,24 @@ class WorldModelTests(unittest.TestCase):
         self.fails(lambda d: d['christological_foundation'].update(source_refs=['report-on']))
         self.fails(lambda d: d['christological_foundation'].update(source_refs=['exodus']))
 
+    def test_christological_rule_dependency_cannot_be_removed(self):
+        def strip_root(doc):
+            rule = doc['rules'][0]
+            rule['premises'] = [p for p in rule['premises'] if p['proposition_ref'] != 'jesus-is-god']
+        self.fails(strip_root)
+
+    def test_foundation_requires_positive_source_committed_confession(self):
+        def remove_root(doc):
+            doc['assertions'] = [a for a in doc['assertions'] if a['id'] != 'nicene-confession']
+        self.fails(remove_root)
+
+    def test_empirical_projection_excludes_christological_premise(self):
+        model = self.load()
+        state = model.derive(known_at='2026-10-29T23:00:00Z')
+        empirical = state.project('empirical')
+        self.assertNotIn('jesus-is-god', {p['proposition_id'] for p in empirical})
+        self.assertEqual([p['proposition_id'] for p in empirical], ['lamp-on'])
+
     def test_no_hindsight_leakage_and_four_valued_conflict(self):
         model = self.load()
         before = model.derive(known_at='2026-10-27T23:00:00Z')
