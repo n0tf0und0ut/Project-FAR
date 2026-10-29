@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-import hashlib
+import re
 import json
 from pathlib import Path
 import sys
@@ -42,8 +42,8 @@ def _time(value):
 
 
 def _probability(value):
-    if not isinstance(value, str) or value in {"-0", "-0.0"}:
-        raise AblationError("probability must be canonical decimal string")
+    if not isinstance(value, str) or not re.fullmatch(r"(?:0(?:\\.[0-9]{1,6})?|1(?:\\.0{1,6})?)", value):
+        raise AblationError("probability must be a bounded decimal between 0 and 1")
     try:
         n = Decimal(value)
     except (InvalidOperation, ValueError) as exc:
