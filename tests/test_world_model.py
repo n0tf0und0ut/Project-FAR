@@ -34,6 +34,33 @@ class WorldModelTests(unittest.TestCase):
         self.assertEqual(len(model.to_dict()['sources']), 6)
         self.assertEqual(model.to_dict()['worldview_profile'], ORTHODOX)
 
+    def test_christological_foundation_is_a_confessional_premise(self):
+        model = self.load()
+        axiom = model.foundational_confession()
+        self.assertEqual(axiom['kind'], 'CONFESSIONAL_AXIOM')
+        self.assertEqual(axiom['proposition_ref'], 'jesus-is-god')
+        self.assertEqual(axiom['source_refs'], ['nicene-creed'])
+        self.assertIn('NOT_EMPIRICALLY_PROVED', axiom['assurance'])
+        state = model.derive(known_at='2026-10-27T23:00:00Z')
+        self.assertEqual(state.status('jesus-is-god'), 'SUPPORTED')
+        self.assertEqual(state.inspect('jesus-is-god')['supports']['positive']['assertions'], ['nicene-confession'])
+
+    def test_christological_axiom_does_not_imply_unrelated_facts(self):
+        doc = copy.deepcopy(self.doc)
+        excluded = {'scriptural-reading', 'report-a', 'report-b', 'correction-b'}
+        doc['assertions'] = [a for a in doc['assertions'] if a['id'] not in excluded]
+        state = self.load(doc).derive(known_at='2026-10-29T23:00:00Z')
+        self.assertEqual(state.status('jesus-is-god'), 'SUPPORTED')
+        self.assertEqual(state.status('scriptural-prohibition'), 'UNKNOWN')
+        self.assertEqual(state.status('false-witness-wrong'), 'UNKNOWN')
+        self.assertEqual(state.status('lamp-on'), 'UNKNOWN')
+
+    def test_explicit_foundation_required(self):
+        self.fails(lambda d: d.pop('christological_foundation'))
+        self.fails(lambda d: d['christological_foundation'].update(proposition_ref='lamp-on'))
+        self.fails(lambda d: d['christological_foundation'].update(source_refs=['report-on']))
+        self.fails(lambda d: d['christological_foundation'].update(source_refs=['exodus']))
+
     def test_no_hindsight_leakage_and_four_valued_conflict(self):
         model = self.load()
         before = model.derive(known_at='2026-10-27T23:00:00Z')
