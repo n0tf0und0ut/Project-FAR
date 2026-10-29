@@ -117,6 +117,12 @@ def _validate(data: dict) -> None:
                 any(sources[x]["kind"] not in {"scripture", "tradition"}
                     for x in foundation["source_refs"])):
             raise WorldModelError("foundation requires resolved Scripture/Tradition sources")
+        grounding = foundation["ontological_grounding"]
+        # This is a declared metaphysical relation, not a rule in the
+        # consequence engine. In particular it cannot generate empirical,
+        # mathematical, or moral propositions without explicit premises.
+        if len(grounding["targets"]) != len(set(grounding["targets"])):
+            raise WorldModelError("duplicate ontological grounding target")
         if not any(a["proposition_ref"] == root_id and a["polarity"] is True and
                    set(a["source_refs"]) & set(foundation["source_refs"])
                    for a in assertions.values()):
@@ -170,11 +176,6 @@ def _validate(data: dict) -> None:
                 raise WorldModelError("rule refers to missing proposition")
             if not r["premises"]:
                 raise WorldModelError("zero-premise rules must be explicit sourced assertions")
-            if propositions[head]["domain"] != "empirical" and not any(
-                x["proposition_ref"] == root_id and x["polarity"] is True
-                for x in r["premises"]
-            ):
-                raise WorldModelError("Orthodox theological/normative rules must explicitly depend on the Christological foundation")
             if not set(r["justification_refs"]) <= sources.keys() or not r["justification_refs"]:
                 raise WorldModelError("rules require anchored justification sources")
             domains = {propositions[x["proposition_ref"]]["domain"] for x in r["premises"]}
@@ -258,6 +259,7 @@ class WorldModel:
             "proposition_ref": foundation["proposition_ref"],
             "kind": foundation["kind"],
             "source_refs": list(foundation["source_refs"]),
+            "ontological_grounding": dict(foundation["ontological_grounding"]),
             "assurance": "ADOPTED_CONFESSIONAL_AXIOM_NOT_EMPIRICALLY_PROVED",
         }
 
