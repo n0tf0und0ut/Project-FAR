@@ -105,6 +105,12 @@ assert model.counterfactual('rain-to-wet-ground', context={'rain': False},
 
 Run `PYTHONPATH=. python -m unittest discover -s tests -p 'test_world_model.py' -v` from the repository root. All model input is untrusted even when accompanied by source URLs. Input is bounded by the JSON Schema and semantic cross-reference checks; it is not a network fetcher.
 
+## FAR Core v1.1 integration: interpretation profile matters only when the contract needs it
+
+The finite and executable [theory impact audit](../research/orthodox-world-model-theory-impact-v0.1.md) connects this work to existing FAR-CORE-001, -004, -010, -011 and -012 without altering any proven theorem. `tests/test_worldview_factorization.py` runs the **current governed far-ir/2.0 rule v1.1 verifier** on synthetic exact contracts. It checks an omitted-worldview collision, a profile-aware exact factorization repair, a profile-invariant empirical control, and freeze-hash tampering.
+
+The critical rule is conditional on required behavior: **preserve theological/interpretation profile identity if and only if ignoring it would make the specified relevant behavior unrecoverable.** A profile-free empirical projection can still be exactly sufficient for an empirical-only task, while a normative comparison may need the profile. This is not a proof that one worldview determines objective moral truth, or that one ontology is universally minimal.
+
 ## Assurance and integration boundary
 
 This implementation is specifically a **world-state substrate**, not the general world model the broader research program ultimately seeks. It can be embedded into `far-epistemic/1.0` investigations by mapping source IDs and revision events to the governed evidence and belief contracts, but no such bidirectional validated adapter is claimed here. Automatic source extraction, doctrinal adjudication, semantic validation, learned causal dynamics, Bayesian posterior updates, calibration, independent evaluation, and actual time-series forecasting remain open tasks.
