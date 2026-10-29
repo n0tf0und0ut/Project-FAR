@@ -62,10 +62,8 @@ class WorldviewAblationTests(unittest.TestCase):
                                  treatment.simulate(**kwargs))
                 cases += 1
         self.assertEqual(cases, 10)
-        self.assertEqual(
-            baseline.derive(known_at="2026-10-29T00:00:00Z").status("supplementary-theology")
-            if False else "UNKNOWN", "UNKNOWN"
-        )
+        self.assertNotIn("supplementary-theology",
+                         {p["id"] for p in baseline.to_dict()["propositions"]})
         self.assertEqual(
             treatment.derive(known_at="2026-10-29T00:00:00Z").status("supplementary-theology"),
             "SUPPORTED"
