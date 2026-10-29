@@ -135,6 +135,14 @@ class WorldviewAblationTests(unittest.TestCase):
         doc["cases"][0]["forecasts"]["neutral"]["p"] = "1.1"
         with self.assertRaises(AblationError):
             score(doc)
+        doc = sample()
+        doc["cases"][0]["forecasts"]["neutral"]["p"] = "1e-1000000000"
+        with self.assertRaises(AblationError):
+            score(doc)
+        doc = sample()
+        doc["cases"][0]["forecasts"]["neutral"]["p"] = "0." + "0" * 1000
+        with self.assertRaises(AblationError):
+            score(doc)
 
     def test_missing_data_abstains(self):
         doc = sample()
