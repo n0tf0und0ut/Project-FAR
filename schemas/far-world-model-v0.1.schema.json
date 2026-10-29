@@ -3,46 +3,296 @@
   "$id": "https://project-far.local/schemas/far-world-model-v0.1.schema.json",
   "title": "FAR-WORLD/0.1 finite world-state contract",
   "type": "object",
-  "required": ["format_version", "worldview_profile", "sources", "propositions", "assertions", "rules", "causal_models"],
+  "required": [
+    "format_version",
+    "worldview_profile",
+    "sources",
+    "propositions",
+    "assertions",
+    "rules",
+    "causal_models",
+    "christological_foundation"
+  ],
   "additionalProperties": false,
   "properties": {
-    "format_version": {"const": "FAR-WORLD/0.1"},
-    "worldview_profile": {"const": "eastern-orthodox/0.1"},
-    "sources": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "uri", "text", "sha256"], "additionalProperties": false, "properties": {
-      "id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["observation", "research", "scripture", "tradition"]},
-      "uri": {"type": "string", "minLength": 1}, "text": {"type": "string", "minLength": 1},
-      "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
-    }}},
-    "propositions": {"type": "array", "items": {"type": "object", "required": ["id", "statement", "domain", "framework_id"], "additionalProperties": false, "properties": {
-      "id": {"$ref": "#/$defs/id"}, "statement": {"type": "string", "minLength": 1},
-      "domain": {"enum": ["empirical", "normative", "theological"]},
-      "framework_id": {"type": ["string", "null"]}
-    }}},
-    "assertions": {"type": "array", "items": {"type": "object", "required": ["id", "proposition_ref", "polarity", "source_refs", "valid_at", "recorded_at", "supersedes"], "additionalProperties": false, "properties": {
-      "id": {"$ref": "#/$defs/id"}, "proposition_ref": {"$ref": "#/$defs/id"},
-      "polarity": {"type": "boolean"}, "source_refs": {"$ref": "#/$defs/sources"},
-      "valid_at": {"$ref": "#/$defs/date"}, "recorded_at": {"$ref": "#/$defs/date"},
-      "supersedes": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]}
-    }}},
-    "rules": {"type": "array", "items": {"type": "object", "required": ["id", "premises", "conclusion", "framework_id", "justification_refs"], "additionalProperties": false, "properties": {
-      "id": {"$ref": "#/$defs/id"},
-      "premises": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/literal"}},
-      "conclusion": {"$ref": "#/$defs/literal"},
-      "framework_id": {"type": ["string", "null"]},
-      "justification_refs": {"$ref": "#/$defs/sources"}
-    }}},
-    "causal_models": {"type": "array", "items": {"type": "object", "required": ["id", "source_refs", "variables"], "additionalProperties": false, "properties": {
-      "id": {"$ref": "#/$defs/id"}, "source_refs": {"$ref": "#/$defs/sources"},
-      "variables": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "parents", "table"], "additionalProperties": false, "properties": {
-        "id": {"$ref": "#/$defs/id"}, "parents": {"type": "array", "items": {"$ref": "#/$defs/id"}},
-        "table": {"anyOf": [{"type": "null"}, {"type": "object", "propertyNames": {"pattern": "^[01]+$"}, "additionalProperties": {"type": "boolean"}}]}
-      }}}
-    }}}
+    "format_version": {
+      "const": "FAR-WORLD/0.1"
+    },
+    "worldview_profile": {
+      "const": "eastern-orthodox/0.1"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "uri",
+          "text",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "kind": {
+            "enum": [
+              "observation",
+              "research",
+              "scripture",
+              "tradition"
+            ]
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "propositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "domain",
+          "framework_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "domain": {
+            "enum": [
+              "empirical",
+              "normative",
+              "theological"
+            ]
+          },
+          "framework_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "proposition_ref",
+          "polarity",
+          "source_refs",
+          "valid_at",
+          "recorded_at",
+          "supersedes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "proposition_ref": {
+            "$ref": "#/$defs/id"
+          },
+          "polarity": {
+            "type": "boolean"
+          },
+          "source_refs": {
+            "$ref": "#/$defs/sources"
+          },
+          "valid_at": {
+            "$ref": "#/$defs/date"
+          },
+          "recorded_at": {
+            "$ref": "#/$defs/date"
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "premises",
+          "conclusion",
+          "framework_id",
+          "justification_refs"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "premises": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/literal"
+            }
+          },
+          "conclusion": {
+            "$ref": "#/$defs/literal"
+          },
+          "framework_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "justification_refs": {
+            "$ref": "#/$defs/sources"
+          }
+        }
+      }
+    },
+    "causal_models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "source_refs",
+          "variables"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "source_refs": {
+            "$ref": "#/$defs/sources"
+          },
+          "variables": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "parents",
+                "table"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "parents": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/id"
+                  }
+                },
+                "table": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "propertyNames": {
+                        "pattern": "^[01]+$"
+                      },
+                      "additionalProperties": {
+                        "type": "boolean"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "christological_foundation": {
+      "type": "object",
+      "required": [
+        "proposition_ref",
+        "kind",
+        "source_refs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "proposition_ref": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "const": "CONFESSIONAL_AXIOM"
+        },
+        "source_refs": {
+          "$ref": "#/$defs/sources"
+        }
+      }
+    }
   },
   "$defs": {
-    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"},
-    "sources": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
-    "date": {"type": "string", "format": "date-time", "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"},
-    "literal": {"type": "object", "required": ["proposition_ref", "polarity"], "additionalProperties": false, "properties": {"proposition_ref": {"$ref": "#/$defs/id"}, "polarity": {"type": "boolean"}}}
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "literal": {
+      "type": "object",
+      "required": [
+        "proposition_ref",
+        "polarity"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "proposition_ref": {
+          "$ref": "#/$defs/id"
+        },
+        "polarity": {
+          "type": "boolean"
+        }
+      }
+    }
   }
 }
