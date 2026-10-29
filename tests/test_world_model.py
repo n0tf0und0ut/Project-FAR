@@ -66,9 +66,9 @@ class WorldModelTests(unittest.TestCase):
         self.assertEqual({x['domain'] for x in biblical}, {'normative','theological'})
         self.assertEqual(next(p for p in biblical if p['domain']=='normative')['framework_id'], ORTHODOX)
         audit = state.inspect('false-witness-wrong')
-        self.assertEqual(audit['supports']['positive']['assertions'], ['scriptural-reading'])
+        self.assertEqual(audit['supports']['positive']['assertions'], ['nicene-confession', 'scriptural-reading'])
         self.assertEqual(audit['supports']['positive']['rules'], ['orthodox-prohibition-to-norm'])
-        self.assertEqual(audit['supports']['positive']['sources'], ['exodus'])
+        self.assertEqual(audit['supports']['positive']['sources'], ['exodus', 'nicene-creed'])
 
     def test_inspection_cannot_mutate_active_world_state(self):
         state = self.load().derive(known_at='2026-10-29T23:00:00Z')
@@ -141,10 +141,10 @@ class WorldModelTests(unittest.TestCase):
         doc = copy.deepcopy(self.doc)
         doc['propositions'].append({'id':'other-norm','statement':'Some other normative proposition',
                                    'domain':'normative','framework_id':ORTHODOX})
-        doc['rules'].append({'id':'norm-to-other','premises':[{'proposition_ref':'false-witness-wrong','polarity':True}],
+        doc['rules'].append({'id':'norm-to-other','premises':[{'proposition_ref':'jesus-is-god','polarity':True},{'proposition_ref':'false-witness-wrong','polarity':True}],
                              'conclusion':{'proposition_ref':'other-norm','polarity':True},
                              'framework_id':ORTHODOX,'justification_refs':['exodus']})
-        doc['rules'].append({'id':'other-to-norm','premises':[{'proposition_ref':'other-norm','polarity':True}],
+        doc['rules'].append({'id':'other-to-norm','premises':[{'proposition_ref':'jesus-is-god','polarity':True},{'proposition_ref':'other-norm','polarity':True}],
                              'conclusion':{'proposition_ref':'false-witness-wrong','polarity':True},
                              'framework_id':ORTHODOX,'justification_refs':['exodus']})
         doc['assertions'] = [a for a in doc['assertions'] if a['id']!='scriptural-reading']
