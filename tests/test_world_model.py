@@ -70,6 +70,15 @@ class WorldModelTests(unittest.TestCase):
         self.assertEqual(audit['supports']['positive']['rules'], ['orthodox-prohibition-to-norm'])
         self.assertEqual(audit['supports']['positive']['sources'], ['exodus'])
 
+    def test_inspection_cannot_mutate_active_world_state(self):
+        state = self.load().derive(known_at='2026-10-29T23:00:00Z')
+        audit = state.inspect('false-witness-wrong')
+        audit['proposition']['framework_id'] = None
+        audit['supports']['positive']['rules'].clear()
+        again = state.inspect('false-witness-wrong')
+        self.assertEqual(again['proposition']['framework_id'], ORTHODOX)
+        self.assertEqual(again['supports']['positive']['rules'], ['orthodox-prohibition-to-norm'])
+
     def test_empirical_projection_does_not_include_religious_conclusions(self):
         rows = self.load().derive(known_at='2026-10-29T23:00:00Z').project('empirical')
         self.assertEqual([r['proposition_id'] for r in rows], ['lamp-on'])
