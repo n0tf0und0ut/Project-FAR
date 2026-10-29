@@ -28,6 +28,10 @@ class WorldviewAblationTests(unittest.TestCase):
         self.assertEqual(result["changed_forecast_counts"],
                          {"orthodox_vs_neutral": 0, "orthodox_vs_placebo": 0})
 
+    def test_scored_synthetic_pilot_matches_frozen_report(self):
+        report = json.loads((ROOT / "evaluation/results/worldview-ablation-synthetic-report-v0.1.json").read_text(encoding="utf-8"))
+        self.assertEqual(score(sample()), report)
+
     def test_world_state_causal_forecasts_do_not_use_theological_assertions(self):
         """Actual FAR simulator: add sourced theology while holding SCM fixed."""
         fixture = ROOT / "examples/world-model/orthodox-example.json"
