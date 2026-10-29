@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 import re
 
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft202012Validator
 
 VERSION = "FAR-WORLD/0.1"
 ORTHODOX = "eastern-orthodox/0.1"
@@ -96,7 +96,7 @@ def _ordered_variables(variables: dict[str, dict]) -> list[str]:
 def _validate(data: dict) -> None:
     try:
         schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
-        errors = sorted(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(data),
+        errors = sorted(Draft202012Validator(schema).iter_errors(data),
                         key=lambda e: (tuple(str(i) for i in e.path), e.message))
         if errors:
             raise WorldModelError("; ".join(f"{list(e.path)}: {e.message}" for e in errors))
