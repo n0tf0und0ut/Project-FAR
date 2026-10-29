@@ -105,6 +105,22 @@ def _validate(data: dict) -> None:
         assertions = _index(data["assertions"], "assertion")
         _index(data["rules"], "rule")
         causal_models = _index(data["causal_models"], "causal model")
+        foundation = data["christological_foundation"]
+        root_id = foundation["proposition_ref"]
+        root = propositions.get(root_id)
+        if (root is None or root["domain"] != "theological" or
+                root["framework_id"] != ORTHODOX or
+                root["statement"] != "Jesus Christ is God."):
+            raise WorldModelError("foundation must identify the explicit Jesus-is-God theological proposition")
+        if (not foundation["source_refs"] or
+                not set(foundation["source_refs"]) <= sources.keys() or
+                any(sources[x]["kind"] not in {"scripture", "tradition"}
+                    for x in foundation["source_refs"])):
+            raise WorldModelError("foundation requires resolved Scripture/Tradition sources")
+        if not any(a["proposition_ref"] == root_id and a["polarity"] is True and
+                   set(a["source_refs"]) & set(foundation["source_refs"])
+                   for a in assertions.values()):
+            raise WorldModelError("foundation must have a source-committed positive confession")
         for row in sources.values():
             if hashlib.sha256(row["text"].encode("utf-8")).hexdigest() != row["sha256"]:
                 raise WorldModelError(f"source digest mismatch: {row['id']}")
@@ -146,6 +162,11 @@ def _validate(data: dict) -> None:
                 raise WorldModelError("rule refers to missing proposition")
             if not r["premises"]:
                 raise WorldModelError("zero-premise rules must be explicit sourced assertions")
+            if propositions[head]["domain"] != "empirical" and not any(
+                x["proposition_ref"] == root_id and x["polarity"] is True
+                for x in r["premises"]
+            ):
+                raise WorldModelError("Orthodox theological/normative rules must explicitly depend on the Christological foundation")
             if not set(r["justification_refs"]) <= sources.keys() or not r["justification_refs"]:
                 raise WorldModelError("rules require anchored justification sources")
             domains = {propositions[x["proposition_ref"]]["domain"] for x in r["premises"]}
@@ -221,6 +242,16 @@ class WorldModel:
 
     def to_dict(self) -> dict:
         return _parse_raw(self._raw.decode("utf-8"))
+
+    def foundational_confession(self) -> dict:
+        """Inspect the governing assumption without declaring it externally proved."""
+        foundation = self.to_dict()["christological_foundation"]
+        return {
+            "proposition_ref": foundation["proposition_ref"],
+            "kind": foundation["kind"],
+            "source_refs": list(foundation["source_refs"]),
+            "assurance": "ADOPTED_CONFESSIONAL_AXIOM_NOT_EMPIRICALLY_PROVED",
+        }
 
     def derive(self, *, known_at: str, valid_at: str | None = None) -> "ModelState":
         """Recompute finite Horn consequences with bitemporal cutoffs.
