@@ -18,7 +18,7 @@ All three must receive identical input evidence, information time, causal equati
 
 ### Experimental outcome
 
-A case is a binary empirical event, independently adjudicated after all forecasts are locked: `y in {0,1}`. Models report `p in [0,1]`, as a canonical decimal string. The scoring script calculates mean Brier loss `mean((p-y)^2)`. **Lower is better**. Primary paired differences are:
+A case is a binary empirical event, independently adjudicated after all forecasts are locked: `y in {0,1}`. Models report `p in [0,1]`, as a bounded decimal string (at most six fractional digits; exponential notation rejected before `Decimal` parsing). The scoring script calculates mean Brier loss `mean((p-y)^2)`. **Lower is better**. Primary paired differences are:
 
 `Delta_N = Brier(Orthodox) - Brier(Neutral)`
 
@@ -46,6 +46,12 @@ The scoring tool marks every case set either `SYNTHETIC_TEST_ONLY`, `INSUFFICIEN
 In the current FAR-WORLD/0.1 implementation, the Boolean SCM simulator reads causal models, exogenous contexts and interventions. It does **not** consume theological assertions, ontological grounding, or the selected worldview profile as predictors. Thus, for a matched causal graph and the same context/intervention, there is no mechanism by which mere profile metadata changes the simulated result. The current code provides no independent automatically learned forecasts or independently identified mechanisms. This architecture cannot yield a worldview-specific empirical uplift from **metadata alone**.
 
 To obtain testable empirical differentiation, researchers must posit and register a novel hypothesis or constraint that (a) changes a prediction and (b) can be tested with independently observed outcomes, without violating FAR's domain separation or smuggling untestable theology into empirical results. If no discriminative prediction exists, an empirical benchmark cannot identify the metaphysical grounding claim.
+
+### Implemented structural-invariance control
+
+`tests/test_worldview_truth_ablation.py` also constructs a second **validated Orthodox world-model instance** with a new separately sourced theological proposition and assertion, leaving the Boolean causal tables and intervention contexts unchanged. It exhausts ten enumerated root/context/intervention combinations in the current sample, comparing actual `WorldModel.simulate()` outputs. Their equality is a narrow implementation result: adding theological information does not change that causal simulator's output. This test **does not instantiate a fully neutral, otherwise identical world-model engine** or demonstrate an out-of-sample empirical advantage.
+
+The [frozen synthetic result](../../evaluation/results/worldview-ablation-synthetic-report-v0.1.json) is recomputed by the [scorer](../../evaluation/worldview_truth_discovery_ablation.py) and checked as a whole by the regression suite. The artificial commitments in the synthetic file are placeholders with syntactically valid digests, not a chain of independently verified evidence.
 
 ### Separate normative evaluation
 
