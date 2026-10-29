@@ -42,7 +42,7 @@ def _time(value):
 
 
 def _probability(value):
-    if not isinstance(value, str) or not re.fullmatch(r"(?:0(?:\\.[0-9]{1,6})?|1(?:\\.0{1,6})?)", value):
+    if not isinstance(value, str) or not re.fullmatch(r"(?:0(?:\.[0-9]{1,6})?|1(?:\.0{1,6})?)", value):
         raise AblationError("probability must be a bounded decimal between 0 and 1")
     try:
         n = Decimal(value)
