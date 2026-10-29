@@ -26,6 +26,12 @@ The versioned validator requires an exact, positively asserted, byte-committed C
 
 `WorldModel.foundational_confession()` exposes the root, authority references and its `ADOPTED_CONFESSIONAL_AXIOM_NOT_EMPIRICALLY_PROVED` assurance label. `ModelState.inspect()` maintains traceable rule/assumption dependencies. Ordinary `project('moral')` returns normative state without routine doctrinal metadata; `project('biblical')` and `inspect()` expose the basis. No answer generator is involved.
 
+### Distinct assurance for Logos/creation and mathematics
+
+The ontological grounding record now has its **own source commitments**, separate from the Nicene Creed's Christological confession. The example cites the [Orthodox Church in America on creation through the Word](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-holy-trinity/the-holy-trinity-in-creation). Its claim classifications are deliberately unequal: `created_intelligibility = ORTHODOX_THEOLOGICAL_INTERPRETATION`, while `logical_order` and `mathematical_order` are both `RESEARCH_EXTENSION`. This prevents the model from reporting a modern philosophy-of-mathematics proposal as settled Orthodox teaching.
+
+Even `ORTHODOX_THEOLOGICAL_INTERPRETATION` is a classification supplied by a researcher: the validator checks source identities, types, and structure, not the substantive faithfulness of a reading. Scholarly and ecclesial review are separately required. A source digest verifies bytes, not authority or inference.
+
 ### Discovery versus invention
 
 The configured metaphysical position treats logical and mathematical order as **not constituted by human declarations**. Humans may design symbols, proof calculi, axiomatizations, and software encodings, but their intended validity conditions and mathematical consequences are not automatically whatever a developer wishes. The question of mathematical realism remains philosophically contested. This profile adopts an Orthodox, Logos-centered grounding of intelligible order, **not** an independent proof that all objective mathematics is metaphysically grounded in Christ or that St. Maximus explicitly identified the `logoi` with modern mathematical structures.
