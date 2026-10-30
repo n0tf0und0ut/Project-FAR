@@ -53,8 +53,10 @@ def report():
                      "rate": round(v[0] / v[1], 6)}
                  for k, v in COUNTS.items()},
         "comparisons": [
-            {"arms": [a, b], "p_two_sided": round(float(
-                fisher_two_sided(*COUNTS[a], *COUNTS[b])), 6)}
+            {"arms": [a, b],
+             "p_two_sided": round(float(fisher_two_sided(*COUNTS[a], *COUNTS[b])), 6),
+             "bonferroni_5_sensitivity": round(min(1.0, 5 * float(
+                 fisher_two_sided(*COUNTS[a], *COUNTS[b]))), 6)}
             for a, b in COMPARISONS
         ],
         "interpretation": (
