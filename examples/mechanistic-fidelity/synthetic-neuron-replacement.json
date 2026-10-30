@@ -8,7 +8,12 @@
     "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "component_id": "toy-neuron-7",
     "intervention_type": "single_component_activation_replacement",
-    "reference_population_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    "reference_population_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "execution_contract": {
+      "deterministic": true,
+      "same_nonintervened_state": true,
+      "exact_output_distributions": true
+    }
   },
   "explanation": {
     "id": "toy-pattern",
