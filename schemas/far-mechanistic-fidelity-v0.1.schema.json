@@ -41,7 +41,8 @@
         "artifact_sha256",
         "component_id",
         "intervention_type",
-        "reference_population_sha256"
+        "reference_population_sha256",
+        "execution_contract"
       ],
       "properties": {
         "artifact_sha256": {
@@ -58,6 +59,26 @@
         "reference_population_sha256": {
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
+        },
+        "execution_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "deterministic",
+            "same_nonintervened_state",
+            "exact_output_distributions"
+          ],
+          "properties": {
+            "deterministic": {
+              "const": true
+            },
+            "same_nonintervened_state": {
+              "const": true
+            },
+            "exact_output_distributions": {
+              "const": true
+            }
+          }
         }
       }
     },
