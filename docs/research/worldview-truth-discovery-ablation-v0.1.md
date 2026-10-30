@@ -67,8 +67,9 @@ Both models affirm `jesus-is-god`. For each `rain` value, they produce opposite
 values for `wet_ground`, while preserving every theological declaration. Therefore,
 over the declared model class, neither `wet_ground` nor its negation is entailed
 **by the Christological confession alone**. More formally, there exist
-`M1, M2 |= A0` with `M1 |= E` and `M2 |= not E` for an empirical proposition
-`E`. Hence `A0 not |= E` and `A0 not |= not E` under this model class.
+both models satisfy the axiom **A0**, while one satisfies empirical statement **E**
+and the other satisfies its negation. Therefore neither **E** nor its negation is
+entailed by **A0** across the declared model class.
 
 This is a **non-entailment countermodel**, not a theological refutation, a real
 meteorological result, or a general denial that richer biblical premises could
