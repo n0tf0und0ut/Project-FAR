@@ -66,6 +66,16 @@ class MechanisticFidelityTests(unittest.TestCase):
             row["explained_activation"] = row["observed_activation"]
         self.fails(impossible, "unchanged activation")
 
+    def test_fixed_context_must_be_explicit_and_baseline_replay_consistent(self):
+        self.fails(lambda d: d["model"].pop("execution_contract"))
+        self.fails(lambda d: d["model"]["execution_contract"].update(deterministic=False))
+        self.fails(lambda d: d["model"]["execution_contract"].update(
+            same_nonintervened_state=False))
+        def fake_baseline(doc):
+            row = doc["cases"][0]
+            row["baseline_activation"] = row["observed_activation"]
+        self.fails(fake_baseline, "unchanged baseline activation")
+
     def test_replay_detects_fabricated_replacement_probabilities(self):
         row = copy.deepcopy(self.fixture["cases"][0])
         row["replacement_probs"] = ["0.700000", "0.300000"]
