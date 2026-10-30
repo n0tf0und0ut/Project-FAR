@@ -124,12 +124,16 @@ def _validate(value):
             raise MechanismAuditError("unresolved explanation source")
         registered = _time(data["registered_at"])
         seen = set()
+        seen_inputs = set()
         dimensions = set()
         splits = set()
         for case in data["cases"]:
             if case["id"] in seen:
                 raise MechanismAuditError("duplicate case id")
             seen.add(case["id"])
+            if case["input_sha256"] in seen_inputs:
+                raise MechanismAuditError("duplicate input commitment across evaluation cases")
+            seen_inputs.add(case["input_sha256"])
             splits.add(case["split"])
             if _time(case["measured_at"]) <= registered:
                 raise MechanismAuditError("measurement not after declared registration")
