@@ -46,7 +46,7 @@ def search_counterexamples(
         predicted = explained_activation(key)
         baseline = baseline_activation(key)
         if not all(isinstance(z, str) and re.fullmatch(
-                r"-?(?:0|[1-9][0-9]{0,2})(?:\\.[0-9]{1,6})?", z)
+                r"-?(?:0|[1-9][0-9]{0,2})(?:\.[0-9]{1,6})?", z)
                    for z in (actual, predicted, baseline)):
             raise MechanismAuditError("activation functions must return bounded decimal strings")
         a, p, b = _number(actual), _number(predicted), _number(baseline)
@@ -59,13 +59,13 @@ def search_counterexamples(
             raise MechanismAuditError("candidate output dimensions differ")
         delta = _kl(original, replaced) - _kl(original, comparison)
         if delta > Decimal(0):
-            findings.append({
+            findings.append((delta, {
                 "input_key": key,
                 "activation_error": _fmt(abs(a - p)),
                 "replacement_kl": _fmt(_kl(original, replaced)),
                 "baseline_kl": _fmt(_kl(original, comparison)),
                 "delta_kl": _fmt(delta),
                 "classification": "UNVERIFIED_ADVERSARIAL_CANDIDATE",
-            })
-    # Rank by unrounded delta to avoid collapsing distinct candidates at 1e-9.
-    return sorted(findings, key=lambda x: (-Decimal(x["delta_kl"]), x["input_key"]))
+            }))
+    # Rank by the unrounded loss difference with a stable tie-break.
+    return [record for _, record in sorted(findings, key=lambda x: (-x[0], x[1]["input_key"]))]
