@@ -123,6 +123,32 @@ with identical sourced questions and blind factual adjudication. An effect on
 trace honesty must not be reported as an accuracy effect unless the same
 experiment actually measures externally scored factual truth.
 
+### Multiplicity and negative-control evidence
+
+The `external_christian_integrity_reanalysis.py` report now includes a
+**five-contrast Bonferroni sensitivity analysis** of its displayed comparisons.
+All corrected p-values exceed 0.05: unconditioned vs Christian is
+`0.167499`, unconditioned vs secular `0.071858`, and Christian
+anchored vs unanchored `0.209974`. This is a conservative post-hoc
+familywise sensitivity check, **not** a claim that the original authors
+preregistered five primary hypotheses; it illustrates how fragile nominal
+significance is under plausible multiple-testing correction. Reuse of ten
+constructed questions also raises dependence concerns that aggregate
+contingency counts cannot resolve.
+
+A second ICMI working paper,
+[ICMI-A, *Let His Praise Be Continually in My Mouth* (2026-03-30)](https://icmi-proceedings.com/ICMI-A-psalm-injection-alignment.html),
+tested Psalm-prompted ethical classification. Excluding a confirmed
+utilitarianism-label bias artifact, GPT-4o showed small mean gains on
+four subsets, while Claude Sonnet 4 showed mean declines of about
+`0.90` and `0.96` percentage points across two Psalm selections.
+The study's largest initially reported utilitarianism improvement
+collapsed under label shuffling, identifying a response-position
+artifact. Those are *author-reported ethical benchmark observations*,
+not independently reproduced factual-discovery results. They provide
+counterevidence to any general claim that religious prompt injection
+necessarily improves AI accuracy, across models and tasks.
+
 ### Separate normative evaluation
 
 Framework-consistency can be measured on held-out Orthodox doctrinal problems against independent ecclesial/patristic reference review, with blinded provenance, passage-context controls, and disagreement handling. But scoring agreement with a framework's own labels is not evidence of *universal objective morality* or improved empirical truth detection. Do not mix denominational preference adherence with external factual accuracy.
