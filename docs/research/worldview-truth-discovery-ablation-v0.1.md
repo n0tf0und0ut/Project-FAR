@@ -53,6 +53,36 @@ To obtain testable empirical differentiation, researchers must posit and registe
 
 The [frozen synthetic result](../../evaluation/results/worldview-ablation-synthetic-report-v0.1.json) is recomputed by the [scorer](../../evaluation/worldview_truth_discovery_ablation.py) and checked as a whole by the regression suite. The artificial commitments in the synthetic file are placeholders with syntactically valid digests, not a chain of independently verified evidence.
 
+### Logical countermodel: the foundation alone cannot select a physical mechanism
+
+The regression `test_christological_foundation_underdetermines_contingent_causal_facts`
+constructs **two different, schema-validated FAR worlds** with the same Christological
+confession, Orthodox worldview, theological/normative propositions, recorded claims,
+and inference rules. Their finite causal mechanisms disagree about the Boolean
+relationship between `rain` and `wet_ground`. Each causal assumption is identified
+as an explicitly hypothetical source rather than falsely citing evidence for the
+other mechanism.
+
+Both models affirm `jesus-is-god`. For each `rain` value, they produce opposite
+values for `wet_ground`, while preserving every theological declaration. Therefore,
+over the declared model class, neither `wet_ground` nor its negation is entailed
+**by the Christological confession alone**. More formally, there exist
+`M1, M2 |= A0` with `M1 |= E` and `M2 |= not E` for an empirical proposition
+`E`. Hence `A0 not |= E` and `A0 not |= not E` under this model class.
+
+This is a **non-entailment countermodel**, not a theological refutation, a real
+meteorological result, or a general denial that richer biblical premises could
+have empirical implications. It establishes a specific obstacle to the requested
+demonstration: to improve contingent truth discovery, the model needs additional
+world-discriminating premises, a procedure that gathers better evidence, or a
+better estimator. Whether those enhancements trace uniquely to Christological
+metaphysics remains a separate controlled causal question.
+
+The general issue is well known as empirical underdetermination; see
+[Stanford Encyclopedia of Philosophy, Underdetermination of Scientific Theory](https://plato.stanford.edu/entries/scientific-underdetermination/).
+This documentation invokes the general logic, not an appeal to authority for the
+model-specific result, which is independently testable in FAR's own simulator.
+
 ### Separate normative evaluation
 
 Framework-consistency can be measured on held-out Orthodox doctrinal problems against independent ecclesial/patristic reference review, with blinded provenance, passage-context controls, and disagreement handling. But scoring agreement with a framework's own labels is not evidence of *universal objective morality* or improved empirical truth detection. Do not mix denominational preference adherence with external factual accuracy.
