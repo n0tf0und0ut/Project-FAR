@@ -17,6 +17,7 @@ Files:
 - `mechanization/far_mechanization/mechanistic_fidelity.py`: deterministic bounded auditor and CLI.
 - `examples/mechanistic-fidelity/synthetic-neuron-replacement.json`: six deliberately synthetic traces.
 - `tests/test_mechanistic_fidelity.py`: adversarial validation and counterexample tests.
+- `mechanization/far_mechanization/mechanistic_toy_reference.py`: separate explicit deterministic toy network used to replay the synthetic probabilities.
 
 The intake declares:
 - exact model artifact and reference population SHA-256 *claims*;
@@ -46,11 +47,11 @@ A specific case with `KL_replacement > KL_baseline` becomes a retained `DOWNSTRE
 
 ### Six-case synthetic falsification
 
-The heldout cases have exact local activation predictions and a plausible replacement distribution, better than an uninformative baseline. Adversarial cases **also** have exact local activation predictions but replacement output distributions that differ sharply from the original and are worse than baseline. This exhibits the failure mode:
+The heldout cases have a 0.0001 activation prediction error and a replacement distribution much closer to the original than the baseline. Adversarial cases have a 0.01 activation error, yet this small error crosses a steep downstream nonlinearity; replacement output distributions differ sharply from the original and are worse than baseline. Every one of the six source-output pairs is independently recalculated by the deterministic toy reference in `mechanization/far_mechanization/mechanistic_toy_reference.py`. The adversarial regression suite compares these exact calculations against the submitted traces. This exhibits the failure mode:
 
 `local activation fit does not imply downstream mechanism fidelity`.
 
-Controls preserve the declared original output distributions exactly. The fixture only establishes that the *auditor* detects this behavior in submitted synthetic data; it is not an LLM measurement.
+Controls preserve the declared original output distributions exactly. The tiny reference network is `P0(z)=0.8 - 60 * clip(z-0.99, 0, 0.01)` and `P1(z)=1-P0(z)`. It exhibits steep but bounded probability sensitivity. A guard rejects a substituted activation equal to the observed activation if downstream probabilities differ; that scenario is impossible under the declared deterministic, fixed-context single-component replacement contract. The fixture demonstrates toy-model causal sensitivity and that the *auditor* detects its consequences; it is not a measured frontier-model neuron or circuit.
 
 Run:
 
