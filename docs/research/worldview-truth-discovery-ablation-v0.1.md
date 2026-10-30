@@ -41,6 +41,81 @@ A result merits a conditional **candidate empirical advantage** only after all o
 
 The scoring tool marks every case set either `SYNTHETIC_TEST_ONLY`, `INSUFFICIENT_PROSPECTIVE_CASES`, or `PROSPECTIVE_UNVERIFIED_REQUIRES_INDEPENDENT_AUDIT`. No output status means verified advantage.
 
+### Confirmatory analysis, source dependence, and statistical power
+
+The original 200-case threshold was a **minimum intake requirement, not a
+power justification**. We have added a separate tested, deterministic
+source-block bootstrap scorer:
+`evaluation/worldview_confirmatory.py`. Each case is mapped to a declared
+source/event cluster, so repeated observations from the same underlying source
+are resampled together. Cluster labels are researcher-supplied and still need
+external verification. This does **not** make fabricated or cherry-picked
+studies credible.
+
+For each of the two prespecified comparisons, Orthodox minus neutral and
+Orthodox minus placebo, the scorer calculates the mean paired Brier difference
+and its 97.5th-percentile source-block bootstrap upper bound. By Bonferroni,
+two one-sided upper bounds have at least nominal 95% joint coverage under
+the bootstrap's assumptions. The experiment qualifies only as a
+**statistical candidate** when at least 200 independently claimed clusters
+exist, both observed differences are at most -0.02, and both upper bounds
+are below zero. A candidate is **never** automatically verified:
+independent forecast locks, source authenticity, treatment randomization,
+outcome adjudication, data freshness, independence, and external replication
+are obligations the scorer cannot establish.
+
+Planning calculation (two comparisons, conservative two-sided
+familywise alpha 0.05, 80% target power, absolute mean Brier improvement 0.02):
+
+| Assumed paired-loss SD | Approximate independent cases required |
+| --- | ---: |
+| 0.10 | 238 |
+| 0.15 | 535 |
+| 0.20 | 951 |
+| 0.25 | 1,486 |
+| 0.30 | 2,139 |
+
+These numbers are **hypothetical power estimates**, not measured FAR
+performance or guaranteed sample-size adequacy. Uncertain clustering,
+time trends, selection, and actual effect-size variation may increase
+requirements. If there are no distinguishable forecasts, the expected
+advantage cannot appear at any sample size.
+
+Reproducible synthetic illustration (from repository root):
+
+```bash
+python -m evaluation.worldview_confirmatory \
+  evaluation/fixtures/worldview-ablation-synthetic-v0.1.json \
+  evaluation/fixtures/worldview-ablation-source-clusters-v0.1.json
+python -m unittest discover -s tests -p test_worldview_confirmatory.py -v
+```
+
+The **11 new hostile regressions** check repeated-source pseudo-replication,
+a synthetic perfect-oracle manipulation, a matched placebo that is just as
+accurate as the Orthodox arm, inadequate cluster count, malformed source
+groups, deterministic output and timing violations. The synthetic study
+correctly returns zero differences, zero upper bounds and
+`SYNTHETIC_TEST_ONLY`. It remains a software test, not independent
+evidence of metaphysical truth or predictive advantage.
+
+### Recommended datasets and scoring boundaries
+
+Use separately collected prospective questions with externally adjudicated
+binary outcomes and **locked forecasts**; do not treat public factual recall
+benchmarks as unseen discovery. The [2026 Epoch AI review of SimpleQA
+Verified](https://epoch.ai/benchmarks/simple-qa-verified/review) notes that
+the 1,000 answers have been public for years, the benchmark cannot exclude
+training contamination, and even answer keys have identifiable defects.
+It can test tool-free factual retrieval, not whether an epistemic worldview
+generates genuinely new world knowledge.
+
+The [NIST Agentic AI Evidence Evaluation
+probes](https://www.nist.gov/programs-projects/building-evaluation-probes-agentic-ai)
+separate citation **faithfulness**, **completeness**, and **sufficiency**.
+FAR should score those as distinct secondary endpoints with blinded
+rubrics and avoid promoting source fidelity into evidence for a
+worldview-specific ontology.
+
 ### Crucial identification barrier
 
 In the current FAR-WORLD/0.1 implementation, the Boolean SCM simulator reads causal models, exogenous contexts and interventions. It does **not** consume theological assertions, ontological grounding, or the selected worldview profile as predictors. Thus, for a matched causal graph and the same context/intervention, there is no mechanism by which mere profile metadata changes the simulated result. The current code provides no independent automatically learned forecasts or independently identified mechanisms. This architecture cannot yield a worldview-specific empirical uplift from **metadata alone**.
