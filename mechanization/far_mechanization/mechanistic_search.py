@@ -7,6 +7,7 @@ findings are candidates until independently traced into FAR-MECH documents.
 from __future__ import annotations
 
 from decimal import Decimal
+import re
 from typing import Callable, Sequence
 
 from .mechanistic_fidelity import (
@@ -44,8 +45,10 @@ def search_counterexamples(
         actual = observed_activation(key)
         predicted = explained_activation(key)
         baseline = baseline_activation(key)
-        if not all(isinstance(z, str) for z in (actual, predicted, baseline)):
-            raise MechanismAuditError("activation functions must return decimal strings")
+        if not all(isinstance(z, str) and re.fullmatch(
+                r"-?(?:0|[1-9][0-9]{0,2})(?:\\.[0-9]{1,6})?", z)
+                   for z in (actual, predicted, baseline)):
+            raise MechanismAuditError("activation functions must return bounded decimal strings")
         a, p, b = _number(actual), _number(predicted), _number(baseline)
         if any(not x.is_finite() for x in (a, p, b)):
             raise MechanismAuditError("nonfinite model activation")
