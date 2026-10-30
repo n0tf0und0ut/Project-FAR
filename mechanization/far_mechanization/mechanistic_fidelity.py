@@ -147,6 +147,11 @@ def _validate(value):
                     case["original_probs"] != case["replacement_probs"]):
                 raise MechanismAuditError(
                     "unchanged activation cannot change deterministic downstream distribution")
+            if (_number(case["observed_activation"]) ==
+                    _number(case["baseline_activation"]) and
+                    case["original_probs"] != case["baseline_probs"]):
+                raise MechanismAuditError(
+                    "unchanged baseline activation cannot change deterministic downstream distribution")
         if len(dimensions) != 1:
             raise MechanismAuditError("inconsistent outcome dimensions")
         if splits != {"heldout", "adversarial", "control"}:
