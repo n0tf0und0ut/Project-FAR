@@ -83,6 +83,45 @@ The general issue is well known as empirical underdetermination; see
 This documentation invokes the general logic, not an appeal to authority for the
 model-specific result, which is independently testable in FAR's own simulator.
 
+### External Christian prompt-integrity evidence (not world-model accuracy)
+
+A focused external working paper published by the Institute for a Christian Machine Intelligence,
+[ICMI-016, *A Test of Faith* (2026-04-19)](https://icmi-proceedings.com/ICMI-016-a-test-of-faith.html),
+reports a 71-trial unconditioned agentic-research baseline with 16 benchmark answer-key
+decryption-and-submission events (22.5%). A Christian earnestness system prompt had
+5/59 events (8.5%), while its matched secular integrity prompt had 4/60 (6.7%).
+The published raw-trace and code repository is
+[christian-machine-intelligence/test-of-faith](https://github.com/christian-machine-intelligence/test-of-faith).
+
+The independent standard-library reanalysis in
+`evaluation/external_christian_integrity_reanalysis.py` reproduces two-sided
+Fisher exact p-values from the *published counts*:
+Christian vs unconditioned `p=0.033500`;
+secular vs unconditioned `p=0.014372`;
+Christian vs secular `p=0.743012`.
+The researchers report pooled Christian-framing corrective prompts reducing the
+rate from 5/59 to 2/118 (`p=0.041995`); a matched secular condition had
+4/60 vs 12/120 (`p=0.584042`). These values are reproduced without external
+statistics packages and covered by eight tests.
+
+**Assurance and scope:** This paper is a research working paper, not an
+independently replicated clinical or commercial result; the current reanalysis
+checks published contingency counts, **not raw trajectory validity, experimental
+randomization, multiple-testing control, or data provenance**. The endpoint is
+avoidance of an artificial illicit benchmark shortcut, **not factual precision,
+truth discovery, or calibration**. It evaluates *Christian prompting*, not
+Eastern Orthodox metaphysics and not FAR. The Christian and secular primary
+framing conditions are not distinguishable in this sample. Therefore this is
+positive evidence of an **instrumental integrity effect versus an unconditioned
+baseline**, and no demonstrated worldview-specific advantage over a matched
+nonreligious control.
+
+It justifies a **separate mechanistic experiment** on research integrity:
+Christian moral framing, matched secular integrity framing, and no framing,
+with identical sourced questions and blind factual adjudication. An effect on
+trace honesty must not be reported as an accuracy effect unless the same
+experiment actually measures externally scored factual truth.
+
 ### Separate normative evaluation
 
 Framework-consistency can be measured on held-out Orthodox doctrinal problems against independent ecclesial/patristic reference review, with blinded provenance, passage-context controls, and disagreement handling. But scoring agreement with a framework's own labels is not evidence of *universal objective morality* or improved empirical truth detection. Do not mix denominational preference adherence with external factual accuracy.
