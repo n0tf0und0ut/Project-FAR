@@ -105,6 +105,15 @@ class MechanisticFidelityTests(unittest.TestCase):
         self.fails(lambda d: d["cases"][1].update(id=d["cases"][0]["id"]), "duplicate case")
         self.fails(lambda d: d["sources"].append(copy.deepcopy(d["sources"][0])), "duplicate source")
 
+    def test_cross_split_input_duplication_is_rejected(self):
+        def reuse_input(doc):
+            doc["cases"][2]["input_sha256"] = doc["cases"][0]["input_sha256"]
+        self.fails(reuse_input, "duplicate input commitment")
+
+    def test_synthetic_inputs_are_distinct_across_every_split(self):
+        keys = [c["input_sha256"] for c in self.fixture["cases"]]
+        self.assertEqual(len(set(keys)), len(keys))
+
     def test_source_hash_or_missing_reference_rejected(self):
         self.fails(lambda d: d["sources"][0].update(text="tamper"), "source bytes")
         self.fails(lambda d: d["cases"][0].update(source_ids=["unknown"]), "unresolved")
