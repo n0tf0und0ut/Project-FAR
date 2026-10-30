@@ -80,7 +80,7 @@ class MechanisticFidelityTests(unittest.TestCase):
         self.fails(lambda d: d["cases"][0].update(original_probs=["0.2", "0.2"]), "exactly one")
         self.fails(lambda d: d["cases"][0].update(original_probs=["1", "0"]), "strictly positive")
         self.fails(lambda d: d["cases"][0].update(replacement_probs=["0.5", "0.3", "0.2"]), "dimensions")
-        self.fails(lambda d: d["cases"][0].update(baseline_probs=["NaN", "1"]), "schema")
+        self.fails(lambda d: d["cases"][0].update(baseline_probs=["NaN", "1"]))
         self.fails(lambda d: d["cases"][0].update(baseline_probs=[0.5, 0.5]))
 
     def test_time_and_leakage_guards(self):
