@@ -9,6 +9,9 @@ import unittest
 from mechanization.far_mechanization.mechanistic_fidelity import (
     MechanismAudit, MechanismAuditError, VERSION,
 )
+from mechanization.far_mechanization.mechanistic_toy_reference import (
+    replay_case, model_probabilities,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "examples/mechanistic-fidelity/synthetic-neuron-replacement.json"
@@ -40,7 +43,7 @@ class MechanisticFidelityTests(unittest.TestCase):
 
     def test_local_activation_accuracy_does_not_certify_downstream_fidelity(self):
         result = self.audit().evaluate()
-        self.assertEqual(result["by_split"]["adversarial"]["activation_mae"], "0.000000000")
+        self.assertEqual(result["by_split"]["adversarial"]["activation_mae"], "0.010000000")
         self.assertEqual(result["by_split"]["adversarial"]["cases_worse_than_baseline"], 2)
         self.assertGreater(
             float(result["by_split"]["adversarial"]["delta_kl"]), 0)
@@ -49,6 +52,27 @@ class MechanisticFidelityTests(unittest.TestCase):
         self.assertEqual(len(result["counterexamples"]), 2)
         self.assertEqual(result["unverified"][1],
                          "whether the component was replaced as claimed")
+
+    def test_every_synthetic_output_is_replayable_from_toy_equations(self):
+        for case in self.fixture["cases"]:
+            with self.subTest(case=case["id"]):
+                self.assertTrue(replay_case(case))
+        self.assertEqual(model_probabilities("1.000000"), ["0.200000", "0.800000"])
+        self.assertEqual(model_probabilities("0.990000"), ["0.800000", "0.200000"])
+
+    def test_impossible_same_activation_different_output_is_rejected(self):
+        def impossible(doc):
+            row = doc["cases"][0]
+            row["explained_activation"] = row["observed_activation"]
+        self.fails(impossible, "unchanged activation")
+
+    def test_replay_detects_fabricated_replacement_probabilities(self):
+        row = copy.deepcopy(self.fixture["cases"][0])
+        row["replacement_probs"] = ["0.700000", "0.300000"]
+        self.assertFalse(replay_case(row))
+        # The general-purpose auditor cannot independently evaluate a foreign
+        # network. The synthetic reference replay checks these toy numbers.
+        self.assertEqual(self.audit().evaluate()["status"], "SYNTHETIC_DEMONSTRATION_ONLY")
 
     def test_control_has_zero_downstream_kl(self):
         result = self.audit().evaluate()
