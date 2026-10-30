@@ -18,6 +18,7 @@ Files:
 - `examples/mechanistic-fidelity/synthetic-neuron-replacement.json`: six deliberately synthetic traces.
 - `tests/test_mechanistic_fidelity.py`: adversarial validation and counterexample tests.
 - `mechanization/far_mechanization/mechanistic_toy_reference.py`: separate explicit deterministic toy network used to replay the synthetic probabilities.
+- `mechanization/far_mechanization/mechanistic_search.py`: bounded callback-driven counterexample search with independently tested toy demonstration.
 
 The intake declares:
 - a **deterministic, fixed nonintervened state, exact output distribution** execution contract, so equality checks have valid meaning;
@@ -62,6 +63,14 @@ python -m unittest discover -s tests -p 'test_mechanistic_fidelity.py' -v
 ```
 
 Every report is labeled `SYNTHETIC_DEMONSTRATION_ONLY` or `SUBMITTED_INTERVENTIONS_NOT_INDEPENDENTLY_REPLAYED`. Neither is a proof of a real mechanism. Provenance hashes protect submitted bytes only, not the asserted provenance origin.
+
+## Executable counterexample search
+
+`mechanization/far_mechanization/mechanistic_search.py` accepts a bounded **finite set of candidate inputs** and caller-provided deterministic functions for actual activation, explanation-predicted activation, baseline activation, and forward-pass output probabilities. It evaluates all candidates, computes exact high-precision downstream KL differences, and returns only those with **greater KL than the baseline**, ranked by unrounded loss difference. It caps the search at 256 input keys and rejects duplicates, nonfinite or excessively precise values, unnormalized probabilities and wrong output dimensions. Its candidate records are marked `UNVERIFIED_ADVERSARIAL_CANDIDATE`.
+
+The separately tested toy model makes this an actual executable **search for a failure**, not just classification of an existing fixture. This function is not a frontier-model probing backend and it does not attach independent source provenance; to promote a candidate into a FAR claim, capture the corresponding reproducible model trace, bind exact model/input hashes, record the intervention and independently replay it under the main evidence contract. See `tests/test_mechanistic_search.py`.
+
+Every sample must have its own input commitment. The evidence intake rejects duplicate input identities across heldout/adversarial/control groups to avoid accidental repeated-sample inflation. This is structural independence only, not proof that two inputs are statistically independent in origin.
 
 ## FAR integration and theory boundaries
 
