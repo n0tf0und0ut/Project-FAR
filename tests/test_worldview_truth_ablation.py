@@ -73,6 +73,48 @@ class WorldviewAblationTests(unittest.TestCase):
             "SUPPORTED"
         )
 
+    def test_christological_foundation_underdetermines_contingent_causal_facts(self):
+        """Two valid models share the exact confessional root but disagree empirically.
+
+        This is a non-entailment witness, not a claim about real rain or the
+        metaphysical truth of the fixed Christological confession.
+        """
+        fixture = ROOT / "examples/world-model/orthodox-example.json"
+        ordinary = json.loads(fixture.read_text(encoding="utf-8"))
+        alternative = copy.deepcopy(ordinary)
+        source_text = (
+            "Toy alternative: wet_ground is true exactly when rain is false. "
+            "This hypothetical rule is not an observed causal law."
+        )
+        alternative["sources"].append({
+            "id": "scm-alternative",
+            "kind": "research",
+            "uri": "urn:toy:alternative-scm",
+            "text": source_text,
+            "sha256": "b300b335b42399756cd9c06ffc4f4c93c9d2c914fff1246fb275ff591eea2313",
+        })
+        altered = alternative["causal_models"][0]
+        altered["source_refs"] = ["scm-alternative"]
+        altered["variables"][1]["table"] = {"0": True, "1": False}
+        first = WorldModel.from_dict(ordinary)
+        second = WorldModel.from_dict(alternative)
+        # Both preserve the same supposedly irrefutable starting axiom and
+        # the same theological and normative statements, sources and rules.
+        self.assertEqual(first.foundational_confession(), second.foundational_confession())
+        for field in ("worldview_profile", "christological_foundation", "propositions", "assertions", "rules"):
+            self.assertEqual(first.to_dict()[field], second.to_dict()[field])
+        state1 = first.derive(known_at="2026-10-29T00:00:00Z")
+        state2 = second.derive(known_at="2026-10-29T00:00:00Z")
+        self.assertEqual(state1.status("jesus-is-god"), "SUPPORTED")
+        self.assertEqual(state2.status("jesus-is-god"), "SUPPORTED")
+        for rain in (False, True):
+            x = first.simulate("rain-to-wet-ground", context={"rain": rain})
+            y = second.simulate("rain-to-wet-ground", context={"rain": rain})
+            self.assertEqual(x["rain"], y["rain"])
+            self.assertNotEqual(x["wet_ground"], y["wet_ground"])
+        # Thus neither value of the empirical consequent follows from the
+        # Christological premise alone under these declared admissible models.
+
     def test_synthetic_profile_gain_cannot_be_promoted_to_evidence(self):
         doc = sample()
         for case in doc["cases"]:
