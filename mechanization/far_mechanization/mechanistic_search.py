@@ -52,9 +52,18 @@ def search_counterexamples(
         a, p, b = _number(actual), _number(predicted), _number(baseline)
         if any(not x.is_finite() for x in (a, p, b)):
             raise MechanismAuditError("nonfinite model activation")
-        original = _probabilities(output_distribution(key, actual))
-        replaced = _probabilities(output_distribution(key, predicted))
-        comparison = _probabilities(output_distribution(key, baseline))
+        def vector(activation):
+            submitted = output_distribution(key, activation)
+            if (not isinstance(submitted, list) or not 2 <= len(submitted) <= 16 or
+                any(not isinstance(v, str) or not re.fullmatch(
+                    r"(?:0(?:\.[0-9]{1,6})?|1(?:\.0{1,6})?)", v)
+                    for v in submitted)):
+                raise MechanismAuditError("model probabilities must be bounded decimal strings")
+            return _probabilities(submitted)
+
+        original = vector(actual)
+        replaced = vector(predicted)
+        comparison = vector(baseline)
         if not (len(original) == len(replaced) == len(comparison)):
             raise MechanismAuditError("candidate output dimensions differ")
         delta = _kl(original, replaced) - _kl(original, comparison)
