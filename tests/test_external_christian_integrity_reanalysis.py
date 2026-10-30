@@ -33,6 +33,15 @@ class ExternalChristianIntegrityTests(unittest.TestCase):
             with self.subTest(counts=counts), self.assertRaises(ValueError):
                 fisher_two_sided(*counts)
 
+    def test_five_comparison_adjustment_undercuts_overclaim(self):
+        contrasts = report()["comparisons"]
+        self.assertEqual(len(contrasts), 5)
+        self.assertGreater(min(x["bonferroni_5_sensitivity"] for x in contrasts), 0.05)
+        self.assertAlmostEqual(contrasts[0]["bonferroni_5_sensitivity"],
+                               0.167499, delta=0.000001)
+        self.assertAlmostEqual(contrasts[1]["bonferroni_5_sensitivity"],
+                               0.071858, delta=0.000001)
+
     def test_no_accuracy_claim_from_integrity(self):
         output = report()
         self.assertIn("not raw traces", output["disclaimer"])
