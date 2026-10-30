@@ -20,6 +20,7 @@ Files:
 - `mechanization/far_mechanization/mechanistic_toy_reference.py`: separate explicit deterministic toy network used to replay the synthetic probabilities.
 
 The intake declares:
+- a **deterministic, fixed nonintervened state, exact output distribution** execution contract, so equality checks have valid meaning;
 - exact model artifact and reference population SHA-256 *claims*;
 - the target component and intervention type (single-component activation replacement);
 - an explanation with precise source identities and source-byte commitments;
@@ -51,7 +52,7 @@ The heldout cases have a 0.0001 activation prediction error and a replacement di
 
 `local activation fit does not imply downstream mechanism fidelity`.
 
-Controls preserve the declared original output distributions exactly. The tiny reference network is `P0(z)=0.8 - 60 * clip(z-0.99, 0, 0.01)` and `P1(z)=1-P0(z)`. It exhibits steep but bounded probability sensitivity. A guard rejects a substituted activation equal to the observed activation if downstream probabilities differ; that scenario is impossible under the declared deterministic, fixed-context single-component replacement contract. The fixture demonstrates toy-model causal sensitivity and that the *auditor* detects its consequences; it is not a measured frontier-model neuron or circuit.
+Controls preserve the declared original output distributions exactly. The tiny reference network is `P0(z)=0.8 - 60 * clip(z-0.99, 0, 0.01)` and `P1(z)=1-P0(z)`. It exhibits steep but bounded probability sensitivity. A guard rejects a substituted or baseline activation equal to the observed activation if downstream probabilities differ; that scenario is impossible under the declared deterministic, fixed-context single-component replacement contract. The fixture demonstrates toy-model causal sensitivity and that the *auditor* detects its consequences; it is not a measured frontier-model neuron or circuit.
 
 Run:
 
