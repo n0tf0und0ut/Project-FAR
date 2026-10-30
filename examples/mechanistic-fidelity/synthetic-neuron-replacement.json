@@ -12,7 +12,7 @@
   },
   "explanation": {
     "id": "toy-pattern",
-    "description": "Synthetic example: same local activation, but downstream replacements fail adversarially.",
+    "description": "Synthetic deterministic clipped-linear model: small input error may amplify to a large downstream distribution change.",
     "hypothesis_source_ids": [
       "synthetic-log"
     ]
@@ -34,15 +34,15 @@
         "synthetic-log"
       ],
       "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "explained_activation": "0.999900",
+      "baseline_activation": "0.995000",
       "original_probs": [
-        "0.800000",
-        "0.200000"
+        "0.200000",
+        "0.800000"
       ],
       "replacement_probs": [
-        "0.790000",
-        "0.210000"
+        "0.206000",
+        "0.794000"
       ],
       "baseline_probs": [
         "0.500000",
@@ -58,15 +58,15 @@
         "synthetic-log"
       ],
       "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "explained_activation": "0.999900",
+      "baseline_activation": "0.995000",
       "original_probs": [
-        "0.800000",
-        "0.200000"
+        "0.200000",
+        "0.800000"
       ],
       "replacement_probs": [
-        "0.790000",
-        "0.210000"
+        "0.206000",
+        "0.794000"
       ],
       "baseline_probs": [
         "0.500000",
@@ -82,8 +82,8 @@
         "synthetic-log"
       ],
       "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "explained_activation": "0.990000",
+      "baseline_activation": "0.998333",
       "original_probs": [
         "0.200000",
         "0.800000"
@@ -93,8 +93,8 @@
         "0.200000"
       ],
       "baseline_probs": [
-        "0.300000",
-        "0.700000"
+        "0.300020",
+        "0.699980"
       ]
     },
     {
@@ -106,8 +106,8 @@
         "synthetic-log"
       ],
       "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "explained_activation": "0.990000",
+      "baseline_activation": "0.998333",
       "original_probs": [
         "0.200000",
         "0.800000"
@@ -117,8 +117,8 @@
         "0.200000"
       ],
       "baseline_probs": [
-        "0.300000",
-        "0.700000"
+        "0.300020",
+        "0.699980"
       ]
     },
     {
@@ -129,9 +129,9 @@
       "source_ids": [
         "synthetic-log"
       ],
-      "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "observed_activation": "0.995000",
+      "explained_activation": "0.995000",
+      "baseline_activation": "0.995000",
       "original_probs": [
         "0.500000",
         "0.500000"
@@ -153,9 +153,9 @@
       "source_ids": [
         "synthetic-log"
       ],
-      "observed_activation": "1.000000",
-      "explained_activation": "1.000000",
-      "baseline_activation": "0.000000",
+      "observed_activation": "0.995000",
+      "explained_activation": "0.995000",
+      "baseline_activation": "0.995000",
       "original_probs": [
         "0.500000",
         "0.500000"
