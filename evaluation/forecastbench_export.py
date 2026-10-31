@@ -12,7 +12,7 @@ from pathlib import Path
 import re
 import sys
 
-from evaluation.prospective_forecast_runner import ARMS, MARKET, ProspectiveError
+from evaluation.prospective_forecast_runner import ARMS, MARKET, SOURCES, ProspectiveError
 
 
 def export_sets(run, *, organization, model_organization):
@@ -46,7 +46,7 @@ def export_sets(run, *, organization, model_organization):
         qid = row.get("id")
         horizon = row.get("resolution_date")
         p = row.get("probability")
-        if (not isinstance(source, str) or not isinstance(qid, str) or not qid
+        if (source not in SOURCES or not isinstance(qid, str) or not qid
                 or (source in MARKET and horizon is not None)
                 or (source not in MARKET and not isinstance(horizon, str))
                 or type(p) not in (int, float) or not math.isfinite(p) or not 0 <= p <= 1):
