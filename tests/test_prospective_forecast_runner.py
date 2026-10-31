@@ -74,6 +74,13 @@ class ForecastRunnerTests(unittest.TestCase):
             run_round(packet(), backend, "mock", NOW,
                       finished_at=datetime(2026, 11, 7, tzinfo=timezone.utc))
 
+    def test_official_forecast_must_start_on_due_day(self):
+        backend = lambda _: '{"probability":0.5,"reasoning":"unknown"}'
+        with self.assertRaisesRegex(ProspectiveError, "UTC due date"):
+            run_round(packet(), backend, "mock",
+                      datetime(2026, 11, 7, 23, tzinfo=timezone.utc),
+                      finished_at=datetime(2026, 11, 8, 0, tzinfo=timezone.utc))
+
     def test_question_set_rejects_missing_fields_and_duplicate_questions(self):
         q = packet()
         q["questions"].append(q["questions"][0])
@@ -151,6 +158,8 @@ class ForecastRunnerTests(unittest.TestCase):
             with self.assertRaises(ProspectiveError):
                 OpenAICompatible(endpoint, "mock")
         OpenAICompatible("http://127.0.0.1:11434/v1/chat/completions", "mock")
+        with self.assertRaisesRegex(ProspectiveError, "missing OpenAI API credential"):
+            OpenAICompatible("https://api.openai.com/v1/chat/completions", "mock")
 
 
 if __name__ == "__main__":
