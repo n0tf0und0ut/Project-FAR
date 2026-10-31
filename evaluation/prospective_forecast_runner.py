@@ -150,6 +150,8 @@ class OpenAICompatible:
             raise ProspectiveError("HTTPS (or local loopback HTTP) endpoint required")
         if not model or not isinstance(model, str):
             raise ProspectiveError("missing model")
+        if parsed.hostname == "api.openai.com" and not api_key:
+            raise ProspectiveError("missing OpenAI API credential; set FAR_MODEL_API_KEY or OPENAI_API_KEY")
         self.endpoint, self.model, self.api_key = endpoint, model, api_key
 
     def __call__(self, messages):
@@ -172,6 +174,8 @@ def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=Fal
     due, units = parse_question_set(question_set)
     when = utc(now)
     deadline = datetime.combine(due, time.max, tzinfo=timezone.utc)
+    if not rehearsal and when.date() != due:
+        raise ProspectiveError("official forecast must be generated on its declared UTC due date")
     if not rehearsal and when > deadline:
         raise ProspectiveError("late forecast; never backdate a prospective round")
     if not isinstance(model_id, str) or not model_id.strip():
