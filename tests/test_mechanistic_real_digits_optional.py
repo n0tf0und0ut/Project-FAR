@@ -5,6 +5,7 @@ sklearn are available. Canonical FAR CI must not silently count an optional
 skip as evidence of live model execution.
 """
 import importlib.util
+import json
 import tempfile
 from pathlib import Path
 import unittest
@@ -36,6 +37,23 @@ class LiveDigitsTrainingTests(unittest.TestCase):
             self.assertEqual(verified["status"], "SAVED_WEIGHT_MODEL_REPLAY_VERIFIED")
             self.assertEqual(verified["n"], 32)
             self.assertLessEqual(verified["max_absolute_probability_deviation"], 0.000002)
+            original = json.loads((directory / "digits_mechanism_traces.json").read_text())
+            wrong_component = json.loads(json.dumps(original))
+            wrong_component["model"]["component_id"] = "fc1.relu.5"
+            changed = directory / "wrong_component.json"
+            changed.write_text(json.dumps(wrong_component), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "component id"):
+                replay(directory / "digits_checkpoint.json", changed)
+            nonfinite = json.loads(json.dumps(original))
+            nonfinite["cases"][0]["replacement_probs"][0] = "NaN"
+            changed.write_text(json.dumps(nonfinite), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                replay(directory / "digits_checkpoint.json", changed)
+            nan_observed = json.loads(json.dumps(original))
+            nan_observed["cases"][0]["observed_activation"] = "NaN"
+            changed.write_text(json.dumps(nan_observed), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                replay(directory / "digits_checkpoint.json", changed)
 
 
 if __name__ == "__main__":
