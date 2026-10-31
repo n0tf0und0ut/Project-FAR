@@ -146,16 +146,21 @@ def _validate(value):
                 raise MechanismAuditError("probability dimensions differ")
             for key in ("original_probs", "replacement_probs", "baseline_probs"):
                 _probabilities(case[key])
-            if (_number(case["observed_activation"]) ==
-                    _number(case["explained_activation"]) and
-                    case["original_probs"] != case["replacement_probs"]):
+            observed = _number(case["observed_activation"])
+            predicted = _number(case["explained_activation"])
+            baseline = _number(case["baseline_activation"])
+            original_distribution = _probabilities(case["original_probs"])
+            replacement_distribution = _probabilities(case["replacement_probs"])
+            baseline_distribution = _probabilities(case["baseline_probs"])
+            if observed == predicted and original_distribution != replacement_distribution:
                 raise MechanismAuditError(
                     "unchanged activation cannot change deterministic downstream distribution")
-            if (_number(case["observed_activation"]) ==
-                    _number(case["baseline_activation"]) and
-                    case["original_probs"] != case["baseline_probs"]):
+            if observed == baseline and original_distribution != baseline_distribution:
                 raise MechanismAuditError(
                     "unchanged baseline activation cannot change deterministic downstream distribution")
+            if predicted == baseline and replacement_distribution != baseline_distribution:
+                raise MechanismAuditError(
+                    "equal replacement and baseline activations require equal downstream distributions")
         if len(dimensions) != 1:
             raise MechanismAuditError("inconsistent outcome dimensions")
         if splits != {"heldout", "adversarial", "control"}:
