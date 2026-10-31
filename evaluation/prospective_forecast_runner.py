@@ -81,8 +81,10 @@ def parse_question_set(obj):
     seen = set()
     units = []
     for row in questions:
-        if not isinstance(row, dict) or row.get("source") not in SOURCES:
-            raise ProspectiveError("invalid source or question record")
+        if not isinstance(row, dict):
+            raise ProspectiveError("invalid question record")
+        if row.get("source") not in SOURCES:
+            raise ProspectiveError(f"unsupported official ForecastBench source: {str(row.get('source'))[:64]!r}")
         source, qid = row["source"], row.get("id")
         # ForecastBench explicitly instructs LLM submissions to omit
         # combination questions (array-valued IDs), not fail the entire round.
