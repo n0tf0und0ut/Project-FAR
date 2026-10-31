@@ -33,7 +33,7 @@ A result merits a conditional **candidate empirical advantage** only after all o
 1. The evaluation cohort contains at least **200 independent, post-registration, externally adjudicated cases** selected without access to arm forecasts. A proposed allocation is 100 mechanism/intervention outcomes and 100 sourced factual events, preregistered before collection.
 2. Forecasts are locked *before* outcomes become knowable, with no outcome leakage; hashes, model versions and training/checkpoint provenance are independently replay-verified. The scoring script's timestamp checks alone cannot prove this.
 3. The same model and tools are used across arms; a cross-over or equivalent randomized order design controls compute and placement effects. Results are evaluated blinded to arm labels.
-4. Mean paired Brier improvement is at least **0.02 absolute loss points** versus **both** controls, with a prespecified block-bootstrap 95% confidence interval entirely below zero against both, using cluster-resampling if events share sources.
+4. Mean paired Brier improvement is at least **0.02 absolute loss points** versus **both** controls, with prespecified simultaneous block-bootstrap upper confidence bounds entirely below -0.02 against both, using cluster-resampling if events share sources.
 5. There is no material regression in corrections after new evidence, abstention when evidence is absent, false-certainty, or misleading citations. Those endpoints require separately preregistered rubrics and cannot be substituted for the primary score.
 6. Results reproduce on a second hidden set not chosen after observing the pilot.
 
