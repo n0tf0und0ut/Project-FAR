@@ -129,7 +129,8 @@ def run(output: Path, *, model_id: str = MODEL_ID, revision: str = REVISION,
             handle.remove()
         if len(captured) != 1:
             raise RuntimeError("Activation hook did not execute once")
-        return captured[0], torch.softmax(logits[labels], dim=-1).cpu().double()
+        return (captured[0], torch.softmax(logits[labels], dim=-1).cpu().double(),
+                logits.detach().cpu().double())
 
     activations = torch.stack([forward(inputs[x["id"]])[0] for x in train])
     influence = activations.std(dim=0) * layer.weight.detach().float().norm(dim=0)
@@ -158,13 +159,21 @@ def run(output: Path, *, model_id: str = MODEL_ID, revision: str = REVISION,
     measured = []
     for item in other:
         ids = inputs[item["id"]]
-        activation, original = forward(ids)
+        activation, original, original_full = forward(ids)
         true_activation = float(activation[unit])
         predicted = slope * int(ids.shape[-1]) + intercept
         if item["split"] == "control":
             predicted = true_activation
-        _, replacement = forward(ids, unit, predicted)
-        _, baseline = forward(ids, unit, avg)
+        _, replacement, replacement_full = forward(ids, unit, predicted)
+        _, baseline, baseline_full = forward(ids, unit, avg)
+        original_log = torch.log_softmax(original_full, dim=-1)
+        predicted_log = torch.log_softmax(replacement_full, dim=-1)
+        baseline_log = torch.log_softmax(baseline_full, dim=-1)
+        original_mass = torch.exp(original_log)
+        full_probe_kl = max(0.0, float(torch.sum(
+            original_mass * (original_log - predicted_log))))
+        full_mean_kl = max(0.0, float(torch.sum(
+            original_mass * (original_log - baseline_log))))
         row = {
             "id": item["id"], "split": item["split"],
             "input_sha256": sha(ids.numpy().tobytes()),
@@ -186,6 +195,8 @@ def run(output: Path, *, model_id: str = MODEL_ID, revision: str = REVISION,
             "base_entropy": float(-(original * original.log()).sum()),
             "explanation_kl": kl(row["original_probs"], row["replacement_probs"]),
             "mean_kl": kl(row["original_probs"], row["baseline_probs"]),
+            "full_vocabulary_explanation_kl": full_probe_kl,
+            "full_vocabulary_mean_kl": full_mean_kl,
         }
         measured.append((row, evaluation))
 
@@ -212,7 +223,7 @@ def run(output: Path, *, model_id: str = MODEL_ID, revision: str = REVISION,
         "control": "replace with identical measured activation",
         "heldout": "new prompt framing; predeclared deterministic task cases",
         "adversarial": "different prompt framing, not selected by observed KL",
-        "note": "Exploratory pretrained LM pilot; does not audit semantic neuron interpretation or MIB performance.",
+        "note": "Exploratory pretrained LM pilot; full-vocabulary KL is separately measured, but neither that nor binary KL certifies semantic explanation or MIB performance.",
     }
     source_text = json.dumps(manifest, sort_keys=True)
     audit_doc = {
@@ -263,6 +274,11 @@ def run(output: Path, *, model_id: str = MODEL_ID, revision: str = REVISION,
             "hash_matched_accuracy": accepted_accuracy(random_control),
             "explanation_kl": sum(x["explanation_kl"] for x in sample) / n,
             "baseline_kl": sum(x["mean_kl"] for x in sample) / n,
+            "full_vocabulary_probe_kl": sum(x["full_vocabulary_explanation_kl"] for x in sample) / n,
+            "full_vocabulary_baseline_kl": sum(x["full_vocabulary_mean_kl"] for x in sample) / n,
+            "cases_worse_than_baseline_full_vocabulary": sum(
+                x["full_vocabulary_explanation_kl"] > x["full_vocabulary_mean_kl"]
+                for x in sample),
         }
     result = {
         "manifest": manifest, "mechanism_audit": audit,
