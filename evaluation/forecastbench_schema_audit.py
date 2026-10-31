@@ -30,8 +30,18 @@ def audit_archive(raw: bytes, *, expected_git_blob_sha: str = ARCHIVED_BLOB_SHA1
         document = json.loads(raw.decode("utf-8"))
     except (ValueError, UnicodeError) as exc:
         raise ProspectiveError("archived source is not UTF-8 JSON") from exc
-    due, units = parse_question_set(document)
+    # Print source inventory *after* checking immutable upstream bytes, even
+    # if the active parser rejects a new official source type.
     all_questions = document["questions"]
+    if isinstance(all_questions, list):
+        print(json.dumps({
+            "verified_archive_source_inventory": dict(sorted(Counter(
+                str(row.get("source")) for row in all_questions
+                if isinstance(row, dict)
+            ).items())),
+            "question_count": len(all_questions),
+        }, sort_keys=True), flush=True)
+    due, units = parse_question_set(document)
     if len(all_questions) != 500:
         raise ProspectiveError("expected 500 official source questions")
     combinations = [row for row in all_questions if isinstance(row.get("id"), list)]
