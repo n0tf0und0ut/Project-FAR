@@ -133,8 +133,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("trace", type=Path)
     parser.add_argument("result", type=Path)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    print(json.dumps(replay(args.trace, args.result), indent=2, sort_keys=True))
+    value = replay(args.trace, args.result)
+    result = json.dumps(value, indent=2, sort_keys=True) + "\n"
+    if args.output:
+        args.output.write_text(result, encoding="utf-8")
+    print(result, end="")
 
 
 if __name__ == "__main__":
