@@ -1,0 +1,90 @@
+name: FAR Pretrained LM Mechanism Pilot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/far-pretrained-lm-mechanism.yml'
+      - 'evaluation/run_pretrained_lm_fidelity.py'
+      - 'evaluation/validate_pretrained_lm_result.py'
+      - 'evaluation/replay_pretrained_lm_metrics.py'
+      - 'tests/test_mechanistic_pretrained_validator.py'
+      - 'mechanization/far_mechanization/mechanistic_fidelity.py'
+      - 'schemas/far-mechanistic-fidelity-v0.1.schema.json'
+      - 'tests/test_mechanistic_pretrained_protocol.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: far-pretrained-lm-pilot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pinned-open-weight-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_ETAG_TIMEOUT: '30'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PYTHONPATH: '.'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install CPU PyTorch
+        run: python -m pip install --disable-pip-version-check 'torch==2.5.1' --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned Transformers and scientific dependencies
+        run: python -m pip install --disable-pip-version-check 'transformers==4.49.0' 'safetensors==0.5.3' 'huggingface_hub==0.29.3' 'numpy==1.26.4'
+      - name: Validate offline protocol before downloading weights
+        run: python -m unittest discover -s tests -p 'test_mechanistic_pretrained_protocol.py' -v
+      - name: Run pinned pretrained checkpoint interventions and reliability comparisons
+        run: |
+          python -m evaluation.run_pretrained_lm_fidelity \
+            --output artifacts/pretrained-lm-mechanism \
+            --per-split 12
+      - name: Recompute reported statistics against FAR-MECH source trace
+        run: |
+          python -m evaluation.validate_pretrained_lm_result \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json
+      - name: Independently replay pretrained weights and full-vocabulary interventions
+        run: |
+          python -m evaluation.replay_pretrained_lm_metrics \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json \
+            --output artifacts/pretrained-lm-mechanism/far_mech_pretrained_replay.json
+      - name: Emit exact portable source evidence for durable archiving
+        run: |
+          python - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          root = Path('artifacts/pretrained-lm-mechanism')
+          names = ('far_mech_pretrained_trace.json', 'far_mech_pretrained_result.json', 'far_mech_pretrained_replay.json')
+          raw = {name: (root / name).read_text(encoding='utf-8') for name in names}
+          payload = json.dumps({'schema': 'FAR-RAW-EVIDENCE/0.1', 'raw': raw},
+                               sort_keys=True, separators=(',', ':')).encode('utf-8')
+          encoded = base64.b64encode(gzip.compress(payload, mtime=0)).decode('ascii')
+          print('FAR_EVIDENCE_BASE64_BEGIN')
+          print(encoded)
+          print('FAR_EVIDENCE_BASE64_END')
+          print('FAR_EVIDENCE_PAYLOAD_SHA256=' + hashlib.sha256(payload).hexdigest())
+          for name in names:
+              print('FAR_RAW_SHA256_' + name + '=' + hashlib.sha256(raw[name].encode('utf-8')).hexdigest())
+          PY
+      - name: Upload raw audited measurements and separate reasoning pilot
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: far-pretrained-lm-mechanism-pilot
+          path: ${{ github.workspace }}/artifacts/pretrained-lm-mechanism/*.json
+          if-no-files-found: warn
+          retention-days: 30
