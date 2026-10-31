@@ -102,8 +102,11 @@ def parse_question_set(obj):
                     raise ProspectiveError("invalid resolution horizon") from exc
                 if resolution <= due:
                     raise ProspectiveError("resolution precedes forecast due date")
+            question = row["question"].replace("{forecast_due_date}", due.isoformat())
+            if horizon is not None:
+                question = question.replace("{resolution_date}", horizon)
             units.append({"source": source, "id": qid, "resolution_date": horizon,
-                          "question": row["question"],
+                          "question": question,
                           "resolution_criteria": row["resolution_criteria"],
                           "background": row.get("background", "N/A"),
                           "freeze_value": row.get("freeze_datetime_value", "N/A")})
