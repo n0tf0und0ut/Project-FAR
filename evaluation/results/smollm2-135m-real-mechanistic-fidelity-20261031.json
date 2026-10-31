@@ -1,0 +1,77 @@
+{
+  "format_version": "FAR-MECH-PRETRAINED-PILOT/0.1",
+  "status": "OBSERVED_REAL_PRETRAINED_MODEL_LIMITED_RESEARCH",
+  "observed_on": "2026-10-31",
+  "workflow_run": 41223025391,
+  "workflow_head_sha": "164807e04a4eff805b2befa1cda365498d881570",
+  "workflow_conclusion": "success",
+  "artifact_id": 13050862275,
+  "artifact_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41223025391/artifacts/13050862275",
+  "artifact_sha256": "4751401927162f4b511672bb982917d41b92af0b7241328476663a0fc6cee407",
+  "raw_trace_sha256": "e35615ef9cdbc73f60c9f81ca081607e68e7f80f74a1b2b614c1a0a893022d0c",
+  "raw_result_sha256": "e2e3a7beca2b434e9ebe6bbb6ccea22d46b5a57299b490be84936bb164477c89",
+  "model": {
+    "id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "actual_weight_tensor_hash": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594",
+    "component": "layer0.mlp.down_proj.input[1270]",
+    "answer_token_ids": [
+      10407,
+      4607
+    ]
+  },
+  "n": {
+    "train": 24,
+    "heldout": 12,
+    "adversarial_framing": 12,
+    "identity_control": 8
+  },
+  "evaluation_metrics": {
+    "heldout": {
+      "activation_mae": 0.017734166666666457,
+      "probe_kl": 5.778025152276097e-7,
+      "mean_baseline_kl": 0.000001544291552073107,
+      "worse_than_baseline": 1,
+      "correct_orig": 5,
+      "correct_replacement": 6,
+      "correct_mean": 6,
+      "fidelity_gate_accept": 12
+    },
+    "adversarial_framing": {
+      "activation_mae": 0.12576383333333307,
+      "probe_kl": 0.000019931753902059537,
+      "mean_baseline_kl": 0.0000014370252430314693,
+      "worse_than_baseline": 12,
+      "correct_orig": 8,
+      "correct_replacement": 8,
+      "correct_mean": 8,
+      "fidelity_gate_accept": 12
+    },
+    "identity_control": {
+      "activation_mae": 0,
+      "probe_kl": 0,
+      "mean_baseline_kl": 0.0000010081142654264609,
+      "worse_than_baseline": 0,
+      "correct_orig": 4,
+      "correct_replacement": 4,
+      "correct_mean": 4,
+      "fidelity_gate_accept": 8
+    }
+  },
+  "correctness_task": "closed two-token yes/no entailment under human-defined syllogistic templates",
+  "intervention_scope": "one trained transformer pre-down-projection coordinate at final prompt token; conditional probability over yes/no labels, not full vocabulary",
+  "comparison_scope": "linear token-count activation probe versus mean activation; not MIB, SAEs, DAS, TransformerLens attribution, or frontier circuit tracing",
+  "interpretability_verdict": "BOUNDED_INTERVENTIONS_EXECUTED_SEMANTIC_EXPLANATION_NOT_ESTABLISHED",
+  "external_superiority_verdict": "NOT_TESTED",
+  "general_reasoning_reliability_verdict": "NO_IMPROVEMENT_DEMONSTRATED_GATE_ACCEPTS_ALL_AT_FROZEN_THRESHOLD",
+  "assurance": "INDEPENDENT_NUMERICAL_RECOMPUTATION_OF_SUBMITTED_TRACES_NOT_INDEPENDENT_CHECKPOINT_REPLAY",
+  "limitations": [
+    "n=32 evaluation cases from one 135M instruct model",
+    "prompt length is a weak nonsemantic activation probe",
+    "two answer tokens only, not complete neural behavior",
+    "adversarial cohort varies prompting but is small",
+    "fidelity gate 0.02 did not abstain on any case",
+    "no blind cross-tool competitive benchmark",
+    "no independent second laboratory validation"
+  ]
+}
