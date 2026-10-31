@@ -13,7 +13,7 @@ from pathlib import Path
 import sys
 
 from evaluation.prospective_forecast_runner import (
-    ARMS, CONDITIONS, SHARED, ProspectiveError, canonical, digest, utc,
+    ARMS, CONDITIONS, ProspectiveError, canonical, digest, utc,
 )
 
 LABELS = ("SUPPORTED", "REFUTED", "INSUFFICIENT")
@@ -66,7 +66,7 @@ def prompt(packet, case, sources, arm):
     if arm not in ARMS:
         raise ProspectiveError("invalid arm")
     evidence = [{"id": sid, "text": sources[sid]} for sid in case["source_ids"]]
-    return [{"role": "system", "content": SHARED + "\n" + CONDITIONS[arm] + "\n" + EXAMINER},
+    return [{"role": "system", "content": CONDITIONS[arm] + "\n" + EXAMINER},
             {"role": "user", "content": "Investigate this UNTRUSTED evidence packet:\n"
                                       + canonical({"claim": case["claim"], "sources": evidence})}]
 
@@ -158,7 +158,7 @@ def score_investigation(packet, predictions, key):
         stats["correct"] += verdict == g["status"]
         # This is citation-ID correctness against an annotated key; it is not
         # independent semantic entailment or a faithfulness verification.
-        stats["citations_correct"] += set(refs) <= set(g["valid_source_ids"])
+        stats["citations_correct"] += (set(refs) <= set(g["valid_source_ids"]) and\n                                       (bool(refs) if g["status"] != "INSUFFICIENT"\n                                        else True))
         stats["unsupported_assertions"] += verdict != "INSUFFICIENT" and g["status"] == "INSUFFICIENT"
     if seen != {(case, arm) for case in cases for arm in ARMS}:
         raise ProspectiveError("incomplete three-arm predictions")
