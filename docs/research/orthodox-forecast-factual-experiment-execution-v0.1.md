@@ -39,6 +39,25 @@ Before full execution, verify model costs, question count, output coverage, budg
 
 **Record original external registration time** and a SHA-256 of the locked protocol separately. Having `registered_at` as a string is not proof that it was preregistered.
 
+### Prepare official ForecastBench files (no upload)
+
+`evaluation/forecastbench_export.py` transforms a complete locked three-arm
+FAR output into **exactly three separate ForecastBench-shaped JSON files**.
+It rejects partial and rehearsal outputs, duplicate/missing forecasts,
+out-of-range probabilities and unsafe organization names. It uses the real
+underlying model ID with an arm-specific prompt suffix; verify that every
+declared model and organization field is accurate before submission.
+
+```bash
+python -m evaluation.forecastbench_export /tmp/far-forecast-2026-11-08.json /tmp/forecastbench-submissions --organization YOUR_REGISTERED_TEAM --model-organization REAL_MODEL_CREATOR
+```
+
+The exporter does not submit anything, certify the model or validate official
+participation. Use the [ForecastBench submission instructions](https://github.com/forecastingresearch/forecastbench/wiki/How-to-submit-to-ForecastBench)
+and approved upload destination to submit files before the due deadline. The
+actual forecast records and hashes must also be retained independently. Do not
+submit an archived or late output by overriding a status field.
+
 ### Delayed independent outcome join
 
 When official outcome data become known, use `evaluation/forecast_resolution_join.py` to pair forecast IDs with separately obtained, sourced resolution values. Each resolution event is:
