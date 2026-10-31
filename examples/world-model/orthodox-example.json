@@ -1,0 +1,207 @@
+{
+  "format_version": "FAR-WORLD/0.1",
+  "worldview_profile": "eastern-orthodox/0.1",
+  "sources": [
+    {
+      "id": "nicene-creed",
+      "kind": "tradition",
+      "uri": "https://www.oca.org/orthodoxy/prayers/symbol-of-faith",
+      "text": "true God of true God; begotten, not made; of one essence with the Father",
+      "sha256": "228dbc2373769fddd8632b6bc6d2aadbc8a924d362655b9735a8424b19720fa6"
+    },
+    {
+      "id": "orthodox-creation",
+      "kind": "tradition",
+      "uri": "https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-holy-trinity/the-holy-trinity-in-creation",
+      "text": "God the Father created the world through the Son (Word) in the Holy Spirit.",
+      "sha256": "18ff5c374eea04bd052a1bdd6fd82bf5fbf663da98c6d96d0fe232bf8583eb86"
+    },
+    {
+      "id": "exodus",
+      "kind": "scripture",
+      "uri": "https://www.biblegateway.com/passage/?search=Exodus%2020%3A16&version=KJV",
+      "text": "Thou shalt not bear false witness against thy neighbour.",
+      "sha256": "eff4bbdaffcce9b7f07f0d2ca18ab2a2970d261f712034195428025f6e37098f"
+    },
+    {
+      "id": "report-on",
+      "kind": "observation",
+      "uri": "urn:toy:report:on",
+      "text": "Observer A states that the lamp is on.",
+      "sha256": "6646d1daba839c86f6a10f9d590fc2e6a3b38cc1418ec8a115b7d1ec826aa739"
+    },
+    {
+      "id": "report-off",
+      "kind": "observation",
+      "uri": "urn:toy:report:off",
+      "text": "Observer B states that the lamp is off.",
+      "sha256": "22e56292d7de75a46526145960fdbc12b45b0bba9d74b13b445f602dac75d7ee"
+    },
+    {
+      "id": "retraction",
+      "kind": "observation",
+      "uri": "urn:toy:report:retraction",
+      "text": "Observer B retracts the report that the lamp is off.",
+      "sha256": "265418e4901684e2e420723b0119dab1eb10716bf7084e10473bd0097fddb536"
+    },
+    {
+      "id": "scm-assumption",
+      "kind": "research",
+      "uri": "urn:toy:causal-assumption",
+      "text": "Toy assumption: wet_ground is true exactly when rain is true. This is illustrative, not an observed causal law.",
+      "sha256": "7dfeac51f5ac2e4b9eb1f0e43bc43dbc8ee15a8e7306150c1e2534a5824ee0b2"
+    }
+  ],
+  "propositions": [
+    {
+      "id": "jesus-is-god",
+      "statement": "Jesus Christ is God.",
+      "domain": "theological",
+      "framework_id": "eastern-orthodox/0.1"
+    },
+    {
+      "id": "scriptural-prohibition",
+      "statement": "The cited passage prohibits bearing false witness against a neighbor.",
+      "domain": "theological",
+      "framework_id": "eastern-orthodox/0.1"
+    },
+    {
+      "id": "false-witness-wrong",
+      "statement": "Bearing false witness against a neighbor is morally wrong.",
+      "domain": "normative",
+      "framework_id": "eastern-orthodox/0.1"
+    },
+    {
+      "id": "lamp-on",
+      "statement": "The lamp was on.",
+      "domain": "empirical",
+      "framework_id": null
+    }
+  ],
+  "assertions": [
+    {
+      "id": "nicene-confession",
+      "proposition_ref": "jesus-is-god",
+      "polarity": true,
+      "source_refs": [
+        "nicene-creed"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-27T00:00:00Z",
+      "supersedes": null
+    },
+    {
+      "id": "scriptural-reading",
+      "proposition_ref": "scriptural-prohibition",
+      "polarity": true,
+      "source_refs": [
+        "exodus"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-27T00:00:00Z",
+      "supersedes": null
+    },
+    {
+      "id": "report-a",
+      "proposition_ref": "lamp-on",
+      "polarity": true,
+      "source_refs": [
+        "report-on"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-27T00:00:00Z",
+      "supersedes": null
+    },
+    {
+      "id": "report-b",
+      "proposition_ref": "lamp-on",
+      "polarity": false,
+      "source_refs": [
+        "report-off"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-28T00:00:00Z",
+      "supersedes": null
+    },
+    {
+      "id": "correction-b",
+      "proposition_ref": "lamp-on",
+      "polarity": true,
+      "source_refs": [
+        "retraction"
+      ],
+      "valid_at": "2026-10-27T00:00:00Z",
+      "recorded_at": "2026-10-29T00:00:00Z",
+      "supersedes": "report-b"
+    }
+  ],
+  "rules": [
+    {
+      "id": "orthodox-prohibition-to-norm",
+      "premises": [
+        {
+          "proposition_ref": "scriptural-prohibition",
+          "polarity": true
+        }
+      ],
+      "conclusion": {
+        "proposition_ref": "false-witness-wrong",
+        "polarity": true
+      },
+      "framework_id": "eastern-orthodox/0.1",
+      "justification_refs": [
+        "exodus"
+      ]
+    }
+  ],
+  "causal_models": [
+    {
+      "id": "rain-to-wet-ground",
+      "source_refs": [
+        "scm-assumption"
+      ],
+      "variables": [
+        {
+          "id": "rain",
+          "parents": [],
+          "table": null
+        },
+        {
+          "id": "wet_ground",
+          "parents": [
+            "rain"
+          ],
+          "table": {
+            "0": false,
+            "1": true
+          }
+        }
+      ]
+    }
+  ],
+  "christological_foundation": {
+    "proposition_ref": "jesus-is-god",
+    "kind": "CONFESSIONAL_AXIOM",
+    "source_refs": [
+      "nicene-creed"
+    ],
+    "ontological_grounding": {
+      "relation": "METAPHYSICAL_GROUNDING_NOT_ENTAILMENT",
+      "targets": [
+        "logical_order",
+        "mathematical_order",
+        "created_intelligibility"
+      ],
+      "realism": "DISCOVERED_NOT_HUMAN_INVENTED",
+      "assurance": "ORTHODOX_INTERPRETIVE_COMMITMENT",
+      "source_refs": [
+        "orthodox-creation"
+      ],
+      "claim_classification": {
+        "logical_order": "RESEARCH_EXTENSION",
+        "mathematical_order": "RESEARCH_EXTENSION",
+        "created_intelligibility": "ORTHODOX_THEOLOGICAL_INTERPRETATION"
+      }
+    }
+  }
+}

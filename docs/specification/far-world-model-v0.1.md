@@ -1,0 +1,124 @@
+# FAR-WORLD/0.1 — Eastern Orthodox indexed epistemic world model
+
+Status: **Research prototype, bounded deterministic engine. Not an answer generator, a trained world model, a biblical commentary engine, or a validated representation of the world.** It is an additive application-layer experiment. It does not revise FAR Core v1.1, far-ir/2.x, `far-epistemic/1.0`, FAR-COG/0.1, or EFR benchmarks.
+
+Implementation: `mechanization/far_mechanization/world_model.py`. Contract: `schemas/far-world-model-v0.1.schema.json`. Fixture: `examples/world-model/orthodox-example.json`. Tests: `tests/test_world_model.py`.
+
+## Purpose
+
+Represent a scoped world state with propositions, positive and negative observations, durable source commitments, declared finite logical implications, historical corrections, and deterministic causal models. Track Eastern Orthodox theological assumptions **as framework-indexed source premises**. Ordinary empirical model queries use empirical propositions only; normative projections can use Orthodox premises without requiring an overt biblical wrapper. Full provenance is always inspectable. This is a *model API*, not text-generation policy.
+
+This component must not be confused with the FAR-COG answer-routing work previously proposed in PR #600. It replaces that approach. It has no user prompt classifier, LLM policy, answer formatting, chat integration, or output-text suppression mechanism.
+
+## Christological foundation
+
+This research profile has the explicit *confessional* root:
+
+`christological_foundation.kind = CONFESSIONAL_AXIOM`, with a committed theological proposition whose exact statement is **“Jesus Christ is God.”** The sample corpus sources this confession to the Nicene-Constantinopolitan Creed as published by the Orthodox Church in America. The Church identifies Jesus with the eternal divine **Logos** and confesses His full divinity and full humanity; this is a doctrinal commitment adopted by the profile, not an independently proven empirical result. See [OCA Nicene Creed](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-symbol-of-faith/nicene-creed) and [OCA Incarnation](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-symbol-of-faith/incarnation).
+
+**Three distinctions are mandatory:**
+
+1. *Ontological/metaphysical grounding:* Orthodox theology regards Christ the Logos as the ultimate ground of created existence, order and intelligibility. This is a confessional interpretation of reality.
+2. *Formal entailment:* The proposition `Jesus Christ is God` alone does **not** syntactically entail every mathematical theorem, descriptive fact, scriptural interpretation, or moral obligation. Additional explicit premises and justified inference rules are necessary. The engine never uses explosion from contradictions.
+3. *Empirical identification:* Physical mechanisms and contingent events need observations and independently supported causal modeling. A Christological commitment cannot replace measurement.
+
+The versioned validator requires an exact, positively asserted, byte-committed Christological confession. It rejects contrary assertions or revisions to this fixed confessional root **within this profile**, without prohibiting separate comparative investigations of other views. Because the model currently uses ordinary recorded assertions as support, an early historical snapshot taken before the confession was recorded in the system will show the proposition as unavailable to that snapshot; this reflects the model's intake history, not a theological claim that Christ came into existence at that time. The world model instead registers a separate typed `ontological_grounding` commitment, with `relation = METAPHYSICAL_GROUNDING_NOT_ENTAILMENT`, `realism = DISCOVERED_NOT_HUMAN_INVENTED`, and scopes for logical order, mathematical order, and created intelligibility. **Individual theological and normative inferences do not need the Christological assertion as an artificial antecedent.** They require their own explicit, source-bearing premises and warrants. The grounding commitment is inspectable through `foundational_confession()` but is deliberately **not executable as a Horn inference rule**. It cannot output theorems, observations, or moral judgments without independently justified premises. This separation respects the difference between an Orthodox explanation of why order is intelligible and a formal derivation of a particular conclusion. Independent theological *source assertions* remain separately sourced; a direct citation does not itself establish interpretive correctness. A rule may be syntactically conforming but still be substantively invalid, so a human or stronger semantic verifier must assess each purported inference before accepting it.
+
+`WorldModel.foundational_confession()` exposes the root, authority references and its `ADOPTED_CONFESSIONAL_AXIOM_NOT_EMPIRICALLY_PROVED` assurance label. `ModelState.inspect()` maintains traceable rule/assumption dependencies. Ordinary `project('moral')` returns normative state without routine doctrinal metadata; `project('biblical')` and `inspect()` expose the basis. No answer generator is involved.
+
+### Distinct assurance for Logos/creation and mathematics
+
+The ontological grounding record now has its **own source commitments**, separate from the Nicene Creed's Christological confession. The example cites the [Orthodox Church in America on creation through the Word](https://www.oca.org/orthodoxy/the-orthodox-faith/doctrine-scripture/the-holy-trinity/the-holy-trinity-in-creation). Its claim classifications are deliberately unequal: `created_intelligibility = ORTHODOX_THEOLOGICAL_INTERPRETATION`, while `logical_order` and `mathematical_order` are both `RESEARCH_EXTENSION`. This prevents the model from reporting a modern philosophy-of-mathematics proposal as settled Orthodox teaching.
+
+Even `ORTHODOX_THEOLOGICAL_INTERPRETATION` is a classification supplied by a researcher: the validator checks source identities, types, and structure, not the substantive faithfulness of a reading. Scholarly and ecclesial review are separately required. A source digest verifies bytes, not authority or inference.
+
+### Discovery versus invention
+
+The configured metaphysical position treats logical and mathematical order as **not constituted by human declarations**. Humans may design symbols, proof calculi, axiomatizations, and software encodings, but their intended validity conditions and mathematical consequences are not automatically whatever a developer wishes. The question of mathematical realism remains philosophically contested. This profile adopts an Orthodox, Logos-centered grounding of intelligible order, **not** an independent proof that all objective mathematics is metaphysically grounded in Christ or that St. Maximus explicitly identified the `logoi` with modern mathematical structures.
+
+Related research: [Stanford Encyclopedia of Philosophy, Platonism in Mathematics](https://plato.stanford.edu/entries/platonism-mathematics/), [Tollefsen, *The Logos, the logoi, and Created Beings*](https://academic.oup.com/book/32929/chapter-abstract/277023652), and the [OCA explanation of the Logos](https://www.oca.org/reflections/berzonsky/the-word-of-god1).
+
+The model has two categorically distinct relations:
+
+- `GROUNDING` records a **framework-indexed, ontological interpretive commitment** that the Logos grounds intelligible order. It has no rule that transforms this relation directly into arbitrary claims.
+- `ENTAILMENT` is a computed, explicitly premise-dependent consequence of a specified finite logic. A result's soundness remains conditional on its representation, inference rules, and premises.
+
+The `ontological_grounding` record is not an assertion that humans have successfully discovered all logical truths, that classical logic is the uniquely correct calculus in all contexts, or that all independently discovered truths can be formally derived from the Christological sentence. Nonclassical logics and different axiomatic frameworks remain legitimate objects of explicit comparison. This implementation does not solve the philosophy of mathematics or logic.
+
+## Worldview contract
+
+`worldview_profile = eastern-orthodox/0.1` indicates that theological and normative propositions are interpreted within an Orthodox Christian profile: Scripture read in Holy Tradition with attention to the Church's liturgical experience, Fathers and councils. No particular rule becomes Church doctrine merely because it is in this document. In the provisional model, **every theological/normative asserted proposition and rule must cite a declared scriptural or traditional source**, carry the Orthodox framework ID, and remain inspectable. An Orthodox interpretation is an explicitly *adopted* normative/theological assumption, not a premise-free proof of truth.
+
+The example quotes the public-domain KJV form of Exodus 20:16 only as a conveniently reproducible byte-anchored biblical source. This is **not** an Orthodox translation standard, a complete patristic reading, or an independently approved interpretation. A production source set requires a specified Orthodox canon, translation policy, canonical reference, textual variant handling, patristic interpretive source review, and precise claim-level doctrinal provenance. These remain unimplemented.
+
+The model separates:
+
+- **Empirical** propositions and implications: sources of type `observation` or `research`, without theological predicates in the premises or framework IDs. These remain *asserted* and model-relative; their provenance hashes do not verify truth.
+- **Theological** propositions and rules: framework-indexed, source-justified readings of doctrine; a theological conclusion cannot be derived solely from empirical or moral claims.
+- **Normative** propositions and rules: framework-indexed values/obligations; a moral obligation cannot be derived from empirical observations alone. Some normative rules can depend on empirical circumstances, but must also include at least one normative/theological premise.
+
+This enforces a limited form of the is/ought boundary and prevents scriptural assumptions from being silently introduced as empirical evidence. It does **not** automatically establish the validity of a human-supplied implication in natural language. That remains a semantic/formalization obligation. No conditional probability, model evidence weighting, learned transition function, or exhaustive biblical entailment is provided.
+
+## State and consequence semantics
+
+Every source has an exact UTF-8 text and SHA-256 hash (byte integrity only). Assertions include `valid_at` (time of described state) and `recorded_at` (when the claim entered the model), a polarity and optional `supersedes` relation. Revision chains require the same proposition and increasing recording times. Historical records are not erased. Queries use both time cutoffs to prevent hindsight leakage. A recorded successor replaces its directly superseded observation, not independent observations by other sources.
+
+The rule language is finite *ground Horn-style literal implication*: a rule fires when **all** declared positive/negative literal premises have support. Rules are explicitly justified and type checked, but their substantive truth is not automatically proven. Consequences are computed by fixed-point iteration; a cycle without a supporting assertion cannot manufacture truth.
+
+Status is a *four-valued record of support*:
+
+| Status | Meaning |
+|---|---|
+| `SUPPORTED` | Positive support only |
+| `REFUTED` | Negative support only |
+| `BOTH` | Positive and negative support coexist |
+| `UNKNOWN` | Neither polarity has support |
+
+This is evidence bookkeeping in a designated model, not a binary oracle about external reality. In particular `BOTH` does not entail unrelated conclusions, and `UNKNOWN` is not negation. The proof record combines assertion, rule and source identifiers; it may coalesce distinct proof paths and therefore is **not a minimal proof certificate**. `inspect()` preserves both sides and their contributing IDs.
+
+## Causal model semantics
+
+`causal_models` provides finite Boolean *structural causal models* with named exogenous variables (null table) and endogenous variables (a complete truth table indexed by parent assignments). The graph must be acyclic, parents unique, every relevant source referenced, and the model fully enumerated. `simulate()` evaluates a stipulated state. `counterfactual()` evaluates an intervention with the **same exogenous context**, giving changed variables and both states.
+
+These are deterministic **on-model counterfactuals**, not recovered causal effects from observations. A `causal_model` source may be an explicitly hypothetical or toy specification. The fact that the simulator correctly executes the given equations provides no evidence that the equations represent reality or that a causal effect is identified. No open-world prediction, causal discovery, statistical estimation, latent-state identification, or model competition is yet implemented.
+
+## Visibility and provenance
+
+- `state.project('empirical')` returns empirical proposition states, no theological/normative material.
+- `state.project('moral')` returns normative proposition states with **no routine framework/source fields**.
+- `state.project('biblical')` exposes theological and normative propositions and their framework/source IDs.
+- `state.project('all')` exposes all domains and their bases.
+- `state.inspect(proposition_id)` always returns the full framework and source lineage. `expose_basis=True` also exposes it in an ordinary projection.
+
+No material is deleted from audit storage. The no-default-exposure rule is a query projection convention, not a guarantee about downstream output, nor permission to misrepresent theological commitments as universal empirical facts. Consumers must retain full provenance and reveal the framework when its source is relevant or requested.
+
+## Minimal executable demonstration
+
+```python
+from mechanization.far_mechanization.world_model import WorldModel
+
+model = WorldModel.load('examples/world-model/orthodox-example.json')
+early = model.derive(known_at='2026-10-28T23:00:00Z')
+assert early.status('lamp-on') == 'BOTH'
+later = model.derive(known_at='2026-10-29T23:00:00Z')
+assert later.status('lamp-on') == 'SUPPORTED'  # later correction supersedes the negative report
+assert later.project('moral')[0]['status'] == 'SUPPORTED'
+assert later.inspect('false-witness-wrong')['proposition']['framework_id'] == 'eastern-orthodox/0.1'
+assert model.simulate('rain-to-wet-ground', context={'rain': True})['wet_ground'] is True
+assert model.counterfactual('rain-to-wet-ground', context={'rain': False},
+                            interventions={'rain': True})['changed_variables'] == ['rain', 'wet_ground']
+```
+
+Run `PYTHONPATH=. python -m unittest discover -s tests -p 'test_world_model.py' -v` from the repository root. All model input is untrusted even when accompanied by source URLs. Input is bounded by the JSON Schema and semantic cross-reference checks; it is not a network fetcher.
+
+## FAR Core v1.1 integration: interpretation profile matters only when the contract needs it
+
+The finite and executable [theory impact audit](../research/orthodox-world-model-theory-impact-v0.1.md) connects this work to existing FAR-CORE-001, -004, -010, -011 and -012 without altering any proven theorem. `tests/test_worldview_factorization.py` runs the **current governed far-ir/2.0 rule v1.1 verifier** on synthetic exact contracts. It checks an omitted-worldview collision, a profile-aware exact factorization repair, a profile-invariant empirical control, and freeze-hash tampering.
+
+The critical rule is conditional on required behavior: **preserve theological/interpretation profile identity if and only if ignoring it would make the specified relevant behavior unrecoverable.** A profile-free empirical projection can still be exactly sufficient for an empirical-only task, while a normative comparison may need the profile. This is not a proof that one worldview determines objective moral truth, or that one ontology is universally minimal.
+
+## Assurance and integration boundary
+
+This implementation is specifically a **world-state substrate**, not the general world model the broader research program ultimately seeks. It can be embedded into `far-epistemic/1.0` investigations by mapping source IDs and revision events to the governed evidence and belief contracts, but no such bidirectional validated adapter is claimed here. Automatic source extraction, doctrinal adjudication, semantic validation, learned causal dynamics, Bayesian posterior updates, calibration, independent evaluation, and actual time-series forecasting remain open tasks.
+
+There is no claim of model novelty, complete biblical deduction, empirical validation, scientific truth, or superior commercial value. The schema and tests establish only bounded software behavior. Tests must not be relabeled as a customer-facing or externally validated result.
