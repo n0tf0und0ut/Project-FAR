@@ -59,7 +59,9 @@ two one-sided upper bounds have at least nominal 95% joint coverage under
 the bootstrap's assumptions. The experiment qualifies only as a
 **statistical candidate** when at least 200 independently claimed clusters
 exist, both observed differences are at most -0.02, and both upper bounds
-are below zero. A candidate is **never** automatically verified:
+are below -0.02. An interval that excludes zero but not the full effect
+threshold supports a positive difference, **not** a demonstrated improvement
+of at least the prespecified 0.02 magnitude. A candidate is **never** automatically verified:
 independent forecast locks, source authenticity, treatment randomization,
 outcome adjudication, data freshness, independence, and external replication
 are obligations the scorer cannot establish.
@@ -90,7 +92,7 @@ python -m evaluation.worldview_confirmatory \
 python -m unittest discover -s tests -p test_worldview_confirmatory.py -v
 ```
 
-The **11 new hostile regressions** check repeated-source pseudo-replication,
+The **12 new hostile regressions** check repeated-source pseudo-replication,
 a synthetic perfect-oracle manipulation, a matched placebo that is just as
 accurate as the Orthodox arm, inadequate cluster count, malformed source
 groups, deterministic output and timing violations. The synthetic study
