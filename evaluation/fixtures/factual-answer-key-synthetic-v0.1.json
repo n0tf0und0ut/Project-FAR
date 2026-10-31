@@ -1,0 +1,26 @@
+{
+  "version": "FAR-WORLD-FACT/0.1",
+  "study_id": "SYNTHETIC-EVIDENCE-PACKET-001",
+  "data_class": "synthetic",
+  "labels": [
+    {
+      "case_id": "opened",
+      "status": "SUPPORTED",
+      "valid_source_ids": [
+        "report-1"
+      ]
+    },
+    {
+      "case_id": "snow",
+      "status": "REFUTED",
+      "valid_source_ids": [
+        "report-2"
+      ]
+    },
+    {
+      "case_id": "wind",
+      "status": "INSUFFICIENT",
+      "valid_source_ids": []
+    }
+  ]
+}
