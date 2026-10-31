@@ -160,7 +160,8 @@ class OpenAICompatible:
             raise ProspectiveError("no completion in backend response") from exc
 
 
-def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=False):
+def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=False,
+              finished_at=None):
     due, units = parse_question_set(question_set)
     when = utc(now)
     deadline = datetime.combine(due, time.max, tzinfo=timezone.utc)
@@ -188,13 +189,19 @@ def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=Fal
                          "reasoning": why, "prompt_sha256": digest(messages),
                          "raw_response_sha256": hashlib.sha256(output.encode()).hexdigest(),
                          "question_sha256": digest(unit)})
-    # Production status requires both complete question coverage and on-time lock.
+    ended = utc(finished_at if finished_at is not None else datetime.now(timezone.utc))
+    if ended < when or (not rehearsal and ended > deadline):
+        raise ProspectiveError("forecast execution crosses valid recording window")
+    complete = len(units) == len(parse_question_set(question_set)[1])
+    # Completion is not externally authenticated until forecasts are submitted.
     return {"version": VERSION, "dataset": question_set["question_set"],
             "question_set_sha256": digest(question_set),
             "model_id": model_id, "forecast_generated_at": when.isoformat(),
+            "completed_at": ended.isoformat(),
             "forecast_due_date": due.isoformat(), "units_selected": len(units),
             "units_total": len(parse_question_set(question_set)[1]),
             "status": ("REHEARSAL_NOT_PROSPECTIVE" if rehearsal else
+                       "PARTIAL_NOT_SUBMITTABLE" if not complete else
                        "PRE_SUBMISSION_REQUIRES_EXTERNAL_LOCK"),
             "predictions": rows}
 
