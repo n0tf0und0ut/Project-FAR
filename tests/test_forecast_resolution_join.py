@@ -118,7 +118,8 @@ class ResolutionJoinTests(unittest.TestCase):
         f = forecasts()
         _, result = join_resolutions(f, resolutions(f), registered_at=REGISTERED,
                                      protocol_sha256=PROTOCOL, data_class="prospective")
-        self.assertIn("UNVERIFIED", result["status"])
+        self.assertEqual(result["status"], "INSUFFICIENT_PROSPECTIVE_CASES")
+        self.assertIn("NOT_THEOLOGICAL_OR_CAUSAL_PROOF", result["assurance"])
 
     def test_registration_must_precede_predictions(self):
         f = forecasts()
