@@ -65,6 +65,23 @@ python -m evaluation.run_pretrained_lm_fidelity --output artifacts/pretrained-lm
 
 The output files are `far_mech_pretrained_trace.json` (accepted FAR-MECH submitted-data audit) and `far_mech_pretrained_result.json` (paired causal fidelity and reasoning task outcomes).
 
+## Measured pilot outcome (31 October 2026)
+
+Two real pretrained-checkpoint GitHub Actions runs completed, each against the immutable model revision and the same neural coordinate:
+
+- Original two-token-only pilot [run 41223025391](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41223025391): succeeded, 32 measured cases; frozen at `evaluation/results/smollm2-135m-real-mechanistic-fidelity-20261031.json`.
+- Full-vocabulary extension [run 41223761759](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41223761759): succeeded, 32 measured cases, independent **summary-consistency** audit passed; frozen at `evaluation/results/smollm2-135m-fullvocab-followup-20261031.json`. This does not constitute independently rerunning the checkpoint on a second machine or against different algorithms.
+
+| Split | Cases | Full-vocab probe mean KL | Full-vocab mean-activation baseline KL | Cases worse than baseline | Original logical answers correct |
+|---|---:|---:|---:|---:|---:|
+| Heldout | 12 | 0.0000008398214 | 0.000002351486 | 1 | 5 |
+| Adversarial framing | 12 | 0.000036741387 | 0.000003166602 | 12 | 8 |
+| Identity controls | 8 | 0 | 0.000002668782 | 0 | 4 |
+
+The probe is better on the ordinary heldout split yet about **11.6× worse** than mean replacement on the adversarial framing split, on full-vocabulary KL. The `KL <= 0.02` two-token fidelity gate admits **all 32 cases** and has no selective reliability benefit. Across the 24 non-control reasoning cases, the original model is correct in 13, the explanation-replaced model 14, and the mean-replaced model 14. Precisely one original answer changes from wrong to right under either replacement, so there is **no differential advantage attributable to the probe**. The sample is small, the non-control tasks are programmatically generated syllogisms, and no MIB, DAS, SAE or TransformerLens method was evaluated head-to-head.
+
+**Verdict:** Measured pretrained neural interventions **YES**; robust mechanistic understanding **NOT ESTABLISHED**; superiority to existing interpretability tools **NOT TESTED**; improvement in general reasoning reliability **NOT DEMONSTRATED**. Do not recast `Repository Health` or a successful experimental CI job as proof of any of the latter three claims.
+
 ## Decision rules
 
 | Claim | Evidence required | Acceptable pilot decision |
