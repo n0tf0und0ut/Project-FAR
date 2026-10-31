@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/far-pretrained-lm-mechanism.yml'
       - 'evaluation/run_pretrained_lm_fidelity.py'
+      - 'evaluation/validate_pretrained_lm_result.py'
+      - 'tests/test_mechanistic_pretrained_validator.py'
       - 'mechanization/far_mechanization/mechanistic_fidelity.py'
       - 'schemas/far-mechanistic-fidelity-v0.1.schema.json'
       - 'tests/test_mechanistic_pretrained_protocol.py'
@@ -53,6 +55,24 @@ jobs:
           python -m evaluation.validate_pretrained_lm_result \
             artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
             artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json
+      - name: Emit exact portable source evidence for durable archiving
+        run: |
+          python - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          root = Path('artifacts/pretrained-lm-mechanism')
+          names = ('far_mech_pretrained_trace.json', 'far_mech_pretrained_result.json')
+          raw = {name: (root / name).read_text(encoding='utf-8') for name in names}
+          payload = json.dumps({'schema': 'FAR-RAW-EVIDENCE/0.1', 'raw': raw},
+                               sort_keys=True, separators=(',', ':')).encode('utf-8')
+          encoded = base64.b64encode(gzip.compress(payload, mtime=0)).decode('ascii')
+          print('FAR_EVIDENCE_BASE64_BEGIN')
+          print(encoded)
+          print('FAR_EVIDENCE_BASE64_END')
+          print('FAR_EVIDENCE_PAYLOAD_SHA256=' + hashlib.sha256(payload).hexdigest())
+          for name in names:
+              print('FAR_RAW_SHA256_' + name + '=' + hashlib.sha256(raw[name].encode('utf-8')).hexdigest())
+          PY
       - name: Upload raw audited measurements and separate reasoning pilot
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
