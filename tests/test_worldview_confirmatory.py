@@ -51,6 +51,22 @@ class ConfirmatoryTests(unittest.TestCase):
         self.assertIn("UNVERIFIED", result["status"])
         self.assertIn("UNVERIFIED", result["assurance"])
 
+    def test_point_improvement_without_full_effect_confidence_is_not_confirmed(self):
+        """A positive effect is not confidence in the full 0.02 improvement."""
+        doc = sample()
+        doc["data_class"] = "prospective"
+        for i, case in enumerate(doc["cases"]):
+            probability = 0.9 if i < 4 else 0.78
+            if not case["outcome"]["value"]:
+                probability = 1.0 - probability
+            case["forecasts"]["orthodox"]["p"] = format(probability, ".2f")
+        result = analyze(doc, clustered(doc), bootstrap=4096,
+                         minimum_independent_clusters=2)
+        self.assertLessEqual(result["paired_mean_brier_difference"]["neutral"], -0.02)
+        self.assertLess(result["simultaneous_95pct_upper_bound"]["neutral"], 0)
+        self.assertGreaterEqual(result["simultaneous_95pct_upper_bound"]["neutral"], -0.02)
+        self.assertFalse(result["statistical_candidate"])
+
     def test_source_clusters_detect_pseudoreplication(self):
         doc = sample()
         doc["data_class"] = "prospective"
