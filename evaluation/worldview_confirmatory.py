@@ -92,7 +92,7 @@ def analyze(document: dict, clusters: dict[str, str], *, bootstrap=4096,
             values[arm].append(sum(d[arm] for k in sampled for d in groups[k]) / total)
     upper = {arm: _percentile(values[arm], 0.975) for arm in PAIRS}
     candidate = (len(groups) >= minimum_independent_clusters and
-                 all(observed[a] <= -effect_threshold and upper[a] < 0 for a in PAIRS))
+                 all(observed[a] <= -effect_threshold and upper[a] < -effect_threshold for a in PAIRS))
     return {**baseline,
         "paired_mean_brier_difference": {a: round(v, 8) for a, v in observed.items()},
         "simultaneous_95pct_upper_bound": {a: round(v, 8) for a, v in upper.items()},
