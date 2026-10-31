@@ -1,4 +1,4 @@
-# FAR-MECH/0.2 — pretrained language-model mechanism and reliability pilot
+# FAR-MECH/0.3 — pretrained language-model mechanism and reliability pilot
 
 **Status: executable experimental protocol; numerical model findings require a completed, artifact-bearing run.** Adds no FAR Core theorem or commercial superiority claim.
 
@@ -11,6 +11,14 @@
 - Explanation hypothesis: a one-variable training-only linear regression predicting that activation from token count. This is a deliberately weak scalar proxy; **it is not a semantic description of the neuron's learned function**.
 - Baseline: replace that same coordinate with its training-set mean. Identity replacement is the positive control.
 - Each sample: calculate normal model forward, intervene through `register_forward_pre_hook`, compute two-way, answer-token-conditioned distribution, and submit source-committed results to `FAR-MECH/0.1`.
+
+## Fidelity expansion and frozen initial measurement
+
+The initial pinned experiment **succeeded** at GitHub Actions run [41223025391](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41223025391), checking 32 real pretrained-model intervention cases and source-committing all submitted data. That run measured **only a conditional two-token output distribution**, so it cannot establish full output fidelity. Its negative result is independently recorded as `evaluation/results/smollm2-135m-real-mechanistic-fidelity-20261031.json`. The initial artifact SHA-256 is `4751401927162f4b511672bb982917d41b92af0b7241328476663a0fc6cee407`. This artifact and its judgment remain frozen; the expanded protocol does not replace or rewrite it.
+
+The successor code also recomputes a second, independent **full-vocabulary next-token distribution** metric over every model vocabulary coordinate, using softmax of the actual original and intervened logits (not the two-token renormalized projection), and retains per-case full-vocabulary KL and split-level averages. The source-committed FAR-MECH schema continues to validate the originally specified two-label projection; the full-vocabulary scalar outputs are separately marked and checked by `evaluation/validate_pretrained_lm_result.py`. The verifier checks measured KL finiteness, exact-head model/revision commitments, metric aggregation, outcome correctness, case identity and zero-distortion identity controls, while explicitly not certifying independent model-weight replay.
+
+`D_KL(P_full(original) || P_full(replacement))` is more informative than two-token KL, but still cannot prove that one neuron label describes the network's semantic computation or that all relevant circuits have been found. Both metrics, as well as the baseline, must be reported; no cherry-picking one projection is permitted.
 
 ## Three independent research questions
 
