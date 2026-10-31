@@ -26,8 +26,11 @@ def replay(checkpoint_path: Path, trace_path: Path):
     import numpy as np
     import torch
     from sklearn.datasets import load_digits
+    from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit
     checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
-    doc = json.loads(trace_path.read_text(encoding="utf-8"))
+    # Validate provenance, input closure, probability types and deterministic
+    # consistency before interpreting any user-supplied trace fields.
+    doc = MechanismAudit.load(trace_path).to_dict()
     if digest(canonical(checkpoint)) != doc["model"]["artifact_sha256"]:
         raise ValueError("checkpoint commitment mismatch")
     if digest(load_digits().data.astype(np.float32).tobytes()) != checkpoint["dataset_sha256"]:
@@ -70,6 +73,10 @@ def replay(checkpoint_path: Path, trace_path: Path):
     model.load_state_dict(state, strict=True)
     model.eval()
     unit = checkpoint["hidden_unit"]
+    if type(unit) is not int or not 0 <= unit < 24:
+        raise ValueError("invalid checkpoint neuron coordinate")
+    if doc["model"]["component_id"] != f"fc1.relu.{unit}":
+        raise ValueError("trace component id does not match checkpoint intervention coordinate")
     max_error = 0.0
 
     with torch.no_grad():
@@ -103,8 +110,12 @@ def replay(checkpoint_path: Path, trace_path: Path):
                     finally:
                         handle.remove()
                 actual = probs(logits.detach().numpy()[0])
-                expected = np.asarray([float(v) for v in expected])
+                expected = np.asarray([float(v) for v in expected], dtype=np.float64)
+                if not np.isfinite(expected).all() or not np.isfinite(actual).all():
+                    raise ValueError("nonfinite probability in replay")
                 discrepancy = float(np.max(np.abs(actual - expected)))
+                if not np.isfinite(discrepancy):
+                    raise ValueError("nonfinite replay discrepancy")
                 max_error = max(max_error, discrepancy)
                 if discrepancy > 0.000002:
                     raise ValueError(f"replay mismatch {case['id']} {condition}: {discrepancy}")
