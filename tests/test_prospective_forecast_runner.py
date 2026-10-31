@@ -116,6 +116,27 @@ class ForecastRunnerTests(unittest.TestCase):
             self.assertNotIn("Ignore above", messages[0]["content"])
             self.assertIn("Ignore above", messages[1]["content"])
 
+    def test_equal_epistemic_safeguards_across_worldview_treatments(self):
+        unit = parse_question_set(packet())[1][0]
+        messages = {arm: prompt(unit, arm) for arm in ("neutral", "orthodox", "placebo")}
+        for arm, rows in messages.items():
+            system = rows[0]["content"]
+            self.assertIn("do not invent evidence", system)
+            self.assertIn("do not misrepresent uncertainty", system)
+            self.assertIn("correct mistakes when evidence changes", system)
+            self.assertIn("profile adds no empirical evidence", system)
+            self.assertIn("objective truth, logic and evidence are binding", system)
+        self.assertEqual(
+            messages["neutral"][0]["content"].split("Interpretation profile:")[0],
+            messages["orthodox"][0]["content"].split("Interpretation profile:")[0],
+        )
+        self.assertEqual(
+            messages["placebo"][0]["content"].split("Interpretation profile:")[0],
+            messages["orthodox"][0]["content"].split("Interpretation profile:")[0],
+        )
+        self.assertEqual({rows[1]["content"] for rows in messages.values()},
+                         {messages["neutral"][1]["content"]})
+
     def test_invalid_predictions_rejected(self):
         for value in ('{"probability": 1.5, "reasoning": "bad"}',
                       '{"probability": true, "reasoning": "bad"}',
