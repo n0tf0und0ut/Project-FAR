@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 
 ARMS = ("neutral", "orthodox", "placebo")
 SOURCES = {"kalshi", "manifold", "metaculus", "polymarket",
-           "acled", "dbnomics", "fred", "wikipedia", "yfinance"}
+           "acled", "dbnomics", "fred", "serpapi", "wikipedia", "yfinance"}
 MARKET = {"kalshi", "manifold", "metaculus", "polymarket"}
 VERSION = "FAR-WORLD-PROSP/0.1"
 SHARED = (
