@@ -48,6 +48,11 @@ jobs:
           python -m evaluation.run_pretrained_lm_fidelity \
             --output artifacts/pretrained-lm-mechanism \
             --per-split 12
+      - name: Recompute reported statistics against FAR-MECH source trace
+        run: |
+          python -m evaluation.validate_pretrained_lm_result \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json
       - name: Upload raw audited measurements and separate reasoning pilot
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
