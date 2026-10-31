@@ -76,6 +76,19 @@ class MechanisticFidelityTests(unittest.TestCase):
             row["baseline_activation"] = row["observed_activation"]
         self.fails(fake_baseline, "unchanged baseline activation")
 
+    def test_numeric_probability_equivalence_under_equal_activations(self):
+        doc = copy.deepcopy(self.fixture)
+        control = next(row for row in doc["cases"] if row["split"] == "control")
+        control["replacement_probs"] = [str(float(x)) for x in control["original_probs"]]
+        self.assertEqual(self.audit(doc).evaluate()["by_split"]["control"]["mean_downstream_kl"],
+                         "0.000000000")
+
+    def test_same_baseline_and_explanation_requires_same_output(self):
+        def incompatible(doc):
+            case = doc["cases"][0]
+            case["baseline_activation"] = case["explained_activation"]
+        self.fails(incompatible, "equal replacement and baseline")
+
     def test_replay_detects_fabricated_replacement_probabilities(self):
         row = copy.deepcopy(self.fixture["cases"][0])
         row["replacement_probs"] = ["0.700000", "0.300000"]
