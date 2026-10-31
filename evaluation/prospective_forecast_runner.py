@@ -84,8 +84,14 @@ def parse_question_set(obj):
         if not isinstance(row, dict) or row.get("source") not in SOURCES:
             raise ProspectiveError("invalid source or question record")
         source, qid = row["source"], row.get("id")
+        # ForecastBench explicitly instructs LLM submissions to omit
+        # combination questions (array-valued IDs), not fail the entire round.
+        if isinstance(qid, list):
+            if not qid or any(not isinstance(v, str) or not v for v in qid):
+                raise ProspectiveError("malformed combination-question ID")
+            continue
         if not isinstance(qid, str) or not qid or not isinstance(row.get("question"), str):
-            raise ProspectiveError("invalid question ID/text (combinations unsupported)")
+            raise ProspectiveError("invalid scalar question ID/text")
         if not row["question"].strip():
             raise ProspectiveError("empty question")
         if (source, qid) in seen:
