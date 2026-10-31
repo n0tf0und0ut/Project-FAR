@@ -91,7 +91,12 @@ class ForecastRunnerTests(unittest.TestCase):
         with self.assertRaises(ProspectiveError):
             parse_question_set(q)
         q = packet()
-        q["questions"][0]["id"] = ["combination"]
+        q["questions"][0]["id"] = ["combination-A", "combination-B"]
+        due, eligible = parse_question_set(q)
+        self.assertEqual(due.isoformat(), "2026-11-08")
+        self.assertEqual(len(eligible), 2)
+        self.assertTrue(all(unit["source"] == "fred" for unit in eligible))
+        q["questions"][0]["id"] = ["", "combination-B"]
         with self.assertRaises(ProspectiveError):
             parse_question_set(q)
         q = packet()
