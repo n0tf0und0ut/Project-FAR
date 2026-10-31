@@ -178,14 +178,14 @@ def main(argv=None):
     ap.add_argument("packet", type=Path)
     ap.add_argument("output", type=Path)
     ap.add_argument("--model", required=True)
-    ap.add_argument("--endpoint", required=True)
+    ap.add_argument("--endpoint", default=os.getenv("FAR_MODEL_ENDPOINT", "https://api.openai.com/v1/chat/completions"))
     args = ap.parse_args(argv)
     try:
         from evaluation.prospective_forecast_runner import OpenAICompatible
         from datetime import timezone
         import os
         packet = json.loads(args.packet.read_text(encoding="utf-8"))
-        backend = OpenAICompatible(args.endpoint, args.model, os.getenv("FAR_MODEL_API_KEY"))
+        backend = OpenAICompatible(args.endpoint, args.model, (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
         result = investigate(packet, backend, args.model, datetime.now(timezone.utc))
         if args.output.exists():
             raise ProspectiveError("output already exists")
