@@ -1,0 +1,41 @@
+{
+  "version": "FAR-WORLD-FACT/0.1",
+  "study_id": "SYNTHETIC-EVIDENCE-PACKET-001",
+  "sources": [
+    {
+      "id": "report-1",
+      "text": "The official dated report says the bridge opened on April 10."
+    },
+    {
+      "id": "report-2",
+      "text": "The dated log explicitly records that no snow fell."
+    },
+    {
+      "id": "report-3",
+      "text": "The notice discusses a meeting, without weather details."
+    }
+  ],
+  "cases": [
+    {
+      "id": "opened",
+      "claim": "The bridge opened on April 10.",
+      "source_ids": [
+        "report-1"
+      ]
+    },
+    {
+      "id": "snow",
+      "claim": "Snow fell that day.",
+      "source_ids": [
+        "report-2"
+      ]
+    },
+    {
+      "id": "wind",
+      "claim": "There was strong wind.",
+      "source_ids": [
+        "report-3"
+      ]
+    }
+  ]
+}
