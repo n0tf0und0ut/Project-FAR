@@ -59,6 +59,11 @@ class ExportTests(unittest.TestCase):
             with self.assertRaises(ProspectiveError):
                 export_sets(sample(),organization=bad,model_organization="provider")
         doc=sample()
+        doc=sample()
+        doc["predictions"][0]["source"] = "untrusted"
+        with self.assertRaises(ProspectiveError):
+            export_sets(doc,organization="FAR",model_organization="provider")
+        doc=sample()
         doc["predictions"][0]["probability"] = float("nan")
         with self.assertRaises(ProspectiveError):
             export_sets(doc,organization="FAR",model_organization="provider")
