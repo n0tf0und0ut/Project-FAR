@@ -7,6 +7,7 @@ on:
       - '.github/workflows/far-pretrained-lm-mechanism.yml'
       - 'evaluation/run_pretrained_lm_fidelity.py'
       - 'evaluation/validate_pretrained_lm_result.py'
+      - 'evaluation/replay_pretrained_lm_metrics.py'
       - 'tests/test_mechanistic_pretrained_validator.py'
       - 'mechanization/far_mechanization/mechanistic_fidelity.py'
       - 'schemas/far-mechanistic-fidelity-v0.1.schema.json'
@@ -55,13 +56,19 @@ jobs:
           python -m evaluation.validate_pretrained_lm_result \
             artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
             artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json
+      - name: Independently replay pretrained weights and full-vocabulary interventions
+        run: |
+          python -m evaluation.replay_pretrained_lm_metrics \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_trace.json \
+            artifacts/pretrained-lm-mechanism/far_mech_pretrained_result.json \
+            --output artifacts/pretrained-lm-mechanism/far_mech_pretrained_replay.json
       - name: Emit exact portable source evidence for durable archiving
         run: |
           python - <<'PY'
           import base64, gzip, hashlib, json
           from pathlib import Path
           root = Path('artifacts/pretrained-lm-mechanism')
-          names = ('far_mech_pretrained_trace.json', 'far_mech_pretrained_result.json')
+          names = ('far_mech_pretrained_trace.json', 'far_mech_pretrained_result.json', 'far_mech_pretrained_replay.json')
           raw = {name: (root / name).read_text(encoding='utf-8') for name in names}
           payload = json.dumps({'schema': 'FAR-RAW-EVIDENCE/0.1', 'raw': raw},
                                sort_keys=True, separators=(',', ':')).encode('utf-8')
