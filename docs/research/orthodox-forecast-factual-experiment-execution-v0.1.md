@@ -23,8 +23,13 @@ The prompt profiles are declared; they are **not guaranteed token- or style-matc
 From the repository root, using a model with an explicitly configured OpenAI-compatible inference endpoint and credential:
 
 ```bash
-export FAR_MODEL_ENDPOINT='https://YOUR_MODEL_PROVIDER/v1/chat/completions'
-export FAR_MODEL_API_KEY='YOUR_SECRET_VALUE'
+# For OpenAI, create a project API key via the Platform setup flow.
+# Store secrets only in a local process environment or approved secret store,
+# never in GitHub repository files, logs, prompts or public issues.
+export OPENAI_API_KEY='YOUR_SECRET_VALUE'
+# Other OpenAI-compatible providers can instead supply these variables:
+# export FAR_MODEL_ENDPOINT='https://YOUR_MODEL_PROVIDER/v1/chat/completions'
+# export FAR_MODEL_API_KEY='YOUR_PROVIDER_SECRET'
 # On or immediately after official question-set publication, verify date and URL:
 curl -fL https://raw.githubusercontent.com/forecastingresearch/forecastbench-datasets/main/datasets/question_sets/2026-11-08-llm.json -o /tmp/2026-11-08-llm.json
 
@@ -35,7 +40,7 @@ python -m evaluation.prospective_forecast_runner /tmp/2026-11-08-llm.json /tmp/f
 python -m evaluation.prospective_forecast_runner /tmp/2026-11-08-llm.json /tmp/far-forecast-2026-11-08.json --model EXACT_MODEL_ID
 ```
 
-Before full execution, verify model costs, question count, output coverage, budget, tokens and available time. The repository does not expose model credentials or automatically run this costly full round. Full output is labeled `PRE_SUBMISSION_REQUIRES_EXTERNAL_LOCK`, not `SUBMITTED` or `VERIFIED`; partial outputs are non-submittable. Preserve raw bytes and commit/hash the generated artifact in an independently timestamped location before resolution.
+Before full execution, verify model costs, question count, output coverage, budget, tokens and available time. **A full 500-question set requires approximately 1,500 model requests across three arms**; this is not a free built-in ChatGPT inference capability. The official due-date restriction is strictly enforced in UTC. The default endpoint is `https://api.openai.com/v1/chat/completions` and the runner accepts `FAR_MODEL_API_KEY` or `OPENAI_API_KEY`; explicitly select an authorized, billable `--model`. The repository does not expose model credentials or automatically run this costly full round. Full output is labeled `PRE_SUBMISSION_REQUIRES_EXTERNAL_LOCK`, not `SUBMITTED` or `VERIFIED`; partial outputs are non-submittable. Preserve raw bytes and commit/hash the generated artifact in an independently timestamped location before resolution.
 
 **Record original external registration time** and a SHA-256 of the locked protocol separately. Having `registered_at` as a string is not proof that it was preregistered.
 
@@ -88,6 +93,29 @@ The `registered_at` example is not a real registration claim. Outcome adjudicati
 Primary outcome: per-event Brier score, paired arm differences, and source-blocked confidence bounds for the prespecified 0.02 effect, using the existing `FAR-WORLD-EVAL/0.1` scorer and `worldview_confirmatory`. ForecastBench's own leaderboard uses a **difficulty-adjusted Brier Index**, so raw FAR Brier scores must **not** be presented as official ForecastBench rankings. Track unresolved/censored events, arm completion, costs, answer-parsing failures, calibration and abstention. Do not silently remove difficult questions.
 
 The current 200-case minimum is not a powered confirmatory sample. The repository's normal-approximation estimates vary from 535 to 1,486 independent clusters for a 0.02 effect at assumed paired SD 0.15–0.25, under familywise type-I error control and 80% power. An actual pilot must establish variance and dependence assumptions before setting the confirmatory cohort size.
+
+### Verified October 31, 2026 intake checkpoint
+
+Source audit: `evaluation/intake/forecastbench-2026-10-31-source-audit.json`.
+The official previous `2026-10-25-llm.json` question set is present
+in the organizer's public repository at Git blob
+`d2f8e23707fd0859bf78d77fefbf1b74cbc8aabb` (1,473,008 bytes),
+but is **past its authorized October 25 due date**. The expected
+`2026-11-08-llm.json` URL returned **HTTP 404** on October 31.
+The next official round therefore cannot yet be executed, scored or
+submitted. Registration/approved upload destination are not verified;
+no model API credential is available to this work session. A connected
+OpenAI Platform key-setup UI has been surfaced for user-controlled
+credential creation; no secret is obtained by the FAR code without
+the user placing it into their chosen secure runtime environment.
+
+The earlier prompting design had an unfair differential: only the
+Orthodox arm explicitly repeated honesty and no-overclaiming guidance.
+This was corrected **before any live forecasts**: every arm now receives
+identical evidence-integrity and correction obligations; the prompt
+treatment is confined to a declared interpretation profile. The
+resulting prompts are not exactly token-balanced and should be
+subjected to a blinded length/style-matched placebo robustness test.
 
 ## 2. Independent factual investigation — separate experimental endpoint
 
