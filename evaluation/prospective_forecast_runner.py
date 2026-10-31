@@ -219,14 +219,14 @@ def main(argv=None):
     ap.add_argument("question_set", type=Path)
     ap.add_argument("output", type=Path)
     ap.add_argument("--model", required=True)
-    ap.add_argument("--endpoint", default=os.getenv("FAR_MODEL_ENDPOINT", ""))
+    ap.add_argument("--endpoint", default=os.getenv("FAR_MODEL_ENDPOINT", "https://api.openai.com/v1/chat/completions"))
     ap.add_argument("--limit", type=int)
     ap.add_argument("--rehearsal", action="store_true")
     args = ap.parse_args(argv)
     try:
         question_set = json.loads(args.question_set.read_text(encoding="utf-8"))
         backend = OpenAICompatible(args.endpoint, args.model,
-                                   os.getenv("FAR_MODEL_API_KEY"))
+                                   (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
         result = run_round(question_set, backend, args.model,
                            datetime.now(timezone.utc), limit=args.limit,
                            rehearsal=args.rehearsal)
