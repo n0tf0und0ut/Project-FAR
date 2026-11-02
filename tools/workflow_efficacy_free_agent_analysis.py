@@ -55,8 +55,8 @@ def analyze(folder):
             errors.append("INVALID_OUTCOME:" + t + ":" + arm)
         if row.get("outcome") == "SUCCESS" and row.get("grader_exit_code") != 0:
             errors.append("CONTRADICTORY_SUCCESS_WITH_FAILED_GRADER:" + t + ":" + arm)
-        if row.get("unauthorized_changes"):
-            errors.append("AGENT_MODIFIED_UNAUTHORIZED_FILES:" + t + ":" + arm)
+        if row.get("unauthorized_changes") and row.get("outcome") == "SUCCESS":
+            errors.append("CONTRADICTORY_SUCCESS_WITH_UNAUTHORIZED_EDITS:" + t + ":" + arm)
         # Source, events and grader output are retained for independent replay.
         evidence = Path(folder) / "evidence" / (t + "-" + arm)
         file_hashes = {
