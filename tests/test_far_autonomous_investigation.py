@@ -6,6 +6,8 @@ the GitHub-hosted live workflow. No verifier or intake method is mocked in succe
 from __future__ import annotations
 
 import copy
+import base64
+import hashlib
 import json
 import unittest
 from collections import Counter
@@ -108,6 +110,29 @@ class RealInvestigationTests(unittest.TestCase):
         self.assertEqual(result["controller_overrides"], 0)
         self.assertEqual(result["actions"][0]["actual"], "FETCH_LIST")
         self.assertEqual(result["aggregate"]["outcome"], "INVARIANTLY_REFUTED")
+
+    def test_live_model_malformed_http_response_is_durable(self):
+        class FakeResponse:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self, limit): return b'{"choices":[{"message":{"content":"FETCH_LATEST"}}]}'
+        with patch("urllib.request.urlopen", return_value=FakeResponse()):
+            with self.assertRaises(inv.ModelActionResponseError) as failure:
+                inv.request_model_action("which tool next")
+        env = failure.exception.envelope
+        raw = base64.b64decode(env["raw_response_base64"])
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), env["response_sha256"])
+
+        checkpoints = []
+        fetcher, _ = fake_sources()
+        with patch("urllib.request.urlopen", return_value=FakeResponse()):
+            with self.assertRaises(inv.ModelActionResponseError):
+                inv.execute("model", fetcher=fetcher, model=inv.request_model_action,
+                            checkpoint=checkpoints.append)
+        self.assertEqual(checkpoints[-1]["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(checkpoints[-1]["failed_model_call"]["raw_envelope"], env)
+        self.assertEqual(checkpoints[-1]["verifier_calls"], 0)
 
     def test_network_drift_aborts_without_freeze_and_preserves_partial(self):
         f, calls = fake_sources(change=True)
