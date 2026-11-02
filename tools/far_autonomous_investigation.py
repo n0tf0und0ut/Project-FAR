@@ -468,20 +468,37 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
         if action in ("FETCH_LATEST", "FETCH_LIST"):
             key = "latest" if action == "FETCH_LATEST" else "list"
             raw, stamp = fetcher(key)
-            parsed = parse_source(key, raw)
-            state["receipts"][key] = {
+            receipt = {
                 "url": URLS[key], "raw_base64": base64.b64encode(raw).decode("ascii"),
-                "sha256": sha(raw), "retrieved_at": stamp, "parsed": parsed,
+                "sha256": sha(raw), "retrieved_at": stamp, "parsed": None,
             }
+            state["receipts"][key] = receipt
+            save()
+            try:
+                receipt["parsed"] = parse_source(key, raw)
+            except InvestigationError as exc:
+                receipt["parse_error"] = str(exc)
+                state["status"] = "FAILED_OR_INCOMPLETE"
+                save()
+                raise
         elif action == "REFETCH_ALL":
             for key in ("latest", "list"):
                 raw, stamp = fetcher(key)
-                parsed = parse_source(key, raw)
-                state["rechecks"].append({
+                receipt = {
                     "source": key, "url": URLS[key], "sha256": sha(raw),
-                    "retrieved_at": stamp, "parsed": parsed,
-                    "raw_base64": __import__("base64").b64encode(raw).decode("ascii"),
-                })
+                    "retrieved_at": stamp, "parsed": None,
+                    "raw_base64": base64.b64encode(raw).decode("ascii"),
+                }
+                state["rechecks"].append(receipt)
+                save()
+                try:
+                    parsed = parse_source(key, raw)
+                except InvestigationError as exc:
+                    receipt["parse_error"] = str(exc)
+                    state["status"] = "FAILED_OR_INCOMPLETE"
+                    save()
+                    raise
+                receipt["parsed"] = parsed
                 save()
                 if parsed != state["receipts"][key]["parsed"]:
                     raise InvestigationError("source projection changed during bounded recheck: " + key)
