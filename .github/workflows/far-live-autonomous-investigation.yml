@@ -1,0 +1,88 @@
+name: FAR Live Autonomous Investigation
+on:
+  pull_request:
+    paths:
+      - 'tools/far_autonomous_investigation.py'
+      - 'tools/far_routing_dispatch.py'
+      - 'tools/far_uncertain_routing_pilot.py'
+      - 'tests/test_far_autonomous_investigation.py'
+      - 'tests/test_far_routing_dispatch.py'
+      - 'tests/test_far_uncertain_routing_pilot.py'
+      - 'research/uncertain-routing/**'
+      - '.github/workflows/far-live-autonomous-investigation.yml'
+permissions:
+  contents: read
+jobs:
+  real-evidence-real-verifier:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR head without credential persistence
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Prepare Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Check unit tests and frozen source contracts
+        run: |
+          python -m pip install "PyYAML>=6.0,<7" "jsonschema>=4.22,<5"
+          python -m unittest tests.test_far_routing_dispatch tests.test_far_uncertain_routing_pilot tests.test_far_autonomous_investigation -v
+          python tools/far_routing_dispatch.py conformance/far-ir-2.0/valid-factorization.json --mode deterministic > "$RUNNER_TEMP/explicit-routing.json"
+          python tools/far_uncertain_routing_pilot.py validate > "$RUNNER_TEMP/uncertain-protocol.json"
+      - name: Install pinned, checksum-verified CPU llama.cpp release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/far-llama"
+          curl --fail --location --retry 3 --max-time 240 "https://github.com/ggml-org/llama.cpp/releases/download/b12023/llama-b12023-bin-ubuntu-x64.tar.gz" --output "$RUNNER_TEMP/llama-cpu.tar.gz"
+          printf '%s  %s\n' ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0 "$RUNNER_TEMP/llama-cpu.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/llama-cpu.tar.gz" -C "$RUNNER_TEMP/far-llama"
+          server="$(find "$RUNNER_TEMP/far-llama" -type f -name llama-server -print -quit)"
+          test -n "$server" && test -f "$server"
+          chmod +x "$server"
+          echo "FAR_LLAMA_BIN=$server" >> "$GITHUB_ENV"
+          echo "FAR_LLAMA_LIB=$(dirname "$server")" >> "$GITHUB_ENV"
+      - name: Download exact open-weight model with SHA-256 verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 360 "https://huggingface.co/bartowski/Qwen2.5-0.5B-Instruct-GGUF/resolve/d71b21e09fe053c278d73092a855b8a99684693a/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf" --output "$RUNNER_TEMP/far-model.gguf"
+          printf '%s  %s\n' 6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653 "$RUNNER_TEMP/far-model.gguf" | sha256sum --check
+      - name: Start offline model bound to localhost
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p research/uncertain-routing/run-artifacts
+          export LD_LIBRARY_PATH="$FAR_LLAMA_LIB:${LD_LIBRARY_PATH:-}"
+          nohup "$FAR_LLAMA_BIN" --model "$RUNNER_TEMP/far-model.gguf" --host 127.0.0.1 --port 8085 --ctx-size 2048 --threads 2 --parallel 1 --seed 271828 > research/uncertain-routing/run-artifacts/server.log 2>&1 &
+          for attempt in $(seq 1 120); do
+            if curl --silent --show-error --fail --max-time 1 http://127.0.0.1:8085/health >/dev/null 2>&1; then
+              echo "MODEL_READY=1"
+              exit 0
+            fi
+            sleep 1
+          done
+          tail -80 research/uncertain-routing/run-artifacts/server.log || true
+          echo 'Local model failed startup' >&2
+          exit 1
+      - name: Execute two full-source and full-verifier investigations
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python tools/far_autonomous_investigation.py run --mode deterministic --output research/uncertain-routing/run-artifacts/deterministic.json | tee research/uncertain-routing/run-artifacts/deterministic-summary.log
+          python tools/far_autonomous_investigation.py run --mode model --output research/uncertain-routing/run-artifacts/model.json | tee research/uncertain-routing/run-artifacts/model-summary.log
+          echo "$PR_HEAD_SHA" > research/uncertain-routing/run-artifacts/exact-head.txt
+      - name: Upload raw execution evidence without credentials or weights
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: far-live-investigation-${{ github.event.pull_request.head.sha }}
+          path: research/uncertain-routing/run-artifacts/
+          if-no-files-found: warn
+          retention-days: 90
