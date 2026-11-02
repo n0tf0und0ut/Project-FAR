@@ -1,9 +1,12 @@
 """Regression tests for the bounded three-arm research comparison."""
 import copy
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tools.far_architecture_routing import (
     PilotError, analyze, blob_sha, execute, load, plan, replay, smoke, source_document,
@@ -28,6 +31,39 @@ class ArchitectureRoutingTests(unittest.TestCase):
         for r in rows:
             first.setdefault(r["case_id"], r["arm"])
         self.assertEqual([list(first.values()).count(a) for a in ("agent", "deterministic", "declarative")], [4, 4, 4])
+
+    def test_replay_honors_exact_counterbalanced_schedule(self):
+        result = replay(self.p, {c["id"]: "verify" for c in self.p["cases"]})
+        observed = [(r["case_id"], r["arm"]) for r in result["records"]]
+        expected = [(r["case_id"], r["arm"]) for r in plan(self.p)]
+        self.assertEqual(observed, expected)
+        first = {}
+        for r in result["records"]:
+            first.setdefault(r["case_id"], r["arm"])
+        self.assertEqual(sorted(first.values()), ["agent"] * 4 + ["declarative"] * 4 + ["deterministic"] * 4)
+
+    def test_smoke_honors_fixed_arm_order_from_schedule(self):
+        calls = []
+        def record(case, arm, protocol):
+            calls.append((case["id"], arm))
+            return {"correct": True}
+        with patch("tools.far_architecture_routing.execute", side_effect=record):
+            self.assertEqual(smoke(self.p)["correct"], 24)
+        expected = [(r["case_id"], r["arm"]) for r in plan(self.p) if r["arm"] != "agent"]
+        self.assertEqual(calls, expected)
+        first = {}
+        for case_id, arm in calls:
+            first.setdefault(case_id, arm)
+        self.assertEqual(sum(a == "deterministic" for a in first.values()), 6)
+        self.assertEqual(sum(a == "declarative" for a in first.values()), 6)
+
+    def test_direct_script_smoke_executes_from_repository_root(self):
+        proc = subprocess.run([sys.executable, "tools/far_architecture_routing.py", "smoke"],
+                              cwd=Path(__file__).resolve().parents[1], capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        result = json.loads(proc.stdout)
+        self.assertEqual(result["correct"], 24)
+        self.assertEqual(result["status"], "LOCAL_SMOKE_ONLY")
 
     def test_actual_semantic_verifier_and_two_fixed_routes(self):
         output = smoke(self.p)
