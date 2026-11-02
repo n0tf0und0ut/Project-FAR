@@ -22,7 +22,7 @@ from tools.workflow_efficacy_internal_fixtures import (
 
 CONTROL_SHA = "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT_SHA = "dc290674b755977378d6170a0128c1540f0a2b6a"
-MODEL = "opencode/glm-5.3-flash-free"
+MODEL = "opencode/deepseek-v4.1-flash-free"
 OPENCODE_VERSION = "1.19.3"
 MAX_SECONDS = 240
 ARMS = ("control", "treatment")
