@@ -37,6 +37,14 @@ class StudyError(ValueError):
     pass
 
 
+class ModelResponseError(StudyError):
+    """Response was received but could not be interpreted; retain exact byte evidence."""
+
+    def __init__(self, reason: str, envelope: dict):
+        super().__init__(reason)
+        self.envelope = envelope
+
+
 def digest(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
@@ -96,6 +104,13 @@ def request_model(prompt: str, endpoint: str = ENDPOINT) -> dict:
             response_bytes = response.read(1024 * 1024)
     except (urllib.error.URLError, OSError, TimeoutError) as exc:
         raise StudyError("local model transport failed: " + type(exc).__name__) from exc
+    # The raw envelope is constructed before any model-output validation.
+    # An invalid completion is evidence, not something to silently discard.
+    envelope = {
+        "request": data, "request_sha256": digest(reqbytes),
+        "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
+        "response_sha256": digest(response_bytes),
+    }
     try:
         payload = json.loads(response_bytes)
         text = payload["choices"][0]["message"]["content"]
@@ -109,12 +124,10 @@ def request_model(prompt: str, endpoint: str = ENDPOINT) -> dict:
         return {
             "action": action, "raw_choice": text,
             "reported_model": identity, "total_tokens": usage,
-            "request": data, "request_sha256": digest(reqbytes),
-            "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
-            "response_sha256": digest(response_bytes),
+            **envelope,
         }
     except (ValueError, KeyError, IndexError, TypeError) as exc:
-        raise StudyError("invalid provider output: " + type(exc).__name__) from exc
+        raise ModelResponseError("invalid provider output: " + type(exc).__name__, envelope) from exc
 
 
 def persist(path: Path, obj: dict) -> None:
@@ -133,7 +146,24 @@ def evaluate(protocol: dict, source_hash: str, model_path: Path,
     identity = set()
     for task in protocol["tasks"]:
         began = time.perf_counter_ns()
-        event = runner(task["prompt"])
+        try:
+            event = runner(task["prompt"])
+        except ModelResponseError as exc:
+            if checkpoint is not None:
+                checkpoint({
+                    "schema": "far-uncertain-routing-execution/0.1",
+                    "status": "FAILED_OR_INCOMPLETE",
+                    "protocol_sha256": source_hash,
+                    "completed": len(records),
+                    "records": records,
+                    "failed_model_call": {
+                        "case_id": task["id"],
+                        "reason": str(exc),
+                        "raw_envelope": exc.envelope,
+                    },
+                    "claim": "NOT_ESTABLISHED",
+                })
+            raise
         ms = (time.perf_counter_ns() - began) / 1_000_000
         if event["action"] not in ACTIONS + ("INVALID_ACTION",):
             raise StudyError("invalid runner action outside bounded vocabulary")
