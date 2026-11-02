@@ -50,6 +50,12 @@ python -m unittest tests.test_far_architecture_cpu_experiment -v
 # Evidence: GitHub Actions run-artifacts, with raw request/response data
 ```
 
+## Corrected v0.3 empirical result
+
+The SHA-pinned v0.3 local-model run completed in [GitHub Actions run 41503257398](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41503257398). **All twelve prompts were distinct** and the model's raw request and response SHA-256 pairs were independently recomputed and matched. The model made 12 real routing decisions: 9 RUN_VERIFIER and 3 ABSTAIN. It matched 9/12 project-authored reference outcomes, versus 12/12 for deterministic and declarative routing. Median wall times were 1.759336 ms (direct), 1.723461 ms (declarative), and 1,694.4227915 ms (model-directed); the model/direct median-latency ratio was 963.1036× and model use was 4,064 tokens. The detailed observation, exact artifact identities, per-case actions, and limits are preserved in [v0.3 execution observation](execution-observation-v0.3.md).
+
+The [v0.3 preregistration](cpu-protocol-v0.3.json) is retained unchanged. Its result supports a bounded direct-routing advantage **only when the correct verifier is already known**. It neither tests multiple competing tools nor establishes broad general AI reasoning reliability.
+
 ## External model and empirical validity limits
 
 
