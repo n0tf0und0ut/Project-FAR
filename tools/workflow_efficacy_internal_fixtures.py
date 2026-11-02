@@ -23,9 +23,9 @@ SPECS = [
     ("Return the mathematical median; for even inputs average the two middle numbers.",
      "Return the lower median for even inputs; middle for odd inputs.",
      "Return the upper median for even inputs; middle for odd inputs."),
-    ("Return the running sum after each number.",
+    ("Return the running sum after each numeric element; skip null elements.",
      "Return running sums, resetting the accumulator on null; emit null at a reset.",
-     "Return the running maximum after each number."),
+     "Return the running maximum after each numeric element; skip null elements."),
     ("Merge sorted or unsorted closed intervals when they overlap or touch at an endpoint.",
      "Merge intervals only when they have a strictly positive overlap, not merely touch.",
      "Merge integer intervals when they overlap or their gap is at most one integer."),
@@ -44,9 +44,9 @@ SPECS = [
 ]
 BUGGY = (
     'def transform(d):\n    return min(d["low"], max(d["high"], d["value"]))\n',
-    'def transform(d):\n    return list(set(d["items"]))\n',
+    'def transform(d):\n    return sorted(set(d["items"]))\n',
     'def transform(d):\n    a, n = d["items"], d["n"]\n    return [a[i:i+n] for i in range(0, len(a), n+1)]\n',
-    'def transform(d):\n    a = sorted(d["values"])\n    return a[len(a)//2]\n',
+    'def transform(d):\n    a = sorted(d["values"])\n    return a[0]\n',
     'def transform(d):\n    a = d["values"]\n    return [sum(x for x in a[:i] if x is not None) for i in range(len(a))]\n',
     'def transform(d):\n    return sorted(d["intervals"])\n',
     'def transform(d):\n    return sorted(d["items"])[:d["k"]]\n',
@@ -130,7 +130,7 @@ def oracle(kind: int, mode: int, d: dict):
     if kind == 5:
         out = []
         for lo, hi in sorted(d["intervals"]):
-            gap = 0 if mode == 0 else (-1 if mode == 1 else 1)
+            gap = 0 if mode == 0 else (-1 if mode == 1 else 2)
             if out and lo <= out[-1][1] + gap:
                 out[-1][1] = max(hi, out[-1][1])
             else:
