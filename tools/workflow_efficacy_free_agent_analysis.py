@@ -49,14 +49,34 @@ def analyze(folder):
             errors.append("NO_MODEL_STEPS:" + t + ":" + arm)
         if row.get("reported_cost_usd") != 0:
             errors.append("NONFREE_MODEL_CHARGE:" + t + ":" + arm)
+        if row.get("grader_status") != "EXECUTED" or row.get("grader_exit_code") not in (0, 1):
+            errors.append("MISSING_OR_UNEXECUTED_GRADER:" + t + ":" + arm)
+        if row.get("outcome") not in ("SUCCESS", "FAILURE"):
+            errors.append("INVALID_OUTCOME:" + t + ":" + arm)
+        if row.get("outcome") == "SUCCESS" and row.get("grader_exit_code") != 0:
+            errors.append("CONTRADICTORY_SUCCESS_WITH_FAILED_GRADER:" + t + ":" + arm)
         if row.get("unauthorized_changes"):
             errors.append("AGENT_MODIFIED_UNAUTHORIZED_FILES:" + t + ":" + arm)
+        # Source, events and grader output are retained for independent replay.
+        evidence = Path(folder) / "evidence" / (t + "-" + arm)
+        file_hashes = {
+            "submitted-solution.py": "source_after_sha256",
+            "agent-events.ndjson": "raw_event_stream_sha256",
+            "grader-trace.txt": "grader_trace_hash",
+        }
+        for filename, field in file_hashes.items():
+            path = evidence / filename
+            if not path.is_file():
+                errors.append("MISSING_REPLAY_ARTIFACT:" + t + ":" + arm + ":" + filename)
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != row.get(field):
+                errors.append("REPLAY_ARTIFACT_HASH_MISMATCH:" + t + ":" + arm + ":" + filename)
     expected={(f"FWE-{i+1:03d}",arm) for i in range(30) for arm in ("control","treatment")}
     if set(keyed) != expected:
         errors.append("MISSING_EXPERIMENT_SLOTS")
     for i in range(30):
-        if [(a) for a in order_for(i)] != [a for a in ("control","treatment") if (f"FWE-{i+1:03d}",a) in keyed] and not all((f"FWE-{i+1:03d}",a) in keyed for a in order_for(i)):
-            errors.append("MISSING_COUNTERBALANCED_PAIR")
+        case_id = f"FWE-{i+1:03d}"
+        if any((case_id, arm) not in keyed for arm in order_for(i)):
+            errors.append("MISSING_COUNTERBALANCED_PAIR:" + case_id)
     base = {"schema":"far-workflow-free-agent-analysis/0.2","experiment":"exploratory_internal_synthetic_tasks",
             "expected_pairs":30, "expected_runs":60,
             "observed_records":len(rows), "unique_slots":len(keyed),
