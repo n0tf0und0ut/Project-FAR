@@ -5,6 +5,7 @@ llama.cpp server. No API keys, paid inference or network calls from this process
 """
 from __future__ import annotations
 import argparse
+import base64
 import hashlib
 import json
 import platform
@@ -114,7 +115,8 @@ def request_decision(endpoint, prompt, timeout=40):
             "action": action, "raw_text": text, "total_tokens": total_tokens,
             "observed_model": observed_model,
             "request_sha256": sha256(request_bytes), "response_sha256": sha256(raw),
-            "response": data,
+            "response": data, "raw_response_base64": base64.b64encode(raw).decode("ascii"),
+            "request_body": request_body,
         }
     except (KeyError, IndexError, TypeError, ValueError) as exc:
         raise PilotError("malformed local model response: " + type(exc).__name__) from exc
@@ -188,6 +190,8 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
                 "request_sha256": event["request_sha256"],
                 "response_sha256": event["response_sha256"],
                 "raw_response": event["response"],
+                "raw_response_base64": event["raw_response_base64"],
+                "request_body": event["request_body"],
                 "decision": event["action"],
             })
     if len(raw_events) != MAX_CALLS:
