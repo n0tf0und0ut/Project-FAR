@@ -63,8 +63,11 @@ class RunnerTests(unittest.TestCase):
                            cwd=folder, check=True)
             (folder / "solution.py").write_text("x=2\n")
             (folder / "test_extra.py").write_text("assert True\n")
+            (folder / ".gitignore").write_text("__pycache__/\n*.pyc\n")
+            (folder / "__pycache__").mkdir()
+            (folder / "__pycache__" / "solution.cpython-312.pyc").write_bytes(b"expected runtime cache")
             result = unauthorized_file_changes(folder, {"solution.py"})
-            self.assertEqual(result, ["test_extra.py"])
+            self.assertEqual(result, [".gitignore", "test_extra.py"])
 
     def test_grader_transport_failure_is_ungraded(self):
         with tempfile.TemporaryDirectory() as tmp:
