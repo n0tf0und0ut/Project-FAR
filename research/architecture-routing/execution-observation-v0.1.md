@@ -20,7 +20,7 @@ Observed model/deterministic ratio of separate arm medians: **41.1485×**. On al
 
 **V0.1 used an identical prompt across all twelve cases**, confirmed by the identical request SHA-256 in each raw response record (prefix `227cea84a734`). All the projected metadata was shared; this was effectively twelve executions of **one** routing decision, not twelve distinct contextual decisions. The 12 correct final outcomes came from the shared deterministic FAR verifier. The data prove additional measured inference overhead for redundant model routing on this CPU/model/task, not model competence at choosing among distinct verification strategies.
 
-The separately frozen [v0.2 CPU protocol](cpu-protocol-v0.2.json) addresses this design flaw by sending contract-specific, non-oracle fields and rejecting repeated prompt hashes. It remains an internal bounded study: all cases still have the same safe verifier, so an adaptive-routing superiority claim is not identified.
+The separately frozen [v0.2 CPU protocol](cpu-protocol-v0.2.json) attempted contract-specific non-oracle fields but [failed the distinct-prompt preflight](preflight-failure-v0.2.md): A01/A04 have identical contracts and different submitted decoder witnesses. The [v0.3 successor](cpu-protocol-v0.3.json) includes that submitted evidence without exposing the reported verdict. It remains an internal bounded study: all cases still have the same safe verifier, so an adaptive-routing superiority claim is not identified.
 
 ## Decision and nonclaims
 
