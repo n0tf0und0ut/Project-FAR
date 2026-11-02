@@ -8,6 +8,7 @@ The optional local model chooses *proposed* actions, never verdicts or tool args
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import hashlib
 import json
@@ -31,7 +32,7 @@ from mechanization.far_mechanization.intake_v1 import (
 )
 from mechanization.far_mechanization.contract_v2_strict_v11 import contract_sha256
 from tools.far_routing_dispatch import _parse, route_text
-from tools.far_uncertain_routing_pilot import request_model as local_model, persist as persist_json
+from tools.far_uncertain_routing_pilot import MODEL_SHA256, sha256_file, persist as persist_json
 
 REPO = "n0tf0und0ut/Project-FAR"
 CLAIMED = "v1.0.0"
@@ -341,6 +342,45 @@ def _allowed(state: dict) -> list[str]:
     return ["AGGREGATE"]
 
 
+def request_model_action(prompt: str) -> dict:
+    """Independent tool-routing prompt, not the previous ASK_SCOPE-only pilot prompt."""
+    data = {
+        "model": "Qwen2.5-0.5B-Instruct-Q4_K_M",
+        "temperature": 0, "stream": False, "max_tokens": 32,
+        "messages": [{"role": "system", "content": SYSTEM},
+                     {"role": "user", "content": prompt}],
+    }
+    request_bytes = json.dumps(data, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    req = urllib.request.Request(
+        MODEL_ENDPOINT, request_bytes,
+        headers={"Content-Type": "application/json"}, method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as res:
+            if res.status != 200:
+                raise InvestigationError("loopback model returned non-200")
+            response_bytes = res.read(1024 * 1024 + 1)
+            if len(response_bytes) > 1024 * 1024:
+                raise InvestigationError("model response exceeds size ceiling")
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError) as exc:
+        raise InvestigationError("loopback model unavailable: " + type(exc).__name__) from exc
+    try:
+        parsed = _parse(response_bytes.decode("utf-8"))
+        answer = parsed["choices"][0]["message"]["content"]
+        tokens = parsed["usage"]["total_tokens"]
+        model_id = parsed["model"]
+    except (IndexError, KeyError, ValueError, TypeError, UnicodeError) as exc:
+        raise InvestigationError("malformed loopback model completion") from exc
+    if not isinstance(answer, str) or type(tokens) is not int or tokens < 1 or not isinstance(model_id, str):
+        raise InvestigationError("invalid loopback model telemetry")
+    return {
+        "action": answer.strip(), "raw_choice": answer,
+        "total_tokens": tokens, "model": model_id,
+        "request": data, "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
+        "request_sha256": sha(request_bytes), "response_sha256": sha(response_bytes),
+    }
+
+
 def choose_action(state: dict, mode: str, model: Callable[[str], dict] | None) -> tuple[str, dict]:
     allowed = _allowed(state)
     if mode == "deterministic":
@@ -406,7 +446,7 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
             raw, stamp = fetcher(key)
             parsed = parse_source(key, raw)
             state["receipts"][key] = {
-                "url": URLS[key], "raw_base64": __import__("base64").b64encode(raw).decode("ascii"),
+                "url": URLS[key], "raw_base64": base64.b64encode(raw).decode("ascii"),
                 "sha256": sha(raw), "retrieved_at": stamp, "parsed": parsed,
             }
         elif action == "REFETCH_ALL":
@@ -480,15 +520,14 @@ def main(argv=None) -> int:
     parser.add_argument("command", choices=("run",))
     parser.add_argument("--mode", choices=("model", "deterministic"), required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--model", type=Path, help="exact SHA-256 pinned GGUF; required for model mode")
     args = parser.parse_args(argv)
     partial = args.output.with_name(args.output.stem + ".partial.json")
     try:
         if args.mode == "model":
-            # Existing pinned local-model runner. No remote-provider fallback.
-            def model(prompt):
-                data = json.dumps(
-                    {"question": prompt, "system": SYSTEM}, sort_keys=True)
-                return local_model(data, endpoint=MODEL_ENDPOINT)
+            if args.model is None or sha256_file(args.model) != MODEL_SHA256:
+                raise InvestigationError("model path missing or GGUF SHA-256 mismatch")
+            model = request_model_action
         else:
             model = None
         output = execute(args.mode, model=model, checkpoint=lambda x: persist_json(partial, x))
