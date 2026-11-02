@@ -46,7 +46,7 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
         return out
 
     def test_synthetic_pair_arithmetic_only(self):
-        result = analyze(self.protocol, self.sample())
+        result = analyze(self.prepared(), self.sample())
         self.assertEqual(result["status"], "STRUCTURALLY_VALID_SELF_REPORTED_PAIRED_DATA")
         self.assertEqual(result["paired_success_delta"], 1.0)
         self.assertEqual(result["discordant_improvements"], 30)
@@ -58,15 +58,15 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
         items[0]["isolation_verified"] = False
         self.assertEqual(analyze(self.prepared(), items)["status"], "UNVERIFIED_ISOLATION_OR_PROVENANCE")
 
-    def test_unmatched_model_fails_closed(self):
+    def test_unmatched_task_bundle_fails_closed(self):
         items = self.sample()
-        items[0]["model_id"] = "different-model"
-        self.assertEqual(analyze(self.protocol, items)["status"], "UNMATCHED_CONDITIONS")
+        items[0]["task_bundle_hash"] = "wrong-task-bundle"
+        self.assertEqual(analyze(self.prepared(), items)["status"], "UNMATCHED_CONDITIONS")
 
     def test_invalid_or_missing_outcome_fails_closed(self):
         items = self.sample()
         items[0]["success"] = None
-        self.assertEqual(analyze(self.protocol, items)["status"], "UNVERIFIED_OR_MISSING_OUTCOME")
+        self.assertEqual(analyze(self.prepared(), items)["status"], "UNVERIFIED_OR_MISSING_OUTCOME")
 
     def test_wrong_instruction_snapshot_fails(self):
         items = self.sample()
@@ -81,7 +81,7 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
     def test_duplicate_record_cannot_inflate_results(self):
         items = self.sample()
         items[1] = items[0].copy()
-        self.assertEqual(analyze(self.protocol, items)["status"], "INCOMPLETE_OR_DUPLICATE")
+        self.assertEqual(analyze(self.prepared(), items)["status"], "INCOMPLETE_OR_DUPLICATE")
 
 
 if __name__ == "__main__":
