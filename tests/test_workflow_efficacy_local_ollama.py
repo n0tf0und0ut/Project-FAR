@@ -14,6 +14,12 @@ class LocalInferenceTests(unittest.TestCase):
         self.assertEqual(MODEL,"qwen2.5-coder:1.5b")
         self.assertEqual(OPTIONS["seed"],602)
         self.assertEqual(OPTIONS["temperature"],0)
+    def test_exact_instruction_section_extraction(self):
+        from tools.workflow_efficacy_local_ollama import extract_section
+        source=b"## Relevant\ntext\n\n## Other\nend\n"
+        self.assertEqual(extract_section(source,"## Relevant"),b"## Relevant\ntext")
+        with self.assertRaises(ValueError):
+            extract_section(source,"## Nonexistent")
     def test_extract_fenced_code(self):
         fence=chr(96)*3
         raw=fence+"python\ndef transform(x): return x\n"+fence
