@@ -157,6 +157,15 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
         raise PilotError("unexpected endpoint")
     if file_sha256(model_path) != MODEL_SHA256:
         raise PilotError("model weights fail SHA-256 freeze")
+    prereg = json.loads((ROOT / "research/architecture-routing/cpu-protocol-v0.2.json")
+                        .read_text(encoding="utf-8"))
+    if (prereg.get("schema") != "far-architecture-local-model/0.2"
+            or prereg.get("status") != "PREREGISTERED_NOT_EXECUTED"
+            or prereg.get("model", {}).get("sha256") != MODEL_SHA256
+            or prereg.get("model", {}).get("archive_sha256") != BINARY_RELEASE_SHA256
+            or prereg.get("model", {}).get("model_calls") != MAX_CALLS
+            or prereg.get("design", {}).get("cells") != 36):
+        raise PilotError("v0.2 preregistration and execution do not match")
     by_id = {c["id"]: c for c in protocol["cases"]}
     # The v0.1 first run exposed a repeated identical prompt on every case;
     # prevent that information deficiency in the v0.2 successor campaign.
