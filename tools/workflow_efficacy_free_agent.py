@@ -9,6 +9,9 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import ast
+import urllib.error
 import signal
 import shutil
 import subprocess
@@ -25,9 +28,9 @@ from tools.workflow_efficacy_internal_fixtures import (
 CONTROL_SHA = "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT_SHA = "dc290674b755977378d6170a0128c1540f0a2b6a"
 MODEL = "ollama/qwen2.5-coder:1.5b"
-OPENCODE_VERSION = "1.19.3"
+HARNESS_VERSION = "local-scripted-repair-v0.3"
 MODEL_DIGEST_PREFIX = "d7372fd82851"
-MAX_SECONDS = 240
+MAX_SECONDS = 420
 ARMS = ("control", "treatment")
 ROOT = Path(__file__).resolve().parents[1]
 SAFE_CONFIG = {
@@ -212,53 +215,111 @@ def execute_agent_process(command, folder: Path, env: dict, timeout: float):
         return None, (stdout or "")[:2_000_000], True
 
 
+def extract_patch(text: str):
+    """Accept only a full, syntactically valid transform implementation."""
+    if not isinstance(text, str):
+        return None
+    fence = chr(96) * 3
+    start = text.find(fence)
+    if start >= 0:
+        end = text.find(fence, start + 3)
+        if end >= 0:
+            body = text[start + 3:end].lstrip()
+            if body.lower().startswith("python"):
+                body = body[6:].lstrip()
+            text = body
+    code = text.strip()
+    if not code.startswith(("def ", "from ", "import ", "#")) and "def transform(" in code:
+        code = code[code.index("def transform("):]
+    try:
+        tree = ast.parse(code)
+    except (SyntaxError, ValueError, TypeError):
+        return None
+    if not any(isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == "transform"
+               for n in tree.body):
+        return None
+    return code + "\n"
+
+
+def local_patch_request(instruction_bytes: bytes, case: dict):
+    """Make one genuine local generation call; no hidden expected values sent."""
+    body = {
+        "model": "qwen2.5-coder:1.5b", "stream": False,
+        "keep_alive": "5m",
+        "options": {"temperature": 0, "seed": 0, "num_ctx": 16384, "num_predict": 512},
+        "messages": [
+            {"role": "system", "content": instruction_bytes.decode() +
+             "\nYou are an automated code-repair engine. Respond ONLY with a complete "
+             "Python source file defining transform(payload). No explanations."},
+            {"role": "user", "content":
+             "Task: " + case["task_id"] + "\nRequirement: " + case["spec"] +
+             "\nExisting solution.py:\n" + case["source"] +
+             "\nPublic input/output examples:\n" +
+             json.dumps(case["public"], sort_keys=True) +
+             "\nReturn the corrected full Python file, and nothing else."},
+        ],
+    }
+    request_bytes = json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
+    request = urllib.request.Request(
+        "http://127.0.0.1:11434/api/chat", data=request_bytes,
+        headers={"Content-Type": "application/json"}, method="POST")
+    started = time.monotonic()
+    try:
+        with urllib.request.urlopen(request, timeout=MAX_SECONDS) as response:
+            result = json.load(response)
+        answer = result.get("message", {}).get("content")
+        valid = result.get("done") is True and isinstance(answer, str)
+        metrics = {"model_steps": int(valid),
+                   "input_tokens": int(result.get("prompt_eval_count") or 0),
+                   "output_tokens": int(result.get("eval_count") or 0),
+                   "reported_cost_usd": 0.0,
+                   "error_events": 0 if valid else 1}
+        if not valid or metrics["input_tokens"] <= 0:
+            return None, json.dumps(result, sort_keys=True), metrics, None, False, time.monotonic()-started
+        return answer, json.dumps(result, sort_keys=True), metrics, 0, False, time.monotonic()-started
+    except (TimeoutError, OSError, ValueError, KeyError) as exc:
+        metrics = {"model_steps": 0, "input_tokens": 0, "output_tokens": 0,
+                   "reported_cost_usd": 0.0, "error_events": 1}
+        return None, json.dumps({"error_type": type(exc).__name__}), metrics, None, \
+            isinstance(exc, TimeoutError), time.monotonic()-started
+
+
 def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
-    t = task(index)
+    case = task(index)
     digest = local_model_digest()
     folder, instruction_hash = setup_workspace(index, arm, root)
-    agent_home = root / ("isolated-home-" + t["task_id"] + "-" + arm)
-    agent_home.mkdir()
-    env = {k: os.environ[k] for k in ("PATH", "LANG", "LC_ALL", "TERM", "NODE_PATH")
-           if k in os.environ}
-    env.update({"HOME": str(agent_home), "XDG_CONFIG_HOME": str(agent_home/"config"),
-                "XDG_DATA_HOME": str(agent_home/"data"),
-                "XDG_CACHE_HOME": str(agent_home/"cache"),
-                "OPENCODE_DISABLE_AUTOUPDATE": "1", "CI": "true",
-                "PYTHONDONTWRITEBYTECODE": "1"})
-    prompt = ("Follow AGENTS.md exactly. Read README.md and solution.py; fix the "
-              "implementation to satisfy the specification. Run the public "
-              "tests with python -m unittest -q test_public, do not edit tests. "
-              "Stop after verifying and describe the outcome.")
-    command = ["opencode", "run", "-m", MODEL, "--format", "json", prompt]
-    start = time.monotonic()
-    exit_code, raw, timed_out = execute_agent_process(command, folder, env, MAX_SECONDS)
-    metrics = parse_events(raw)
+    answer, raw, metrics, exit_code, timed_out, elapsed = local_patch_request(
+        instructions(arm), case)
+    patch = extract_patch(answer)
+    if patch is not None:
+        (folder / "solution.py").write_text(patch)
     unauthorized = unauthorized_file_changes(folder, {"solution.py"})
-    success, grader_code, grader_hash, grader_trace, graded = grade(folder / "solution.py", t, root)
-    evidence_path = evidence_root / (t["task_id"] + "-" + arm)
+    success, code, grader_hash, trace, graded = grade(folder / "solution.py", case, root)
+    evidence_path = evidence_root / (case["task_id"] + "-" + arm)
     evidence_path.mkdir(parents=True, exist_ok=False)
     (evidence_path / "submitted-solution.py").write_bytes((folder / "solution.py").read_bytes())
     (evidence_path / "agent-events.ndjson").write_text(raw)
-    (evidence_path / "grader-trace.txt").write_text(grader_trace)
-    success = bool(success and graded and (folder/"solution.py").read_bytes() != t["source"].encode()
-                   and not unauthorized and not timed_out and
-                   exit_code == 0 and metrics["model_steps"] > 0 and
-                   metrics["error_events"] == 0 and
-                   metrics["reported_cost_usd"] == 0)
+    (evidence_path / "grader-trace.txt").write_text(trace)
+    success = bool(success and graded and patch is not None
+                   and (folder / "solution.py").read_bytes() != case["source"].encode()
+                   and not unauthorized and not timed_out
+                   and exit_code == 0 and metrics["model_steps"] == 1
+                   and metrics["error_events"] == 0)
     return {
-        "schema": "far-workflow-free-agent-observation/0.2",
-        "task_id": t["task_id"], "arm": arm,
+        "schema": "far-workflow-scripted-repair-observation/0.3",
+        "task_id": case["task_id"], "arm": arm,
         "model_alias": MODEL, "model_digest": digest,
-        "opencode_version": OPENCODE_VERSION,
+        "harness_version": HARNESS_VERSION,
         "corpus_hash": fingerprint(), "instructions_sha256": instruction_hash,
-        "source_before_sha256": sha256(t["source"].encode()),
-        "source_after_sha256": sha256((folder/"solution.py").read_bytes()),
-        "elapsed_seconds": round(time.monotonic()-start, 3),
+        "source_before_sha256": sha256(case["source"].encode()),
+        "source_after_sha256": sha256((folder / "solution.py").read_bytes()),
+        "elapsed_seconds": round(elapsed, 3),
         "cli_exit_code": exit_code, "timeout": timed_out,
         "unauthorized_changes": unauthorized,
-        "grader_exit_code": grader_code, "grader_trace_hash": grader_hash,
+        "grader_exit_code": code, "grader_trace_hash": grader_hash,
         "grader_status": "EXECUTED" if graded else "INFRA_FAILURE",
         "outcome": "SUCCESS" if success else "FAILURE",
+        "patch_parsed": patch is not None,
         "raw_event_stream_sha256": sha256(raw.encode()), **metrics,
     }
 
@@ -279,7 +340,7 @@ def main():
     args = parser.parse_args()
     if args.action == "contract":
         payload = {"model_alias": MODEL, "model_digest": MODEL_DIGEST_PREFIX,
-                   "opencode_version": OPENCODE_VERSION,
+                   "harness_version": HARNESS_VERSION,
                    "corpus_hash": fingerprint(), "max_seconds_per_arm": MAX_SECONDS,
                    "arm_shas": {"control": CONTROL_SHA, "treatment": TREATMENT_SHA},
                    "free_alias_not_immutable_provider_snapshot": True}
