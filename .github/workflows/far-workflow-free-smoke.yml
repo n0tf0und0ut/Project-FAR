@@ -12,12 +12,12 @@ permissions:
   contents: read
 jobs:
   access-smoke:
-    # Only the named internal study branch. No credentials or task data sent.
+    # Only the named internal study branch. No external inference credentials; preflight task is excluded.
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.head_ref == 'research/workflow-efficacy-keyless-internal-pilot-v02'
     runs-on: ubuntu-24.04
-    timeout-minutes: 19
+    timeout-minutes: 30
     steps:
       - name: Checkout without persistent authentication
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -50,7 +50,7 @@ jobs:
           PY
       - name: Execute one excluded paired coding task for runner preflight
         run: |
-          docker pull python:3.12-slim
+          docker pull "$(python -c 'from tools.workflow_efficacy_free_agent import GRADER_IMAGE; print(GRADER_IMAGE)')"
           python -m tools.workflow_efficacy_free_agent run-pair --index 0 \
             --output research/workflow-efficacy/pilot-out/pair-0.json
           python - <<'PY'

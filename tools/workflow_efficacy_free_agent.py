@@ -1,4 +1,4 @@
-"""Run isolated Codex-instruction pilot tasks via a keyless OpenCode agent.
+"""Run isolated Codex-instruction tasks via one-shot local-model repair.
 
 This is an exploratory, authored synthetic pilot, NOT the 30 historical FAR PR
 tasks and NOT independent evidence. No keys or model credentials are required.
@@ -13,24 +13,40 @@ import re
 import ast
 import urllib.error
 import signal
+import selectors
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import urllib.request
+import uuid
 from pathlib import Path
 
 from tools.workflow_efficacy_internal_fixtures import (
-    task, fingerprint, public_test_code, hidden_test_code,
+    task, fingerprint, public_test_code,
 )
 
 CONTROL_SHA = "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT_SHA = "dc290674b755977378d6170a0128c1540f0a2b6a"
 MODEL = "ollama/qwen2.5-coder:1.5b"
-HARNESS_VERSION = "local-scripted-repair-v0.3"
-MODEL_DIGEST_PREFIX = "d7372fd82851"
+HARNESS_VERSION = "local-scripted-repair-v0.4"
+MODEL_DIGEST = "d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668"
+MODEL_DIGEST_PREFIX = MODEL_DIGEST
 MAX_SECONDS = 420
+GRADER_SECONDS_PER_CASE = 10
+MAX_CANDIDATE_OUTPUT_BYTES = 100_000
+GRADER_IMAGE = "python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30"
+CANDIDATE_STARTED = "FAR_CANDIDATE_STARTED_V1"
+CANDIDATE_ENTRYPOINT = (
+    "import json,runpy,sys\n"
+    "payload=json.load(sys.stdin)\n"
+    "sys.stdout.write('FAR_CANDIDATE_STARTED_V1\\n'); sys.stdout.flush()\n"
+    "sys.stderr.write('FAR_CANDIDATE_STARTED_V1\\n'); sys.stderr.flush()\n"
+    "candidate=runpy.run_path('/app/solution.py')\n"
+    "value=candidate['transform'](payload)\n"
+    "sys.stdout.write(json.dumps(value,allow_nan=False))\n"
+)
 ARMS = ("control", "treatment")
 ROOT = Path(__file__).resolve().parents[1]
 SAFE_CONFIG = {
@@ -65,13 +81,31 @@ def local_model_digest():
     if len(matches) != 1:
         raise RuntimeError("expected exactly one installed local model")
     value = matches[0].get("digest")
-    if not isinstance(value, str) or not value.startswith(MODEL_DIGEST_PREFIX):
+    if value != MODEL_DIGEST:
         raise RuntimeError("unpinned or unexpected local model digest")
     return value
 
 
 def sha256(data: bytes):
     return hashlib.sha256(data).hexdigest()
+
+
+def candidate_output(text: str):
+    """Strict JSON output: duplicate keys and nonfinite constants are errors."""
+    prefix = CANDIDATE_STARTED + "\n"
+    if text.startswith(prefix):
+        text = text[len(prefix):]
+    def reject_constant(value):
+        raise ValueError(value)
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate output key")
+            result[key] = value
+        return result
+    return json.loads(text, parse_constant=reject_constant,
+                      object_pairs_hook=unique_object)
 
 
 def git_show(revision: str, path: str) -> bytes:
@@ -123,28 +157,121 @@ def setup_workspace(index: int, arm: str, root: Path):
     return folder, sha256(instruction_bytes)
 
 
+def capture_candidate_process(cmd, payload):
+    """Bound both pipe buffers and the runtime of the Docker client."""
+    buffers = {"stdout": bytearray(), "stderr": bytearray()}
+    counts = {"stdout": 0, "stderr": 0}
+    timed_out = output_limited = False
+    deadline = time.monotonic() + GRADER_SECONDS_PER_CASE
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    try:
+        proc.stdin.write(payload.encode())
+        proc.stdin.close()
+        with selectors.DefaultSelector() as ready:
+            ready.register(proc.stdout, selectors.EVENT_READ, "stdout")
+            ready.register(proc.stderr, selectors.EVENT_READ, "stderr")
+            while ready.get_map():
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    timed_out = True
+                    break
+                for key, _ in ready.select(min(remaining, 0.2)):
+                    chunk = os.read(key.fileobj.fileno(), 8192)
+                    if not chunk:
+                        ready.unregister(key.fileobj)
+                        continue
+                    stream = key.data
+                    counts[stream] += len(chunk)
+                    buffers[stream].extend(chunk[:MAX_CANDIDATE_OUTPUT_BYTES-len(buffers[stream])])
+                    if counts[stream] > MAX_CANDIDATE_OUTPUT_BYTES:
+                        output_limited = True
+                        break
+                if output_limited:
+                    break
+        if not timed_out and not output_limited:
+            try:
+                proc.wait(timeout=max(0.001, deadline-time.monotonic()))
+            except subprocess.TimeoutExpired:
+                timed_out = True
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait(timeout=10)
+        for stream in (proc.stdin, proc.stdout, proc.stderr):
+            stream.close()
+    return {"exit_code": None if timed_out or output_limited else proc.returncode,
+            "stdout": buffers["stdout"].decode(errors="replace"),
+            "stderr": buffers["stderr"].decode(errors="replace"),
+            "stdout_bytes_observed": counts["stdout"],
+            "stderr_bytes_observed": counts["stderr"],
+            "timed_out": timed_out, "output_limited": output_limited}
+
+
 def grade(source_path: Path, t: dict, scratch: Path):
-    """Grade both public and hidden tests in a fresh no-network container."""
+    """Compare all six outputs outside the process running generated code.
+
+    Only source and a single input enter each disposable container. Expected
+    answers and the assertion machinery stay in this trusted host process.
+    """
     grade_dir = scratch / "grade"
     grade_dir.mkdir(exist_ok=True)
     shutil.copyfile(source_path, grade_dir / "solution.py")
-    (grade_dir / "test_hidden.py").write_text(hidden_test_code(t))
-    (grade_dir / "test_public.py").write_text(public_test_code(t))
-    cmd = [
-        "docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL",
-        "--security-opt", "no-new-privileges", "--memory", "384m",
-        "--pids-limit", "64", "-v", str(grade_dir)+":/app:ro",
-        "-w", "/app", "python:3.12-slim",
-        "python", "-m", "unittest", "-q", "test_public", "test_hidden",
-    ]
-    try:
-        p = subprocess.run(cmd, text=True, capture_output=True, timeout=60)
-        trace = (p.stdout + p.stderr)[:1_000_000]
-        # The test command must genuinely execute, not merely return a status.
-        executed = p.returncode in (0, 1) and "Ran 2 tests" in trace
-        return executed and p.returncode == 0, p.returncode, sha256(trace.encode()), trace, executed
-    except (subprocess.TimeoutExpired, OSError) as exc:
-        return False, None, None, type(exc).__name__, False
+    comparisons = []
+    for group in ("public", "hidden"):
+        for index, example in enumerate(t[group]):
+            name = "far-grade-" + uuid.uuid4().hex
+            cmd = [
+                "docker", "run", "--rm", "--name", name, "-i",
+                "--network", "none", "--cap-drop", "ALL", "--read-only",
+                "--security-opt", "no-new-privileges", "--memory", "384m",
+                "--pids-limit", "64", "-v", str(grade_dir)+":/app:ro",
+                "-w", "/app", GRADER_IMAGE,
+                "python", "-I", "-B", "-c", CANDIDATE_ENTRYPOINT,
+            ]
+            row = {"group": group, "index": index, "status": "INFRA_FAILURE"}
+            try:
+                p = capture_candidate_process(cmd, json.dumps(example["input"]))
+                row.update(p)
+                if (p["stdout"].startswith(CANDIDATE_STARTED + "\n")
+                        or CANDIDATE_STARTED in p["stderr"]):
+                    row["status"] = "FAILURE"
+                    if p["output_limited"]:
+                        row["status"] = "OUTPUT_LIMIT"
+                    elif p["timed_out"]:
+                        row["status"] = "RESOURCE_LIMIT"
+                    elif p["exit_code"] == 0:
+                        try:
+                            actual = candidate_output(p["stdout"])
+                            row["status"] = "PASS" if actual == example["expected"] else "FAILURE"
+                        except (ValueError, TypeError, RecursionError, OverflowError):
+                            pass
+            except subprocess.TimeoutExpired as exc:
+                stderr = exc.stderr or b""
+                if isinstance(stderr, bytes):
+                    stderr = stderr.decode(errors="replace")
+                row.update(stderr=stderr[:100_000], exit_code=None)
+                if CANDIDATE_STARTED in stderr:
+                    row["status"] = "RESOURCE_LIMIT"
+            except OSError as exc:
+                row["error_type"] = type(exc).__name__
+            finally:
+                # Killing only the Docker client does not stop a hung container.
+                try:
+                    cleanup = subprocess.run(["docker", "rm", "--force", name],
+                                             text=True, capture_output=True, timeout=15)
+                    if cleanup.returncode != 0 and "No such container" not in cleanup.stderr:
+                        row["status"] = "INFRA_FAILURE"
+                        row["cleanup_error"] = cleanup.stderr[:1000]
+                except (OSError, subprocess.TimeoutExpired) as exc:
+                    row["status"] = "INFRA_FAILURE"
+                    row["cleanup_error"] = type(exc).__name__
+            comparisons.append(row)
+    executed = len(comparisons) == 6 and all(r["status"] != "INFRA_FAILURE" for r in comparisons)
+    success = executed and all(r["status"] == "PASS" for r in comparisons)
+    trace = json.dumps({"schema": "far-isolated-output-grade/1", "comparisons": comparisons,
+                        "executed": executed, "success": success}, sort_keys=True)
+    return success, (0 if success else 1) if executed else None, sha256(trace.encode()), trace, executed
 
 
 def parse_events(raw: str):
@@ -267,11 +394,16 @@ def local_patch_request(instruction_bytes: bytes, case: dict):
     try:
         with urllib.request.urlopen(request, timeout=MAX_SECONDS) as response:
             result = json.load(response)
-        answer = result.get("message", {}).get("content")
-        valid = result.get("done") is True and isinstance(answer, str)
+        message = result.get("message") if isinstance(result, dict) else None
+        answer = message.get("content") if isinstance(message, dict) else None
+        input_count = result.get("prompt_eval_count") if isinstance(result, dict) else None
+        output_count = result.get("eval_count") if isinstance(result, dict) else None
+        valid = (isinstance(result, dict) and result.get("done") is True
+                 and isinstance(answer, str) and type(input_count) is int and input_count > 0
+                 and type(output_count) is int and output_count > 0)
         metrics = {"model_steps": int(valid),
-                   "input_tokens": int(result.get("prompt_eval_count") or 0),
-                   "output_tokens": int(result.get("eval_count") or 0),
+                   "input_tokens": input_count if type(input_count) is int else 0,
+                   "output_tokens": output_count if type(output_count) is int else 0,
                    "reported_cost_usd": 0.0,
                    "error_events": 0 if valid else 1}
         if not valid or metrics["input_tokens"] <= 0:
@@ -306,7 +438,11 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
                    and exit_code == 0 and metrics["model_steps"] == 1
                    and metrics["error_events"] == 0)
     return {
-        "schema": "far-workflow-scripted-repair-observation/0.3",
+        "schema": "far-workflow-scripted-repair-observation/0.4",
+        "execution_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT,
+                                                    timeout=15).decode().strip(),
+        "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+        "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "task_id": case["task_id"], "arm": arm,
         "model_alias": MODEL, "model_digest": digest,
         "harness_version": HARNESS_VERSION,
@@ -339,11 +475,16 @@ def main():
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.action == "contract":
-        payload = {"model_alias": MODEL, "model_digest": MODEL_DIGEST_PREFIX,
+        payload = {"model_alias": MODEL, "model_digest": MODEL_DIGEST,
                    "harness_version": HARNESS_VERSION,
                    "corpus_hash": fingerprint(), "max_seconds_per_arm": MAX_SECONDS,
                    "arm_shas": {"control": CONTROL_SHA, "treatment": TREATMENT_SHA},
-                   "free_alias_not_immutable_provider_snapshot": True}
+                   "grader_image": GRADER_IMAGE,
+                   "grader_seconds_per_comparison": GRADER_SECONDS_PER_CASE,
+                   "generation_options": {"temperature": 0, "seed": 0, "num_ctx": 16384, "num_predict": 512},
+                   "timing_scope": "model_generation_only",
+                   "weights_digest_pinned": True,
+                   "cross_hardware_determinism_established": False}
     elif args.action == "schedule":
         payload = [{"task_id": task(i)["task_id"], "arm_order": order_for(i)}
                    for i in range(30)]

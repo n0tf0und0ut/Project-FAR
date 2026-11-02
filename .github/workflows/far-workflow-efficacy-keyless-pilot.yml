@@ -69,12 +69,12 @@ jobs:
         run: |
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
           python -m tools.workflow_efficacy_free_agent contract
-          docker pull python:3.12-slim
+          docker pull "$(python -c 'from tools.workflow_efficacy_free_agent import GRADER_IMAGE; print(GRADER_IMAGE)')"
       - name: Start pinned local model without credentials
         run: bash scripts/workflow_efficacy_start_ollama.sh
       - name: Verify model SHA-256 and frozen scripted-repair contract
         run: python -m tools.workflow_efficacy_free_agent contract
-      - name: Execute both counterbalanced agent conditions
+      - name: Execute both counterbalanced scripted-repair conditions
         env:
           CI: "true"
           OPENCODE_DISABLE_AUTOUPDATE: "1"

@@ -1,28 +1,36 @@
-# Prospective locally executed scripted-repair pilot v0.3
+# Prospective local scripted-repair pilot v0.4
 
-Status: Research / NOT EXECUTED. This is an independently scoped synthetic pilot. It is **not** the immutable 30 historical-FAR-PR candidate study from PR #603, is not SWE-agent v3, and carries no external/independent claim.
+Status: Research / NOT EXECUTED. The scored sample remains 0/60 until the protected-main campaign executes. This synthetic pilot is separate from the unexecuted historical-FAR-PR candidate study in PR #603 and from SWE-agent v3.
 
-## Frozen design before first request
+## Frozen design before scored execution
 
-- 30 synthetic task identities FWE-001 through FWE-030: 10 different algorithm categories with 3 behavior variants each. A deterministic generator provides 2 public tests and 4 hidden tests per task; the hidden tests never enter the agent workspace.
-- Two arms: exact historical pre-#602 Codex AGENTS.md at SHA 38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab, or post-#602 AGENTS.md plus shared workflow guide at SHA dc290674b755977378d6170a0128c1540f0a2b6a.
-- The same OpenCode CLI 1.19.3 and locally hosted digest-checked open-weight model ollama/qwen2.5-coder:1.5b, same generation configuration, time ceiling 240 seconds, one-shot generation, code workspace structure, task prompts, and isolated HOME/XDG contexts. 15 cases control-first and 15 treatment-first, deterministically assigned by task SHA ordering.
-- No external API key or payment method is supplied. The repository runs Ollama locally from a pinned release archive (SHA-256 verified), pulls a Q4_K_M 1.5B coding model, and verifies the published digest prefix `d7372fd82851`. This removes the earlier Gemini/OpenCode external inference authentication dependency. The repository owner triggers an excluded provider smoke via the exact comment /far-workflow-free-probe on merged PR #603, then the 60-run campaign via /far-workflow-free-60 on the same PR. The workflow exists only on protected main after substantive review and required checks, and checks immutable owner user ID 344016609.
-- Task baselines are not derived from FAR commits; they are independently authored toy code problems. Therefore this pilot cannot establish effectiveness on real FAR repository work.
-- Per-task evidence contains completed model-step counts, input/output tokens reported by OpenCode, declared $0 cost, source hashes, instruction hashes, grader evidence hashes, elapsed time and outcome. No evidence means no scored completion. Unauthorized edits to non-solution files disqualify success. Hidden tests are executed in a network-disabled Docker grader outside the model workspace.
-- The local model digest and Ollama release are verified against pinned identities before every run. Even 60 successful observations would be internally authored toy-task evidence, not external FAR development efficacy. A hardware/runner failure must be reported, never replaced with fabricated observations.
-- Source and analysis code are pinned by the reviewed merge commit at launch. The exact launched commit and GitHub Action run IDs must be preserved in the final report; the result artifacts are not merged back into theory registers.
+- Thirty authored tasks, FWE-001 through FWE-030: ten algorithm families with three variants each. Each has two public and four held-out deterministic input/output comparisons. Only public examples enter the model request; no hidden input or expected output enters model context.
+- Control uses the exact pre-#602 Codex AGENTS.md at commit `38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab`. Treatment uses AGENTS.md plus the shared workflow guide from `dc290674b755977378d6170a0128c1540f0a2b6a`. The estimand is the bundled instruction change, including its added context length; no component-specific mechanism is identified.
+- Each condition makes exactly one direct localhost Ollama request. There is no autonomous tool loop or OpenCode CLI execution. Both conditions use Qwen2.5-Coder 1.5B Q4_K_M, full model-manifest SHA-256 `d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668`, pinned Ollama v0.34.0 archive, temperature 0, seed 0, context 16384 and output ceiling 512 tokens. Generation timeout is 420 seconds. Pinning weights does not prove identical inference across hardware.
+- Fifteen tasks are control-first and fifteen treatment-first under the registered deterministic task-hash schedule. Each condition has a separate temporary workspace; the preceding workspace is removed before the next condition starts. Direct API requests carry explicit messages and no conversation history. A warm model process may persist within a pair; order is counterbalanced.
+- A syntactically valid generated Python source defining transform is applied once, without repair retries. Invalid, truncated, unchanged, incorrect, or nonterminating submissions are measured failures if a complete model response and valid evaluation exist. Provider or evaluation infrastructure failures leave the study incomplete. Model output must return JSON-serializable results without extra stdout.
+- Trusted host code compares all six registered expected answers with outputs from six separate network-disabled, read-only Docker candidate processes. Only candidate source and one input enter each container. Expected answers and assertion machinery stay outside the candidate process. The Python grader image is pinned to digest `b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30`. Each comparison has a 10-second execution ceiling and a 100,000-byte limit per output stream; buffers are bounded and excessive output is a measured failure. A startup marker distinguishes a started submission exceeding its budget from a container that never began evaluation. Named containers are force-removed after each comparison, including timeouts. All six comparisons must execute; skips, monkeypatched unittest assertions, forged unittest text and non-JSON exits cannot count as passing.
+- Retained evidence includes full provider responses, model-step/token metadata, generation-only elapsed seconds, instruction/corpus/source hashes, candidate source, per-comparison trusted grading trace, execution commit and GitHub run identifiers. The analyzer checks artifact hashes and independently reconciles recorded order, model identity, provider output, submitted patch, grading and outcome. Incomplete or inconsistent evidence yields no effect estimate.
+- Workflow source and analysis are frozen by the reviewed protected-main merge commit at launch. The owner-only commands on PR #603 are `/far-workflow-free-probe` for an excluded model-access smoke and `/far-workflow-free-60` for the scored campaign. Both check immutable owner ID 344016609. All scored jobs and aggregation use the triggering event revision. Record the exact merge commit, campaign run IDs and artifact digests in the final report. No outcome-based reruns, model changes or task substitutions are permitted.
+
+## Scope and analysis limits
+
+This evaluates instruction effects on one-shot repair of these thirty authored toy specifications with this small model and fixed settings. It does not establish autonomous-agent efficacy, historical FAR repository development performance, external replication, general reasoning reliability or commercial/customer value. Generation timing excludes setup, grading and runner provisioning; it is not end-to-end delivery cost. Zero API charges do not mean zero compute cost.
+
+Report both success counts, paired task outcomes, treatment-minus-control success fraction and generation/token differences. Sign-test and task-bootstrap output are exploratory diagnostics only. The tasks are not a probability sample; variants share ten families, and one deterministic generation per arm cannot estimate model stochastic variability. A bootstrap interval that collapses to zero or a nonsignificant sign test does not establish equivalence, population significance or absence of a practically important effect. Report family-level patterns and the exact finite-corpus result.
 
 ## Pre-launch validation
 
-Run in the exact source checkout:
-- python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent tests.test_workflow_efficacy_free_agent_analysis -v
-- python tools/workflow_efficacy_free_agent.py contract
-- python tools/workflow_efficacy_free_agent.py schedule
+From the exact source checkout:
 
-Only the model-execution GitHub Actions workflow may generate actual observations. The unit tests and the provider smoke are not part of the 60 paired agent runs. An empty/partial report must remain INCOMPLETE_OR_INVALID.
+```bash
+python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent tests.test_workflow_efficacy_free_agent_analysis -v
+python -m tools.workflow_efficacy_free_agent contract
+python -m tools.workflow_efficacy_free_agent schedule
+```
 
+Unit/mutation tests and excluded smoke/preflight runs are not scored observations. Only the protected-main execution workflow creates scored evidence. An empty, partial or contradictory campaign remains INCOMPLETE_OR_INVALID.
 
-## Prospective protocol revision before the scored 60-run sample
+## Preserved protocol history
 
-Original v0.2 tool-using OpenCode preflight exposed a model capability failure: control completed only an off-task getcwd response and made no source edit; treatment timed out without any completed model step. Those two excluded preflight runs are not scored. The v0.3 protocol replaces the tool-agent loop with exactly one direct local Ollama code-repair request per condition; generated source is parsed and independently graded. Task corpus and 15/15 counterbalanced task order are unchanged, but the estimand is now **instruction effects on one-shot scripted repair**, not autonomous tool-using coding-agent efficacy. These observations cannot answer the original historical-FAR-PR question, which remains unexecuted. No v0.3 scored model run existed before the merged trial launch.
+The original v0.2 OpenCode tool-agent preflight failed to complete useful interaction. The v0.3 direct-generation preflight completed two responses on FWE-001, but both copied the broken source and failed grading. Both were excluded; the scored sample was 0/60. Before any scored execution, v0.4 corrects the evaluator trust boundary, generated-code timeout handling, full model identity and analysis provenance checks. Earlier provider failures and preflight artifacts remain historical evidence, without relabeling them as scored results. The v0.4 prospective freeze does not retroactively establish the original autonomous-agent question.

@@ -8,13 +8,126 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 from types import SimpleNamespace
-from tools.workflow_efficacy_free_agent import grade, unauthorized_file_changes, execute_agent_process
+from tools.workflow_efficacy_free_agent import (
+    grade, unauthorized_file_changes, execute_agent_process, capture_candidate_process,
+)
 from tools.workflow_efficacy_internal_fixtures import task
 from tools.workflow_efficacy_free_agent import (
     ARMS, CONTROL_SHA, TREATMENT_SHA, MAX_SECONDS, MODEL,
     SAFE_CONFIG, order_for, parse_events, MODEL_DIGEST_PREFIX, local_model_digest,
 )
+
+def local_grader_transport(cmd, payload):
+    """Exercise real candidate Python; replace only Docker transport in tests."""
+    mount = cmd[cmd.index("-v") + 1].rsplit(":/app:ro", 1)[0]
+    start = next(i for i, arg in enumerate(cmd) if arg.startswith("python:3.12-slim")) + 1
+    child = cmd[start:]
+    child[0] = sys.executable
+    child = [arg.replace("/app/solution.py", str(Path(mount) / "solution.py")) for arg in child]
+    return capture_candidate_process(child, payload)
+
 class RunnerTests(unittest.TestCase):
+    def check_candidate(self, source):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            candidate = base / "submission.py"
+            candidate.write_text(source)
+            with patch("tools.workflow_efficacy_free_agent.capture_candidate_process",
+                       side_effect=local_grader_transport), patch(
+                           "tools.workflow_efficacy_free_agent.subprocess.run",
+                           return_value=SimpleNamespace(returncode=0, stdout="", stderr="")):
+                return grade(candidate, task(0), base)
+
+    def test_skiptest_is_a_measured_failure(self):
+        result = self.check_candidate(
+            "def transform(d): raise __import__('unittest').SkipTest('unimplemented')\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+
+    def test_candidate_cannot_disable_the_assertions(self):
+        result = self.check_candidate(
+            "import unittest\nunittest.TestCase.assertEqual = lambda *a, **kw: None\n"
+            "def transform(d): return None\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+
+    def test_candidate_cannot_forge_a_unittest_success(self):
+        result = self.check_candidate(
+            "import os\nprint('Ran 2 tests in 0.01s\\nOK', flush=True)\nos._exit(0)\n"
+            "def transform(d): return None\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+
+    def test_correct_candidate_passes_all_six_comparisons(self):
+        result = self.check_candidate(
+            "def transform(d): return min(d['high'], max(d['low'], d['value']))\n")
+        self.assertTrue(result[0])
+        self.assertTrue(result[4])
+
+    def test_invalid_candidate_bytes_are_a_measured_failure(self):
+        result = self.check_candidate(
+            "import os\nos.write(1,b'\\xff'); os._exit(0)\n"
+            "def transform(d): return None\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+
+    def test_excessive_output_is_a_measured_bounded_failure(self):
+        result = self.check_candidate(
+            "import sys\ndef transform(d):\n"
+            "    sys.stderr.write('x'*100001)\n"
+            "    return min(d['high'],max(d['low'],d['value']))\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+        rows = __import__('json').loads(result[3])["comparisons"]
+        self.assertEqual({r["status"] for r in rows}, {"OUTPUT_LIMIT"})
+        self.assertTrue(all(r["stderr_bytes_observed"] > 100000 for r in rows))
+        self.assertTrue(all(len(r["stderr"].encode()) <= 100000 for r in rows))
+
+    def test_deeply_nested_candidate_json_is_a_measured_failure(self):
+        result = self.check_candidate(
+            "import os\nos.write(1,b'['*20000+b'0'+b']'*20000);os._exit(0)\n"
+            "def transform(d): return None\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+
+    def test_unbounded_candidate_print_loop_is_stopped(self):
+        result = self.check_candidate(
+            "import os\ndef transform(d):\n    while True: os.write(1,b'x'*8192)\n")
+        self.assertFalse(result[0])
+        self.assertTrue(result[4])
+        rows = __import__('json').loads(result[3])["comparisons"]
+        self.assertTrue(all(r["output_limited"] for r in rows))
+
+    def test_nonfinite_and_duplicate_json_cannot_bypass_output_checks(self):
+        from tools.workflow_efficacy_free_agent import candidate_output
+        for output in ('NaN', 'Infinity', '{"x":1,"x":2}'):
+            with self.subTest(output=output), self.assertRaises(ValueError):
+                candidate_output(output)
+
+    def test_hanging_candidate_is_a_measured_resource_failure(self):
+        with patch("tools.workflow_efficacy_free_agent.GRADER_SECONDS_PER_CASE", 0.15):
+            result = self.check_candidate("def transform(d):\n    while True: pass\n")
+        self.assertFalse(result[0])
+        self.assertEqual(result[1], 1)
+        self.assertTrue(result[4])
+        self.assertEqual({r["status"] for r in __import__('json').loads(result[3])["comparisons"]},
+                         {"RESOURCE_LIMIT"})
+
+    def test_container_start_timeout_is_infrastructure_failure(self):
+        def stalled(cmd, payload):
+            return {"stdout": "", "stderr": "", "exit_code": None,
+                    "stdout_bytes_observed": 0, "stderr_bytes_observed": 0,
+                    "timed_out": True, "output_limited": False}
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            source = base / "source.py"
+            source.write_text("def transform(d): return 1\n")
+            with patch("tools.workflow_efficacy_free_agent.capture_candidate_process", side_effect=stalled), patch(
+                    "tools.workflow_efficacy_free_agent.subprocess.run",
+                    return_value=SimpleNamespace(returncode=0, stdout="", stderr="")):
+                result = grade(source, task(0), base)
+        self.assertFalse(result[4])
+        self.assertIsNone(result[1])
     def test_schedule_balance_and_contract(self):
         orders = [order_for(i) for i in range(30)]
         self.assertEqual(len(orders), 30)
@@ -39,6 +152,16 @@ class RunnerTests(unittest.TestCase):
                    return_value=Response()):
             with self.assertRaises(RuntimeError):
                 local_model_digest()
+    def test_digest_rejects_a_matching_prefix_with_different_full_hash(self):
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self):
+                return __import__('json').dumps({"models": [{"name": "qwen2.5-coder:1.5b",
+                    "digest": "d7372fd82851" + "0" * 52}]}).encode()
+        with patch("tools.workflow_efficacy_free_agent.urllib.request.urlopen", return_value=Response()):
+            with self.assertRaises(RuntimeError):
+                local_model_digest()
     def test_no_external_access_allowed(self):
         p = SAFE_CONFIG["permission"]
         self.assertEqual(p["external_directory"], "deny")
@@ -56,19 +179,23 @@ class RunnerTests(unittest.TestCase):
             base = Path(tmp)
             candidate = base / "submission.py"
             candidate.write_text("def transform(d):\n    return d.get('value')\n")
-            def fake_run(cmd, **kwargs):
-                self.assertIn("test_public", cmd)
-                self.assertIn("test_hidden", cmd)
-                self.assertTrue((base / "grade" / "test_public.py").is_file())
-                self.assertTrue((base / "grade" / "test_hidden.py").is_file())
-                return SimpleNamespace(returncode=1, stdout="", stderr="Ran 2 tests in 0.01s\nFAILED (failures=1)\n")
-            with patch("tools.workflow_efficacy_free_agent.subprocess.run", side_effect=fake_run):
+            inputs = []
+            def fake_run(cmd, payload):
+                self.assertEqual(sorted(p.name for p in (base / "grade").iterdir()), ["solution.py"])
+                inputs.append(__import__('json').loads(payload))
+                return {"exit_code": 1, "stdout": "", "stderr": "FAR_CANDIDATE_STARTED_V1\nValueError\n",
+                        "stdout_bytes_observed": 0, "stderr_bytes_observed": 35,
+                        "timed_out": False, "output_limited": False}
+            with patch("tools.workflow_efficacy_free_agent.capture_candidate_process", side_effect=fake_run), patch(
+                    "tools.workflow_efficacy_free_agent.subprocess.run",
+                    return_value=SimpleNamespace(returncode=0, stdout="", stderr="")):
                 success, code, digest, trace, executed = grade(candidate, task(0), base)
         self.assertFalse(success)
         self.assertEqual(code, 1)
         self.assertTrue(executed)
         self.assertEqual(len(digest), 64)
-        self.assertIn("FAILED", trace)
+        self.assertEqual(inputs, [r["input"] for group in ("public", "hidden") for r in task(0)[group]])
+        self.assertEqual(len(__import__('json').loads(trace)["comparisons"]), 6)
     def test_created_file_is_unauthorized(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
