@@ -101,7 +101,7 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(output["summary"]["agent_admissible"], 12)
         self.assertGreater(output["summary"]["unique_model_actions"], 1)
         self.assertEqual(output["summary"]["model_minus_best_constant"], 1)
-        self.assertIn("task-author", output["claim"].lower())
+        self.assertIn("task_author", output["claim"].lower())
 
     def test_unsafe_verification_is_counted_not_promoted(self):
         def bad(prompt):
