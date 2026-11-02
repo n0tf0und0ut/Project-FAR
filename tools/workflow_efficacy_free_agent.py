@@ -81,6 +81,7 @@ def setup_workspace(index: int, arm: str, root: Path):
         + "\n\nImplement transform(payload) in solution.py, preserving Python 3.12 semantics."
         + " The visible tests are examples; address nontrivial edge cases.\n")
     (folder / "opencode.json").write_text(json.dumps(SAFE_CONFIG, sort_keys=True))
+    (folder / ".gitignore").write_text("__pycache__/\n*.pyc\n")
     # One agent uses Codex's exact pre/post instruction content. No Claude mixing.
     instruction_bytes = instructions(arm)
     (folder / "AGENTS.md").write_bytes(instruction_bytes)
@@ -160,7 +161,8 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     env.update({"HOME": str(agent_home), "XDG_CONFIG_HOME": str(agent_home/"config"),
                 "XDG_DATA_HOME": str(agent_home/"data"),
                 "XDG_CACHE_HOME": str(agent_home/"cache"),
-                "OPENCODE_DISABLE_AUTOUPDATE": "1", "CI": "true"})
+                "OPENCODE_DISABLE_AUTOUPDATE": "1", "CI": "true",
+                "PYTHONDONTWRITEBYTECODE": "1"})
     prompt = ("Follow AGENTS.md exactly. Read README.md and solution.py; fix the "
               "implementation to satisfy the specification. Run the public "
               "tests with python -m unittest -q test_public, do not edit tests. "
