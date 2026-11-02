@@ -11,7 +11,7 @@ import random
 from pathlib import Path
 from statistics import mean
 from tools.workflow_efficacy_internal_fixtures import fingerprint
-from tools.workflow_efficacy_free_agent import MODEL, MODEL_DIGEST_PREFIX, OPENCODE_VERSION, order_for, instructions
+from tools.workflow_efficacy_free_agent import MODEL, MODEL_DIGEST_PREFIX, HARNESS_VERSION, order_for, instructions
 
 def analyze(folder):
     files = sorted(Path(folder).rglob("pair-*.json"))
@@ -46,7 +46,7 @@ def analyze(folder):
         digest = row.get("model_digest")
         if not isinstance(digest, str) or not digest.startswith(MODEL_DIGEST_PREFIX):
             errors.append("UNPINNED_LOCAL_MODEL_DIGEST:" + t + ":" + arm)
-        if row.get("model_alias") != MODEL or row.get("opencode_version") != OPENCODE_VERSION:
+        if row.get("model_alias") != MODEL or row.get("harness_version") != HARNESS_VERSION:
             errors.append("MODEL_OR_HARNESS_ALIAS_DRIFT:" + t + ":" + arm)
         if not isinstance(row.get("model_steps"), int) or row["model_steps"] <= 0:
             errors.append("NO_MODEL_STEPS:" + t + ":" + arm)
@@ -89,11 +89,11 @@ def analyze(folder):
         case_id = f"FWE-{i+1:03d}"
         if any((case_id, arm) not in keyed for arm in order_for(i)):
             errors.append("MISSING_COUNTERBALANCED_PAIR:" + case_id)
-    base = {"schema":"far-workflow-free-agent-analysis/0.2","experiment":"exploratory_internal_synthetic_tasks",
+    base = {"schema":"far-workflow-scripted-repair-analysis/0.3","experiment":"exploratory_local_model_scripted_repair",
             "expected_pairs":30, "expected_runs":60,
             "observed_records":len(rows), "unique_slots":len(keyed),
             "corpus_hash":fingerprint(), "model_alias":MODEL,
-            "provider_build_immutable":False,
+            "provider_build_immutable":True,
             "historical_pr_comparison_executed":False,
             "external_independence":False, "errors":errors}
     if errors:
