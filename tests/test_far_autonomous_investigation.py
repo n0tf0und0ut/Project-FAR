@@ -131,7 +131,9 @@ class RealInvestigationTests(unittest.TestCase):
                 inv.execute("model", fetcher=fetcher, model=inv.request_model_action,
                             checkpoint=checkpoints.append)
         self.assertEqual(checkpoints[-1]["status"], "FAILED_OR_INCOMPLETE")
-        self.assertEqual(checkpoints[-1]["failed_model_call"]["raw_envelope"], env)
+        retained = checkpoints[-1]["failed_model_call"]["raw_envelope"]
+        self.assertEqual(retained["response_sha256"], env["response_sha256"])
+        self.assertNotEqual(retained["request_sha256"], env["request_sha256"])
         self.assertEqual(checkpoints[-1]["verifier_calls"], 0)
 
     def test_network_drift_aborts_without_freeze_and_preserves_partial(self):
