@@ -59,6 +59,14 @@ class OfflinePilotTests(unittest.TestCase):
             self.assertNotIn('"report"', text)
             self.assertIn("verify_current", text)
 
+    def test_all_case_specific_prompts_have_distinct_hashes(self):
+        from tools.far_architecture_routing import source_document
+        from tools.far_architecture_cpu_experiment import sha256
+        payloads = [ex.prompt_for(source_document(case)) for case in self.protocol["cases"]]
+        self.assertEqual(len(set(sha256(x.encode("utf-8")) for x in payloads)), 12)
+        self.assertTrue(all("contract_id" in x for x in payloads))
+        self.assertTrue(all('"report"' not in x and '"expected"' not in x for x in payloads))
+
     def test_real_fixed_comparison_plus_mocked_model_is_not_claimed_external(self):
         counts = []
         def model(_, prompt):
