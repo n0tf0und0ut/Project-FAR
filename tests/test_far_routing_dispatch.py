@@ -99,8 +99,8 @@ class KnownContractRoutingTests(unittest.TestCase):
             self.assertEqual(result["model_calls"], 0)
 
     def test_crlf_file_and_stdin_preserve_raw_hash(self):
-        raw = V20.read_bytes().replace(b"\\n", b"\\r\\n")
-        self.assertIn(b"\\r\\n", raw)
+        raw = V20.read_bytes().replace(b"\n", b"\r\n")
+        self.assertIn(b"\r\n", raw)
         expected = hashlib.sha256(raw).hexdigest()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "crlf.json"
