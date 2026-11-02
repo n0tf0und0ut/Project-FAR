@@ -60,8 +60,13 @@ def instructions(arm: str):
 
 
 def order_for(index: int):
-    digest = hashlib.sha256(("fwe-free-v0.2|" + task(index)["task_id"]).encode()).digest()
-    return ARMS if digest[0] % 2 == 0 else tuple(reversed(ARMS))
+    # Balanced, deterministic prospective assignment: exactly 15 of each first arm.
+    if index < 0 or index >= 30:
+        raise ValueError(index)
+    keys = sorted((hashlib.sha256(("fwe-free-v0.2|" + task(i)["task_id"]).encode()).hexdigest(), i)
+                  for i in range(30))
+    control_first = {i for _, i in keys[:15]}
+    return ARMS if index in control_first else tuple(reversed(ARMS))
 
 
 def setup_workspace(index: int, arm: str, root: Path):
@@ -166,7 +171,8 @@ def run_arm(index: int, arm: str, root: Path):
     ).decode().splitlines()
     unauthorized = sorted(set(changed) - allowed)
     success, grader_code, grader_hash = grade(folder / "solution.py", t, root)
-    success = bool(success and not unauthorized and not timed_out and
+    success = bool(success and (folder/"solution.py").read_bytes() != t["source"].encode()
+                   and not unauthorized and not timed_out and
                    exit_code == 0 and metrics["model_steps"] > 0 and
                    metrics["error_events"] == 0 and
                    metrics["reported_cost_usd"] == 0)
