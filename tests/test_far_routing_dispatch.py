@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import tempfile
 import subprocess
 import sys
 import unittest
@@ -85,6 +87,32 @@ class KnownContractRoutingTests(unittest.TestCase):
             b = route_text(raw, mode="declarative")
             self.assertEqual((a["status"], a["outcome"], a["reason"], a["diagnostics"]),
                              (b["status"], b["outcome"], b["reason"], b["diagnostics"]))
+
+    def test_valid_open_outcome_retained_without_contract_rediscovery(self):
+        fixture = ROOT / "conformance/far-ir-2.0-current/unchecked-open.json"
+        for mode in ("deterministic", "declarative"):
+            result = route_text(fixture.read_text(encoding="utf-8"), mode=mode)
+            self.assertEqual(result["status"], "VERIFIED_EXPLICIT_CONTRACT")
+            self.assertTrue(result["verifier_success"])
+            self.assertEqual(result["outcome"], "OPEN")
+            self.assertFalse(result["does_not_bypass_intake"])
+            self.assertEqual(result["model_calls"], 0)
+
+    def test_crlf_file_and_stdin_preserve_raw_hash(self):
+        raw = V20.read_bytes().replace(b"\\n", b"\\r\\n")
+        self.assertIn(b"\\r\\n", raw)
+        expected = hashlib.sha256(raw).hexdigest()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "crlf.json"
+            path.write_bytes(raw)
+            for filename, stdin in ((str(path), None), ("-", raw)):
+                proc = subprocess.run(
+                    [sys.executable, "tools/far_routing_dispatch.py", filename],
+                    cwd=ROOT, input=stdin, capture_output=True)
+                self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+                result = json.loads(proc.stdout)
+                self.assertEqual(result["source_sha256"], expected)
+                self.assertEqual(result["status"], "VERIFIED_EXPLICIT_CONTRACT")
 
     def test_unknown_policy_is_never_auto_model(self):
         with self.assertRaises(RoutingError):
