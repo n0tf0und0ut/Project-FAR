@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.request
 from pathlib import Path
 
 from tools.workflow_efficacy_internal_fixtures import (
@@ -23,14 +24,26 @@ from tools.workflow_efficacy_internal_fixtures import (
 
 CONTROL_SHA = "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT_SHA = "dc290674b755977378d6170a0128c1540f0a2b6a"
-MODEL = "opencode/deepseek-v4.1-flash-free"
+MODEL = "ollama/qwen2.5-coder:1.5b"
 OPENCODE_VERSION = "1.19.3"
+MODEL_DIGEST_PREFIX = "d7372fd82851"
 MAX_SECONDS = 240
 ARMS = ("control", "treatment")
 ROOT = Path(__file__).resolve().parents[1]
 SAFE_CONFIG = {
     "$schema": "https://opencode.ai/config.json",
     "model": MODEL,
+    "provider": {
+        "ollama": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "Pinned locally hosted Ollama",
+            "options": {"baseURL": "http://127.0.0.1:11434/v1"},
+            "models": {"qwen2.5-coder:1.5b": {
+                "name": "Qwen2.5 Coder 1.5B Q4_K_M",
+                "limit": {"context": 16384, "output": 2048}
+            }},
+        },
+    },
     "permission": {
         "read": "allow", "edit": "allow", "glob": "allow",
         "grep": "allow", "list": "allow", "external_directory": "deny",
@@ -39,6 +52,19 @@ SAFE_CONFIG = {
     },
     "agent": {"build": {"steps": 10}},
 }
+
+
+def local_model_digest():
+    """Read the real local Ollama registry, never infer a model ID from a tag."""
+    with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=10) as response:
+        tags = json.load(response)
+    matches = [m for m in tags.get("models", []) if m.get("name") == "qwen2.5-coder:1.5b"]
+    if len(matches) != 1:
+        raise RuntimeError("expected exactly one installed local model")
+    value = matches[0].get("digest")
+    if not isinstance(value, str) or not value.startswith(MODEL_DIGEST_PREFIX):
+        raise RuntimeError("unpinned or unexpected local model digest")
+    return value
 
 
 def sha256(data: bytes):
@@ -188,6 +214,7 @@ def execute_agent_process(command, folder: Path, env: dict, timeout: float):
 
 def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     t = task(index)
+    digest = local_model_digest()
     folder, instruction_hash = setup_workspace(index, arm, root)
     agent_home = root / ("isolated-home-" + t["task_id"] + "-" + arm)
     agent_home.mkdir()
@@ -221,7 +248,8 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     return {
         "schema": "far-workflow-free-agent-observation/0.2",
         "task_id": t["task_id"], "arm": arm,
-        "model_alias": MODEL, "opencode_version": OPENCODE_VERSION,
+        "model_alias": MODEL, "model_digest": digest,
+        "opencode_version": OPENCODE_VERSION,
         "corpus_hash": fingerprint(), "instructions_sha256": instruction_hash,
         "source_before_sha256": sha256(t["source"].encode()),
         "source_after_sha256": sha256((folder/"solution.py").read_bytes()),
@@ -242,7 +270,8 @@ def main():
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.action == "contract":
-        payload = {"model_alias": MODEL, "opencode_version": OPENCODE_VERSION,
+        payload = {"model_alias": MODEL, "model_digest": MODEL_DIGEST_PREFIX,
+                   "opencode_version": OPENCODE_VERSION,
                    "corpus_hash": fingerprint(), "max_seconds_per_arm": MAX_SECONDS,
                    "arm_shas": {"control": CONTROL_SHA, "treatment": TREATMENT_SHA},
                    "free_alias_not_immutable_provider_snapshot": True}

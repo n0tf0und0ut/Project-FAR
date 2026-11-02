@@ -12,7 +12,7 @@ jobs:
       github.event.comment.user.id == 344016609 &&
       github.event.comment.body == '/far-workflow-free-probe'
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 14
     steps:
       - name: Checkout protected main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -27,19 +27,27 @@ jobs:
         run: |
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent tests.test_workflow_efficacy_free_agent_analysis -v
           python -m tools.workflow_efficacy_free_agent contract
+      - name: Start pinned local model without credentials
+        run: bash scripts/workflow_efficacy_start_ollama.sh
       - name: Install pinned agent CLI
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = "1.19.3"
-          opencode models | grep -F 'opencode/deepseek-v4.1-flash-free'
-      - name: Try one excluded non-task provider request
+
+      - name: Run one excluded local-model prompt
         env:
           CI: "true"
           OPENCODE_DISABLE_AUTOUPDATE: "1"
         run: |
           mkdir -p "$RUNNER_TEMP/fwe-probe"
           cd "$RUNNER_TEMP/fwe-probe"
-          timeout 150s opencode run -m opencode/deepseek-v4.1-flash-free --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/fwe-smoke.ndjson"
+          python - <<'PY'
+          import json,os,sys
+          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
+          from tools.workflow_efficacy_free_agent import SAFE_CONFIG
+          with open("opencode.json","w") as out: json.dump(SAFE_CONFIG,out)
+          PY
+          timeout 180s opencode run -m ollama/qwen2.5-coder:1.5b --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/fwe-smoke.ndjson"
           python - "$RUNNER_TEMP/fwe-smoke.ndjson" <<'PY'
           import sys
           from pathlib import Path
@@ -59,7 +67,7 @@ jobs:
       github.event.comment.user.id == 344016609 &&
       github.event.comment.body == '/far-workflow-free-60'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 5
@@ -80,11 +88,13 @@ jobs:
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
           python -m tools.workflow_efficacy_free_agent contract
           docker pull python:3.12-slim
+      - name: Start pinned local model without credentials
+        run: bash scripts/workflow_efficacy_start_ollama.sh
       - name: Install pinned coding agent CLI
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = "1.19.3"
-          opencode models | grep -F 'opencode/deepseek-v4.1-flash-free'
+
       - name: Execute both counterbalanced agent conditions
         env:
           CI: "true"

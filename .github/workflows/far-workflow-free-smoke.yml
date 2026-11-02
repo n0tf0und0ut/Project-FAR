@@ -7,6 +7,7 @@ on:
       - tests/test_workflow_efficacy_internal_fixtures.py
       - tests/test_workflow_efficacy_free_agent.py
       - .github/workflows/far-workflow-free-smoke.yml
+      - scripts/workflow_efficacy_start_ollama.sh
 permissions:
   contents: read
 jobs:
@@ -16,7 +17,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.head_ref == 'research/workflow-efficacy-keyless-internal-pilot-v02'
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 14
     steps:
       - name: Checkout without persistent authentication
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -29,19 +30,26 @@ jobs:
       - name: Run offline corpus and runner tests
         run: |
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
-      - name: Install frozen free coding-agent CLI
+      - name: Start pinned no-key local model
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Install pinned coding-agent CLI
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = '1.19.3'
-          opencode models | grep -F 'opencode/deepseek-v4.1-flash-free'
-      - name: Check an excluded one-request non-task prompt
+      - name: Check one excluded LOCAL model response
         env:
           CI: "true"
           OPENCODE_DISABLE_AUTOUPDATE: "1"
         run: |
           mkdir -p "$RUNNER_TEMP/fwe-preflight"
           cd "$RUNNER_TEMP/fwe-preflight"
-          timeout 150s opencode run -m opencode/deepseek-v4.1-flash-free --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
+          python - <<'PY'
+          import json,os,sys
+          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
+          from tools.workflow_efficacy_free_agent import SAFE_CONFIG
+          with open("opencode.json","w") as out: json.dump(SAFE_CONFIG,out)
+          PY
+          timeout 180s opencode run -m ollama/qwen2.5-coder:1.5b --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
           python - "$RUNNER_TEMP/model-smoke.ndjson" <<'PY'
           import os,sys
           from pathlib import Path

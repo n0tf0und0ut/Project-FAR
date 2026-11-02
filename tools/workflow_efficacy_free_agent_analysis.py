@@ -11,7 +11,7 @@ import random
 from pathlib import Path
 from statistics import mean
 from tools.workflow_efficacy_internal_fixtures import fingerprint
-from tools.workflow_efficacy_free_agent import MODEL, OPENCODE_VERSION, order_for, instructions
+from tools.workflow_efficacy_free_agent import MODEL, MODEL_DIGEST_PREFIX, OPENCODE_VERSION, order_for, instructions
 
 def analyze(folder):
     files = sorted(Path(folder).rglob("pair-*.json"))
@@ -43,6 +43,9 @@ def analyze(folder):
         exp_sha = hashlib.sha256(instructions(arm)).hexdigest()
         if row.get("instructions_sha256") != exp_sha or row.get("corpus_hash") != fingerprint():
             errors.append("SNAPSHOT_MISMATCH:" + t + ":" + arm)
+        digest = row.get("model_digest")
+        if not isinstance(digest, str) or not digest.startswith(MODEL_DIGEST_PREFIX):
+            errors.append("UNPINNED_LOCAL_MODEL_DIGEST:" + t + ":" + arm)
         if row.get("model_alias") != MODEL or row.get("opencode_version") != OPENCODE_VERSION:
             errors.append("MODEL_OR_HARNESS_ALIAS_DRIFT:" + t + ":" + arm)
         if not isinstance(row.get("model_steps"), int) or row["model_steps"] <= 0:
@@ -77,6 +80,9 @@ def analyze(folder):
             elif hashlib.sha256(path.read_bytes()).hexdigest() != row.get(field):
                 errors.append("REPLAY_ARTIFACT_HASH_MISMATCH:" + t + ":" + arm + ":" + filename)
     expected={(f"FWE-{i+1:03d}",arm) for i in range(30) for arm in ("control","treatment")}
+    digests = {row.get("model_digest") for row in rows if isinstance(row, dict) and isinstance(row.get("model_digest"), str)}
+    if len(digests) > 1:
+        errors.append("LOCAL_MODEL_DIGEST_DRIFT_ACROSS_RUNS")
     if set(keyed) != expected:
         errors.append("MISSING_EXPERIMENT_SLOTS")
     for i in range(30):

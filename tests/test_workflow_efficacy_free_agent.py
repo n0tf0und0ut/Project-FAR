@@ -12,7 +12,7 @@ from tools.workflow_efficacy_free_agent import grade, unauthorized_file_changes,
 from tools.workflow_efficacy_internal_fixtures import task
 from tools.workflow_efficacy_free_agent import (
     ARMS, CONTROL_SHA, TREATMENT_SHA, MAX_SECONDS, MODEL,
-    SAFE_CONFIG, order_for, parse_events,
+    SAFE_CONFIG, order_for, parse_events, MODEL_DIGEST_PREFIX, local_model_digest,
 )
 class RunnerTests(unittest.TestCase):
     def test_schedule_balance_and_contract(self):
@@ -24,7 +24,21 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(CONTROL_SHA), 40)
         self.assertEqual(len(TREATMENT_SHA), 40)
         self.assertGreater(MAX_SECONDS, 0)
-        self.assertEqual(MODEL, "opencode/deepseek-v4.1-flash-free")
+        self.assertEqual(MODEL, "ollama/qwen2.5-coder:1.5b")
+    def test_local_provider_configuration_is_credential_free(self):
+        self.assertEqual(SAFE_CONFIG["provider"]["ollama"]["options"]["baseURL"],
+                         "http://127.0.0.1:11434/v1")
+        self.assertEqual(SAFE_CONFIG["model"], MODEL)
+        self.assertTrue(MODEL_DIGEST_PREFIX.startswith("d7372fd8"))
+    def test_digest_rejects_unpinned_downloads(self):
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self): return b'{"models":[{"name":"qwen2.5-coder:1.5b","digest":"wrong"}]}'
+        with patch("tools.workflow_efficacy_free_agent.urllib.request.urlopen",
+                   return_value=Response()):
+            with self.assertRaises(RuntimeError):
+                local_model_digest()
     def test_no_external_access_allowed(self):
         p = SAFE_CONFIG["permission"]
         self.assertEqual(p["external_directory"], "deny")
