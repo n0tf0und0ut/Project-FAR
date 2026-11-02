@@ -1,10 +1,11 @@
 """No-network structural tests for the 30-pair free-agent runner."""
 import unittest
+import subprocess
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 from types import SimpleNamespace
-from tools.workflow_efficacy_free_agent import grade
+from tools.workflow_efficacy_free_agent import grade, unauthorized_file_changes
 from tools.workflow_efficacy_internal_fixtures import task
 from tools.workflow_efficacy_free_agent import (
     ARMS, CONTROL_SHA, TREATMENT_SHA, MAX_SECONDS, MODEL,
@@ -51,6 +52,20 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(executed)
         self.assertEqual(len(digest), 64)
         self.assertIn("FAILED", trace)
+    def test_created_file_is_unauthorized(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            subprocess.run(["git", "init", "-q"], cwd=folder, check=True)
+            (folder / "solution.py").write_text("x=1\n")
+            subprocess.run(["git", "add", "solution.py"], cwd=folder, check=True)
+            subprocess.run(["git", "-c", "user.name=Test", "-c",
+                            "user.email=test@example.invalid", "commit", "-qm", "base"],
+                           cwd=folder, check=True)
+            (folder / "solution.py").write_text("x=2\n")
+            (folder / "test_extra.py").write_text("assert True\n")
+            result = unauthorized_file_changes(folder, {"solution.py"})
+            self.assertEqual(result, ["test_extra.py"])
+
     def test_grader_transport_failure_is_ungraded(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
