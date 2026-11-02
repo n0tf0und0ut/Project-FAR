@@ -27,8 +27,11 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
     def prepared(self):
         protocol = copy.deepcopy(self.protocol)
         protocol.update(fixed_task_bundles="FROZEN", model_identity="frozen-test-model",
+                        runtime_hash="identical-runtime", tool_config_hash="identical-tools",
                         agent_executor="synthetic-test-executor", isolation_verified=True,
                         blinded_evaluator="oracle-v1", budget="FROZEN")
+        for c in protocol["historical_candidates"]:
+            c["task_bundle_hash"] = "bundle-" + c["id"]
         return protocol
 
     def sample(self):
@@ -61,12 +64,25 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
     def test_unmatched_task_bundle_fails_closed(self):
         items = self.sample()
         items[0]["task_bundle_hash"] = "wrong-task-bundle"
-        self.assertEqual(analyze(self.prepared(), items)["status"], "UNMATCHED_CONDITIONS")
+        self.assertEqual(analyze(self.prepared(), items)["status"], "NOT_FROZEN_IDENTITY")
 
     def test_invalid_or_missing_outcome_fails_closed(self):
         items = self.sample()
         items[0]["success"] = None
         self.assertEqual(analyze(self.prepared(), items)["status"], "UNVERIFIED_OR_MISSING_OUTCOME")
+
+    def test_null_identity_rejected_even_when_pair_matches(self):
+        items = self.sample()
+        for item in items:
+            item["model_id"] = None
+        self.assertEqual(analyze(self.prepared(), items)["status"], "EMPTY_OR_NULL_IDENTITY")
+
+    def test_success_with_new_regressions_rejected(self):
+        items = self.sample()
+        for item in items:
+            if item["arm"] == "treatment":
+                item["new_regressions"] = 7
+        self.assertEqual(analyze(self.prepared(), items)["status"], "CONTRADICTORY_SUCCESS_AND_REGRESSIONS")
 
     def test_wrong_instruction_snapshot_fails(self):
         items = self.sample()
@@ -76,7 +92,7 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
     def test_cross_task_model_drift_fails(self):
         items = self.sample()
         items[0]["model_id"] = "different-model"
-        self.assertEqual(analyze(self.prepared(), items)["status"], "CROSS_TASK_MODEL_OR_TOOL_DRIFT")
+        self.assertEqual(analyze(self.prepared(), items)["status"], "NOT_FROZEN_IDENTITY")
 
     def test_duplicate_record_cannot_inflate_results(self):
         items = self.sample()
