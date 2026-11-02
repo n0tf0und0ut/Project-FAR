@@ -22,6 +22,7 @@ class AnalysisTests(unittest.TestCase):
             report=analyze(d)
         self.assertEqual(report["status"],"INCOMPLETE_OR_INVALID")
         self.assertTrue(any("NO_MODEL_STEPS" in x for x in report["errors"]))
+        self.assertTrue(any("MISSING_OR_UNEXECUTED_GRADER" in x for x in report["errors"]))
     def test_duplicate_arms_fail(self):
         with tempfile.TemporaryDirectory() as d:
             for i in range(30):
