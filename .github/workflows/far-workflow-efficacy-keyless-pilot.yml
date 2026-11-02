@@ -31,7 +31,7 @@ jobs:
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = "1.19.3"
-          opencode models | grep -F 'opencode/big-pickle'
+          opencode models | grep -F 'opencode/glm-5.3-flash-free'
       - name: Try one excluded non-task provider request
         env:
           CI: "true"
@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/fwe-probe"
           cd "$RUNNER_TEMP/fwe-probe"
-          timeout 150s opencode run -m opencode/big-pickle --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/fwe-smoke.ndjson"
+          timeout 150s opencode run -m opencode/glm-5.3-flash-free --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/fwe-smoke.ndjson"
           python - "$RUNNER_TEMP/fwe-smoke.ndjson" <<'PY'
           import sys
           from pathlib import Path
@@ -84,7 +84,7 @@ jobs:
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = "1.19.3"
-          opencode models | grep -F 'opencode/big-pickle'
+          opencode models | grep -F 'opencode/glm-5.3-flash-free'
       - name: Execute both counterbalanced agent conditions
         env:
           CI: "true"
