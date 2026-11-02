@@ -1,6 +1,6 @@
 # FAR architecture routing — bounded research pilot
 
-**Status: Research / fixed-policy execution available / model experiment NOT EXECUTED.**
+**Status: Research.** An initial bounded local-model execution was observed and preserved in [the v0.1 evidence record](execution-observation-v0.1.md). Its model requests were identical; the [v0.2 case-specific successor](cpu-protocol-v0.2.json) is separately preregistered. Neither record changes FAR's accepted theory or establishes general model superiority.
 
 ## Question and scope
 
@@ -36,7 +36,23 @@ python tools/far_architecture_routing.py analyze --records records.json
 
 Scripted runs are labeled `SCRIPTED_REPLAY_ONLY`; records that merely **claim** to have come from a model are labeled `UNVERIFIED_MODEL_REPORTS` even if every metadata field is filled. Neither can produce a scientific efficacy verdict. `elapsed_ms` times the local action invocation, with the verifier imported before timing; it excludes input file loading, external model reasoning, network transit, and end-to-end orchestration. Such timings cannot establish a model-related efficiency advantage.
 
-## Blocked empirical study
+## Actual local model measurement and its limit
+
+The first GitHub-hosted CPU execution performed 12 genuine Qwen2.5-0.5B-Instruct inference calls plus 24 fixed-verifier executions: 12/12 correctness in every arm on existing project-authored labels. Median action times were 1.80917 ms (deterministic), 1.75031 ms (declarative), and 74.44462 ms (model-directed). The model arm was 41.1485 times slower by the ratio of medians and used 1,728 model tokens. Raw outputs, exact hashes, run IDs and limitations are recorded in [execution observation v0.1](execution-observation-v0.1.md).
+
+Substantive limitation: all twelve model requests in that first trial had the **same prompt SHA**, so the observed difference demonstrates overhead for repeatedly asking a model to make the same known routing decision. It does not demonstrate task-sensitive tool choice. The [v0.2 CPU successor protocol](cpu-protocol-v0.2.json) freezes the corrected case-specific input projection and SHA-pinned open-weight execution; distinct prompts and raw response-byte preservation are enforced by the runner.
+
+The offline model smoke workflow runs without provider keys or remote model-inference API. Its executable entry point is:
+
+```bash
+python -m unittest tests.test_far_architecture_cpu_experiment -v
+# Runtime study is launched by .github/workflows/far-architecture-offline-model.yml
+# Evidence: GitHub Actions run-artifacts, with raw request/response data
+```
+
+## External model and empirical validity limits
+
+
 
 A real model-backed trial still requires a frozen model build, independent executor, stable tool-access policy, isolatable prompt and tool traces, verified model outputs, retained raw evidence, identical source visibility, independently held-out evaluation, token/time/cost ceilings, and a bounded cost authorization. These are unresolved. No endpoint is invoked and no tokens are spent in this package. A full three-arm outcome is therefore **NOT ESTABLISHED**. This small deterministic corpus cannot support claims about agent usefulness on unfamiliar or ambiguous reasoning tasks even if a future model run is completed.
 
