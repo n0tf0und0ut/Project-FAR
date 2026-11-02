@@ -26,7 +26,7 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
 
     def prepared(self):
         protocol = copy.deepcopy(self.protocol)
-        protocol.update(fixed_task_bundles="FROZEN", model_identity="frozen-test-model",
+        protocol.update(fixed_task_bundles="FROZEN", hidden_tests="FROZEN", model_identity="frozen-test-model",
                         runtime_hash="identical-runtime", tool_config_hash="identical-tools",
                         agent_executor="synthetic-test-executor", isolation_verified=True,
                         blinded_evaluator="oracle-v1", budget="FROZEN")
@@ -47,6 +47,13 @@ class WorkflowEfficacyAnalysisTests(unittest.TestCase):
                 "elapsed_seconds": 100.0, "total_tokens": 1000,
                 "provider_cost_usd": 1.0, "new_regressions": 0, "rework_count": 0})
         return out
+
+    def test_unfrozen_hidden_tests_cannot_pass_preflight(self):
+        protocol = self.prepared()
+        protocol["hidden_tests"] = "NOT_FROZEN"
+        self.assertEqual(analyze(protocol, self.sample())["status"], "STUDY_PRECONDITIONS_UNMET")
+        del protocol["hidden_tests"]
+        self.assertEqual(analyze(protocol, self.sample())["status"], "STUDY_PRECONDITIONS_UNMET")
 
     def test_synthetic_pair_arithmetic_only(self):
         result = analyze(self.prepared(), self.sample())
