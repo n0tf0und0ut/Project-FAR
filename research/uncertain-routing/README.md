@@ -31,6 +31,18 @@ The first model workflow [executed successfully](https://github.com/n0tf0und0ut/
 
 A successful workflow supports only task-author-set admissibility counts for this curated small model/corpus, not a frontier-agent superiority claim, a unique best route, general reasoning reliability, or customer value. Results stay in Research. A genuine system-level adaptive-routing comparison still requires competing executable tools, matched evidence budgets, independent task ground truth or a justified set-valued oracle, and credible held-out cases. No production model escalation is authorized by this pilot.
 
+## Live evidence-to-verdict execution (bounded release-tag vertical)
+
+The prior model-choice-only pilot was **not** a full investigation. The new [preregistered live test](live-investigation-prereg-v0.1.md), implemented by `tools/far_autonomous_investigation.py`, is a separate full execution lane: it fetches two real, allowlisted GitHub API sources and then refetches them, records their byte-level provenance, builds and validates a two-interpretation `far-intake/1.0` complete bounded contract family, freezes it, generates post-freeze FAR IR verification witnesses, executes the **current** `contract_v2_strict_v11` semantic verifier twice, then validates and aggregates the exact frozen evaluations. Model-directed mode also makes real model API calls to localhost, with guarded, logged substitutions for unsafe or out-of-state actions.
+
+The first [completed GitHub Actions run](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41537563154) passed 28 targeted tests and completed **both** actual network-backed investigations with `INVARIANTLY_REFUTED` at the narrow GitHub release-tag snapshot scope. The model proposed eight actions; the deterministic controller overrode seven invalid suggestions, so **independent agent planning remains unestablished**. Full raw byte identities, both frozen intake hashes, verifier results and limitations are in [live-execution-v0.1.md](live-execution-v0.1.md). This is an executable demonstration of the connected architecture for one explicitly bounded domain, **not a general-purpose, externally validated fact checker**.
+
+```bash
+python -m unittest tests.test_far_autonomous_investigation -v
+python tools/far_autonomous_investigation.py run --mode deterministic --output /tmp/far-release.json
+# Model mode additionally requires the SHA-pinned local GGUF and a localhost llama-server.
+```
+
 ## Verification and governance
 
 Fail-closed regressions cover verified v2.0/v2.1 dispatch, strict transport, prohibited model fallback, semantic rejection, verifier outages, set-valued scoring, model prompt/oracle separation, attempted unsafe verification and lossless partial-response preservation. The current [Research Execution Charter](../../docs/governance/research-execution-charter.md) and protected-review checks control deployment and promotion. No accepted FAR Core theorem, canonical stage sequence, or scientific validity claim changes here.
