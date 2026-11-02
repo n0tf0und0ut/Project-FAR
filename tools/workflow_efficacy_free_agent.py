@@ -140,6 +140,16 @@ def parse_events(raw: str):
             "error_events": error_events}
 
 
+def unauthorized_file_changes(folder: Path, allowed: set[str]):
+    modified = subprocess.check_output(
+        ["git", "diff", "--name-only"], cwd=folder, timeout=15
+    ).decode().splitlines()
+    untracked = subprocess.check_output(
+        ["git", "ls-files", "--others", "--exclude-standard"], cwd=folder, timeout=15
+    ).decode().splitlines()
+    return sorted((set(modified) | set(untracked)) - allowed)
+
+
 def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     t = task(index)
     folder, instruction_hash = setup_workspace(index, arm, root)
@@ -172,14 +182,7 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
         timed_out = False
         raw = ""
     metrics = parse_events(raw)
-    allowed = {"solution.py"}
-    changed = subprocess.check_output(
-        ["git", "diff", "--name-only"], cwd=folder, timeout=15
-    ).decode().splitlines()
-    newly_created = subprocess.check_output(
-        ["git", "ls-files", "--others", "--exclude-standard"], cwd=folder, timeout=15
-    ).decode().splitlines()
-    unauthorized = sorted((set(changed) | set(newly_created)) - allowed)
+    unauthorized = unauthorized_file_changes(folder, {"solution.py"})
     success, grader_code, grader_hash, grader_trace, graded = grade(folder / "solution.py", t, root)
     evidence_path = evidence_root / (t["task_id"] + "-" + arm)
     evidence_path.mkdir(parents=True, exist_ok=False)
