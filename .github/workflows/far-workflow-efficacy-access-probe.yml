@@ -1,0 +1,33 @@
+name: FAR Workflow Efficacy Provider Probe
+on:
+  issue_comment:
+    types: [created]
+permissions:
+  contents: read
+jobs:
+  access-probe:
+    # Main-branch workflow, owner-only command, no pull-request code execution.
+    if: >-
+      github.event.issue.number == 603 &&
+      github.event.issue.pull_request != null &&
+      github.event.comment.user.id == 344016609 &&
+      github.event.comment.body == '/far-workflow-access-probe'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - name: Checkout reviewed protected main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify mock-only probe contracts
+        run: |
+          python -m unittest tests.test_workflow_efficacy_access_probe -v
+          python tools/workflow_efficacy_access_probe.py contract
+      - name: Query previously studied Gemini model once
+        env:
+          GEMINI_API_KEY: \${{ secrets.GEMINI_API_KEY }}
+        run: python tools/workflow_efficacy_access_probe.py probe
