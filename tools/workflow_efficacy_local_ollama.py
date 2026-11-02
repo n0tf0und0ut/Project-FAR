@@ -21,7 +21,7 @@ CONTROL="38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT="dc290674b755977378d6170a0128c1540f0a2b6a"
 MODEL="qwen2.5-coder:1.5b"
 URL="http://127.0.0.1:11434"
-OPTIONS={"temperature":0,"seed":602,"num_ctx":8192,"num_predict":512,"num_thread":2}
+OPTIONS={"temperature":0,"seed":602,"num_ctx":4096,"num_predict":320,"num_thread":4}
 ARMS=("control","treatment")
 
 def sha(b):
@@ -33,13 +33,28 @@ def request(path,payload=None,timeout=20):
     with urllib.request.urlopen(req,timeout=timeout) as r:
         return json.loads(r.read(2000000))
 
+def extract_section(document: bytes, heading: str) -> bytes:
+    """Extract an exact source section without paraphrase or silent truncation."""
+    text=document.decode("utf-8")
+    m=re.search(r"^"+re.escape(heading)+r"\s*\n.*?(?=^## |\Z)",text,re.M|re.S)
+    if m is None:
+        raise ValueError("required canonical instruction heading absent: "+heading)
+    return m.group(0).strip().encode("utf-8")
+
 def instructions(arm):
     if arm not in ARMS: raise ValueError(arm)
     revision=CONTROL if arm=="control" else TREATMENT
     raw=subprocess.check_output(["git","show",revision+":AGENTS.md"],cwd=ROOT,timeout=20)
+    selections=["## Rules for getting work done","## Completion standard"]
     if arm=="treatment":
-        raw+=b"\n\n"+subprocess.check_output(["git","show",revision+":docs/maintenance/agent-workflow-orchestration.md"],cwd=ROOT,timeout=20)
-    return raw
+        selections.insert(0,"## Workflow orchestration")
+    content=b"\n\n".join(extract_section(raw,h) for h in selections)
+    if arm=="treatment":
+        guide=subprocess.check_output(
+            ["git","show",revision+":docs/maintenance/agent-workflow-orchestration.md"],
+            cwd=ROOT,timeout=20)
+        content+=b"\n\n"+guide
+    return content
 
 def order(index):
     if not 0<=index<30: raise ValueError(index)
