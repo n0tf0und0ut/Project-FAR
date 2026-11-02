@@ -148,6 +148,47 @@ class RunnerTests(unittest.TestCase):
             time.sleep(1.2)
             self.assertFalse(leaked.exists(), "surviving child modified workspace")
 
+    def test_direct_patch_parsing(self):
+        from tools.workflow_efficacy_free_agent import extract_patch
+        self.assertIsNone(extract_patch("A plan for how to repair the file"))
+        self.assertIsNone(extract_patch("def unrelated(x): return x"))
+        self.assertEqual(extract_patch("def transform(d):\n    return 3"),
+                         "def transform(d):\n    return 3\n")
+        self.assertEqual(extract_patch("Here:\n" + chr(96)*3 +
+                         "python\ndef transform(d):\n    return 4\n" + chr(96)*3),
+                         "def transform(d):\n    return 4\n")
+
+    def test_direct_generation_is_real_mocked_local_http_only(self):
+        import json
+        from tools.workflow_efficacy_free_agent import local_patch_request
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self):
+                return json.dumps({"done": True, "message": {"content":
+                    "def transform(d):\n    return d['value']"},
+                    "prompt_eval_count": 101, "eval_count": 23}).encode()
+        with patch("tools.workflow_efficacy_free_agent.urllib.request.urlopen",
+                   return_value=Response()) as mocked:
+            answer, raw, metrics, code, timed_out, elapsed = local_patch_request(b"rules", task(0))
+        self.assertEqual(mocked.call_count, 1)
+        self.assertIn("def transform", answer)
+        self.assertEqual(metrics["model_steps"], 1)
+        self.assertEqual(metrics["input_tokens"], 101)
+        self.assertEqual(code, 0)
+        self.assertFalse(timed_out)
+
+    def test_local_provider_timeout_does_not_score_as_completed(self):
+        from tools.workflow_efficacy_free_agent import local_patch_request
+        with patch("tools.workflow_efficacy_free_agent.urllib.request.urlopen",
+                   side_effect=TimeoutError("local stalled")):
+            answer, raw, metrics, code, timed_out, elapsed = local_patch_request(b"rules", task(0))
+        self.assertIsNone(answer)
+        self.assertIsNone(code)
+        self.assertEqual(metrics["model_steps"], 0)
+        self.assertGreater(metrics["error_events"], 0)
+        self.assertTrue(timed_out)
+
     def test_invalid_json_is_not_model_execution(self):
         self.assertEqual(parse_events("noise")["model_steps"], 0)
 if __name__ == "__main__":
