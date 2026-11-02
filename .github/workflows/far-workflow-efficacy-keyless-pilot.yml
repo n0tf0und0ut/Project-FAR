@@ -124,7 +124,7 @@ jobs:
       - name: Compute fail-closed exploratory descriptive analysis
         run: |
           python tools/workflow_efficacy_free_agent_analysis.py \
-            --results evidence --output research/workflow-efficacy/result/pilot-report.json
+            --results research/workflow-efficacy/evidence --output research/workflow-efficacy/result/pilot-report.json
       - name: Preserve report even when incomplete
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
