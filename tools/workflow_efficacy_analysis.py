@@ -51,13 +51,23 @@ def planned_runs(protocol):
 def analyze(protocol, records):
     # A fabricated JSONL cannot bypass prospectively frozen study prerequisites.
     if (protocol.get("fixed_task_bundles") != "FROZEN"
+            or not isinstance(protocol.get("runtime_hash"), str)
+            or not protocol["runtime_hash"]
+            or protocol["runtime_hash"] == "NOT_FROZEN"
+            or not isinstance(protocol.get("tool_config_hash"), str)
+            or not protocol["tool_config_hash"]
+            or protocol["tool_config_hash"] == "NOT_FROZEN"
             or protocol.get("model_identity") in ("UNRESOLVED", None)
             or protocol.get("agent_executor") in ("UNAVAILABLE_IN_CURRENT_TOOL_RUNTIME", None)
             or protocol.get("isolation_verified") is not True
             or protocol.get("blinded_evaluator") in ("NOT_ASSIGNED", None)
             or protocol.get("budget") != "FROZEN"):
         return {"status": "STUDY_PRECONDITIONS_UNMET", "claim": "NOT_ESTABLISHED"}
+    if any(not isinstance(c.get("task_bundle_hash"), str) or not c["task_bundle_hash"]
+           for c in protocol["historical_candidates"]):
+        return {"status": "STUDY_PRECONDITIONS_UNMET", "claim": "NOT_ESTABLISHED"}
     expected = {x["run_id"]: x for x in planned_runs(protocol)}
+    case_by_id = {c["id"]: c for c in protocol["historical_candidates"]}
     if len(records) != len(expected) or {r.get("run_id") for r in records} != set(expected):
         return {"status": "INCOMPLETE_OR_DUPLICATE", "expected_runs": 60,
                 "observed_runs": len(records), "claim": "NOT_ESTABLISHED"}
@@ -79,6 +89,15 @@ def analyze(protocol, records):
             return {"status": "INSTRUCTION_VERSION_MISMATCH", "claim": "NOT_ESTABLISHED"}
         if any(f not in r for f in required_identity):
             return {"status": "MISSING_PROVENANCE", "claim": "NOT_ESTABLISHED"}
+        identity_keys = ("model_id", "runtime_hash", "tool_config_hash", "task_bundle_hash", "evaluator_id")
+        if any(not isinstance(r[k], str) or not r[k].strip() for k in identity_keys):
+            return {"status": "EMPTY_OR_NULL_IDENTITY", "claim": "NOT_ESTABLISHED"}
+        if (r["model_id"] != protocol["model_identity"]
+                or r["runtime_hash"] != protocol["runtime_hash"]
+                or r["tool_config_hash"] != protocol["tool_config_hash"]
+                or r["evaluator_id"] != protocol["blinded_evaluator"]
+                or r["task_bundle_hash"] != case_by_id[r["task_id"]]["task_bundle_hash"]):
+            return {"status": "NOT_FROZEN_IDENTITY", "claim": "NOT_ESTABLISHED"}
         if r.get("provenance_verified") is not True or r.get("isolation_verified") is not True:
             return {"status": "UNVERIFIED_ISOLATION_OR_PROVENANCE", "claim": "NOT_ESTABLISHED"}
         fingerprint = tuple(r[k] for k in ("model_id", "runtime_hash", "tool_config_hash", "evaluator_id"))
@@ -88,6 +107,8 @@ def analyze(protocol, records):
             return {"status": "CROSS_TASK_MODEL_OR_TOOL_DRIFT", "claim": "NOT_ESTABLISHED"}
         if type(r.get("success")) is not bool:
             return {"status": "UNVERIFIED_OR_MISSING_OUTCOME", "claim": "NOT_ESTABLISHED"}
+        if r["success"] and r.get("new_regressions", 0) != 0:
+            return {"status": "CONTRADICTORY_SUCCESS_AND_REGRESSIONS", "claim": "NOT_ESTABLISHED"}
         if any(type(r.get(k)) not in (int, float) or not math.isfinite(r[k]) or r[k] < 0
                for k in ("elapsed_seconds", "total_tokens", "provider_cost_usd", "new_regressions", "rework_count")):
             return {"status": "INVALID_RESOURCE_ACCOUNTING", "claim": "NOT_ESTABLISHED"}
