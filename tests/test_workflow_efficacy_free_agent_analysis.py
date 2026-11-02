@@ -23,6 +23,41 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(report["status"],"INCOMPLETE_OR_INVALID")
         self.assertTrue(any("NO_MODEL_STEPS" in x for x in report["errors"]))
         self.assertTrue(any("MISSING_OR_UNEXECUTED_GRADER" in x for x in report["errors"]))
+    def test_partial_provider_error_cannot_count_as_agent_failure(self):
+        with tempfile.TemporaryDirectory() as d:
+            for i in range(30):
+                records = []
+                for arm in ("control", "treatment"):
+                    records.append({
+                        "task_id": f"FWE-{i+1:03d}",
+                        "arm": arm,
+                        "model_steps": 1,
+                        "error_events": 1 if i == 0 and arm == "treatment" else 0,
+                        "timeout": False, "cli_exit_code": 0,
+                        "grader_status": "EXECUTED", "grader_exit_code": 1,
+                        "outcome": "FAILURE",
+                    })
+                (Path(d)/f"pair-{i:02d}.json").write_text(json.dumps(records))
+            report=analyze(d)
+        self.assertEqual(report["status"], "INCOMPLETE_OR_INVALID")
+        self.assertTrue(any("INCOMPLETE_PROVIDER_SESSION:FWE-001:treatment" in e
+                            for e in report["errors"]))
+    def test_completed_model_step_does_not_clear_timeout(self):
+        with tempfile.TemporaryDirectory() as d:
+            for i in range(30):
+                records = [
+                    {"task_id": f"FWE-{i+1:03d}", "arm": arm,
+                     "model_steps": 1, "error_events": 0,
+                     "timeout": arm == "control" and i == 0,
+                     "cli_exit_code": 0,
+                     "grader_status": "EXECUTED", "grader_exit_code": 1,
+                     "outcome": "FAILURE"}
+                    for arm in ("control","treatment")
+                ]
+                (Path(d)/f"pair-{i:02d}.json").write_text(json.dumps(records))
+            report=analyze(d)
+        self.assertIn("INCOMPLETE_AGENT_EXECUTION:FWE-001:control", report["errors"])
+
     def test_duplicate_arms_fail(self):
         with tempfile.TemporaryDirectory() as d:
             for i in range(30):
