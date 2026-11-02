@@ -1,5 +1,7 @@
 """Negative/positive controls for the real offline model runner (network mocked)."""
 import copy
+import base64
+import hashlib
 import io
 import json
 import tempfile
@@ -43,6 +45,10 @@ class OfflinePilotTests(unittest.TestCase):
         self.assertEqual(result["action"], "verify")
         self.assertEqual(result["total_tokens"], 17)
         self.assertEqual(len(result["response_sha256"]), 64)
+        self.assertEqual(hashlib.sha256(base64.b64decode(result["raw_response_base64"])).hexdigest(),
+                         result["response_sha256"])
+        raw_request = json.dumps(result["request_body"], sort_keys=True, separators=(",", ":")).encode()
+        self.assertEqual(hashlib.sha256(raw_request).hexdigest(), result["request_sha256"])
         with patch("urllib.request.urlopen") as call:
             with self.assertRaisesRegex(ex.PilotError, "local"):
                 ex.request_decision("https://another-provider.example/api", "record metadata")
@@ -73,7 +79,8 @@ class OfflinePilotTests(unittest.TestCase):
             counts.append(prompt)
             return {"action": "verify", "total_tokens": 20,
                     "observed_model": "frozen-local-model", "request_sha256": "b" * 64,
-                    "response_sha256": "c" * 64, "response": {"mock": True}}
+                    "response_sha256": "c" * 64, "response": {"mock": True},
+                    "raw_response_base64": "e30=", "request_body": {"mock": True}}
         with patch.object(ex, "file_sha256", return_value=ex.MODEL_SHA256):
             output = ex.run(self.protocol, Path("/fake/weights.gguf"), inference_fn=model)
         self.assertEqual(len(counts), 12)
@@ -91,7 +98,8 @@ class OfflinePilotTests(unittest.TestCase):
         def model(_, prompt):
             return {"action": "invalid_action", "total_tokens": 5,
                     "observed_model": "local", "request_sha256": "b" * 64,
-                    "response_sha256": "c" * 64, "response": {"mock": True}}
+                    "response_sha256": "c" * 64, "response": {"mock": True},
+                    "raw_response_base64": "e30=", "request_body": {"mock": True}}
         with patch.object(ex, "file_sha256", return_value=ex.MODEL_SHA256):
             result = ex.run(self.protocol, Path("/fake/weights.gguf"), inference_fn=model)
         self.assertEqual(result["summary"]["agent"]["correct"], 0)
@@ -109,7 +117,8 @@ class OfflinePilotTests(unittest.TestCase):
             return {"action": "verify", "total_tokens": 5,
                     "observed_model": ("a" if calls == 1 else "b"),
                     "request_sha256": "b" * 64,
-                    "response_sha256": "c" * 64, "response": {"mock": True}}
+                    "response_sha256": "c" * 64, "response": {"mock": True},
+                    "raw_response_base64": "e30=", "request_body": {"mock": True}}
         with patch.object(ex, "file_sha256", return_value=ex.MODEL_SHA256):
             with self.assertRaisesRegex(ex.PilotError, "drift"):
                 ex.run(self.protocol, Path("/fake/weights.gguf"), inference_fn=unstable)
