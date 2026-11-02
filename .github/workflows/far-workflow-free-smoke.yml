@@ -33,32 +33,20 @@ jobs:
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
       - name: Start pinned no-key local model
         run: bash scripts/workflow_efficacy_start_ollama.sh
-      - name: Install pinned coding-agent CLI
+      - name: Verify locally hosted scripted-repair runner
         run: |
-          npm install -g opencode-ai@1.19.3
-          test "$(opencode --version)" = '1.19.3'
-      - name: Check one excluded LOCAL model response
-        env:
-          CI: "true"
-          OPENCODE_DISABLE_AUTOUPDATE: "1"
-        run: |
-          mkdir -p "$RUNNER_TEMP/fwe-preflight"
-          cd "$RUNNER_TEMP/fwe-preflight"
+          python -m tools.workflow_efficacy_free_agent contract
           python - <<'PY'
-          import json,os,sys
-          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
-          from tools.workflow_efficacy_free_agent import SAFE_CONFIG
-          with open("opencode.json","w") as out: json.dump(SAFE_CONFIG,out)
-          PY
-          timeout 180s opencode run -m ollama/qwen2.5-coder:1.5b --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
-          python - "$RUNNER_TEMP/model-smoke.ndjson" <<'PY'
-          import os,sys
-          from pathlib import Path
-          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
-          from tools.workflow_efficacy_free_agent import parse_events
-          m=parse_events(Path(sys.argv[1]).read_text())
-          print(m)
-          assert m["model_steps"]>0 and m["error_events"]==0 and m["reported_cost_usd"]==0
+          import json,urllib.request
+          body=json.dumps({"model":"qwen2.5-coder:1.5b","stream":False,
+              "messages":[{"role":"user","content":"Return Python code: def transform(d): return 1"}],
+              "options":{"temperature":0,"num_ctx":16384,"num_predict":90}}).encode()
+          req=urllib.request.Request("http://127.0.0.1:11434/api/chat",data=body,
+              headers={"Content-Type":"application/json"},method="POST")
+          with urllib.request.urlopen(req,timeout=180) as resp: payload=json.load(resp)
+          assert payload.get("done") is True
+          assert payload.get("prompt_eval_count",0)>0 and payload.get("eval_count",0)>0
+          print("VALID_LOCAL_MODEL_GENERATION",payload["eval_count"])
           PY
       - name: Execute one excluded paired coding task for runner preflight
         run: |
