@@ -1,11 +1,14 @@
 """No-network structural tests for the 30-pair free-agent runner."""
 import unittest
+import os
+import sys
+import time
 import subprocess
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 from types import SimpleNamespace
-from tools.workflow_efficacy_free_agent import grade, unauthorized_file_changes
+from tools.workflow_efficacy_free_agent import grade, unauthorized_file_changes, execute_agent_process
 from tools.workflow_efficacy_internal_fixtures import task
 from tools.workflow_efficacy_free_agent import (
     ARMS, CONTROL_SHA, TREATMENT_SHA, MAX_SECONDS, MODEL,
@@ -79,6 +82,26 @@ class RunnerTests(unittest.TestCase):
         self.assertFalse(success)
         self.assertIsNone(code)
         self.assertFalse(executed)
+
+    @unittest.skipUnless(os.name == "posix", "process groups require POSIX")
+    def test_timeout_kills_spawned_agent_descendant(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            started, leaked = root / "child-started", root / "child-continued"
+            child = ("from pathlib import Path;import time;"
+                     f"Path({str(started)!r}).write_text('started');"
+                     "time.sleep(1.0);"
+                     f"Path({str(leaked)!r}).write_text('escaped')")
+            parent = ("import subprocess,sys,time;"
+                      f"subprocess.Popen([sys.executable,'-c',{child!r}]);"
+                      "time.sleep(15)")
+            code, raw, timed_out = execute_agent_process(
+                [sys.executable, "-c", parent], root, dict(os.environ), 0.7)
+            self.assertTrue(timed_out)
+            self.assertIsNone(code)
+            self.assertTrue(started.exists(), "child must start for termination test")
+            time.sleep(1.2)
+            self.assertFalse(leaked.exists(), "surviving child modified workspace")
 
     def test_invalid_json_is_not_model_execution(self):
         self.assertEqual(parse_events("noise")["model_steps"], 0)
