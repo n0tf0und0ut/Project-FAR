@@ -144,6 +144,19 @@ def analyze(p, rows):
             raise PilotError("source mismatch")
         if r.get("outcome") not in ("PROVED", "REFUTED", "INVALID", "NO_VERDICT"):
             raise PilotError("invalid outcome")
+        # Independently recompute what the pinned, shared verifier would output.
+        # A record claiming abstention cannot also claim a successful verdict.
+        action = r.get("action")
+        if identity[1] == "agent":
+            if action not in ("verify", "abstain"):
+                raise PilotError("unrecognized agent action")
+            expected_outcome = "NO_VERDICT" if action == "abstain" else verify(source_document(c))
+        else:
+            if action != "verify_current":
+                raise PilotError("fixed-policy action mismatch")
+            expected_outcome = verify(source_document(c))
+        if r["outcome"] != expected_outcome:
+            raise PilotError("action-outcome mismatch")
         if type(r.get("correct")) is not bool or r["correct"] != (r["outcome"] == c["expected"]):
             raise PilotError("correctness tampering")
         ms = r.get("elapsed_ms")
