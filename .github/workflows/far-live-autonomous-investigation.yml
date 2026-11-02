@@ -76,7 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           python tools/far_autonomous_investigation.py run --mode deterministic --output research/uncertain-routing/run-artifacts/deterministic.json | tee research/uncertain-routing/run-artifacts/deterministic-summary.log
-          python tools/far_autonomous_investigation.py run --mode model --output research/uncertain-routing/run-artifacts/model.json | tee research/uncertain-routing/run-artifacts/model-summary.log
+          python tools/far_autonomous_investigation.py run --mode model --model "$RUNNER_TEMP/far-model.gguf" --output research/uncertain-routing/run-artifacts/model.json | tee research/uncertain-routing/run-artifacts/model-summary.log
           echo "$PR_HEAD_SHA" > research/uncertain-routing/run-artifacts/exact-head.txt
       - name: Upload raw execution evidence without credentials or weights
         if: always()
