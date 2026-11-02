@@ -91,13 +91,13 @@ jobs:
           OPENCODE_DISABLE_AUTOUPDATE: "1"
         run: |
           python tools/workflow_efficacy_free_agent.py run-pair \
-            --index ${{ matrix.index }} --output "pilot-out/pair-${{ matrix.index }}.json"
+            --index ${{ matrix.index }} --output "research/workflow-efficacy/pilot-out/pair-${{ matrix.index }}.json"
       - name: Preserve model-backed evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fwe-free-pair-${{ matrix.index }}
-          path: pilot-out/
+          path: research/workflow-efficacy/pilot-out/
           if-no-files-found: warn
           retention-days: 30
   aggregate:
@@ -119,17 +119,17 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           pattern: fwe-free-pair-*
-          path: evidence/
+          path: research/workflow-efficacy/evidence/
           merge-multiple: true
       - name: Compute fail-closed exploratory descriptive analysis
         run: |
           python tools/workflow_efficacy_free_agent_analysis.py \
-            --results evidence --output result/pilot-report.json
+            --results evidence --output research/workflow-efficacy/result/pilot-report.json
       - name: Preserve report even when incomplete
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fwe-free-aggregate-report
-          path: result/
+          path: research/workflow-efficacy/result/
           if-no-files-found: warn
           retention-days: 30
