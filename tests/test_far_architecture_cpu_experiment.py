@@ -123,6 +123,69 @@ class OfflinePilotTests(unittest.TestCase):
             with self.assertRaisesRegex(ex.PilotError, "drift"):
                 ex.run(self.protocol, Path("/fake/weights.gguf"), inference_fn=unstable)
 
+    def test_partial_execution_persists_prior_raw_model_events(self):
+        count = 0
+
+        def model(_, prompt):
+            nonlocal count
+            count += 1
+            if count == 2:
+                raise ex.PilotError("injected second-call timeout")
+            return {"action": "verify", "total_tokens": 20,
+                    "observed_model": "frozen-local-model",
+                    "request_sha256": "b" * 64, "response_sha256": "c" * 64,
+                    "response": {"raw_response": "retained"},
+                    "raw_response_base64": "e30=", "request_body": {"mock": True}}
+
+        with tempfile.TemporaryDirectory() as directory:
+            partial = Path(directory) / "results.partial.json"
+            with patch.object(ex, "file_sha256", return_value=ex.MODEL_SHA256):
+                with self.assertRaisesRegex(ex.PilotError, "second-call timeout"):
+                    ex.run(self.protocol, Path("/fake/weights.gguf"), inference_fn=model,
+                           progress=lambda snapshot: ex.persist_progress(snapshot, partial))
+            self.assertEqual(count, 2)
+            self.assertTrue(partial.exists(), "first model response must survive later failure")
+            saved = json.loads(partial.read_text(encoding="utf-8"))
+            self.assertEqual(saved["status"], "INCOMPLETE")
+            self.assertEqual(saved["claim"], "NOT_ESTABLISHED")
+            self.assertEqual(saved["model_events"], 1)
+            self.assertLess(saved["completed_cells"], 36)
+            self.assertEqual(len(saved["raw_model_events"]), 1)
+            self.assertEqual(saved["raw_model_events"][0]["raw_response"],
+                             {"raw_response": "retained"})
+            self.assertEqual(saved["raw_model_events"][0]["raw_response_base64"], "e30=")
+            self.assertEqual(saved["raw_model_events"][0]["request_body"], {"mock": True})
+            self.assertFalse(partial.with_suffix(".tmp").exists())
+
+    def test_progress_checkpoints_are_monotone_and_final_clear_is_safe(self):
+        snapshots = []
+
+        def model(_, prompt):
+            return {"action": "verify", "total_tokens": 20,
+                    "observed_model": "frozen-local-model",
+                    "request_sha256": "b" * 64, "response_sha256": "c" * 64,
+                    "response": {"mock": True}, "raw_response_base64": "e30=",
+                    "request_body": {"mock": True}}
+
+        with patch.object(ex, "file_sha256", return_value=ex.MODEL_SHA256):
+            result = ex.run(self.protocol, Path("/fake/weights.gguf"),
+                            inference_fn=model,
+                            progress=lambda snapshot: snapshots.append((
+                                snapshot["completed_cells"], snapshot["model_events"],
+                                snapshot["claim"])))
+        self.assertEqual(len(snapshots), 36)
+        self.assertEqual([x[0] for x in snapshots], list(range(1, 37)))
+        self.assertEqual(snapshots[-1], (36, 12, "NOT_ESTABLISHED"))
+        self.assertEqual(result["status"], "EXECUTED_BOUNDED_LOCAL_OPEN_WEIGHT")
+
+    def test_checkpoint_write_is_atomic_and_replaces_previous_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "record.partial.json"
+            ex.persist_progress({"model_events": 1, "status": "INCOMPLETE"}, path)
+            ex.persist_progress({"model_events": 2, "status": "INCOMPLETE"}, path)
+            self.assertEqual(json.loads(path.read_text())["model_events"], 2)
+            self.assertFalse(path.with_name(path.name + ".tmp").exists())
+
     def test_invalid_telemetry_blocks_execution(self):
         for response in (
             {"model": "local", "choices": [{"finish_reason": "stop", "message": {"content": "RUN_VERIFIER"}}],
