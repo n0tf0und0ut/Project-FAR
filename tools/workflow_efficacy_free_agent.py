@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import os
+import signal
 import shutil
 import subprocess
 import sys
@@ -151,6 +152,40 @@ def unauthorized_file_changes(folder: Path, allowed: set[str]):
     return sorted((set(modified) | set(untracked)) - allowed)
 
 
+def execute_agent_process(command, folder: Path, env: dict, timeout: float):
+    """Execute an agent in its own process group and reap descendants on timeout.
+
+    SIGTERM is issued to the entire group first; SIGKILL is then issued to
+    any survivors before the workspace is inspected or graded.
+    """
+    try:
+        proc = subprocess.Popen(command, cwd=folder, env=env, text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                start_new_session=True)
+    except OSError:
+        return None, "", False
+    try:
+        stdout, _stderr = proc.communicate(timeout=timeout)
+        return proc.returncode, (stdout or "")[:2_000_000], False
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            stdout, _stderr = proc.communicate(timeout=3)
+        except subprocess.TimeoutExpired:
+            stdout = ""
+        finally:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            # The process must have terminated before any grading occurs.
+            stdout, _stderr = proc.communicate(timeout=10)
+        return None, (stdout or "")[:2_000_000], True
+
+
 def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     t = task(index)
     folder, instruction_hash = setup_workspace(index, arm, root)
@@ -169,20 +204,7 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
               "Stop after verifying and describe the outcome.")
     command = ["opencode", "run", "-m", MODEL, "--format", "json", prompt]
     start = time.monotonic()
-    exit_code = None
-    raw = ""
-    timed_out = False
-    try:
-        proc = subprocess.run(command, cwd=folder, env=env, text=True,
-                              capture_output=True, timeout=MAX_SECONDS)
-        exit_code, raw = proc.returncode, proc.stdout[:2_000_000]
-    except subprocess.TimeoutExpired as exc:
-        timed_out = True
-        raw = (exc.stdout or b"")[:2_000_000]
-        if isinstance(raw, bytes): raw = raw.decode(errors="replace")
-    except OSError:
-        timed_out = False
-        raw = ""
+    exit_code, raw, timed_out = execute_agent_process(command, folder, env, MAX_SECONDS)
     metrics = parse_events(raw)
     unauthorized = unauthorized_file_changes(folder, {"solution.py"})
     success, grader_code, grader_hash, grader_trace, graded = grade(folder / "solution.py", t, root)
