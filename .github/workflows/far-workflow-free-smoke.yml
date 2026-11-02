@@ -17,12 +17,13 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.head_ref == 'research/workflow-efficacy-keyless-internal-pilot-v02'
     runs-on: ubuntu-24.04
-    timeout-minutes: 14
+    timeout-minutes: 19
     steps:
       - name: Checkout without persistent authentication
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -59,3 +60,30 @@ jobs:
           print(m)
           assert m["model_steps"]>0 and m["error_events"]==0 and m["reported_cost_usd"]==0
           PY
+      - name: Execute one excluded paired coding task for runner preflight
+        run: |
+          docker pull python:3.12-slim
+          python -m tools.workflow_efficacy_free_agent run-pair --index 0 \
+            --output research/workflow-efficacy/pilot-out/pair-0.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("research/workflow-efficacy/pilot-out/pair-0.json")
+          rows = json.loads(p.read_text())
+          assert len(rows) == 2
+          assert {r["arm"] for r in rows} == {"control", "treatment"}
+          for row in rows:
+              print(row["task_id"],row["arm"], "steps", row["model_steps"],
+                    "grader",row["grader_status"],"outcome",row["outcome"])
+              assert row["model_steps"] > 0 and row["error_events"] == 0
+              assert row["cli_exit_code"] == 0 and not row["timeout"]
+              assert row["grader_status"] == "EXECUTED"
+          PY
+      - name: Retain excluded pilot pair for diagnosis
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: workflow-efficacy-local-preflight-pair
+          path: research/workflow-efficacy/pilot-out/
+          if-no-files-found: warn
+          retention-days: 7
