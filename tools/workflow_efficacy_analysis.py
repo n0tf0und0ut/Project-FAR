@@ -51,6 +51,7 @@ def planned_runs(protocol):
 def analyze(protocol, records):
     # A fabricated JSONL cannot bypass prospectively frozen study prerequisites.
     if (protocol.get("fixed_task_bundles") != "FROZEN"
+            or protocol.get("hidden_tests") != "FROZEN"
             or not isinstance(protocol.get("runtime_hash"), str)
             or not protocol["runtime_hash"]
             or protocol["runtime_hash"] == "NOT_FROZEN"
