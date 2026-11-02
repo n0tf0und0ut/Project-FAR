@@ -93,23 +93,27 @@ def setup_workspace(index: int, arm: str, root: Path):
 
 
 def grade(source_path: Path, t: dict, scratch: Path):
-    """Grade only hidden tests in a fresh no-network container."""
+    """Grade both public and hidden tests in a fresh no-network container."""
     grade_dir = scratch / "grade"
     grade_dir.mkdir(exist_ok=True)
     shutil.copyfile(source_path, grade_dir / "solution.py")
     (grade_dir / "test_hidden.py").write_text(hidden_test_code(t))
+    (grade_dir / "test_public.py").write_text(public_test_code(t))
     cmd = [
         "docker", "run", "--rm", "--network", "none", "--cap-drop", "ALL",
         "--security-opt", "no-new-privileges", "--memory", "384m",
         "--pids-limit", "64", "-v", str(grade_dir)+":/app:ro",
         "-w", "/app", "python:3.12-slim",
-        "python", "-m", "unittest", "-q", "test_hidden",
+        "python", "-m", "unittest", "-q", "test_public", "test_hidden",
     ]
     try:
         p = subprocess.run(cmd, text=True, capture_output=True, timeout=60)
-        return p.returncode == 0, p.returncode, sha256((p.stdout + p.stderr).encode())
-    except (subprocess.TimeoutExpired, OSError):
-        return False, None, None
+        trace = (p.stdout + p.stderr)[:1_000_000]
+        # The test command must genuinely execute, not merely return a status.
+        executed = p.returncode in (0, 1) and "Ran 2 tests" in trace
+        return executed and p.returncode == 0, p.returncode, sha256(trace.encode()), trace, executed
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return False, None, None, type(exc).__name__, False
 
 
 def parse_events(raw: str):
@@ -136,7 +140,7 @@ def parse_events(raw: str):
             "error_events": error_events}
 
 
-def run_arm(index: int, arm: str, root: Path):
+def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     t = task(index)
     folder, instruction_hash = setup_workspace(index, arm, root)
     agent_home = root / ("isolated-home-" + t["task_id"] + "-" + arm)
@@ -164,14 +168,25 @@ def run_arm(index: int, arm: str, root: Path):
         timed_out = True
         raw = (exc.stdout or b"")[:2_000_000]
         if isinstance(raw, bytes): raw = raw.decode(errors="replace")
+    except OSError:
+        timed_out = False
+        raw = ""
     metrics = parse_events(raw)
     allowed = {"solution.py"}
     changed = subprocess.check_output(
         ["git", "diff", "--name-only"], cwd=folder, timeout=15
     ).decode().splitlines()
-    unauthorized = sorted(set(changed) - allowed)
-    success, grader_code, grader_hash = grade(folder / "solution.py", t, root)
-    success = bool(success and (folder/"solution.py").read_bytes() != t["source"].encode()
+    newly_created = subprocess.check_output(
+        ["git", "ls-files", "--others", "--exclude-standard"], cwd=folder, timeout=15
+    ).decode().splitlines()
+    unauthorized = sorted((set(changed) | set(newly_created)) - allowed)
+    success, grader_code, grader_hash, grader_trace, graded = grade(folder / "solution.py", t, root)
+    evidence_path = evidence_root / (t["task_id"] + "-" + arm)
+    evidence_path.mkdir(parents=True, exist_ok=False)
+    (evidence_path / "submitted-solution.py").write_bytes((folder / "solution.py").read_bytes())
+    (evidence_path / "agent-events.ndjson").write_text(raw)
+    (evidence_path / "grader-trace.txt").write_text(grader_trace)
+    success = bool(success and graded and (folder/"solution.py").read_bytes() != t["source"].encode()
                    and not unauthorized and not timed_out and
                    exit_code == 0 and metrics["model_steps"] > 0 and
                    metrics["error_events"] == 0 and
@@ -187,6 +202,7 @@ def run_arm(index: int, arm: str, root: Path):
         "cli_exit_code": exit_code, "timeout": timed_out,
         "unauthorized_changes": unauthorized,
         "grader_exit_code": grader_code, "grader_trace_hash": grader_hash,
+        "grader_status": "EXECUTED" if graded else "INFRA_FAILURE",
         "outcome": "SUCCESS" if success else "FAILURE",
         "raw_event_stream_sha256": sha256(raw.encode()), **metrics,
     }
@@ -211,7 +227,8 @@ def main():
             parser.error("run-pair requires --index 0..29 and --output")
         with tempfile.TemporaryDirectory(prefix="fwe-") as tmp:
             root = Path(tmp)
-            payload = [run_arm(args.index, arm, root) for arm in order_for(args.index)]
+            evidence_root = args.output.parent / "evidence"
+            payload = [run_arm(args.index, arm, root, evidence_root) for arm in order_for(args.index)]
     rendered = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
