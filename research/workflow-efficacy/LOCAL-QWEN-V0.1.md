@@ -15,3 +15,8 @@ For experiment contract: python -m tools.workflow_efficacy_local_ollama contract
 For pair run after local model installation: python -m tools.workflow_efficacy_local_ollama run-pair --index 0 --output out
 
 For aggregation: python -m tools.workflow_efficacy_local_analysis --root merged-pair-results --out report.json
+
+
+## CPU-feasible scope amendment before scored trials
+
+The initial excluded full-instructions preflight generated zero model responses: both arms timed out at 300 seconds (artifacts from run 41529850758), with Qwen model digest d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668. Before any scored trials, the prompt was narrowed to *exact, unmodified canonical sections*: Rules for getting work done; Completion standard; and, in the treatment only, Workflow orchestration plus the complete newly added orchestration guide. This is explicitly a **subset-specific instruction efficacy** test rather than an evaluation of the full AGENTS.md content, general coding agents, or FAR reasoning correctness. Context was reduced to 4096, output cap 320 tokens, CPU thread allocation four. All arms and tasks use these identical frozen settings. No result from the earlier failed preflight enters the study.
