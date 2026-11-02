@@ -34,6 +34,16 @@ class ProbeTests(unittest.TestCase):
         self.assertEqual(result["status"], "ACCESS_VERIFIED")
         self.assertNotIn("secret-never-log", json.dumps(result))
         self.assertNotIn("READY", json.dumps(result))
+    def test_unrelated_provider_response_is_not_success(self):
+        class WrongResponse(FakeResponse):
+            def read(self, n):
+                return json.dumps({"modelVersion": MODEL, "candidates": [
+                    {"content": {"parts": [{"text": "Unexpected answer"}]}}]}).encode()
+        with patch("urllib.request.urlopen", return_value=WrongResponse()):
+            result = probe("secret-never-log")
+        self.assertEqual(result["status"], "MALFORMED_PROVIDER_RESPONSE")
+        self.assertNotIn("Unexpected answer", json.dumps(result))
+
     def test_provider_errors_redacted(self):
         with patch("urllib.request.urlopen", side_effect=urllib.error.HTTPError(
             ENDPOINT, 403, "denied", None, io.BytesIO(b"SECRET"))):
