@@ -47,6 +47,12 @@ def analyze(folder):
             errors.append("MODEL_OR_HARNESS_ALIAS_DRIFT:" + t + ":" + arm)
         if not isinstance(row.get("model_steps"), int) or row["model_steps"] <= 0:
             errors.append("NO_MODEL_STEPS:" + t + ":" + arm)
+        # Even one completed step cannot turn a later rate-limit/provider error
+        # or timeout into an observed agent failure.
+        if type(row.get("error_events")) is not int or row["error_events"] != 0:
+            errors.append("INCOMPLETE_PROVIDER_SESSION:" + t + ":" + arm)
+        if row.get("timeout") is not False or row.get("cli_exit_code") != 0:
+            errors.append("INCOMPLETE_AGENT_EXECUTION:" + t + ":" + arm)
         if row.get("reported_cost_usd") != 0:
             errors.append("NONFREE_MODEL_CHARGE:" + t + ":" + arm)
         if row.get("grader_status") != "EXECUTED" or row.get("grader_exit_code") not in (0, 1):
