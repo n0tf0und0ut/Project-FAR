@@ -29,36 +29,18 @@ jobs:
           python -m tools.workflow_efficacy_free_agent contract
       - name: Start pinned local model without credentials
         run: bash scripts/workflow_efficacy_start_ollama.sh
-      - name: Install pinned agent CLI
+      - name: Verify one real local model generation
         run: |
-          npm install -g opencode-ai@1.19.3
-          test "$(opencode --version)" = "1.19.3"
-
-      - name: Run one excluded local-model prompt
-        env:
-          CI: "true"
-          OPENCODE_DISABLE_AUTOUPDATE: "1"
-        run: |
-          mkdir -p "$RUNNER_TEMP/fwe-probe"
-          cd "$RUNNER_TEMP/fwe-probe"
           python - <<'PY'
-          import json,os,sys
-          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
-          from tools.workflow_efficacy_free_agent import SAFE_CONFIG
-          with open("opencode.json","w") as out: json.dump(SAFE_CONFIG,out)
-          PY
-          timeout 180s opencode run -m ollama/qwen2.5-coder:1.5b --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/fwe-smoke.ndjson"
-          python - "$RUNNER_TEMP/fwe-smoke.ndjson" <<'PY'
-          import sys
-          from pathlib import Path
-          repo = Path(__import__("os").environ["GITHUB_WORKSPACE"])
-          sys.path.insert(0, str(repo))
-          from tools.workflow_efficacy_free_agent import parse_events
-          metrics = parse_events(Path(sys.argv[1]).read_text())
-          print(metrics)
-          assert metrics["model_steps"] > 0, "no completed model steps"
-          assert metrics["reported_cost_usd"] == 0, "not a free model"
-          assert metrics["error_events"] == 0, "agent reported an error"
+          import json,urllib.request
+          msg=json.dumps({"model":"qwen2.5-coder:1.5b","stream":False,
+             "messages":[{"role":"user","content":"Return a Python function that returns 1."}],
+             "options":{"temperature":0,"num_predict":90,"num_ctx":16384}}).encode()
+          req=urllib.request.Request("http://127.0.0.1:11434/api/chat",data=msg,
+             headers={"Content-Type":"application/json"})
+          with urllib.request.urlopen(req,timeout=180) as resp: result=json.load(resp)
+          assert result.get("done") is True and result.get("eval_count",0)>0
+          print("LOCAL_SCRIPTED_MODEL_COMPLETED",result["eval_count"])
           PY
   run-pairs:
     if: >-
@@ -67,7 +49,7 @@ jobs:
       github.event.comment.user.id == 344016609 &&
       github.event.comment.body == '/far-workflow-free-60'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       max-parallel: 5
@@ -90,11 +72,8 @@ jobs:
           docker pull python:3.12-slim
       - name: Start pinned local model without credentials
         run: bash scripts/workflow_efficacy_start_ollama.sh
-      - name: Install pinned coding agent CLI
-        run: |
-          npm install -g opencode-ai@1.19.3
-          test "$(opencode --version)" = "1.19.3"
-
+      - name: Verify model SHA-256 and frozen scripted-repair contract
+        run: python -m tools.workflow_efficacy_free_agent contract
       - name: Execute both counterbalanced agent conditions
         env:
           CI: "true"
