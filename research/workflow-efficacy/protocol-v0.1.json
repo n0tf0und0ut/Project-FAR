@@ -1,0 +1,351 @@
+{
+  "schema": "far-agent-workflow-differential/0.1",
+  "status": "Research",
+  "question": "Does adding the 2026-11-02 agent workflow orchestration guidance increase verified task success when the agent/model/tools/budget and tasks are matched?",
+  "treatment_pr": 602,
+  "control_instructions": {
+    "repo_commit": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+    "AGENTS": "AGENTS.md",
+    "CLAUDE": "CLAUDE.md",
+    "workflow_guide": "ABSENT"
+  },
+  "treatment_instructions": {
+    "repo_commit": "dc290674b755977378d6170a0128c1540f0a2b6a",
+    "AGENTS": "AGENTS.md",
+    "CLAUDE": "CLAUDE.md",
+    "workflow_guide": "docs/maintenance/agent-workflow-orchestration.md"
+  },
+  "model_identity": "UNRESOLVED",
+  "agent_executor": "UNAVAILABLE_IN_CURRENT_TOOL_RUNTIME",
+  "isolation_verified": false,
+  "blinded_evaluator": "NOT_ASSIGNED",
+  "fixed_task_bundles": "NOT_FROZEN",
+  "hidden_tests": "NOT_FROZEN",
+  "budget": "NOT_FROZEN",
+  "randomization": "deterministic_sha256_counterbalanced_arm_order_from_frozen_task_ids",
+  "run_plan": {
+    "cases": 30,
+    "arms": [
+      "control",
+      "treatment"
+    ],
+    "planned_runs": 60,
+    "repetitions_per_cell": 1
+  },
+  "primary_outcome": "binary_independent_verified_task_success",
+  "secondary_outcomes": [
+    "elapsed_seconds",
+    "total_tokens",
+    "provider_cost_usd",
+    "rework_count",
+    "new_regressions",
+    "instruction_adherence"
+  ],
+  "no_promotion": "No general agent improvement, model improvement, independent validation, or FAR theory status promotion follows from this Research package.",
+  "current_execution": {
+    "status": "NOT_EXECUTED",
+    "reason": "No matched isolated agent executor/model identity or frozen runnable case bundles and independent adjudicator. Historical PRs are candidate tasks, not completed task specifications."
+  },
+  "historical_candidates": [
+    {
+      "id": "H001",
+      "pr": 598,
+      "task_title": "Reconcile cognitive prior art and pin QURI comparator prerequisites",
+      "base_commit": "9f17433abb55f6359524845e84fe420d70d7b195",
+      "historical_candidate_head": "3471157f111982f4b974953005df5ade60d54c0b",
+      "merged_at": "2026-10-27T16:37:48Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/598",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H002",
+      "pr": 596,
+      "task_title": "Add bounded cognitive/epistemic audit and reconcile recoverable research signals",
+      "base_commit": "8f0e8e330d8f11a629447e23f3d00e6a5f81c1e6",
+      "historical_candidate_head": "a591f9d3699ca881717edf484db072b99cfa52f8",
+      "merged_at": "2026-10-27T15:57:05Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/596",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H003",
+      "pr": 594,
+      "task_title": "CI: avoid receipt fallback for explicit Codex finding state",
+      "base_commit": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+      "historical_candidate_head": "a3caa4517d87ba02d9f31c1212936646df67af71",
+      "merged_at": "2026-10-27T01:29:32Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/594",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H004",
+      "pr": 593,
+      "task_title": "Research: execute internal investigation evaluation and unify research operations",
+      "base_commit": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+      "historical_candidate_head": "5bb6cfd79cce0384e79e684c0ff795e308de94c5",
+      "merged_at": "2026-10-27T01:43:51Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/593",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H005",
+      "pr": 589,
+      "task_title": "Fix required review checks to use an eligible trusted PR event",
+      "base_commit": "e4d936ca0ba9770be6f72e0435220987882f4146",
+      "historical_candidate_head": "12790f898cde0c5f5ec42398b94179d3eba942b1",
+      "merged_at": "2026-10-26T23:32:44Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/589",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H006",
+      "pr": 588,
+      "task_title": "Research: reconcile scheduled FAR streams into source-bounded intake",
+      "base_commit": "e4d936ca0ba9770be6f72e0435220987882f4146",
+      "historical_candidate_head": "42b51215418448d10f50a1153cb302da4bcfcb29",
+      "merged_at": "2026-10-26T23:32:44Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/588",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H007",
+      "pr": 587,
+      "task_title": "Governance: stage read-only review-convergence branch-protection cutover audit",
+      "base_commit": "1e4d25aa09095f950e64954161b8630fb83f718d",
+      "historical_candidate_head": "ee7cb68def6dfb403174dda3daf4f3323f522984",
+      "merged_at": "2026-10-20T20:10:16Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/587",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H008",
+      "pr": 586,
+      "task_title": "Governance: exact-head review convergence for every future PR",
+      "base_commit": "959a2c3cce9935963882b7856c7de31d54179ac5",
+      "historical_candidate_head": "fbd2ec430ef4cdeffc0ce7a6edf04274bc97b508",
+      "merged_at": "2026-10-20T17:15:04Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/586",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H009",
+      "pr": 578,
+      "task_title": "Research: bounded investigation lab v0.4.6 and protected review convergence",
+      "base_commit": "e4d936ca0ba9770be6f72e0435220987882f4146",
+      "historical_candidate_head": "73fb003db601e6453526b4aa64999bbc6a11a3f3",
+      "merged_at": "2026-10-26T23:32:42Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/578",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H010",
+      "pr": 577,
+      "task_title": "Fix living promotion credentials, dispatch, and dependent corpus regeneration",
+      "base_commit": "40e984f163b6c9e06a58b345ae4bcd069595cd6b",
+      "historical_candidate_head": "7abfe81a1cf094d0fa1bf2403f231d494cea5601",
+      "merged_at": "2026-10-19T20:14:43Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/577",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H011",
+      "pr": 576,
+      "task_title": "Fix expired repin test authorization and its protected checksum",
+      "base_commit": "47f8685bd0d782bf50e85a307f501bab0fcd99fe",
+      "historical_candidate_head": "70a12b49130baffcb00c25ea387e1b5a7a56c812",
+      "merged_at": "2026-10-19T19:44:33Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/576",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H012",
+      "pr": 574,
+      "task_title": "Resolve living promotion App installation explicitly",
+      "base_commit": "f82fe15b6fbd022c9388e769b747b7fb13a73c09",
+      "historical_candidate_head": "4644645afd546e87dfefa3cf2d1b70d36d6c29dc",
+      "merged_at": "2026-10-01T12:06:43Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/574",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H013",
+      "pr": 573,
+      "task_title": "Fix scheduled living-research runtime entrypoints",
+      "base_commit": "d9b1b050904866ec197f535f06666d3a525d3d17",
+      "historical_candidate_head": "c94d1574b60317def5634905c6cc7f1abd00bdb5",
+      "merged_at": "2026-09-30T17:47:25Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/573",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H014",
+      "pr": 572,
+      "task_title": "Add governed FAR research corpus and deterministic living synthesis",
+      "base_commit": "8618384efe4576580f65ff67b02b22bac43ffc51",
+      "historical_candidate_head": "4fa5675fdada856c19811b5c6b1174da722164ae",
+      "merged_at": "2026-09-30T11:21:48Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/572",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H015",
+      "pr": 571,
+      "task_title": "research: reconstruct SATURATION-FALSIFICATION-001",
+      "base_commit": "052cf2cf04401d81dba337912f214fec1820c7ea",
+      "historical_candidate_head": "bd6fa4083ef4f9fdbb8ecc5e2bbe93b3f372b205",
+      "merged_at": "2026-10-19T21:43:18Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/571",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H016",
+      "pr": 565,
+      "task_title": "Open living-promotion PRs with a least-privilege App so merge-authority runs on them",
+      "base_commit": "588a61c508a0a897bed471e61ddf9084439aeb3c",
+      "historical_candidate_head": "3894b1b1e6bbaae9f17aa06ab155224a725965f4",
+      "merged_at": "2026-09-26T18:02:23Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/565",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H017",
+      "pr": 560,
+      "task_title": "Integrate owner-signed protected repins into weakening assurance",
+      "base_commit": "95834dab9f9b1f24e4c9ac8417134b520548f1c4",
+      "historical_candidate_head": "6787ed42d786a606ef588e7b7533d95d8bcb0c4d",
+      "merged_at": "2026-09-27T22:46:27Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/560",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H018",
+      "pr": 551,
+      "task_title": "Bootstrap AgePony owner authorization and App-bound protected-repin gate",
+      "base_commit": "7fb4816e4aa53aed749b7008b46ba9393d3d29b2",
+      "historical_candidate_head": "ebf3258823102771605679cd4308cce219e31cc8",
+      "merged_at": "2026-09-25T19:06:32Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/551",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H019",
+      "pr": 550,
+      "task_title": "test: close assurance gaps found by the test-suite audit",
+      "base_commit": "515ea85e206dd23367c76f49e0a18b4029149f75",
+      "historical_candidate_head": "61949d288fb1cc62d1a32da3c74560725e1c5605",
+      "merged_at": "2026-09-29T01:24:09Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/550",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H020",
+      "pr": 548,
+      "task_title": "Root-of-trust audit: correct verifiers as versioned successors; repair validators and gates",
+      "base_commit": "e7224180cdda26a96396a6415a971ebe7e85fdf4",
+      "historical_candidate_head": "cfed8bb22c9209dfc718446595e3446e2d8b2649",
+      "merged_at": "2026-09-28T21:20:50Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/548",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H021",
+      "pr": 538,
+      "task_title": "Harden verifier and CI from repository red-team audit",
+      "base_commit": "35b61469e35a2636ce8c049c38ca48701a2941c4",
+      "historical_candidate_head": "848cbd7e0be9b7250509c858780b16fa19c4a3ae",
+      "merged_at": "2026-09-28T08:03:08Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/538",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H022",
+      "pr": 535,
+      "task_title": "Fix living-promotion reconciliation verification",
+      "base_commit": "72bacbedafbc26c3370ffbdb0460c3a78aea4187",
+      "historical_candidate_head": "2d25e493c6df04df2aa465af545fd1ca70f6ed49",
+      "merged_at": "2026-09-23T22:15:41Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/535",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H023",
+      "pr": 534,
+      "task_title": "research: make adjudication ordering tie-deterministic",
+      "base_commit": "b307f7a11d5b6f5b72747f6604d363d75d2d59b7",
+      "historical_candidate_head": "a7e519472dfc906fd08466cbbad95f56035e0cfc",
+      "merged_at": "2026-09-23T19:58:40Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/534",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H024",
+      "pr": 533,
+      "task_title": "Add fail-closed FAR subagent orchestration layer",
+      "base_commit": "2993bc2faa25335218c687133057ca6ec0ad6650",
+      "historical_candidate_head": "109f58bb7621bb41325ce3066178f4baa31f8234",
+      "merged_at": "2026-09-23T21:17:41Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/533",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H025",
+      "pr": 530,
+      "task_title": "Add far-epistemic/1.0 application interchange: schema, mechanization, CLI, example, and tests",
+      "base_commit": "55a3320144cd40ebb9453aad1428bea55081e129",
+      "historical_candidate_head": "f096f7aaeee0c656f04887ef7949f672ecc681bd",
+      "merged_at": "2026-09-23T19:34:05Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/530",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H026",
+      "pr": 526,
+      "task_title": "Add bounded expertise, epistemic boundary, and elenchus contracts",
+      "base_commit": "55a3320144cd40ebb9453aad1428bea55081e129",
+      "historical_candidate_head": "59dc71f967a0da87b5117f582c0403a7d39fddac",
+      "merged_at": "2026-09-23T19:21:05Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/526",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H027",
+      "pr": 525,
+      "task_title": "Harden autonomous living review after post-merge audit",
+      "base_commit": "55a3320144cd40ebb9453aad1428bea55081e129",
+      "historical_candidate_head": "bef34e9661f6e727a3dcd06f331ed8b38e6dc2a3",
+      "merged_at": "2026-09-23T18:17:54Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/525",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H028",
+      "pr": 524,
+      "task_title": "Close unresolved review gaps from FAR evidence-closure correction",
+      "base_commit": "a0e71819463cdb5f96106892765f7b7b83279b62",
+      "historical_candidate_head": "eb15052ed67748b2d7de34ad339a4673c6e43037",
+      "merged_at": "2026-09-23T15:21:35Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/524",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H029",
+      "pr": 522,
+      "task_title": "Automate living-research adjudication to human-review PRs",
+      "base_commit": "2cba79aba3a8e747acba7f133a0c278569862f10",
+      "historical_candidate_head": "2e0bdfe2ed9c0a6844b25da9f8ea4b0027ed7377",
+      "merged_at": "2026-09-22T23:23:36Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/522",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    },
+    {
+      "id": "H030",
+      "pr": 521,
+      "task_title": "Promote FAR epistemic-assurance saturation delta v0.4",
+      "base_commit": "31e2b7003d8e1b94f0b393b838fb606018328a2c",
+      "historical_candidate_head": "c87b6dea9c7274bd10ed4293ffb51b44c687485c",
+      "merged_at": "2026-09-23T21:03:22Z",
+      "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/521",
+      "case_status": "HISTORICAL_CANDIDATE_NOT_TASK_READY"
+    }
+  ]
+}
