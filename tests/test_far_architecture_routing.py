@@ -111,6 +111,35 @@ class ArchitectureRoutingTests(unittest.TestCase):
         with self.assertRaises(PilotError):
             execute(self.p["cases"][0], "agent", self.p, "arbitrary_action")
 
+    def test_action_outcome_contradiction_cannot_forge_success(self):
+        # Regression for Codex RTE-004: abstention must never score as a verdict.
+        records = replay(self.p, {c["id"]: "abstain" for c in self.p["cases"]})["records"]
+        fake = copy.deepcopy(records)
+        labels = {c["id"]: c["expected"] for c in self.p["cases"]}
+        for r in fake:
+            if r["arm"] == "agent":
+                r["outcome"] = labels[r["case_id"]]
+                r["correct"] = True
+        with self.assertRaisesRegex(PilotError, "action-outcome mismatch"):
+            analyze(self.p, fake)
+        fake = copy.deepcopy(records)
+        next(r for r in fake if r["arm"] == "agent")["action"] = "verify"
+        with self.assertRaisesRegex(PilotError, "action-outcome mismatch"):
+            analyze(self.p, fake)
+        fake = copy.deepcopy(records)
+        next(r for r in fake if r["arm"] == "deterministic")["action"] = "abstain"
+        with self.assertRaisesRegex(PilotError, "action mismatch"):
+            analyze(self.p, fake)
+
+    def test_fake_verified_outcome_rejected_even_when_correct_flag_agrees(self):
+        records = replay(self.p, {c["id"]: "verify" for c in self.p["cases"]})["records"]
+        fake = copy.deepcopy(records)
+        target = next(r for r in fake if r["arm"] == "declarative")
+        target["outcome"] = "NO_VERDICT"
+        target["correct"] = False
+        with self.assertRaisesRegex(PilotError, "action-outcome mismatch"):
+            analyze(self.p, fake)
+
     def test_self_reported_model_records_remain_unverified(self):
         records = replay(self.p, {c["id"]: "verify" for c in self.p["cases"]})["records"]
         for r in records:
