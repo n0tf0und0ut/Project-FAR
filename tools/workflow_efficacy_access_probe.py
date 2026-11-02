@@ -46,7 +46,7 @@ def probe(key):
         parts = data["candidates"][0]["content"]["parts"]
         answer = "".join(p.get("text", "") for p in parts if p.get("thought") is not True)
         version = data.get("modelVersion")
-        if not isinstance(version, str) or not version.strip() or not answer.strip():
+        if not isinstance(version, str) or not version.strip() or answer.strip() != "READY":
             raise ValueError("malformed response")
         return dict(result, status="ACCESS_VERIFIED", http_status=status,
                     observed_model_version=version,
