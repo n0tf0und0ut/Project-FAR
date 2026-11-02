@@ -8,6 +8,7 @@ import argparse
 import base64
 import hashlib
 import json
+import os
 import platform
 import re
 import statistics
@@ -155,7 +156,7 @@ def run_case(case, arm, protocol, endpoint, inference_fn):
     return record, event
 
 
-def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
+def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision, progress=None):
     if endpoint != ENDPOINT:
         raise PilotError("unexpected endpoint")
     if file_sha256(model_path) != MODEL_SHA256:
@@ -196,6 +197,20 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
                 "request_body": event["request_body"],
                 "decision": event["action"],
             })
+        if progress is not None:
+            # Fail-closed, per-cell checkpoint. The caller must use atomic persistence
+            # so earlier model responses survive a later timeout/invalid completion.
+            progress({
+                "schema": "far-architecture-local-model-partial/0.3",
+                "status": "INCOMPLETE",
+                "completed_cells": len(records),
+                "model_events": len(raw_events),
+                "model_artifact_sha256": MODEL_SHA256,
+                "binary_archive_sha256": BINARY_RELEASE_SHA256,
+                "records": records,
+                "raw_model_events": raw_events,
+                "claim": "NOT_ESTABLISHED",
+            })
     if len(raw_events) != MAX_CALLS:
         raise PilotError("missing model call / incomplete paired experiment")
     models = {r["observed_model"] for r in records if r["arm"] == "agent"}
@@ -235,25 +250,47 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
     }
 
 
+def persist_progress(snapshot, target):
+    """Atomically preserve every completed case, including raw model evidence.
+
+    A partial file is deliberately not eligible for the complete-run analyzer.
+    """
+    path = Path(target)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(snapshot, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--endpoint", default=ENDPOINT)
     args = parser.parse_args(argv)
+    partial_path = args.output.with_name(args.output.stem + ".partial.json")
     try:
-        result = run(load(), args.model, endpoint=args.endpoint)
-        import os
+        result = run(load(), args.model, endpoint=args.endpoint,
+                     progress=lambda snapshot: persist_progress(snapshot, partial_path))
         result["workflow_run_sha"] = os.environ.get("GITHUB_SHA")
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        # Full observation must be safely retained before partial is cleared.
+        persist_progress(result, args.output)
+        partial_path.unlink(missing_ok=True)
         print(json.dumps({"status": result["status"], "summary": result["summary"],
                           "model_identity_reported": result["model_identity_reported"],
                           "latency_ratio": result["agent_to_deterministic_median_latency_ratio"],
                           "claim": result["claim"]}, sort_keys=True))
         return 0
     except (PilotError, OSError, TypeError, ValueError) as exc:
-        print(json.dumps({"status": "NOT_EXECUTED", "reason": str(exc),
+        # If one or more model calls occurred, the atomic partial remains
+        # replayable even though there is no complete experiment to score.
+        failure_path = args.output.with_name(args.output.stem + ".failure.json")
+        persist_progress({"status": "FAILED_OR_INCOMPLETE", "reason_class": type(exc).__name__,
+                          "reason": str(exc), "claim": "NOT_ESTABLISHED",
+                          "partial_path": partial_path.name if partial_path.exists() else None},
+                         failure_path)
+        print(json.dumps({"status": "FAILED_OR_INCOMPLETE", "reason": str(exc),
                           "claim": "NOT_ESTABLISHED"}), file=sys.stderr)
         return 2
 
