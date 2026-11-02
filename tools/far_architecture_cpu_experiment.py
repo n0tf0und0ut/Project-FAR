@@ -167,7 +167,8 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
             or prereg.get("model", {}).get("weights_sha256") != MODEL_SHA256
             or prereg.get("model", {}).get("binary_sha256") != BINARY_RELEASE_SHA256
             or prereg.get("model", {}).get("model_calls") != MAX_CALLS
-            or prereg.get("design", {}).get("cells") != 36):
+            or prereg.get("case_count") != MAX_CALLS
+            or prereg.get("arms") != list(ARMS)):
         raise PilotError("v0.3 preregistration and execution do not match")
     by_id = {c["id"]: c for c in protocol["cases"]}
     # Reject non-distinguishable submissions: v0.1 had all-identical prompts;
