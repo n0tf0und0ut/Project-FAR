@@ -27,6 +27,8 @@ python -m unittest tests.test_far_routing_dispatch tests.test_far_uncertain_rout
 python tools/far_uncertain_routing_pilot.py validate
 ```
 
+The first model workflow [executed successfully](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41529666605). The model chose `ASK_SCOPE` on all twelve under-specified tasks, yielding 11/12 admissible suggestions against the publicly authored sets. An `always ASK_SCOPE` deterministic policy ties **11/12**, without inference cost; **adaptive routing benefit was not demonstrated**. Full raw-artifact SHA-256 records, case/rubric limitations, token and timing totals are in [execution-v0.1.md](execution-v0.1.md). The scored runner now checks every constant-action alternative and number of distinct model actions, without changing task labels or historical observations.
+
 A successful workflow supports only task-author-set admissibility counts for this curated small model/corpus, not a frontier-agent superiority claim, a unique best route, general reasoning reliability, or customer value. Results stay in Research. A genuine system-level adaptive-routing comparison still requires competing executable tools, matched evidence budgets, independent task ground truth or a justified set-valued oracle, and credible held-out cases. No production model escalation is authorized by this pilot.
 
 ## Verification and governance
