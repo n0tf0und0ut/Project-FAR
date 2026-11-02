@@ -142,10 +142,10 @@ def route_text(raw: str, *, mode: str = "deterministic") -> dict:
     if not result.success:
         return _discovery(digest, "DOWNSTREAM_CONTRACT_REJECTED",
                           format_version=version, diagnostics=diagnostics)
-    reported = doc.get("report", {}).get("outcome")
-    # The verifier determines validity; never manufacture a determinate outcome.
-    if reported not in ("PROVED", "REFUTED"):
-        return _discovery(digest, "OUTCOME_NOT_DETERMINATE", format_version=version)
+    reported = doc["report"]["outcome"]
+    # Semantic validity is independent of whether the result is determinate.
+    # The canonical verifier already validated the typed outcome and evidence.
+    # OPEN/Unknown/UNDERDETERMINED remain valid *non-proof* records.
     return {
         "status": "VERIFIED_EXPLICIT_CONTRACT",
         "source_sha256": digest,
@@ -168,7 +168,9 @@ def main(argv=None) -> int:
     parser.add_argument("--mode", choices=sorted(ALLOWED_MODES), default="deterministic")
     args = parser.parse_args(argv)
     try:
-        raw = sys.stdin.read() if args.path == "-" else Path(args.path).read_text(encoding="utf-8")
+        # Preserve exact transport bytes: read_text() silently maps CRLF to LF.
+        source = sys.stdin.buffer.read() if args.path == "-" else Path(args.path).read_bytes()
+        raw = source.decode("utf-8", errors="strict")
         output = route_text(raw, mode=args.mode)
     except (OSError, ValueError, UnicodeError) as exc:
         print(json.dumps({"status": "INPUT_UNAVAILABLE", "error_class": type(exc).__name__,
