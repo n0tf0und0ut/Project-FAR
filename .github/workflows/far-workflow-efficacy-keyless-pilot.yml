@@ -26,7 +26,7 @@ jobs:
       - name: Validate only offline pilot contracts
         run: |
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent tests.test_workflow_efficacy_free_agent_analysis -v
-          python tools/workflow_efficacy_free_agent.py contract
+          python -m tools.workflow_efficacy_free_agent contract
       - name: Install pinned agent CLI
         run: |
           npm install -g opencode-ai@1.19.3
@@ -78,7 +78,7 @@ jobs:
       - name: Preflight frozen local corpus and runner
         run: |
           python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
-          python tools/workflow_efficacy_free_agent.py contract
+          python -m tools.workflow_efficacy_free_agent contract
           docker pull python:3.12-slim
       - name: Install pinned coding agent CLI
         run: |
@@ -90,7 +90,7 @@ jobs:
           CI: "true"
           OPENCODE_DISABLE_AUTOUPDATE: "1"
         run: |
-          python tools/workflow_efficacy_free_agent.py run-pair \
+          python -m tools.workflow_efficacy_free_agent run-pair \
             --index ${{ matrix.index }} --output "research/workflow-efficacy/pilot-out/pair-${{ matrix.index }}.json"
       - name: Preserve model-backed evidence
         if: always()
@@ -123,7 +123,7 @@ jobs:
           merge-multiple: true
       - name: Compute fail-closed exploratory descriptive analysis
         run: |
-          python tools/workflow_efficacy_free_agent_analysis.py \
+          python -m tools.workflow_efficacy_free_agent_analysis \
             --results research/workflow-efficacy/evidence --output research/workflow-efficacy/result/pilot-report.json
       - name: Preserve report even when incomplete
         if: always()
