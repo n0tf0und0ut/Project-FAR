@@ -112,6 +112,38 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(result["summary"]["unsafe_verification"], 12)
         self.assertEqual(result["summary"]["agent_admissible"], 0)
 
+    def test_malformed_http_200_preserves_raw_response_and_request_in_partial(self):
+        # Regression for Codex: missing model telemetry must never discard bytes
+        # already received from an actual HTTP 200 model call.
+        class BadResponse(FakeResponse):
+            def __init__(self):
+                self.raw = b'{"model":"local","choices":[{"message":{"content":"ASK_SCOPE"}}]}'
+
+        with tempfile.TemporaryDirectory() as directory:
+            partial = Path(directory) / "raw-failure.json"
+            def store(record):
+                study.persist(partial, record)
+            with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
+                with patch("urllib.request.urlopen", return_value=BadResponse()):
+                    with self.assertRaises(study.ModelResponseError):
+                        study.evaluate(
+                            self.p, self.digest, Path("/fake"),
+                            checkpoint=store,
+                        )
+            artifact = json.loads(partial.read_text())
+            self.assertEqual(artifact["status"], "FAILED_OR_INCOMPLETE")
+            self.assertEqual(artifact["completed"], 0)
+            failed = artifact["failed_model_call"]
+            self.assertEqual(failed["case_id"], self.p["tasks"][0]["id"])
+            envelope = failed["raw_envelope"]
+            self.assertEqual(
+                hashlib.sha256(base64.b64decode(envelope["raw_response_base64"])).hexdigest(),
+                envelope["response_sha256"])
+            self.assertEqual(
+                hashlib.sha256(json.dumps(
+                    envelope["request"], sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
+                envelope["request_sha256"])
+
     def test_partial_evidence_survives_second_model_timeout(self):
         calls = 0
         def broken(prompt):
