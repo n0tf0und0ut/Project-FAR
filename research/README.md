@@ -18,6 +18,7 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.
 - [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — non-executed, exploratory 30-candidate paired trial of agent workflow instruction efficacy; no measured performance claim.
+- [`uncertain-routing/README.md`](uncertain-routing/README.md) — research-only explicit-contract dispatch gate and separately scored under-specified agent-choice pilot; no general architecture promotion.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.
