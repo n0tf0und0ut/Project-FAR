@@ -1,19 +1,43 @@
-# FAR architecture routing — bounded comparison
+# FAR architecture routing — bounded research pilot
 
-Status: Research / NOT EXECUTED. This work does not modify FAR Core, accepted methodology, or the current contract verifier.
+**Status: Research / fixed-policy execution available / model experiment NOT EXECUTED.**
 
-## Question
+## Question and scope
 
-For an explicit finite FAR comparison contract, does model-directed selection of the verification tool improve correct outcomes or efficiency over deterministic routing and a declarative workflow? The three arms must use the same current semantic verifier and frozen source records. The intervention is routing policy, not the verifier or the evidence.
+For a fully explicit `far-ir/2.0` contract, does language-model-controlled tool selection produce more correct outcomes or lower verified cost than direct deterministic routing or a declarative workflow? This is a routing experiment, separate from PR #603's coding-agent *instruction* experiment. It does not evaluate natural-language claim extraction or open-ended epistemic investigation, and it alters no FAR Core, accepted methodology, or canonical verifier.
 
-## Preregistered scope
+Twelve fixed inputs from existing conformance fixtures and four W4 domain pairs are recorded in [protocol-v0.1.json](protocol-v0.1.json), with original Git blob SHAs as of `4e71c7de4457001fd35a65f9b4804d60aac1c4f2`. The source validator checks byte identity before parsing or execution. The reference labels (`PROVED`, `REFUTED`, `INVALID`) are project-authored and publicly visible: they are **not** independently held-out scoring data.
 
-The initial corpus comprises the four existing far-ir/2.0 conformance cases and four pairs from the W4 formal-logic, argumentation, Bayesian/causal, and model-based domains. Exact source blobs and expected categorical outcomes will be frozen before execution. Three arms per twelve cases make 36 paired-by-case cells, counterbalanced across all six possible arm orders. An invalid response, abstention, missing output, or timeout counts as failure.
+The three arms share `mechanization.far_mechanization.contract_v2_strict_v11.validate_contract`: direct routing, a declared single-step workflow, and a bounded external choice between `verify` and `abstain`. The protocol registers 36 case-arm cells and all six permutations of arm order twice. In smoke and replay the cells execute in that registered order (smoke skips only agent cells). `NO_VERDICT` is counted as incorrect, not removed from the denominator. Source text cannot grant authority to select arbitrary tools.
 
-Primary outcome is exact match to frozen, independently evaluated categorical validity and report outcome. Secondary outcomes are elapsed time, token consumption, provider cost, and unapproved actions. Compare complete-case counts alongside intention-to-treat results; never drop failures to inflate success. Both model and execution environment identity must be frozen before a live test.
+## Execute and inspect
 
-## Required execution gates
+From the repository root:
 
-A model snapshot, tool interface, isolated runner, frozen task bundles, blinded independent oracle, concealed scoring cases, cost and token ceilings, randomized schedule, trusted execution logs, and permission to incur API cost remain unresolved. The labels in existing conformance documents are project-authored and publicly visible. Therefore the initial set is a *functional routing regression corpus*, not an unbiased external benchmark.
+```bash
+python tools/far_architecture_routing.py schedule
+python tools/far_architecture_routing.py smoke
+python -m unittest tests.test_far_architecture_routing -v
+```
 
-No numerical model-performance, causal, efficiency, general reliability, or architectural-superiority claim is established by this registration. The planned experiment is distinct from PR #603, which tests coding-agent instruction efficacy. Follow the Research Execution Charter, canonical FAR workflow, current far-ir/2.0 verification rule, and hostile-source boundary.
+For package-module invocation, `python -m tools.far_architecture_routing smoke` is also supported. The smoke run executes 24 verifications across the two fixed arms and reports the exact count and failures, with `LOCAL_SMOKE_ONLY` and `model_runs: 0`. The tests exercise actual current-verifier results, direct-script invocation, arm-order counterbalancing, hash mismatch, output falsification, missing/duplicate runs and abstentions. Green CI demonstrates internal conformance only.
+
+The external decision interface can be **rehearsed** by putting all twelve case IDs (`A01`–`A12`) into a JSON object with values `"verify"` or `"abstain"`, then running:
+
+```bash
+python tools/far_architecture_routing.py replay --decisions decisions.json
+```
+
+Extract the JSON `records` array into `records.json` and analyze it with:
+
+```bash
+python tools/far_architecture_routing.py analyze --records records.json
+```
+
+Scripted runs are labeled `SCRIPTED_REPLAY_ONLY`; records that merely **claim** to have come from a model are labeled `UNVERIFIED_MODEL_REPORTS` even if every metadata field is filled. Neither can produce a scientific efficacy verdict. `elapsed_ms` times the local action invocation, with the verifier imported before timing; it excludes input file loading, external model reasoning, network transit, and end-to-end orchestration. Such timings cannot establish a model-related efficiency advantage.
+
+## Blocked empirical study
+
+A real model-backed trial still requires a frozen model build, independent executor, stable tool-access policy, isolatable prompt and tool traces, verified model outputs, retained raw evidence, identical source visibility, independently held-out evaluation, token/time/cost ceilings, and a bounded cost authorization. These are unresolved. No endpoint is invoked and no tokens are spent in this package. A full three-arm outcome is therefore **NOT ESTABLISHED**. This small deterministic corpus cannot support claims about agent usefulness on unfamiliar or ambiguous reasoning tasks even if a future model run is completed.
+
+The [Research Execution Charter](../../docs/governance/research-execution-charter.md), [canonical FAR workflow](../../frameworks/FAR/workflow.md), [current verifier](../../docs/specification/far-ir-2.0-current-verification.md) and [hostile-source boundary](../../methodology/hostile-source-boundary.md) remain authoritative. The experiment does not promote a finding, claim novelty or justify an architectural replacement.
