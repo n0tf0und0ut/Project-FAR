@@ -136,6 +136,45 @@ class RealInvestigationTests(unittest.TestCase):
         self.assertNotEqual(retained["request_sha256"], env["request_sha256"])
         self.assertEqual(checkpoints[-1]["verifier_calls"], 0)
 
+    def test_malformed_source_bytes_retained_before_initial_parse(self):
+        raw = b'{"tag_name":'
+        evidence = []
+        def invalid_fetch(name):
+            return raw if name == "latest" else gh_list(), inv.now()
+        with self.assertRaisesRegex(inv.InvestigationError, "source not strict JSON"):
+            inv.execute("deterministic", fetcher=invalid_fetch, checkpoint=evidence.append)
+        saved = evidence[-1]
+        self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+        receipt = saved["receipts"]["latest"]
+        self.assertEqual(base64.b64decode(receipt["raw_base64"]), raw)
+        self.assertEqual(receipt["sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(receipt["parsed"], None)
+        self.assertIn("source not strict JSON", receipt["parse_error"])
+        self.assertEqual(saved["verifier_calls"], 0)
+        self.assertIsNone(saved["frozen"])
+
+    def test_malformed_source_bytes_retained_before_recheck_parse(self):
+        raw = b'{"tag_name":"v1.0.0","id":null,"draft":false,"prerelease":false}'
+        seen = Counter()
+        evidence = []
+        def invalid_recheck(name):
+            seen[name] += 1
+            if name == "latest" and seen[name] == 2:
+                return raw, inv.now()
+            return gh_latest() if name == "latest" else gh_list(), inv.now()
+        with self.assertRaisesRegex(inv.InvestigationError, "release metadata incomplete"):
+            inv.execute("deterministic", fetcher=invalid_recheck, checkpoint=evidence.append)
+        saved = evidence[-1]
+        self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+        recheck = saved["rechecks"][-1]
+        self.assertEqual(recheck["source"], "latest")
+        self.assertEqual(base64.b64decode(recheck["raw_base64"]), raw)
+        self.assertEqual(recheck["sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertIsNone(recheck["parsed"])
+        self.assertIn("release metadata incomplete", recheck["parse_error"])
+        self.assertIsNone(saved["frozen"])
+        self.assertEqual(saved["verifier_calls"], 0)
+
     def test_network_drift_aborts_without_freeze_and_preserves_partial(self):
         f, calls = fake_sources(change=True)
         last = []
