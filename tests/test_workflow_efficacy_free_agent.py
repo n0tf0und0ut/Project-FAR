@@ -21,7 +21,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(len(CONTROL_SHA), 40)
         self.assertEqual(len(TREATMENT_SHA), 40)
         self.assertGreater(MAX_SECONDS, 0)
-        self.assertEqual(MODEL, "opencode/big-pickle")
+        self.assertEqual(MODEL, "opencode/glm-5.3-flash-free")
     def test_no_external_access_allowed(self):
         p = SAFE_CONFIG["permission"]
         self.assertEqual(p["external_directory"], "deny")
