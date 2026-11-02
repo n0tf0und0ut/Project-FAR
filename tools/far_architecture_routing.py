@@ -12,6 +12,12 @@ from itertools import permutations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Direct `python tools/...py` and `python -m tools...` must resolve the same pinned verifier.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from mechanization.far_mechanization.contract_v2_strict_v11 import validate_contract as _validate_contract
+
 SOURCE = ROOT / "research/architecture-routing/protocol-v0.1.json"
 ARMS = ("deterministic", "declarative", "agent")
 
@@ -71,8 +77,7 @@ def source_document(case):
 
 
 def verify(doc):
-    from mechanization.far_mechanization.contract_v2_strict_v11 import validate_contract
-    result = validate_contract(doc)
+    result = _validate_contract(doc)
     if not result.success:
         return "INVALID"
     outcome = doc.get("report", {}).get("outcome")
@@ -103,7 +108,9 @@ def execute(case, arm, p, decision=None):
 
 
 def smoke(p):
-    rows = [execute(c, arm, p) for c in p["cases"] for arm in ARMS[:2]]
+    cases = {c["id"]: c for c in p["cases"]}
+    rows = [execute(cases[cell["case_id"]], cell["arm"], p)
+            for cell in plan(p) if cell["arm"] != "agent"]
     wrong = [r for r in rows if not r["correct"]]
     return {"status": "LOCAL_SMOKE_ONLY", "runs": len(rows), "correct": len(rows) - len(wrong),
             "failures": wrong, "model_runs": 0, "claim": "NOT_ESTABLISHED"}
@@ -112,8 +119,10 @@ def smoke(p):
 def replay(p, decisions):
     if type(decisions) is not dict or set(decisions) != {c["id"] for c in p["cases"]}:
         raise PilotError("agent decision case set mismatch")
-    rows = [execute(c, arm, p, decisions[c["id"]] if arm == "agent" else None)
-            for c in p["cases"] for arm in ARMS]
+    cases = {c["id"]: c for c in p["cases"]}
+    rows = [execute(cases[cell["case_id"]], cell["arm"], p,
+                    decisions[cell["case_id"]] if cell["arm"] == "agent" else None)
+            for cell in plan(p)]
     return {"status": "SCRIPTED_REPLAY_ONLY", "records": rows,
             "model_runs": 0, "claim": "NOT_ESTABLISHED"}
 
