@@ -29,5 +29,5 @@ jobs:
           python tools/workflow_efficacy_access_probe.py contract
       - name: Query previously studied Gemini model once
         env:
-          GEMINI_API_KEY: \${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python tools/workflow_efficacy_access_probe.py probe
