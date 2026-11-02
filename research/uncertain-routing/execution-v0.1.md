@@ -40,3 +40,18 @@ The successor code adds a mechanical comparison against **every** constant actio
 - Avoid turning model refusal/clarification into a verified judgment or assigning a unique gold action where none is identifiable. The test intentionally did not execute evidence retrieval, intake search or semantic verification.
 
 See [the frozen v0.1 task rubric](frozen-v0.1.json), [the research execution charter](../../docs/governance/research-execution-charter.md), and [the accepted contract discovery protocol](../../methodology/contract-discovery-protocol.md).
+
+## Exact-head replication with comprehensive constant-action baselines
+
+The revised scorer and regression tests passed on [run 41530341829](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41530341829), exact head `ad227c9adde589e3da043cc5388136e01c97b0e7`. [Artifact 13182326053](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41530341829/artifacts/13182326053) ZIP SHA-256 `fcd5b8233c82612d4e55dab643d3ea5296cf9c289eae38dbdd76e10436e7a627`, `results.json` SHA-256 `a6b792b4ec60c9890160507b5943b6ac14e98e3402e9ca56b273b285ba7b01b6`. All 12 raw request and response SHA pairs were independently recomputed and matched; the protocol SHA remained unchanged.
+
+| Constant strategy or model | Task-author-set admissible |
+|---|---:|
+| Always ASK_SCOPE | **11/12** |
+| Always PRESERVE_UNKNOWN | 7/12 |
+| Always DISCOVER_CONTRACT | 6/12 |
+| Always GATHER_EVIDENCE | 5/12 |
+| Always VERIFY_EXPLICIT | 0/12 (unsafe) |
+| Actual model (ASK_SCOPE on all 12) | **11/12** |
+
+The exact-head model again selected `ASK_SCOPE` 12/12 times: `unique_model_actions = 1`, `model_minus_best_constant = 0`, 1,454 model tokens, median model request latency 254.7767 ms. Timing differs from the first run because runner conditions varied; that variability does not change the one-action/no-superiority conclusion. All results remain internal, task-author set-valued and nonindependent.
