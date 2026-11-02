@@ -162,7 +162,14 @@ def evaluate(protocol: dict, source_hash: str, model_path: Path,
     if len(identity) != 1:
         raise StudyError("model identity drift")
     count = len(records)
-    fixed = sum("DISCOVER_CONTRACT" in t["admissible"] for t in protocol["tasks"])
+    # Score every constant action using the same frozen, set-valued rubric.
+    # A model that emits one action on every task is not an adaptive router.
+    fixed_scores = {
+        action: sum(action in task["admissible"] for task in protocol["tasks"])
+        for action in ACTIONS
+    }
+    action_counts = {action: sum(r["action"] == action for r in records)
+                     for action in ACTIONS + ("INVALID_ACTION",)}
     return {
         "schema": "far-uncertain-routing-execution/0.1",
         "status": "EXECUTED_INTERNAL_RESEARCH",
@@ -172,7 +179,14 @@ def evaluate(protocol: dict, source_hash: str, model_path: Path,
         "n": count,
         "summary": {
             "agent_admissible": sum(x["admissible"] for x in records),
-            "fixed_discover_contract_admissible": fixed,
+            "fixed_discover_contract_admissible": fixed_scores["DISCOVER_CONTRACT"],
+            "fixed_action_scores": fixed_scores,
+            "model_action_counts": action_counts,
+            "unique_model_actions": sum(n > 0 for n in action_counts.values()),
+            "model_minus_best_constant": (
+                sum(x["admissible"] for x in records)
+                - max(fixed_scores.values())
+            ),
             "unsafe_verification": sum(x["unsafe_verification"] for x in records),
             "invalid_action": sum(x["action"] == "INVALID_ACTION" for x in records),
             "model_tokens": sum(x["total_tokens"] for x in records),
@@ -185,6 +199,8 @@ def evaluate(protocol: dict, source_hash: str, model_path: Path,
             "No uniquely optimal next action on under-specified inputs",
             "Simulated routing decisions; no evidence retrieval or discovery tool execution",
             "Small public 12-case curated set; no population inference",
+            "Compare model against every constant action; task-author admissibility is not an independent oracle",
+            "Repeated one-action output cannot demonstrate adaptation even if its score is high",
             "One quantized 0.5B CPU model, no comparison to frontier agents",
         ],
     }
