@@ -1,0 +1,53 @@
+name: FAR Workflow Efficacy Free-Agent Access Smoke
+on:
+  pull_request:
+    paths:
+      - tools/workflow_efficacy_internal_fixtures.py
+      - tools/workflow_efficacy_free_agent.py
+      - tests/test_workflow_efficacy_internal_fixtures.py
+      - tests/test_workflow_efficacy_free_agent.py
+      - .github/workflows/far-workflow-free-smoke.yml
+permissions:
+  contents: read
+jobs:
+  access-smoke:
+    # Only the named internal study branch. No credentials or task data sent.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref == 'research/workflow-efficacy-keyless-internal-pilot-v02'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout without persistent authentication
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Run offline corpus and runner tests
+        run: |
+          python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_workflow_efficacy_free_agent -v
+      - name: Install frozen free coding-agent CLI
+        run: |
+          npm install -g opencode-ai@1.19.3
+          test "$(opencode --version)" = '1.19.3'
+          opencode models | grep -F 'opencode/big-pickle'
+      - name: Check an excluded one-request non-task prompt
+        env:
+          CI: "true"
+          OPENCODE_DISABLE_AUTOUPDATE: "1"
+        run: |
+          mkdir -p "$RUNNER_TEMP/fwe-preflight"
+          cd "$RUNNER_TEMP/fwe-preflight"
+          timeout 150s opencode run -m opencode/big-pickle --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
+          python - "$RUNNER_TEMP/model-smoke.ndjson" <<'PY'
+          import os,sys
+          from pathlib import Path
+          sys.path.insert(0,os.environ["GITHUB_WORKSPACE"])
+          from tools.workflow_efficacy_free_agent import parse_events
+          m=parse_events(Path(sys.argv[1]).read_text())
+          print(m)
+          assert m["model_steps"]>0 and m["error_events"]==0 and m["reported_cost_usd"]==0
+          PY
