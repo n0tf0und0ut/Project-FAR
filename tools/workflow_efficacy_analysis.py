@@ -49,14 +49,23 @@ def planned_runs(protocol):
 
 
 def analyze(protocol, records):
+    # A fabricated JSONL cannot bypass prospectively frozen study prerequisites.
+    if (protocol.get("fixed_task_bundles") != "FROZEN"
+            or protocol.get("model_identity") in ("UNRESOLVED", None)
+            or protocol.get("agent_executor") in ("UNAVAILABLE_IN_CURRENT_TOOL_RUNTIME", None)
+            or protocol.get("isolation_verified") is not True
+            or protocol.get("blinded_evaluator") in ("NOT_ASSIGNED", None)
+            or protocol.get("budget") != "FROZEN"):
+        return {"status": "STUDY_PRECONDITIONS_UNMET", "claim": "NOT_ESTABLISHED"}
     expected = {x["run_id"]: x for x in planned_runs(protocol)}
     if len(records) != len(expected) or {r.get("run_id") for r in records} != set(expected):
         return {"status": "INCOMPLETE_OR_DUPLICATE", "expected_runs": 60,
                 "observed_runs": len(records), "claim": "NOT_ESTABLISHED"}
     seen = set()
     by_case = {}
+    global_identity = None
     required_identity = ("model_id", "runtime_hash", "tool_config_hash", "task_bundle_hash",
-                         "evaluator_id", "provenance_verified", "isolation_verified")
+                         "evaluator_id", "instruction_ref", "provenance_verified", "isolation_verified")
     for r in records:
         run = r["run_id"]
         if run in seen:
@@ -65,10 +74,18 @@ def analyze(protocol, records):
         expected_item = expected[run]
         if r.get("task_id") != expected_item["task_id"] or r.get("arm") != expected_item["arm"]:
             return {"status": "IDENTITY_MISMATCH", "claim": "NOT_ESTABLISHED"}
+        expected_instruction_ref = protocol[r["arm"] + "_instructions"]["repo_commit"]
+        if r.get("instruction_ref") != expected_instruction_ref:
+            return {"status": "INSTRUCTION_VERSION_MISMATCH", "claim": "NOT_ESTABLISHED"}
         if any(f not in r for f in required_identity):
             return {"status": "MISSING_PROVENANCE", "claim": "NOT_ESTABLISHED"}
         if r.get("provenance_verified") is not True or r.get("isolation_verified") is not True:
             return {"status": "UNVERIFIED_ISOLATION_OR_PROVENANCE", "claim": "NOT_ESTABLISHED"}
+        fingerprint = tuple(r[k] for k in ("model_id", "runtime_hash", "tool_config_hash", "evaluator_id"))
+        if global_identity is None:
+            global_identity = fingerprint
+        elif global_identity != fingerprint:
+            return {"status": "CROSS_TASK_MODEL_OR_TOOL_DRIFT", "claim": "NOT_ESTABLISHED"}
         if type(r.get("success")) is not bool:
             return {"status": "UNVERIFIED_OR_MISSING_OUTCOME", "claim": "NOT_ESTABLISHED"}
         if any(type(r.get(k)) not in (int, float) or not math.isfinite(r[k]) or r[k] < 0
@@ -93,7 +110,7 @@ def analyze(protocol, records):
     boot = sorted(sum(rng.choice(differences) for _ in differences) / len(differences) for _ in range(10000))
     def delta(field):
         return sum(t[field] - c[field] for c, t in pairs) / len(pairs)
-    return {"status": "COMPLETE_PAIRED_INTERNAL_EVIDENCE", "n_pairs": len(pairs),
+    return {"status": "STRUCTURALLY_VALID_SELF_REPORTED_PAIRED_DATA", "n_pairs": len(pairs),
             "treatment_success": sum(int(t["success"]) for _, t in pairs),
             "control_success": sum(int(c["success"]) for c, _ in pairs),
             "paired_success_delta": sum(differences)/len(differences),
@@ -105,7 +122,7 @@ def analyze(protocol, records):
             "mean_provider_cost_delta_usd": delta("provider_cost_usd"),
             "mean_rework_delta": delta("rework_count"),
             "mean_new_regression_delta": delta("new_regressions"),
-            "claim": "INTERNAL_MATCHED_RUNS_ONLY; NO_EXTERNAL_GENERALIZATION"}
+            "claim": "ARITHMETIC_ON_SUBMITTED_RECORDS_ONLY; INDEPENDENCE_AND_REALITY_REQUIRE_EXTERNAL_AUDIT"}
 
 
 def main(argv=None):
@@ -129,7 +146,7 @@ def main(argv=None):
         records = [json.loads(s) for s in args.runs.read_text().splitlines() if s.strip()]
         outcome = analyze(protocol, records)
     print(json.dumps(outcome, sort_keys=True, indent=2))
-    return 0 if outcome["status"] in {"COMPLETE_PAIRED_INTERNAL_EVIDENCE", "NOT_EXECUTED", "PLANNED_NOT_EXECUTED"} else 2
+    return 0 if outcome["status"] in {"STRUCTURALLY_VALID_SELF_REPORTED_PAIRED_DATA", "NOT_EXECUTED", "PLANNED_NOT_EXECUTED"} else 2
 
 
 if __name__ == "__main__":
