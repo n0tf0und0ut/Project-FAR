@@ -2,6 +2,10 @@
 
 **Status: Research, before live workflow execution.** This protocol adds *actual* source retrieval, contract discovery/freeze, semantic verifier calls and aggregation to the earlier routing-only pilot. It does not promote a new FAR Core theorem.
 
+## Prior exposure and non-independence
+
+The executor had already queried the same public GitHub API endpoints **before this preregistration was committed** and observed the candidate answer. This is a prospective lock on the subsequent workflow and source receipts, not blinded case selection, an independent held-out test, or an unbiased measurement of discovery ability. The authored claim and two interpretations were deliberately chosen for an executable integration test; do not promote successful run results to general search, novelty, or reasoning reliability.
+
 ## Falsifiable target
 
 Input: `Is the latest release tag of n0tf0und0ut/Project-FAR v1.0.0?`. Two materially plausible operational readings of "latest" are retained: the tag at GitHub's `/releases/latest` endpoint, and the first tag at `/releases?per_page=10` (not guaranteed to coincide). This is a bounded GitHub-API metadata inquiry, not a proof about the whole software publishing ecosystem or current GitHub UI.
