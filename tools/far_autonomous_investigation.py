@@ -317,7 +317,10 @@ def far_document(frozen: dict, candidate: dict, receipts: dict, timestamp: str) 
         "provenance": {
             "producer": "Project FAR bounded live GitHub release investigation",
             "created_at": timestamp,
-            "sources": [URLS["latest"], URLS["list"]],
+            "sources": [
+                {"path": URLS[name], "sha256": receipts[name]["sha256"]}
+                for name in ("latest", "list")
+            ],
         },
         "freeze": {
             "status": "FROZEN", "frozen_at": frozen["freeze"]["frozen_at"],
