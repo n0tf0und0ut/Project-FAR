@@ -86,6 +86,37 @@ class RunnerTests(unittest.TestCase):
             result = unauthorized_file_changes(folder, {"solution.py"})
             self.assertEqual(result, [".gitignore", "test_extra.py"])
 
+    def test_staged_forbidden_edit_remains_unauthorized(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            subprocess.run(["git", "init", "-q"], cwd=folder, check=True)
+            (folder / "solution.py").write_text("x=1\n")
+            (folder / "README.md").write_text("original\n")
+            subprocess.run(["git", "add", "."], cwd=folder, check=True)
+            subprocess.run(["git", "-c", "user.name=Test", "-c",
+                            "user.email=test@example.invalid", "commit", "-qm", "base"],
+                           cwd=folder, check=True)
+            (folder / "README.md").write_text("tampered\n")
+            subprocess.run(["git", "add", "README.md"], cwd=folder, check=True)
+            self.assertIn("README.md", unauthorized_file_changes(folder, {"solution.py"}))
+    def test_separate_arm_workspace_is_deleted_between_conditions(self):
+        import tempfile
+        from unittest.mock import patch
+        from tools.workflow_efficacy_free_agent import run_isolated_pair
+        roots = []
+        def fake_run(index, arm, root, evidence_root):
+            if roots:
+                self.assertFalse(roots[-1].exists(), "previous arm left secrets")
+            roots.append(root)
+            (root / "grade").mkdir()
+            (root / "grade" / "test_hidden.py").write_text("secret answer")
+            return {"arm": arm}
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("tools.workflow_efficacy_free_agent.run_arm", side_effect=fake_run):
+                output = run_isolated_pair(0, Path(tmp) / "evidence")
+        self.assertEqual(len(output), 2)
+        self.assertTrue(all(not root.exists() for root in roots))
+
     def test_grader_transport_failure_is_ungraded(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

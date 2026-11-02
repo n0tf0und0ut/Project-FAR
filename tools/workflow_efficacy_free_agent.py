@@ -170,7 +170,7 @@ def parse_events(raw: str):
 
 def unauthorized_file_changes(folder: Path, allowed: set[str]):
     modified = subprocess.check_output(
-        ["git", "diff", "--name-only"], cwd=folder, timeout=15
+        ["git", "diff", "--name-only", "HEAD"], cwd=folder, timeout=15
     ).decode().splitlines()
     untracked = subprocess.check_output(
         ["git", "ls-files", "--others", "--exclude-standard"], cwd=folder, timeout=15
@@ -263,6 +263,14 @@ def run_arm(index: int, arm: str, root: Path, evidence_root: Path):
     }
 
 
+def run_isolated_pair(index: int, evidence_root: Path):
+    payload = []
+    for arm in order_for(index):
+        with tempfile.TemporaryDirectory(prefix="fwe-isolated-" + arm + "-") as tmp:
+            payload.append(run_arm(index, arm, Path(tmp), evidence_root))
+    return payload
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=("schedule", "run-pair", "contract"))
@@ -281,10 +289,8 @@ def main():
     else:
         if args.index is None or not 0 <= args.index < 30 or args.output is None:
             parser.error("run-pair requires --index 0..29 and --output")
-        with tempfile.TemporaryDirectory(prefix="fwe-") as tmp:
-            root = Path(tmp)
-            evidence_root = args.output.parent / "evidence"
-            payload = [run_arm(args.index, arm, root, evidence_root) for arm in order_for(args.index)]
+        evidence_root = args.output.parent / "evidence"
+        payload = run_isolated_pair(args.index, evidence_root)
     rendered = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
