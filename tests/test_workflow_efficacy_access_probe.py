@@ -18,6 +18,8 @@ class FakeResponse:
 class ProbeTests(unittest.TestCase):
     def test_request_contract(self):
         self.assertEqual(contract()["max_requests"], 1)
+        from tools.workflow_efficacy_access_probe import REQUEST_BODY
+        self.assertEqual(REQUEST_BODY["generationConfig"]["maxOutputTokens"], 1024)
         self.assertEqual(contract()["request_sha256"], HASH)
         self.assertIn(b"READY", BODY)
     def test_absent_key_no_request(self):
