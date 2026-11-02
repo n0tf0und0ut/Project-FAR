@@ -57,6 +57,14 @@ class InvestigationError(ValueError):
     pass
 
 
+class ModelActionResponseError(InvestigationError):
+    """Model answered but its bytes cannot be interpreted as a valid tool proposal."""
+
+    def __init__(self, reason: str, envelope: dict):
+        super().__init__(reason)
+        self.envelope = envelope
+
+
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
@@ -367,20 +375,24 @@ def request_model_action(prompt: str) -> dict:
                 raise InvestigationError("model response exceeds size ceiling")
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError) as exc:
         raise InvestigationError("loopback model unavailable: " + type(exc).__name__) from exc
+    envelope = {
+        "request": data, "request_sha256": sha(request_bytes),
+        "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
+        "response_sha256": sha(response_bytes),
+    }
     try:
         parsed = _parse(response_bytes.decode("utf-8"))
         answer = parsed["choices"][0]["message"]["content"]
         tokens = parsed["usage"]["total_tokens"]
         model_id = parsed["model"]
     except (IndexError, KeyError, ValueError, TypeError, UnicodeError) as exc:
-        raise InvestigationError("malformed loopback model completion") from exc
+        raise ModelActionResponseError("malformed loopback model completion", envelope) from exc
     if not isinstance(answer, str) or type(tokens) is not int or tokens < 1 or not isinstance(model_id, str):
-        raise InvestigationError("invalid loopback model telemetry")
+        raise ModelActionResponseError("invalid loopback model telemetry", envelope)
     return {
         "action": answer.strip(), "raw_choice": answer,
         "total_tokens": tokens, "model": model_id,
-        "request": data, "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
-        "request_sha256": sha(request_bytes), "response_sha256": sha(response_bytes),
+        **envelope,
     }
 
 
@@ -431,7 +443,16 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
     save()
     for _ in range(12):
         allowed_before = _allowed(state)
-        action, choice = choose_action(state, mode, model)
+        try:
+            action, choice = choose_action(state, mode, model)
+        except ModelActionResponseError as exc:
+            state["status"] = "FAILED_OR_INCOMPLETE"
+            state["failed_model_call"] = {
+                "step": len(state["actions"]) + 1, "available": allowed_before,
+                "reason": str(exc), "raw_envelope": exc.envelope,
+            }
+            save()
+            raise
         if action not in allowed_before:
             raise InvestigationError("invalid actual tool transition")
         state["model_tokens"] += choice["tokens"]
