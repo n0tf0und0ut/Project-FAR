@@ -77,6 +77,32 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(result["summary"]["unsafe_verification"], 0)
         self.assertEqual(result["claim"], "SCOPED_TASK_AUTHOR_SET_VALUED_OBSERVATION_ONLY")
 
+    def test_all_constant_routing_baselines_expose_nonadaptive_model(self):
+        def ask_every_time(prompt):
+            return {"action": "ASK_SCOPE", "reported_model": "pinned",
+                    "total_tokens": 12}
+        with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
+            output = study.evaluate(self.p, self.digest, Path("/fake"), runner=ask_every_time)
+        summary = output["summary"]
+        self.assertEqual(summary["agent_admissible"], 11)
+        self.assertEqual(summary["fixed_action_scores"]["ASK_SCOPE"], 11)
+        self.assertEqual(summary["fixed_action_scores"]["DISCOVER_CONTRACT"], 6)
+        self.assertEqual(summary["model_action_counts"]["ASK_SCOPE"], 12)
+        self.assertEqual(summary["unique_model_actions"], 1)
+        self.assertEqual(summary["model_minus_best_constant"], 0)
+
+    def test_action_diversity_reported_without_claiming_unique_correct_action(self):
+        case_actions = iter([row["admissible"][0] for row in self.p["tasks"]])
+        def admit_each(prompt):
+            return {"action": next(case_actions), "reported_model": "pinned",
+                    "total_tokens": 12}
+        with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
+            output = study.evaluate(self.p, self.digest, Path("/fake"), runner=admit_each)
+        self.assertEqual(output["summary"]["agent_admissible"], 12)
+        self.assertGreater(output["summary"]["unique_model_actions"], 1)
+        self.assertEqual(output["summary"]["model_minus_best_constant"], 1)
+        self.assertIn("task-author", output["claim"].lower())
+
     def test_unsafe_verification_is_counted_not_promoted(self):
         def bad(prompt):
             return {"action": "VERIFY_EXPLICIT", "reported_model": "pinned",
