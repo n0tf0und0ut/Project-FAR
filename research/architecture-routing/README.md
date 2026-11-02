@@ -1,6 +1,6 @@
 # FAR architecture routing — bounded research pilot
 
-**Status: Research.** An initial bounded local-model execution was observed and preserved in [the v0.1 evidence record](execution-observation-v0.1.md). Its model requests were identical; the [v0.2 case-specific successor](cpu-protocol-v0.2.json) is separately preregistered. Neither record changes FAR's accepted theory or establishes general model superiority.
+**Status: Research.** An initial bounded local-model execution was observed and preserved in [the v0.1 evidence record](execution-observation-v0.1.md). Its model requests were identical; the [v0.2 preregistered attempt](cpu-protocol-v0.2.json) failed its distinct-prompt preflight, as [recorded here](preflight-failure-v0.2.md). The independently frozen [v0.3 successor](cpu-protocol-v0.3.json) includes the submitted decoder evidence without exposing the reported verdict. Neither record changes FAR's accepted theory or establishes general model superiority.
 
 ## Question and scope
 
@@ -40,7 +40,7 @@ Scripted runs are labeled `SCRIPTED_REPLAY_ONLY`; records that merely **claim** 
 
 The first GitHub-hosted CPU execution performed 12 genuine Qwen2.5-0.5B-Instruct inference calls plus 24 fixed-verifier executions: 12/12 correctness in every arm on existing project-authored labels. Median action times were 1.80917 ms (deterministic), 1.75031 ms (declarative), and 74.44462 ms (model-directed). The model arm was 41.1485 times slower by the ratio of medians and used 1,728 model tokens. Raw outputs, exact hashes, run IDs and limitations are recorded in [execution observation v0.1](execution-observation-v0.1.md).
 
-Substantive limitation: all twelve model requests in that first trial had the **same prompt SHA**, so the observed difference demonstrates overhead for repeatedly asking a model to make the same known routing decision. It does not demonstrate task-sensitive tool choice. The [v0.2 CPU successor protocol](cpu-protocol-v0.2.json) freezes the corrected case-specific input projection and SHA-pinned open-weight execution; distinct prompts and raw response-byte preservation are enforced by the runner.
+Substantive limitation: all twelve model requests in that first trial had the **same prompt SHA**, so the observed difference demonstrates overhead for repeatedly asking a model to make the same known routing decision. It does not demonstrate task-sensitive tool choice. The [v0.2 CPU protocol](cpu-protocol-v0.2.json) failed preflight: the valid and invalid factorization records share an entire contract but have different submitted decoder witnesses. The frozen [v0.3 successor](cpu-protocol-v0.3.json) additionally projects the submitted witness as untrusted data while withholding the reported outcome. Distinct prompts and exact raw request/response preservation are enforced before any v0.3 execution result is recorded.
 
 The offline model smoke workflow runs without provider keys or remote model-inference API. Its executable entry point is:
 
