@@ -8,6 +8,8 @@ class RunnerTests(unittest.TestCase):
     def test_schedule_balance_and_contract(self):
         orders = [order_for(i) for i in range(30)]
         self.assertEqual(len(orders), 30)
+        self.assertEqual(sum(order[0] == "control" for order in orders), 15)
+        self.assertEqual(sum(order[0] == "treatment" for order in orders), 15)
         self.assertTrue(all(set(x) == set(ARMS) for x in orders))
         self.assertEqual(len(CONTROL_SHA), 40)
         self.assertEqual(len(TREATMENT_SHA), 40)
