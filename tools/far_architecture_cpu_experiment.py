@@ -164,8 +164,8 @@ def run(protocol, model_path, endpoint=ENDPOINT, inference_fn=request_decision):
                         .read_text(encoding="utf-8"))
     if (prereg.get("schema") != "far-architecture-local-model/0.3"
             or prereg.get("status") != "PREREGISTERED_NOT_EXECUTED"
-            or prereg.get("model", {}).get("sha256") != MODEL_SHA256
-            or prereg.get("model", {}).get("archive_sha256") != BINARY_RELEASE_SHA256
+            or prereg.get("model", {}).get("weights_sha256") != MODEL_SHA256
+            or prereg.get("model", {}).get("binary_sha256") != BINARY_RELEASE_SHA256
             or prereg.get("model", {}).get("model_calls") != MAX_CALLS
             or prereg.get("design", {}).get("cells") != 36):
         raise PilotError("v0.3 preregistration and execution do not match")
