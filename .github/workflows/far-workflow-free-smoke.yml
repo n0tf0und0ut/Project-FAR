@@ -33,7 +33,7 @@ jobs:
         run: |
           npm install -g opencode-ai@1.19.3
           test "$(opencode --version)" = '1.19.3'
-          opencode models | grep -F 'opencode/big-pickle'
+          opencode models | grep -F 'opencode/glm-5.3-flash-free'
       - name: Check an excluded one-request non-task prompt
         env:
           CI: "true"
@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/fwe-preflight"
           cd "$RUNNER_TEMP/fwe-preflight"
-          timeout 150s opencode run -m opencode/big-pickle --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
+          timeout 150s opencode run -m opencode/glm-5.3-flash-free --format json 'What is 2+2? Answer 4.' > "$RUNNER_TEMP/model-smoke.ndjson"
           python - "$RUNNER_TEMP/model-smoke.ndjson" <<'PY'
           import os,sys
           from pathlib import Path
