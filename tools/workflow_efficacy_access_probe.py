@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 MODEL = "gemini-3.1-pro-preview"
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent"
 REQUEST_BODY = {"contents": [{"role": "user", "parts": [{"text": "Respond with exactly READY."}]}],
-                "generationConfig": {"temperature": 0.0, "maxOutputTokens": 64,
+                "generationConfig": {"temperature": 0.0, "maxOutputTokens": 1024,
                                      "thinkingConfig": {"thinkingLevel": "low"}}}
 BODY = json.dumps(REQUEST_BODY, sort_keys=True, separators=(",", ":")).encode()
 HASH = hashlib.sha256(BODY).hexdigest()
