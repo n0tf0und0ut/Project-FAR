@@ -29,6 +29,7 @@ class CampaignTests(unittest.TestCase):
 
     def test_live_child_listener_command_and_mapped_model_are_bound_together(self):
         from tools.far_investigation_campaign import _file_identity, _server_identity
+        from far_validation.tracing import RuntimePolicy, audit_trace, parse_strace
         with tempfile.TemporaryDirectory() as temporary:
             model = Path(temporary) / 'fixture.gguf'
             model.write_bytes(b'explicit local process fixture, no model inference')
@@ -36,7 +37,20 @@ class CampaignTests(unittest.TestCase):
                     'm=mmap.mmap(f.fileno(),0,access=mmap.ACCESS_READ); '
                     's=socket.socket(); s.bind(("127.0.0.1",8085)); s.listen(); '
                     'print("READY",flush=True); sys.stdin.read()')
-            command = [str(Path(sys.executable).resolve()), '-c', code, '--model', str(model)]
+            # Preserve the canonical launcher name through a real symlink to
+            # this interpreter. Resolving it changes python3 to python3.12 on
+            # hosted CI, which is outside the declared executable boundary.
+            launcher = Path(temporary) / 'python3'
+            launcher.symlink_to(sys.executable)
+            with patch.object(sys, 'executable', str(launcher)):
+                command = [sys.executable, '-c', code, '--model', str(model)]
+                self.assertEqual(command[0], sys.executable)
+            root = Path(__file__).resolve().parents[1]
+            trace = 'execve(' + json.dumps(command[0]) + ', ' + json.dumps(command) + ', 0x0) = 0\n'
+            checked = audit_trace(parse_strace(trace, cwd=root, root=root), declared_inputs=(),
+                declared_outputs=(), command=('python3', '-m', 'unittest'),
+                policy=RuntimePolicy.load(root / 'validation/runtime-policy.json'), sandbox_copy=False)
+            self.assertEqual(checked.violations, [])
             child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             try:
                 self.assertEqual(child.stdout.readline(), b'READY\n')

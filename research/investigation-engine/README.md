@@ -139,6 +139,21 @@ now emits this separate `raw_usage_audit` alongside unchanged byte-checked legac
 metrics. A valid legacy integrity audit establishes counter consistency with its
 historical rule; it does not establish resource completeness or zero usage.
 
+Execution and audit share the supported-tool and argument contract, including
+exact proposal keys, typed fields, supported arguments, frozen-state guards and
+duplicate-call rules. Rejected malformed proposals remain auditable failures;
+they cannot acquire accepted outcomes or committed effects. Existing optional
+comparison/report defaults and evidence-relation normalization are preserved.
+
+Starting another eligible recheck revokes prior completion. Freezing requires
+the latest complete source-and-search pass to have an accepted outcome. A
+rejected pass retains observed receipts and any committed diagnostic prefix but
+supplies no readiness, including when persistence fails after the full terminal
+observation. Source-recheck events precede their state append; the auditor uses
+subsequent request/record progress to bound committed prefixes when an exception
+interrupts that boundary. An ambiguous diagnostic prefix establishes no completed
+pass or source/search stability beyond its actual recorded observations.
+
 Sources are projected as strict JSON, UTF-8 text or visible HTML. PDF, OCR,
 audio/video, arbitrary code execution, authenticated sources and consequential
 external actions are not supported. Crossref and Wikimedia searches provide

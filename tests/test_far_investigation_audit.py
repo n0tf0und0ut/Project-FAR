@@ -252,7 +252,7 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                     mutate(child)
         mutate(state)
         reseal(state)
-        self.assert_rejected(state, 'inspect.proposal')
+        self.assert_rejected(state, 'proposal')
 
     def test_failed_recheck_clears_the_previous_stability_pass_without_new_record(self):
         first = receipt(URL_A, BODY_A)
@@ -408,6 +408,163 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                     self.assertIsNone(state['intake'])
                     self.assertIsNone(state['report'])
                 self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_later_search_recheck_revokes_earlier_full_completion(self):
+        from tools.far_investigation_retrieval import project_public_search, public_search_url
+        count, saved = 0, None
+        def searcher(query, provider, policy, checkpoint):
+            nonlocal count
+            count += 1
+            title = 'Original title' if count <= 2 else 'Changed title'
+            row = receipt(public_search_url(query, provider), json.dumps({'message': {'items': [
+                {'URL': 'https://example.org/article', 'title': [title]}]}}), 'application/json')
+            checkpoint(copy.deepcopy(row))
+            return project_public_search(query, provider, row)
+        def checkpoint(state):
+            nonlocal saved
+            event = state['events'][-1]
+            if event['kind'] == 'TOOL_RESULT' and event['payload']['tool'] == 'recheck':
+                saved = state['recheck_completed_at']
+            elif event['kind'] == 'TOOL_REJECTED' and 'search hits changed' in event['payload']['reason']:
+                # Adversarial intervention restores only the obsolete marker;
+                # all native receipts/observations retain their actual values.
+                runtime.state['recheck_completed_at'] = saved
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org', 'independent.example.org', 'api.crossref.org')),
+            fetcher=FixtureRetriever(), searcher=searcher, checkpoint=checkpoint)
+        script = full_script()
+        state = runtime.run_agent(ScriptedFixtureModel([action('search', query='claim', provider='crossref'),
+            *script[:7], action('recheck'), *script[7:]]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assert_rejected(state, 'recheck')
+
+    def test_source_recheck_checkpoint_failure_preserves_preappend_diagnostic_state(self):
+        raised = False
+        def checkpoint(state):
+            nonlocal raised
+            if state['events'][-1]['kind'] == 'SOURCE_RECHECK' and not raised:
+                raised = True
+                raise OSError('one-time source recheck checkpoint failure before append')
+        state = self.runtime(checkpoint=checkpoint, budget=Budget(max_steps=7)).run_agent(
+            ScriptedFixtureModel(full_script()[:7]))
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(state['rechecks'], [])
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_terminal_recheck_checkpoint_failure_retains_diagnostics_without_readiness(self):
+        for retry in (False, True):
+            raised = False
+            def checkpoint(state):
+                nonlocal raised
+                if state['events'][-1]['kind'] == 'DISCOVERY_TERMINAL_RECHECK' and not raised:
+                    raised = True
+                    raise OSError('one-time terminal recheck checkpoint failure')
+            script = full_script()[:7]
+            if retry:
+                script += full_script()[6:]
+            state = self.runtime(checkpoint=checkpoint, budget=Budget(max_steps=len(script))).run_agent(
+                ScriptedFixtureModel(script))
+            with self.subTest(retry=retry):
+                self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED' if retry else 'FAILED_OR_INCOMPLETE')
+                self.assertEqual('recheck_completed_at' in state, retry)
+                self.assertEqual(len(state['rechecks']), 2)
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_frozen_or_malformed_recheck_rejection_preserves_earlier_valid_completion(self):
+        for proposal in (action('recheck'), action('recheck', extra='unsupported')):
+            script = full_script()
+            script.insert(8, proposal)
+            with self.subTest(proposal=proposal):
+                state = self.runtime().run_agent(ScriptedFixtureModel(script))
+                self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+                self.assertEqual(state['rejected_calls'], 1)
+                self.assertIn('recheck_completed_at', state)
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_search_recheck_can_be_replaced_by_a_later_complete_pass(self):
+        from tools.far_investigation_retrieval import project_public_search, public_search_url
+        count = 0
+        def searcher(query, provider, policy, checkpoint):
+            nonlocal count
+            count += 1
+            title = 'Changed title' if count == 3 else 'Original title'
+            row = receipt(public_search_url(query, provider), json.dumps({'message': {'items': [
+                {'URL': 'https://example.org/article', 'title': [title]}]}}), 'application/json')
+            checkpoint(copy.deepcopy(row))
+            return project_public_search(query, provider, row)
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org', 'independent.example.org', 'api.crossref.org')),
+            fetcher=FixtureRetriever(), searcher=searcher)
+        script = full_script()
+        state = runtime.run_agent(ScriptedFixtureModel([action('search', query='claim', provider='crossref'),
+            *script[:7], action('recheck'), action('recheck'), *script[7:]]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_unavailable_tool_rejection_cannot_become_an_accepted_operation(self):
+        state = self.runtime().run_agent(ScriptedFixtureModel([action('execute_shell', command='echo impossible'), *full_script()]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        event = next(e for e in state['events'] if e['kind'] == 'TOOL_REJECTED')
+        event.update(kind='TOOL_RESULT', payload={'tool': 'execute_shell', 'result': {'output': 'impossible success'}})
+        state['rejected_calls'] -= 1
+        reseal(state)
+        self.assert_rejected(state, 'proposal')
+
+    def test_invalid_accepted_argument_copies_cannot_bypass_dispatch_validation(self):
+        cases = [('finish', 'notes', {'claim': 'universal proof'}),
+            ('finish', 'next_evidence', 'No further evidence needed'), ('finish', 'evidence_ids', ''),
+            ('discover', 'missing_evidence', {'claim': 'none'}), ('discover', 'assumptions', {}),
+            ('compare', 'execute_shell', 'impossible'), ('verify', 'execute_shell', 'impossible'),
+            ('finish', 'execute_shell', 'impossible')]
+        for tool, field, value in cases:
+            state = self.complete()
+            def mutate(node):
+                if isinstance(node, dict):
+                    if node.get('tool') == tool and 'args' in node:
+                        node['args'][field] = copy.deepcopy(value)
+                    if node.get('fixture') and node.get('response_base64'):
+                        proposal = json.loads(base64.b64decode(node['response_base64']))
+                        if proposal.get('tool') == tool:
+                            proposal['args'][field] = copy.deepcopy(value)
+                            raw = json.dumps(proposal, sort_keys=True).encode()
+                            node.update(response_base64=base64.b64encode(raw).decode(), response_sha256=hashlib.sha256(raw).hexdigest())
+                    for child in node.values():
+                        mutate(child)
+                elif isinstance(node, list):
+                    for child in node:
+                        mutate(child)
+            mutate(state)
+            if tool == 'finish' and field in ('notes', 'next_evidence', 'evidence_ids'):
+                key = 'analyst_notes' if field == 'notes' else field
+                state['report'][key] = copy.deepcopy(value)
+                next(e['payload']['result'] for e in state['events']
+                    if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'finish')[key] = copy.deepcopy(value)
+            if tool == 'discover' and field == 'missing_evidence':
+                state['missing_evidence'] = copy.deepcopy(value)
+                state['report']['missing_evidence'] = copy.deepcopy(value)
+                next(e['payload']['result'] for e in state['events']
+                    if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'finish')['missing_evidence'] = copy.deepcopy(value)
+            reseal(state)
+            with self.subTest(tool=tool, field=field):
+                self.assert_rejected(state, 'proposal')
+
+    def test_invalid_rejected_proposal_cannot_acquire_retained_transport_effects(self):
+        from tools.far_investigation_retrieval import parse_receipt
+        proposal = action('retrieve', url=URL_A, extra='unsupported')
+        state = self.runtime(budget=Budget(max_steps=1)).run_agent(ScriptedFixtureModel([proposal]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        row = receipt(URL_A, BODY_A)
+        state['sources']['src.1'], state['projections']['src.1'] = row, parse_receipt(row)
+        state['http_calls'] = 1
+        position = next(i for i, event in enumerate(state['events']) if event['kind'] == 'TOOL_REJECTED')
+        state['events'][position:position] = [
+            {'kind': 'HTTP_REQUEST', 'payload': {'url': URL_A, 'call': 1}, 'at': state['events'][position]['at']},
+            {'kind': 'HTTP_OBSERVATION', 'payload': row, 'at': state['events'][position]['at']}]
+        for index, event in enumerate(state['events'], 1):
+            event['sequence'] = index
+        reseal(state)
+        self.assert_rejected(state, 'transport observation')
 
     def test_finish_entire_report_is_derived_from_the_actual_proposal(self):
         original = self.complete()

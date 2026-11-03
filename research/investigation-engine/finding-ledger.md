@@ -294,3 +294,64 @@ producer edge controls on the corrected bytes and confirmed the intended
 accept/reject outcomes. This is shared-host engineering review, not external
 scientific independence; final published-head review and protected gates remain
 separate obligations.
+
+## Latest-pass readiness and shared dispatch preconditions
+
+The next hosted review receipt `PRR_kwDOTH_vCM8AAAABV2HtIw`, submitted
+2026-11-03T23:34:58Z, explicitly names reviewed commit `1ab5b8a7e6`:
+`1ab5b8a7e690be7665108c51e66516d5eafa6bdd`, tree
+`71a14e81af0f65b77666dacd1ba5afbbb0919c57`. All three findings below were read in
+full and reproduced on that published tree before correction. The three initial
+regression methods each failed, for three independently observed failures.
+
+| Root cause and exact hosted source | Reproducer and correction | Regression and compatibility evidence |
+| --- | --- | --- |
+| **ENG-LATEST-RECHECK-COMPLETION** — [4461742007](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461742007), `PRRT_kwDOTH_vCM6zYPdO`, reviewed `1ab5b8a7e690be7665108c51e66516d5eafa6bdd`, audit lines 616–617 | Native Crossref-shaped search receipts support one complete pass. A second pass retrieves all sources but rejects changed search hits. Restoring only the obsolete completion marker before freeze previously yielded a completed, audit-valid pipeline despite the recorded failure. Reconstruct readiness independently of source-record count: every later eligible pass revokes earlier readiness, and only a complete accepted source-and-search pass restores it. Runtime rejection also clears readiness even if full terminal diagnostics were already retained. | `test_failed_later_search_recheck_revokes_earlier_full_completion` now rejects the exact stale-marker mutation. A third genuinely complete pass can replace the failed pass and finish. Frozen or malformed recheck proposals that never begin a new pass preserve the earlier valid completion. Terminal-checkpoint interruption preserves diagnostic receipts without readiness; an actual retry can complete. |
+| **ENG-RECHECK-PREAPPEND-CHECKPOINT** — [4461742019](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461742019), `PRRT_kwDOTH_vCM6zYPdW`, reviewed `1ab5b8a7e690be7665108c51e66516d5eafa6bdd`, audit lines 581–584 | A one-time `OSError` at the first `SOURCE_RECHECK` event leaves the observed receipt journaled but interrupts before append to retained rechecks. `full_script()[:7]` under budget seven correctly fails with zero retained rows; the auditor previously invented one row and rejected coverage. Distinguish observation from state commitment. Progress to a subsequent request/record proves earlier appends; a failed final observation admits only its bounded possible committed prefixes, never readiness. | `test_source_recheck_checkpoint_failure_preserves_preappend_diagnostic_state` now accepts the unchanged genuine failure. Existing pre-HTTP budget, raw-source preparse persistence, post-dispatch effects, corrected retry and original archive controls remain valid. Partial-prefix compatibility cannot authorize freeze because rejected passes never establish completion. |
+| **ENG-DISPATCH-PRECONDITIONS** — [4461742023](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461742023), `PRRT_kwDOTH_vCM6zYPdZ`, reviewed `1ab5b8a7e690be7665108c51e66516d5eafa6bdd`, audit lines 297–299 | Prepend unsupported `execute_shell`; runtime rejects it. Change that rejection to a matching success, decrement rejected calls and reseal: audit previously accepted the impossible operation. Complete inspection also reproduced malformed notes/next-evidence/evidence-ID types, ignored extra arguments, and a shape-invalid rejected retrieval acquiring forged retained source/HTTP effects. Share the authoritative tool-schema validator and frozen/duplicate dispatch guards between execution and replay. Gate accepted outcomes and retained-effect producers; preserve malformed rejected proposals as failures. A distinct pending sentinel permits legitimate rejected JSON null/scalar/list proposals without treating them as missing events. | Unknown forged success and eight coordinated accepted-argument mutations reject. Fifteen malformed/unsupported/type/extra-argument cases are runtime failures with no HTTP reservation or retained outputs and remain audit-valid. A shape-invalid rejected retrieval cannot acquire source effects. Optional comparison alternatives, empty report arguments and actual Unicode `.upper()` relation normalization remain supported. All **142 successful** and **30 rejected** original frozen proposals satisfy the shared static contract; no historical exception or metric change was needed. |
+
+The validator derives schemas from the runtime's existing `function_schema`,
+retains documented defaults, rejects unsupported nested discovery fields, and
+uses the repository's `Draft202012Validator.iter_errors` API. Native semantic
+checks remain in the existing builders and native-plan validator. The correction
+introduces no second execution engine and no independent semantic-adequacy claim.
+
+Local source-construction commit:
+`195ac1bce1119da28ce9b70106db5b06c2a0a1c7`, tree
+`3b80c3c2de6f1323f4d0e5f5fed143a269239580`. This is a local construction identity;
+the successor's published head/tree and final hosted review must be recorded in
+the PR. The stabilized whole-PR suite passes **255/255**, zero skips, including
+the pinned actual-graph preparation controls. All **24 original transcripts**
+still replay with unchanged byte-checked campaign metrics. Original counters
+remain **141,481**; the separate retained-response lower bound remains **142,571**,
+with 29 known and seven unknown attempts. The immutable ZIP, protocols,
+selections, scientific source identities and agent 0/8 versus both controls 7/8
+remain unchanged. No inference, model trial, GitHub write or gate change was
+performed by this corrective construction.
+
+## Canonical test-launch executable boundary
+
+**ENG-CANONICAL-PYTHON-LAUNCHER** — accepted and corrected after the coordinator
+reported exact-head `1ab5b8a7e690be7665108c51e66516d5eafa6bdd` hosted failures:
+[exact-head assurance job 126275864977](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41739122658/job/126275864977)
+and [merge-authority job 126276077671](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41739122724/job/126276077671).
+Both commands exited zero but the unchanged tracing policy reported
+`FAR-VAL-TRACE-001` for undeclared
+`/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12` in `tests.canonical` and
+`repository.health-full`. The actual native server fixture explicitly resolved
+`sys.executable`, converting the admitted Python launcher into its versioned
+binary path.
+
+The local before-fix harmless interpreter canary exited zero, while the actual
+trace parser and existing runtime policy rejected its constructed resolved
+`python3.12` exec path. Native `strace` was installed but ptrace was prohibited
+(`PTRACE_TRACEME: Operation not permitted`), so this is explicitly deterministic
+parser-canary evidence, not an observed native syscall trace.
+
+The fixture now constructs its command with the existing `sys.executable`
+launcher. Its regression runs the real child through a canonical `python3`
+symlink to the same interpreter, checks the constructed launcher against the
+unchanged trace policy, and retains every executable-file identity, mapped-model,
+listener, command and wrong-owner assertion. The occupied-endpoint control also
+passes. Neither executable policy nor protected manifests were changed; a
+versioned executable remains inadmissible through the original parser control.

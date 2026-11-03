@@ -376,6 +376,35 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(base64.b64decode(state["model_calls"][0]["response_base64"]), b"malformed response")
         self.assertTrue(audit_transcript(state)["valid"])
 
+    def test_shared_dispatch_contract_preserves_defaults_and_relation_normalization(self):
+        choices = full_script()
+        next(p for p in choices if p['tool'] == 'compare')['args'].pop('alternatives')
+        next(p for p in choices if p['tool'] == 'extract')['args']['relation'] = 'ſUpPoRt'
+        choices[-1]['args'] = {}
+        state = self.runtime().run_agent(ScriptedFixtureModel(choices))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['evidence']['ev.1']['relation'], 'SUPPORT')
+        self.assertEqual(state['report']['analyst_notes'], '')
+        self.assertEqual(state['report']['evidence_ids'], [])
+        self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
+
+    def test_bad_call_shapes_and_types_are_auditable_rejections_without_effects(self):
+        proposals = [None, 42, [], {'tool': [] , 'args': {}}, {'tool': 'inspect'},
+            {'tool': 'finish', 'args': None}, {'tool': 'finish', 'args': {}, 'extra': 1},
+            action('execute_shell', command='impossible'), action('finish', notes={'claim': 'proof'}),
+            action('finish', next_evidence='none'), action('finish', evidence_ids=''),
+            action('inspect', source_id='src.1', start=1.0), action('retrieve', url=URL_A, extra='unsupported'),
+            action('compare', evidence_ids=[], execute_shell='impossible'),
+            action('discover', claims=[], assumptions={})]
+        for proposal in proposals:
+            with self.subTest(proposal=proposal):
+                state = self.runtime(budget=Budget(max_steps=1)).run_agent(ScriptedFixtureModel([proposal]))
+                self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+                self.assertEqual(state['rejected_calls'], 1)
+                self.assertEqual(state['http_calls'], 0)
+                self.assertFalse(state['sources'] or state['evidence'] or state['evaluations'])
+                self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
+
     def test_observed_usage_is_counted_once_even_when_model_action_parsing_fails(self):
         from tests.test_far_investigation_usage import envelope
         for action_count in (1, 2):

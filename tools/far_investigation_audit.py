@@ -25,7 +25,9 @@ from tools.far_investigation_usage import model_usage_report, model_usage_tokens
 
 def audit(state) -> dict:
     # Imported lazily: the runtime exposes this auditor through a lazy wrapper.
-    from tools.far_investigation_engine import build_discovery, build_inspection, build_report
+    from tools.far_investigation_engine import (
+        build_discovery, build_inspection, build_report, validate_dispatch, validate_proposal,
+    )
     errors = []
     counters = {}
 
@@ -156,7 +158,8 @@ def audit(state) -> dict:
         equal('question_sha256', hashlib.sha256(question.encode()).hexdigest(), state['question_sha256'])
         sources, evidence = state['sources'], state['evidence']
         previous, previous_at = None, timestamp(state['started_at'])
-        tool_pending, model_pending = None, None
+        absent = object()
+        tool_pending, model_pending = absent, absent
         model_proposals, actual_proposals = [], []
         model_attempt_envelopes, latest_model_observation = [], None
         model_attempt_usage, observed_attempt_usage = [], set()
@@ -167,6 +170,7 @@ def audit(state) -> dict:
         attempt_details = {}
         attempt_search_request, attempt_search_observation = None, None
         attempt_network_started = False
+        attempt_committed_rechecks = 0
         search_transports = {}
         retrieval_transports, attempt_http, attempt_observation = [], None, None
         for index, event in enumerate(events, 1):
@@ -186,7 +190,7 @@ def audit(state) -> dict:
                 if count is not None:
                     observed_attempt_usage.add(count)
             elif kind == 'MODEL_PROPOSAL':
-                if model_pending is not None:
+                if model_pending is not absent:
                     fail(path, 'previous model proposal never dispatched')
                 model_pending = payload['proposal']
                 model_proposals.append(payload)
@@ -221,22 +225,24 @@ def audit(state) -> dict:
                     equal(path + '.tokens', response['usage']['total_tokens'], count)
                     equal(path + '.model', response.get('model'), payload['metadata'].get('model'))
             elif kind == 'TOOL_PROPOSAL':
-                if tool_pending is not None:
+                if tool_pending is not absent:
                     fail(path, 'previous tool proposal has no recorded outcome')
                 if state['mode'] == 'agent':
                     equal(path + '.model_to_tool', payload, model_pending)
-                model_pending = None
+                model_pending = absent
                 tool_pending = payload
                 attempt_http, attempt_observation = None, None
                 attempt_rechecks, attempt_searches, attempt_terminal = [], [], None
                 attempt_search_request, attempt_search_observation = None, None
                 attempt_network_started = False
+                attempt_committed_rechecks = 0
                 actual_proposals.append(payload)
             elif kind == 'HTTP_REQUEST':
                 http_requests.append(payload)
                 reservation_order.append(payload['call'])
                 attempt_http = payload
                 attempt_network_started = True
+                attempt_committed_rechecks = len(attempt_rechecks)
             elif kind == 'HTTP_OBSERVATION':
                 attempt_observation = payload
             elif kind == 'SEARCH_REQUEST':
@@ -244,10 +250,12 @@ def audit(state) -> dict:
                 reservation_order.append(payload['call'])
                 attempt_search_request, attempt_search_observation = payload, None
                 attempt_network_started = True
+                attempt_committed_rechecks = len(attempt_rechecks)
             elif kind in ('SEARCH_OBSERVATION', 'SEARCH_RECHECK_OBSERVATION'):
                 attempt_search_observation = payload
             elif kind == 'SOURCE_RECHECK':
-                if not tool_pending or tool_pending.get('tool') != 'recheck':
+                guarded(path + '.proposal', lambda: validate_proposal(tool_pending))
+                if type(tool_pending) is not dict or tool_pending.get('tool') != 'recheck':
                     fail(path + '.source_recheck', 'source recheck outside its producing attempt')
                 original = sources[payload['source_id']]
                 if attempt_http is None or attempt_observation is None:
@@ -260,12 +268,16 @@ def audit(state) -> dict:
                 stable = parse_receipt(payload['receipt'])['projection_sha256'] == parse_receipt(original)['projection_sha256']
                 equal(path + '.unchanged_projection', payload['unchanged_projection'], stable)
                 source_rechecks.append((index, payload))
+                attempt_committed_rechecks = len(attempt_rechecks)
                 attempt_rechecks.append(payload)
             elif kind == 'DISCOVERY_TERMINAL_RECHECK':
+                if type(tool_pending) is not dict or tool_pending.get('tool') != 'recheck':
+                    fail(path + '.proposal', 'terminal discovery recheck outside its producing attempt')
+                guarded(path + '.proposal', lambda: validate_proposal(tool_pending))
                 attempt_terminal = payload['intake']
             elif kind == 'SEARCH_RECHECK':
                 original = state['searches'][payload['index']]
-                if not tool_pending or tool_pending.get('tool') != 'recheck' or attempt_search_request is None:
+                if type(tool_pending) is not dict or tool_pending.get('tool') != 'recheck' or attempt_search_request is None:
                     fail(path + '.search_recheck', 'search recheck outside its request-bound attempt')
                 else:
                     equal(path + '.search_recheck.index', attempt_search_request.get('recheck_index'), payload['index'])
@@ -278,32 +290,43 @@ def audit(state) -> dict:
                 attempt_search_request, attempt_search_observation = None, None
                 attempt_searches.append(payload)
             elif kind == 'NATIVE_VERIFIER_REQUEST':
+                guarded(path + '.proposal', lambda: validate_proposal(tool_pending))
                 if (type(tool_pending) is not dict or tool_pending.get('tool') != 'verify'
                         or tool_pending.get('args', {}).get('candidate_id') != payload['candidate']['id']):
                     fail(path, 'native verifier invocation differs from actual proposal')
                 native_requests.append((index, payload))
             elif kind in ('TOOL_RESULT', 'TOOL_REJECTED'):
-                if tool_pending is not None:
+                valid_shape = False
+                if tool_pending is not absent:
+                    try:
+                        validate_proposal(tool_pending)
+                        valid_shape = True
+                    except (ValueError, TypeError):
+                        if kind == 'TOOL_RESULT':
+                            fail(path + '.proposal', 'accepted operation violates the runtime proposal contract')
+                        if attempt_rechecks or attempt_searches or attempt_terminal is not None:
+                            fail(path + '.proposal.effects', 'invalid proposal cannot produce discovery/recheck effects')
                     tool_attempts.append((index, tool_pending, kind, payload))
-                    attempt_details[index] = (attempt_rechecks, attempt_searches, attempt_terminal, attempt_network_started)
-                    if tool_pending.get('tool') == 'search':
+                    attempt_details[index] = (attempt_rechecks, attempt_searches, attempt_terminal,
+                                              attempt_network_started, attempt_committed_rechecks)
+                    if valid_shape and tool_pending['tool'] == 'search':
                         search_transports[index] = (attempt_search_request, attempt_search_observation)
-                if (tool_pending and tool_pending.get('tool') == 'retrieve'
+                if (valid_shape and tool_pending['tool'] == 'retrieve'
                         and attempt_http is not None and attempt_observation is not None):
                     retrieval_transports.append((index, tool_pending['args'].get('url'),
                                                  attempt_http['url'], attempt_observation))
-                if tool_pending is None:
+                if tool_pending is absent:
                     fail(path, 'tool outcome lacks a proposal')
-                elif kind == 'TOOL_RESULT':
+                elif kind == 'TOOL_RESULT' and valid_shape:
                     equal(path + '.tool', payload['tool'], tool_pending.get('tool'))
                     tool_results.append((index, tool_pending, payload['result']))
                     if payload['tool'] == 'discover':
                         discovery_results.append((index, payload['result']))
                     elif payload['tool'] == 'freeze':
                         freeze_events.append((index, payload['result']))
-                else:
+                elif kind == 'TOOL_REJECTED':
                     rejections += 1
-                tool_pending = None
+                tool_pending = absent
         equal('START.kind', events[0]['kind'], 'START')
         equal('START.question_sha256', events[0]['payload']['question_sha256'], state['question_sha256'])
         equal('START.policy', events[0]['payload']['policy'], state['policy'])
@@ -313,7 +336,7 @@ def audit(state) -> dict:
         else:
             equal('final_state_seal', seals[0]['payload']['state_sha256'],
                   sha256_json({k: v for k, v in state.items() if k != 'events'}))
-        if tool_pending is not None:
+        if tool_pending is not absent:
             fail('events', 'unfinished tool proposal')
         accepted_tokens = tokens
         accounting = state.get('model_token_accounting')
@@ -458,6 +481,7 @@ def audit(state) -> dict:
         successful_search_at = accepted_producers('search', state['searches'],
             lambda row: {k: v for k, v in row.items() if k != 'receipt'})
         replay_intake, replay_rechecks, missing_evidence = None, [], None
+        replay_recheck_prefixes, replay_recheck_complete = [[]], False
         produced_freeze_index = None
         history_offset = 0
         completed = set()
@@ -470,9 +494,16 @@ def audit(state) -> dict:
             available_sources = {ident: sources[ident] for ident, at in source_available_at.items() if at <= index}
             available_projections = {ident: state['projections'][ident] for ident in available_sources
                                      if ident in state['projections']}
-            tool, args = proposal['tool'], proposal['args']
             accepted = kind == 'TOOL_RESULT'
             result = payload['result'] if accepted else None
+            try:
+                tool, args = validate_dispatch(proposal, replay_intake, completed)
+            except (ValueError, TypeError):
+                if accepted:
+                    fail('tool.proposal', 'accepted dispatch violates runtime shape/state preconditions')
+                if any(at == index for at in source_available_at.values()):
+                    fail('tool.proposal.effects', 'rejected dispatch precondition cannot produce retained sources')
+                continue
             fingerprint = sha256_json(proposal)
             previous_effects = (len(produced_evidence), len(produced_comparisons))
             search_effect = False
@@ -531,6 +562,7 @@ def audit(state) -> dict:
                     or (tool == 'retrieve' and any(at == index and ident in available_projections
                                                   for ident, at in source_available_at.items()))):
                 replay_intake, replay_rechecks = None, []
+                replay_recheck_prefixes, replay_recheck_complete = [[]], False
             if tool == 'discover':
                 snapshot = (state['discovery_history'][history_offset]
                             if history_offset < len(state['discovery_history']) else None)
@@ -568,26 +600,43 @@ def audit(state) -> dict:
                                 'intake_sha256': sha256_json(expected),
                                 'errors': validate_manifest(expected, require_complete=True)})
                         replay_intake, replay_rechecks = copy.deepcopy(expected), []
+                        replay_recheck_prefixes, replay_recheck_complete = [[]], False
                         missing_evidence = args.get('missing_evidence', [])
                         history_offset += 1
             elif tool == 'recheck':
-                records, search_records, terminal, network_started = attempt_details[index]
+                records, search_records, terminal, network_started, committed = attempt_details[index]
                 registered = list(available_sources)
                 can_start = (not args and bool(available_sources) and bool(produced_comparisons)
                              and not (replay_intake and replay_intake['freeze']['status'] == 'FROZEN'))
                 if can_start or network_started or records or accepted or terminal is not None:
+                    # Starting any successor pass revokes the prior completion,
+                    # even when all sources pass and a later search fails.
+                    replay_recheck_complete = False
                     equal('recheck.source_order', [r['source_id'] for r in records], registered[:len(records)])
                     replay_rechecks = []
                     for record in records:
                         if not record['unchanged_projection']:
                             break
                         replay_rechecks.append(record)
+                    if accepted or terminal is not None:
+                        replay_recheck_prefixes = [replay_rechecks]
+                    else:
+                        # SOURCE_RECHECK is journaled before the state append.
+                        # Progress to another request/record proves earlier
+                        # appends. The interrupted final observation can still
+                        # be either side of that append; neither proves a pass.
+                        lower = min(committed, len(replay_rechecks))
+                        replay_recheck_prefixes = [replay_rechecks[:n]
+                            for n in range(lower, len(replay_rechecks) + 1)]
                 if accepted or terminal is not None:
                     if args or not produced_comparisons or len(replay_rechecks) != len(registered):
                         fail('recheck.completion', 'complete stable source pass required')
                     if len(search_records) != len(produced_searches):
                         fail('recheck.searches', 'complete stable search pass required')
                     equal('recheck.search_order', [r['index'] for r in search_records], list(range(len(produced_searches))))
+                    replay_recheck_complete = (accepted and not args and bool(produced_comparisons)
+                        and len(replay_rechecks) == len(registered)
+                        and len(search_records) == len(produced_searches))
                 if terminal is not None:
                     if replay_intake is None:
                         fail('recheck.discovery', 'terminal intake lacks proposal-derived discovery')
@@ -612,9 +661,11 @@ def audit(state) -> dict:
             elif tool == 'freeze' and (accepted or (not freeze_events and not args and state['intake']
                     and state['intake']['freeze']['status'] == 'FROZEN' and replay_intake
                     and replay_intake['freeze']['status'] == 'DRAFT'
-                    and len(replay_rechecks) == len(available_sources))):
+                    and replay_recheck_complete)):
                 if args or replay_intake is None or len(replay_rechecks) != len(available_sources):
                     fail('freeze.proposal', 'complete proposal-derived terminal intake required')
+                elif not replay_recheck_complete:
+                    fail('freeze.recheck', 'latest full source and search recheck must complete before freeze')
                 else:
                     expected = guarded('freeze.proposal', lambda: freeze_manifest(replay_intake,
                         frozen_at=state['intake']['freeze']['frozen_at']))
@@ -672,7 +723,10 @@ def audit(state) -> dict:
         equal('discover.coverage', history_offset, len(state['discovery_history']))
         if missing_evidence is not None:
             equal('discover.missing_evidence', state.get('missing_evidence'), missing_evidence)
-        equal('recheck.coverage', state['rechecks'], replay_rechecks)
+        if not any(sha256_json(state['rechecks']) == sha256_json(prefix) for prefix in replay_recheck_prefixes):
+            fail('recheck.coverage', 'retained rechecks differ from possible committed observation prefix')
+        if replay_intake is not None:
+            equal('recheck.completion_marker', 'recheck_completed_at' in state, replay_recheck_complete)
         for (_, result), snapshot in zip(discovery_results, state['discovery_history']):
             equal('discovery_history.intake_sha256', result['intake_sha256'], sha256_json(snapshot))
             equal('discovery_history.candidate_ids', result['candidate_ids'],
