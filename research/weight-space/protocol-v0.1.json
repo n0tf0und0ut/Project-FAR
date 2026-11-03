@@ -1,0 +1,94 @@
+{
+  "schema": "far-weight-pilot/0.1",
+  "status": "Research",
+  "registration_date": "2026-11-03",
+  "question": "Does ablating one development-selected high-influence MLP column improve exact output contracts beyond matched simpler and random controls?",
+  "hypotheses": [
+    {
+      "id": "WSP-H1",
+      "claim": "Ablating the development-selected column improves heldout exact-contract success against strongest simpler arm by at least 5 percentage points",
+      "primary": true
+    },
+    {
+      "id": "WSP-H2",
+      "claim": "The effect exceeds norm-matched random-column ablation and survives half-strength ablation",
+      "primary": false
+    },
+    {
+      "id": "WSP-HLOOP",
+      "claim": "Repetitive suffix failure may be reduced by the edit",
+      "testability": "Only evaluable if development baseline has at least 2 repeated-suffix failures; otherwise NOT_TESTABLE on this model/cohort"
+    }
+  ],
+  "model": {
+    "id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "manifest": "research/weight-space/smol135m-checkpoint.json",
+    "manifest_sha256": "53253fa5ab5a1b5019254f9d7549ab96c2b6fbe810ed5bcae4a869203763b2e9"
+  },
+  "runtime": {
+    "torch": "2.5.1",
+    "transformers": "4.49.0",
+    "huggingface_hub": "0.29.3",
+    "safetensors": "0.5.3",
+    "numpy": "1.26.4",
+    "tokenizers": "0.21.4"
+  },
+  "prior_exposure": "MIT source and PR601 mechanism pilot inspected; all tasks authored by coordinator. No pilot forward inference or outcome exposure before freeze. Evaluation prompts are withheld from algorithmic column selection, not from the coordinator.",
+  "reuse": "Pinned Smol checkpoint, float32 CPU protocol, activation-to-down_proj boundary and source-byte provenance conventions from PR601. Existing activation-fidelity auditor is unmerged and does not provide checkpoint editing or general correctness guarantees; no unreviewed production dependency copied.",
+  "intervention": {
+    "tensor": "model.layers.29.mlp.down_proj.weight",
+    "selection": "argmax mean(development final-prompt MLP-input activation squared)*column_L2_squared; lowest index ties",
+    "policy": "only one down_proj column, <=576 changed values, <=0.20 tensor relative L2; scale 0 or 0.5; no optimizer or labels"
+  },
+  "arms": [
+    "baseline",
+    "sham",
+    "ablate",
+    "half_ablate",
+    "random_ablate",
+    "prompt",
+    "decoding",
+    "budget"
+  ],
+  "seeds": [
+    7103,
+    7109,
+    7121
+  ],
+  "schedule_seed": 44017,
+  "negative_control_seed": 93463,
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.7,
+    "top_p": 0.95,
+    "max_new_tokens": 64
+  },
+  "budget_tokens": 128,
+  "repetition_penalty": 1.15,
+  "prompt_suffix": "\nFollow the exact requested output format. Check that every requested item is present, use only supplied facts, and stop after the required answer.",
+  "grading": "Exact text or strict JSON equality; separate deterministic replay. No model grades. Categories are operational proxies, not diagnoses of internal causes.",
+  "stopping": "No retries, model search, post-outcome prompt/threshold changes or overwrites. Fail on checkpoint/runtime/source mismatch, unsafe edit, or missing matched random column. Preserve failure receipt. Never pool aborted attempts.",
+  "analysis": "12 authored heldout tasks +6 regression tasks,3 stochastic seeds each,8 conditions=432 scored generations;6 development baseline generations excluded. Task-cluster bootstrap is descriptive for this finite cohort only. All arms and failures reported.",
+  "adoption": {
+    "min_gain": 0.05,
+    "max_regression": 0.05,
+    "external_blinded_replication_required": true,
+    "cross_model_replication_required": true,
+    "compare_strongest_simpler_baseline": true,
+    "production_eligible_from_this_pilot": false
+  },
+  "limits": [
+    "One-shot output contracts, not multistep agent execution",
+    "Public authored exact-match tasks, no external heldout claims",
+    "Single pretrained135M checkpoint; no frontier generalization",
+    "Random control matches column norm within10%, not semantic selectivity",
+    "Projection primitive tested offline but pilot uses ablation; no MIT efficacy replication",
+    "Token caps and repetition proxies cannot alone diagnose reasoning loops",
+    "No population significance, commercial value, increased intelligence or recursive self-improvement claim"
+  ],
+  "tasks": {
+    "path": "research/weight-space/tasks-v0.1.json",
+    "sha256": "f58125dcc058e12e9e6b99713a896b82979f4089d01d0f57cd51ee376493a52e"
+  }
+}

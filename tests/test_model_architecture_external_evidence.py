@@ -36,7 +36,8 @@ class ArchiveTests(unittest.TestCase):
         with self.assertRaises((ValueError, Exception)):
             audit.parse_archive(self.raw[:-20]+b'altered',require_replay=False)
 
-    @unittest.skipUnless(importlib.util.find_spec('sklearn'), 'optional scikit-learn missing')
+    @unittest.skipUnless(importlib.util.find_spec('sklearn') and importlib.util.find_spec('torch'),
+                         'optional scikit-learn/PyTorch missing; score reconstruction not executed')
     def test_substituted_score_and_missing_trial_both_fail(self):
         import zipfile,io
         with zipfile.ZipFile(io.BytesIO(self.raw)) as z:
