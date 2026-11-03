@@ -56,5 +56,50 @@ class LiveDigitsTrainingTests(unittest.TestCase):
                 replay(directory / "digits_checkpoint.json", changed)
 
 
+    def test_negative_post_relu_intervention_replayed_and_zero_forgery_rejected(self):
+        import numpy as np
+        import torch
+        from evaluation.run_real_digits_mechanism import run
+        from evaluation.replay_real_digits_mechanism import replay
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run(root)
+            checkpoint_path = root / "digits_checkpoint.json"
+            checkpoint = json.loads(checkpoint_path.read_text())
+            trace = json.loads((root / "digits_mechanism_traces.json").read_text())
+            row = trace["cases"][0]
+            self.assertEqual(row["split"], "heldout")
+            index = row["id"].split("-")[1]
+            x = torch.tensor(checkpoint["cases"][index], dtype=torch.float32)[None, :]
+            state = {key: torch.tensor(value, dtype=torch.float32).reshape(checkpoint["shapes"][key])
+                     for key, value in checkpoint["weights"].items()}
+            hidden = torch.relu(torch.nn.functional.linear(x, state["fc1.weight"], state["fc1.bias"]))
+
+            def measured(replacement):
+                h = hidden.clone()
+                h[:, checkpoint["hidden_unit"]] = replacement
+                z = torch.nn.functional.linear(h, state["fc2.weight"], state["fc2.bias"])[0].numpy().astype(np.float64) / 2
+                exp = np.exp(z - z.max())
+                p = 0.995 * exp / exp.sum() + 0.005 / len(exp)
+                units = np.floor(p * 1_000_000).astype(int)
+                fractions = p * 1_000_000 - units
+                for i in sorted(range(len(p)), key=lambda i: (-fractions[i], i))[:1_000_000 - int(units.sum())]:
+                    units[i] += 1
+                return [f"{v / 1_000_000:.6f}" for v in units]
+
+            negative = measured(-1.0)
+            zero = measured(0.0)
+            self.assertNotEqual(negative, zero)
+            row["explained_activation"] = "-1.000000"
+            row["replacement_probs"] = negative
+            path = root / "negative-post-relu.json"
+            path.write_text(json.dumps(trace))
+            self.assertEqual(replay(checkpoint_path, path)["status"], "SAVED_WEIGHT_MODEL_REPLAY_VERIFIED")
+            row["replacement_probs"] = zero
+            path.write_text(json.dumps(trace))
+            with self.assertRaisesRegex(ValueError, "replay mismatch"):
+                replay(checkpoint_path, path)
+
+
 if __name__ == "__main__":
     unittest.main()

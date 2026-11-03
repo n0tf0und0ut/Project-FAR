@@ -139,6 +139,17 @@ class ResultVerifierMutationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"hash_matched_accuracy"):
             self.check(trace,report)
 
+    def test_coordinated_split_reassignment_rejected(self):
+        trace, report = fixture()
+        for row in trace["cases"] + report["individual_results"]:
+            if row["split"] == "heldout":
+                row["split"] = "adversarial"
+            elif row["split"] == "adversarial":
+                row["split"] = "heldout"
+        report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
+        with self.assertRaisesRegex(ValueError, "split"):
+            self.check(trace, report)
+
     def test_wrong_gold_label_rejected(self):
         trace, report = fixture()
         report["individual_results"][0]["gold"]="no"

@@ -16,6 +16,16 @@ from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases
 from evaluation.validate_pretrained_lm_result import verify as verify_submitted
 
 
+def reconstructed_interventions(case, task, token_count, observed, slope, intercept, baseline):
+    """Reconstruct physical amplitudes; six-decimal fields are only commitments."""
+    replacement = observed if task["split"] == "control" else slope * token_count + intercept
+    for field, value in (("explained_activation", replacement),
+                         ("baseline_activation", baseline)):
+        if not math.isfinite(value) or float(case[field]) != float(f"{value:.6f}"):
+            raise ValueError("rounded trace amplitude differs from reconstructed intervention: " + field)
+    return replacement, baseline
+
+
 def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
     import torch
     from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -60,11 +70,12 @@ def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
     tasks = {x["id"]: x for x in task_cases() if x["split"] != "train"}
     recorded_metrics = {x["id"]: x for x in report["individual_results"]}
 
-    def forward(ids, patch=None):
+    def forward(ids, patch=None, capture_all=False):
         capture = []
         def hook(_module, args):
             inputs = args[0]
-            capture.append(float(inputs[0, -1, unit]))
+            capture.append(inputs[0, -1, :].detach().clone() if capture_all
+                           else float(inputs[0, -1, unit]))
             if patch is None:
                 return None
             changed = inputs.clone()
@@ -80,6 +91,31 @@ def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
             raise ValueError("pre-down-projection hook did not execute once")
         return capture[0], output
 
+    # The interchange stores decimal amplitudes to six places. Replaying those
+    # rounded values changes the physical intervention at float32 boundaries.
+    # Independently reconstruct the declared training-only selection and fit;
+    # do not relax the probability tolerance or change the frozen measurements.
+    train = [x for x in task_cases() if x["split"] == "train"]
+    train_ids = [tokenizer.apply_chat_template(
+        [{"role": "user", "content": task["question"]}],
+        tokenize=True, add_generation_prompt=True, return_tensors="pt") for task in train]
+    activations = torch.stack([forward(ids, capture_all=True)[0] for ids in train_ids])
+    influence = activations.std(dim=0) * layer.weight.detach().float().norm(dim=0)
+    if int(torch.argmax(influence).item()) != unit:
+        raise ValueError("component does not match registered train-only selection")
+    lengths = torch.tensor([float(ids.shape[-1]) for ids in train_ids], dtype=torch.float64)
+    target = activations[:, unit].double()
+    baseline_value = float(target.mean())
+    centered = lengths - lengths.mean()
+    slope = float(((centered * (target - target.mean())).sum() /
+                   (centered.square().sum() + 1e-3)).item())
+    intercept = float(target.mean() - slope * lengths.mean())
+    for field, value in (("probe_slope", slope), ("probe_intercept", intercept)):
+        if metadata[field] != value:
+            raise ValueError("registered train-only fit cannot be exactly reconstructed: " + field)
+    if metadata["train_n"] != len(train):
+        raise ValueError("training cohort does not match registered task assignments")
+
     errors = []
     with torch.inference_mode():
         for case in document["cases"]:
@@ -92,8 +128,10 @@ def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
             observed, original = forward(ids)
             if abs(observed - float(case["observed_activation"])) > 2e-6:
                 raise ValueError("original activation mismatch")
-            _, patched = forward(ids, float(case["explained_activation"]))
-            _, baseline = forward(ids, float(case["baseline_activation"]))
+            replacement_value, exact_baseline = reconstructed_interventions(
+                case, task, int(ids.shape[-1]), observed, slope, intercept, baseline_value)
+            _, patched = forward(ids, replacement_value)
+            _, baseline = forward(ids, exact_baseline)
             p_log = torch.log_softmax(original, dim=-1)
             p = p_log.exp()
             for kind, logits, field in (
@@ -111,7 +149,7 @@ def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
                 ("replacement_probs", patched),
                 ("baseline_probs", baseline),
             ):
-                binary = torch.softmax(logits[labels], dim=-1)
+                binary = torch.softmax(logits[labels].float(), dim=-1)
                 measured = [float(x) for x in case[key]]
                 max_error = max(abs(float(binary[i]) - measured[i]) for i in range(2))
                 if max_error > 2e-6:
@@ -126,6 +164,7 @@ def replay(trace_path: Path, report_path: Path, *, full_kl_atol: float = 5e-8):
         "reference_result_hash": hashlib.sha256(Path(report_path).read_bytes()).hexdigest(),
         "assurance": "INDEPENDENT_CODE_PATH_SAME_MODEL_FAMILY_NO_EXTERNAL_SCIENTIFIC_REPLICATION",
         "source_validator": verified["status"],
+        "intervention_reconstruction": "REGISTERED_TRAIN_ONLY_SELECTION_AND_UNROUNDED_FIT",
     }
 
 

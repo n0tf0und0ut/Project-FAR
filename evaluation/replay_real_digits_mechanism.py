@@ -100,11 +100,13 @@ def replay(checkpoint_path: Path, trace_path: Path):
                 if replacement is None:
                     logits = model(inp)
                 else:
-                    def patch(_module, _inputs, pre_relu):
-                        new = pre_relu.clone()
+                    def patch(_module, inputs):
+                        # The measured intervention replaces the post-ReLU
+                        # hidden coordinate, including negative replacements.
+                        new = inputs[0].clone()
                         new[:, unit] = replacement
-                        return new
-                    handle = model.fc1.register_forward_hook(patch)
+                        return (new,) + inputs[1:]
+                    handle = model.fc2.register_forward_pre_hook(patch)
                     try:
                         logits = model(inp)
                     finally:
@@ -125,7 +127,7 @@ def replay(checkpoint_path: Path, trace_path: Path):
         "n": len(doc["cases"]),
         "checkpoint_sha256": doc["model"]["artifact_sha256"],
         "max_absolute_probability_deviation": max_error,
-        "replay_method": "PyTorch forward hook on fc1 pre-ReLU output",
+        "replay_method": "PyTorch forward pre-hook on fc2 post-ReLU input",
         "assurance": "SAVED_CHECKPOINT_REPLAY_NOT_INDEPENDENT_SOURCE_OR_SEMANTIC_VERIFICATION",
     }
 

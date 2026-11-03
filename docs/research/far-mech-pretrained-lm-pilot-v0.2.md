@@ -92,3 +92,5 @@ The probe is better on the ordinary heldout split yet about **11.6× worse** tha
 | Improves general reasoning reliability | Independent broad reasoning tasks, equal coverage/latency and matched controls, calibrated risk | `NOT_ESTABLISHED` from this pilot |
 
 No theological worldview premise changes this computational evaluation, and no output may infer Christian metaphysical truth from the measured model behavior. No FAR-CORE-001–014 theorem or closure assurance is modified.
+
+For exact original ZIP preservation, review dispositions, and the post-execution replay precision correction, see [convergence evidence](far-mech-convergence-20261103.md). Scientific measurements remain unchanged.

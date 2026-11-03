@@ -3,6 +3,8 @@
 Does NOT mean that the model was downloaded or neural interventions ran.
 """
 import inspect
+from pathlib import Path
+import yaml
 import unittest
 
 from evaluation.run_pretrained_lm_fidelity import (
@@ -47,6 +49,17 @@ class PretrainedLMProtocolTests(unittest.TestCase):
         self.assertIn("MechanismAudit.from_dict", src)
         self.assertIn("torch.use_deterministic_algorithms(True)", src)
         self.assertIn("model.state_dict()", src)
+
+    def test_maintenance_cannot_repeat_scored_scientific_generation(self):
+        workflow = yaml.safe_load((Path(__file__).resolve().parents[1] /
+                                   ".github/workflows/far-pretrained-lm-mechanism.yml").read_text())
+        jobs = workflow["jobs"]
+        self.assertEqual(jobs["pinned-open-weight-experiment"]["if"],
+                         "github.event_name == 'workflow_dispatch'")
+        self.assertNotIn("if", jobs["offline-protocol-and-mutations"])
+        commands = [step.get("run", "") for step in jobs["offline-protocol-and-mutations"]["steps"]]
+        self.assertTrue(any("test_mechanistic*.py" in command for command in commands))
+        self.assertFalse(any("evaluation.run_pretrained_lm_fidelity" in command for command in commands))
 
     def test_canonical_source_hash_stability(self):
         self.assertEqual(
