@@ -34,14 +34,32 @@ for p in iter_files({'.yaml','.yml'}):
             proof_ids[str(data['id'])].append(p)
         elif any(n in p.name for n in REGISTRY_NAMES):
             registry_ids[str(data['id'])].append(p)
-    def walk(x, parent_key=''):
+    is_workflow = p.parent == ROOT / '.github' / 'workflows'
+    def walk(x, parent_key='', location=(), artifact_inputs=False):
         if isinstance(x, dict):
+            uses = x.get('uses')
+            action, separator, ref = uses.partition('@') if isinstance(uses, str) else ('', '', '')
+            artifact_step = (
+                is_workflow
+                and len(location) == 4
+                and location[0] == 'jobs'
+                and location[2] == 'steps'
+                and isinstance(location[3], int)
+                and action in {'actions/upload-artifact', 'actions/download-artifact'}
+                and bool(separator and ref)
+                and not any(c.isspace() for c in ref)
+                and not is_dynamic_ref(ref)
+            )
             if any(n in p.name for n in REGISTRY_NAMES) and isinstance(x.get('id'), (str,int)):
                 registry_ids[str(x['id'])].append(p)
             for k,v in x.items():
                 kl=str(k).lower()
                 if (
                     relative not in EXTERNAL_RUNTIME_REFERENCE_FILES
+                    # Artifact paths name runtime upload inputs/download outputs,
+                    # not files required to exist in the source checkout. Other
+                    # action inputs and all non-workflow references still check.
+                    and not (artifact_inputs and k == 'path')
                     and isinstance(v,str)
                     and (kl.endswith('path') or kl.endswith('file') or kl in {'path','file','fixture','report','source'})
                     and not is_dynamic_ref(v)
@@ -50,9 +68,10 @@ for p in iter_files({'.yaml','.yml'}):
                     and not resolve_ref(p, v)
                 ):
                     errors.append(f'{relative}: referenced path missing: {v}')
-                walk(v, kl)
+                walk(v, kl, location + (k,), artifact_step and k == 'with')
         elif isinstance(x, list):
-            for v in x: walk(v, parent_key)
+            for index, v in enumerate(x):
+                walk(v, parent_key, location + (index,))
     walk(data)
 # Unique top-level proof-object ids.
 for idv,paths in proof_ids.items():
