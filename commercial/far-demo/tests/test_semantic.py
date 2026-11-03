@@ -8,9 +8,13 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import importlib.util
 import os
 import unittest
 from unittest.mock import AsyncMock, patch
+
+if importlib.util.find_spec("fastapi") is None or importlib.util.find_spec("httpx") is None:
+    raise unittest.SkipTest("far-demo optional FastAPI/httpx dependencies are required")
 
 import httpx
 from fastapi import FastAPI
@@ -61,6 +65,23 @@ class SemanticTests(unittest.TestCase):
     def endpoint(self, token=True):
         return self.client.post("/api/augment/semantic", json={"session": self.session},
                                 headers={"X-FAR-Augment-Token": "operator-access-00000001"} if token else {})
+
+    def test_revision_answers_and_confidence_are_addressable_model_inputs(self):
+        low = self.client.post("/api/augment/revise", json={"session": self.session,
+            "revised_claim": "The mechanism remains uncertain", "confidence": 20,
+            "rationale": "New evidence arrived", "answers": {"counterevidence": "The control group improved equally"}}).json()
+        high = self.client.post("/api/augment/revise", json={"session": self.session,
+            "revised_claim": "The mechanism remains uncertain", "confidence": 95,
+            "rationale": "New evidence arrived", "answers": {"counterevidence": "Only the treatment group improved"}}).json()
+        refs = _refs(low)
+        self.assertNotEqual(refs, _refs(high))
+        self.assertEqual(refs["revisions[0].answers.counterevidence"], "The control group improved equally")
+        self.assertEqual(refs["revisions[0].confidence"], "20% (user-stated, not calibrated)")
+        raw = json.loads(model_text())
+        raw["findings"][0]["anchors"] = [{"path": "revisions[0].answers.counterevidence", "quote": "control group improved equally"}]
+        cfg = Config("https://semantic.example/v1/chat/completions", "model", "", "access-123456789123")
+        report = _create_report(low, cfg, json.dumps(raw))
+        self.assertTrue(verify_report(report, low)["valid"])
 
     def test_provider_declares_real_configuration_and_unconfigured_fails_closed(self):
         self.assertEqual(self.client.get("/api/augment/model/status").json()["model"], "research-test-model")

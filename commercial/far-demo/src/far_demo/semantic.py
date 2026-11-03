@@ -98,6 +98,9 @@ def _refs(session: dict[str, Any]) -> dict[str, str]:
     for i, revision in enumerate(session["revisions"]):
         refs[f"revisions[{i}].revised_claim"] = revision["revised_claim"]
         refs[f"revisions[{i}].rationale"] = revision["rationale"]
+        refs[f"revisions[{i}].confidence"] = str(revision["confidence"]) + "% (user-stated, not calibrated)"
+        for question, answer in revision["answers"].items():
+            refs[f"revisions[{i}].answers.{question}"] = answer
     return refs
 
 

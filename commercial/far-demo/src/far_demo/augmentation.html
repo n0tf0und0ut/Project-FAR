@@ -65,9 +65,11 @@
 <script>
 'use strict';
 const STORE='far-augmentation-prototype-v02';
+const MAX_REPORTS=20;
 const byId=id=>document.getElementById(id);
 let session=null;
 let reports=[];
+let modelPending=false;
 const setMessage=value=>{byId('message').textContent=value;byId('message').hidden=!value;};
 const textLines=id=>byId(id).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 const evidenceLines=id=>textLines(id).map(line=>{const i=line.indexOf('||');return {statement:(i<0?line:line.slice(0,i)).trim(),source:(i<0?'':line.slice(i+2)).trim()};});
@@ -94,7 +96,23 @@ function renderModel(){const list=byId('modelFindings');list.replaceChildren();i
       panel.append(node('p','Test: '+f.test),node('p','Question: '+f.question));wrap.append(panel);});
     report.open_questions.forEach(q=>wrap.append(node('p','Open question: '+q)));list.append(wrap);});}
 async function modelStatus(){try{const r=await fetch('/api/augment/model/status');if(!r.ok)throw Error('Status unavailable');const data=await r.json();byId('modelStatus').textContent=data.configured?'Provider configured: '+data.model:'Model unavailable: configure server provider';byId('modelButton').disabled=!data.configured;}catch(e){byId('modelStatus').textContent='Model provider status unavailable';byId('modelButton').disabled=true;}}
-byId('modelButton').addEventListener('click',async()=>{if(!session)return;const btn=byId('modelButton');const token=byId('modelToken').value;btn.disabled=true;setMessage('Running model critique; source quotations will be validated.');try{const report=await request('/api/augment/semantic',{session},{'X-FAR-Augment-Token':token});reports.push(report);persist();renderModel();setMessage('Model-generated critique recorded. Treat all findings as hypotheses, not certified truth.');}catch(e){setMessage(e.message);}finally{btn.disabled=false;}});
+byId('modelButton').addEventListener('click',async()=>{
+  if(!session||modelPending)return;
+  if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit. Export it before starting a new session.');return;}
+  const originSession=session,originReports=reports;
+  const btn=byId('modelButton'),token=byId('modelToken').value;
+  modelPending=true;btn.disabled=true;
+  setMessage('Running model critique; source quotations will be validated.');
+  try{
+    const report=await request('/api/augment/semantic',{session:originSession},{'X-FAR-Augment-Token':token});
+    // Append-only revisions preserve the report collection; replacing or importing
+    // a session creates a new collection even when its original basis is equal.
+    if(!session||reports!==originReports||session.basis_sha256!==originSession.basis_sha256){setMessage('Discarded a model response for a replaced session.');return;}
+    if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit.');return;}
+    reports.push(report);persist();renderModel();
+    setMessage('Model-generated critique recorded. Treat all findings as hypotheses, not certified truth.');
+  }catch(e){setMessage(e.message);}finally{modelPending=false;btn.disabled=false;}
+});
 modelStatus();
 byId('confidence').addEventListener('input',()=>byId('confidenceLabel').textContent=byId('confidence').value+'%');
 byId('revisedConfidence').addEventListener('input',()=>byId('revisedConfidenceLabel').textContent=byId('revisedConfidence').value+'%');
