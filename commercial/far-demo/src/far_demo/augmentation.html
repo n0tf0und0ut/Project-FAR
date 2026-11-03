@@ -53,7 +53,7 @@
     <div class="controls" style="margin-top:18px"><button class="btn secondary" id="exportButton" type="button">Export JSON</button><label class="btn secondary" for="importFile" style="cursor:pointer">Import JSON</label></div>
     <p class="mono" id="digest"></p>
   </div>
-  <p id="message" role="status" hidden></p><input type="file" accept="application/json,.json" id="importFile" style="position:absolute;left:-9999px" aria-label="Import previously exported reasoning session">
+  <p id="message" role="status" hidden></p><button class="btn secondary" id="retryRestore" type="button" hidden>Retry stored-session verification</button><button class="btn secondary" id="downloadStored" type="button" hidden>Download preserved data (unverified)</button><input type="file" accept="application/json,.json" id="importFile" style="position:absolute;left:-9999px" aria-label="Import previously exported reasoning session">
 </section>
 <section class="panel span" aria-label="Assurance limits">
   <h3>What this instrument can and cannot establish</h3>
@@ -66,10 +66,15 @@
 'use strict';
 const STORE='far-augmentation-prototype-v02';
 const MAX_REPORTS=20;
+// Aggregate bundles hold a session plus 20 individually bounded reports. The
+// server retains a 500 KB initial-input limit and an 8 MiB existing-history
+// request limit. This also allows JSON escaping/indentation headroom.
+const MAX_WORKSPACE_BYTES=8*1024*1024;
 const byId=id=>document.getElementById(id);
 let session=null;
 let reports=[];
 let modelPending=false;
+let workspaceEpoch=0;
 const setMessage=value=>{byId('message').textContent=value;byId('message').hidden=!value;};
 const textLines=id=>byId(id).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
 const evidenceLines=id=>textLines(id).map(line=>{const i=line.indexOf('||');return {statement:(i<0?line:line.slice(0,i)).trim(),source:(i<0?'':line.slice(i+2)).trim()};});
@@ -87,7 +92,19 @@ function render(){const ready=!!session;byId('audit').hidden=!ready;byId('empty'
     const a=node('details');a.append(node('summary','Question responses'));for(const [id,answer] of Object.entries(event.answers))a.append(node('p',id+': '+answer));card.append(a,node('div','Fingerprint: '+event.sha256,'mono'));h.append(card);prior=event.confidence;});
   byId('digest').textContent='Session SHA-256: '+session.sha256;
 }
-function persist(){if(session)localStorage.setItem(STORE,JSON.stringify({schema:'far-augmentation-export/0.2',session,semantic_reports:reports}));else localStorage.removeItem(STORE);}
+const workspaceJSON=(s,r)=>JSON.stringify({schema:'far-augmentation-export/0.2',session:s,semantic_reports:r},null,2)+'\n';
+function boundedWorkspaceJSON(nextSession,nextReports){
+  const encoded=workspaceJSON(nextSession,nextReports);
+  if(new Blob([encoded]).size>MAX_WORKSPACE_BYTES)throw Error('Workspace exceeds the 8 MiB export/import limit. Export the current session before starting a new one.');
+  return encoded;
+}
+function saveWorkspace(nextSession,nextReports){
+  const encoded=boundedWorkspaceJSON(nextSession,nextReports);
+  // Validate size and complete storage before changing the live workspace. The
+  // exact stored encoding is also exported, so accepted states can round-trip.
+  localStorage.setItem(STORE,encoded);
+  session=nextSession;reports=nextReports;byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;
+}
 function renderModel(){const list=byId('modelFindings');list.replaceChildren();if(!session)return;
   reports.forEach((report,i)=>{const wrap=node('div',undefined,'historyItem');wrap.append(node('strong','Semantic audit '+(i+1)+' · '+report.model+' · revision '+report.snapshot_revision_count),node('div','Interpretation: unverified model output · SHA-256 '+report.sha256,'mono'));
     report.findings.forEach((f)=>{const panel=node('div',undefined,'question');panel.append(node('small',f.category),node('p',f.observation),node('p','Reasoning: '+f.inference));
@@ -99,7 +116,7 @@ async function modelStatus(){try{const r=await fetch('/api/augment/model/status'
 byId('modelButton').addEventListener('click',async()=>{
   if(!session||modelPending)return;
   if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit. Export it before starting a new session.');return;}
-  const originSession=session,originReports=reports;
+  const originSession=session,originReports=reports,epoch=workspaceEpoch;
   const btn=byId('modelButton'),token=byId('modelToken').value;
   modelPending=true;btn.disabled=true;
   setMessage('Running model critique; source quotations will be validated.');
@@ -107,21 +124,24 @@ byId('modelButton').addEventListener('click',async()=>{
     const report=await request('/api/augment/semantic',{session:originSession},{'X-FAR-Augment-Token':token});
     // Append-only revisions preserve the report collection; replacing or importing
     // a session creates a new collection even when its original basis is equal.
-    if(!session||reports!==originReports||session.basis_sha256!==originSession.basis_sha256){setMessage('Discarded a model response for a replaced session.');return;}
+    if(epoch!==workspaceEpoch||!session||reports!==originReports||session.basis_sha256!==originSession.basis_sha256){setMessage('Discarded a model response for a replaced session.');return;}
     if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit.');return;}
-    reports.push(report);persist();renderModel();
+    saveWorkspace(session,[...reports,report]);renderModel();
     setMessage('Model-generated critique recorded. Treat all findings as hypotheses, not certified truth.');
   }catch(e){setMessage(e.message);}finally{modelPending=false;btn.disabled=false;}
 });
 modelStatus();
 byId('confidence').addEventListener('input',()=>byId('confidenceLabel').textContent=byId('confidence').value+'%');
 byId('revisedConfidence').addEventListener('input',()=>byId('revisedConfidenceLabel').textContent=byId('revisedConfidence').value+'%');
-byId('initialForm').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');try{session=await request('/api/augment/start',getInput());reports=[];persist();render();}catch(error){setMessage(error.message);}});
-byId('revisionPane').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');if(!session)return;const answers={};document.querySelectorAll('[data-question-id]').forEach(el=>{if(el.value.trim())answers[el.dataset.questionId]=el.value.trim();});try{session=await request('/api/augment/revise',{session,answers,revised_claim:byId('revisedClaim').value,confidence:Number(byId('revisedConfidence').value),rationale:byId('rationale').value});persist();render();setMessage('Revision recorded. It remains user-supplied and unverified.');}catch(error){setMessage(error.message);}});
-byId('clearButton').addEventListener('click',()=>{session=null;reports=[];byId('modelToken').value='';persist();byId('initialForm').reset();byId('confidenceLabel').textContent='75%';setMessage('');render();});
-byId('exportButton').addEventListener('click',()=>{if(!session)return;const blob=new Blob([JSON.stringify({schema:'far-augmentation-export/0.2',session,semantic_reports:reports},null,2)+'\n'],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='far-reasoning-audit.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-byId('importFile').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;try{if(file.size>500000)throw Error('Session exceeds size limit');const imported=JSON.parse(await file.text());const next=(imported&&imported.schema==='far-augmentation-export/0.2')?imported:{session:imported,semantic_reports:[]};if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>20)throw Error('Invalid semantic report list');await request('/api/augment/verify',next.session);for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});session=next.session;reports=next.semantic_reports;persist();render();setMessage('Imported session passed structural integrity checks.');}catch(error){setMessage('Import refused: '+error.message);}finally{e.target.value='';}});
-(async()=>{try{const saved=localStorage.getItem(STORE);if(saved){const parsed=JSON.parse(saved);const next=(parsed&&parsed.schema==='far-augmentation-export/0.2')?parsed:{session:parsed,semantic_reports:[]};await request('/api/augment/verify',next.session);if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>20)throw Error('Bad saved report list');for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});session=next.session;reports=next.semantic_reports;render();}}catch(error){session=null;reports=[];persist();setMessage('Stored session did not verify: '+error.message);}})();
+byId('initialForm').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');const epoch=++workspaceEpoch;try{const next=await request('/api/augment/start',getInput());if(epoch!==workspaceEpoch)return;saveWorkspace(next,[]);render();}catch(error){if(epoch===workspaceEpoch)setMessage(error.message);}});
+byId('revisionPane').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');if(!session)return;const origin=session,epoch=workspaceEpoch;const answers={};document.querySelectorAll('[data-question-id]').forEach(el=>{if(el.value.trim())answers[el.dataset.questionId]=el.value.trim();});try{const next=await request('/api/augment/revise',{session:origin,answers,revised_claim:byId('revisedClaim').value,confidence:Number(byId('revisedConfidence').value),rationale:byId('rationale').value});if(epoch!==workspaceEpoch||session!==origin)return;saveWorkspace(next,reports);render();setMessage('Revision recorded. It remains user-supplied and unverified.');}catch(error){if(epoch===workspaceEpoch&&session===origin)setMessage(error.message);}});
+byId('clearButton').addEventListener('click',()=>{workspaceEpoch++;localStorage.removeItem(STORE);session=null;reports=[];byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;byId('modelToken').value='';byId('initialForm').reset();byId('confidenceLabel').textContent='75%';setMessage('');render();});
+byId('exportButton').addEventListener('click',()=>{if(!session)return;const blob=new Blob([workspaceJSON(session,reports)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='far-reasoning-audit.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+byId('importFile').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;const epoch=++workspaceEpoch;try{if(file.size>MAX_WORKSPACE_BYTES)throw Error('Session exceeds size limit');const imported=JSON.parse(await file.text());const next=(imported&&imported.schema==='far-augmentation-export/0.2')?imported:{session:imported,semantic_reports:[]};if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>MAX_REPORTS)throw Error('Invalid semantic report list');await request('/api/augment/verify',next.session);for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});if(epoch!==workspaceEpoch)return;saveWorkspace(next.session,next.semantic_reports);render();setMessage('Imported session passed structural integrity checks.');}catch(error){if(epoch===workspaceEpoch)setMessage('Import refused: '+error.message);}finally{e.target.value='';}});
+async function restoreSaved(){const epoch=++workspaceEpoch;byId('retryRestore').disabled=true;try{const saved=localStorage.getItem(STORE);if(saved){const parsed=JSON.parse(saved);const next=(parsed&&parsed.schema==='far-augmentation-export/0.2')?parsed:{session:parsed,semantic_reports:[]};await request('/api/augment/verify',next.session);if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>MAX_REPORTS)throw Error('Bad saved report list');for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});boundedWorkspaceJSON(next.session,next.semantic_reports);if(epoch!==workspaceEpoch)return;session=next.session;reports=next.semantic_reports;byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;render();setMessage('Stored session passed structural integrity checks.');}}catch(error){if(epoch!==workspaceEpoch)return;session=null;reports=[];byId('retryRestore').hidden=false;byId('downloadStored').hidden=false;setMessage('Stored session could not be verified. Saved data is preserved; retry verification, download the unverified data, or choose New session to remove it. '+error.message);}finally{byId('retryRestore').disabled=false;}}
+byId('retryRestore').addEventListener('click',restoreSaved);
+byId('downloadStored').addEventListener('click',()=>{const saved=localStorage.getItem(STORE);if(!saved)return;const url=URL.createObjectURL(new Blob([saved],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='far-preserved-unverified-data.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+restoreSaved();
 </script>
 </body>
 </html>

@@ -36,8 +36,18 @@ canonical Socratic contract.
   initial-basis commitment, event linkage and event hashes. This proves only
   *internal structural integrity*, not authorship or historical truth.
 
-Input is limited to 500 KB per request, 12 elements per evidence/text list and
-20 revisions per record. Malformed duplicate-key/non-finite JSON is refused.
+Initial input is limited to 500 KB, with 12 elements per evidence/text list and
+20 revisions per record. Existing-history verification, revision and semantic
+requests are bounded at 8 MiB: an accepted sequence can grow past 500 KB even
+when every preceding request fits the initial limit. A generated history's
+20 revisions contain at most 440,000 text characters; the initial basis adds
+at most 57,200. Worst-case JSON surrogate-pair escaping plus metadata and one
+report fits 8 MiB. Model-output and per-field limits remain unchanged.
+Browser aggregate import/export is also bounded at 8 MiB and 20 reports, with
+transactional storage: a size/quota failure retains the prior live and saved
+workspace. Failed restoration preserves the exact saved bytes without hydrating
+unverified data; retry and unverified-data download are available before explicit
+removal. Malformed duplicate-key/non-finite JSON is refused.
 No arbitrary text is rendered as HTML; user values use DOM `textContent`.
 The page exports session data without a server-side file write.
 

@@ -19,6 +19,11 @@ from fastapi.responses import HTMLResponse
 router = APIRouter()
 SCHEMA = "far-augmentation-prototype/0.1"
 MAX_BODY = 500_000
+MAX_SESSION_BODY = 8 * 1024 * 1024
+# A generated history has <=20 revisions, each <=3000+3000+8*2000
+# characters, and <=57,200 basis characters. Even 12-byte JSON surrogate-pair
+# escaping plus metadata/report overhead fits 8 MiB. Initial submissions keep
+# their 500 KB cap; only endpoints carrying existing histories use this bound.
 MAX_REVISIONS = 20
 LIMITATIONS = (
     "All observations, source labels and explanations are user supplied and unverified.",
@@ -211,10 +216,10 @@ def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-async def _json(request: Request) -> Any:
+async def _json(request: Request, *, max_body: int = MAX_BODY) -> Any:
     body = await request.body()
-    if len(body) > MAX_BODY:
-        raise HTTPException(413, "Augmentation input exceeds the 500 KB limit")
+    if len(body) > max_body:
+        raise HTTPException(413, "Augmentation input exceeds the permitted request size")
     try:
         return json.loads(body, object_pairs_hook=_unique_pairs,
                           parse_constant=lambda value: (_ for _ in ()).throw(ValueError("Invalid numeric constant")))
@@ -238,7 +243,7 @@ async def augmentation_start(request: Request) -> dict[str, Any]:
 @router.post("/api/augment/revise")
 async def augmentation_revise(request: Request) -> dict[str, Any]:
     try:
-        return revise(await _json(request))
+        return revise(await _json(request, max_body=MAX_SESSION_BODY))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
 
@@ -246,6 +251,6 @@ async def augmentation_revise(request: Request) -> dict[str, Any]:
 @router.post("/api/augment/verify")
 async def augmentation_verify(request: Request) -> dict[str, Any]:
     try:
-        return verify(await _json(request))
+        return verify(await _json(request, max_body=MAX_SESSION_BODY))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc

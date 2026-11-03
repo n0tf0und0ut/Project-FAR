@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 import httpx
 from fastapi import APIRouter, HTTPException, Request
 
-from .augmentation import _hash, _json, _list_of_text, _text, _unique_pairs, verify
+from .augmentation import MAX_SESSION_BODY, _hash, _json, _list_of_text, _text, _unique_pairs, verify
 
 router = APIRouter()
 SCHEMA = "far-model-semantic-audit/0.1"
@@ -256,7 +256,7 @@ async def semantic_analysis(request: Request) -> dict[str, Any]:
     if not hmac.compare_digest(supplied_token, cfg.access_token):
         raise HTTPException(401, "Access token required")
     try:
-        raw = await _json(request)
+        raw = await _json(request, max_body=MAX_SESSION_BODY)
         if not isinstance(raw, dict) or set(raw) != {"session"}:
             raise ValueError("Provide exactly one verified session")
         session = raw["session"]
@@ -277,7 +277,7 @@ async def semantic_analysis(request: Request) -> dict[str, Any]:
 @router.post("/api/augment/semantic/verify")
 async def semantic_verify(request: Request) -> dict[str, Any]:
     try:
-        raw = await _json(request)
+        raw = await _json(request, max_body=MAX_SESSION_BODY)
         if not isinstance(raw, dict) or set(raw) != {"session", "report"}:
             raise ValueError("Provide session and report")
         return verify_report(raw["report"], raw["session"])

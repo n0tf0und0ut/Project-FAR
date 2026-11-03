@@ -10,6 +10,9 @@ import copy
 import json
 import importlib.util
 import os
+from pathlib import Path
+import shutil
+import tempfile
 import unittest
 from unittest.mock import AsyncMock, patch
 
@@ -83,11 +86,68 @@ class SemanticTests(unittest.TestCase):
         report = _create_report(low, cfg, json.dumps(raw))
         self.assertTrue(verify_report(report, low)["valid"])
 
+    @unittest.skipUnless(shutil.which("node"), "Node.js is required for page-script round trip")
+    def test_twenty_server_verified_reports_above_500kb_import_and_export(self):
+        import test_augmentation_browser as browser_tests
+        supplied = {**INPUT, "claim": "b" * 3000, "reasoning": "a" * 3000, "falsifier": "c" * 800}
+        session = self.client.post("/api/augment/start", json=supplied).json()
+        finding = {"category": "OTHER", "observation": "o" * 500, "inference": "i" * 700,
+            "anchors": [{"path": "claim", "quote": "b" * 500},
+                        {"path": "reasoning", "quote": "a" * 500},
+                        {"path": "falsifier", "quote": "c" * 500}],
+            "alternatives": [x * 700 for x in "def"], "test": "t" * 600, "question": "q" * 300}
+        raw = json.dumps({"findings": [finding] * 5, "open_questions": ["x" * 800] * 5})
+        self.assertLess(len(raw.encode()), 35000)
+        cfg = Config("https://semantic.example/v1/chat/completions", "model", "", "access-123456789123")
+        reports = [_create_report(session, cfg, raw) for _ in range(20)]
+        for report in reports:
+            replay = self.client.post("/api/augment/semantic/verify", json={"session": session, "report": report})
+            self.assertEqual(replay.status_code, 200, replay.text)
+        bundle = {"schema": "far-augmentation-export/0.2", "session": session, "semantic_reports": reports}
+        encoded = json.dumps(bundle, indent=2)
+        self.assertGreater(len(encoded.encode()), 500000)
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Path(directory) / "verified-bundle.json"
+            fixture.write_text(encoded)
+            browser_tests.BrowserStateTests().run_script("""
+context.fetch=async()=>({ok:true,json:async()=>({valid:true})});
+const data=JSON.stringify(fixture);
+await elements.get('importFile').listeners.change({target:{value:'selected',files:[{size:new Blob([data]).size,text:async()=>data}]}});
+assert.equal(context.hooks.get().reports.length,20,'all verified reports must survive aggregate import');
+elements.get('exportButton').listeners.click();
+const exported=JSON.parse(await downloaded.text());
+assert.deepEqual(exported,fixture);
+assert.ok(downloaded.size>500000&&downloaded.size<=8*1024*1024);
+""", setup="""
+let downloaded;
+context.URL={createObjectURL:blob=>{downloaded=blob;return 'blob:stub'},revokeObjectURL(){}};
+""", fixture=fixture)
+
     def test_provider_declares_real_configuration_and_unconfigured_fails_closed(self):
         self.assertEqual(self.client.get("/api/augment/model/status").json()["model"], "research-test-model")
         with patch.dict(os.environ, {"FAR_SEMANTIC_URL": ""}):
             self.assertEqual(self.endpoint().status_code, 503)
             self.assertFalse(self.client.get("/api/augment/model/status").json()["configured"])
+
+    def test_existing_large_history_semantic_generation_and_replay_remain_bounded(self):
+        base = {**INPUT, "reasoning": "", "supporting_evidence": []}
+        session = self.client.post("/api/augment/start", json=base).json()
+        for _ in range(7):
+            response = self.client.post("/api/augment/revise", json={"session": session,
+                "revised_claim": "🙂" * 3000, "confidence": 50, "rationale": "🙂" * 3000,
+                "answers": {q["id"]: "🙂" * 2000 for q in session["questions"]}})
+            self.assertEqual(response.status_code, 200, response.text)
+            session = response.json()
+        self.assertGreater(len(json.dumps(session, ensure_ascii=False).encode()), 500000)
+        with patch("far_demo.semantic._generate", new=AsyncMock(return_value='{"findings":[],"open_questions":[]}')):
+            response = self.client.post("/api/augment/semantic", json={"session": session},
+                headers={"X-FAR-Augment-Token": "operator-access-00000001"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(self.client.post("/api/augment/semantic/verify", json={"session": session, "report": response.json()}).status_code, 200)
+        for route in ("semantic", "semantic/verify"):
+            oversized = self.client.post("/api/augment/" + route, content=b'x' * (8 * 1024 * 1024 + 1),
+                headers={"X-FAR-Augment-Token": "operator-access-00000001"})
+            self.assertEqual(oversized.status_code, 413)
 
     def test_model_access_requires_operator_token(self):
         with patch("far_demo.semantic._generate", new=AsyncMock(return_value=model_text())) as spy:

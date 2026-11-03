@@ -134,6 +134,37 @@ class AugmentationTests(unittest.TestCase):
         self.assertEqual(self.client.post("/api/augment/start", content=b'{"confidence":NaN}').status_code, 400)
         self.assertEqual(self.client.post("/api/augment/start", content=b'x' * 500001).status_code, 413)
 
+    def test_accepted_unicode_history_over_initial_limit_can_verify_and_revise(self):
+        basis = {**INPUT, "reasoning": "", "supporting_evidence": []}
+        session = self.start(basis).json()
+        encode = lambda data: json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode()
+        for _ in range(7):
+            request = {"session": session, "revised_claim": "x", "confidence": 50, "rationale": "r",
+                       "answers": {q["id"]: "a" for q in session["questions"]}}
+            fields = [(request, "revised_claim", 3000), (request, "rationale", 3000)]
+            fields += [(request["answers"], q["id"], 2000) for q in session["questions"]]
+            for owner, key, limit in fields:
+                room = 499950 - len(encode(request))
+                owner[key] = "🙂" * min(limit, max(1, (room + 1) // 4))
+            self.assertLess(len(encode(request)), 500000)
+            response = self.client.post("/api/augment/revise", content=encode(request))
+            self.assertEqual(response.status_code, 200, response.text)
+            session = response.json()
+        self.assertGreater(len(encode(session)), 500000)
+        self.assertEqual(self.client.post("/api/augment/verify", content=encode(session)).status_code, 200)
+        self.assertEqual(self.revise(session).status_code, 200)
+
+    def test_existing_history_bound_does_not_relax_revision_count_or_initial_input(self):
+        session = self.start().json()
+        for _ in range(20):
+            response = self.revise(session)
+            self.assertEqual(response.status_code, 200, response.text)
+            session = response.json()
+        self.assertEqual(self.revise(session).status_code, 422)
+        for route in ("verify", "revise"):
+            self.assertEqual(self.client.post("/api/augment/" + route, content=b'x' * (8 * 1024 * 1024 + 1)).status_code, 413)
+        self.assertEqual(self.client.post("/api/augment/start", content=b'x' * 500001).status_code, 413)
+
     def test_page_is_accessible_and_user_text_not_reflected_as_html(self):
         page = self.client.get("/augment")
         self.assertEqual(page.status_code, 200)
