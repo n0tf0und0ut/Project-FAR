@@ -3,8 +3,10 @@ import copy
 import hashlib
 import json
 import tempfile
+import tracemalloc
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tools.weight_space_research import EvidenceError, analyze, audit_safetensors
 
@@ -54,6 +56,46 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(r["arms"]["weight_edit"]["success"], 2)
         self.assertTrue(r["internal_screen_pass"])
         self.assertEqual(r["paired_vs_weight_edit"]["prompt_fix"]["paired_success_difference"], .5)
+
+    def test_identical_safetensors_sham_roundtrip_is_a_valid_complete_campaign(self):
+        try:
+            import torch
+            from safetensors.torch import load_file, save_file
+        except ImportError:
+            self.skipTest("optional local checkpoint dependencies not installed")
+        base, sham, edited = (self.root / arm for arm in ("base", "sham", "edited"))
+        for path in (base, sham, edited):
+            path.mkdir()
+        original = torch.zeros((10, 10))
+        candidate = original.clone()
+        candidate[0, 0] = 1
+        save_file({"target": original}, str(base / "weights.safetensors"))
+        save_file(load_file(str(base / "weights.safetensors")), str(sham / "weights.safetensors"))
+        save_file({"target": candidate}, str(edited / "weights.safetensors"))
+        self.assertEqual((base / "weights.safetensors").read_bytes(),
+                         (sham / "weights.safetensors").read_bytes())
+        base_audit = audit_safetensors(base, edited, {"target"}, .1)
+        sham_audit = audit_safetensors(sham, edited, {"target"}, .1)
+        self.assertEqual(base_audit["base_sha256"], sham_audit["base_sha256"])
+        identities = self.manifest["checkpoint"]
+        identities.update(base_sha256=base_audit["base_sha256"],
+                          sham_sha256=sham_audit["base_sha256"],
+                          edited_sha256=base_audit["edited_sha256"])
+        for obs in self.manifest["observations"]:
+            obs["checkpoint_sha256"] = identities[
+                "edited_sha256" if obs["arm"] == "weight_edit" else
+                "sham_sha256" if obs["arm"] == "sham_edit" else "base_sha256"]
+        report = analyze(self.manifest, self.root)
+        self.assertEqual(report["observations"], 10)
+        self.assertTrue(report["internal_screen_pass"])
+
+    def test_edited_checkpoint_must_differ_from_each_control(self):
+        for control in ("base_sha256", "sham_sha256"):
+            with self.subTest(control=control):
+                manifest = copy.deepcopy(self.manifest)
+                manifest["checkpoint"]["edited_sha256"] = manifest["checkpoint"][control]
+                with self.assertRaisesRegex(EvidenceError, "distinct digest"):
+                    analyze(manifest, self.root)
 
     def test_missing_slot_fails_closed(self):
         self.manifest["observations"].pop()
@@ -196,6 +238,89 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(result["total_parameters"], 10)
         self.assertEqual(result["changed_parameters"], 1)
         self.assertEqual(result["touched_tensors"], ["scalar"])
+
+    def test_float8_sparse_edits_enforce_finiteness_and_changed_budget(self):
+        import torch
+        from safetensors.torch import save_file
+        for dtype in (torch.float8_e4m3fn, torch.float8_e5m2):
+            with self.subTest(dtype=dtype):
+                original = torch.zeros((10, 10))
+                candidate = original.clone()
+                candidate[0, 0] = 1
+                save_file({"target": original.to(dtype)}, str(self.base / "weights.safetensors"))
+                save_file({"target": candidate.to(dtype)}, str(self.edit / "weights.safetensors"))
+                result = audit_safetensors(self.base, self.edit, {"target"}, .10)
+                self.assertEqual(result["total_parameters"], 100)
+                self.assertEqual(result["changed_parameters"], 1)
+                self.assertEqual(result["changed_fraction"], .01)
+                with self.assertRaisesRegex(EvidenceError, "budget"):
+                    audit_safetensors(self.base, self.edit, {"target"}, .005)
+                for side in (self.base, self.edit):
+                    finite = original if side == self.base else candidate
+                    for invalid in (float("nan"), float("inf")):
+                        with self.subTest(side=side.name, invalid=invalid):
+                            nonfinite = finite.clone()
+                            nonfinite[0, 1] = invalid
+                            save_file({"target": nonfinite.to(dtype)}, str(side / "weights.safetensors"))
+                            with self.assertRaisesRegex(EvidenceError, "non-finite"):
+                                audit_safetensors(self.base, self.edit, {"target"}, .10)
+                        save_file({"target": finite.to(dtype)}, str(side / "weights.safetensors"))
+
+    def test_finite_float64_values_are_not_overflowed_by_finiteness_conversion(self):
+        import torch
+        from safetensors.torch import save_file
+        original = torch.full((10, 10), 1e300, dtype=torch.float64)
+        candidate = original.clone()
+        candidate[0, 0] = 2e300
+        save_file({"target": original}, str(self.base / "weights.safetensors"))
+        save_file({"target": candidate}, str(self.edit / "weights.safetensors"))
+        self.assertEqual(audit_safetensors(self.base, self.edit, {"target"}, .10)["changed_parameters"], 1)
+
+    def test_large_nonweight_artifact_has_bounded_python_memory(self):
+        # File creation precedes tracing; the audit must never materialize this
+        # 32 MiB asset. tracemalloc detects the original Path.read_bytes defect.
+        for directory in (self.base, self.edit):
+            with (directory / "pytorch_model.bin").open("wb") as handle:
+                for _ in range(32):
+                    handle.write(b"x" * 1024 * 1024)
+        tracemalloc.start()
+        try:
+            result = audit_safetensors(self.base, self.edit, {"target"}, .10)
+            _, peak = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
+        self.assertEqual(result["changed_parameters"], 1)
+        self.assertLess(peak, 8 * 1024 * 1024, f"unbounded auxiliary-file allocation: {peak}")
+        with (self.edit / "pytorch_model.bin").open("r+b") as handle:
+            handle.seek(-1, 2)
+            handle.write(b"y")
+        with self.assertRaisesRegex(EvidenceError, "non-weight asset changed"):
+            audit_safetensors(self.base, self.edit, {"target"}, .10)
+
+    def test_nonweight_comparison_reads_only_bounded_blocks(self):
+        for directory in (self.base, self.edit):
+            (directory / "pytorch_model.bin").write_bytes(b"x" * (2 * 1024 * 1024 + 7))
+        original_open, reads = Path.open, []
+        test = self
+        class BoundedReader:
+            def __init__(self, handle):
+                self.handle = handle
+            def __enter__(self):
+                self.handle.__enter__()
+                return self
+            def __exit__(self, *args):
+                return self.handle.__exit__(*args)
+            def read(self, amount=-1):
+                test.assertGreater(amount, 0, "whole-file read of auxiliary checkpoint asset")
+                test.assertLessEqual(amount, 1024 * 1024)
+                reads.append(amount)
+                return self.handle.read(amount)
+        def bounded_open(path, *args, **kwargs):
+            handle = original_open(path, *args, **kwargs)
+            return BoundedReader(handle) if path.name == "pytorch_model.bin" else handle
+        with patch.object(Path, "open", bounded_open):
+            self.assertEqual(audit_safetensors(self.base, self.edit, {"target"}, .10)["changed_parameters"], 1)
+        self.assertTrue(reads)
 
     def test_budget_failure(self):
         with self.assertRaisesRegex(EvidenceError, "budget"):

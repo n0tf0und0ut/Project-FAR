@@ -78,7 +78,7 @@ def analyze(manifest: dict, evidence_root: Path) -> dict:
             set(model) != {"base_sha256", "sham_sha256", "edited_sha256"} or
             not all(_hex64(model.get(k)) for k in model)):
         raise EvidenceError("checkpoint identities required")
-    if len(set(model.values())) != 3:
+    if model["edited_sha256"] in (model["base_sha256"], model["sham_sha256"]):
         raise EvidenceError("edited checkpoint must have distinct digest")
     if not _hex64(manifest.get("suite_sha256")) or not _hex64(manifest.get("source_sha256")):
         raise EvidenceError("suite and executable source digests required")
@@ -218,22 +218,24 @@ def audit_safetensors(base_dir: Path, edited_dir: Path, allowed_tensors: set[str
     left, right = inventory(base_dir), inventory(edited_dir)
     if left.keys() != right.keys() or not any(p.endswith(".safetensors") for p in left):
         raise EvidenceError("checkpoint files differ or no safetensors present")
-    def checkpoint_digest(files: dict[str, Path]) -> str:
+    def checkpoint_digest(files: dict[str, Path]) -> tuple[str, dict[str, bytes]]:
         digest = hashlib.sha256()
+        file_hashes = {}
         for name in sorted(files):
             digest.update(name.encode("utf-8") + b"\0")
             h = hashlib.sha256()
             with files[name].open("rb") as handle:
                 for block in iter(lambda: handle.read(1024 * 1024), b""):
                     h.update(block)
-            digest.update(h.digest())
-        return digest.hexdigest()
-    base_sha256 = checkpoint_digest(left)
-    edited_sha256 = checkpoint_digest(right)
+            file_hashes[name] = h.digest()
+            digest.update(file_hashes[name])
+        return digest.hexdigest(), file_hashes
+    base_sha256, base_file_hashes = checkpoint_digest(left)
+    edited_sha256, edited_file_hashes = checkpoint_digest(right)
     changed, total, touched = 0, 0, set()
     for name in sorted(left):
         if not name.endswith(".safetensors"):
-            if _sha(left[name].read_bytes()) != _sha(right[name].read_bytes()):
+            if base_file_hashes[name] != edited_file_hashes[name]:
                 raise EvidenceError(f"non-weight asset changed: {name}")
             continue
         with safe_open(left[name], framework="pt", device="cpu") as original, safe_open(right[name], framework="pt", device="cpu") as candidate:
@@ -258,7 +260,11 @@ def audit_safetensors(base_dir: Path, edited_dir: Path, allowed_tensors: set[str
                 for x, y in chunks:
                     if x.dtype != y.dtype:
                         raise EvidenceError(f"tensor dtype changed: {key}")
-                    if x.is_floating_point() and (not torch.isfinite(x).all() or not torch.isfinite(y).all()):
+                    # CPU isfinite is unavailable for some float8 dtypes. Widen
+                    # only this bounded chunk; float64 also preserves finite
+                    # values outside float32's range instead of overflowing.
+                    if x.is_floating_point() and (not torch.isfinite(x.to(torch.float64)).all()
+                                                  or not torch.isfinite(y.to(torch.float64)).all()):
                         raise EvidenceError(f"non-finite tensor: {key}")
                     delta = int(torch.count_nonzero(x != y).item())
                     if delta:
