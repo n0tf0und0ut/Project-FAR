@@ -264,3 +264,95 @@ def fit(recipe, p, datasets, seed, split):
             "last_batch_loss":last_loss,"elapsed_seconds":round(time.monotonic()-before,4),
             split:evaluate(model,datasets[split],p["batch_size"])}
 
+def journal_event(path, event, **data):
+    row = {"event": event, "at": dt.datetime.now(dt.timezone.utc).isoformat(), **data}
+    with path.open("ab") as h:
+        h.write(encoded(row) + b"\n")
+        h.flush()
+        os.fsync(h.fileno())
+
+
+def write_once(path, data):
+    with path.open("xb") as h:
+        h.write(data)
+        h.flush()
+        os.fsync(h.fileno())
+
+
+def run(p, dest, protocol_bytes):
+    import torch
+    validate_protocol(p)
+    journal = Path(str(dest) + ".journal.jsonl")
+    if dest.exists() or journal.exists() or Path(str(dest)+".failure.json").exists():
+        raise FileExistsError("cannot overwrite result or previous attempt evidence")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    torch.set_num_threads(1)
+    splits = splits_for(p)
+    datasets = {name: make_dataset(ids,p) for name,ids in splits.items()}
+    source_sha = digest(Path(__file__).read_bytes())
+    base = {"study_id":p["study_id"],"protocol_sha256":digest(protocol_bytes),"source_sha256":source_sha}
+    journal_event(journal,"study_started",**base)
+    results, holdouts = [], []
+    rng = random.Random(p["search_seed"])
+    try:
+        for slot in range(p["max_candidates"]):
+            recipe, parent = (BASES[slot],None) if slot < 4 else next_recipe(results,rng,p["max_blocks"])
+            journal_event(journal,"validation_started",slot=slot,recipe=list(recipe),parent=parent)
+            result = fit(recipe,p,datasets,p["selection_train_seed"],"validation")
+            result.update({"slot":slot,"parent":parent})
+            results.append(result)
+            journal_event(journal,"validation_completed",slot=slot,result=result)
+        winner = min(results,key=rank)
+        selection = {"recipe":winner["recipe"],"slot":winner["slot"],"selection_on":"validation_only"}
+        journal_event(journal,"selection_locked",selection=selection)
+        final_recipes = list(dict.fromkeys([*BASES,tuple(winner["recipe"])]))
+        for recipe in final_recipes:
+            for seed in p["final_train_seeds"]:
+                journal_event(journal,"holdout_started",recipe=list(recipe),seed=seed)
+                result = fit(recipe,p,datasets,seed,"test")
+                holdouts.append(result)
+                journal_event(journal,"holdout_completed",result=result)
+        journal_event(journal,"study_complete",selection=selection)
+        report = {"status":"COMPLETE_RESEARCH_PILOT","scope":"tiny authored synthetic sequences; not transformer-scale discovery",
+                  "study_id":p["study_id"],"protocol":p,**{k:v for k,v in base.items() if k!="study_id"},
+                  "source_environment":{"python":platform.python_version(),"torch":torch.__version__,"device":"cpu","threads":torch.get_num_threads()},
+                  "split_sha256":digest(encoded(splits)),"split_sizes":{key:len(val) for key,val in splits.items()},
+                  "validation_records":results,"selection":selection,"final_records":holdouts,
+                  "journal_sha256":digest(journal.read_bytes()),
+                  "limitations":["single authored task generator","test inputs not externally administered",
+                                 "related training seeds and shared holdout examples","no search for new primitive operators",
+                                 "no independently established novelty","no broad capability or scaling claim"]}
+        report["report_sha256"] = digest(encoded(report))
+        write_once(dest,encoded(report)+b"\n")
+        return report
+    except Exception as exc:
+        journal_event(journal,"study_failed",error=type(exc).__name__,message=str(exc),traceback=traceback.format_exc()[-2000:])
+        failure={"status":"FAILED_OR_INCOMPLETE",**base,"completed_validations":results,
+                 "completed_holdouts":holdouts,"error":str(exc),"journal_sha256":digest(journal.read_bytes())}
+        write_once(Path(str(dest)+".failure.json"),encoded(failure)+b"\n")
+        raise
+
+
+def check_metrics(m, count):
+    if set(m["by_task"]) != set(TASKS):
+        raise ValueError("invalid task family coverage")
+    totals = []
+    for name in TASKS:
+        task=m["by_task"][name]
+        c,n=task["correct"],task["count"]
+        if type(c) is not int or type(n) is not int or n < 1 or not 0 <= c <= n:
+            raise ValueError("invalid task counts")
+        if abs(task["accuracy"]-c/n) > 1e-12:
+            raise ValueError("task accuracy does not agree with counts")
+        totals.append((c,n))
+    if sum(n for _,n in totals) != count:
+        raise ValueError("incomplete task evaluation")
+    if abs(m["micro_accuracy"] - sum(c for c,_ in totals)/count) > 1e-12:
+        raise ValueError("incorrect micro accuracy")
+    if abs(m["macro_accuracy"] - sum(c/n for c,n in totals)/len(TASKS)) > 1e-12:
+        raise ValueError("incorrect macro accuracy")
+    if any(type(m[k]) not in (float,int) or not math.isfinite(m[k]) for k in ("micro_accuracy","macro_accuracy","cross_entropy")):
+        raise ValueError("nonfinite metrics")
+    if not 0 <= m["macro_accuracy"] <= 1 or not 0 <= m["micro_accuracy"] <= 1 or m["cross_entropy"] < 0:
+        raise ValueError("out-of-bounds metrics")
+
