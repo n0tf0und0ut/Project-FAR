@@ -2,9 +2,13 @@
 import base64
 import copy
 import hashlib
+import io
 import json
+import http.server
 import tempfile
+import threading
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
@@ -39,7 +43,7 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(self.p["status"], "RESEARCH_FROZEN_TASK_AUTHOR")
 
     def test_model_request_separates_public_task_from_gold_action_set(self):
-        with patch("urllib.request.urlopen", return_value=FakeResponse()) as mock:
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse()) as mock:
             x = study.request_model("No contract supplied")
         self.assertEqual(mock.call_count, 1)
         self.assertEqual(x["action"], "ASK_SCOPE")
@@ -52,11 +56,11 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(body).hexdigest(), x["request_sha256"])
 
     def test_network_restricted_and_uninterpretable_completion_not_inferred(self):
-        with patch("urllib.request.urlopen") as mock:
+        with patch("urllib.request.OpenerDirector.open") as mock:
             with self.assertRaises(study.StudyError):
                 study.request_model("x", endpoint="https://api.example")
             mock.assert_not_called()
-        with patch("urllib.request.urlopen", return_value=FakeResponse("Maybe ask?")):
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse("Maybe ask?")):
             x = study.request_model("under-specified")
         self.assertEqual(x["action"], "INVALID_ACTION")
 
@@ -124,7 +128,7 @@ class UncertainRoutingTests(unittest.TestCase):
             def store(record):
                 study.persist(partial, record)
             with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
-                with patch("urllib.request.urlopen", return_value=BadResponse()):
+                with patch("urllib.request.OpenerDirector.open", return_value=BadResponse()):
                     with self.assertRaises(study.ModelResponseError):
                         study.evaluate(
                             self.p, self.digest, Path("/fake"),
@@ -189,6 +193,67 @@ class UncertainRoutingTests(unittest.TestCase):
         with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
             with self.assertRaisesRegex(study.StudyError, "identity drift"):
                 study.evaluate(self.p, self.digest, Path("/fake"), runner=varied)
+
+    def test_http_error_body_headers_and_request_survive_model_failure(self):
+        raw = b'{"error":"provider unavailable"}'
+        error = urllib.error.HTTPError(study.ENDPOINT, 503, "Unavailable",
+                                       {"Retry-After": "60"}, io.BytesIO(raw))
+        records = []
+        with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256):
+            with patch("urllib.request.OpenerDirector.open", side_effect=error):
+                with self.assertRaises(study.ModelResponseError):
+                    study.evaluate(self.p, self.digest, Path("/fake"), checkpoint=records.append)
+        env = records[-1]["failed_model_call"]["raw_envelope"]
+        self.assertEqual(env["http_status"], 503)
+        self.assertEqual(env["response_headers"]["Retry-After"], "60")
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), raw)
+        self.assertEqual(env["response_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertTrue(env["response_complete"])
+        self.assertIn("request_sha256", env)
+
+    def test_oversized_response_preserves_explicitly_truncated_prefix(self):
+        response = FakeResponse()
+        response.raw = b"abcdef"
+        request = study.urllib.request.Request(study.ENDPOINT, b"{}", method="POST")
+        with patch("urllib.request.OpenerDirector.open", return_value=response):
+            with self.assertRaises(study.ResponseTransportError) as failure:
+                study.read_bounded_response(request, timeout=1, max_bytes=4)
+        env = failure.exception.envelope
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"abcd")
+        self.assertEqual(env["response_sha256"], hashlib.sha256(b"abcd").hexdigest())
+        self.assertTrue(env["response_truncated"])
+        self.assertFalse(env["response_complete"])
+        self.assertEqual(env["response_hash_scope"], "retained_prefix")
+
+    def test_model_http_redirect_is_preserved_without_destination_request(self):
+        forbidden = []
+        class Redirect(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.send_response(302)
+                self.send_header("Location", "/forbidden")
+                self.end_headers()
+                self.wfile.write(b"redirect observation")
+            def do_GET(self):
+                forbidden.append(self.path)
+                self.send_response(200)
+                self.end_headers()
+            def log_message(self, *_): pass
+        server = http.server.HTTPServer(("127.0.0.1", 0), Redirect)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        endpoint = f"http://127.0.0.1:{server.server_port}/v1/chat/completions"
+        try:
+            with patch.object(study, "ENDPOINT", endpoint):
+                with self.assertRaises(study.ModelResponseError) as failure:
+                    study.request_model("x", endpoint=endpoint)
+            env = failure.exception.envelope
+            self.assertEqual(env["http_status"], 302)
+            self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect observation")
+            self.assertEqual(forbidden, [])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
 
 if __name__ == "__main__":

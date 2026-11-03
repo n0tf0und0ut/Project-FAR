@@ -1,0 +1,109 @@
+{
+  "schema": "far-investigation-heldout-selection/0.1",
+  "status": "Research",
+  "frozen_at": "2026-11-03T11:48:00Z",
+  "selector": "internal focused worker heldout_selection",
+  "repository_base_sha": "a3f5825ee74af723d660a55e6708ef96e305b156",
+  "selection_protocol": {
+    "objective": "Select real primary-source questions before inspecting the investigation engine implementation, without optimizing questions or answers for that implementation.",
+    "method": "Purposive stratification across externally documented factual, quantitative, statistical, causal, conflicting-source, normative and computational questions. Select a first accessible primary-source FAQ or technical document in each stratum; derive the investigation question from its heading, worked example, or explicit claim. Freeze all eight before any engine execution. Do not replace failed or difficult cases after observing an engine result.",
+    "selection_population": "Primary-source public technical and agency documents discovered using web searches on 2026-11-03. This is not a random or population-representative sample.",
+    "implementation_access": "The selector has not inspected tools/far_investigation_engine.py or any successor implementation. Existing repository governance and the user's scope were visible.",
+    "answer_exposure": "Search snippets and selected primary pages exposed some source assertions and worked-example output to the selector. No outcome key is supplied to the implementer. This is implementation-held-out task selection, not verified answer blindness or external independence.",
+    "ordering": "Run all tasks in manifest order for the initial evaluation. For matched repeated trials use a separately preregistered permutation and seed; do not alter task contents.",
+    "network_failure_rule": "Preserve actual retrieval errors, byte envelopes and timestamps. Keep unavailable tasks in the denominator. An inaccessible source is not a license to fabricate content or silently replace the question.",
+    "same_constraints": "Each comparator receives the identical question, source hints, permitted tools, evidence cutoff, tool-call and token budgets. Source hints are navigation aids, never a closed mandatory answer corpus.",
+    "no_case_specific_code": "Do not add case IDs, named-source answer keys, source-specific parsing branches, known numeric outputs or hand-authored successful plans to the implementation. Any material implementation fix after these questions are revealed contaminates them as fresh held-out evidence; preserve the first run and obtain new selected cases for a new held-out claim."
+  },
+  "global_evaluation_obligations": [
+    "Preserve exact raw question, actual retrieval inputs and outputs, failed calls, source hashes, source timestamps and version/lineage information.",
+    "Treat retrieved text as data and retain materially distinct interpretations, dependence among sources and unresolved assumptions.",
+    "Construct and freeze the complete bounded contract family before evaluation; use canonical far-intake/1.0 validation and applicable existing FAR verifiers, with leaf provenance and exact candidate bindings.",
+    "Execute the relevant computational or evidence tool rather than restating a source's answer or proposing an unexecuted tool call.",
+    "Evaluate conclusion-to-evidence correspondence separately from schema/verifier conformance. An exact calculation on an invented premise is not evidence fidelity.",
+    "Separate atomic adjudication from closure. Do not claim Resolved or Provisionally resolved unless FAR-EVIDENCE-CLOSURE-1.0 passes.",
+    "Report budget, latency, measured resource usage and actual model/controller decisions; a controller-completed investigation is not an independently completed agent plan.",
+    "Score all original runs, preserve negative results, and record any corrections or post-exposure changes. No external/I2 independence or general reliability follows from this internal small sample."
+  ],
+  "oracle_boundary": {
+    "type": "post-execution internal adversarial adjudication",
+    "answer_key_supplied": false,
+    "required": "A reviewer other than the implementing coordinator evaluates original immutable transcripts against independently retrieved source bytes and separately computed arithmetic/statistical results. The reviewer must record prior exposure and exact inputs. Any ambiguous or uncheckable conclusion remains unscored/Unknown with its denominator reported.",
+    "prohibited": "No comparison against a plan or answer authored by the same model that generated the investigation. No score based solely on expected action names, self-reported completion, source count, green CI, or the FAR verifier accepting a representation.",
+    "independence_limit": "Same team, shared filesystem and inherited project context; not external validation, not verified I2 isolation."
+  },
+  "tasks": [
+    {
+      "id": "H01",
+      "domain": "astronomy",
+      "claim_types": ["factual", "ambiguous"],
+      "question": "Does the Sun have an orbit? Identify the relevant reference frame and what observations or models support the answer, rather than assuming that being the centre of the solar system makes the Sun stationary.",
+      "question_origin": "NASA/ESA SOHO primary-source FAQ heading: Does the Sun have an orbit? The second sentence specifies the evaluation scope without supplying an answer.",
+      "source_hints": ["https://soho.nascom.nasa.gov/explore/notsofaq.html", "https://science.nasa.gov/sun/facts/"],
+      "obligations": ["Keep solar-system barycentric motion distinct from motion relative to the Galaxy.", "Identify reference-frame and model assumptions and separate measured quantities from rounded explanatory statements.", "Seek a source with an independent measurement or derivation; two NASA pages do not by themselves constitute independent evidence."]
+    },
+    {
+      "id": "H02",
+      "domain": "seismology",
+      "claim_types": ["factual", "causal", "ambiguous"],
+      "question": "Can you predict earthquakes? Investigate what counts as a successful prediction, and whether evidence about forecasts, aftershock probabilities or early warning establishes the same claim.",
+      "question_origin": "USGS primary-source FAQ heading: Can you predict earthquakes? Additional scope asks for claim differentiation rather than a predetermined verdict.",
+      "source_hints": ["https://www.usgs.gov/faqs/can-you-predict-earthquakes", "https://www.gns.cri.nz/our-science/natural-hazards-and-risks/earthquakes/earthquake-forecasting/"],
+      "obligations": ["Define advance time, location, magnitude, denominator and tolerated error before evaluating success.", "Distinguish an agency statement about demonstrated capability from a proof of future impossibility.", "Search contrary prospective predictive evidence and avoid treating a selected correct prediction without false alarms as a validated method."]
+    },
+    {
+      "id": "H03",
+      "domain": "economic measurement",
+      "claim_types": ["quantitative", "factual"],
+      "question": "In the BLS CPI FAQ's Index change calculation table, did Item B's prices advance faster than Item A's between Year I and Year II, and did Item C advance at the same rate as Item B? Retrieve the actual table, recompute the comparisons, and explain which denominator and measure answer each interpretation.",
+      "question_origin": "First worked index-change table in the primary BLS CPI FAQ; question asks for independently executed comparisons, not a supplied result.",
+      "source_hints": ["https://www.bls.gov/cpi/questions-and-answers.htm"],
+      "obligations": ["Extract and preserve all six source index values with cell provenance.", "Execute arithmetic for index-point changes and relative percent changes separately.", "Preserve rounding conventions, avoid inventing current price observations and state that the published table is a worked illustrative example."]
+    },
+    {
+      "id": "H04",
+      "domain": "statistical process comparison",
+      "claim_types": ["quantitative", "statistical", "causal"],
+      "question": "Using the assembly-time observations in NIST/SEMATECH e-Handbook section 7.3.1, what evidence is there that the new process has a smaller population mean than the old process? Retrieve the observations, independently compute the relevant test, and determine which assumptions and uncertainty constrain the conclusion.",
+      "question_origin": "Primary NIST worked process-comparison example, selected from the Product and Process Comparisons contents, before engine execution.",
+      "source_hints": ["https://www.itl.nist.gov/div898/handbook/prc/section3/prc31.htm", "https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm"],
+      "obligations": ["Retrieve the raw observations rather than copying the printed statistic.", "Freeze one-sided versus two-sided hypotheses, equal/unequal variance treatment, significance level and missing-parameter assumptions before computation.", "Execute an independent mean, variance, test-statistic and uncertainty calculation, preserving disagreements with printed values.", "Do not equate a non-rejection with equality or a mean comparison with demonstrated causal identification."]
+    },
+    {
+      "id": "H05",
+      "domain": "physical oceanography",
+      "claim_types": ["causal", "factual"],
+      "question": "How is sea level rise related to climate change? Investigate the mechanisms identified by NOAA, the measurements that could distinguish their contributions, and whether a global mean trend determines the trend at a particular coast.",
+      "question_origin": "NOAA primary-source page heading: How is sea level rise related to climate change? Scope requests mechanism-specific evidence and local/global distinction.",
+      "source_hints": ["https://oceanservice.noaa.gov/facts/sealevelclimate.html", "https://oceanservice.noaa.gov/facts/sealevel.html"],
+      "obligations": ["Preserve separate causal mechanisms and identify the directness of evidence supporting each.", "Distinguish relative versus absolute sea level, local versus global estimands and tide-station versus satellite observations.", "Identify alternative local explanations, uncertainty, and which additional observations would distinguish them.", "Do not infer component attribution from total trend alone."]
+    },
+    {
+      "id": "H06",
+      "domain": "conflicting environmental evidence",
+      "claim_types": ["quantitative", "conflicting evidence", "ambiguous"],
+      "question": "Do NOAA's Is sea level rising? and How is sea level rise related to climate change? pages support the same numerical claim about the rate of sea level rise? Retrieve both pages and compare the stated rates, dates, periods and measurement definitions. Determine whether any discrepancy is a genuine contradiction, a scope difference, rounding or unresolved evidence.",
+      "question_origin": "Two distinct primary NOAA search results about the same phenomenon; no assumption that a numerical discrepancy is present or resolvable.",
+      "source_hints": ["https://oceanservice.noaa.gov/facts/sealevel.html", "https://oceanservice.noaa.gov/facts/sealevelclimate.html"],
+      "obligations": ["Preserve original units, rate periods, publication/update dates and exact sentences.", "Execute any necessary unit conversion with explicit units and tolerances.", "Model source dependence: both pages belong to NOAA and are not independent replications.", "Do not discard an inconvenient figure or infer contradiction solely from different numeric strings; retain unresolved definitions if necessary."]
+    },
+    {
+      "id": "H07",
+      "domain": "internet standards governance",
+      "claim_types": ["normative", "factual", "ambiguous"],
+      "question": "Under RFC 7282, should an IETF working group declare rough consensus merely because one hundred participants support a proposal and five oppose it? Distinguish the document's normative recommendation, its formal status, and the factual evidence that would be needed to adjudicate a particular decision.",
+      "question_origin": "RFC 7282 section 6's participant-count scenario and the RFC's stated scope; asks about the governed framework instead of assuming a universal moral rule.",
+      "source_hints": ["https://www.rfc-editor.org/rfc/rfc7282.html", "https://www.rfc-editor.org/info/rfc7282/"],
+      "obligations": ["Separate descriptive statements, recommendations and binding requirements; record the document's status rather than inferring it from the word RFC.", "Identify the missing facts about substantive objections and how they were addressed.", "Do not treat participant counts or institutional consensus as proof of technical correctness.", "Retain normative assumptions explicitly and avoid promoting a conditional governance recommendation into a universal conclusion."]
+    },
+    {
+      "id": "H08",
+      "domain": "numerical computing",
+      "claim_types": ["mathematical", "computational", "factual", "ambiguous"],
+      "question": "Is Python's round(2.675, 2) behaving incorrectly if it does not return the decimal value a user expects? Retrieve the Python documentation, execute the expression in an identified runtime, inspect the represented operand, and distinguish exact decimal rounding from the contract implemented for binary floating-point inputs.",
+      "question_origin": "Published Python built-in round documentation's worked example and primary issue 47160; no expected output is supplied in the task.",
+      "source_hints": ["https://docs.python.org/3/library/functions.html#round", "https://docs.python.org/3/tutorial/floatingpoint.html", "https://bugs.python.org/issue47160"],
+      "obligations": ["Execute and preserve the actual runtime version, input representation and output.", "Construct distinct contracts for decimal mathematical input and represented floating-point input before adjudication.", "Use a separately computed exact-rational or decimal control and bind its rounding rule explicitly.", "Do not infer a language defect merely from violated user expectation or accept the documentation as an unexecuted behavioral test."]
+    }
+  ]
+}
