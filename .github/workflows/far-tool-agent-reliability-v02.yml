@@ -1,0 +1,136 @@
+name: Bounded Tool Agent Reliability v0.2
+on:
+  push:
+    branches: [research/tool-agent-reliability-20261103]
+permissions:
+  contents: read
+jobs:
+  offline:
+    if: contains(github.event.head_commit.message, '[TAR-v0.2-launch]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.test_tool_agent_reliability -v
+      - run: python -m tools.tool_agent_reliability validate --protocol research/tool-agent-reliability/protocol-v0.2.json
+  preflight:
+    needs: offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      launch_scored: ${{ steps.gate.outputs.launch_scored }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Start exact credential-free CPU model
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Execute all three disjoint capability tasks once
+        run: python -m tools.tool_agent_reliability run --protocol research/tool-agent-reliability/protocol-v0.2.json --phase preflight --shard 0 --out tool-agent-evidence/preflight
+      - name: Replay every model response and actual tool transition
+        run: python -m tools.tool_agent_reliability analyze --protocol research/tool-agent-reliability/protocol-v0.2.json --phase preflight --inputs tool-agent-evidence/preflight --out tool-agent-evidence/preflight-report.json
+      - name: Apply the prospective continuation rule
+        id: gate
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path('tool-agent-evidence/preflight-report.json').read_text())
+          launch=r['preflight_gate_passed'] is True
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('launch_scored='+str(launch).lower()+'\n')
+          print('BROADER_RUNS_AUTHORIZED' if launch else 'STOPPED_AT_REGISTERED_CAPABILITY_GATE')
+          PY
+      - name: Preserve preflight evidence even on error
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tool-agent-v02-preflight
+          path: tool-agent-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+  scored:
+    needs: preflight
+    if: needs.preflight.outputs.launch_scored == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: tool-agent-v02-preflight
+          path: prerequisite-evidence/
+      - run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Execute six frozen task/repetition slots after raw preflight replay
+        run: python -m tools.tool_agent_reliability run --protocol research/tool-agent-reliability/protocol-v0.2.json --phase scored --preflight prerequisite-evidence/preflight --shard ${{ matrix.shard }} --out tool-agent-evidence/scored
+      - name: Preserve all attempted model/tool traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tool-agent-v02-shard-${{ matrix.shard }}
+          path: tool-agent-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+  summarize:
+    needs: [preflight, scored]
+    if: always() && needs.preflight.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: tool-agent-v02-*
+          path: tool-agent-evidence/
+          merge-multiple: true
+      - name: Reconstruct the preflight again independently
+        run: python -m tools.tool_agent_reliability analyze --protocol research/tool-agent-reliability/protocol-v0.2.json --phase preflight --inputs tool-agent-evidence/preflight --out tool-agent-evidence/preflight-report.json
+      - name: Report broader outcomes only after a passed gate
+        env:
+          LAUNCH_SCORED: ${{ needs.preflight.outputs.launch_scored }}
+        run: |
+          if [ "$LAUNCH_SCORED" = true ]; then
+            python -m tools.tool_agent_reliability analyze --protocol research/tool-agent-reliability/protocol-v0.2.json --phase scored --inputs tool-agent-evidence/scored --out tool-agent-evidence/scored-report.json
+          else
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          r={'status':'Research','execution':'STOPPED_AT_REGISTERED_CAPABILITY_GATE','broader_slots_planned':72,'broader_slots_executed':0,'broader_result':'NOT_RUN','general_agent_reliability':'NOT_ESTABLISHED','far_causal_effect':'NOT_TESTED'}
+          Path('tool-agent-evidence/stopping-record.json').write_text(json.dumps(r,indent=2)+'\n')
+          print(json.dumps(r))
+          PY
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: tool-agent-v02-complete-evidence
+          path: tool-agent-evidence/
+          if-no-files-found: error
+          retention-days: 30
