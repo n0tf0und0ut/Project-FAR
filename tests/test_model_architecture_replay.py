@@ -7,13 +7,17 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import model_architecture_replay as replay
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None
 
 
 class ReplayTests(unittest.TestCase):
     def report(self):
         return {"environment": {"threads": 1}, "protocol": {"device": "cpu"}}
 
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_enforces_recorded_cpu_thread_count_before_verifier(self):
         report = self.report()
         original = torch.get_num_threads()
@@ -26,6 +30,7 @@ class ReplayTests(unittest.TestCase):
         finally:
             torch.set_num_threads(original)
 
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_fail_closed_on_unrecorded_and_inconsistent_configuration(self):
         for bad in (None, 0, 2, True, "1"):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
