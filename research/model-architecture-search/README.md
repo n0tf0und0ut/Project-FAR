@@ -80,10 +80,17 @@ The prospectively frozen [v0.3 study](preregistration-v0.3.md) executed 96 known
 
 See [convergence and verification](CONVERGENCE-2026-11-03.md) for optional-dependency regression, signed-cache prerequisite and exact-head review limits.
 
-Current v0.3 verification uses the post-execution **verifier 1.1** in
+Current v0.3 verification uses the post-execution **verifier 1.2** in
 `tools/check_model_architecture_external_archive.py`. It binds the embedded
 protocol to its canonical digest and registered bytes, the report's execution
 configuration to the journal start, and saved replay identities to the report.
+It requires the complete registered neural and simple-reference matrices,
+full validation/test cohorts, and exact report/journal reference-result
+agreement. All current report verification requires a journal; duplicate JSON
+fields fail closed. The unchanged frozen score oracle regrades every required
+comparator and neural prediction against its original held-out cohort.
+Recorded neural and reference training durations must be finite, nonnegative
+JSON numbers; boolean and other nonnumeric values are rejected.
 The current replay wrapper uses the same boundary. The prospectively frozen
 `model_architecture_external.verify()` and its original CLI remain historical
 source; their weaker checks do not supply current assurance. The original

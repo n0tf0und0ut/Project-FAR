@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-execution verifier 1.1 for FAR-MAS-EXTERNAL-003 reports and archives.
+"""Post-execution verifier 1.2 for FAR-MAS-EXTERNAL-003 reports and archives.
 
 Optional scikit-learn is required for actual outcome regrading; archive digest
 checks operate without PyTorch. The prospectively frozen runner stays unchanged.
@@ -12,6 +12,7 @@ import base64
 import hashlib
 import io
 import json
+import math
 from pathlib import Path
 import sys
 import zipfile
@@ -20,7 +21,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools import model_architecture_external as ex
 
 
-VERIFICATION_VERSION="1.1"
+VERIFICATION_VERSION="1.2"
+COMPARATORS={"logistic_regression","rbf_svm","knn5"}
+TRIAL_FIELDS=("dataset","scale","steps","family","seed")
+SPEC_FIELDS=("family","width","parameters","estimated_forward_macs","parameter_relative_difference",
+             "estimated_mac_relative_difference","within_registered_cost_bounds")
 REQUIRED={"RESULTS-V0.3.json","RESULTS-V0.3.json.journal.jsonl",
           "model_architecture_external.py","protocol-v0.3.json",
           "preregistration-v0.3.md","test_model_architecture_external.py",
@@ -31,8 +36,123 @@ REQUIRED={"RESULTS-V0.3.json","RESULTS-V0.3.json.journal.jsonl",
           "test_model_architecture_external_evidence.py","RESULTS-V0.3.md"}
 
 
+def decode_json(raw):
+    def unique(pairs):
+        out={}
+        for key,value in pairs:
+            if key in out:
+                raise ValueError("duplicate JSON key: "+key)
+            out[key]=value
+        return out
+    return json.loads(raw,object_pairs_hook=unique)
+
+
+def _report_matrix(result,p):
+    datasets=set(p["datasets"])
+    if set(result["datasets"])!=datasets or set(result["simple_baselines"])!=datasets:
+        raise ValueError("registered dataset/comparator matrix mismatch")
+    expected=[(name,scale,steps,family,seed) for name in p["datasets"] for scale in p["scales"]
+              for steps in p["steps_budgets"] for family in p["comparison"] for seed in p["seeds"]]
+    keys=[tuple(r[k] for k in TRIAL_FIELDS) for r in result["records"]]
+    if ex.canonical(keys)!=ex.canonical(expected):
+        raise ValueError("registered neural trial matrix mismatch")
+    for name in p["datasets"]:
+        desc=result["datasets"][name]
+        splits=desc["split_indices"]
+        if set(splits)!={"train","validation","test"}:
+            raise ValueError("registered cohort matrix mismatch")
+        indices=[i for cohort in splits.values() for i in cohort]
+        if (type(desc["shape"][0]) is not int or desc["shape"][0]!=len(indices) or
+            any(type(i) is not int for i in indices) or sorted(indices)!=list(range(len(indices))) or
+            ex.canonical(desc["split_sizes"])!=ex.canonical({k:len(v) for k,v in splits.items()})):
+            raise ValueError("cohort partition/count mismatch")
+        baselines=result["simple_baselines"][name]
+        if set(baselines)!=COMPARATORS:
+            raise ValueError("registered comparator matrix mismatch")
+        fields={"training_seconds","validation_predictions","validation_metrics","test_predictions","test_metrics"}
+        if any(type(v) is not dict or set(v)!=fields for v in baselines.values()):
+            raise ValueError("comparator cohort/result fields mismatch")
+        neural=[r for r in result["records"] if r["dataset"]==name]
+        durations=[v["training_seconds"] for v in baselines.values()]+[r["train_seconds"] for r in neural]
+        for value in durations:
+            try:
+                valid=type(value) in (int,float) and math.isfinite(value) and value>=0
+            except OverflowError:
+                valid=False
+            if not valid:
+                raise ValueError("observed training duration must be a finite nonnegative real")
+        outcomes=list(baselines.values())+neural
+        for outcome in outcomes:
+            for split in ("validation","test"):
+                predictions=outcome[split+"_predictions"]
+                if type(predictions) is not list or len(predictions)!=len(splits[split]):
+                    raise ValueError("evaluation cohort prediction count mismatch")
+    return dict(zip(expected,result["records"]))
+
+
+def _journal_matrix(result,p,events,records):
+    expected=set(records)
+    groups={key[:3] for key in expected}
+    started={};trained={};locks={};finished=set();baseline=set()
+    for i,e in enumerate(events):
+        op=e["event"]
+        if op in ("train_started","training_completed","test_completed"):
+            row=e if op=="train_started" else e["record_without_test" if op=="training_completed" else "record"]
+            key=tuple(row[k] for k in TRIAL_FIELDS)
+            if key not in expected:
+                raise ValueError("journal trial substitution")
+            group=key[:3]
+            record=records[key]
+            if ex.canonical(key)!=ex.canonical(tuple(record[k] for k in TRIAL_FIELDS)):
+                raise ValueError("journal trial identity encoding mismatch")
+            if op=="train_started":
+                if key in started or ex.canonical(e["spec"])!=ex.canonical({k:record[k] for k in SPEC_FIELDS}):
+                    raise ValueError("duplicate/substituted train start")
+                started[key]=i
+            elif op=="training_completed":
+                reduced={k:v for k,v in record.items() if k not in ("test_predictions","test_metrics")}
+                if key not in started or started[key]>=i or key in trained or ex.canonical(row)!=ex.canonical(reduced):
+                    raise ValueError("training completion identity/order mismatch")
+                trained[key]=i
+            else:
+                if (key in finished or group not in locks or key not in trained or trained[key]>=locks[group] or
+                    locks[group]>=i or ex.canonical(row)!=ex.canonical(record)):
+                    raise ValueError("test identity/order mismatch")
+                finished.add(key)
+        elif op=="selection_locked":
+            group=(e["dataset"],e["scale"],e["steps"])
+            if group not in groups or group in locks or {k for k in trained if k[:3]==group}!={k for k in expected if k[:3]==group}:
+                raise ValueError("selection lock before complete registered training matrix")
+            averages={family:sum(records[k]["validation_metrics"]["accuracy"] for k in records
+                                 if k[:3]==group and k[3]==family)/len(p["seeds"]) for family in p["comparison"]}
+            analysis=result["analysis"][f'{group[0]}/width-{group[1]}/steps-{group[2]}']
+            if e["selected"]!=analysis["chosen_by_validation"] or ex.canonical(e["average_validation_accuracies"])!=ex.canonical(averages):
+                raise ValueError("validation selection evidence mismatch")
+            locks[group]=i
+        elif op=="simple_baselines_completed":
+            name=e["dataset"]
+            if name not in p["datasets"] or name in baseline or {k for k in finished if k[0]==name}!={k for k in expected if k[0]==name}:
+                raise ValueError("duplicate/substituted/incomplete baseline control event")
+            if ex.canonical(e["results"])!=ex.canonical(result["simple_baselines"][name]):
+                raise ValueError("journal/report baseline results mismatch")
+            baseline.add(name)
+        elif op=="start":
+            if i!=0:
+                raise ValueError("duplicate journal start")
+        elif op=="complete":
+            if i!=len(events)-1 or ex.canonical(e["records"])!=ex.canonical(len(expected)):
+                raise ValueError("journal completion count/order mismatch")
+        else:
+            raise ValueError("unknown/incomplete journal stage")
+    if (set(started)!=expected or set(trained)!=expected or finished!=expected or set(locks)!=groups or
+        baseline!=set(p["datasets"]) or events[-1]["event"]!="complete"):
+        raise ValueError("journal registered stage matrix incomplete")
+
+
 def verify_report(result,journal_bytes=None,protocol_bytes=None):
-    """Bind duplicated configuration before invoking the frozen score verifier."""
+    """Require complete exposure and journal agreement before frozen-score regrading."""
+    if journal_bytes is None:
+        raise ValueError("current verification requires the original execution journal")
     p=ex.check(result["protocol"])
     raw=ex.canonical(p)+b"\n"
     env=result["environment"]
@@ -46,16 +166,17 @@ def verify_report(result,journal_bytes=None,protocol_bytes=None):
         raise ValueError("recorded execution configuration mismatch")
     if env["source_sha256"]!=p["precommit_source_sha256"] or env["source_sha256"]!=ex.file_sha(ex.__file__):
         raise ValueError("frozen execution source mismatch")
-    if journal_bytes is not None:
-        if ex.sha(journal_bytes)!=result["journal_sha256"]:
-            raise ValueError("journal checksum invalid")
-        events=[json.loads(row) for row in journal_bytes.splitlines()]
-        if not events or events[0].get("event")!="start":
-            raise ValueError("journal start absent")
-        if ex.canonical(events[0].get("environment"))!=ex.canonical(env):
-            raise ValueError("journal start environment mismatch")
-        if events[0].get("study_id")!=result["study_id"]:
-            raise ValueError("journal start study identity mismatch")
+    records=_report_matrix(result,p)
+    if ex.sha(journal_bytes)!=result["journal_sha256"]:
+        raise ValueError("journal checksum invalid")
+    events=[decode_json(row) for row in journal_bytes.splitlines()]
+    if not events or events[0].get("event")!="start":
+        raise ValueError("journal start absent")
+    if ex.canonical(events[0].get("environment"))!=ex.canonical(env):
+        raise ValueError("journal start environment mismatch")
+    if events[0].get("study_id")!=result["study_id"]:
+        raise ValueError("journal start study identity mismatch")
+    _journal_matrix(result,p,events,records)
     ex.verify(result,journal_bytes)
 
 
@@ -67,10 +188,10 @@ def parse_archive(raw, require_replay=True):
             raise ValueError("unsafe or duplicate archive members")
         if set(names)!=REQUIRED|{"manifest.json"}:
             raise ValueError("archive missing/extraneous members")
-        man=json.loads(z.read("manifest.json"))
+        man=decode_json(z.read("manifest.json"))
         if set(man)!=REQUIRED or any(man[n]!=ex.sha(z.read(n)) for n in REQUIRED):
             raise ValueError("archive member integrity mismatch")
-        report=json.loads(z.read("RESULTS-V0.3.json"))
+        report=decode_json(z.read("RESULTS-V0.3.json"))
         journal=z.read("RESULTS-V0.3.json.journal.jsonl")
         if z.read("model_architecture_external.py")!=Path(ex.__file__).read_bytes():
             raise ValueError("local verifier source differs from archived frozen model")
@@ -81,46 +202,8 @@ def parse_archive(raw, require_replay=True):
         if z.read("v0.3-exit-code.txt").strip()!=b"0":
             raise ValueError("original run did not exit successfully")
         verify_report(report,journal,z.read("protocol-v0.3.json"))
-        events=[json.loads(x) for x in journal.splitlines()]
-        started={}
-        trained={}
-        locks={}
-        finished=set()
-        baseline=set()
-        for i,e in enumerate(events):
-            op=e["event"]
-            if op in ("train_started","training_completed","test_completed"):
-                k=(e.get("dataset"),e.get("scale"),e.get("steps"),e.get("family"),e.get("seed")) if op=="train_started" else tuple(e["record_without_test" if op=="training_completed" else "record"][x] for x in ("dataset","scale","steps","family","seed"))
-                group=k[:3]
-                if op=="train_started":
-                    if k in started:
-                        raise ValueError("duplicate train start")
-                    started[k]=i
-                elif op=="training_completed":
-                    if k not in started or started[k]>=i or k in trained:
-                        raise ValueError("training ended without unique earlier start")
-                    trained[k]=(i,e["record_without_test"])
-                else:
-                    if k in finished or group not in locks or k not in trained or trained[k][0]>=locks[group] or locks[group]>=i:
-                        raise ValueError("test occurred before source training or validation lock")
-                    reduced={key:value for key,value in e["record"].items() if key not in ("test_predictions","test_metrics")}
-                    if reduced!=trained[k][1]:
-                        raise ValueError("unverified training/test record correspondence")
-                    finished.add(k)
-            elif op=="selection_locked":
-                group=(e["dataset"],e["scale"],e["steps"])
-                if group in locks or len([k for k in trained if k[:3]==group])!=12:
-                    raise ValueError("selection was not after all candidate trainings")
-                locks[group]=i
-            elif op=="simple_baselines_completed":
-                if e["dataset"] in baseline or len([k for k in finished if k[0]==e["dataset"]])!=48:
-                    raise ValueError("simple controls published before neural evaluation completed")
-                baseline.add(e["dataset"])
-        # chronological constraints: since locks stored as a set, track their ordinals separately
-        if len(started)!=96 or len(trained)!=96 or len(finished)!=96 or len(locks)!=8 or baseline!=set(ex.DATASETS):
-            raise ValueError("journal stage coverage incomplete")
         if require_replay:
-            full=json.loads(z.read("v0.3-replay-full.json"))
+            full=decode_json(z.read("v0.3-replay-full.json"))
             if (full["status"]!="FULL_MATCH" or full["n_replayed"]!=96 or full["n_expected"]!=96 or
                 full["original_report_sha256"]!=report["report_sha256"] or
                 full["original_journal_sha256"]!=report["journal_sha256"] or
@@ -153,7 +236,7 @@ def main():
     if a.report:
         if not a.journal or a.expected_sha256:
             p.error("--report requires --journal; --expected-sha256 applies only to --archive")
-        report=json.loads(a.report.read_bytes())
+        report=decode_json(a.report.read_bytes())
         verify_report(report,a.journal.read_bytes(),a.protocol.read_bytes() if a.protocol else None)
         print(json.dumps({"verification_version":VERIFICATION_VERSION,"study_id":report["study_id"],
                           "n_scored":len(report["records"]),"original_report_sha256":report["report_sha256"]},sort_keys=True))

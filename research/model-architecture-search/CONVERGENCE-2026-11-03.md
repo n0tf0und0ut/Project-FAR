@@ -116,7 +116,7 @@ and three replay receipt identity substitutions. The frozen standalone
 rebound environment protocol digest, despite receiving the unchanged journal.
 Those are validation defects, not replacement experimental observations.
 
-The current post-execution auditor is version 1.1. Its shared `verify_report()`
+This repair introduced post-execution auditor version 1.1. Its shared `verify_report()`
 binds canonical embedded protocol bytes to the environment digest and, when
 supplied, registered protocol bytes; checks study ID, device, thread count and
 frozen source identity; and binds the complete report environment and study ID
@@ -147,3 +147,88 @@ and `primary_pass: false`. No original model was retrained for this repair.
 The frozen source, protocol, scientific archives and supplementary integration
 failure ZIP retain their previously recorded identities. Final-head review,
 hosted checks and complete combined integration verification remain separate.
+
+`MAS-VERIFY-002` (fixed): complete registered exposure and comparator results
+were not required consistently across current verification boundaries. Source:
+[comment 4461644134](https://github.com/n0tf0und0ut/Project-FAR/pull/615#discussion_r4461644134),
+thread `PRRT_kwDOTH_vCM6zYBNl`, review `5760891607`, reviewed head
+`1d5d29d0a8f93602fb1a3d3b7e169e8cef01638b`, auditor lines 115–118.
+The archive path checked reference-event timing but not its results against
+the report; the frozen score primitive checked only supplied references.
+
+Reproducer on the reviewed source: retain only `knn5` for both datasets,
+recompute `analysis`, report and replay receipt checksums, and manifest member
+hashes, leaving the original protocol and journal unchanged. Both archive and
+standalone post-execution verification accepted it. The breast-cancer
+comparison changed from logistic regression and a difference of
+`-0.011695906432748426` (fail) to `knn5` and `+0.023391812865497186` (pass).
+The combined two-dataset primary screen still failed; this counterexample
+does not turn the original overall result into a success. Two new regression
+methods failed in seven subcases before correction, including reference
+omission/relabeling, changed journal results, and a duplicated reference event
+accepted by standalone verification.
+
+The existing post-execution auditor is now version 1.2. It requires exactly
+the registered two datasets, three named references per dataset, and both
+complete validation/test prediction cohorts. It checks the full cohort
+partition/counts and ordered neural dataset × scale × budget × family × seed
+matrix. Shared journal checks cover the exact neural start/training/test
+identities and specifications, complete selection groups and validation
+averages, one reference-result event per dataset with canonical report/result
+equality, and the final completion count. These checks apply to archive,
+standalone and replay paths; a journal is mandatory for current verification.
+Raw current inputs reject duplicate JSON fields so parser overwrite behavior
+cannot conceal a comparator or event substitution. The historical frozen
+runner remains unchanged.
+
+Coordinated mutation regressions cover omitted/relabelled references, missing
+or extra datasets/cohorts, prediction truncation and cohort recounting,
+omitted/duplicated/relabelled neural slots and journal stages, altered start
+specifications and selection evidence, duplicated reference events, and raw
+duplicate JSON fields. Separate dependency-equipped controls alter predictions,
+scores, or equal-sized validation/test cohort assignments in both the complete
+report and journal, then re-sign mutable hashes and recompute analysis. They
+still fail actual frozen-oracle regrading, demonstrating that agreement alone
+does not certify an invented score. Fully coherent, truthful-looking histories
+without independent attestation remain outside the assurance claim.
+
+Final verification: all 45 focused architecture tests passed without skips;
+the standard-library run passed 41 tests with 16 explicit optional-dependency
+skips. The actual archive and standalone report CLIs accepted the unmodified
+original evidence under verifier 1.2, preserving all 96 neural records,
+six reference entries with both validation/test prediction series, original report digest
+`0e316abb4119d10281cec2c4b0d233fe4cbfca8353db23f22eadf770e415e808`
+and the negative primary screen. Frozen runner, protocols, original scientific
+archives and the supplementary integration failure ZIP remain byte-identical.
+This maintenance performed no original-model retraining. Final-head substantive
+review, hosted gates and combined integration remain separate obligations.
+
+`MAS-VERIFY-003` (fixed): internal engineering review of local commit
+`b55a4689547b960b1255bbc185f8d0781036f9a4` found that coherent report/journal
+durations had no numeric-domain constraint. Setting the first neural
+`train_seconds` to `-100`, mirroring both training/test journal records, and
+recomputing analysis and all mutable hashes was accepted; the affected
+comparison's `time_seconds_mean` became `-32.876075`. Setting
+`digits/knn5.training_seconds` to `-10` and mirroring its reference event was
+also accepted. These are malformed cost observations, not new experimental
+results. No GitHub review comment ID exists for this internal review finding.
+
+Current auditor version 1.2 now requires every observed neural `train_seconds`
+and simple-reference `training_seconds` to be an exact JSON numeric type
+(`int` or `float`, excluding `bool`), finite and nonnegative. Validation happens
+before journal comparison or derived-cost aggregation. The independent review's
+exact negative values are regressions; coherent negative/boolean mutations
+produced 12 missing-rejection failures before correction. Additional controls
+require duration-specific rejection of strings, null, arrays, NaN and both
+infinities. Nonfinite API values cannot be canonically signed; those controls
+explicitly check domain rejection before stale-hash rejection. Coherently
+rehashed integer and floating zero-duration controls remain valid. Frozen
+runner, protocols, scientific archives and original negative outcomes remain
+unchanged; no original model was retrained.
+
+Verification: all 30 affected external/evidence tests passed without skips;
+the same standard-library suite passed with ten explicit dependency skips.
+The actual frozen-archive CLI still accepts the original 96 records and
+report digest `0e316abb4119d10281cec2c4b0d233fe4cbfca8353db23f22eadf770e415e808`,
+with `primary_pass: false`. Independent engineering recheck of the final
+commit and combined integration remain separate obligations.

@@ -42,12 +42,214 @@ class ArchiveTests(unittest.TestCase):
         receipt['original_report_sha256']=report['report_sha256']
         receipt['original_journal_sha256']=report['journal_sha256']
         members['v0.3-replay-full.json']=m.canonical(receipt)+b'\n'
+        return self.pack_members(members),report,members
+
+    def pack_members(self,members):
         members['manifest.json']=m.canonical({name:m.sha(members[name]) for name in audit.REQUIRED})+b'\n'
         out=io.BytesIO()
         with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as z:
             for name,data in members.items():
                 z.writestr(name,data)
-        return out.getvalue(),report,members
+        return out.getvalue()
+
+    def assert_rejected_at_current_boundaries(self,change,pattern='.'):
+        raw,report,members=self.rewrite_archive(change)
+        with self.subTest(boundary='archive'),self.assertRaisesRegex(ValueError,pattern):
+            audit.parse_archive(raw)
+        with self.subTest(boundary='standalone'),self.assertRaisesRegex(ValueError,pattern):
+            audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
+
+    def update_journal(self,report,members,change):
+        events=[json.loads(row) for row in members['RESULTS-V0.3.json.journal.jsonl'].splitlines()]
+        change(events)
+        journal=b''.join(m.canonical(e)+b'\n' for e in events)
+        members['RESULTS-V0.3.json.journal.jsonl']=journal
+        report['journal_sha256']=m.sha(journal)
+
+    def test_dataset_and_cohort_matrix_cannot_omit_or_recount_cases(self):
+        for operation in ('missing_dataset','extra_dataset','missing_comparator_dataset',
+                          'missing_cohort','recount_cohort','truncate_control','truncate_neural'):
+            def change(report,members):
+                if operation=='missing_dataset':
+                    report['datasets'].pop('digits')
+                elif operation=='extra_dataset':
+                    report['datasets']['substituted']=copy.deepcopy(report['datasets']['digits'])
+                elif operation=='missing_comparator_dataset':
+                    report['simple_baselines'].pop('digits')
+                elif operation=='missing_cohort':
+                    report['datasets']['digits']['split_indices'].pop('validation')
+                elif operation=='recount_cohort':
+                    report['datasets']['digits']['split_sizes']['validation']-=1
+                elif operation=='truncate_control':
+                    report['simple_baselines']['digits']['knn5']['test_predictions'].pop()
+                else:
+                    report['records'][0]['validation_predictions'].pop()
+            with self.subTest(operation=operation):
+                self.assert_rejected_at_current_boundaries(change)
+
+    def test_neural_exposure_and_journal_stage_matrices_are_complete(self):
+        for operation in ('omit_trial','duplicate_trial','relabel_trial','omit_train_start',
+                          'duplicate_training','alter_train_spec','alter_selection','recount_completion','omit_control'):
+            def change(report,members):
+                if operation=='omit_trial':
+                    report['records'].pop()
+                elif operation=='duplicate_trial':
+                    report['records'][-1]=copy.deepcopy(report['records'][0])
+                elif operation=='relabel_trial':
+                    report['records'][0]['seed']=523
+                else:
+                    def change_events(events):
+                        start=next(e for e in events if e['event']=='train_started')
+                        if operation=='omit_train_start':
+                            events.remove(start)
+                        elif operation=='duplicate_training':
+                            events.insert(-1,copy.deepcopy(next(e for e in events if e['event']=='training_completed')))
+                        elif operation=='alter_train_spec':
+                            start['spec']['width']+=1
+                        elif operation=='alter_selection':
+                            next(e for e in events if e['event']=='selection_locked')['average_validation_accuracies']['conv']=1.
+                        elif operation=='recount_completion':
+                            events[-1]['records']=95
+                        else:
+                            events.remove(next(e for e in events if e['event']=='simple_baselines_completed'))
+                    self.update_journal(report,members,change_events)
+            with self.subTest(operation=operation):
+                self.assert_rejected_at_current_boundaries(change)
+
+    @unittest.skipUnless(importlib.util.find_spec('sklearn') and importlib.util.find_spec('torch'),
+                         'optional scikit-learn/PyTorch missing; actual prediction regrading not executed')
+    def test_coordinated_control_prediction_and_score_forgeries_fail_real_regrading(self):
+        for operation in ('prediction','score','swap_equal_sized_cohorts'):
+            def change(report,members):
+                name='breast_cancer' if operation=='swap_equal_sized_cohorts' else 'digits'
+                control=report['simple_baselines'][name]['logistic_regression']
+                if operation=='prediction':
+                    _,data=m.read_dataset(name,report['protocol']['split_seed'])
+                    truth=data['test'][1].tolist()
+                    i=next(i for i,pred in enumerate(control['test_predictions']) if pred==truth[i])
+                    control['test_predictions'][i]=(truth[i]+1)%10
+                elif operation=='score':
+                    control['test_metrics']['accuracy']=0. if control['test_metrics']['accuracy']==1. else 1.
+                else:
+                    self.assertEqual(len(control['test_predictions']),len(control['validation_predictions']))
+                    self.assertNotEqual(control['test_predictions'],control['validation_predictions'])
+                    for suffix in ('predictions','metrics'):
+                        a,b='test_'+suffix,'validation_'+suffix
+                        control[a],control[b]=control[b],control[a]
+                report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+                def change_events(events):
+                    next(e for e in events if e['event']=='simple_baselines_completed' and e['dataset']==name)['results']=copy.deepcopy(report['simple_baselines'][name])
+                self.update_journal(report,members,change_events)
+            with self.subTest(operation=operation):
+                self.assert_rejected_at_current_boundaries(change,'incorrect simple comparator score')
+
+    def test_duplicate_json_fields_cannot_hide_comparator_or_journal_substitution(self):
+        _,_,members=self.rewrite_archive(lambda report,members:None)
+        members['RESULTS-V0.3.json']=members['RESULTS-V0.3.json'].replace(b'"simple_baselines":',b'"simple_baselines":{},"simple_baselines":',1)
+        with self.assertRaisesRegex(ValueError,'duplicate JSON key'):
+            audit.parse_archive(self.pack_members(members))
+        def change(report,members):
+            journal=members['RESULTS-V0.3.json.journal.jsonl'].replace(b'"results":',b'"results":{},"results":',1)
+            members['RESULTS-V0.3.json.journal.jsonl']=journal
+            report['journal_sha256']=m.sha(journal)
+        raw,report,members=self.rewrite_archive(change)
+        with self.assertRaisesRegex(ValueError,'duplicate JSON key'):
+            audit.parse_archive(raw)
+        with self.assertRaisesRegex(ValueError,'duplicate JSON key'):
+            audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
+
+    def test_current_verification_requires_the_execution_journal(self):
+        _,report,_=self.rewrite_archive(lambda report,members:None)
+        with self.assertRaisesRegex(ValueError,'requires the original execution journal'):
+            audit.verify_report(report)
+
+    def duration_mutation(self,kind,value):
+        def change(report,members):
+            if kind=='neural':
+                record=report['records'][0]
+                record['train_seconds']=value
+                key=tuple(record[k] for k in audit.TRIAL_FIELDS)
+                def change_events(events):
+                    for event in events:
+                        if event['event'] in ('training_completed','test_completed'):
+                            row=event['record_without_test' if event['event']=='training_completed' else 'record']
+                            if tuple(row[k] for k in audit.TRIAL_FIELDS)==key:
+                                row['train_seconds']=value
+            else:
+                report['simple_baselines']['digits']['knn5']['training_seconds']=value
+                def change_events(events):
+                    next(e for e in events if e['event']=='simple_baselines_completed' and e['dataset']=='digits')['results']=copy.deepcopy(report['simple_baselines']['digits'])
+            self.update_journal(report,members,change_events)
+            report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+        return change
+
+    def test_coherently_resigned_negative_and_boolean_durations_are_rejected(self):
+        for kind in ('neural','reference'):
+            for value in (-100 if kind=='neural' else -10,True,False):
+                with self.subTest(kind=kind,value=value):
+                    self.assert_rejected_at_current_boundaries(self.duration_mutation(kind,value),'duration')
+
+    def test_duration_domain_rejects_wrong_types_and_nonfinite_api_values(self):
+        for kind in ('neural','reference'):
+            for value in ('1.0',None,[],float('nan'),float('inf'),-float('inf')):
+                _,report,members=self.rewrite_archive(lambda report,members:None)
+                if kind=='neural':
+                    report['records'][0]['train_seconds']=value
+                else:
+                    report['simple_baselines']['digits']['knn5']['training_seconds']=value
+                # Nonfinite numbers cannot be canonically signed. Require the domain
+                # rejection itself, before checksum or journal-disagreement rejection.
+                with self.subTest(kind=kind,value=repr(value)),self.assertRaisesRegex(ValueError,'duration'):
+                    audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
+
+    @unittest.skipUnless(importlib.util.find_spec('sklearn') and importlib.util.find_spec('torch'),
+                         'optional scikit-learn/PyTorch missing; valid zero-duration score reconstruction not executed')
+    def test_zero_integer_and_float_durations_remain_valid(self):
+        for kind in ('neural','reference'):
+            for value in (0,0.):
+                raw,report,members=self.rewrite_archive(self.duration_mutation(kind,value))
+                with self.subTest(kind=kind,value=repr(value)):
+                    audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
+                    self.assertFalse(audit.parse_archive(raw)['primary_pass'])
+
+    def test_registered_references_cannot_be_omitted_or_relabelled(self):
+        for operation in ('keep_only_knn5','replace_logistic_with_knn5'):
+            def change(report,members):
+                for values in report['simple_baselines'].values():
+                    if operation=='keep_only_knn5':
+                        values.pop('logistic_regression');values.pop('rbf_svm')
+                    else:
+                        values['logistic_regression']=copy.deepcopy(values['knn5'])
+                report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+            raw,report,members=self.rewrite_archive(change)
+            if operation=='keep_only_knn5':
+                self.assertTrue(report['analysis']['primary_screen']['by_dataset']['breast_cancer']['passes_internal_screen'])
+            for boundary in ('archive','standalone'):
+                with self.subTest(operation=operation,boundary=boundary),self.assertRaisesRegex(ValueError,'comparator|baseline'):
+                    if boundary=='archive':
+                        audit.parse_archive(raw)
+                    else:
+                        audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
+
+    def test_baseline_journal_results_cannot_be_changed_or_duplicated(self):
+        for operation in ('alter_results','duplicate_event'):
+            def change(report,members):
+                events=[json.loads(row) for row in members['RESULTS-V0.3.json.journal.jsonl'].splitlines()]
+                event=next(e for e in events if e['event']=='simple_baselines_completed')
+                if operation=='alter_results':
+                    event['results']['knn5']['training_seconds']+=1
+                else:
+                    events.insert(-1,copy.deepcopy(event))
+                journal=b''.join(m.canonical(e)+b'\n' for e in events)
+                members['RESULTS-V0.3.json.journal.jsonl']=journal
+                report['journal_sha256']=m.sha(journal)
+            raw,report,members=self.rewrite_archive(change)
+            for boundary in ('archive','standalone'):
+                with self.subTest(operation=operation,boundary=boundary),self.assertRaisesRegex(ValueError,'baseline|control'):
+                    if boundary=='archive':
+                        audit.parse_archive(raw)
+                    else:
+                        audit.verify_report(report,members['RESULTS-V0.3.json.journal.jsonl'])
 
     def test_embedded_execution_protocol_cannot_diverge_from_registered_bytes(self):
         for key,value in (('learning_rate',.008),('batch_size',128),
@@ -167,6 +369,7 @@ class ArchiveTests(unittest.TestCase):
         import zipfile,io
         with zipfile.ZipFile(io.BytesIO(self.raw)) as z:
             original=json.loads(z.read('RESULTS-V0.3.json'))
+            journal=z.read('RESULTS-V0.3.json.journal.jsonl')
         cases=[]
         r=copy.deepcopy(original)
         r['records'][0]['test_metrics']['accuracy']=1.0
@@ -177,7 +380,7 @@ class ArchiveTests(unittest.TestCase):
         for changed in cases:
             changed['report_sha256']=m.sha(m.canonical({k:v for k,v in changed.items() if k!='report_sha256'}))
             with self.assertRaises(ValueError):
-                audit.verify_report(changed)
+                audit.verify_report(changed,journal)
 
     def test_archived_manifest_matches_source_and_protocol(self):
         import zipfile,io

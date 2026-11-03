@@ -6,7 +6,6 @@ independence or a replacement experimental trial. Leaves original evidence intac
 """
 from __future__ import annotations
 import argparse
-import json
 import os
 import platform
 from pathlib import Path
@@ -85,7 +84,7 @@ def main():
     args=p.parse_args()
     if args.receipt.exists() or Path(str(args.receipt)+".failure.json").exists():
         raise FileExistsError("immutable replay receipt exists")
-    original=json.loads(args.report.read_text())
+    original=audit.decode_json(args.report.read_bytes())
     original_journal=args.journal.read_bytes()
     try:
         out=replay(original,original_journal,max_runs=args.preflight_runs)
