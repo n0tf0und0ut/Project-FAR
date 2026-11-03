@@ -2,7 +2,7 @@
 
 Status: Research. No production reasoning path imports these tools. Protected-main baseline: `a3f5825ee74af723d660a55e6708ef96e305b156`; governing theory remains PROJECT-FAR-CORE-THEORY-1.1.
 
-The [completed execution report](RESULTS-V0.1.md) preserves 432 actual scored generations and their negative result: the selected edit tied prompting, showed no advantage, and did not qualify for adoption.
+The [completed execution report](RESULTS-V0.1.md) preserves 432 actual scored generations and their negative result: the selected edit tied prompting, showed no advantage, and did not qualify for adoption. The [integration audit](integration-audit-2026-11-03.md) records subsequent cold reconstruction, metadata-preservation repairs and reconciliation with merged PR #610.
 
 The [MIT source/tensor verification](mit/VERIFICATION.md) reconstructs the original Qwen result and exact BF16 edit without new inference. Its [source manifest](mit/mit-source-manifest.json) and [tensor receipt](mit/tensor-replay/receipt.json) preserve immutable upstream identities. It does not show that FAR improved a model. Reproduce source arithmetic with a clone of `RikiyaT/lm_understand-logs` at `4d09ba6d6a7e891dd8063974dfe81b3d78e3494f` placed under `mit/lm_understand-logs`, then run `python research/weight-space/mit/verify_original_evidence.py`. The two `replay_*`/`verify_published_checkpoint.py` scripts perform actual immutable HTTP-range tensor verification, requiring NumPy and network; none execute author-provided code or model inference. Upstream benchmark material remains upstream; this repository preserves hashes and locally authored analysis.
 
@@ -41,6 +41,8 @@ python -m venv /tmp/far-weight-env
 ```
 
 Replay uses the exact experimental source commit recorded in the output; check out that commit before replaying archived evidence. This recomputes traces, tokenization, sparse edits and grading without generating new answers. A full independent reproduction requires executing new model generations on an independently controlled machine with the same frozen source, weights and runtime. CPU, threads, attention implementation, primary numerical/tokenizer versions and checkpoint/file hashes are recorded; different numerical environments may diverge even with equal seeds.
+
+`python -m tools.check_weight_space_publication` verifies all published ZIP members, the frozen-source bindings, complete slots, grades and analysis without downloads, extraction or inference. It runs in CI together with eight actual-archive mutation tests. It does not replace checkpoint/tokenizer replay or attest that a trusted machine generated the traces. Git history must contain the registered source commit; the dedicated workflow fetches full history. MIT verifiers now compare their published receipts read-only by default. Use `--source-dir /path/to/lm_understand-logs` for the source/tensor scripts, and `--output` or `--output-dir` only to create a new reconstruction; existing destinations are refused.
 
 The primary score compares trimmed exact text and strict JSON values, including exact calculator-expression rendering. This is narrower than semantic task correctness: equivalent expression whitespace or answer-label capitalization can fail the primary contract. Any semantic sensitivity regrading must be labeled separately, preserve every primary grade, and never count as new model inference.
 

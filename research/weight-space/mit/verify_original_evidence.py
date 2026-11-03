@@ -1,9 +1,13 @@
 """Read-only audit of immutable author logs; no neural inference or author code execution."""
-import hashlib,json,math,sys
+import argparse,hashlib,json,math,sys
 from pathlib import Path
 import numpy as np
 ROOT=Path(__file__).resolve().parent
-SRC=ROOT/'lm_understand-logs'
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--source-dir',type=Path,default=ROOT/'lm_understand-logs')
+parser.add_argument('--output',type=Path,help='Write a new reconstruction exclusively; never overwrite published evidence')
+args=parser.parse_args()
+SRC=args.source_dir
 E=SRC/'exp8_math'
 rows=[]; source_paths=set()
 def read(p):
@@ -55,5 +59,9 @@ for p in [E/'README.md',E/'gemma_followup/README.md',E/'code/evaluate.py',E/'cod
  source_paths.add(p)
 for name in ['p10c','p25c','p50c']: source_paths.add(E/f'runs/{name}/state.json')
 manifest={'status':'Research','audit_type':'independent arithmetic and immutable source-byte audit, not new inference','logs_repo':'https://github.com/RikiyaT/lm_understand-logs','logs_revision':'4d09ba6d6a7e891dd8063974dfe81b3d78e3494f','base_model':{'repo':'Qwen/Qwen3.5-0.8B','revision':'2fc06364715b967f1860aea9cf38778875588b17'},'rows':rows,'weight_diff':weight,'files':[{'path':str(p.relative_to(SRC)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'size':p.stat().st_size,'url':'https://github.com/RikiyaT/lm_understand-logs/blob/4d09ba6d6a7e891dd8063974dfe81b3d78e3494f/'+str(p.relative_to(SRC))} for p in sorted(source_paths)]}
-(ROOT/'mit-source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+if args.output:
+ with args.output.open('x') as out:out.write(json.dumps(manifest,indent=2)+'\n')
+else:
+ published=json.loads((ROOT/'mit-source-manifest.json').read_text())
+ assert all(published.get(k)==v for k,v in manifest.items()),'Published MIT source reconstruction differs'
 print(json.dumps({'score_groups_recomputed':len(rows),'source_files_hashed':len(source_paths),'changed_bf16_entries':130188,'touched_slots':131072,'new_inference_runs':0,'math500_rows':[r for r in rows if r['benchmark']=='math500']},indent=2))
