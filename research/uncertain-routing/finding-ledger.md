@@ -62,3 +62,11 @@ Verification: the three focused modules pass **44 tests**. They exercise real
 native verifiers and native redirect handling using controlled source/model
 fixtures; they are not independent model or human evidence. Required protected
 checks, exact-head substantive review and branch authority remain separate.
+
+## Native framing correction after substantive review
+
+**HTTP-FRAMING-01**, [review comment 4458991461](https://github.com/n0tf0und0ut/Project-FAR/pull/608#discussion_r4458991461), thread `PRRT_kwDOTH_vCM6zR3E6`, reviewed exact head `562eb24f007601c0e6a0f9ffb48f953ab8c68338`: native `HTTPResponse.read(amt)` can return a syntactically valid prefix at premature EOF without raising `IncompleteRead`. The old helper treated the prefix as a complete body, permitting model action acceptance and source-backed invariant verification.
+
+The corrective commit introducing this section validates declared Content-Length independently and rejects duplicate, malformed, ambiguous or unsupported transfer framing. For native chunked responses, a bounded observer checks chunk separators and the terminating trailer section while retaining the decoded prefix. Native positive controls demonstrate that the unguarded standard library accepts both a short Content-Length body and an unterminated trailer; regression tests reject both. Complete Content-Length and chunked controls pass. A real intake/verifier integration test rejects the short first source before freezing or verification; no proof aggregate is produced.
+
+Verification: **51 focused tests pass**, including seven new native framing and investigation regressions. Retained incomplete bytes carry `retained_prefix`, never `complete_body`. Original frozen observations, archives and workflow source bindings remain byte-identical. This changes the maintenance harness only and does not retroactively certify historical HTTP framing.

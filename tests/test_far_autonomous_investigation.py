@@ -45,6 +45,26 @@ def fake_sources(latest_tag="other-release", list_tag="other-release", change=Fa
 
 
 class RealInvestigationTests(unittest.TestCase):
+    def test_short_native_source_cannot_reach_freeze_or_verification(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        attempts, checkpoints = [], []
+        def open_source(request, **_kwargs):
+            attempts.append(request.full_url)
+            body = gh_latest(inv.CLAIMED) if request.full_url == inv.URLS["latest"] else gh_list(inv.CLAIMED)
+            return native_http_response(body, f"Content-Length: {len(body)+100}\r\n".encode())
+        with patch("urllib.request.OpenerDirector.open", side_effect=open_source):
+            with self.assertRaises(inv.SourceResponseError):
+                inv.execute("deterministic", checkpoint=checkpoints.append)
+        state = checkpoints[-1]
+        self.assertEqual(state["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(state["verifier_calls"], 0)
+        self.assertIsNone(state["frozen"])
+        self.assertIsNone(state["aggregate"])
+        self.assertEqual(len(attempts), 1)
+        envelope = state["failed_source_call"]["raw_envelope"]
+        self.assertEqual(envelope["framing_error"], "ContentLengthMismatch")
+        self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
+
     def test_actual_intake_freeze_and_verifiers_both_refute(self):
         fetcher, calls = fake_sources()
         run = inv.execute("deterministic", fetcher=fetcher)
