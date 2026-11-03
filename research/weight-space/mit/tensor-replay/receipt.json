@@ -1,0 +1,52 @@
+{
+  "status": "Research",
+  "execution": "independent sparse diff replay on HTTP206 source tensor bytes; no neural inference",
+  "base_url": "https://huggingface.co/Qwen/Qwen3.5-0.8B/resolve/2fc06364715b967f1860aea9cf38778875588b17/model.safetensors-00001-of-00001.safetensors",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "base_header_sha256": "c894b6055113f9d5a9c5c68e703662de8ba27df5a9631b47f10b75ac3fe0b083",
+  "parameter_counts_from_header": {
+    "full_checkpoint": 873438784,
+    "language_model_prefix": 752393024
+  },
+  "touched_slots": 131072,
+  "changed_bf16_entries": 130188,
+  "changed_fraction_full_checkpoint": 0.00014905223169022914,
+  "changed_fraction_language_model_prefix": 0.0001730319073240105,
+  "tensors": [
+    {
+      "name": "model.language_model.layers.15.mlp.down_proj.weight",
+      "shape": [
+        1024,
+        3584
+      ],
+      "dtype": "BF16",
+      "base_sha256": "ef60d2c687bab19464dca9c8bfd7777e46ad226df0c9e25643b0bab04b5a1cca",
+      "edited_sha256": "82e2d733ea64feaeb4af93a1e065641d3df98b494a8b7576ef2f52e90fe2ee53",
+      "changed_entries_actual": 65260,
+      "changed_columns_actual": 64,
+      "all_other_entries_identical": true,
+      "source_byte_range": [
+        803999496,
+        811339527
+      ]
+    },
+    {
+      "name": "model.language_model.layers.19.mlp.down_proj.weight",
+      "shape": [
+        1024,
+        3584
+      ],
+      "dtype": "BF16",
+      "base_sha256": "638eedeb701b94aa861f4438e615c07ec6c60ee703db1bfee2de577bb6498c3e",
+      "edited_sha256": "8ef3c61bc36af113ad58e89dbb0a4a14dcba5a45cb750c15ab515c82ddd12eb2",
+      "changed_entries_actual": 64928,
+      "changed_columns_actual": 64,
+      "all_other_entries_identical": true,
+      "source_byte_range": [
+        970036072,
+        977376103
+      ]
+    }
+  ],
+  "unmodified_tensors": "Not downloaded; construction touches only these two. No comparison of the complete independently hosted edited checkpoint was executed."
+}

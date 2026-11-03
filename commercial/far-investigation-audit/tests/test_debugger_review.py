@@ -21,6 +21,18 @@ def fetched(url,*,permit_network):
 
 
 class ReviewRegressions(unittest.TestCase):
+    def test_4391545567_singular_polarity_is_not_count_equivalence(self):
+        formula={"atom":"P"}
+        atoms={"P":"Rain is wet."}
+        result=fidelity("Rain is not wet.",formula,atoms)
+        self.assertEqual(result["status"],"CONTRADICTED")
+        self.assertEqual(len(collisions([
+            {"id":"negative","text":"Rain is not wet.","formula":formula},
+            {"id":"positive","text":"Rain is wet.","formula":formula}])),1)
+        nested={"implies":[{"atom":"P"},{"atom":"Q"}]}
+        self.assertEqual(fidelity("If rain is not wet, then snow is cold.",nested,
+                                 {"P":"Rain is wet.","Q":"Snow is cold."})["status"],"CONTRADICTED")
+
     def test_4390863035_unsupported_cardinal_cannot_be_singular(self):
         for phrase in ("Exactly thirty birds","Thirty birds","Thirty-two birds","Several birds","Both birds"):
             with self.subTest(phrase=phrase):

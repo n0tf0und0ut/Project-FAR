@@ -1,6 +1,8 @@
 # Scheduled FAR research streams — bounded reconciliation (2026-10-20)
 
-Current operational view: [current.json](current.json), with the [October 27 reconciliation](reconciliation-2026-10-27.md), [v2 dispositions](operations-v2.json), [generated index](operations-index-v2.json) and [monitor readback](monitoring-state-v2.json). The October 20 intake and v1 records below are preserved historical artifacts. The current view contains 40 observations; complete historical scheduler coverage remains unknown and no source receives scientific promotion here.
+The current pointer also includes [eight later cognitive prior-art sources](../cognitive-audit/prior-art-2026-10-27.md), bringing the operational view to 48 observations. The dated October 27 40-record report/v2 files below remain preserved snapshots; this follow-up comes from an issue comment, not a recovered scheduler run.
+
+Current operational view: [current.json](current.json), [v3 dispositions](operations-v3.json) and [generated index](operations-index-v3.json), with [monitor readback](monitoring-state-v2.json). The [40-record October 27 reconciliation](reconciliation-2026-10-27.md), v1/v2 views and October 20 intake are preserved historical artifacts. The current view contains 48 observations; complete historical scheduler coverage remains unknown and no source receives scientific promotion here.
 
 **Status: Research intake, non-authoritative. No scientific acceptance, v0.5 amendment, FAR-CORE/FARA/EFR status change, or commercial-performance determination.**
 

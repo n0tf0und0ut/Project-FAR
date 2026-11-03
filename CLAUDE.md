@@ -2,7 +2,7 @@
 
 Operational guidance only. This file does not establish or change Project FAR theory, evidence, governance, status, or authority.
 
-Claude's instructions are self-contained in this file. Do not import `AGENTS.md`; that file is reserved for Codex.
+Claude-specific instructions are in this file. Do not import `AGENTS.md`; that file is reserved for Codex. The shared operational workflow is linked below.
 
 ## Authority
 
@@ -19,6 +19,10 @@ For current project state, do not rely on memory or old status text. Start with:
 - `docs/governance/open-problems-register.md`
 
 Read only additional authoritative material relevant to the task. If authorities conflict, surface the conflict; do not silently choose or rewrite it away.
+
+## Workflow orchestration
+
+For multi-step or architectural work, apply [the agent workflow orchestration guide](docs/maintenance/agent-workflow-orchestration.md) alongside these Claude-specific instructions. Use structured plans, focused subagents when actually available, verified corrective lessons, and final-diff validation. The guide is operational only; FAR governance, the existing `Compound Workflow Learning` criteria, tool capabilities, and protected PR/merge controls remain binding.
 
 ## 1. Think Before Changing
 

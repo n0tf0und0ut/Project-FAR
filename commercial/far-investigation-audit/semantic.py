@@ -149,6 +149,7 @@ def unresolved_equivalence(a, b):
     if a == b:
         return False
     if (a.get("kind")==b.get("kind")=="predication" and
+        a["quantifier"]!="singular" and b["quantifier"]!="singular" and
         all(a.get(k)==b.get(k) for k in ("subject","predicate","copula","time"))):
         return contrast(a,b)["type"]!="FORMAL_COUNTERMODEL"
     if (a.get("kind")==b.get("kind") and "operands" in a and "operands" in b and

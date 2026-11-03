@@ -49,3 +49,21 @@ Protected-main integration reuses canonical FAR-COG/0.1 from merged PR #596. Its
 ## Local user-interface integration finding
 
 ED-I1: The same text sent through `/api/investigate` enabled the debugger, while `/api/upload` omitted it and emitted only the legacy report. A transport-level regression failed before correction (`ui-before.log`) and passes afterward (`ui-after.log`). Uploads now enable the same canonical debugger; no second reasoning implementation is added. `test_pasted_and_uploaded_text_share_debugger_report` checks both actual request paths and nonacceptance of unsupported formal readings. The complete component suite passes 277 tests, including 51 debugger tests. Registration/runtime v10 and run 010 retain the successor configuration; all earlier runs remain intact.
+
+## Final-head review corrections (2026-11-03 convergence)
+
+Reviewed head: `5667383fff19af0a370b24d6ba2940dc3543c1fb`.
+These corrections extend the live implementation and tests; all numbered frozen
+campaigns, inputs, runtime archives and original observations remain unchanged.
+A successor head requires a new exact-head substantive review.
+
+| Root cause / source | Reproducer and observed failure | Correction / verification | Disposition |
+| --- | --- | --- | --- |
+| ED-R9 / comment 4391545567, thread PRRT_kwDOTH_vCM6wyewB | `fidelity('Rain is not wet.', {'atom':'P'}, {'P':'Rain is wet.'})` returned `ABSTAIN`; the same-atom pair emitted no collision. The new regression failed against the reviewed source. | Limit unresolved count-equivalence abstention to two quantified predications. Singular polarity and nested conditional polarity now produce `CONTRADICTED`, and the pair emits a collision. `test_4391545567_singular_polarity_is_not_count_equivalence` passes; existing nested quantified-equivalence abstention remains tested. | Fixed in the commit containing this entry; final-head service review remains required. |
+| ED-R10 / comment 4391545578, thread PRRT_kwDOTH_vCM6wyewK | Core-only discovery of `test_debugger_ui.py` failed with `ModuleNotFoundError: fastapi`, reproduced before correction. | Check optional FastAPI, HTTPX and multipart availability before UI imports. Core-only discovery cleanly skips; dependency-equipped UI test runs. | Fixed; no dependency or test assertion weakened. |
+
+Verification on the corrected source: **278/278 complete component tests pass**,
+including the actual pasted/uploaded-source HTTP UI integration, independent
+SymPy/property controls and all prior review regressions. Core-only UI discovery
+reports one explicit optional-dependency skip. Passing tests provide bounded
+software evidence, not general semantic coverage or independent effectiveness.

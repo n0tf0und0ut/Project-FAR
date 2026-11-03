@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "status": "RESEARCH_INTAKE_UNREVIEWED_NO_PROMOTION",
+  "generated_date": "2026-10-27",
+  "repository_baseline": "9f17433abb55f6359524845e84fe420d70d7b195",
+  "scope": "Later issue595 prior-art comment; not a newly recovered scheduler run or complete novelty survey.",
+  "entries": [
+    {
+      "id": "PA-001",
+      "title": "Cognitive Biases in Fact-Checking and Their Countermeasures: A Review",
+      "primary_url": "https://doi.org/10.1016/j.ipm.2024.103672",
+      "additional_primary_locator": "https://ir.cwi.nl/pub/33882/33882.pdf",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "2024 review selects 39 biases and proposes 11 countermeasures and a bias-aware pipeline.",
+      "inference_limit": "Conceptual precedent; proposed countermeasures are not validated individual diagnoses. Sixteen bias scenarios lacked fact-checking-specific references in the review.",
+      "origin": "issue595comment6444904798",
+      "access_receipt": {
+        "primary_pdf_url": "https://ir.cwi.nl/pub/33882/33882.pdf",
+        "primary_pdf_sha256": "40c463285114efda66cb3cf78bec316305c6b7c3a89132b4b286a513280b2a48",
+        "primary_pdf_bytes": 2379739,
+        "crossref_metadata_sha256": "90e6f44c963377e310b290d5a35cbaec7338fc136a4a87899e3da4562b80b4e1",
+        "scope": "Original author/institution-hosted published PDF and publisher/metadata inspected; no countermeasure efficacy experiment repeated."
+      }
+    },
+    {
+      "id": "PA-002",
+      "title": "QURI RoastMyPost",
+      "primary_url": "https://github.com/quantified-uncertainty/roast-my-post",
+      "additional_primary_locator": "https://www.roastmypost.org/about",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Public document evaluators include actual fact/fallacy plugins, version history and inline feedback.",
+      "inference_limit": "Pinned code establishes inspectable overlap, not accuracy, adoption or availability of a configured live model. Default profiles can be replaced by database profiles.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-003",
+      "title": "Artificial Epistemics Susty Code",
+      "primary_url": "https://www.prnewswire.com/news-releases/susty-code-protocol-launched-for-maximizing-truth--morality-in-ai-302713050.html",
+      "additional_primary_locator": "https://www.prnewswire.com/news-releases/ongoing-study-reveals-epistemological-flaws-in-gemini-and-grok-as-risk-factors-for-ai-safety-and-alignment-302879779.html",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Company advertises an epistemic pre-action protocol drawing on science, logic and value theory.",
+      "inference_limit": "Vendor philosophical and exclusivity claims are not independent evidence of truth, morality or efficacy.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-004",
+      "title": "Claude Constitution",
+      "primary_url": "https://www.anthropic.com/constitution",
+      "additional_primary_locator": "https://www.anthropic.com/constitution",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Published behavioral training specification discusses epistemic calibration and moral/AI-status uncertainty.",
+      "inference_limit": "A training intention is not evidence that a model meets the norm or possesses subjective states.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-005",
+      "title": "Deliberative alignment",
+      "primary_url": "https://openai.com/index/deliberative-alignment/",
+      "additional_primary_locator": "https://openai.com/index/deliberative-alignment/",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "2024 method teaches explicit reasoning over human-written safety specifications.",
+      "inference_limit": "Safety-policy adherence benchmarks do not certify general fact verification or psychological/ontological diagnosis.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-006",
+      "title": "Symbai",
+      "primary_url": "https://symbai.ai/",
+      "additional_primary_locator": "https://symbai.ai/",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Official product surface offers AI debate, argument mapping and critical-thinking feedback.",
+      "inference_limit": "Educational marketing and third-party debate statistics do not establish this product's causal effectiveness or factual accuracy.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-007",
+      "title": "Critical Inker",
+      "primary_url": "https://arxiv.org/abs/2604.07167v1",
+      "additional_primary_locator": "https://arxiv.org/html/2604.07167v1",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Research prototype combines logical analysis with Socratic feedback and visual writing critique.",
+      "inference_limit": "Author-reported extraction/validity measurements and a small pilot are task bounded, not independent general truth assurance.",
+      "origin": "issue595comment6444904798"
+    },
+    {
+      "id": "PA-008",
+      "title": "Project APE / CRED verification study",
+      "primary_url": "https://ape.socialcatalystlab.org/research-notes/evaluating-the-first-1000-papers",
+      "additional_primary_locator": "https://ape.socialcatalystlab.org/research-notes/evaluating-the-first-1000-papers",
+      "evidence_class": "primary_source_desk_research_not_independent_replication",
+      "observed_on": "2026-10-27",
+      "source_reported_observation": "Project reports controlled error injection and human review of paper/code/data consistency findings.",
+      "inference_limit": "Domain and sampling bounds matter; causal validity is explicitly outside the reported verifier scope. No FAR replication executed.",
+      "origin": "issue595comment6444904798"
+    }
+  ]
+}

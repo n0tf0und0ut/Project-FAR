@@ -1,0 +1,56 @@
+{
+  "status": "Research",
+  "repo": "RikiyaT/Qwen3.5-0.8B-weight-space-programming",
+  "revision": "d1671a178705bcab7644806d23c535517f35723b",
+  "new_inference_runs": 0,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "cc464ae319a6907a944e5d8920388cba8989d9fe83ea9c9d5eae4ee65c4dd5a3",
+      "size": 4876,
+      "url": "https://huggingface.co/RikiyaT/Qwen3.5-0.8B-weight-space-programming/resolve/d1671a178705bcab7644806d23c535517f35723b/README.md"
+    },
+    {
+      "path": "eval/scores_base_math500.json",
+      "sha256": "205171ff45a3ceb859b1c580c5a90ddf98987dc697080a1214a61f9ad22ee2cf",
+      "size": 2794,
+      "url": "https://huggingface.co/RikiyaT/Qwen3.5-0.8B-weight-space-programming/resolve/d1671a178705bcab7644806d23c535517f35723b/eval/scores_base_math500.json"
+    },
+    {
+      "path": "eval/scores_edited_math500.json",
+      "sha256": "17c14674b4e6b06f622c0bfbffb243b17f196fda31a57cd6579f23a50fdfdc0c",
+      "size": 48899,
+      "url": "https://huggingface.co/RikiyaT/Qwen3.5-0.8B-weight-space-programming/resolve/d1671a178705bcab7644806d23c535517f35723b/eval/scores_edited_math500.json"
+    }
+  ],
+  "tensors": [
+    {
+      "name": "model.language_model.layers.15.mlp.down_proj.weight",
+      "published_sha256": "82e2d733ea64feaeb4af93a1e065641d3df98b494a8b7576ef2f52e90fe2ee53",
+      "matches_rebuilt_evaluated_hash": true
+    },
+    {
+      "name": "model.language_model.layers.19.mlp.down_proj.weight",
+      "published_sha256": "8ef3c61bc36af113ad58e89dbb0a4a14dcba5a45cb750c15ab515c82ddd12eb2",
+      "matches_rebuilt_evaluated_hash": true
+    }
+  ],
+  "score_arithmetic_recomputed": [
+    {
+      "condition": "base",
+      "n_problems": 25,
+      "total": 100,
+      "correct": 5,
+      "accuracy": 0.05,
+      "new_inference_runs": 0
+    },
+    {
+      "condition": "edited",
+      "n_problems": 500,
+      "total": 2000,
+      "correct": 1020,
+      "accuracy": 0.51,
+      "new_inference_runs": 0
+    }
+  ]
+}

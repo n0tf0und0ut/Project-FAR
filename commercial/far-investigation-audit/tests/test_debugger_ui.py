@@ -1,7 +1,11 @@
 """User-visible pasted and uploaded sources must use the same investigation engine."""
 import sys
+import importlib.util
 from pathlib import Path
 import unittest
+
+if any(importlib.util.find_spec(name) is None for name in ("fastapi","httpx","multipart")):
+    raise unittest.SkipTest("debugger UI requires optional FastAPI/httpx/python-multipart dependencies")
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from fastapi.testclient import TestClient

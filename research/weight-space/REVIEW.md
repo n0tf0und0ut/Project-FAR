@@ -1,0 +1,19 @@
+# Internal software review and evidence boundaries
+
+Status: Research. Reviewed executable source: `bb48be7df44adf9d30f018f3528bbd9db49555e1`. Review is a separate internal agent inspection, with shared task context and access to the same files. It is not I3 external scientific replication or a protected independent PR approval.
+
+| ID | Violated invariant and pre-fix counterexample | Disposition and regression |
+| --- | --- | --- |
+| WSP-R1 | Graded text must match actual model token IDs. A synthetic432-row archive with EOS-only IDs and fabricated correct text could receive perfect scores despite refreshed hashes. | Fixed before first inference: pinned tokenizer re-encodes requests and decodes outputs; recomputes cap/EOS flags. `test_actual_token_ids_must_decode_to_graded_text` rejects all three corruption classes. |
+| WSP-R2 | Registered source must exist at the exact committed ref. `git diff HEAD` alone ignored untracked new files; replay ignored a fabricated source commit. | Fixed before first inference: compare every receipt against HEAD blobs before execution; replay validates40-hex commit and each recorded commit blob. `test_new_untracked_source_cannot_pass_freeze`; independent malicious archive rejected at invalid frozen source commit. |
+| WSP-R3 | Loop-specific interpretation requires registered observable failures. An unconditional loop-repair report would overstate a cohort with no repetitive failures. | Fixed before first inference: replay development traces and report HLOOP NOT_TESTABLE below two development repetition proxies. Distinguish wrong output contracts from internal causes. |
+| WSP-R4 | Edited weights, proposal admission and full baseline inventory cannot be inferred from self-reported hashes. A minimal fabricated edited hash passed initial replay. | Fixed before first inference: preserve original tensor and development activation matrix; verify against immutable safetensors; independently reconstruct selected/random columns, trusted policy, edits, touched/actual changes, and all float32 baseline parameter hashes including tied-embedding treatment. Baseline/sham token identity is checked. Core has20 adversarial numeric tests; final actual replay subsequently passed all 432 scored records and six development traces, reproduced the full analysis exactly, and rejected 12 malicious-copy mutations. The archived review receipts retain exact hashes. |
+| WSP-R5 | Every attempted run phase must preserve failures. Setup/development/proposal failures previously exited without a durable error receipt. | Fixed before first inference: write-once attempt wrapper preserves every ordinary exception and partial artifacts, refuses reuse. `test_failure_in_early_phase_has_durable_receipt`. Abrupt process/host loss can still leave only a partial attempt; no complete result is allowed. |
+
+The independent pre-execution inspection found no remaining executable-validity defect on the frozen source. Final raw-evidence replay and its limitations must be read from the result publication; unit test success alone says nothing about model efficacy.
+
+## Adjacent work and promotion
+
+PR #611 at `764e7ac6572e39bcb24fc7a373040780193cc514` contains a generic supplied-manifest/checkpoint auditor and a DESIGN ONLY five-arm loop-repair protocol. This eight-arm Smol output-contract ablation pilot neither executes nor completes #611's H1/H2/H3 protocol. Its serialized-sham requirement is distinct from this pilot's in-memory identity sham. #611 stays NOT RUN at its own experimental scope. No runtime imports or file paths conflict. Future serialized-checkpoint experiments can reuse that auditor after its required review; do not silently map this pilot into its five-arm evidence schema.
+
+PR #601 remains a distinct activation-fidelity investigation; PR #610 remains a bounded multistep VFS/calculator screen with no FAR treatment contrast. None of these results may be pooled or promoted to general agent reliability.
