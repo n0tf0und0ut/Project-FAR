@@ -142,3 +142,125 @@ def next_recipe(records, rng, max_blocks):
                 return recipe, "enumeration-fallback"
     raise RuntimeError("search space exhausted")
 
+def make_model(recipe, width, length):
+    import torch
+    from torch import nn
+    from torch.nn import functional as F
+
+    class Mixer(nn.Module):
+        def __init__(self, name):
+            super().__init__()
+            self.name = name
+            self.norm, self.ff_norm = nn.LayerNorm(width), nn.LayerNorm(width)
+            self.ff = nn.Sequential(nn.Linear(width, 2*width), nn.GELU(), nn.Linear(2*width, width))
+            if name == "attn":
+                self.qkv, self.proj = nn.Linear(width, 3*width), nn.Linear(width, width)
+            elif name == "gru":
+                self.rnn = nn.GRU(width, width, batch_first=True)
+            elif name == "conv":
+                self.conv = nn.Conv1d(width, width, kernel_size=3, padding=2, groups=width)
+                self.proj = nn.Linear(width, width)
+            else:
+                raise ValueError("unknown operation")
+
+        def forward(self, x):
+            h = self.norm(x)
+            if self.name == "attn":
+                q, k, v = self.qkv(h).chunk(3, dim=-1)
+                scores = q @ k.transpose(-1, -2) / math.sqrt(width)
+                n = h.shape[1]
+                mask = torch.triu(torch.ones(n, n, dtype=torch.bool, device=h.device), diagonal=1)
+                z = self.proj(torch.softmax(scores.masked_fill(mask, float("-inf")), dim=-1) @ v)
+            elif self.name == "gru":
+                z, _ = self.rnn(h)
+            else:
+                z = self.proj(F.gelu(self.conv(h.transpose(1, 2))[:, :, :h.shape[1]].transpose(1, 2)))
+            x = x + z
+            return x + self.ff(self.ff_norm(x))
+
+    class Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.token = nn.Embedding(2, width)
+            self.position = nn.Embedding(length, width)
+            self.task = nn.Embedding(len(TASKS), width)
+            self.blocks = nn.ModuleList([Mixer(op) for op in recipe if op != "identity"])
+            self.norm = nn.LayerNorm(width)
+            self.head = nn.Linear(width, 2)
+
+        def forward(self, xs, task_ids):
+            positions = torch.arange(xs.shape[1], device=xs.device)
+            x = self.token(xs) + self.position(positions)[None, :, :] + self.task(task_ids)[:, None, :]
+            for block in self.blocks:
+                x = block(x)
+            return self.head(self.norm(x[:, -1, :]))
+
+    return Model()
+
+
+def make_dataset(values, p):
+    import torch
+    x, t, y = [], [], []
+    for i, value in enumerate(values):
+        bits = bits_of(value, p["sequence_length"])
+        task = i % len(TASKS)
+        x.append(bits)
+        t.append(task)
+        y.append(label(bits, TASKS[task]))
+    return (torch.tensor(x, dtype=torch.long), torch.tensor(t, dtype=torch.long), torch.tensor(y, dtype=torch.long))
+
+
+def evaluate(model, dataset, batch_size):
+    import torch
+    from torch.nn import functional as F
+    x, t, y = dataset
+    counts, correct = [0]*len(TASKS), [0]*len(TASKS)
+    total_loss = 0.0
+    model.eval()
+    with torch.inference_mode():
+        for start in range(0, len(x), batch_size):
+            xs, ts, ys = x[start:start+batch_size], t[start:start+batch_size], y[start:start+batch_size]
+            logits = model(xs, ts)
+            total_loss += float(F.cross_entropy(logits, ys, reduction="sum").item())
+            prediction = logits.argmax(dim=-1)
+            for i in range(len(TASKS)):
+                mask = ts == i
+                counts[i] += int(mask.sum())
+                correct[i] += int(((prediction == ys) & mask).sum())
+    if not all(counts):
+        raise ValueError("unrepresented task family")
+    return {"macro_accuracy": sum(c/n for c,n in zip(correct,counts))/len(TASKS),
+            "micro_accuracy": sum(correct)/sum(counts), "cross_entropy": total_loss/sum(counts),
+            "by_task": {name: {"correct":correct[i],"count":counts[i],"accuracy":correct[i]/counts[i]}
+                        for i,name in enumerate(TASKS)}}
+
+
+def fit(recipe, p, datasets, seed, split):
+    import torch
+    from torch.nn import functional as F
+    if split not in ("validation", "test"):
+        raise ValueError("invalid evaluation split")
+    torch.manual_seed(seed)
+    torch.use_deterministic_algorithms(True)
+    model = make_model(recipe, p["width"], p["sequence_length"])
+    count = sum(param.numel() for param in model.parameters())
+    optimizer = torch.optim.AdamW(model.parameters(), lr=p["learning_rate"], weight_decay=0.01)
+    x, tasks, y = datasets["train"]
+    rng = torch.Generator().manual_seed(seed+314159)
+    before = time.monotonic()
+    last_loss = 0.0
+    for _ in range(p["steps"]):
+        model.train()
+        ix = torch.randint(len(x), (p["batch_size"],), generator=rng)
+        optimizer.zero_grad(set_to_none=True)
+        loss = F.cross_entropy(model(x[ix], tasks[ix]), y[ix])
+        if not bool(torch.isfinite(loss)):
+            raise RuntimeError("nonfinite loss")
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        optimizer.step()
+        last_loss = float(loss.detach())
+    return {"recipe":list(recipe),"seed":seed,"parameters":count,"steps":p["steps"],
+            "last_batch_loss":last_loss,"elapsed_seconds":round(time.monotonic()-before,4),
+            split:evaluate(model,datasets[split],p["batch_size"])}
+
