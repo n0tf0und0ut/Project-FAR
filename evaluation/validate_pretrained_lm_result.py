@@ -12,7 +12,7 @@ import json
 import math
 from pathlib import Path
 
-from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases
+from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases, canonical
 from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit
 
 
@@ -54,6 +54,10 @@ def verify(trace_path: Path, report_path: Path):
     if len(metrics) != len(entries) or set(source_cases) != set(metrics):
         raise ValueError("report case identities do not match trace")
     frozen_tasks = {c["id"]: c for c in task_cases() if c["split"] != "train"}
+    train_tasks = [c for c in task_cases() if c["split"] == "train"]
+    expected_population = hashlib.sha256(canonical([c["question"] for c in train_tasks])).hexdigest()
+    if raw["model"]["reference_population_sha256"] != expected_population:
+        raise ValueError("training reference population commitment mismatch")
     manifest = report["manifest"]
     per_split = manifest.get("per_split")
     if type(per_split) is not int or not 2 <= per_split <= 12:

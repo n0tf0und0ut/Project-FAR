@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 from evaluation.validate_pretrained_lm_result import verify, _binary_kl
-from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases
+from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases, canonical
 from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit
 
 
@@ -54,7 +54,7 @@ def fixture():
         "model":{
             "artifact_sha256":"a"*64,"component_id":"layer0.downproj.in.0",
             "intervention_type":"single_component_activation_replacement",
-            "reference_population_sha256":"b"*64,
+            "reference_population_sha256":hashlib.sha256(canonical([c["question"] for c in task_cases() if c["split"] == "train"])).hexdigest(),
             "execution_contract":{"deterministic":True,"same_nonintervened_state":True,
                                   "exact_output_distributions":True}},
         "explanation":{"id":"synthetic","description":"synthetic trace",
@@ -162,6 +162,13 @@ class ResultVerifierMutationTests(unittest.TestCase):
         report["task_accuracy_and_selective_risk"]["heldout"]["fidelity_gate_accepted"] -= 1
         report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
         with self.assertRaisesRegex(ValueError, "cohort"):
+            self.check(trace, report)
+
+    def test_substituted_training_population_commitment_rejected(self):
+        trace, report = fixture()
+        trace["model"]["reference_population_sha256"] = "b" * 64
+        report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
+        with self.assertRaisesRegex(ValueError, "population commitment"):
             self.check(trace, report)
 
     def test_wrong_gold_label_rejected(self):
