@@ -66,9 +66,22 @@ def check(manifest_path=DEFAULT):
         protocol_path = ROOT / "research/weight-space/protocol-v0.1.json"
         protocol = read(protocol_path)
         source = source_receipt(protocol, protocol_path)
-        if source != reg["source_files"] or sha(protocol_path.read_bytes()) != reg["protocol_sha256"]:
-            raise ValueError("working source differs from measured source")
-        for name, digest in source.items():
+        measured = reg["source_files"]
+        if set(source) != set(measured) or sha(protocol_path.read_bytes()) != reg["protocol_sha256"]:
+            raise ValueError("working inputs differ from measured source")
+        # A post-execution loader correction is an explicitly bound successor,
+        # never a silent rewrite of the measured source or a new performance run.
+        patch = read(ROOT / "research/weight-space/postexecution-checkpoint-patch-v0.1.1.json")
+        if (patch["schema"] != "far-weight-checkpoint-validation-patch/0.1.1" or
+                patch["status"] != "Research" or patch["frozen_execution_source"] != revision or
+                patch["path"] != "tools/weight_space_pilot.py" or patch["performance_observations_added"] != 0 or
+                measured[patch["path"]] != patch["before_sha256"]):
+            raise ValueError("invalid post-execution patch identity")
+        expected_current = dict(measured)
+        expected_current[patch["path"]] = patch["after_sha256"]
+        if source != expected_current:
+            raise ValueError("working source differs from registered source and bounded successor")
+        for name, digest in measured.items():
             committed = subprocess.check_output(["git", "show", revision + ":" + name], cwd=ROOT)
             if sha(committed) != digest:
                 raise ValueError("frozen source byte mismatch")

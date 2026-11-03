@@ -72,6 +72,14 @@ class PublicationTests(unittest.TestCase):
             result = audit.check()
         self.assertEqual(result["scored_records_regraded"], 432)
 
+    def test_successor_exception_cannot_hide_other_source_changes(self):
+        protocol_path = audit.ROOT / "research/weight-space/protocol-v0.1.json"
+        source = audit.source_receipt(audit.read(protocol_path), protocol_path)
+        source["tools/weight_space_replay.py"] = "0" * 64
+        with mock.patch.object(audit, "source_receipt", return_value=source):
+            with self.assertRaisesRegex(ValueError, "bounded successor"):
+                audit.check()
+
     def test_corrupted_member_rejected(self):
         path = self.altered(lambda m: m.__setitem__("attempt/slot-0000.json", b"{}"), refresh=False)
         with self.assertRaisesRegex(ValueError, "member bytes"):

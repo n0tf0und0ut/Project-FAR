@@ -99,12 +99,24 @@ def schedule(p, tasks):
 
 
 def verify_checkpoint(model_dir, manifest):
+    # Every loader input must be pinned. Transformers can prefer an unlisted
+    # chat_template.jinja or alternate tokenizer asset over the pinned config.
+    names = []
     for entry in manifest['files']:
         name = entry['name']
         if Path(name).name != name or name.startswith('.'):
             raise ValueError('checkpoint path')
+        names.append(name)
+    if len(names) != len(set(names)):
+        raise ValueError('duplicate checkpoint path')
+    if model_dir.is_symlink() or not model_dir.is_dir():
+        raise ValueError('checkpoint directory must be an ordinary directory')
+    if {p.name for p in model_dir.iterdir()} != set(names):
+        raise ValueError('checkpoint directory contains unmanifested or missing files')
+    for entry in manifest['files']:
+        name = entry['name']
         file = model_dir / name
-        if file.is_symlink() or file.stat().st_size != entry['size'] or digest_file(file) != entry['sha256']:
+        if file.is_symlink() or not file.is_file() or file.stat().st_size != entry['size'] or digest_file(file) != entry['sha256']:
             raise ValueError('checkpoint file mismatch: '+name)
 
 

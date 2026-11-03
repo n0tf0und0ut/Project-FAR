@@ -79,6 +79,29 @@ class ProtocolTests(unittest.TestCase):
             manifest['files'][0]['name']='../outside'
             with self.assertRaisesRegex(ValueError,'path'):pilot.verify_checkpoint(root,manifest)
 
+    def test_checkpoint_rejects_unmanifested_loader_inputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'config.json').write_bytes(b'123')
+            manifest={'files':[{'name':'config.json','size':3,'sha256':pilot.sha(b'123')}]}
+            for name in ['chat_template.jinja','tokenizer.model','extra-config.json']:
+                with self.subTest(name=name):
+                    extra=root/name;extra.write_text('unregistered override')
+                    with self.assertRaisesRegex(ValueError,'unmanifested'):
+                        pilot.verify_checkpoint(root,manifest)
+                    extra.unlink()
+
+    def test_checkpoint_rejects_extra_directory_and_root_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)/'model';root.mkdir()
+            (root/'config.json').write_bytes(b'123')
+            manifest={'files':[{'name':'config.json','size':3,'sha256':pilot.sha(b'123')}]}
+            extra=root/'extra';extra.mkdir()
+            with self.assertRaisesRegex(ValueError,'unmanifested'):pilot.verify_checkpoint(root,manifest)
+            extra.rmdir()
+            alias=Path(tmp)/'alias';alias.symlink_to(root,target_is_directory=True)
+            with self.assertRaisesRegex(ValueError,'directory'):pilot.verify_checkpoint(alias,manifest)
+
     def test_adoption_cannot_be_inferred_from_perfect_fixture(self):
         p,t=pilot.load_protocol(pilot.DEFAULT)
         rows=[]
