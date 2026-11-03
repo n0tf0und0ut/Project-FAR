@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 from evaluation.validate_pretrained_lm_result import verify, _binary_kl
-from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION
+from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases
 from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit
 
 
@@ -22,13 +22,14 @@ def fixture():
     digest = hashlib.sha256(source.encode()).hexdigest()
     rows = []
     records = []
-    for split in ("heldout", "adversarial", "control"):
-        original = ["0.600000", "0.400000"]
-        explained = original if split == "control" else ["0.590000", "0.410000"]
-        baseline = ["0.550000", "0.450000"]
+    for task in (c for c in task_cases() if c["split"] != "train"):
+        split = task["split"]
+        original = ["0.600000", "0.400000"] if task["gold"] == "yes" else ["0.400000", "0.600000"]
+        explained = original if split == "control" else (["0.590000", "0.410000"] if task["gold"] == "yes" else ["0.410000", "0.590000"])
+        baseline = ["0.550000", "0.450000"] if task["gold"] == "yes" else ["0.450000", "0.550000"]
         row = {
-            "id": split+"-00", "split":split,
-            "input_sha256": hashlib.sha256(split.encode()).hexdigest(),
+            "id": task["id"], "split":split,
+            "input_sha256": hashlib.sha256(task["id"].encode()).hexdigest(),
             "measured_at":logged, "source_ids":["synthetic"],
             "observed_activation":"1.000000",
             "explained_activation":"1.000000" if split=="control" else "0.990000",
@@ -38,7 +39,7 @@ def fixture():
         }
         rows.append(row)
         records.append({
-            "id": row["id"], "split":split, "gold":"yes",
+            "id": row["id"], "split":split, "gold":task["gold"],
             "base_correct":True, "replacement_correct":True, "mean_correct":True,
             "base_entropy":-sum(float(p)*math.log(float(p)) for p in original),
             "explanation_kl": _binary_kl(original, explained),
@@ -63,22 +64,24 @@ def fixture():
     }
     audit = MechanismAudit.from_dict(document).evaluate()
     summary = {}
-    for rec in records:
-        summary[rec["split"]] = {
-            "n":1, "model_accuracy":1.0, "replacement_accuracy":1.0,
-            "mean_baseline_accuracy":1.0, "fidelity_gate_accepted":1,
+    for split in ("heldout", "adversarial", "control"):
+        group = [r for r in records if r["split"] == split]
+        n = len(group)
+        summary[split] = {
+            "n":n, "model_accuracy":1.0, "replacement_accuracy":1.0,
+            "mean_baseline_accuracy":1.0, "fidelity_gate_accepted":n,
             "fidelity_gate_accuracy":1.0,"confidence_matched_accuracy":1.0,
             "hash_matched_accuracy":1.0,
-            "explanation_kl":rec["explanation_kl"],
-            "baseline_kl":rec["mean_kl"],
-            "full_vocabulary_probe_kl":rec["full_vocabulary_explanation_kl"],
-            "full_vocabulary_baseline_kl":rec["full_vocabulary_mean_kl"],
+            "explanation_kl":sum(r["explanation_kl"] for r in group)/n,
+            "baseline_kl":sum(r["mean_kl"] for r in group)/n,
+            "full_vocabulary_probe_kl":sum(r["full_vocabulary_explanation_kl"] for r in group)/n,
+            "full_vocabulary_baseline_kl":sum(r["full_vocabulary_mean_kl"] for r in group)/n,
             "cases_worse_than_baseline_full_vocabulary":0,
         }
     return document, {
         "manifest":{"model_id":MODEL_ID,"model_revision":REVISION,
                     "weights_sha256":"a"*64,"answer_tokens":["yes","no"],
-                    "evaluation_n":3},
+                    "evaluation_n":32,"per_split":12,"train_n":24},
         "individual_results":records,
         "mechanism_audit":audit,
         "task_accuracy_and_selective_risk":summary,
@@ -98,7 +101,7 @@ class ResultVerifierMutationTests(unittest.TestCase):
     def test_valid_self_consistent_synthetic_case_is_not_world_certification(self):
         trace, report = fixture()
         result = self.check(trace,report)
-        self.assertEqual(result["n"],3)
+        self.assertEqual(result["n"],32)
         self.assertFalse(result["full_vocab_logits_replayed"])
 
     def test_forged_correctness_flags_even_with_coordinated_aggregate_rejected(self):
@@ -148,6 +151,17 @@ class ResultVerifierMutationTests(unittest.TestCase):
                 row["split"] = "heldout"
         report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
         with self.assertRaisesRegex(ValueError, "split"):
+            self.check(trace, report)
+
+    def test_coordinated_missing_run_and_denominator_rewrite_rejected(self):
+        trace, report = fixture()
+        trace["cases"].pop(1)
+        report["individual_results"].pop(1)
+        report["manifest"]["evaluation_n"] -= 1
+        report["task_accuracy_and_selective_risk"]["heldout"]["n"] -= 1
+        report["task_accuracy_and_selective_risk"]["heldout"]["fidelity_gate_accepted"] -= 1
+        report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
+        with self.assertRaisesRegex(ValueError, "cohort"):
             self.check(trace, report)
 
     def test_wrong_gold_label_rejected(self):

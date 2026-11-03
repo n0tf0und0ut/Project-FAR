@@ -55,6 +55,15 @@ def verify(trace_path: Path, report_path: Path):
         raise ValueError("report case identities do not match trace")
     frozen_tasks = {c["id"]: c for c in task_cases() if c["split"] != "train"}
     manifest = report["manifest"]
+    per_split = manifest.get("per_split")
+    if type(per_split) is not int or not 2 <= per_split <= 12:
+        raise ValueError("invalid registered evaluation cohort size")
+    expected_ids = {case_id for case_id in frozen_tasks
+                    if int(case_id.rsplit("-", 1)[1]) < per_split}
+    if set(source_cases) != expected_ids:
+        raise ValueError("missing or substituted frozen evaluation cohort member")
+    if manifest.get("train_n") != len([c for c in task_cases() if c["split"] == "train"]):
+        raise ValueError("registered training cohort size mismatch")
     if (manifest["model_id"] != MODEL_ID or manifest["model_revision"] != REVISION or
             manifest["weights_sha256"] != raw["model"]["artifact_sha256"] or
             manifest["answer_tokens"] != ["yes", "no"]):
