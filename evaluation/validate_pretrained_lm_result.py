@@ -80,6 +80,9 @@ def verify(trace_path: Path, report_path: Path):
             raise ValueError("case has no frozen task identity")
         task = frozen_tasks[case_id]
         row = metrics[case_id]
+        for field in ("original_probs", "replacement_probs", "baseline_probs"):
+            if len(case[field]) != 2:
+                raise ValueError("binary metrics require exactly two outcomes: " + field)
         if (row["split"] != task["split"] or case["split"] != task["split"] or
                 row["gold"] != task["gold"]):
             raise ValueError("case split or independently keyed gold label mismatch")

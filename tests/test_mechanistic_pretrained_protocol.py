@@ -3,6 +3,8 @@
 Does NOT mean that the model was downloaded or neural interventions ran.
 """
 import inspect
+import subprocess
+import sys
 from pathlib import Path
 import yaml
 import unittest
@@ -60,6 +62,19 @@ class PretrainedLMProtocolTests(unittest.TestCase):
         commands = [step.get("run", "") for step in jobs["offline-protocol-and-mutations"]["steps"]]
         self.assertTrue(any("test_mechanistic*.py" in command for command in commands))
         self.assertFalse(any("evaluation.run_pretrained_lm_fidelity" in command for command in commands))
+
+    def test_clean_checkout_supplies_the_scientific_auditor_jsonschema_dependency(self):
+        root = Path(__file__).resolve().parents[1]
+        code = (
+            "import sys; from pathlib import Path; "
+            + "sys.path.insert(0, " + repr(str(root)) + "); "
+            + "import jsonschema; from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit; "
+            + "assert Path(jsonschema.__file__).resolve().is_relative_to(Path(" + repr(str(root)) + ")); "
+            + "print('CHECKOUT_JSONSCHEMA_IMPORT_OK')"
+        )
+        result = subprocess.run([sys.executable, "-I", "-S", "-c", code],
+                                text=True, capture_output=True, check=True)
+        self.assertIn("CHECKOUT_JSONSCHEMA_IMPORT_OK", result.stdout)
 
     def test_canonical_source_hash_stability(self):
         self.assertEqual(

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 from datetime import datetime, timezone, timedelta
+from decimal import Decimal
 import hashlib
 import json
 import math
@@ -169,6 +170,27 @@ class ResultVerifierMutationTests(unittest.TestCase):
         trace["model"]["reference_population_sha256"] = "b" * 64
         report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
         with self.assertRaisesRegex(ValueError, "population commitment"):
+            self.check(trace, report)
+
+    def test_third_outcome_mass_cannot_dilute_binary_metrics(self):
+        trace, report = fixture()
+        by_id = {r["id"]: r for r in report["individual_results"]}
+        for case in trace["cases"]:
+            for field in ("original_probs", "replacement_probs", "baseline_probs"):
+                case[field] = [f"{Decimal(v) * Decimal('0.9'):.6f}" for v in case[field]] + ["0.100000"]
+            rec = by_id[case["id"]]
+            rec["explanation_kl"] = sum(float(a) * math.log(float(a) / float(b))
+                                        for a, b in zip(case["original_probs"], case["replacement_probs"]))
+            rec["mean_kl"] = sum(float(a) * math.log(float(a) / float(b))
+                                 for a, b in zip(case["original_probs"], case["baseline_probs"]))
+            rec["base_entropy"] = -sum(float(p) * math.log(float(p)) for p in case["original_probs"])
+        for split, summary in report["task_accuracy_and_selective_risk"].items():
+            group = [r for r in report["individual_results"] if r["split"] == split]
+            for out, field in (("explanation_kl", "explanation_kl"), ("baseline_kl", "mean_kl")):
+                summary[out] = sum(r[field] for r in group) / len(group)
+        report["mechanism_audit"] = MechanismAudit.from_dict(trace).evaluate()
+        self.assertEqual(report["manifest"]["answer_tokens"], ["yes", "no"])
+        with self.assertRaisesRegex(ValueError, "two.*outcomes"):
             self.check(trace, report)
 
     def test_wrong_gold_label_rejected(self):
