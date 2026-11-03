@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import zipfile
@@ -106,6 +107,13 @@ def check(manifest_path=DEFAULT):
                 inner["actual_raw_files"] != sum(n.startswith("attempt/") for n in names)):
             raise ValueError("publication counts differ from archive")
         computed = summarize(protocol, tasks, rows)
+        # CPython 3.12 changed float sum(). Reconstruct cost totals with explicit
+        # correctly rounded summation on every Python version. Keep every grade,
+        # integer count, statistical result and recorded evidence byte exact.
+        for arm in protocol["arms"]:
+            arm_rows = [r for r in rows if r["arm"] == arm]
+            computed["arms"][arm]["cpu_seconds"] = math.fsum(r["cpu_seconds"] for r in arm_rows)
+            computed["arms"][arm]["generation_seconds"] = math.fsum(r["elapsed_seconds"] for r in arm_rows)
         recorded = strict_json(z.read("attempt/analysis.json"))
         published = read(manifest_path.with_name("smol135m-v01-analysis.json"))
         if recorded != published or any(recorded.get(k) != v for k, v in computed.items()):

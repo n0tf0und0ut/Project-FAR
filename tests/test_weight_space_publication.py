@@ -3,6 +3,7 @@ import copy
 import json
 import tempfile
 import unittest
+from unittest import mock
 import warnings
 import zipfile
 from pathlib import Path
@@ -58,6 +59,18 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(result["scored_records_regraded"], 432)
         self.assertEqual(result["new_model_observations"], 0)
         self.assertFalse(result["production_eligible"])
+
+    def test_legacy_float_aggregation_preserves_publication(self):
+        # Python 3.11 sums these costs one item at a time; 3.12 compensates.
+        # The actual archived random-ablation CPU total differs by one ULP.
+        def legacy_sum(values, start=0):
+            total = start
+            for value in values:
+                total += value
+            return total
+        with mock.patch("tools.weight_space_replay.sum", legacy_sum, create=True):
+            result = audit.check()
+        self.assertEqual(result["scored_records_regraded"], 432)
 
     def test_corrupted_member_rejected(self):
         path = self.altered(lambda m: m.__setitem__("attempt/slot-0000.json", b"{}"), refresh=False)
