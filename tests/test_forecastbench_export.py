@@ -23,6 +23,15 @@ def sample():
                      finished_at=datetime(2026,11,8,12,1,tzinfo=timezone.utc))
 
 class ExportTests(unittest.TestCase):
+    def test_missing_modified_and_misgraded_original_responses_cannot_export(self):
+        mutations=[lambda row:row.pop("raw_response"),
+                   lambda row:row.update(raw_response=row["raw_response"]+" "),
+                   lambda row:row.update(probability=0.9)]
+        for mutate in mutations:
+            run=sample();mutate(run["predictions"][0])
+            with self.subTest(mutate=mutate),self.assertRaises(ProspectiveError):
+                export_sets(run,organization="FAR",model_organization="provider")
+
     def test_three_official_format_files(self):
         result = export_sets(sample(),organization="FAR",model_organization="TestProvider")
         self.assertEqual(set(result), {"neutral", "orthodox", "placebo"})

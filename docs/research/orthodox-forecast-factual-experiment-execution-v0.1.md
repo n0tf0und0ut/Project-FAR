@@ -92,7 +92,7 @@ The `registered_at` example is not a real registration claim. Outcome adjudicati
 
 Primary outcome: per-event Brier score, paired arm differences, and source-blocked confidence bounds for the prespecified 0.02 effect, using the existing `FAR-WORLD-EVAL/0.1` scorer and `worldview_confirmatory`. ForecastBench's own leaderboard uses a **difficulty-adjusted Brier Index**, so raw FAR Brier scores must **not** be presented as official ForecastBench rankings. Track unresolved/censored events, arm completion, costs, answer-parsing failures, calibration and abstention. Do not silently remove difficult questions.
 
-The current 200-case minimum is not a powered confirmatory sample. The repository's normal-approximation estimates vary from 535 to 1,486 independent clusters for a 0.02 effect at assumed paired SD 0.15–0.25, under familywise type-I error control and 80% power. An actual pilot must establish variance and dependence assumptions before setting the confirmatory cohort size.
+The current 200-case minimum is not a powered confirmatory sample. The historical 535–1,486 normal-approximation estimates (paired SD 0.15–0.25, expected improvement 0.02) plan 80% per-contrast detection power **against zero**, not power to meet the registered 0.02 confirmation margin. Use `recommended_minimum(delta=<expected true improvement>, confirmation_margin=0.02, paired_sd=<pilot estimate>)`; the expected improvement must exceed the confirmation margin. Expected improvement 0.04 with margin 0.02 yields those same sizes. At true improvement 0.02, increasing sample size cannot achieve 80% power to place the upper bound below -0.02. An actual pilot and prospective freeze must establish effect, variance, dependence and joint-power assumptions before confirmation.
 
 ### Verified October 31, 2026 intake checkpoint
 
@@ -140,6 +140,28 @@ This provides an end-to-end **synthetic rehearsal only**. In production the key 
 **Required controls:** same frozen underlying model and evidence, isolated calls, equal research tools/compute budget, explicit prompt identities, separate placebo, no hidden outcomes, independently audited source commitments, no repeated-source pseudo-replication, matched timestamped forecasts, and honest uncertainty handling.
 
 **Success:** an independently verified, replicated and powered paired improvement for Orthodox versus **both** secular-rigor and placebo on the specified factual outcome, with no material regression in citation honesty or abstention. A simple advantage over an instruction-free baseline is insufficient.
+
+## November 3 source-linked review corrections
+
+Reviewed head: `837a6a1b36642f84fd193c2271ff407ff99240be`.
+These are pre-execution software/planning repairs; real prospective forecasts
+and independent future outcome adjudications remain zero.
+
+| Finding / original source | Reproducer and before result | Correction and verification |
+| --- | --- | --- |
+| WORLD-RESPONSE-001 / comment 4458887679, thread PRRT_kwDOTH_vCM6zRnpQ | An output with leading whitespace, changed key order, `5e-1` and Unicode retained parsed fields and a hash but discarded the text needed to verify that hash. The new preservation regression failed. | Retain the exact completion message text and its UTF-8 SHA-256 in every prediction. Before export or resolution joining, replay its hash, parsed probability and reasoning; missing, modified and misgraded originals are rejected. The scored `artifact_sha256` refers to the retained original forecast record, which must accompany a scored study. It does not authenticate execution or the HTTP transport envelope. |
+| WORLD-POWER-001 / comment 4458887688, thread PRRT_kwDOTH_vCM6zRnpV | The documented 951-case calculation sized a 0.02 effect against zero while acceptance required upper bounds below -0.02. A new boundary test failed before correction. | Preserve the acceptance rule and historical zero-null figures, add an explicit confirmation margin to planning, reject expected effects at/below it, and document detection versus confirmation and per-contrast versus joint power. Expected 0.04, margin 0.02 reproduces the former 951 calculation. |
+| WORLD-RESPONSE-002 / follow-up CLI reproducer | A malformed second completion discarded both its raw text and the preceding valid response. An existing result path still caused all model calls before overwrite refusal. Both new regressions failed. | The CLI reserves a new `.responses.jsonl` sidecar exclusively and appends/flushed exact response receipts before parsing. Failed partial runs keep their receipts and cannot be silently retried under the same identity. Existing result or receipt paths refuse before model construction/execution. |
+| WORLD-FACT-001 / actual CLI reproduction | `python -m evaluation.factual_investigation_runner --help` raised `UnboundLocalError` because `os.getenv` preceded a local `import os`; the factual CLI could not start. | Move the import to module scope. The regression executes actual help and a full scripted CLI run; existing output is rejected before backend construction. |
+| WORLD-FACT-002 / corresponding raw-evidence/scorer audit | Factual responses also discarded original text; the scorer accepted status/citation/rationale edits without replaying their response hash. Invalid later completions discarded earlier outputs. | Retain exact factual completion text, replay its hash and parsed fields before scoring, and preserve CLI response receipts before parsing. Inconsistent grade edits are refused; genuinely unsupported provider responses remain scored as errors. |
+
+Original negative observations and the October source-intake failure are retained.
+The runner's exact completion text is preserved without JSON reserialization;
+the envelope returned by an external HTTP service is a distinct provenance
+surface. No previously frozen forecast file or study result is rewritten.
+Retain the `.responses.jsonl` receipt sidecar with every successful or failed CLI
+run; a missing final result is a failed/incomplete attempt, not a scored forecast.
+All 115 focused worldview/forecast/factual contract tests pass after these repairs.
 
 **Failure / null:** equal accuracy, lower accuracy, only synthetic improvement, failure to outperform secular rigor, no differential forecasts, loss of source trust or partial data. Such a result limits the *implemented method* without deciding the truth of Orthodox theology.
 

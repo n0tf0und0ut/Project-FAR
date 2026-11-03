@@ -31,17 +31,24 @@ def _percentile(xs: list[float], p: float) -> float:
 
 def recommended_minimum(delta: float = 0.02, paired_sd: float = 0.2,
                         familywise_alpha: float = 0.05, power: float = 0.8,
-                        comparisons: int = 2) -> int:
-    """Conservative normal-approximation planning, not achieved statistical power."""
+                        comparisons: int = 2, confirmation_margin: float = 0.0) -> int:
+    """Conservative per-contrast planning, not achieved or joint power.
+
+    Delta is the expected true improvement. The default zero margin sizes
+    zero-null detection only. To plan for analyze()'s 0.02 acceptance margin,
+    explicitly pass confirmation_margin=0.02 and an expected delta above it.
+    No finite sample attains target power at or below the acceptance boundary.
+    """
     if not (math.isfinite(delta) and delta > 0 and math.isfinite(paired_sd)
             and paired_sd > 0 and 0 < familywise_alpha < 1
             and 0 < power < 1 and type(comparisons) is int
-            and comparisons >= 1):
+            and comparisons >= 1 and math.isfinite(confirmation_margin)
+            and 0 <= confirmation_margin < delta):
         raise ValueError("invalid prespecified power parameters")
     normal = NormalDist()
     z_alpha = normal.inv_cdf(1 - familywise_alpha / (2 * comparisons))
     z_beta = normal.inv_cdf(power)
-    return math.ceil(((z_alpha + z_beta) * paired_sd / delta) ** 2)
+    return math.ceil(((z_alpha + z_beta) * paired_sd / (delta - confirmation_margin)) ** 2)
 
 
 def analyze(document: dict, clusters: dict[str, str], *, bootstrap=4096,

@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import hashlib
 import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from evaluation.prospective_forecast_runner import (
     OpenAICompatible, ProspectiveError, digest, parse_question_set,
@@ -32,6 +36,46 @@ def packet():
 
 
 class ForecastRunnerTests(unittest.TestCase):
+    def test_existing_output_refuses_before_model_execution(self):
+        from evaluation.prospective_forecast_runner import main
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/"questions.json";source.write_text(json.dumps(packet()))
+            output=Path(directory)/"result.json";output.write_text("original record")
+            calls=[]
+            def backend(messages):calls.append(messages);return '{"probability":0.5,"reasoning":"mock"}'
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible",return_value=backend):
+                self.assertEqual(main([str(source),str(output),"--model","mock","--rehearsal"]),1)
+            self.assertEqual(len(calls),0,"existing output must be rejected before any paid inference")
+            self.assertEqual(output.read_text(),"original record")
+
+    def test_cli_preserves_original_responses_when_later_completion_is_invalid(self):
+        from evaluation.prospective_forecast_runner import main
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/"questions.json";source.write_text(json.dumps(packet()))
+            output=Path(directory)/"result.json"
+            raw=[' {"probability":5e-1,"reasoning":"mock"} \n','not valid JSON: preserve me']
+            iterator=iter(raw)
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible",return_value=lambda _:next(iterator)):
+                self.assertEqual(main([str(source),str(output),"--model","mock","--rehearsal"]),1)
+            self.assertFalse(output.exists(),"failed execution must not masquerade as complete")
+            receipts=output.with_name(output.name+".responses.jsonl")
+            records=[json.loads(line) for line in receipts.read_text().splitlines()]
+            self.assertEqual([row["raw_response"] for row in records],raw)
+            for row in records:
+                self.assertEqual(row["raw_response_sha256"],hashlib.sha256(row["raw_response"].encode()).hexdigest())
+            before=receipts.read_bytes()
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible") as configured:
+                self.assertEqual(main([str(source),str(output),"--model","mock","--rehearsal"]),1)
+                configured.assert_not_called()
+            self.assertEqual(receipts.read_bytes(),before)
+
+    def test_4458887679_exact_response_format_is_preserved_with_its_hash(self):
+        raw='  { "reasoning" : "Unicode: café", "probability" : 5e-1 }\n'
+        result=run_round(packet(),lambda _:raw,"mock-fixed",NOW,finished_at=END)
+        for prediction in result["predictions"]:
+            self.assertEqual(prediction.get("raw_response"),raw)
+            self.assertEqual(prediction["raw_response_sha256"],hashlib.sha256(raw.encode("utf-8")).hexdigest())
+
     def test_expands_questions_and_preserves_three_arm_matching(self):
         outputs = []
         def backend(messages):

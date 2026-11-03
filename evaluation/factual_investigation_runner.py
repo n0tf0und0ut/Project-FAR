@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -89,7 +90,7 @@ def answer(raw, visible_ids):
     return value
 
 
-def investigate(packet, backend, model_id, timestamp):
+def investigate(packet, backend, model_id, timestamp, *, response_sink=None):
     sources = packet_validate(packet)
     when = utc(timestamp)
     if not isinstance(model_id, str) or not model_id.strip():
@@ -102,13 +103,17 @@ def investigate(packet, backend, model_id, timestamp):
         for arm in arms:
             messages = prompt(packet, case, sources, arm)
             raw = backend(messages)
+            if not isinstance(raw,str):
+                raise ProspectiveError("backend completion must be text")
+            receipt={"case_id":case["id"],"arm":arm,"prompt_sha256":digest(messages),
+                     "raw_response":raw,"response_sha256":hashlib.sha256(raw.encode("utf-8")).hexdigest()}
+            if response_sink is not None:
+                response_sink(dict(receipt))
             ans = answer(raw, set(case["source_ids"]))
-            rows.append({"case_id": case["id"], "arm": arm,
+            rows.append({**receipt,
                          "status": ans["status"],
                          "cited_source_ids": ans["cited_source_ids"],
-                         "rationale": ans["rationale"],
-                         "prompt_sha256": digest(messages),
-                         "response_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest()})
+                         "rationale": ans["rationale"]})
     return {"version": VERSION, "study_id": packet["study_id"],
             "packet_sha256": digest(packet), "model_id": model_id,
             "recorded_at": when.isoformat(), "predictions": rows,
@@ -149,6 +154,12 @@ def score_investigation(packet, predictions, key):
             raise ProspectiveError("duplicate prediction")
         seen.add(item)
         g = gold[row["case_id"]]
+        raw=row.get("raw_response")
+        if not isinstance(raw,str) or hashlib.sha256(raw.encode("utf-8")).hexdigest()!=row.get("response_sha256"):
+            raise ProspectiveError("missing or hash-mismatched original factual response")
+        original=answer(raw,set(cases[row["case_id"]]["source_ids"]))
+        if any(row.get(field)!=original[field] for field in ("status","cited_source_ids","rationale")):
+            raise ProspectiveError("factual prediction differs from original response")
         verdict = row.get("status")
         refs = row.get("cited_source_ids")
         if verdict not in LABELS or not isinstance(refs, list) or not set(refs) <= set(cases[row["case_id"]]["source_ids"]):
@@ -183,14 +194,21 @@ def main(argv=None):
     try:
         from evaluation.prospective_forecast_runner import OpenAICompatible
         from datetime import timezone
-        import os
+        receipt_path=args.output.with_name(args.output.name+".responses.jsonl")
+        if args.output.exists() or receipt_path.exists():
+            raise ProspectiveError("output or raw-response receipts already exist: use a new run identity")
         packet = json.loads(args.packet.read_text(encoding="utf-8"))
         backend = OpenAICompatible(args.endpoint, args.model, (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
-        result = investigate(packet, backend, args.model, datetime.now(timezone.utc))
-        if args.output.exists():
-            raise ProspectiveError("output already exists")
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(canonical(result) + "\n", encoding="utf-8")
+        with receipt_path.open("x",encoding="utf-8") as receipt_file:
+            def preserve(receipt):
+                record={**receipt,"model_id":args.model,"packet_sha256":digest(packet),
+                        "received_at":datetime.now(timezone.utc).isoformat(),
+                        "status_before_validation":"RECEIVED"}
+                receipt_file.write(canonical(record)+"\n");receipt_file.flush();os.fsync(receipt_file.fileno())
+            result = investigate(packet, backend, args.model, datetime.now(timezone.utc),response_sink=preserve)
+        with args.output.open("x",encoding="utf-8") as output_file:
+            output_file.write(canonical(result)+"\n")
     except (ValueError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 1

@@ -127,6 +127,15 @@ class ConfirmatoryTests(unittest.TestCase):
             with self.subTest(kw=kw), self.assertRaises(ValueError):
                 recommended_minimum(**kw)
 
+    def test_4458887688_confirmation_power_uses_distance_beyond_margin(self):
+        self.assertEqual(recommended_minimum(delta=0.04,confirmation_margin=0.02),
+                         recommended_minimum(delta=0.02))
+        self.assertGreater(recommended_minimum(delta=0.03,confirmation_margin=0.02),
+                           recommended_minimum(delta=0.04,confirmation_margin=0.02))
+        for expected in (0.01,0.02):
+            with self.subTest(expected=expected),self.assertRaises(ValueError):
+                recommended_minimum(delta=expected,confirmation_margin=0.02)
+
     def test_outcome_timestamp_sanity_inherited(self):
         doc = sample()
         doc["cases"][0]["forecasts"]["neutral"]["locked_at"] = "2026-11-01T00:00:00Z"

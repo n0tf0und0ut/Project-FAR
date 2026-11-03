@@ -114,6 +114,22 @@ class ResolutionJoinTests(unittest.TestCase):
             join_resolutions(f, resolutions(f),
                              registered_at=REGISTERED, protocol_sha256=PROTOCOL)
 
+    def test_exact_raw_response_is_required_and_replayed_before_scoring(self):
+        import hashlib
+        mutations = [lambda row: row.pop("raw_response"),
+                     lambda row: row.update(raw_response=row["raw_response"]+" "),
+                     lambda row: row.update(probability=0.7),
+                     lambda row: row.update(reasoning="rewritten")]
+        for mutate in mutations:
+            forecast=forecasts();mutate(forecast["predictions"][0])
+            with self.subTest(mutate=mutate),self.assertRaises(AblationError):
+                join_resolutions(forecast,resolutions(forecast),registered_at=REGISTERED,protocol_sha256=PROTOCOL)
+        forecast=forecasts();row=forecast["predictions"][0]
+        row["raw_response"]=' {"reasoning":"mock", "probability":5e-1}\n'
+        row["raw_response_sha256"]=hashlib.sha256(row["raw_response"].encode()).hexdigest()
+        study,_=join_resolutions(forecast,resolutions(forecast),registered_at=REGISTERED,protocol_sha256=PROTOCOL)
+        self.assertIn(row["raw_response_sha256"],{x["artifact_sha256"] for c in study["cases"] for x in c["forecasts"].values()})
+
     def test_data_class_prospective_is_still_unverified(self):
         f = forecasts()
         _, result = join_resolutions(f, resolutions(f), registered_at=REGISTERED,

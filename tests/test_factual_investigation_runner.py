@@ -3,8 +3,14 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import copy
+from contextlib import redirect_stdout
+import hashlib
+import io
 import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 from evaluation.factual_investigation_runner import (
     ProspectiveError, investigate, packet_validate, score_investigation, prompt
@@ -54,6 +60,44 @@ def mocked(messages):
 
 
 class DocumentaryInvestigationTests(unittest.TestCase):
+    def test_actual_cli_help_and_execution_are_available(self):
+        from evaluation.factual_investigation_runner import main
+        with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as completed:
+            main(["--help"])
+        self.assertEqual(completed.exception.code,0)
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/"packet.json";source.write_text(json.dumps(packet()))
+            output=Path(directory)/"predictions.json"
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible",return_value=mocked):
+                self.assertEqual(main([str(source),str(output),"--model","mock"]),0)
+            self.assertEqual(len(json.loads(output.read_text())["predictions"]),9)
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible") as backend:
+                self.assertEqual(main([str(source),str(output),"--model","mock"]),1)
+                backend.assert_not_called()
+
+    def test_original_response_text_is_preserved_and_replayed_by_scorer(self):
+        output=investigate(packet(),mocked,"mock",datetime(2026,10,30,tzinfo=timezone.utc))
+        self.assertEqual(output["predictions"][0].get("raw_response"),mocked(prompt(packet(),packet()["cases"][0],packet_validate(packet()),output["predictions"][0]["arm"])))
+        for mutate in (lambda row:row.pop("raw_response"),
+                       lambda row:row.update(raw_response=row["raw_response"]+" "),
+                       lambda row:row.update(status="REFUTED")):
+            changed=copy.deepcopy(output);mutate(changed["predictions"][0])
+            with self.subTest(mutate=mutate),self.assertRaises(ProspectiveError):
+                score_investigation(packet(),changed,answer_key())
+
+    def test_failed_factual_cli_retains_both_valid_and_invalid_raw_responses(self):
+        from evaluation.factual_investigation_runner import main
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/"packet.json";source.write_text(json.dumps(packet()))
+            output=Path(directory)/"predictions.json"
+            raw=[json.dumps({"status":"SUPPORTED","cited_source_ids":["report-1"],"rationale":"given"}),"invalid completion"]
+            iterator=iter(raw)
+            with patch("evaluation.prospective_forecast_runner.OpenAICompatible",return_value=lambda _:next(iterator)):
+                self.assertEqual(main([str(source),str(output),"--model","mock"]),1)
+            self.assertFalse(output.exists())
+            receipts=output.with_name(output.name+".responses.jsonl")
+            self.assertEqual([json.loads(line)["raw_response"] for line in receipts.read_text().splitlines()],raw)
+
     def test_three_arm_investigation_and_scoring(self):
         study = packet()
         output = investigate(study, mocked, "mock", datetime(2026, 10, 30, tzinfo=timezone.utc))
@@ -133,6 +177,10 @@ class DocumentaryInvestigationTests(unittest.TestCase):
                 x["cited_source_ids"] = []
             if x["case_id"] == "wind":
                 x["status"] = "SUPPORTED"
+            # Simulate a genuinely unsupported provider answer, preserving the
+            # source response. Inconsistent post-hoc grade edits are rejected.
+            x["raw_response"]=json.dumps({key:x[key] for key in ("status","cited_source_ids","rationale")})
+            x["response_sha256"]=hashlib.sha256(x["raw_response"].encode()).hexdigest()
         scores = score_investigation(study, output, answer_key())["scores"]
         for stats in scores.values():
             self.assertEqual(stats["correct"], 2)

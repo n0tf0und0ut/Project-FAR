@@ -12,7 +12,7 @@ from pathlib import Path
 import re
 import sys
 
-from evaluation.prospective_forecast_runner import ARMS, MARKET, SOURCES, ProspectiveError
+from evaluation.prospective_forecast_runner import ARMS, MARKET, SOURCES, ProspectiveError, verify_response_record
 
 
 def export_sets(run, *, organization, model_organization):
@@ -41,6 +41,7 @@ def export_sets(run, *, organization, model_organization):
     for row in predictions:
         if not isinstance(row, dict) or row.get("arm") not in ARMS:
             raise ProspectiveError("invalid arm")
+        verify_response_record(row)
         arm = row["arm"]
         source = row.get("source")
         qid = row.get("id")

@@ -149,6 +149,19 @@ def probability(raw):
     return float(p), value["reasoning"]
 
 
+def verify_response_record(row):
+    """Replay the exact retained completion text, not a JSON reserialization."""
+    raw = row.get("raw_response")
+    if not isinstance(raw, str):
+        raise ProspectiveError("original response text is missing")
+    if hashlib.sha256(raw.encode("utf-8")).hexdigest() != row.get("raw_response_sha256"):
+        raise ProspectiveError("original response hash mismatch")
+    p, why = probability(raw)
+    if p != row.get("probability") or why != row.get("reasoning"):
+        raise ProspectiveError("parsed forecast differs from original response")
+    return p, why
+
+
 class OpenAICompatible:
     """Requires explicit endpoint/model and env credential, no implicit key provision."""
     def __init__(self, endpoint, model, api_key=None):
@@ -178,7 +191,7 @@ class OpenAICompatible:
 
 
 def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=False,
-              finished_at=None):
+              finished_at=None, response_sink=None):
     due, units = parse_question_set(question_set)
     when = utc(now)
     deadline = datetime.combine(due, time.max, tzinfo=timezone.utc)
@@ -201,13 +214,19 @@ def run_round(question_set, backend, model_id, now, *, limit=None, rehearsal=Fal
         for arm in arms:
             messages = prompt(unit, arm)
             output = backend(messages)
+            if not isinstance(output, str):
+                raise ProspectiveError("backend completion must be text")
+            receipt={"source":unit["source"],"id":unit["id"],
+                     "resolution_date":unit["resolution_date"],"arm":arm,
+                     "prompt_sha256":digest(messages),"raw_response":output,
+                     "raw_response_sha256":hashlib.sha256(output.encode("utf-8")).hexdigest(),
+                     "question_sha256":digest(unit)}
+            if response_sink is not None:
+                # Persist before parsing so a malformed later completion cannot
+                # erase earlier observations or its own exact failed response.
+                response_sink(dict(receipt))
             p, why = probability(output)
-            rows.append({"source": unit["source"], "id": unit["id"],
-                         "resolution_date": unit["resolution_date"],
-                         "arm": arm, "probability": p,
-                         "reasoning": why, "prompt_sha256": digest(messages),
-                         "raw_response_sha256": hashlib.sha256(output.encode()).hexdigest(),
-                         "question_sha256": digest(unit)})
+            rows.append({**receipt,"probability":p,"reasoning":why})
     ended = utc(finished_at if finished_at is not None else datetime.now(timezone.utc))
     if ended < when or (not rehearsal and ended > deadline):
         raise ProspectiveError("forecast execution crosses valid recording window")
@@ -236,16 +255,27 @@ def main(argv=None):
     ap.add_argument("--rehearsal", action="store_true")
     args = ap.parse_args(argv)
     try:
+        receipt_path=args.output.with_name(args.output.name+".responses.jsonl")
+        if args.output.exists() or receipt_path.exists():
+            raise ProspectiveError("output or raw-response receipts already exist: use a new run identity")
         question_set = json.loads(args.question_set.read_text(encoding="utf-8"))
         backend = OpenAICompatible(args.endpoint, args.model,
                                    (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
-        result = run_round(question_set, backend, args.model,
-                           datetime.now(timezone.utc), limit=args.limit,
-                           rehearsal=args.rehearsal)
-        if args.output.exists():
-            raise ProspectiveError("output already exists: never overwrite locked forecasts")
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(canonical(result) + "\n", encoding="utf-8")
+        with receipt_path.open("x",encoding="utf-8") as receipt_file:
+            def preserve(receipt):
+                record={**receipt,"model_id":args.model,
+                        "question_set_sha256":digest(question_set),
+                        "received_at":datetime.now(timezone.utc).isoformat(),
+                        "status":"RECEIVED_BEFORE_VALIDATION"}
+                receipt_file.write(canonical(record)+"\n")
+                receipt_file.flush()
+                os.fsync(receipt_file.fileno())
+            result = run_round(question_set, backend, args.model,
+                               datetime.now(timezone.utc), limit=args.limit,
+                               rehearsal=args.rehearsal,response_sink=preserve)
+        with args.output.open("x",encoding="utf-8") as output_file:
+            output_file.write(canonical(result)+"\n")
     except (ValueError, OSError) as exc:
         print(str(exc), file=sys.stderr)
         return 1

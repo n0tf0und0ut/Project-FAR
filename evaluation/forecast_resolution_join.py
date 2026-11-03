@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import sys
 
-from evaluation.prospective_forecast_runner import ARMS, SHARED, digest
+from evaluation.prospective_forecast_runner import ARMS, SHARED, ProspectiveError, digest, verify_response_record
 from evaluation.worldview_truth_discovery_ablation import (
     VERSION, AblationError, _time, _digest, score
 )
@@ -61,6 +61,10 @@ def join_resolutions(forecast, resolution, *, registered_at,
             raise AblationError("duplicate arm forecast")
         _digest(row.get("raw_response_sha256"))
         _digest(row.get("question_sha256"))
+        try:
+            verify_response_record(row)
+        except ProspectiveError as exc:
+            raise AblationError(str(exc)) from exc
         if type(row.get("probability")) not in (float, int) or not 0 <= row["probability"] <= 1:
             raise AblationError("invalid forecast probability")
         matrix[(key, row["arm"])] = row

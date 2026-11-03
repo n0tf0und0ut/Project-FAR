@@ -66,8 +66,9 @@ independent forecast locks, source authenticity, treatment randomization,
 outcome adjudication, data freshness, independence, and external replication
 are obligations the scorer cannot establish.
 
-Planning calculation (two comparisons, conservative two-sided
-familywise alpha 0.05, 80% target power, absolute mean Brier improvement 0.02):
+Zero-null detection planning calculation (two comparisons, conservative
+two-sided familywise alpha 0.05, 80% target power per contrast, expected true
+absolute mean Brier improvement 0.02, **zero confirmation margin**):
 
 | Assumed paired-loss SD | Approximate independent cases required |
 | --- | ---: |
@@ -77,8 +78,16 @@ familywise alpha 0.05, 80% target power, absolute mean Brier improvement 0.02):
 | 0.25 | 1,486 |
 | 0.30 | 2,139 |
 
-These numbers are **hypothetical power estimates**, not measured FAR
-performance or guaranteed sample-size adequacy. Uncertain clustering,
+These historical numbers size detection against zero; they do **not** provide
+80% power to meet the analysis rule whose upper bounds must be below -0.02.
+The planner now accepts `confirmation_margin` and uses the expected effect's
+distance beyond that margin. For expected improvement 0.04 and confirmation
+margin 0.02, the same table applies to the 0.02 gap. An expected improvement at
+or below 0.02 cannot attain 80% power for that confirmation rule at any finite
+sample size. Such inputs are rejected rather than reporting a misleading size.
+
+These numbers are **hypothetical per-contrast power estimates**, not measured FAR
+performance, achieved joint power, or guaranteed sample-size adequacy. Uncertain clustering,
 time trends, selection, and actual effect-size variation may increase
 requirements. If there are no distinguishable forecasts, the expected
 advantage cannot appear at any sample size.
