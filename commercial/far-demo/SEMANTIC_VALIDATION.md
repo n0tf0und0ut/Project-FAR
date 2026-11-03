@@ -60,3 +60,31 @@ the real server contracts before importing/re-exporting the >500-KB bundle in
 the shipped script. All 46 dependency-equipped augmentation/semantic tests pass. These
 are software-integrity observations with scripted provider replies; no live-model
 quality or independent human benefit is established.
+
+## Genuine live-model engineering smoke (November 3, 2026)
+
+One prospectively frozen, separately identified access/conformance call used the
+unchanged semantic route and strict validator with official
+`Qwen/Qwen2.5-0.5B-Instruct` revision
+`7ae557604adf67be50417f59c2c2f167def9a775`, BF16 CPU inference. The real model
+generated 218 tokens from 525 input tokens in 25.259 seconds. The local provider
+returned HTTP 200; FAR returned HTTP 502 because the actual output violated the
+contract (Markdown-fenced JSON, missing `open_questions`, malformed anchors).
+There was no outcome-based retry, scripted replacement or validator relaxation.
+
+Thus live inference access is established for this engineering configuration,
+while end-to-end output conformance **FAILED**. Semantic accuracy, strong-provider
+performance, independent human improvement and commercial benefit remain
+unestablished. This small model and single authored input cannot support a broad
+quality verdict. External API charge was zero; total compute/human cost was not
+measured. Setup time is separate from generation timing.
+
+[Full preserved summary](evaluation/semantic-live-smoke-20261103.md) and
+[immutable raw evidence ZIP](evaluation/semantic-live-smoke-20261103.zip), SHA-256
+`0a6ca2e36226423498b7726e24f86eb10279d5d2217018a121f1e6291a737bf0`,
+retain the pre-generation freeze, exact client/source hashes, official model and
+weight identities, thin local transport source, raw request/output, token IDs,
+HTTP/validation outcome, environment and deterministic byte/sequence verifier.
+The ZIP contains an engineering receipt, not trusted execution attestation or an
+externally independent study. No model checkpoint or production dependency was
+added to FAR.
