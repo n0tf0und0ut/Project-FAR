@@ -63,3 +63,7 @@ The completed internal v0.1 and v0.3 experiments **did execute a local loopback 
 What remains **NOT ESTABLISHED** is a comparison on independently held-out cases with an external correctness oracle, cross-model or cross-hardware replication, evidence that a frontier agent would behave similarly, or an efficiency/correctness advantage when the correct tool must actually be discovered. The available corpus is small, publicly visible, and contains one known valid verifier for every case. These remaining limitations cannot erase the observed internal execution or be silently promoted into a general architecture verdict.
 
 The [Research Execution Charter](../../docs/governance/research-execution-charter.md), [canonical FAR workflow](../../frameworks/FAR/workflow.md), [current verifier](../../docs/specification/far-ir-2.0-current-verification.md) and [hostile-source boundary](../../methodology/hostile-source-boundary.md) remain authoritative. The experiment does not promote a finding, claim novelty or justify an architectural replacement.
+
+The [convergence finding ledger](finding-ledger.md) preserves original review
+identities, corrective commits and the exact archived live workflow. Maintenance
+CI runs offline checks; completed frozen trials are not automatically repeated.

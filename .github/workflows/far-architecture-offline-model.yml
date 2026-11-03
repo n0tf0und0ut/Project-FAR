@@ -1,4 +1,4 @@
-name: FAR Architecture Offline Model Pilot
+name: FAR Architecture Frozen Evidence Validation
 on:
   pull_request:
     paths:
@@ -12,7 +12,6 @@ permissions:
   contents: read
 jobs:
   three-arm-offline-cpu:
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -31,55 +30,5 @@ jobs:
           python -m unittest tests.test_far_architecture_routing tests.test_far_architecture_cpu_experiment -v
           python tools/far_architecture_routing.py smoke
           python tools/far_architecture_routing.py schedule > "$RUNNER_TEMP/schedule.json"
-      - name: Install pinned, checksum-verified CPU llama.cpp release
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/far-llama"
-          curl --fail --location --retry 3 --max-time 240 "https://github.com/ggml-org/llama.cpp/releases/download/b12023/llama-b12023-bin-ubuntu-x64.tar.gz" --output "$RUNNER_TEMP/llama-cpu.tar.gz"
-          printf '%s  %s\n' ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0 "$RUNNER_TEMP/llama-cpu.tar.gz" | sha256sum --check
-          tar -xzf "$RUNNER_TEMP/llama-cpu.tar.gz" -C "$RUNNER_TEMP/far-llama"
-          server="$(find "$RUNNER_TEMP/far-llama" -type f -name llama-server -print -quit)"
-          test -n "$server" && test -f "$server"
-          chmod +x "$server"
-          echo "FAR_LLAMA_BIN=$server" >> "$GITHUB_ENV"
-          echo "FAR_LLAMA_LIB=$(dirname "$server")" >> "$GITHUB_ENV"
-      - name: Download exact open-weight model with SHA-256 verification
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail --location --retry 3 --max-time 360 "https://huggingface.co/bartowski/Qwen2.5-0.5B-Instruct-GGUF/resolve/d71b21e09fe053c278d73092a855b8a99684693a/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf" --output "$RUNNER_TEMP/far-model.gguf"
-          printf '%s  %s\n' 6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653 "$RUNNER_TEMP/far-model.gguf" | sha256sum --check
-      - name: Start offline model bound to localhost
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p research/architecture-routing/run-artifacts
-          export LD_LIBRARY_PATH="$FAR_LLAMA_LIB:${LD_LIBRARY_PATH:-}"
-          nohup "$FAR_LLAMA_BIN" --model "$RUNNER_TEMP/far-model.gguf" --host 127.0.0.1 --port 8085 --ctx-size 2048 --threads 2 --parallel 1 --seed 271828 > research/architecture-routing/run-artifacts/server.log 2>&1 &
-          for attempt in $(seq 1 120); do
-            if curl --silent --show-error --fail --max-time 1 http://127.0.0.1:8085/health >/dev/null 2>&1; then
-              echo "MODEL_READY=1"
-              exit 0
-            fi
-            sleep 1
-          done
-          tail -80 research/architecture-routing/run-artifacts/server.log || true
-          echo 'Local model failed startup' >&2
-          exit 1
-      - name: Execute exactly 12 model decisions and 24 fixed checks
-        shell: bash
-        env:
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          set -euo pipefail
-          python tools/far_architecture_cpu_experiment.py --model "$RUNNER_TEMP/far-model.gguf" --output research/architecture-routing/run-artifacts/results.json | tee research/architecture-routing/run-artifacts/summary.log
-          echo "$PR_HEAD_SHA" > research/architecture-routing/run-artifacts/exact-head.txt
-      - name: Upload raw execution evidence without credentials or weights
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: far-architecture-offline-model-${{ github.event.pull_request.head.sha }}
-          path: research/architecture-routing/run-artifacts/
-          if-no-files-found: warn
-          retention-days: 90
+      # Original live workflow is archived; completed frozen trials are not rerun
+      # on maintenance pushes. Register any successor separately with new outputs.

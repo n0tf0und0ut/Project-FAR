@@ -1,0 +1,13 @@
+# Post-execution software validation patch v0.3.1
+
+Status: **Research; software successor, not a new performance experiment.**
+
+RLY-006 was found during final inspection after the v0.3 evaluation and initial publication. At publication head `854c0431b7e9dce5a6b90d6dde39234f57449c25`, the selector admitted `{"name":"unregistered-model","digest":null}`. An unknown dictionary key returned `None`, and comparison with the supplied null digest did not distinguish absence from a permitted value. Protocol validation therefore incorrectly admitted that configuration. The live CLI's separate explicit 7B/version guard already blocked it; the direct helper could nevertheless reach registry construction.
+
+The correction requires explicit membership in the fixed model-name allowlist before comparing the digest. Two regression methods cover unknown and empty model names, protocol admission, and refusal before registry or inference access. Against the frozen pre-patch module they produced three failures, including two name subcases. After correction all 58 targeted tests passed. The backend-access trap proves rejection happens before opening the registry or writing a run checkpoint. Both registered 1.5B and 7B model specifications retain their existing behavior.
+
+The completed experiment remains **v0.3 at source `6c382c798df0a95824b79e76263318865ee24c68`**. Every one of its 75 raw records uses the known, pinned 7B name and full digest. The defect concerns configurations outside that registered input domain and did not admit a substituted model into this campaign. A separate read-only internal reviewer reproduced the original defect, the before/after regressions and the unchanged behavior for both registered models.
+
+No model request, performance rerun, new observation or regrade occurred after this software patch. Both original reports, every protocol, all raw evidence and the public archive remain byte-identical. Passing the retained 75 records through the patched validation path also reproduced both original reports byte-for-byte; that is an offline compatibility check, not a replacement primary analysis. The [machine-readable patch record](result/v0.3/post-execution-validation-patch-v0.3.1.json) binds the exact patched source/test hashes and compatibility observations.
+
+Current software therefore differs from executed v0.3 by this validation correction. Use the immutable original source for exact historical trace reconstruction. Future inference with changed software is a separate version and must not be pooled into the completed result. This correction establishes no new general reliability or FAR-benefit claim; exact-head review and protected merge checks apply to the successor software separately.

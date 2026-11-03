@@ -1,0 +1,29 @@
+{
+  "status": "Research",
+  "software_patch": "v0.3.1",
+  "root_cause_id": "RLY-006",
+  "frozen_execution_source": "6c382c798df0a95824b79e76263318865ee24c68",
+  "current_runner_sha256": "958464d36d01dd73a0aeec382bc5fc34c028f8d84a75a35a10505f8f6b7b0f99",
+  "current_tests_sha256": "93dc32654e7f2520b116ed5df26937fe1f773a7ec9a72954f1d2ecb9545c0440",
+  "defect": "Unknown model name with null digest matched the dictionary missing-value sentinel.",
+  "before_regression_methods": 2,
+  "before_reported_failures": 3,
+  "after_targeted_tests_passed": 58,
+  "actual_model_calls_after_patch": 0,
+  "new_performance_observations": 0,
+  "frozen_protocol_unchanged": true,
+  "frozen_reports_unchanged": true,
+  "original_archive_unchanged": true,
+  "primary_outcomes_unchanged": true,
+  "actual_record_crosschecks": {
+    "preflight": {
+      "records": 3,
+      "byte_identical_to_frozen_report": true
+    },
+    "scored": {
+      "records": 72,
+      "byte_identical_to_frozen_report": true
+    }
+  },
+  "scope": "Post-execution software validation patch only; completed experiment remains v0.3 at its original source."
+}

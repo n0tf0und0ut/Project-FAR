@@ -1,0 +1,9 @@
+{
+  "status": "Research",
+  "execution": "STOPPED_AT_REGISTERED_CAPABILITY_GATE",
+  "broader_slots_planned": 72,
+  "broader_slots_executed": 0,
+  "broader_result": "NOT_RUN",
+  "general_agent_reliability": "NOT_ESTABLISHED",
+  "far_causal_effect": "NOT_TESTED"
+}
