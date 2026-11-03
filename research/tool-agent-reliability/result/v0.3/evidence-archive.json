@@ -1,0 +1,11 @@
+{
+  "status": "Research",
+  "path": "research/tool-agent-reliability/result/v0.3/evidence-v0.3.zip",
+  "bytes": 528636,
+  "sha256": "b4e1ccd17a46db8f91ccee29232853bdd6ba5881a1f6c747351d2dfc242a7809",
+  "members": 20,
+  "original_zip_count": 14,
+  "raw_records_inside_complete_artifact": 75,
+  "source_commit": "6c382c798df0a95824b79e76263318865ee24c68",
+  "scored_report_sha256": "6bcb51d5da359f17f8c33f88c1f2afa28197648c12a9dcf73bc8e94a7a34c471"
+}

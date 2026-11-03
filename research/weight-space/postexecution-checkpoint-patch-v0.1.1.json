@@ -1,0 +1,12 @@
+{
+  "schema": "far-weight-checkpoint-validation-patch/0.1.1",
+  "status": "Research",
+  "frozen_execution_source": "bb48be7df44adf9d30f018f3528bbd9db49555e1",
+  "path": "tools/weight_space_pilot.py",
+  "before_sha256": "7a4042e24be6b6a668d69c04fed31a3f01ee41e8f03a375f85ebf2c55a254678",
+  "after_sha256": "71a596e8fafa535e6c1cc465332004479db45beefad87f159677f80fffa15705",
+  "review_id": 5755800352,
+  "review_comment_id": 4457471645,
+  "scope": "Strict complete checkpoint directory membership before loader access; no new inference, regrading or altered experiment evidence",
+  "performance_observations_added": 0
+}

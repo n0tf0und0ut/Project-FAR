@@ -1,0 +1,7 @@
+# Experimental runtime only. Install CPU torch with the documented index first.
+torch==2.5.1
+transformers==4.49.0
+huggingface_hub==0.29.3
+safetensors==0.5.3
+numpy==1.26.4
+tokenizers==0.21.4
