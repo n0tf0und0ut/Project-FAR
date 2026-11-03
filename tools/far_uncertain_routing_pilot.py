@@ -125,7 +125,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
         "received_at": None,
         "timing_scope": "request_start_to_body_read_or_transport_failure",
     }
-    response = None
+    response, observer = None, None
     try:
         try:
             response = urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout)
@@ -151,7 +151,6 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 else:
                     declared_length = int(str(lengths[0]).strip())
             native = response if isinstance(response, http.client.HTTPResponse) else getattr(response, "fp", None)
-            observer = None
             if encodings:
                 if len(encodings) != 1 or str(encodings[0]).strip().lower() != "chunked" or lengths:
                     framing_error = "UnsupportedOrAmbiguousTransferFraming"
@@ -183,6 +182,19 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 "response_hash_scope": "complete_body" if complete else "retained_prefix",
             })
     except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
+        # Native chunk decoding can raise after observing complete chunks but
+        # before read() returns its aggregated body. Preserve the observer's
+        # bounded decoded prefix even on timeout, reset, or response-close error.
+        if observer is not None:
+            retained = bytes(observer.prefix[:max_bytes])
+            envelope.update({
+                "raw_response_base64": base64.b64encode(retained).decode("ascii"),
+                "response_sha256": digest(retained),
+                "response_bytes_retained": len(retained),
+                "response_truncated": len(observer.prefix) > max_bytes,
+            })
+        envelope["response_complete"] = False
+        envelope["response_hash_scope"] = "retained_prefix"
         envelope["transport_error"] = type(exc).__name__
         raise ResponseTransportError("HTTP transport failed: " + type(exc).__name__, envelope) from exc
     finally:
