@@ -49,7 +49,7 @@ def canonical(value):
 
 def _safe_path(path):
     p = PurePosixPath(path) if isinstance(path, str) else None
-    if p is None or not path or p.is_absolute() or str(p) != path or any(x in (".", "..") for x in p.parts) or "\\" in path:
+    if p is None or not path or not p.parts or p.is_absolute() or str(p) != path or any(x in (".", "..") for x in p.parts) or "\\" in path:
         raise ValueError("unsafe artifact path")
     return path
 
@@ -60,6 +60,8 @@ def _read_file(root, path):
     target = root / path
     if target.is_symlink() or not target.resolve().is_relative_to(root):
         raise ValueError("artifact escapes root")
+    if not target.is_file():
+        raise ValueError("artifact must be a regular file")
     if target.stat().st_size > 16 * 1024 * 1024:
         raise ValueError("artifact too large")
     return target.read_bytes()
@@ -98,6 +100,72 @@ def validate_reference(reference):
 
 def artifact(path, raw, members=()):
     return {"path": path, "members": list(members), "sha256": sha(raw)}
+
+
+def _identity(identifier, version, details, provenance, *, unknown_reason=None):
+    """Common identity envelope; retained provider-specific fields stay in details."""
+    missing = {key: {"reason": unknown_reason, "evidence": copy.deepcopy(provenance)}
+               for key, value in (("id", identifier), ("version", version)) if value is None}
+    return {"id": identifier, "version": version, "details": copy.deepcopy(details),
+            "provenance": copy.deepcopy(provenance), "unknown_fields": missing}
+
+
+def validate_identity(value):
+    expected = {"id", "version", "details", "provenance", "unknown_fields"}
+    if not isinstance(value, dict) or set(value) != expected:
+        raise ValueError("missing or unsupported identity envelope fields")
+    placeholders = {"unknown", "unidentified", "unspecified", "none", "null", "pending", "todo", "tbd"}
+    for key in ("id", "version"):
+        item = value[key]
+        if item is not None and (not isinstance(item, str) or not item.strip()
+                                 or len(item) > 2048 or item.strip().lower() in placeholders):
+            raise ValueError("invalid identity " + key)
+    if not isinstance(value["details"], dict):
+        raise ValueError("identity details must be an object")
+    refs = value["provenance"]
+    if not isinstance(refs, list) or not refs:
+        raise ValueError("identity requires provenance references")
+    for ref in refs:
+        validate_reference(ref)
+    missing = {key for key in ("id", "version") if value[key] is None}
+    if not isinstance(value["unknown_fields"], dict) or set(value["unknown_fields"]) != missing:
+        raise ValueError("unknown identity fields require exact reasons")
+    for explanation in value["unknown_fields"].values():
+        if not isinstance(explanation, dict) or set(explanation) != {"reason", "evidence"}:
+            raise ValueError("invalid unknown identity explanation")
+        reason = explanation["reason"]
+        if not isinstance(reason, str) or not reason.strip() or len(reason) > 2048:
+            raise ValueError("unknown identity requires a reason")
+        if not isinstance(explanation["evidence"], list) or not explanation["evidence"]:
+            raise ValueError("unknown identity requires retained provenance")
+        for ref in explanation["evidence"]:
+            validate_reference(ref)
+
+
+def slot_declaration(protocol, eligible):
+    return {"source": copy.deepcopy(protocol), "slots_sha256": sha(canonical(eligible))}
+
+
+def validate_exposure(exposure):
+    """Validate declarations before arithmetic; source correspondence needs replay."""
+    if not isinstance(exposure, dict) or exposure.get("kind") not in {"registered_slots", "incidents_only"}:
+        raise ValueError("invalid exposure kind")
+    eligible = exposure.get("eligible_slots")
+    if not isinstance(eligible, list) or any(not isinstance(s, str) or not s.strip() or len(s) > 2048 for s in eligible) or len(eligible) != len(set(eligible)):
+        raise ValueError("invalid or duplicate exposure slots")
+    if exposure["kind"] == "incidents_only":
+        if eligible or exposure.get("slot_declaration") is not None:
+            raise ValueError("incidents cannot invent exposure slots")
+        if exposure.get("protocol") is not None:
+            validate_reference(exposure["protocol"])
+        return
+    validate_reference(exposure.get("protocol"))
+    declaration = exposure.get("slot_declaration")
+    if not isinstance(declaration, dict) or set(declaration) != {"source", "slots_sha256"}:
+        raise ValueError("registered exposure needs a slot declaration")
+    validate_reference(declaration["source"])
+    if declaration["source"] != exposure["protocol"] or declaration["slots_sha256"] != sha(canonical(eligible)):
+        raise ValueError("slot declaration does not match protocol or slots")
 
 
 def _git(root, *args):
@@ -184,10 +252,16 @@ def project_run(task, record, reference, protocol_ref, source):
         "run_id": record["program_id"] + "/" + record["execution"]["GITHUB_RUN_ID"] + "/" + slot,
         "slot_id": slot,
         "task": {"id": task["id"], "family": task["family"], "sha256": sha(canonical(task)), "phase": task["phase"]},
-        "identities": {"model": copy.deepcopy(record["model"]), "harness": copy.deepcopy(source),
-                       "tools": "virtual-files-and-bounded-integer-calculator@" + source["files"]["tools/tool_agent_reliability.py"]["sha256"],
-                       "policy": {"version": record.get("agent_policy", "v0.1"), "system_sha256": record.get("system_sha256", sha(replay.SYSTEM.encode()))},
-                       "configuration": copy.deepcopy(protocol_ref), "environment": copy.deepcopy(record["runtime"])},
+        "identities": {
+            "model": _identity(record["model"]["name"], record["model"]["digest"], record["model"], [reference]),
+            "harness": _identity("Project-FAR/tool-agent-reliability", source["commit"], source, [reference]),
+            "tools": _identity("virtual-files-and-bounded-integer-calculator", source["files"]["tools/tool_agent_reliability.py"]["sha256"],
+                               {"implementation": "tools/tool_agent_reliability.py"}, [reference]),
+            "policy": _identity("tool-agent-authorization-policy", record.get("agent_policy", "v0.1"),
+                                {"system_sha256": record.get("system_sha256", sha(replay.SYSTEM.encode()))}, [reference]),
+            "configuration": _identity(protocol_ref["path"], protocol_ref["sha256"], protocol_ref, [protocol_ref]),
+            "environment": _identity("observed-process-runtime", None, record["runtime"], [reference],
+                                     unknown_reason="Python/platform were observed; an immutable image/package-lock identity was not retained.")},
         "trace": {"artifact": reference, "complete": True, "scope": "Every harness-recorded request, response, model action and tool observation.",
                   "trajectory_sha256": sha(canonical(steps)), "model_actions": steps, "provenance": record["provenance"],
                   "execution": copy.deepcopy(record["execution"]), "trusted_execution_attestation": False},
@@ -219,13 +293,8 @@ def project_run(task, record, reference, protocol_ref, source):
 
 def summarize(exposure, runs):
     """Incident collections have no failure-rate denominator; no IID estimates."""
-    if exposure.get("kind") not in {"registered_slots", "incidents_only"}:
-        raise ValueError("invalid exposure kind")
-    eligible = exposure.get("eligible_slots")
-    if not isinstance(eligible, list) or any(not isinstance(s, str) or not s for s in eligible) or len(eligible) != len(set(eligible)):
-        raise ValueError("invalid or duplicate exposure slots")
-    if exposure["kind"] == "incidents_only" and eligible:
-        raise ValueError("incidents cannot invent exposure slots")
+    validate_exposure(exposure)
+    eligible = exposure["eligible_slots"]
     ids, slots = set(), set()
     counts = {key: 0 for key in ("success", "partial_success", "failure", "abstention", "unknown")}
     trajectories = set()
@@ -247,7 +316,7 @@ def summarize(exposure, runs):
             "missing_slots": sorted(set(eligible) - slots), "outcomes": counts, "complete": complete,
             "success_fraction": fraction(counts["success"]) if complete else None,
             "failure_fraction": fraction(counts["failure"]) if complete else None,
-            "rate_scope": "Descriptive registered execution slots only." if complete else "NO_RATE_WITHOUT_COMPLETE_KNOWN_EXPOSURE",
+            "rate_scope": "Conditional declared-slot fraction; evidence replay must establish the registered exposure." if complete else "NO_RATE_WITHOUT_COMPLETE_KNOWN_EXPOSURE",
             "distinct_action_observation_trajectories": len(trajectories), "independent_behavioral_samples": "NOT_ESTABLISHED",
             "general_agent_reliability": "NOT_ESTABLISHED", "far_causal_benefit": "NOT_TESTED"}
 
@@ -286,9 +355,8 @@ def validate_profile(profile):
             references(explanation["evidence"], "unknown measurement evidence")
     text(profile["cohort_id"], "cohort identity", maximum=256)
     text(profile["adapter"], "adapter identity", maximum=256)
-    fields(profile["exposure"], "kind unit eligible_slots sampling_frame independence protocol", "exposure")
-    if profile["exposure"]["protocol"] is not None:
-        validate_reference(profile["exposure"]["protocol"])
+    fields(profile["exposure"], "kind unit eligible_slots sampling_frame independence protocol slot_declaration", "exposure")
+    validate_exposure(profile["exposure"])
     references(profile["limitations"], "profile limitations")
     for name in ("unit", "sampling_frame", "independence"):
         text(profile["exposure"][name], "exposure " + name)
@@ -299,11 +367,9 @@ def validate_profile(profile):
         text(run["run_id"], "run ID"); text(run["slot_id"], "slot ID")
         references(run["limitations"], "run limitations")
         fields(run["identities"], "model harness tools policy configuration environment", "runtime identity")
-        for name in ("model", "harness", "policy", "configuration", "environment"):
-            if not isinstance(run["identities"][name], dict) or not run["identities"][name]:
-                raise ValueError("missing runtime identity " + name)
-        text(run["identities"]["tools"], "tool identity")
-        validate_reference(run["identities"]["configuration"])
+        for identity in run["identities"].values():
+            validate_identity(identity)
+        validate_reference(run["identities"]["configuration"]["details"])
         fields(run["task"], "id family sha256 phase", "task")
         for name in ("id", "family", "phase"):
             text(run["task"][name], "task " + name)
@@ -485,6 +551,7 @@ def build_historical(root=ROOT, cohort="tool-agent-v03-scored"):
     exposure = {"kind": "registered_slots", "unit": "execution_slot", "eligible_slots": [task_id + "/seed" + str(seed) for task_id in tasks for seed in seeds],
                 "sampling_frame": "Frozen project-authored virtual-file tasks in " + protocol_path,
                 "independence": "NOT_ESTABLISHED", "protocol": protocol_ref}
+    exposure["slot_declaration"] = slot_declaration(protocol_ref, exposure["eligible_slots"])
     summary = summarize(exposure, runs)
     package = {"schema": "far-evidence-package/1.0", "package_id": cohort, "subject_id": "FAR-TOOL-AGENT-001",
                "metadata": {"agent_evidence_profile": SCHEMA, "execution_source_commit": commit, "adapter": "existing-tool-agent-replay"},

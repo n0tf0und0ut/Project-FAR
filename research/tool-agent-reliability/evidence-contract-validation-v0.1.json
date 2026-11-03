@@ -1,9 +1,9 @@
 {
-  "audit_source_sha256": "68928b67a41517433f2f93393fc1f609fa0cbab952e96d41684fa1849814c599",
+  "audit_source_sha256": "9013f71fabb2052d8dfce6f7d5ea5491628b8d2fb18d7f894ad4e08166c02d38",
   "cohorts": [
     {
       "cohort_id": "tool-agent-v03-scored",
-      "profile_canonical_sha256": "2d2781702337fdfe77bbdab57e466a5f7da02f30bda01d41a1874e8f5f10bb53",
+      "profile_canonical_sha256": "d6c684a8e3f1d8eac63509fafec2091f42cc433a581224bd87cef59d8590d7f7",
       "summary": {
         "complete": true,
         "distinct_action_observation_trajectories": 25,
@@ -24,7 +24,7 @@
           "success": 72,
           "unknown": 0
         },
-        "rate_scope": "Descriptive registered execution slots only.",
+        "rate_scope": "Conditional declared-slot fraction; evidence replay must establish the registered exposure.",
         "success_fraction": {
           "denominator": 1,
           "numerator": 1
@@ -33,7 +33,7 @@
     },
     {
       "cohort_id": "tool-agent-v02-preflight",
-      "profile_canonical_sha256": "1bd426ac5f9512439d3c1c9ef63e54d95ca6671920cc8224214d8346dac02d58",
+      "profile_canonical_sha256": "8ce909052088a47caa2d28bafe5978e1afd969020b09582cab15481efa87ca26",
       "summary": {
         "complete": true,
         "distinct_action_observation_trajectories": 3,
@@ -54,7 +54,7 @@
           "success": 2,
           "unknown": 0
         },
-        "rate_scope": "Descriptive registered execution slots only.",
+        "rate_scope": "Conditional declared-slot fraction; evidence replay must establish the registered exposure.",
         "success_fraction": {
           "denominator": 3,
           "numerator": 2

@@ -107,6 +107,27 @@ strings of at most 256 characters. These type checks do not establish the truth
 of an invoice, missingness explanation, or independence declaration; independent
 evidence validation and deterministic historical reconstruction remain separate.
 
+Every runtime identity uses exactly `id`, `version`, `details`, `provenance`,
+and `unknown_fields`. IDs and versions are bounded nonempty strings, or explicit
+null with a retained-artifact explanation. Placeholders such as `UNKNOWN` cannot
+stand in for a release identity. Provenance is a nonempty list of typed artifact
+references; provider-specific information stays in `details`. The historical
+adapter retains the observed Python/platform but reports the immutable complete
+environment version unknown because no image/package-lock identity was retained.
+It does not invent a pin from the Python version alone.
+
+Registered exposure requires a typed protocol reference plus a `slot_declaration`
+whose source equals that protocol and whose digest binds the ordered eligible
+slot list. Both profile validation and direct summary calculation reject a
+missing protocol or mismatched declaration before producing fractions. Incident
+collections cannot supply eligible slots or a slot declaration. Common-profile
+fractions remain **conditional on supplied declarations**: self-consistently
+rewriting a declaration is not proof of registration. Only an audited adapter,
+including `verify_historical`, establishes correspondence to the actual frozen
+protocol. Historical reconstruction rejects even self-consistent omitted slots.
+Artifact references cannot name the current directory or a directory in place
+of a regular file.
+
 The existing replay verifies that recorded requests match the registered prompt
 construction, including exclusion of oracle objects. This does not prove that
 the unsealed investigators never disclosed an answer through an unobserved
@@ -159,7 +180,7 @@ unsafe paths, symlinks outside the evidence root, duplicate ZIP members and
 missing trace completeness. All use deterministic fixtures or previously frozen
 records; none is counted as new inference evidence.
 
-Executed local validation: **25/25** profile tests and **51/51** existing runner
+Executed local validation: **29/29** profile tests and **51/51** existing runner
 tests passed; the profile test includes per-key omission mutations throughout
 task, runtime, trace, outcome, ground truth, diagnosis, intervention, safety,
 resources and timestamp records. Documentation checks passed. Required hosted
@@ -176,7 +197,21 @@ checks, independent review and protected authorization remain separate gates.
 | RLY-EVID-005 — truthy non-string billing references and untyped profile identities | Independent review at `cc44f6fe` reproduced acceptance of boolean/integer source references; bounded string checks and exact type mutations reject them |
 | RLY-EVID-006 — unavailable telemetry could require invented zero | Independent review identified missing null representation for resource/safety counts; explicit per-field missingness reasons preserve unknown without treating it as free execution or safe zero |
 | RLY-EVID-007 — unknown monotonic duration could hide impossible provider wall time | Follow-up review reproduced acceptance of `elapsed_seconds=null` with `provider_seconds=1000000000` despite a short observed UTC interval; the UTC bound and exact counterexample now reject it |
+| RLY-EVID-008 — a missing protocol still permitted declared-rate arithmetic | Exact published-head reproducer accepted `exposure.protocol=null`; typed protocol and source-bound slot declarations now reject this in both validation and direct summary, with missingness/corruption controls |
+| RLY-EVID-009 — dictionary placeholders could omit runtime identities and versions | Published-head reproducer accepted `{unidentified: true}` for model/harness/policy/environment; all six generic identity envelopes now require typed IDs/versions/provenance or explicit reasoned unknowns; per-field and malformed-value mutations reject |
+| RLY-EVID-010 — current-directory artifact reference passed syntax validation | `.` is now rejected and artifact loading requires a regular file; exact directory regressions pass |
 
 These are bounded software/evidence-audit corrections. They do not promote the
 profile to Accepted methodology or satisfy independent scientific review and
 protected PR authorization.
+
+## Interrupted unpublished implementation stage
+
+The working directory expired before the later identity/exposure refinements and
+comparator relocation launcher were pushed. Those unpublished local source and
+SDK replay receipts are not treated as current verified artifacts. The published
+original comparator ZIP, all primary model outputs, and all frozen historical
+protocols/results remained intact. The identity/exposure/directory counterexamples
+were reproduced against the published head and these corrections were rebuilt
+and tested from that source; the receipt identifies the rebuilt validator bytes.
+No lost local receipt is substituted for the current tests or original results.

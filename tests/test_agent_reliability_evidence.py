@@ -36,10 +36,74 @@ class ReliabilityEvidenceTests(unittest.TestCase):
 
     def test_common_shape_is_model_independent_but_shape_is_not_replay(self):
         value = copy.deepcopy(self.failed)
-        value["runs"][0]["identities"]["model"] = {"provider": "another-provider", "name": "another-model", "version": "opaque-release"}
+        value["runs"][0]["identities"]["model"].update(id="another-model", version="opaque-release", details={"provider": "another-provider"})
         self.assertTrue(evidence.validate_profile(value))
         with self.assertRaisesRegex(ValueError, "differs from replayed"):
             evidence.verify_historical(value)
+
+    def test_registered_rates_require_protocol_and_bound_slot_declaration(self):
+        for bad in (None, {}, True, {"path": ".", "members": [], "sha256": "0" * 64}):
+            value = copy.deepcopy(self.failed)
+            value["exposure"]["protocol"] = bad
+            with self.subTest(protocol=bad):
+                with self.assertRaises(ValueError): evidence.validate_profile(value)
+                with self.assertRaises(ValueError): evidence.summarize(value["exposure"], value["runs"])
+        for key in ("source", "slots_sha256"):
+            value = copy.deepcopy(self.failed)
+            del value["exposure"]["slot_declaration"][key]
+            with self.assertRaises(ValueError): evidence.validate_profile(value)
+        value = copy.deepcopy(self.failed)
+        value["exposure"]["slot_declaration"]["source"]["sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "slot declaration"):
+            evidence.summarize(value["exposure"], value["runs"])
+
+    def test_all_identity_dimensions_require_typed_named_versioned_provenance(self):
+        for dimension in self.failed["runs"][0]["identities"]:
+            value = copy.deepcopy(self.failed)
+            value["runs"][0]["identities"][dimension] = {"unidentified": True}
+            with self.subTest(dimension=dimension):
+                with self.assertRaisesRegex(ValueError, "identity"):
+                    evidence.validate_profile(value)
+            for key in ("id", "version", "details", "provenance", "unknown_fields"):
+                value = copy.deepcopy(self.failed)
+                del value["runs"][0]["identities"][dimension][key]
+                with self.assertRaises(ValueError): evidence.validate_profile(value)
+        for bad in (True, 123, "", " ", "UNKNOWN", "pending", "x" * 2049):
+            for key in ("id", "version"):
+                value = copy.deepcopy(self.failed)
+                value["runs"][0]["identities"]["model"][key] = bad
+                with self.subTest(key=key, value=bad):
+                    with self.assertRaises(ValueError): evidence.validate_profile(value)
+        for bad in ([], ["source"], [{"path": "source", "members": [], "sha256": "invalid"}]):
+            value = copy.deepcopy(self.failed)
+            value["runs"][0]["identities"]["model"]["provenance"] = bad
+            with self.assertRaises(ValueError): evidence.validate_profile(value)
+
+    def test_unknown_identity_versions_are_explicit_not_invented_pins(self):
+        environment = self.failed["runs"][0]["identities"]["environment"]
+        self.assertIsNone(environment["version"])
+        self.assertTrue(environment["unknown_fields"]["version"]["reason"])
+        self.assertIn("python", environment["details"])
+        for field in ("reason", "evidence"):
+            value = copy.deepcopy(self.failed)
+            del value["runs"][0]["identities"]["environment"]["unknown_fields"]["version"][field]
+            with self.assertRaises(ValueError): evidence.validate_profile(value)
+        value = copy.deepcopy(self.failed)
+        identity = value["runs"][0]["identities"]["model"]
+        identity["version"] = None
+        with self.assertRaisesRegex(ValueError, "unknown identity"):
+            evidence.validate_profile(value)
+        identity["unknown_fields"] = {"version": {"reason": "Provider did not retain an immutable version.", "evidence": copy.deepcopy(identity["provenance"])}}
+        self.assertTrue(evidence.validate_profile(value))
+        with self.assertRaisesRegex(ValueError, "differs from replayed"):
+            evidence.verify_historical(value)
+
+    def test_artifact_current_directory_and_directories_are_not_files(self):
+        with self.assertRaises(ValueError): evidence.validate_reference({"path": ".", "members": [], "sha256": "0" * 64})
+        with tempfile.TemporaryDirectory() as td:
+            Path(td, "folder").mkdir()
+            with self.assertRaisesRegex(ValueError, "regular file"):
+                evidence.read_artifact(td, evidence.artifact("folder", b"not a file"))
 
     def test_billing_provenance_and_profile_identities_are_bounded_strings(self):
         for source in (True, 123, {}, ["invoice"], "", " ", "x" * 2049):
@@ -137,6 +201,9 @@ class ReliabilityEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "differs from replayed"):
             evidence.verify_historical(value)
         value["exposure"]["eligible_slots"].pop()
+        with self.assertRaisesRegex(ValueError, "slot declaration"):
+            evidence.summarize(value["exposure"], value["runs"])
+        value["exposure"]["slot_declaration"] = evidence.slot_declaration(value["exposure"]["protocol"], value["exposure"]["eligible_slots"])
         value["summary"] = evidence.summarize(value["exposure"], value["runs"])
         with self.assertRaisesRegex(ValueError, "differs from replayed"):
             evidence.verify_historical(value)
@@ -250,23 +317,23 @@ class ReliabilityEvidenceTests(unittest.TestCase):
     def test_hidden_oracle_in_request_rejected_even_with_recomputed_request_hash(self):
         run = self.failed["runs"][0]
         record = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["trace"]["artifact"]))
-        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]))
+        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]["details"]))
         task = next(t for t in protocol["tasks"] if t["id"] == run["task"]["id"])
         request = runner.strict_json(record["events"][0]["request_utf8"])
         request["messages"].append({"role": "user", "content": json.dumps(task["oracle"])})
         record["events"][0]["request_utf8"] = evidence.canonical(request).decode()
         record["events"][0]["request_sha256"] = evidence.sha(evidence.canonical(request))
         with self.assertRaisesRegex(ValueError, "request/prompt drift"):
-            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"], record["source"])
+            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"]["details"], record["source"])
 
     def test_original_grade_mutation_and_source_mutation_rejected(self):
         run = next(r for r in self.failed["runs"] if r["outcome"]["grade"] == "failure")
         record = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["trace"]["artifact"]))
-        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]))
+        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]["details"]))
         task = next(t for t in protocol["tasks"] if t["id"] == run["task"]["id"])
         record["grade"]["passed"] = True
         with self.assertRaisesRegex(ValueError, "terminal state/outcome mismatch"):
-            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"], record["source"])
+            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"]["details"], record["source"])
         source = copy.deepcopy(record["source"]); source["files"]["tools/tool_agent_reliability.py"]["sha256"] = "0" * 64
         with self.assertRaisesRegex(ValueError, "source bytes mismatch"):
             evidence.verify_source(evidence.ROOT, source, evidence.V02_SOURCE)
@@ -274,7 +341,7 @@ class ReliabilityEvidenceTests(unittest.TestCase):
     def test_raw_provider_action_forgery_fails_after_hash_is_updated(self):
         run = self.failed["runs"][0]
         record = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["trace"]["artifact"]))
-        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]))
+        protocol = runner.strict_json(evidence.read_artifact(evidence.ROOT, run["identities"]["configuration"]["details"]))
         task = next(t for t in protocol["tasks"] if t["id"] == run["task"]["id"])
         raw = base64.b64decode(record["events"][0]["response_base64"])
         envelope = runner.strict_json(raw)
@@ -283,7 +350,7 @@ class ReliabilityEvidenceTests(unittest.TestCase):
         record["events"][0]["response_base64"] = base64.b64encode(changed).decode()
         record["events"][0]["response_sha256"] = evidence.sha(changed)
         with self.assertRaisesRegex(ValueError, "action/tool receipt mismatch"):
-            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"], record["source"])
+            evidence.project_run(task, record, run["trace"]["artifact"], run["identities"]["configuration"]["details"], record["source"])
 
     def test_mutated_artifacts_and_unsafe_paths_fail_closed(self):
         with tempfile.TemporaryDirectory() as td:
