@@ -40,6 +40,10 @@ python -m venv /tmp/far-weight-env
 
 Replay uses the exact experimental source commit recorded in the output; check out that commit before replaying archived evidence. This recomputes traces, tokenization, sparse edits and grading without generating new answers. A full independent reproduction requires executing new model generations on an independently controlled machine with the same frozen source, weights and runtime. CPU, threads, attention implementation, primary numerical/tokenizer versions and checkpoint/file hashes are recorded; different numerical environments may diverge even with equal seeds.
 
+The primary score compares trimmed exact text and strict JSON values, including exact calculator-expression rendering. This is narrower than semantic task correctness: equivalent expression whitespace or answer-label capitalization can fail the primary contract. Any semantic sensitivity regrading must be labeled separately, preserve every primary grade, and never count as new model inference.
+
+The separate five-arm loop-repair design in [PR #611](https://github.com/n0tf0und0ut/Project-FAR/pull/611) remains NOT RUN. This eight-arm output pilot does not complete that protocol. See [internal review and integration boundaries](REVIEW.md).
+
 ## Adoption decision
 
 No pilot result automatically approves a production change. A candidate must beat the strongest applicable simpler method by a predeclared meaningful margin, show acceptable regression and cost tradeoffs, survive controls and dose ablations, transfer across independent tasks/checkpoints, and be independently reproduced under a new prospectively frozen protocol. The present software always reports `production_eligible: false`. No canonical methodology or theory is promoted.
