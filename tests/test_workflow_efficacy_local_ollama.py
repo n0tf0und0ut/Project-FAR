@@ -31,14 +31,22 @@ class LocalInferenceTests(unittest.TestCase):
           return_value={"models":[]}):
             with self.assertRaises(ValueError): model_sha()
     def test_grader_rejects_unexecuted_docker(self):
+        from tools import workflow_efficacy_free_agent as shared
         with tempfile.TemporaryDirectory() as d:
-            with patch("tools.workflow_efficacy_local_ollama.subprocess.run",
-                side_effect=OSError("docker unavailable")):
+            with patch.object(shared,"capture_candidate_process",
+                side_effect=OSError("docker unavailable")) as transport, patch.object(
+                shared.subprocess,"Popen",side_effect=AssertionError(
+                "offline transport-failure fixture must not launch Docker")) as spawned, patch.object(
+                shared.subprocess,"run",return_value=SimpleNamespace(
+                returncode=0,stdout="",stderr="")) as cleanup:
                 ran,passed,code,trace=grade("def transform(x): return 1",
                                            task(0),Path(d))
         self.assertFalse(ran)
         self.assertFalse(passed)
         self.assertIsNone(code)
+        self.assertEqual(transport.call_count,6)
+        self.assertEqual(cleanup.call_count,6)
+        spawned.assert_not_called()
     def run_provider_reply(self, reason, **changes):
         from tools import workflow_efficacy_local_ollama as runner
         with tempfile.TemporaryDirectory() as d, patch.object(runner,"model_sha",return_value="a"*64), patch.object(

@@ -50,3 +50,11 @@ python -m tools.workflow_efficacy_local_ollama contract
 
 The focused suite passed 70 tests. Any exact-head review, protected workflow
 repin requirement and required hosted checks remain separate merge prerequisites.
+
+## Offline transport dependency correction
+
+**LOCAL-OFFLINE-DOCKER-01** — [exact-head assurance job 126134972224](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41698416079/job/126134972224) on `41af707f7f411de7cd8727cf6f5bdf524052e3e5` rejected both `tests.canonical` and `repository.health-full` with `FAR-VAL-TRACE-001`, although their commands exited zero. Artifact `13264462159` records the undeclared `/usr/bin/docker` executable. This is a real fixture dependency violation: `test_grader_rejects_unexecuted_docker` mocked `subprocess.run`, but the reused grader launches candidate clients through `capture_candidate_process` and `subprocess.Popen`; only cleanup was intercepted.
+
+Before correction, a process-launch tripwire failed at `['docker', 'run', '--rm', '--name']`. With a harmless local canary executable named `docker`, the original fixture passed while launching six real clients, each exiting 127; the unchanged runtime policy rejects that executable. The corrected fixture mocks the shared candidate-transport boundary, prohibits `Popen`, verifies six attempted comparisons and six mocked cleanup calls, and still requires unexecuted, unsuccessful, ungraded output. Disposition: fixed by the commit introducing this section. No executable whitelist, manifest, assurance rule or production grading behavior changes.
+
+The 70 focused tests pass after correction. Local native `strace` replay is blocked by `PTRACE_TRACEME: Operation not permitted`, so the canary and process-launch prohibition provide the local regression evidence; they do not substitute for rerunning the hosted traced assurance job on the new head. Original workflows, the failed model preflight and all prior negative observations remain unchanged.
