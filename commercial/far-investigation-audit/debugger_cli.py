@@ -30,9 +30,18 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
         remap={s["id"]:f"ev{i+1}" for i,s in enumerate(s for s in bundle["sources"] if s["id"]!="primary")}
         for entry in chosen.get("evidence",[]):
             entry["source_id"]=remap.get(entry["source_id"],entry["source_id"])
-        for entry in chosen.get("debugger_options",{}).get("source_lineage",[]):
+        lineage=chosen.get("debugger_options",{}).get("source_lineage",[])
+        for entry in lineage:
             entry["source_id"]=remap.get(entry["source_id"],entry["source_id"])
             entry["upstream_source_ids"]=[remap.get(x,x) for x in entry["upstream_source_ids"]]
+        if lineage:
+            # Inherited declarations describe retained sources only. New inputs
+            # need explicit missingness, never invented origin/independence. The
+            # shared placeholder does not assert distinct independent roots.
+            for i in range(len(evidence_sources)+1,len(evidence_sources)+len(evidence)+1):
+                lineage.append({"schema":"far-source-lineage/1.0","source_id":f"ev{i}",
+                    "relationship":"unknown","root_lineage_ids":["unknown:resumed-evidence"],
+                    "upstream_source_ids":[],"notes":["Added during resume; source dependence has not been adjudicated."]})
     chosen["resumes_input_sha256"]=old["_verified_audit"]["input_sha256"]
     config={"investigation_id":bundle["investigation_id"],"source":source(original),
             "evidence_sources":evidence_sources+evidence,"proposal_mode":"supplied","proposal":chosen,"debugger":True}

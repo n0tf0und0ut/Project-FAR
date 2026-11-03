@@ -67,3 +67,21 @@ including the actual pasted/uploaded-source HTTP UI integration, independent
 SymPy/property controls and all prior review regressions. Core-only UI discovery
 reports one explicit optional-dependency skip. Passing tests provide bounded
 software evidence, not general semantic coverage or independent effectiveness.
+
+## Resumed source-lineage coverage
+
+ED-R11 / comment `4458895730`, thread `PRRT_kwDOTH_vCM6zRo3v`, reviewed
+head `16573648e92baa8ef2f810c7957118ea08bab7ca` (also reproduced on its
+derived-index-only successor): a verified package with declared primary-origin
+lineage failed default resume after adding evidence, with `lineage must cover
+actual sources`. The inherited declarations covered retained sources only.
+
+`resume_request` now retains/remaps those declarations and appends explicitly
+`unknown` lineage records for newly added `evN` sources. All unknown additions
+share an unresolved-root placeholder; distinct independent origins are not
+invented. Explicit replacement proposals remain caller-supplied contracts.
+`test_4458895730_resume_extends_inherited_lineage_without_claiming_independence`
+failed before correction and now verifies the original declarations, two added
+unknowns, portable replay and a second resume. The complete dependency-equipped
+component suite passes **279/279 tests**. Frozen campaign bytes remain unchanged;
+this correction does not rerun or replace their observations.

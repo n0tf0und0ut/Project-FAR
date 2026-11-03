@@ -21,6 +21,28 @@ def fetched(url,*,permit_network):
 
 
 class ReviewRegressions(unittest.TestCase):
+    def test_4458895730_resume_extends_inherited_lineage_without_claiming_independence(self):
+        cfg=request(True)
+        cfg["debugger_options"]={"source_lineage":[
+            {"schema":"far-source-lineage/1.0","source_id":"primary","relationship":"origin",
+             "root_lineage_ids":["declared-original"],"upstream_source_ids":[]}]}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);original=investigate(cfg);write_package(root/"original",original)
+            resumed=investigate(resume_request(root/"original",[
+                {"kind":"text","text":"An additional record of blue birds."},
+                {"kind":"text","text":"A second additional observation."}],captured_at=T))
+            lineage={record["source_id"]:record for record in resumed["debugger"]["source_lineage"]}
+            self.assertEqual(lineage["primary"],original["debugger"]["source_lineage"][0])
+            self.assertEqual(set(lineage),{"primary","ev1","ev2"})
+            self.assertTrue(all(lineage[key]["relationship"]=="unknown" for key in ("ev1","ev2")))
+            self.assertEqual(lineage["ev1"]["root_lineage_ids"],lineage["ev2"]["root_lineage_ids"])
+            write_package(root/"resumed",resumed)
+            self.assertTrue(verify_package(root/"resumed")["replay_match"])
+            # A second resume must retain existing unknowns and cover only new IDs.
+            again=investigate(resume_request(root/"resumed",[{"kind":"text","text":"Another added source."}],captured_at=T))
+            self.assertEqual({record["source_id"] for record in again["debugger"]["source_lineage"]},
+                             {"primary","ev1","ev2","ev3"})
+
     def test_4391545567_singular_polarity_is_not_count_equivalence(self):
         formula={"atom":"P"}
         atoms={"P":"Rain is wet."}
