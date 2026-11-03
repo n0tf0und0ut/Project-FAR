@@ -224,7 +224,7 @@ def audit(state) -> dict:
                     tool_attempts.append((index, tool_pending, kind, payload))
                 if (tool_pending and tool_pending.get('tool') == 'retrieve'
                         and attempt_http is not None and attempt_observation is not None):
-                    retrieval_transports.append((tool_pending['args'].get('url'),
+                    retrieval_transports.append((index, tool_pending['args'].get('url'),
                                                  attempt_http['url'], attempt_observation))
                 if tool_pending is None:
                     fail(path, 'tool outcome lacks a proposal')
@@ -266,14 +266,22 @@ def audit(state) -> dict:
             for index, call in enumerate(calls):
                 if call != {'status': 'STARTED'} and call not in model_observations:
                     fail('model_calls[' + str(index) + ']', 'final envelope absent from model observations')
-        for ident, receipt in sources.items():
-            matching = next((i for i, (requested, observed, transport) in enumerate(retrieval_transports)
+        source_available_at = {}
+        successful_sources = {result['source_id']: index for index, proposal, result in tool_results
+                              if proposal['tool'] == 'retrieve'}
+        # IDs follow the runtime's allocation order. Canonical JSON sorts src.10
+        # before src.2, so object iteration cannot disambiguate repeated identical
+        # failure receipts. Successful retrievals additionally name their producer.
+        for ident in sorted(sources, key=lambda value: int(value.removeprefix('src.'))):
+            receipt = sources[ident]
+            matching = next((i for i, (at, requested, observed, transport) in enumerate(retrieval_transports)
                              if requested == observed == receipt['request']['url']
+                             and at == successful_sources.get(ident, at)
                              and sha256_json(transport) == sha256_json(receipt)), None)
             if matching is None:
                 fail('sources.' + ident, 'retained source lacks its exact retrieval transport observation')
             else:
-                retrieval_transports.pop(matching)
+                source_available_at[ident] = retrieval_transports.pop(matching)[0]
             if ident in state['projections']:
                 equal('projections.' + ident, state['projections'][ident], parse_receipt(receipt))
         for ident, row in evidence.items():
@@ -283,8 +291,8 @@ def audit(state) -> dict:
                 for key, value in binding.items():
                     equal('evidence.' + ident + '.' + key, row.get(key), value)
         def source_view(ident):
-            projection = parse_receipt(sources[ident])
-            return {'url': sources[ident]['request']['url'], 'format': projection['format'],
+            projection = available_projections[ident]
+            return {'url': available_sources[ident]['request']['url'], 'format': projection['format'],
                     'text': projection['text'][:3000], 'source_length': len(projection['text']),
                     'text_truncated_for_model': len(projection['text']) > 3000,
                     'links': projection['links'][:25], 'authority': 'UNTRUSTED_DATA'}
@@ -296,7 +304,7 @@ def audit(state) -> dict:
                     or type(args['claim']) is not str or not args['claim'].strip()
                     or len(args['quote']) > 4000):
                 raise ValueError('invalid extraction proposal')
-            return {**args, **bind_quote(sources[args['source_id']], args['quote']),
+            return {**args, **bind_quote(available_sources[args['source_id']], args['quote']),
                     'relation': args['relation'].upper(), 'relation_assurance': 'FALLIBLE_ANALYST_JUDGMENT'}
 
         def comparison(args, available):
@@ -307,7 +315,7 @@ def audit(state) -> dict:
                 raise ValueError('invalid comparison proposal')
             rows, groups = [available[ident] for ident in ids], {}
             for row in rows:
-                host = parse_receipt(sources[row['source_id']])['dependency_host']
+                host = available_projections[row['source_id']]['dependency_host']
                 groups.setdefault(host, []).append(row['source_id'])
             return {'evidence_ids': ids, 'publisher_host_groups': groups,
                     'independence': 'UNESTABLISHED; different hosts do not establish independent origins',
@@ -321,6 +329,13 @@ def audit(state) -> dict:
         completed = set()
         frozen_index = freeze_events[0][0] if freeze_events else len(events) + 1
         for index, proposal, kind, payload in tool_attempts:
+            # Retrieval can preserve a source even when parsing or the later
+            # budget check rejects the call. Its bytes/projection become usable
+            # only after that producing attempt, never from the final inventory
+            # while reconstructing an earlier failed or forged operation.
+            available_sources = {ident: sources[ident] for ident, at in source_available_at.items() if at <= index}
+            available_projections = {ident: state['projections'][ident] for ident in available_sources
+                                     if ident in state['projections']}
             tool, args = proposal['tool'], proposal['args']
             accepted = kind == 'TOOL_RESULT'
             result = payload['result'] if accepted else None
@@ -357,18 +372,22 @@ def audit(state) -> dict:
                 completed.add(fingerprint)
                 if tool == 'retrieve':
                     ident = result['source_id']
+                    equal('retrieve.source_chronology', source_available_at.get(ident), index)
                     equal('retrieve.source', sources[ident]['request']['url'], args['url'])
                     equal('retrieve.projection', result, {'source_id': ident, **source_view(ident)})
                 elif tool == 'inspect':
-                    text = parse_receipt(sources[args['source_id']])['text']
-                    start = max(0, text.lower().find(args['query'].lower()) - 800) if 'query' in args else args.get('start', 0)
-                    equal('inspect.projection', result, {'source_id': args['source_id'], 'start': start,
-                        'text': text[start:start+8000], 'source_length': len(text), 'authority': 'UNTRUSTED_DATA'})
+                    if args['source_id'] not in available_projections:
+                        fail('inspect.source_chronology', 'source projection was unavailable at this attempt')
+                    else:
+                        text = available_projections[args['source_id']]['text']
+                        start = max(0, text.lower().find(args['query'].lower()) - 800) if 'query' in args else args.get('start', 0)
+                        equal('inspect.projection', result, {'source_id': args['source_id'], 'start': start,
+                            'text': text[start:start+8000], 'source_length': len(text), 'authority': 'UNTRUSTED_DATA'})
                 elif tool == 'finish':
                     equal('finish.report', result, state['report'])
             if tool == 'verify_far' and (accepted or fingerprint not in completed):
                 try:
-                    receipt = sources[args['source_id']]
+                    receipt = available_sources[args['source_id']]
                     expected = {'source_sha256': receipt['sha256'], 'result': route_text(receipt_bytes(receipt).decode())}
                 except Exception as exc:
                     if accepted:

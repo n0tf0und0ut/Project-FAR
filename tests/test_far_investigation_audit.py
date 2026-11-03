@@ -249,6 +249,80 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
             with self.subTest(target=target):
                 self.assert_rejected(state, 'verify_far' if target == 'tool_result' else 'coverage')
 
+    def test_rejected_source_dependent_proposals_can_retry_after_actual_retrieval(self):
+        script = full_script()
+        extract = next(p for p in script if p['tool'] == 'extract')
+        for early, later in ((extract, script),
+                (action('inspect', source_id='src.1'), [*script[:2], action('inspect', source_id='src.1'), *script[2:]]),
+                (action('verify_far', source_id='src.1'), [*script[:2], action('verify_far', source_id='src.1'), *script[2:]])):
+            with self.subTest(tool=early['tool']):
+                state = self.runtime().run_agent(ScriptedFixtureModel([early, *later]))
+                self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+                self.assertEqual(state['rejected_calls'], 1)
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_successful_outputs_cannot_use_sources_that_arrive_in_later_attempts(self):
+        script = full_script()
+        script[2:2] = [action('inspect', source_id='src.1'), action('verify_far', source_id='src.1')]
+        original = self.runtime().run_agent(ScriptedFixtureModel(script))
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for tool in ('extract', 'inspect', 'verify_far'):
+            state = copy.deepcopy(original)
+            events = state['events']
+            proposal = next(i for i, e in enumerate(events)
+                if e['kind'] == 'TOOL_PROPOSAL' and e['payload']['tool'] == tool)
+            start = max(i for i in range(proposal) if events[i]['kind'] in ('TOOL_RESULT', 'TOOL_REJECTED')) + 1
+            end = next(i for i in range(proposal, len(events)) if events[i]['kind'] == 'TOOL_RESULT') + 1
+            moved = events[start:end]
+            state['events'] = [events[0], *moved, *events[1:start], *events[end:]]
+            # Remove incidental hash/chronology objections so this mutation
+            # specifically tests the availability of the requested source.
+            for index, event in enumerate(state['events'], 1):
+                event['sequence'], event['at'] = index, state['started_at']
+            reseal(state)
+            with self.subTest(tool=tool):
+                self.assert_rejected(state, tool)
+
+    def test_parse_failure_and_postdispatch_retrieval_keep_only_observed_sources_available(self):
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org',)),
+            fetcher=FixtureRetriever({URL_A: ('{"broken":', 'application/json')}), budget=Budget(max_steps=2))
+        state = runtime.run_agent(ScriptedFixtureModel([
+            action('retrieve', url=URL_A), action('verify_far', source_id='src.1')]))
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(len(state['far_verifications']), 1)
+        self.assertNotIn('src.1', state['projections'])
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+        clock = [0.0]
+        with patch('tools.far_investigation_engine.time.monotonic', side_effect=lambda: clock[0]):
+            runtime = self.runtime(budget=Budget(max_seconds=.2))
+            dispatch = runtime._dispatch
+            def expire_after_source(tool, args):
+                result = dispatch(tool, args)
+                clock[0] = .3
+                return result
+            with patch.object(runtime, '_dispatch', side_effect=expire_after_source):
+                state = runtime.run_agent(ScriptedFixtureModel([action('retrieve', url=URL_A)]))
+        self.assertIn('src.1', state['sources'])
+        self.assertIn('src.1', state['projections'])
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_identical_failed_receipts_keep_source_order_after_canonical_serialization(self):
+        fixed = receipt(URL_A, '{"broken":', 'application/json')
+        def fetch(url, policy, checkpoint):
+            checkpoint(copy.deepcopy(fixed))
+            return copy.deepcopy(fixed)
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org',)),
+            fetcher=fetch, budget=Budget(max_steps=11))
+        choices = [action('retrieve', url=URL_A), action('retrieve', url=URL_A),
+                   action('verify_far', source_id='src.2'),
+                   *[action('retrieve', url=URL_A) for _ in range(8)]]
+        state = runtime.run_agent(ScriptedFixtureModel(choices))
+        self.assertEqual(len(state['sources']), 10)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        restored = json.loads(json.dumps(state, sort_keys=True))
+        self.assertTrue(audit(restored)['valid'], audit(restored))
     def test_simple_hash_chain_and_seal_mutations_are_rejected(self):
         original = self.complete()
         for mutation in ('source', 'event', 'seal', 'missing_seal'):

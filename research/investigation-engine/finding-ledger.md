@@ -152,3 +152,52 @@ predecessor regressions. The real-child fixture invokes no model inference.
 All original archives, frozen protocols, selections, results and their scientific
 source identities remain unchanged. Final independent review and hosted gates
 must cover the published candidate separately.
+
+## Temporal source replay correction after candidate publication
+
+**ENG-TEMPORAL-SOURCE-REPLAY.** The coordinator reproduced a false rejection on
+published candidate `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, tested tree
+`8f9cdc1298ad9adbaa3017dd78eca1247145a2ee`: prepend the first extraction proposal
+from `full_script()` to the unchanged script. The early extraction correctly
+fails because `src.1` has not been retrieved. The later corrected pipeline
+completes with one rejection, but the auditor used the final source inventory
+to attribute the legitimate later `ev.1` to the earlier failed call. That shifted
+the reconstructed evidence IDs and falsely rejected the valid completed trace.
+An early rejected FAR dispatch followed by a valid retry had the same mechanism.
+Conversely, moving a successful extraction, inspection or FAR dispatch before its
+source retrieval escaped detection when hashes and incidental chronology were
+resealed. These two new methods produced five failing subcases before correction.
+
+Disposition: **fixed** by recording each retained source's actual producing
+retrieval-attempt index and reconstructing source-dependent operations with only
+the sources and parsed projections available at that attempt. A successful
+retrieval result must name the source produced by that exact attempt. Source
+bytes retained before a parser or post-dispatch failure remain available after
+that attempt; missing projections do not become available merely because raw
+bytes exist. Retention no longer borrows from later final-state outputs.
+
+The same source-order invariant exposed one additional reproduced serialization
+failure: ten identical retained failure receipts, a FAR read of `src.2` after its
+second retrieval, and canonical JSON sorting caused `src.10` to be assigned
+before `src.2`. Binding now follows the runtime's numeric source-allocation order
+and the explicit producing index of successful retrieval results. Canonical
+serialization preserves the same availability relation.
+
+Regressions cover rejected early extract/inspect/FAR calls followed by corrected
+retries, hostile successful outputs moved before source creation, parser-failure
+and post-dispatch source retention, and repeated identical receipts across
+canonical JSON serialization. The unchanged archive, protocol, selection and
+negative study results remain preserved. No new live model/source observation
+or scientific assurance claim is introduced. The successor's published head and
+tested tree must be recorded in the PR; local construction identities remain
+separate from API publication identities.
+
+Local source-construction commits are
+`1f998471cfba6e0b31522e285df258354cf859e9` and
+`9fb1ff4762cf94812d445f805ae9abce883bf6e2`. The four added regression methods in
+`tests/test_far_investigation_audit.py` cover rejected-source retries, successful
+future-source mutations, retained failure sources and identical-receipt
+serialization. Final verification passes **220/220 focused tests**, zero skips,
+with the pinned preparation environment; all **24 original transcripts** replay.
+The current fast health checks excluding the separately exercised test suite
+report **124 passed, zero warnings and zero failures**.
