@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+import http.client
 import json
 import os
 import statistics
@@ -16,6 +17,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
 FROZEN = ROOT / "research/uncertain-routing/frozen-v0.1.json"
@@ -43,6 +45,76 @@ class ModelResponseError(StudyError):
     def __init__(self, reason: str, envelope: dict):
         super().__init__(reason)
         self.envelope = envelope
+
+
+class ResponseTransportError(StudyError):
+    """A failed HTTP attempt, including any bounded response bytes observed."""
+
+    def __init__(self, reason: str, envelope: dict):
+        super().__init__(reason)
+        self.envelope = envelope
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *_args, **_kwargs):
+        # Returning None makes urllib raise HTTPError for the original response;
+        # its body and Location header can then be preserved without following it.
+        return None
+
+
+def read_bounded_response(request: urllib.request.Request, *, timeout: float,
+                          max_bytes: int) -> tuple[bytes, dict]:
+    """Refuse redirects and retain bounded failures before rejecting the response.
+
+    response_sha256 always hashes precisely the retained bytes. On truncation it
+    is explicitly a prefix hash, never represented as the hash of the whole body.
+    """
+    envelope = {
+        "request_url": request.full_url, "request_method": request.get_method(),
+        "http_status": None, "response_headers": {},
+        "raw_response_base64": "", "response_sha256": digest(b""),
+        "response_bytes_retained": 0, "response_truncated": False,
+        "response_complete": False, "response_hash_scope": "retained_prefix",
+        "requested_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "received_at": None,
+        "timing_scope": "request_start_to_body_read_or_transport_failure",
+    }
+    response = None
+    try:
+        try:
+            response = urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout)
+        except urllib.error.HTTPError as exc:
+            # HTTPError is also a readable response, including for refused redirects.
+            response = exc
+        with response:
+            envelope["http_status"] = response.status
+            headers = getattr(response, "headers", None)
+            envelope["response_headers"] = dict(headers.items()) if headers is not None else {}
+            try:
+                raw = response.read(max_bytes + 1)
+                complete = len(raw) <= max_bytes
+            except http.client.IncompleteRead as exc:
+                raw, complete = exc.partial, False
+                envelope["transport_error"] = "IncompleteRead"
+            truncated = len(raw) > max_bytes
+            retained = raw[:max_bytes]
+            envelope.update({
+                "raw_response_base64": base64.b64encode(retained).decode("ascii"),
+                "response_sha256": digest(retained),
+                "response_bytes_retained": len(retained),
+                "response_truncated": truncated, "response_complete": complete,
+                "response_hash_scope": "complete_body" if complete else "retained_prefix",
+            })
+    except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
+        envelope["transport_error"] = type(exc).__name__
+        raise ResponseTransportError("HTTP transport failed: " + type(exc).__name__, envelope) from exc
+    finally:
+        envelope["received_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    if envelope["http_status"] != 200:
+        raise ResponseTransportError("HTTP response rejected: " + str(envelope["http_status"]), envelope)
+    if not envelope["response_complete"]:
+        raise ResponseTransportError("HTTP response exceeds size ceiling or is incomplete", envelope)
+    return retained, envelope
 
 
 def digest(value: bytes) -> str:
@@ -97,19 +169,16 @@ def request_model(prompt: str, endpoint: str = ENDPOINT) -> dict:
     reqbytes = json.dumps(data, sort_keys=True, separators=(",", ":")).encode("utf-8")
     req = urllib.request.Request(ENDPOINT, reqbytes,
                                  headers={"Content-Type": "application/json"}, method="POST")
+    request_evidence = {"request": data, "request_sha256": digest(reqbytes)}
     try:
-        with urllib.request.urlopen(req, timeout=60) as response:
-            if response.status != 200:
-                raise StudyError("local inference returned non-200")
-            response_bytes = response.read(1024 * 1024)
-    except (urllib.error.URLError, OSError, TimeoutError) as exc:
-        raise StudyError("local model transport failed: " + type(exc).__name__) from exc
+        response_bytes, transport = read_bounded_response(req, timeout=60, max_bytes=1024 * 1024)
+    except ResponseTransportError as exc:
+        raise ModelResponseError("local model transport failed: " + str(exc),
+                                 {**request_evidence, **exc.envelope}) from exc
     # The raw envelope is constructed before any model-output validation.
     # An invalid completion is evidence, not something to silently discard.
     envelope = {
-        "request": data, "request_sha256": digest(reqbytes),
-        "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
-        "response_sha256": digest(response_bytes),
+        **request_evidence, **transport,
     }
     try:
         payload = json.loads(response_bytes)

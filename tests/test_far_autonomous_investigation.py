@@ -8,8 +8,10 @@ from __future__ import annotations
 import copy
 import base64
 import hashlib
+import io
 import json
 import unittest
+import urllib.error
 from collections import Counter
 from unittest.mock import patch
 
@@ -117,7 +119,7 @@ class RealInvestigationTests(unittest.TestCase):
             def __enter__(self): return self
             def __exit__(self, *_): return False
             def read(self, limit): return b'{"choices":[{"message":{"content":"FETCH_LATEST"}}]}'
-        with patch("urllib.request.urlopen", return_value=FakeResponse()):
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse()):
             with self.assertRaises(inv.ModelActionResponseError) as failure:
                 inv.request_model_action("which tool next")
         env = failure.exception.envelope
@@ -126,7 +128,7 @@ class RealInvestigationTests(unittest.TestCase):
 
         checkpoints = []
         fetcher, _ = fake_sources()
-        with patch("urllib.request.urlopen", return_value=FakeResponse()):
+        with patch("urllib.request.OpenerDirector.open", return_value=FakeResponse()):
             with self.assertRaises(inv.ModelActionResponseError):
                 inv.execute("model", fetcher=fetcher, model=inv.request_model_action,
                             checkpoint=checkpoints.append)
@@ -215,6 +217,92 @@ class RealInvestigationTests(unittest.TestCase):
         altered["discovery"]["contract_candidates"].pop()
         errors = validate_manifest(altered)
         self.assertTrue(any("omits" in e or "mismatch" in e for e in errors), errors)
+
+    def test_source_http_error_observation_survives_initial_and_recheck_failure(self):
+        for recheck in (False, True):
+            with self.subTest(recheck=recheck):
+                observed = []
+                error = urllib.error.HTTPError(inv.URLS["latest"], 429, "Rate limited",
+                                               {"Retry-After": "60"}, io.BytesIO(b"rate-limit-body"))
+                successful, calls = fake_sources()
+                def fetcher(key):
+                    if key == "latest" and (not recheck or calls["latest"] == 1):
+                        return inv.fetch(key)
+                    return successful(key)
+                with patch("urllib.request.OpenerDirector.open", side_effect=error):
+                    with self.assertRaises(inv.SourceResponseError):
+                        inv.execute("deterministic", fetcher=fetcher, checkpoint=observed.append)
+                saved = observed[-1]
+                failed = saved["failed_source_call"]
+                self.assertEqual(failed["recheck"], recheck)
+                self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+                self.assertEqual(saved["actions"][-1]["status"], "FAILED")
+                env = failed["raw_envelope"]
+                self.assertEqual(env["http_status"], 429)
+                self.assertEqual(env["response_headers"]["Retry-After"], "60")
+                self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"rate-limit-body")
+                self.assertEqual(env["response_sha256"], hashlib.sha256(b"rate-limit-body").hexdigest())
+                self.assertEqual(saved["verifier_calls"], 0)
+                self.assertIsNone(saved["frozen"])
+
+    def test_source_size_failure_retains_bounded_prefix(self):
+        class Response:
+            status = 200
+            headers = {}
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self, limit): return b"abcdefgh"[:limit]
+        observed = []
+        with patch.object(inv, "MAX_BYTES", 4):
+            with patch("urllib.request.OpenerDirector.open", return_value=Response()):
+                with self.assertRaises(inv.SourceResponseError):
+                    inv.execute("deterministic", fetcher=inv.fetch, checkpoint=observed.append)
+        env = observed[-1]["failed_source_call"]["raw_envelope"]
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"abcd")
+        self.assertTrue(env["response_truncated"])
+        self.assertFalse(env["response_complete"])
+        self.assertEqual(env["response_hash_scope"], "retained_prefix")
+
+    def test_live_model_redirect_is_rejected_and_checkpointed(self):
+        from tests.redirect_transport_fixture import RedirectTransport
+        transport = RedirectTransport(b"redirect body")
+        observed = []
+        with patch("urllib.request.build_opener", side_effect=transport.build_opener):
+            with self.assertRaises(inv.ModelActionResponseError):
+                inv.execute("model", model=inv.request_model_action, checkpoint=observed.append)
+        env = observed[-1]["failed_model_call"]["raw_envelope"]
+        self.assertEqual(env["http_status"], 302)
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect body")
+        self.assertEqual(transport.forbidden, [])
+        self.assertEqual(len(transport.requests), 1)
+
+    def test_rejected_or_failed_verifier_attempt_retains_input_output_and_count(self):
+        for result in (
+            {"status": "VERIFIER_UNAVAILABLE", "verifier_success": False, "reason": "unavailable"},
+            {"status": "DISCOVERY_REQUIRED", "verifier_success": False, "diagnostics": ["rejected"]},
+            RuntimeError("verifier interrupted"),
+        ):
+            with self.subTest(result=result):
+                observed = []
+                fetcher, _ = fake_sources()
+                kwargs = {"side_effect": result} if isinstance(result, Exception) else {"return_value": result}
+                with patch.object(inv, "route_text", **kwargs):
+                    with self.assertRaises(inv.InvestigationError):
+                        inv.execute("deterministic", fetcher=fetcher, checkpoint=observed.append)
+                saved = observed[-1]
+                attempt = saved["verifier_attempts"][0]
+                self.assertEqual(saved["verifier_calls"], 1)
+                self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+                self.assertEqual(saved["evaluations"], [])
+                self.assertIsNone(saved["aggregate"])
+                submitted = json.dumps(attempt["submitted_document"], separators=(",", ":"), sort_keys=True)
+                self.assertEqual(attempt["submitted_sha256"], hashlib.sha256(submitted.encode()).hexdigest())
+                if isinstance(result, Exception):
+                    self.assertEqual(attempt["status"], "FAILED")
+                    self.assertEqual(attempt["error_class"], "RuntimeError")
+                else:
+                    self.assertEqual(attempt["status"], "REJECTED")
+                    self.assertEqual(attempt["result"], result)
 
 
 if __name__ == "__main__":

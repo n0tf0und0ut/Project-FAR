@@ -46,3 +46,7 @@ python tools/far_autonomous_investigation.py run --mode deterministic --output /
 ## Verification and governance
 
 Fail-closed regressions cover verified v2.0/v2.1 dispatch, strict transport, prohibited model fallback, semantic rejection, verifier outages, set-valued scoring, model prompt/oracle separation, attempted unsafe verification and lossless partial-response preservation. The current [Research Execution Charter](../../docs/governance/research-execution-charter.md) and protected-review checks control deployment and promotion. No accepted FAR Core theorem, canonical stage sequence, or scientific validity claim changes here.
+
+The [convergence finding ledger](finding-ledger.md) records historical review
+dispositions, reused successor corrections and archived workflow identities.
+Maintenance CI preserves offline checks without repeating frozen live trials.

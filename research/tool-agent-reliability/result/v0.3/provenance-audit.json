@@ -1,0 +1,50 @@
+{
+  "status": "Research",
+  "source_commit": "6c382c798df0a95824b79e76263318865ee24c68",
+  "run_id": 41620413774,
+  "run_attempt": 1,
+  "original_archives_verified": 14,
+  "raw_records_crossmatched": 75,
+  "unique_slots": 75,
+  "duplicates": 0,
+  "provenance_mismatches": 0,
+  "slot_replacements": 0,
+  "note": "Prolonged final provisioning completed normally; no cancellation, rerun or slot replacement.",
+  "operator_job_retries": 0,
+  "scored_report_sha256": "6bcb51d5da359f17f8c33f88c1f2afa28197648c12a9dcf73bc8e94a7a34c471",
+  "hosted_reports_reproduced_exactly": true,
+  "independent_internal_oracle_checks": 27,
+  "rejected_mutation_classes": [
+    "raw_response",
+    "tool_receipt",
+    "grade",
+    "policy",
+    "model",
+    "protocol",
+    "missing_record",
+    "duplicate_record"
+  ],
+  "identical_action_trajectory_tasks": 23,
+  "scored_task_count": 24,
+  "runtime_profiles": [
+    {
+      "phase": "preflight",
+      "kernel_label": "azure",
+      "python": "3.12.15",
+      "records": 3
+    },
+    {
+      "phase": "scored",
+      "kernel_label": "aws",
+      "python": "3.12.15",
+      "records": 6
+    },
+    {
+      "phase": "scored",
+      "kernel_label": "azure",
+      "python": "3.12.15",
+      "records": 66
+    }
+  ],
+  "assurance_scope": "Shared-environment internal replay and software/data scrutiny; no I3 external replication."
+}

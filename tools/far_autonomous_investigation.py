@@ -32,7 +32,10 @@ from mechanization.far_mechanization.intake_v1 import (
 )
 from mechanization.far_mechanization.contract_v2_strict_v11 import contract_sha256
 from tools.far_routing_dispatch import _parse, route_text
-from tools.far_uncertain_routing_pilot import MODEL_SHA256, sha256_file, persist as persist_json
+from tools.far_uncertain_routing_pilot import (
+    MODEL_SHA256, sha256_file, persist as persist_json,
+    read_bounded_response, ResponseTransportError,
+)
 
 REPO = "n0tf0und0ut/Project-FAR"
 CLAIMED = "v1.0.0"
@@ -65,6 +68,14 @@ class ModelActionResponseError(InvestigationError):
         self.envelope = envelope
 
 
+class SourceResponseError(InvestigationError):
+    """A failed source attempt whose observed response remains auditable."""
+
+    def __init__(self, reason: str, envelope: dict):
+        super().__init__(reason)
+        self.envelope = envelope
+
+
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
@@ -81,10 +92,6 @@ def fetch(source: str) -> tuple[bytes, str]:
     parsed = urlparse(url)
     if parsed.scheme != "https" or parsed.hostname != "api.github.com":
         raise InvestigationError("network destination drift")
-    class NoRedirect(urllib.request.HTTPRedirectHandler):
-        def redirect_request(self, *_args, **_kwargs):
-            raise InvestigationError("redirect refused")
-    opener = urllib.request.build_opener(NoRedirect())
     request = urllib.request.Request(
         url, headers={"Accept": "application/vnd.github+json",
                       "User-Agent": "Project-FAR-bounded-research/0.1",
@@ -92,16 +99,11 @@ def fetch(source: str) -> tuple[bytes, str]:
         method="GET",
     )
     try:
-        with opener.open(request, timeout=25) as response:
-            if response.status != 200:
-                raise InvestigationError("GitHub API non-200")
-            data = response.read(MAX_BYTES + 1)
-            if len(data) > MAX_BYTES:
-                raise InvestigationError("source exceeds size ceiling")
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError) as exc:
-        raise InvestigationError("source fetch failed: " + type(exc).__name__) from exc
+        data, envelope = read_bounded_response(request, timeout=25, max_bytes=MAX_BYTES)
+    except ResponseTransportError as exc:
+        raise SourceResponseError("source fetch failed: " + str(exc), exc.envelope) from exc
     if not data:
-        raise InvestigationError("empty source")
+        raise SourceResponseError("empty source", envelope)
     return data, now()
 
 
@@ -366,19 +368,14 @@ def request_model_action(prompt: str) -> dict:
         MODEL_ENDPOINT, request_bytes,
         headers={"Content-Type": "application/json"}, method="POST",
     )
+    request_evidence = {"request": data, "request_sha256": sha(request_bytes)}
     try:
-        with urllib.request.urlopen(req, timeout=60) as res:
-            if res.status != 200:
-                raise InvestigationError("loopback model returned non-200")
-            response_bytes = res.read(1024 * 1024 + 1)
-            if len(response_bytes) > 1024 * 1024:
-                raise InvestigationError("model response exceeds size ceiling")
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError) as exc:
-        raise InvestigationError("loopback model unavailable: " + type(exc).__name__) from exc
+        response_bytes, transport = read_bounded_response(req, timeout=60, max_bytes=1024 * 1024)
+    except ResponseTransportError as exc:
+        raise ModelActionResponseError("loopback model unavailable: " + str(exc),
+                                       {**request_evidence, **exc.envelope}) from exc
     envelope = {
-        "request": data, "request_sha256": sha(request_bytes),
-        "raw_response_base64": base64.b64encode(response_bytes).decode("ascii"),
-        "response_sha256": sha(response_bytes),
+        **request_evidence, **transport,
     }
     try:
         parsed = _parse(response_bytes.decode("utf-8"))
@@ -440,6 +437,18 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
     def save():
         if checkpoint is not None:
             checkpoint(copy.deepcopy(state))
+    def retrieve(key: str, *, recheck: bool = False) -> tuple[bytes, str]:
+        try:
+            return fetcher(key)
+        except SourceResponseError as exc:
+            state["status"] = "FAILED_OR_INCOMPLETE"
+            state["failed_source_call"] = {
+                "source": key, "recheck": recheck, "reason": str(exc),
+                "raw_envelope": exc.envelope,
+            }
+            state["actions"][-1].update(status="FAILED", failure=str(exc))
+            save()
+            raise
     save()
     for _ in range(12):
         allowed_before = _allowed(state)
@@ -467,7 +476,7 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
         save()
         if action in ("FETCH_LATEST", "FETCH_LIST"):
             key = "latest" if action == "FETCH_LATEST" else "list"
-            raw, stamp = fetcher(key)
+            raw, stamp = retrieve(key)
             receipt = {
                 "url": URLS[key], "raw_base64": base64.b64encode(raw).decode("ascii"),
                 "sha256": sha(raw), "retrieved_at": stamp, "parsed": None,
@@ -483,7 +492,7 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
                 raise
         elif action == "REFETCH_ALL":
             for key in ("latest", "list"):
-                raw, stamp = fetcher(key)
+                raw, stamp = retrieve(key, recheck=True)
                 receipt = {
                     "source": key, "url": URLS[key], "sha256": sha(raw),
                     "retrieved_at": stamp, "parsed": None,
@@ -517,10 +526,32 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
             c = state["frozen"]["discovery"]["contract_candidates"][len(state["evaluations"])]
             stamp = now()
             document = far_document(state["frozen"], c, state["receipts"], stamp)
-            result = route_text(json.dumps(document, separators=(",", ":"), sort_keys=True))
+            submitted = json.dumps(document, separators=(",", ":"), sort_keys=True)
+            attempt = {
+                "contract_id": c["id"], "submitted_document": document,
+                "submitted_sha256": sha(submitted.encode("utf-8")),
+                "started_at": stamp, "status": "STARTED", "result": None,
+            }
+            state.setdefault("verifier_attempts", []).append(attempt)
             state["verifier_calls"] += 1
+            save()
+            try:
+                result = route_text(submitted)
+            except Exception as exc:
+                attempt.update(status="FAILED", error_class=type(exc).__name__,
+                               failure=str(exc), finished_at=now())
+                state["status"] = "FAILED_OR_INCOMPLETE"
+                trace.update(status="FAILED", failure=str(exc))
+                save()
+                raise InvestigationError("current FAR verifier execution failed") from exc
+            attempt.update(result=result, finished_at=now())
             if result["status"] != "VERIFIED_EXPLICIT_CONTRACT" or not result["verifier_success"]:
+                attempt["status"] = "REJECTED"
+                state["status"] = "FAILED_OR_INCOMPLETE"
+                trace.update(status="FAILED", failure="current FAR verifier rejected generated contract")
+                save()
                 raise InvestigationError("current FAR verifier rejected generated frozen contract: " + str(result))
+            attempt["status"] = "COMPLETED"
             state["evaluations"].append({
                 "contract_id": c["id"], "contract_sha256": c["sha256"],
                 "freeze_sha256": state["frozen"]["freeze"]["freeze_sha256"],
