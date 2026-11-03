@@ -17,12 +17,12 @@ def action(tool, **args):
     return {"tool": tool, "args": args}
 
 
-def provider(actions):
+def provider(actions, model=r.MODEL):
     sequence = iter(actions)
     def call(request, timeout):
         v = next(sequence)
         content = v if isinstance(v, str) else json.dumps(v)
-        return 200, r.encoded({"model":r.MODEL, "done":True, "message":{"role":"assistant","content":content}, "prompt_eval_count":100,"eval_count":20})
+        return 200, r.encoded({"model":model, "done":True, "message":{"role":"assistant","content":content}, "prompt_eval_count":100,"eval_count":20})
     return call
 
 
@@ -328,11 +328,12 @@ class RunnerTests(unittest.TestCase):
 
     def test_cli_preflight_runs_all_three_tasks_in_single_job(self):
         new_protocol = r.load_protocol()
-        with patch.object(r,"source_identity",return_value=SOURCE),patch.object(r,"installed_digest",return_value=r.MODEL_DIGEST),patch.object(r,"run_task",return_value={"valid":True,"grade":{"passed":False},"terminal_reason":"INVALID_ACTION"}) as run:
+        with patch.object(r,"source_identity",return_value=SOURCE),patch.object(r,"installed_digest",return_value=r.MODEL_DIGEST_7B),patch.object(r,"run_task",return_value={"valid":True,"grade":{"passed":False},"terminal_reason":"INVALID_ACTION"}) as run:
             r.main(["run","--phase","preflight","--out",str(Path(self.temp.name)/"preflight")])
             self.assertEqual(run.call_count,3)
             self.assertEqual({call.args[0]["id"] for call in run.call_args_list},{t["id"] for t in new_protocol["tasks"] if t["phase"]=="preflight"})
             self.assertTrue(all(call.kwargs["agent_policy"] == "v0.2" for call in run.call_args_list))
+            self.assertTrue(all(call.kwargs["model_config"] == new_protocol["model"] for call in run.call_args_list))
 
     def test_source_identity_covers_runtime_workflow_and_dependency(self):
         def git(*args):
@@ -344,8 +345,9 @@ class RunnerTests(unittest.TestCase):
 
 class PolicyV02Tests(unittest.TestCase):
     def setUp(self):
-        self.protocol = r.load_protocol()
-        self.protocol_sha = r.sha(r.DEFAULT_PROTOCOL.read_bytes())
+        self.protocol_path = r.ROOT / "research/tool-agent-reliability/protocol-v0.2.json"
+        self.protocol = r.load_protocol(self.protocol_path)
+        self.protocol_sha = r.sha(self.protocol_path.read_bytes())
         self.task = copy.deepcopy(next(t for t in self.protocol["tasks"] if t["phase"] == "preflight"))
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -357,7 +359,7 @@ class PolicyV02Tests(unittest.TestCase):
         return r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,provider=provider(actions),digest=r.MODEL_DIGEST,agent_policy="v0.2")
 
     def test_successor_default_and_policy_in_every_request(self):
-        self.assertEqual(r.DEFAULT_PROTOCOL.name,"protocol-v0.2.json")
+        self.assertEqual(self.protocol_path.name,"protocol-v0.2.json")
         self.assertEqual(r.policy_for_protocol(self.protocol),"v0.2")
         result = self.run_successor()
         self.assertEqual(result["agent_policy"],"v0.2")
@@ -409,7 +411,7 @@ class PolicyV02Tests(unittest.TestCase):
 
     def test_successor_source_identity_uses_successor_workflow(self):
         with patch.object(r,"git_value",return_value="a"*40):
-            source=r.source_identity()
+            source=r.source_identity(self.protocol_path)
         self.assertIn(".github/workflows/far-tool-agent-reliability-v02.yml",source["files"])
         self.assertIn("research/tool-agent-reliability/protocol-v0.2.json",source["files"])
         self.assertNotIn(".github/workflows/far-tool-agent-reliability.yml",source["files"])
@@ -427,6 +429,105 @@ class PolicyV02Tests(unittest.TestCase):
         with patch.object(r,"installed_digest",side_effect=AssertionError("must not inspect provider")):
             with self.assertRaisesRegex(ValueError,"unknown agent policy"):
                 r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,agent_policy="future-unreviewed")
+
+
+class ModelV03Tests(unittest.TestCase):
+    def setUp(self):
+        self.protocol = r.load_protocol()
+        self.protocol_sha = r.sha(r.DEFAULT_PROTOCOL.read_bytes())
+        self.model = r.model_for_protocol(self.protocol)
+        self.task = copy.deepcopy(next(t for t in self.protocol["tasks"] if t["phase"] == "preflight"))
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.out = Path(self.temp.name) / "larger-model.json"
+
+    def run_model(self, backend_model=None):
+        steps=[action("read_file",path=path) for path in self.task["oracle"]["required_reads"]]
+        steps.append(action("finish",answer=self.task["oracle"]["answer"]))
+        return r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,provider=provider(steps,model=backend_model or r.MODEL_7B),digest=r.MODEL_DIGEST_7B,agent_policy="v0.2",model_config=self.model)
+
+    def test_seven_billion_default_is_exact_allowlisted_model(self):
+        self.assertEqual(r.DEFAULT_PROTOCOL.name,"protocol-v0.3.json")
+        self.assertEqual(self.protocol["protocol_version"],"0.3")
+        self.assertEqual(self.model,{"name":"qwen2.5-coder:7b","digest":"dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364"})
+        old=r.load_protocol(r.ROOT / "research/tool-agent-reliability/protocol-v0.2.json")
+        self.assertEqual(r.model_for_protocol(old),{"name":r.MODEL,"digest":r.MODEL_DIGEST})
+        self.assertEqual([t for t in self.protocol["tasks"] if t["phase"]=="scored"],[t for t in old["tasks"] if t["phase"]=="scored"])
+
+    def test_actual_requests_records_and_replay_bind_seven_billion(self):
+        result=self.run_model()
+        self.assertEqual(result["model"],self.model)
+        self.assertTrue(result["grade"]["passed"])
+        for event in result["events"]:
+            request=json.loads(event["request_utf8"])
+            self.assertEqual(request["model"],r.MODEL_7B)
+            self.assertEqual(request["messages"][0]["content"],r.SYSTEM_V02)
+        replayed=r.replay(result,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2",model_config=self.model)
+        self.assertTrue(replayed["passed"])
+        report=r.analyze(self.protocol,[result],self.protocol_sha,SOURCE,phase="preflight",allow_synthetic=True)
+        self.assertEqual(report["model"],self.model)
+        self.assertEqual(report["replayed_records"],1)
+        self.assertEqual(report["passed"],1)
+        self.assertFalse(report["preflight_gate_passed"])
+
+    def test_smaller_model_reply_is_invalid_instead_of_fallback(self):
+        result=self.run_model(backend_model=r.MODEL)
+        self.assertEqual(result["model"],self.model)
+        self.assertEqual(result["terminal_reason"],"PROVIDER_INVALID")
+        self.assertFalse(result["valid"])
+        replayed=r.replay(result,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2",model_config=self.model)
+        self.assertFalse(replayed["valid"])
+
+    def test_replay_rejects_changed_model_metadata_and_raw_requests(self):
+        result=self.run_model()
+        with self.assertRaisesRegex(ValueError,"protocol/model mismatch"):
+            r.replay(result,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2")
+        bad=copy.deepcopy(result);bad["model"]={"name":r.MODEL,"digest":r.MODEL_DIGEST}
+        with self.assertRaisesRegex(ValueError,"protocol/model mismatch"):
+            r.replay(bad,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2",model_config=self.model)
+        bad=copy.deepcopy(result)
+        request=json.loads(bad["events"][0]["request_utf8"]);request["model"]=r.MODEL
+        raw=r.encoded(request);bad["events"][0].update(request_utf8=raw.decode(),request_sha256=r.sha(raw))
+        with self.assertRaisesRegex(ValueError,"request/prompt drift"):
+            r.replay(bad,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2",model_config=self.model)
+
+    def test_seven_billion_cannot_use_old_policy_or_mutable_endpoint(self):
+        for mutate in (lambda p:p.update(agent_policy="v0.1"),lambda p:p.update(protocol_version="0.2"),lambda p:p["model"].update(name="http://remote.invalid/model"),lambda p:p["model"].update(digest="0"*64),lambda p:p.pop("model")):
+            bad=copy.deepcopy(self.protocol);mutate(bad)
+            with self.assertRaises(ValueError):r.validate_protocol(bad)
+        with patch.object(r,"installed_digest",side_effect=AssertionError("must refuse before registry")):
+            with self.assertRaisesRegex(ValueError,"7B requires"):
+                r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,agent_policy="v0.1",model_config=self.model)
+
+    def test_local_registry_lookup_selects_exact_name_and_full_digest(self):
+        reply=r.encoded({"models":[{"name":r.MODEL,"digest":r.MODEL_DIGEST},self.model]})
+        # Registry items use name/digest, just like the selected model specification.
+        from io import BytesIO
+        class Reply(BytesIO):
+            def __enter__(self):return self
+            def __exit__(self,*args):self.close()
+        from types import SimpleNamespace
+        opened=[]
+        def open_local(url,timeout):
+            opened.append((url,timeout));return Reply(reply)
+        with patch.object(r.urllib.request,"build_opener",return_value=SimpleNamespace(open=open_local)):
+            self.assertEqual(r.installed_digest(self.model),r.MODEL_DIGEST_7B)
+        self.assertEqual(opened,[("http://127.0.0.1:11434/api/tags",10)])
+        for models in ([{"name":r.MODEL_7B,"digest":"0"*64}],[self.model,self.model],[{"name":r.MODEL,"digest":r.MODEL_DIGEST}]):
+            with patch.object(r.urllib.request,"build_opener",return_value=SimpleNamespace(open=lambda *a,**kw:Reply(r.encoded({"models":models})))):
+                with self.assertRaisesRegex(ValueError,"unpinned or unexpected"):
+                    r.installed_digest(self.model)
+
+    def test_source_identity_uses_seven_billion_startup_and_workflow(self):
+        with patch.object(r,"git_value",return_value="a"*40):
+            source=r.source_identity()
+        self.assertEqual(set(source["files"]),{"tools/tool_agent_reliability.py","research/tool-agent-reliability/protocol-v0.3.json","scripts/tool_agent_reliability_start_7b.sh",".github/workflows/far-tool-agent-reliability-v03.yml"})
+
+    def test_current_cli_refuses_both_smaller_predecessor_launches(self):
+        with patch.object(r,"source_identity",side_effect=AssertionError("must refuse first")),patch.object(r,"installed_digest",side_effect=AssertionError("must not inspect provider")):
+            for version in ("v0.1","v0.2"):
+                with self.assertRaises(SystemExit):
+                    r.main(["run","--protocol",str(r.ROOT / ("research/tool-agent-reliability/protocol-"+version+".json")),"--phase","preflight","--out",str(self.out)])
 
 
 if __name__=="__main__":

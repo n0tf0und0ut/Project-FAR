@@ -25,9 +25,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PROTOCOL = ROOT / "research/tool-agent-reliability/protocol-v0.2.json"
+DEFAULT_PROTOCOL = ROOT / "research/tool-agent-reliability/protocol-v0.3.json"
 MODEL = "qwen2.5-coder:1.5b"
 MODEL_DIGEST = "d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668"
+MODEL_7B = "qwen2.5-coder:7b"
+MODEL_DIGEST_7B = "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364"
+MODEL_SPECS = {MODEL: MODEL_DIGEST, MODEL_7B: MODEL_DIGEST_7B}
 PROGRAM_ID = "FAR-TOOL-AGENT-001"
 LIMITS = {"max_actions": 8, "request_seconds": 120, "run_seconds": 600,
           "num_predict": 256, "num_ctx": 8192, "temperature": 0}
@@ -57,6 +60,22 @@ def policy_for_protocol(p):
     system_for_policy(policy)
     return policy
 
+
+
+def selected_model(model_config=None):
+    spec = {"name": MODEL, "digest": MODEL_DIGEST} if model_config is None else model_config
+    if not isinstance(spec, dict) or set(spec) != {"name", "digest"} or not isinstance(spec.get("name"), str) or MODEL_SPECS.get(spec["name"]) != spec.get("digest"):
+        raise ValueError("unapproved model configuration")
+    return dict(spec)
+
+
+def model_for_protocol(p):
+    if "model" not in p or p["model"] is None:
+        raise ValueError("missing protocol model")
+    spec = selected_model(p["model"])
+    if spec["name"] == MODEL_7B and (policy_for_protocol(p) != "v0.2" or p.get("protocol_version") != "0.3"):
+        raise ValueError("7B requires v0.3 protocol with v0.2 policy")
+    return spec
 
 
 def sha(data: bytes) -> str:
@@ -120,7 +139,8 @@ def validate_protocol(p):
     policy_for_protocol(p)
     if p.get("schema_version") != "1.0" or p.get("program_id") != PROGRAM_ID or p.get("status") != "Research":
         raise ValueError("invalid protocol identity")
-    if p.get("model") != {"name": MODEL, "digest": MODEL_DIGEST} or not same(p.get("limits"), LIMITS):
+    model_for_protocol(p)
+    if not same(p.get("limits"), LIMITS):
         raise ValueError("runtime/model drift")
     if not same(p.get("seeds"), [0, 1, 2]) or type(p.get("shards")) is not int or p["shards"] != 12:
         raise ValueError("assignment drift")
@@ -182,11 +202,16 @@ def git_value(*args):
 def source_identity(protocol_path=DEFAULT_PROTOCOL):
     runner = Path(__file__).resolve()
     protocol_path = Path(protocol_path).resolve()
-    policy = policy_for_protocol(load_protocol(protocol_path))
-    workflow = "far-tool-agent-reliability-v02.yml" if policy == "v0.2" else "far-tool-agent-reliability.yml"
-    paths = [runner, protocol_path, ROOT / "scripts/workflow_efficacy_start_ollama.sh",
-             ROOT / "tools/workflow_efficacy_free_agent.py",
-             ROOT / ".github/workflows" / workflow]
+    protocol = load_protocol(protocol_path)
+    policy = policy_for_protocol(protocol)
+    if model_for_protocol(protocol)["name"] == MODEL_7B:
+        paths = [runner, protocol_path, ROOT / "scripts/tool_agent_reliability_start_7b.sh",
+                 ROOT / ".github/workflows/far-tool-agent-reliability-v03.yml"]
+    else:
+        workflow = "far-tool-agent-reliability-v02.yml" if policy == "v0.2" else "far-tool-agent-reliability.yml"
+        paths = [runner, protocol_path, ROOT / "scripts/workflow_efficacy_start_ollama.sh",
+                 ROOT / "tools/workflow_efficacy_free_agent.py",
+                 ROOT / ".github/workflows" / workflow]
     files = {}
     for p in paths:
         rel = p.relative_to(ROOT).as_posix()
@@ -313,13 +338,14 @@ def initial_messages(task, agent_policy="v0.1"):
     return [{"role": "system", "content": system_for_policy(agent_policy)}, {"role": "user", "content": task["prompt"] + "\nAvailable files: " + json.dumps(sorted(task["files"]))}]
 
 
-def request_for(messages, seed):
-    return {"model": MODEL, "messages": copy.deepcopy(messages), "stream": False, "format": "json", "options": {"seed": seed, "temperature": 0, "num_ctx": 8192, "num_predict": 256}}
+def request_for(messages, seed, model_config=None):
+    return {"model": selected_model(model_config)["name"], "messages": copy.deepcopy(messages), "stream": False, "format": "json", "options": {"seed": seed, "temperature": 0, "num_ctx": 8192, "num_predict": 256}}
 
 
-def envelope(raw):
+def envelope(raw, model_config=None):
+    model = selected_model(model_config)
     out = strict_json(raw)
-    if not isinstance(out, dict) or out.get("model") != MODEL or out.get("done") is not True or not isinstance(out.get("message"), dict):
+    if not isinstance(out, dict) or out.get("model") != model["name"] or out.get("done") is not True or not isinstance(out.get("message"), dict):
         raise ValueError("invalid provider envelope")
     m = out["message"]
     if m.get("role") != "assistant" or not isinstance(m.get("content"), str):
@@ -345,12 +371,21 @@ def local_provider(request, timeout):
         return exc.code, exc.read(MAX_RESPONSE+1)
 
 
-def installed_digest():
-    # Reuse the existing pinned registry check, which reads localhost api/tags.
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
-    from tools.workflow_efficacy_free_agent import local_model_digest
-    return local_model_digest()
+def installed_digest(model_config=None):
+    """Verify the exact selected manifest in the local Ollama registry only."""
+    model = selected_model(model_config)
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    with opener.open("http://127.0.0.1:11434/api/tags", timeout=10) as response:
+        raw = response.read(MAX_RESPONSE+1)
+    if len(raw) > MAX_RESPONSE:
+        raise ValueError("local model registry response limit")
+    tags = strict_json(raw)
+    if not isinstance(tags, dict) or not isinstance(tags.get("models"), list):
+        raise ValueError("invalid local model registry")
+    matches = [m for m in tags["models"] if isinstance(m, dict) and m.get("name") == model["name"]]
+    if len(matches) != 1 or matches[0].get("digest") != model["digest"]:
+        raise ValueError("unpinned or unexpected local model digest")
+    return model["digest"]
 
 
 def checkpoint(path, record):
@@ -368,14 +403,17 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def run_task(task, seed, protocol_sha, source, out, *, provider=local_provider, digest=None, clock=time.monotonic, agent_policy="v0.1"):
+def run_task(task, seed, protocol_sha, source, out, *, provider=local_provider, digest=None, clock=time.monotonic, agent_policy="v0.1", model_config=None):
     """The optional provider is a test seam; tests must label synthetic provenance."""
     system_text = system_for_policy(agent_policy)
-    digest = installed_digest() if digest is None else digest
-    if digest != MODEL_DIGEST:
+    model = selected_model(model_config)
+    if model["name"] == MODEL_7B and agent_policy != "v0.2":
+        raise ValueError("7B requires v0.2 policy")
+    digest = installed_digest(model) if digest is None else digest
+    if digest != model["digest"]:
         raise ValueError("unexpected model digest")
     synthetic = provider is not local_provider
-    record = {"schema_version": "1.0", "program_id": PROGRAM_ID, "agent_policy": agent_policy, "system_sha256": sha(system_text.encode()), "status": "RUNNING", "phase": task["phase"], "task_id": task["id"], "family": task["family"], "seed": seed, "protocol_sha256": protocol_sha, "source": source, "model": {"name": MODEL, "digest": digest}, "provenance": "SYNTHETIC_TEST" if synthetic else "LOCAL_OLLAMA", "runtime": {"python": platform.python_version(), "platform": platform.platform()}, "execution": {k: os.environ.get(k) for k in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA")}, "started_at": now(), "events": [], "terminal_reason": None, "valid": False}
+    record = {"schema_version": "1.0", "program_id": PROGRAM_ID, "agent_policy": agent_policy, "system_sha256": sha(system_text.encode()), "status": "RUNNING", "phase": task["phase"], "task_id": task["id"], "family": task["family"], "seed": seed, "protocol_sha256": protocol_sha, "source": source, "model": model, "provenance": "SYNTHETIC_TEST" if synthetic else "LOCAL_OLLAMA", "runtime": {"python": platform.python_version(), "platform": platform.platform()}, "execution": {k: os.environ.get(k) for k in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA")}, "started_at": now(), "events": [], "terminal_reason": None, "valid": False}
     files = copy.deepcopy(task["files"])
     messages = initial_messages(task, agent_policy)
     start = clock()
@@ -386,7 +424,7 @@ def run_task(task, seed, protocol_sha, source, out, *, provider=local_provider, 
         if remaining <= 0:
             reason = "TIME_LIMIT"
             break
-        request = encoded(request_for(messages, seed))
+        request = encoded(request_for(messages, seed, model))
         e = {"request_utf8": request.decode(), "request_sha256": sha(request), "response_base64": None, "response_sha256": None, "http_status": None, "transport_error": None, "elapsed_seconds": None, "run_elapsed_seconds": None, "action": None, "receipt": None}
         record["events"].append(e)
         checkpoint(out, record)
@@ -412,7 +450,7 @@ def run_task(task, seed, protocol_sha, source, out, *, provider=local_provider, 
             reason = "PROVIDER_ERROR"
             break
         try:
-            content, _, _ = envelope(raw)
+            content, _, _ = envelope(raw, model)
         except (ValueError, TypeError, UnicodeError, RecursionError):
             reason = "PROVIDER_INVALID"
             break
@@ -442,8 +480,11 @@ def run_task(task, seed, protocol_sha, source, out, *, provider=local_provider, 
     return record
 
 
-def replay(record, task, protocol_sha, source=None, allow_synthetic=False, agent_policy="v0.1"):
+def replay(record, task, protocol_sha, source=None, allow_synthetic=False, agent_policy="v0.1", model_config=None):
     """Recompute every prompt, tool receipt, final state and grade from raw bytes."""
+    model = selected_model(model_config)
+    if model["name"] == MODEL_7B and agent_policy != "v0.2":
+        raise ValueError("7B requires v0.2 policy")
     expected_system_sha = sha(system_for_policy(agent_policy).encode())
     # Legacy v0.1 records predate policy metadata; their raw requests still bind SYSTEM.
     legacy = agent_policy == "v0.1" and "agent_policy" not in record and "system_sha256" not in record
@@ -453,7 +494,7 @@ def replay(record, task, protocol_sha, source=None, allow_synthetic=False, agent
         raise ValueError("incomplete/wrong record")
     if record.get("provenance") != "LOCAL_OLLAMA" and not (allow_synthetic and record.get("provenance") == "SYNTHETIC_TEST"):
         raise ValueError("not genuine local-model provenance")
-    if record.get("protocol_sha256") != protocol_sha or record.get("model") != {"name": MODEL, "digest": MODEL_DIGEST}:
+    if record.get("protocol_sha256") != protocol_sha or record.get("model") != model:
         raise ValueError("protocol/model mismatch")
     if source is not None and record.get("source") != source:
         raise ValueError("execution-source mismatch")
@@ -473,7 +514,7 @@ def replay(record, task, protocol_sha, source=None, allow_synthetic=False, agent
     for i,e in enumerate(events):
         if reason is not None:
             raise ValueError("events after terminal action")
-        req = encoded(request_for(messages, seed))
+        req = encoded(request_for(messages, seed, model))
         if e.get("request_utf8") != req.decode() or e.get("request_sha256") != sha(req):
             raise ValueError("request/prompt drift")
         duration = e.get("elapsed_seconds")
@@ -496,7 +537,7 @@ def replay(record, task, protocol_sha, source=None, allow_synthetic=False, agent
                 reason = "PROVIDER_ERROR"
             else:
                 try:
-                    content, ni, no = envelope(raw)
+                    content, ni, no = envelope(raw, model)
                     input_tokens += ni
                     output_tokens += no
                     if run_elapsed >= LIMITS["run_seconds"] or duration > LIMITS["request_seconds"]:
@@ -554,7 +595,7 @@ def analyze(p, records, protocol_sha, source=None, *, phase="scored", allow_synt
             if slot not in slots or slot in seen:
                 raise ValueError("unregistered/duplicate slot")
             seen.add(slot)
-            result = replay(r, tasks[slot[0]], protocol_sha, source, allow_synthetic, policy_for_protocol(p))
+            result = replay(r, tasks[slot[0]], protocol_sha, source, allow_synthetic, policy_for_protocol(p), model_for_protocol(p))
             rows.append({"task_id":slot[0], "seed":slot[1], "family":tasks[slot[0]]["family"], **result})
         except (ValueError,TypeError,KeyError,RecursionError) as exc:
             errors.append(str(exc))
@@ -575,7 +616,7 @@ def analyze(p, records, protocol_sha, source=None, *, phase="scored", allow_synt
     screen = (complete and passed * 10 >= len(slots) * 9 and all(v["passed"] * 5 >= v["expected_slots"] * 4 for v in families.values()) and all_repeats * 5 >= len(tasks) * 4 and unsafe_writes == 0) if phase == "scored" else None
     first_success = sum((t,0) in successes for t in tasks)
     result = {"program_id": PROGRAM_ID, "status": "Research", "phase": phase,
-              "agent_policy": policy_for_protocol(p), "system_sha256": sha(system_for_policy(policy_for_protocol(p)).encode()),
+              "model": model_for_protocol(p), "agent_policy": policy_for_protocol(p), "system_sha256": sha(system_for_policy(policy_for_protocol(p)).encode()),
               "expected_slots": len(slots), "observed_records": len(records), "replayed_records": len(rows),
               "valid_records": valid, "invalid_records": sum(not r["valid"] for r in rows), "passed": passed,
               "success_fraction_all_slots": passed/len(slots), "first_attempt_passed": first_success,
@@ -609,8 +650,9 @@ def main(argv=None):
         print(json.dumps({"valid":True,"protocol_sha256":protocol_sha,"scored_tasks":24,"preflight_tasks":3}))
         return 0
     agent_policy = policy_for_protocol(p)
-    if args.command == "run" and agent_policy != "v0.2":
-        parser.error("current runner permits only v0.2 live execution; use the frozen v0.1 checkout for historical reconstruction")
+    model_config = model_for_protocol(p)
+    if args.command == "run" and (agent_policy != "v0.2" or p.get("protocol_version") != "0.3" or model_config["name"] != MODEL_7B):
+        parser.error("current runner permits only v0.3 7B live execution; use each frozen predecessor checkout for historical reconstruction")
     source = source_identity(args.protocol)
     if args.command == "run":
         if not 0 <= args.shard < p["shards"]:
@@ -624,14 +666,14 @@ def main(argv=None):
                 raise ValueError("raw preflight evidence failed exact-source capability gate")
         tasks = [t for t in p["tasks"] if t["phase"] == args.phase]
         schedule = [(t,s) for t in tasks for s in ([0] if args.phase == "preflight" else p["seeds"])]
-        digest = installed_digest()
+        digest = installed_digest(model_config)
         for index,(t,s) in enumerate(schedule):
             if args.phase == "scored" and index % p["shards"] != args.shard:
                 continue
             out = args.out / (t["id"] + "-seed" + str(s) + ".json")
             if out.exists():
                 raise ValueError("refuse to overwrite an attempted slot")
-            result = run_task(t,s,protocol_sha,source,out,digest=digest,agent_policy=agent_policy)
+            result = run_task(t,s,protocol_sha,source,out,digest=digest,agent_policy=agent_policy,model_config=model_config)
             print(json.dumps({"task":t["id"],"seed":s,"valid":result["valid"],"passed":result["grade"]["passed"],"reason":result["terminal_reason"]}),flush=True)
         return 0
     paths=[]

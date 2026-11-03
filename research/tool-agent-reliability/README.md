@@ -1,16 +1,16 @@
 # Bounded tool-agent operational reliability
 
-Status: **Research. [V0.1 completed and stopped at preflight](RESULTS-V0.1.md); v0.2 is prospective and has no observations yet.**
+Status: **Research. [V0.1](RESULTS-V0.1.md) and [v0.2](RESULTS-V0.2.md) completed and stopped at their capability gates. V0.3 is prospective, with no model observations yet.**
 
-This separately registered agent-only investigation follows the completed one-shot repair pilot's unresolved tool-use capability. It asks how consistently the pinned Qwen2.5-Coder 1.5B agent can complete multistep tasks using executed tools. It does not compare FAR with a control, execute SWE-agent v3, pool earlier observations, or reopen that study's closed gate.
+This separately registered agent-only investigation follows the completed one-shot repair pilot's unresolved tool-use capability. It asks how consistently the pinned Qwen2.5-Coder agent (1.5B in v0.1/v0.2; 7B in v0.3) can complete multistep tasks using executed tools. It does not compare FAR with a control, execute SWE-agent v3, pool earlier observations, or reopen that study's closed gate.
 
 The environment is a bounded virtual file workspace and safe arithmetic calculator. The model chooses each action, receives the executed result, and chooses again, with a maximum of eight actions. The controller never replaces a bad model choice with a successful scripted plan. File access and writes are actual state transitions in the simulator; there is no operating-system shell, external service, arbitrary Python execution, or external-world outcome.
 
 ## Prospective design
 
-The preserved `protocol-v0.1.json` fixes the stopped original study. The separately versioned `protocol-v0.2.json` fixes the exact model manifest, task payloads, oracles, three seeds, action/time/token budgets and launch/stopping criteria. The Ollama release and archive are pinned by the existing startup script. The exact committed runner, protocol, startup script and workflow are the source identity. Any runtime, task, grading or policy repair after exposure requires a new version; original outputs stay immutable. No outcome-based tuning or selecting a favorable rerun is permitted.
+The preserved `protocol-v0.1.json` fixes the stopped original study. The preserved `protocol-v0.2.json` fixes the stopped clarified-policy study. The separately versioned `protocol-v0.3.json` fixes the exact model manifest, task payloads, oracles, three seeds, action/time/token budgets and launch/stopping criteria. The Ollama release and archive are pinned by the existing startup script. The exact committed runner, protocol, startup script and workflow are the source identity. Any runtime, task, grading or policy repair after exposure requires a new version; original outputs stay immutable. No outcome-based tuning or selecting a favorable rerun is permitted.
 
-V0.2 adds only an explicit prohibition on unrequested file writes and an integer-typed finish example after v0.1 exposed those interface failures. It uses three fresh preflight inputs; its 24 scored task objects and thresholds are byte-identical to the original unexposed objects. No preflight outcome is pooled or retroactively regraded, and no additional instruction search is planned after this successor.
+V0.2 added only an explicit prohibition on unrequested file writes and an integer-typed finish example after v0.1 exposed those interface failures. It uses three fresh preflight inputs; its 24 scored task objects and thresholds are byte-identical to the original unexposed objects. No preflight outcome is pooled or retroactively regraded. V0.3 keeps that exact policy but selects one larger 7B backend after both 1.5B capability gates failed. It uses fresh P07–P09 inputs; all 24 still-unexposed scored task objects and thresholds remain unchanged. No additional instruction search or larger-local-model search is planned. The retained failures and backend selection are disclosed rather than treated as external replication.
 
 A three-task, disjoint capability preflight runs once per task at seed zero. Broader execution is allowed only with all three complete replayable traces, at least two successful tasks and zero unsafe writes. A failed gate stops the study: the 72 broader slots are **NOT RUN**, not 72 failures. Transport/infrastructure failures are reported separately, never silently retried or dropped.
 
@@ -31,8 +31,9 @@ General agent reliability, cross-model performance, external replication, autono
 ## Methodological sources
 
 - Yao et al., [τ-bench, arXiv:2406.12045](https://arxiv.org/abs/2406.12045): repeated-success reliability is distinct from obtaining one successful attempt. Its tasks, simulated users and published scores are not reused here.
+- The [official 7B model page](https://ollama.com/library/qwen2.5-coder:7b) lists 7.62B parameters and Q4_K_M quantization, approximately 4.7 GB. The separately retained `model-qwen2.5-coder-7b-manifest.json` preserves the exact primary-registry response and full SHA-256; metadata retrieval performed no inference. Every live server must match that full manifest digest before any request.
 - Maintainers, [Terminal-Bench 4.0](https://www.tbench.ai/news/terminal-bench-4-0), consulted 2026-11-03: resource limits and environment/task changes affect benchmark interpretation and require prospective versioning. This internal simulation does not implement or claim a Terminal-Bench score.
 
-Historical v0.1 reconstruction requires its exact frozen checkout `34f7bdd06df4cf1d15a73d29eadf3e8773105c89`. Current CLI execution uses v0.2 and refuses v0.1 launches.
+Historical v0.1 reconstruction requires its exact frozen checkout `34f7bdd06df4cf1d15a73d29eadf3e8773105c89`. V0.2 reconstruction requires `6c6a62eab835de143216130bbb5050c4e05ef16c`. Current CLI execution uses v0.3 and refuses historical live launches.
 
 No accepted theory, canonical methodology, source authority or performance claim is promoted by this investigation.
