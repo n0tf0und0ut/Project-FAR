@@ -62,6 +62,52 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+class _ChunkFramingObserver:
+    """Observe native HTTPResponse framing without replacing its body decoder.
+
+    The stdlib accepts EOF in the trailer section and discards chunk separator
+    bytes without validating CRLF. Preserve bounded decoded prefix while checking
+    those framing obligations around the same native buffered stream.
+    """
+    def __init__(self, stream, limit):
+        self.stream, self.limit = stream, limit
+        self.phase, self.remaining = "size", 0
+        self.prefix, self.framing_bytes = bytearray(), 0
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def read(self, amount=-1):
+        data = self.stream.read(amount)
+        if self.phase == "body":
+            self.prefix.extend(data[:max(0, self.limit - len(self.prefix))])
+            self.remaining -= len(data)
+            if self.remaining == 0:
+                self.phase = "separator"
+        elif self.phase == "separator":
+            self.framing_bytes += len(data)
+            if data != b"\r\n":
+                raise http.client.IncompleteRead(bytes(self.prefix))
+            self.phase = "size"
+        return data
+
+    def readline(self, limit=-1):
+        data = self.stream.readline(limit)
+        self.framing_bytes += len(data)
+        if (not data.endswith(b"\r\n") or self.framing_bytes > self.limit + 65536
+                or self.phase not in ("size", "trailers")):
+            raise http.client.IncompleteRead(bytes(self.prefix))
+        if self.phase == "size":
+            size = data[:-2].split(b";", 1)[0]
+            if not size or any(c not in b"0123456789abcdefABCDEF" for c in size):
+                raise http.client.IncompleteRead(bytes(self.prefix))
+            self.remaining = int(size, 16)
+            self.phase = "body" if self.remaining else "trailers"
+        elif data == b"\r\n":
+            self.phase = "complete"
+        return data
+
+
 def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                           max_bytes: int) -> tuple[bytes, dict]:
     """Refuse redirects and retain bounded failures before rejecting the response.
@@ -75,7 +121,9 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
         "raw_response_base64": "", "response_sha256": digest(b""),
         "response_bytes_retained": 0, "response_truncated": False,
         "response_complete": False, "response_hash_scope": "retained_prefix",
-        "received_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "requested_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "received_at": None,
+        "timing_scope": "request_start_to_body_read_or_transport_failure",
     }
     response = None
     try:
@@ -88,12 +136,43 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
             envelope["http_status"] = response.status
             headers = getattr(response, "headers", None)
             envelope["response_headers"] = dict(headers.items()) if headers is not None else {}
+            get_all = getattr(headers, "get_all", None)
+            lengths = (get_all("Content-Length", []) if get_all else
+                       ([headers.get("Content-Length")] if headers and headers.get("Content-Length") is not None else []))
+            encodings = (get_all("Transfer-Encoding", []) if get_all else
+                         ([headers.get("Transfer-Encoding")] if headers and headers.get("Transfer-Encoding") is not None else []))
+            envelope["content_length_values"] = lengths
+            envelope["transfer_encoding_values"] = encodings
+            framing_error, declared_length = None, None
+            if lengths:
+                value = str(lengths[0]).strip()
+                if len(lengths) != 1 or not value.isascii() or not value.isdigit() or len(value) > 20:
+                    framing_error = "InvalidContentLength"
+                else:
+                    declared_length = int(str(lengths[0]).strip())
+            native = response if isinstance(response, http.client.HTTPResponse) else getattr(response, "fp", None)
+            observer = None
+            if encodings:
+                if len(encodings) != 1 or str(encodings[0]).strip().lower() != "chunked" or lengths:
+                    framing_error = "UnsupportedOrAmbiguousTransferFraming"
+                elif isinstance(native, http.client.HTTPResponse) and native.chunked and native.fp is not None:
+                    observer = _ChunkFramingObserver(native.fp, max_bytes + 1)
+                    native.fp = observer
+                else:
+                    framing_error = "UnverifiedChunkFraming"
             try:
                 raw = response.read(max_bytes + 1)
                 complete = len(raw) <= max_bytes
             except http.client.IncompleteRead as exc:
-                raw, complete = exc.partial, False
+                raw, complete = bytes(observer.prefix) if observer else exc.partial, False
                 envelope["transport_error"] = "IncompleteRead"
+            if declared_length is not None and len(raw) != declared_length:
+                framing_error = "ContentLengthMismatch"
+            if observer is not None and observer.phase != "complete":
+                framing_error = "IncompleteChunkFraming"
+            if framing_error:
+                complete = False
+                envelope["framing_error"] = framing_error
             truncated = len(raw) > max_bytes
             retained = raw[:max_bytes]
             envelope.update({
@@ -106,6 +185,8 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
     except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
         envelope["transport_error"] = type(exc).__name__
         raise ResponseTransportError("HTTP transport failed: " + type(exc).__name__, envelope) from exc
+    finally:
+        envelope["received_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     if envelope["http_status"] != 200:
         raise ResponseTransportError("HTTP response rejected: " + str(envelope["http_status"]), envelope)
     if not envelope["response_complete"]:

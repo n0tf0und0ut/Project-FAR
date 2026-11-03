@@ -50,6 +50,14 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                 self.assertEqual(outcome['reconstructed_counters']['http_reservations'], 4)
                 self.assertIn('no external authenticity', outcome['assurance'])
 
+    def test_resealed_new_transport_timestamps_cannot_move_backwards(self):
+        state=self.complete()
+        state['transport_timing_test']={
+            'timing_scope':'request_start_to_body_read_or_transport_failure',
+            'requested_at':'2026-11-03T01:00:01Z','received_at':'2026-11-03T01:00:00Z'}
+        reseal(state)
+        self.assert_rejected(state,'transport_time')
+
     def test_simple_hash_chain_and_seal_mutations_are_rejected(self):
         original = self.complete()
         for mutation in ('source', 'event', 'seal', 'missing_seal'):

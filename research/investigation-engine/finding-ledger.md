@@ -27,3 +27,55 @@ required branch checks and merge authority remain separate obligations. The
 existing #608 machine review summary and its clean prose receipt disagree;
 resolved threads alone do not repair that protected metadata. No policy has
 been weakened to treat the discrepancy as a clean review.
+
+
+## Repository convergence on November 3, 2026
+
+Protected-main integration `54fe2358ecd7fd865827e59999097732a7da1486`
+preserves original implementation, selections, registrations and failed local
+execution history. The original completed hosted artifact is now retained and
+replayed as documented in [its observation](hosted-recovery-observation-v0.1.md).
+The corrective commit is the commit adding this section.
+
+| ID | Reviewed source / violated invariant | Disposition and reproducer |
+| --- | --- | --- |
+| ENG-CAMPAIGN-EXPOSURE | Audit of original `7ffb943386d4cc6450417ba472f45ab55b2b6823`; duplicate or missing rows were accepted if surviving transcripts audited. | Fixed in existing campaign auditor: bind every registered task/mode slot exactly once in original order. Rehashed duplicate/missing exposure mutations fail. |
+| ENG-CAMPAIGN-CLAIMS | Same source; valid transcript plus fabricated row/summary could report success or invalid cost. | Recompute metrics and summary from raw transcripts; rehashed forged completion, cost and summary tests fail. |
+| ENG-CAMPAIGN-IDENTITY | Same source; embedded selection/source identity was not reconciled against retained execution binding. | Bind frozen external selection, source commit/hashes, model, task question/mode/budget and canonical transcript filename. Mutation regressions fail; all original 24 slots pass. |
+| ENG-CAMPAIGN-SHADOW | Same source; duplicate ZIP member could shadow original bytes. | Reject duplicate archive names before reading campaign/transcript bytes; hostile-copy regression fails closed. |
+| ENG-TRANSPORT-TIME | Same source; `received_at` was recorded before HTTP open/read. | Separate request/completion instants in existing shared bounded reader. Controlled-clock success/timeout tests fail under original behavior; resealed backwards new timing records fail audit. Original timestamps remain unchanged and explicitly limited. |
+
+Existing #614 legacy HTTP confinement/evidence and verifier-journal repairs are
+also backported to predecessor #608, with byte-identical implementation and
+regression fixtures. That prevents knowingly merging a defective predecessor;
+there is still one implementation. The two inherited completed live workflows
+are archived byte-for-byte and now run offline maintenance controls.
+The original hosted workflow is separately archived and converted to evidence
+replay. Neither metadata policy nor protected authority has been weakened.
+
+## Source-bound comparator preparation and native framing correction
+
+**ENG-COMPARATOR-SOURCE:** the registered original Open Deep Research adapter has
+no recoverable frozen source binding. It remains BLOCKED_GOVERNANCE. The separate
+[FAR-ODR-PREP-001 observation](odr-preparation-v0.1.md) now demonstrates actual
+pinned upstream graph invocation through existing read tools using scripted
+fixtures, with source drift, policy and restoration regressions. Seven tests pass;
+no live comparison, semantic adjudication or competitor score was manufactured.
+
+**HTTP-FRAMING-01:** substantive review of predecessor #608 exact head
+`562eb24f007601c0e6a0f9ffb48f953ab8c68338`, comment
+[4458991461](https://github.com/n0tf0und0ut/Project-FAR/pull/608#discussion_r4458991461),
+reproduced silent short Content-Length acceptance by the native HTTP decoder.
+The shared helper now validates declared length and bounded native chunk framing,
+retains incomplete decoded prefixes and prevents freezing/verification on the
+short source. Native positive controls detect removal of the guard. The full
+source, reproducer and disposition appear in the
+[predecessor ledger](../uncertain-routing/finding-ledger.md). Original historical
+source framing is not retroactively established by this correction.
+
+Final local verification: 191 focused tests collected, 186 passed and five
+optional actual-graph tests skipped in the ordinary environment; all seven
+preparation tests pass in the isolated pinned graph environment. Original
+campaign replay passes 24/24 transcripts, native conformance passes 7/7, and fast
+repository health reports 124 passed, zero warnings and zero failures. These
+checks establish the stated engineering invariants, not live-model efficacy.

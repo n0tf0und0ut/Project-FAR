@@ -49,6 +49,13 @@ def audit(state) -> dict:
             fail(path, 'nesting exceeds audit bound')
             return
         if type(node) is dict:
+            if 'timing_scope' in node:
+                def check_transport_time():
+                    if node['timing_scope'] != 'request_start_to_body_read_or_transport_failure':
+                        raise ValueError('unknown timing scope')
+                    if timestamp(node['received_at']) < timestamp(node['requested_at']):
+                        raise ValueError('transport completion predates request')
+                guarded(path + '.transport_time', check_transport_time)
             if {'raw_base64', 'sha256', 'observed_bytes'} <= node.keys():
                 guarded(path + '.receipt', lambda: receipt_bytes(node))
                 if node.get('status') == 'RETRIEVED':

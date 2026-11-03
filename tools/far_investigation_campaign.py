@@ -87,33 +87,85 @@ def summarize(rows):
 def audit_directory(directory):
     """Verify declared evidence bytes and replay current-version transcripts."""
     directory = Path(directory)
-    manifest = _parse((directory / 'evidence-manifest.json').read_text())
     errors, audited = [], 0
-    for entry in manifest['files']:
-        relative = Path(entry['path'])
-        if relative.is_absolute() or '..' in relative.parts:
-            errors.append('unsafe evidence path')
-            continue
-        path = directory / relative
-        if not path.is_file() or file_sha(path) != entry['sha256']:
-            errors.append('evidence hash mismatch: ' + str(relative))
-            continue
-        if entry.get('audit_transcripts'):
-            try:
-                with zipfile.ZipFile(path) as archive:
-                    if any(i.file_size > 64_000_000 for i in archive.infolist()):
-                        raise ValueError('archive member exceeds bound')
-                    campaign = _parse(archive.read('campaign.json').decode())
-                    for row in campaign['rows']:
-                        raw = archive.read(row['transcript'])
-                        if hashlib.sha256(raw).hexdigest() != row['transcript_sha256']:
-                            errors.append('campaign transcript hash mismatch: ' + row['transcript'])
-                        state = _parse(raw.decode())
-                        result = audit_transcript(state)
-                        audited += 1
-                        errors.extend(row['transcript'] + ': ' + error for error in result['errors'])
-            except (ValueError, KeyError, OSError, zipfile.BadZipFile) as exc:
-                errors.append(str(relative) + ': ' + type(exc).__name__ + ' ' + str(exc))
+    def same(left, right):
+        return json.dumps(left, sort_keys=True, allow_nan=False) == json.dumps(right, sort_keys=True, allow_nan=False)
+    try:
+        manifest = _parse((directory / 'evidence-manifest.json').read_text())
+        entries = manifest['files']
+        if type(entries) is not list or not entries:
+            raise ValueError('nonempty evidence manifest required')
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        return {'valid': False, 'errors': ['invalid evidence manifest: ' + str(exc)],
+                'audited_transcripts': 0, 'scope': 'Declared byte integrity and native replay only.'}
+    seen_paths = set()
+    for entry in entries:
+        try:
+            relative = Path(entry['path'])
+            if relative.is_absolute() or '..' in relative.parts or str(relative) in seen_paths:
+                raise ValueError('unsafe or duplicate evidence path')
+            seen_paths.add(str(relative))
+            path = directory / relative
+            if not path.is_file() or file_sha(path) != entry['sha256']:
+                raise ValueError('evidence hash mismatch: ' + str(relative))
+            if not entry.get('audit_transcripts'):
+                continue
+            # The registered selection lives outside the mutable campaign ZIP.
+            selection_path = Path(entry['selection_path'])
+            if selection_path.is_absolute() or '..' in selection_path.parts:
+                raise ValueError('unsafe selection path')
+            selection_bytes = (directory / selection_path).read_bytes()
+            selection = _parse(selection_bytes.decode())
+            tasks = selection['tasks']
+            modes = entry['modes']
+            if (not tasks or len({t['id'] for t in tasks}) != len(tasks)
+                    or type(modes) is not list or not modes
+                    or len(set(modes)) != len(modes)
+                    or any(m not in ('agent', 'deterministic', 'declarative') for m in modes)):
+                raise ValueError('invalid registered task/mode exposure')
+            expected = [(t['id'], mode) for t in tasks for mode in modes]
+            with zipfile.ZipFile(path) as archive:
+                members = archive.infolist()
+                if len({i.filename for i in members}) != len(members):
+                    raise ValueError('duplicate archive member')
+                if any(i.file_size > 64_000_000 for i in members):
+                    raise ValueError('archive member exceeds bound')
+                campaign = _parse(archive.read('campaign.json').decode())
+                if (campaign['schema'] != 'far-investigation-campaign/0.1'
+                        or campaign['status'] != 'EXECUTED'
+                        or not same(campaign['selection'], selection)
+                        or campaign['selection_sha256'] != hashlib.sha256(selection_bytes).hexdigest()):
+                    raise ValueError('campaign differs from registered selection or completion status')
+                if (campaign['git_head'] != entry['source_commit']
+                        or campaign['source_hashes'] != entry['source_hashes']):
+                    raise ValueError('campaign source identity differs from retained execution binding')
+                if 'agent' in modes and campaign['model_sha256'] != MODEL_SHA256:
+                    raise ValueError('campaign model differs from registered model')
+                rows = campaign['rows']
+                if [(r['task_id'], r['mode']) for r in rows] != expected:
+                    raise ValueError('campaign exposure missing, duplicated, reordered or unregistered')
+                for row, (task_id, mode) in zip(rows, expected):
+                    name = task_id + '-' + mode + '.json'
+                    if row['transcript'] != name:
+                        raise ValueError('campaign transcript identity mismatch')
+                    raw = archive.read(name)
+                    if hashlib.sha256(raw).hexdigest() != row['transcript_sha256']:
+                        raise ValueError('campaign transcript hash mismatch: ' + name)
+                    state = _parse(raw.decode())
+                    task = next(t for t in tasks if t['id'] == task_id)
+                    if (state['question'] != task['question'] or state['mode'] != mode
+                            or not same(state['policy']['budget'], campaign['budget'])):
+                        raise ValueError('transcript task, mode or budget differs from registered campaign')
+                    result = audit_transcript(state)
+                    audited += 1
+                    errors.extend(name + ': ' + error for error in result['errors'])
+                    if not same(row['metrics'], metrics(state)):
+                        raise ValueError('campaign metrics do not reconstruct: ' + name)
+                if not same(campaign['summary'], summarize(rows)):
+                    raise ValueError('campaign summary does not reconstruct')
+        except (ValueError, KeyError, TypeError, OSError, UnicodeError, zipfile.BadZipFile) as exc:
+            errors.append(str(entry.get('path', '<invalid>') if isinstance(entry, dict) else '<invalid>')
+                          + ': ' + type(exc).__name__ + ' ' + str(exc))
     return {'valid': not errors, 'errors': errors, 'audited_transcripts': audited,
             'scope': 'Declared byte integrity and native replay only; semantic correctness is separate.'}
 

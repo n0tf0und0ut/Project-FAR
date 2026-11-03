@@ -2,10 +2,12 @@
 import base64
 import copy
 import hashlib
+import http.client
 import io
 import json
 import tempfile
 import unittest
+from datetime import datetime, timezone
 import urllib.error
 from pathlib import Path
 from unittest.mock import patch
@@ -26,10 +28,109 @@ class FakeResponse:
     def read(self, n): return self.raw[:n]
 
 
+def native_http_response(body, headers):
+    """The real stdlib decoder over a deterministic socket byte stream."""
+    class MemorySocket:
+        def makefile(self, _mode):
+            return io.BytesIO(b"HTTP/1.1 200 OK\r\n" + headers + b"\r\n" + body)
+    response = http.client.HTTPResponse(MemorySocket())
+    response.begin()
+    return response
+
+
+class NativeFramingTests(unittest.TestCase):
+    def read(self, body, headers, limit=10000):
+        response = native_http_response(body, headers)
+        with patch("urllib.request.OpenerDirector.open", return_value=response):
+            return study.read_bounded_response(
+                study.urllib.request.Request(study.ENDPOINT), timeout=1, max_bytes=limit)
+
+    def test_native_positive_control_short_content_length_is_silent(self):
+        body = FakeResponse().raw
+        response = native_http_response(body, f"Content-Length: {len(body)+100}\r\n".encode())
+        self.assertEqual(response.read(10000), body)  # no IncompleteRead
+        self.assertEqual(response.length, 100)
+        response.close()
+
+    def test_short_native_content_length_cannot_be_accepted_as_model_action(self):
+        body = FakeResponse().raw
+        response = native_http_response(body, f"Content-Length: {len(body)+100}\r\n".encode())
+        with patch("urllib.request.OpenerDirector.open", return_value=response):
+            with self.assertRaises(study.ModelResponseError) as failed:
+                study.request_model("x")
+        envelope = failed.exception.envelope
+        self.assertFalse(envelope["response_complete"])
+        self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
+        self.assertEqual(envelope["framing_error"], "ContentLengthMismatch")
+        self.assertEqual(base64.b64decode(envelope["raw_response_base64"]), body)
+
+    def test_complete_native_content_length_and_chunked_controls(self):
+        for body, headers in (
+                (b"abc", b"Content-Length: 3\r\n"),
+                (b"3\r\nabc\r\n0\r\nX-Trace: valid\r\n\r\n", b"Transfer-Encoding: chunked\r\n")):
+            with self.subTest(headers=headers):
+                raw, envelope = self.read(body, headers)
+                self.assertEqual(raw, b"abc")
+                self.assertTrue(envelope["response_complete"])
+                self.assertEqual(envelope["response_hash_scope"], "complete_body")
+
+    def test_native_positive_control_missing_chunk_trailer_is_silent(self):
+        response = native_http_response(b"3\r\nabc\r\n0\r\n", b"Transfer-Encoding: chunked\r\n")
+        self.assertEqual(response.read(10000), b"abc")
+        response.close()
+
+    def test_invalid_chunk_framing_retains_decoded_prefix_and_fails_closed(self):
+        for wire in (b"5\r\nabc", b"3\r\nabc\r\n0\r\n", b"3\r\nabcXX0\r\n\r\n"):
+            with self.subTest(wire=wire):
+                with self.assertRaises(study.ResponseTransportError) as failed:
+                    self.read(wire, b"Transfer-Encoding: chunked\r\n")
+                envelope = failed.exception.envelope
+                self.assertFalse(envelope["response_complete"])
+                self.assertEqual(base64.b64decode(envelope["raw_response_base64"]), b"abc")
+                self.assertEqual(envelope["framing_error"], "IncompleteChunkFraming")
+                self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
+
+    def test_ambiguous_duplicate_invalid_lengths_and_transfer_codings_rejected(self):
+        for headers in (b"Content-Length: 3\r\nContent-Length: 3\r\n",
+                        b"Content-Length: x\r\n", b"Content-Length: -3\r\n",
+                        b"Content-Length: " + b"9" * 5000 + b"\r\n",
+                        b"Transfer-Encoding: gzip\r\n",
+                        b"Content-Length: 3\r\nTransfer-Encoding: chunked\r\n"):
+            with self.subTest(headers=headers[:80]):
+                wire = b"3\r\nabc\r\n0\r\n\r\n" if b"chunked" in headers else b"abc"
+                with self.assertRaises(study.ResponseTransportError) as failed:
+                    self.read(wire, headers)
+                self.assertFalse(failed.exception.envelope["response_complete"])
+
+
 class UncertainRoutingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.p, cls.digest = study.load()
+
+    def test_transport_completion_timestamp_is_recorded_after_read(self):
+        start=datetime(2026,11,3,1,0,0,tzinfo=timezone.utc)
+        end=datetime(2026,11,3,1,0,9,tzinfo=timezone.utc)
+        response=FakeResponse()
+        with patch.object(study,"datetime") as clock, patch("urllib.request.build_opener") as opener:
+            clock.now.side_effect=[start,end]
+            opener.return_value.open.return_value=response
+            raw,envelope=study.read_bounded_response(study.urllib.request.Request("http://127.0.0.1/model"),timeout=10,max_bytes=10000)
+        self.assertEqual(raw,response.raw)
+        self.assertEqual(envelope["requested_at"],"2026-11-03T01:00:00Z")
+        self.assertEqual(envelope["received_at"],"2026-11-03T01:00:09Z")
+
+    def test_transport_timeout_retains_distinct_completion_timestamp(self):
+        start=datetime(2026,11,3,1,0,0,tzinfo=timezone.utc)
+        end=datetime(2026,11,3,1,1,0,tzinfo=timezone.utc)
+        with patch.object(study,"datetime") as clock, patch("urllib.request.build_opener") as opener:
+            clock.now.side_effect=[start,end]
+            opener.return_value.open.side_effect=TimeoutError("test")
+            with self.assertRaises(study.ResponseTransportError) as raised:
+                study.read_bounded_response(study.urllib.request.Request("http://127.0.0.1/model"),timeout=60,max_bytes=10000)
+        self.assertEqual(raised.exception.envelope["requested_at"],"2026-11-03T01:00:00Z")
+        self.assertEqual(raised.exception.envelope["received_at"],"2026-11-03T01:01:00Z")
+        self.assertEqual(raised.exception.envelope["transport_error"],"TimeoutError")
 
     def test_frozen_cases_have_nontrivial_admissible_action_sets(self):
         self.assertEqual(self.p["case_count"], 12)

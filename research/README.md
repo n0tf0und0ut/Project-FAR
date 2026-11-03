@@ -17,10 +17,11 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 - `axiomatization/` — exploratory axiomatization work.
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.
-- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — non-executed, exploratory 30-candidate paired trial of agent workflow instruction efficacy; no measured performance claim.
-- [`uncertain-routing/README.md`](uncertain-routing/README.md) — research-only explicit-contract dispatch gate and separately scored under-specified agent-choice pilot; no general architecture promotion.
-- [`investigation-engine/README.md`](investigation-engine/README.md) — Research agent-selected retrieval and verification tools, frozen cross-domain evaluation and auditable failure histories; general reliability and advantage unestablished.
+- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.
+- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.
 - [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.
+- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.
+- [`investigation-engine/README.md`](investigation-engine/README.md) — Research agent-directed retrieval and verification, frozen cross-domain evaluation and auditable failures; general reliability and advantage unestablished.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.

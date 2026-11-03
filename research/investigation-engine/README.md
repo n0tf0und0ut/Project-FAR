@@ -112,17 +112,24 @@ they are never inferred from schema success. `http_calls` counts reserved tool
 attempts, including policy/transport rejection, rather than successful responses.
 Billing, energy and amortized hardware cost remain unmeasured.
 
-Existing-system comparison uses a pinned, unmodified Open Deep Research graph
-with a declared local-model and bounded-tool adapter. It is an adapted system
-comparison, not a claim about default hosted-product performance. Common
-substantive task fulfillment is scored separately; a competitor is not failed
-merely for lacking FAR's internal artifact format. Its raw graph returns,
-retrievals, timeouts and discarded evidence must all remain visible.
+The registered Open Deep Research comparison was not completed: its original
+uncommitted adapter was lost at the workspace interruption, with no recoverable
+exact-source binding or competitor observations. Reconstructing it requires a
+separately registered successor; the absent original condition cannot be
+recovered by rerunning new source. A competitor is not failed for missing
+observations or for lacking FAR artifact formats. Common substantive task
+fulfillment and raw graph returns must be assessed separately in any successor.
+
+The separately identified [source-bound preparation](odr-preparation-v0.1.md)
+now exercises the actual pinned Open Deep Research graph with scripted model
+fixtures and existing FAR read tools. Seven conformance tests pass; there are no
+live comparator calls or effectiveness scores. The lost original condition is
+still blocked by its missing frozen source identity.
 
 Run the same targeted CI checks locally:
 
 ```bash
-python -m unittest tests.test_far_investigation_retrieval tests.test_far_investigation_verifiers tests.test_far_investigation_engine tests.test_far_investigation_audit tests.test_far_investigation_campaign tests.test_far_autonomous_investigation tests.test_far_uncertain_routing_pilot tests.test_far_routing_dispatch tests.test_far_intake_v1 -v
+python -m unittest tests.test_far_investigation_retrieval tests.test_far_investigation_verifiers tests.test_far_investigation_engine tests.test_far_investigation_audit tests.test_far_investigation_campaign tests.test_far_investigation_odr_preparation tests.test_far_autonomous_investigation tests.test_far_uncertain_routing_pilot tests.test_far_routing_dispatch tests.test_far_intake_v1 -v
 python tools/far_investigation_campaign.py audit research/investigation-engine
 ```
 
@@ -131,3 +138,8 @@ Statistical interval calculations were also checked independently against
 Statsmodels on 441 count combinations (maximum endpoint difference `2.22e-16`);
 Statsmodels is not a runtime dependency. The [finding ledger](finding-ledger.md)
 records reproduced defects and corrections to PR #608 and its successor.
+
+The [retained hosted recovery observation](hosted-recovery-observation-v0.1.md)
+records agent **0/8**, deterministic **7/8**, and declarative **7/8** bounded
+pipeline completions. All 24 original transcripts replay; semantic effectiveness
+and the existing-system comparison remain unestablished.
