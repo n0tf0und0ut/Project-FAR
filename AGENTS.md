@@ -6,6 +6,10 @@ All automated and assisted work shall comply with:
 
 `docs/governance/research-execution-charter.md`
 
+## Workflow orchestration
+
+For multi-step or architectural work, apply [the agent workflow orchestration guide](docs/maintenance/agent-workflow-orchestration.md) alongside these instructions. Its plan, focused subagent, task-tracking, root-cause correction, and verification practices are operational aids only. FAR authority, available tools, and protected PR/merge controls remain binding. Do not invent plan-mode or subagent capabilities or automatically request approval when authorization already exists.
+
 ## Authority and routing
 
 Before substantive work:

@@ -1,0 +1,14 @@
+{
+  "n": 1152,
+  "original_correct": 122,
+  "edited_correct": 696,
+  "rescues": 579,
+  "regressions": 5,
+  "rescues_from_truncated": 576,
+  "original_cut": 1038,
+  "edited_cut": 212,
+  "independent_of_original_grades": false,
+  "note": "Recalculated author-produced final_confirmation.csv, not regraded raw answers; source raw practice dumps omitted from release",
+  "gain": 0.4982638888888889,
+  "paired_SE": 0.014991383029525228
+}

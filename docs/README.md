@@ -16,6 +16,8 @@ Project-level documentation lives here. This directory provides orientation, gov
 
 ## Core documentation
 
+- [`maintenance/agent-workflow-orchestration.md`](maintenance/agent-workflow-orchestration.md) — operational planning, subagent use, correction learning, task tracking, and verification guidance for repository assistants; not FAR authority.
+
 - `ARCHITECTURE.md` — repository architecture and structural decisions.
 - [`architecture/far-subagent-execution.md`](architecture/far-subagent-execution.md) — provisional provider-neutral subagent execution architecture; no claim-promotion authority.
 - `ROADMAP.md` — gated future work.
