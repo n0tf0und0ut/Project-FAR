@@ -10,8 +10,6 @@ import base64
 import hashlib
 import io
 import json
-import http.server
-import threading
 import unittest
 import urllib.error
 from collections import Counter
@@ -266,36 +264,17 @@ class RealInvestigationTests(unittest.TestCase):
         self.assertEqual(env["response_hash_scope"], "retained_prefix")
 
     def test_live_model_redirect_is_rejected_and_checkpointed(self):
-        forbidden = []
-        class Redirect(http.server.BaseHTTPRequestHandler):
-            def do_POST(self):
-                self.send_response(302)
-                self.send_header("Location", "/forbidden")
-                self.end_headers()
-                self.wfile.write(b"redirect body")
-            def do_GET(self):
-                forbidden.append(self.path)
-                self.send_response(200)
-                self.end_headers()
-            def log_message(self, *_): pass
-        server = http.server.HTTPServer(("127.0.0.1", 0), Redirect)
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
+        from tests.redirect_transport_fixture import RedirectTransport
+        transport = RedirectTransport(b"redirect body")
         observed = []
-        try:
-            endpoint = f"http://127.0.0.1:{server.server_port}/v1/chat/completions"
-            with patch.object(inv, "MODEL_ENDPOINT", endpoint):
-                with self.assertRaises(inv.ModelActionResponseError):
-                    inv.execute("model", model=inv.request_model_action, checkpoint=observed.append)
-            env = observed[-1]["failed_model_call"]["raw_envelope"]
-            self.assertEqual(env["http_status"], 302)
-            self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect body")
-            self.assertEqual(forbidden, [])
-            self.assertIn("request_sha256", env)
-        finally:
-            server.shutdown()
-            server.server_close()
-            thread.join(timeout=2)
+        with patch("urllib.request.build_opener", side_effect=transport.build_opener):
+            with self.assertRaises(inv.ModelActionResponseError):
+                inv.execute("model", model=inv.request_model_action, checkpoint=observed.append)
+        env = observed[-1]["failed_model_call"]["raw_envelope"]
+        self.assertEqual(env["http_status"], 302)
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect body")
+        self.assertEqual(transport.forbidden, [])
+        self.assertEqual(len(transport.requests), 1)
 
     def test_rejected_or_failed_verifier_attempt_retains_input_output_and_count(self):
         for result in (

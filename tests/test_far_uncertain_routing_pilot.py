@@ -4,9 +4,7 @@ import copy
 import hashlib
 import io
 import json
-import http.server
 import tempfile
-import threading
 import unittest
 import urllib.error
 from pathlib import Path
@@ -226,34 +224,25 @@ class UncertainRoutingTests(unittest.TestCase):
         self.assertEqual(env["response_hash_scope"], "retained_prefix")
 
     def test_model_http_redirect_is_preserved_without_destination_request(self):
-        forbidden = []
-        class Redirect(http.server.BaseHTTPRequestHandler):
-            def do_POST(self):
-                self.send_response(302)
-                self.send_header("Location", "/forbidden")
-                self.end_headers()
-                self.wfile.write(b"redirect observation")
-            def do_GET(self):
-                forbidden.append(self.path)
-                self.send_response(200)
-                self.end_headers()
-            def log_message(self, *_): pass
-        server = http.server.HTTPServer(("127.0.0.1", 0), Redirect)
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
-        endpoint = f"http://127.0.0.1:{server.server_port}/v1/chat/completions"
-        try:
-            with patch.object(study, "ENDPOINT", endpoint):
-                with self.assertRaises(study.ModelResponseError) as failure:
-                    study.request_model("x", endpoint=endpoint)
-            env = failure.exception.envelope
-            self.assertEqual(env["http_status"], 302)
-            self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect observation")
-            self.assertEqual(forbidden, [])
-        finally:
-            server.shutdown()
-            server.server_close()
-            thread.join(timeout=2)
+        from tests.redirect_transport_fixture import RedirectTransport
+        transport = RedirectTransport(b"redirect observation")
+        with patch("urllib.request.build_opener", side_effect=transport.build_opener):
+            with self.assertRaises(study.ModelResponseError) as failure:
+                study.request_model("x")
+        env = failure.exception.envelope
+        self.assertEqual(env["http_status"], 302)
+        self.assertEqual(base64.b64decode(env["raw_response_base64"]), b"redirect observation")
+        self.assertEqual(transport.forbidden, [])
+        self.assertEqual(len(transport.requests), 1)
+
+    def test_redirect_transport_detects_an_unguarded_native_client(self):
+        from tests.redirect_transport_fixture import RedirectTransport
+        transport = RedirectTransport(b"redirect observation")
+        request = study.urllib.request.Request(study.ENDPOINT, b"{}", method="POST")
+        with transport.build_opener().open(request) as response:
+            self.assertEqual(response.status, 200)
+        self.assertEqual(len(transport.forbidden), 1)
+        self.assertEqual(len(transport.requests), 2)
 
 
 if __name__ == "__main__":
