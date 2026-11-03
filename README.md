@@ -5,8 +5,6 @@
 
 Project FAR is a framework for representing, analyzing, and comparing structured, explicit, auditable reasoning under declared contracts.
 
-**AI repository entry point:** For ChatGPT Chat, Work, and Codex tasks involving this repository, read the current root [`AGENTS.md`](AGENTS.md) before substantive work. Codex can discover it automatically; Chat and Work require a [Project-level bootstrap instruction](docs/maintenance/agent-workflow-orchestration.md#chatgpt-chat-and-work-bootstrap) to request retrieval on each FAR task.
-
 ## Latest release: v1.0.0
 
 The latest published GitHub repository release is [v1.0.0](https://github.com/notfoundout/Project-FAR/releases/tag/v1.0.0). The executable package metadata currently declares a separate installable version. These are separate version surfaces: the GitHub release records the published repository release, while package metadata governs the installable software version.
