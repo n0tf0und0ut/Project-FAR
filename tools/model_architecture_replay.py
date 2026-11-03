@@ -10,11 +10,11 @@ import argparse
 import json
 from pathlib import Path
 
-import torch
 import model_architecture_replication as replication
 
 
 def verify_with_recorded_threads(report, journal):
+    import torch
     threads = report.get("environment", {}).get("threads")
     if type(threads) is not int or threads != 1:
         raise ValueError("v0.2 recorded environment must bind CPU thread count to 1")
