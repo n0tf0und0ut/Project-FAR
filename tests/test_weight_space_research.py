@@ -118,6 +118,21 @@ class EvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "contradiction"):
             analyze(self.manifest, self.root)
 
+    def test_duplicate_grade_key_fails_closed(self):
+        obs = self.manifest["observations"][0]
+        path = self.root / obs["grade_path"]
+        raw = path.read_bytes().replace(b'"correct": false',
+                                       b'"correct": true, "correct": false')
+        path.write_bytes(raw)
+        obs["grade_sha256"] = sha(raw)
+        with self.assertRaisesRegex(EvidenceError, "duplicate JSON key"):
+            analyze(self.manifest, self.root)
+
+    def test_boolean_seed_cannot_alias_registered_integer(self):
+        self.manifest["observations"][0]["seed"] = False
+        with self.assertRaisesRegex(EvidenceError, "types"):
+            analyze(self.manifest, self.root)
+
     def test_nonfinite_grade_is_rejected(self):
         obs = self.manifest["observations"][0]
         path = self.root / obs["grade_path"]
@@ -169,6 +184,18 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(result["changed_parameters"], 1)
         self.assertNotEqual(result["base_sha256"], result["edited_sha256"])
         self.assertAlmostEqual(result["changed_fraction"], 1 / 12)
+
+    def test_scalar_tensor_is_a_valid_bounded_checkpoint_coordinate(self):
+        import torch
+        from safetensors.torch import save_file
+        save_file({"scalar": torch.tensor(1.0), "guard": torch.ones(9)},
+                  str(self.base / "weights.safetensors"))
+        save_file({"scalar": torch.tensor(2.0), "guard": torch.ones(9)},
+                  str(self.edit / "weights.safetensors"))
+        result = audit_safetensors(self.base, self.edit, {"scalar"}, .2)
+        self.assertEqual(result["total_parameters"], 10)
+        self.assertEqual(result["changed_parameters"], 1)
+        self.assertEqual(result["touched_tensors"], ["scalar"])
 
     def test_budget_failure(self):
         with self.assertRaisesRegex(EvidenceError, "budget"):

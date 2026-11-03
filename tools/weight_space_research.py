@@ -29,9 +29,18 @@ def _reject_constant(value: str) -> None:
     raise EvidenceError(f"non-finite JSON number: {value}")
 
 
+def _unique_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise EvidenceError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
 def _read_json(raw: bytes) -> dict:
     try:
-        result = json.loads(raw, parse_constant=_reject_constant)
+        result = json.loads(raw, parse_constant=_reject_constant, object_pairs_hook=_unique_pairs)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise EvidenceError(f"invalid JSON: {exc}") from exc
     if type(result) is not dict:
@@ -65,7 +74,9 @@ def analyze(manifest: dict, evidence_root: Path) -> dict:
     if manifest.get("schema") != SCHEMA or manifest.get("status") != "Research":
         raise EvidenceError("invalid Research schema/status")
     model = manifest.get("checkpoint")
-    if not isinstance(model, dict) or not all(_hex64(model.get(k)) for k in ("base_sha256", "sham_sha256", "edited_sha256")):
+    if (not isinstance(model, dict) or
+            set(model) != {"base_sha256", "sham_sha256", "edited_sha256"} or
+            not all(_hex64(model.get(k)) for k in model)):
         raise EvidenceError("checkpoint identities required")
     if len(set(model.values())) != 3:
         raise EvidenceError("edited checkpoint must have distinct digest")
@@ -95,6 +106,10 @@ def analyze(manifest: dict, evidence_root: Path) -> dict:
     for obs in observations:
         if not isinstance(obs, dict):
             raise EvidenceError("malformed observation")
+        if (type(obs.get("seed")) is not int or
+                not isinstance(obs.get("case_id"), str) or
+                not isinstance(obs.get("arm"), str)):
+            raise EvidenceError("invalid observation case/seed/arm types")
         key = (obs.get("case_id"), obs.get("seed"), obs.get("arm"))
         if key not in expected or key in grades:
             raise EvidenceError("extra, substituted or duplicate observation")
@@ -235,7 +250,7 @@ def audit_safetensors(base_dir: Path, edited_dir: Path, allowed_tensors: set[str
                 # 1D tensors, loading the vector is unavoidable but bounded by
                 # the size of that vector rather than the full checkpoint.
                 if len(shape) == 0:
-                    chunks = [(a[:], b[:])]
+                    chunks = [(original.get_tensor(key), candidate.get_tensor(key))]
                 elif len(shape) == 1:
                     chunks = [(a[:], b[:])]
                 else:

@@ -1,6 +1,6 @@
 # Weight-space intervention research (FAR-WSP-001)
 
-**Status: Research — infrastructure only; 0 model-backed FAR-WSP observations.** This is a bounded extension of the empirical research program. It does not change FAR Core, the production reasoning pipeline, accepted mechanisms, or the existing tool-agent-reliability study. The completed 60-run scripted-repair result in PR #605 and the separate ongoing tool-agent study in PR #610 remain distinct evidence sources.
+**Status: Research — infrastructure only; 0 model-backed FAR-WSP observations.** This is a bounded extension of the empirical research program. It does not change FAR Core, the production reasoning pipeline, accepted mechanisms, or the existing tool-agent-reliability study. The completed 60-run scripted-repair result in PR #605 and the completed bounded tool-agent study in merged PR #610 remain distinct evidence sources.
 
 ## Question and necessity
 
@@ -31,3 +31,37 @@ Checkpoint auditing requires optional `torch` and `safetensors`. Evidence analys
 The experiment is **NOT RUN**. Before touching model weights, freeze the identities of a legitimately accessible open-weight model, original checkpoint, candidate algorithm, controlled frozen task selection, independently withheld task oracles, seed/decoding/token settings, baseline fixes, safety controls, negative-control cohorts, model host, grading code and acceptance thresholds. Select the mechanism only after examining baseline traces, and do not tune on the held-out scored tasks. Changes after exposure require a successor protocol; preserve original observations. No favorable reruns or model substitutions count as part of the frozen sample. See [protocol-v0.1](protocol-v0.1.md).
 
 The internal result screen cannot independently establish causality, general reasoning reliability, safety or customer value. Advancement requires a blinded held-out test, counterfactual intervention/ablation, independent exact-source replay, at least one independent model/failure-family replication, and strong evidence that a simpler solution is not better. A negative result or failure to run is an accepted Research outcome.
+
+## Current-main convergence (2026-11-03)
+
+This five-arm evidence-auditor design is distinct from the completed eight-arm
+pilot in [merged PR #613](https://github.com/n0tf0und0ut/Project-FAR/pull/613).
+Protected main `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61` already contains
+`research/weight-space/`, its actual 432-generation negative result, declarative
+array-edit controls and frozen-source replay. That implementation is the existing
+execution lane; this PR does not create a second inference runner or claim to
+have completed its unregistered five-arm design. The completed pilot found no
+advantage over prompting and no eligible production intervention. Its evidence
+is neither imported as five-arm observations nor rerun here.
+
+The remaining additive capabilities here are whole-safetensors checkpoint
+inventory/allowlist auditing and a strict supplied-evidence five-arm descriptor.
+No duplicate memory, agent architecture or production path is introduced.
+Future execution must reconcile its question with the existing pilot and satisfy
+prospective registration before collecting any scored evidence.
+
+Convergence root cause `WSP-EVID-001`: the grade JSON parser silently accepted
+repeated conflicting keys (`"correct": true, "correct": false`), and Python's
+boolean/integer key equivalence allowed observation seed `false` to alias 0.
+Both were reproduced against the original branch and now fail closed through
+unique-key parsing and exact integer observation typing. Checkpoint digest keys
+are closed to the three declared identities. Regression controls are in
+`tests/test_weight_space_research.py`. All such records remain synthetic
+engineering tests. This adds zero experimental observations.
+
+`WSP-TENSOR-001`: an actual safetensors checkpoint containing a scalar tensor
+raised `IndexError` because a zero-dimensional slice cannot be indexed with
+`[:]`. Scalar values now use the safetensors scalar accessor; larger tensors
+retain bounded row slicing. The regression serializes real safetensors files
+and verifies exactly one change among ten parameters. This is a software test,
+not a model-backed behavioral intervention.

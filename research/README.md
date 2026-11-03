@@ -17,7 +17,9 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 - `axiomatization/` — exploratory axiomatization work.
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.
-- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — non-executed, exploratory 30-candidate paired trial of agent workflow instruction efficacy; no measured performance claim.
+- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.
+- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.
+- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.
