@@ -31,3 +31,7 @@ smoke completes all 24 fixed checks. Unit mocks are not additional model trials.
 The six source threads still require hosted disposition and final exact-head
 substantive review. Required CI and protected repin authority are separate; this
 ledger does not itself establish merge readiness or semantic correctness.
+
+## Prospective research-index compatibility
+
+`ROUTING-INTEGRATION-001`: a read-only `git merge-tree --write-tree` simulation of head `ed1dce1464f2f8445bac6bcdd31ebc041f95d4fd` with the pending explicit-dispatch/investigation branches found an adjacent insertion conflict in `research/README.md`. No runtime or frozen research contract conflicted. The architecture link is relocated to the first major-area entry, preserving its exact wording and source target, so the independent navigation additions apply cleanly. This is a documentation-only integration correction; it generates no new experiment or model observation. The final candidate must retain hosted checks and renewed exact-head review. No PR or protected branch is merged by the simulation.
