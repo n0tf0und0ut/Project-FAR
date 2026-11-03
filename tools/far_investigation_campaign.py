@@ -27,11 +27,13 @@ from tools.far_investigation_engine import (
     Budget, Investigation, LocalModel, RetrievalPolicy, audit_transcript, now, persist,
 )
 from tools.far_routing_dispatch import _parse
+from tools.far_investigation_usage import model_usage_report
 
 MODEL_SHA256 = '9c9f56a391a3abbd5b89d0245bf6106081bcc3173119d4229235dd9d23253f94'
 RUNNER_SHA256 = 'ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0'
 IMPLEMENTATION = ('tools/far_investigation_engine.py', 'tools/far_investigation_retrieval.py',
                   'tools/far_investigation_audit.py',
+                  'tools/far_investigation_usage.py',
                   'tools/far_investigation_verifiers.py', 'tools/far_investigation_campaign.py',
                   'tools/far_autonomous_investigation.py', 'tools/far_uncertain_routing_pilot.py',
                   'tools/far_routing_dispatch.py')
@@ -157,7 +159,7 @@ def summarize(rows):
 def audit_directory(directory):
     """Verify declared evidence bytes and replay current-version transcripts."""
     directory = Path(directory)
-    errors, audited = [], 0
+    errors, audited, usage_audits = [], 0, []
     def same(left, right):
         return json.dumps(left, sort_keys=True, allow_nan=False) == json.dumps(right, sort_keys=True, allow_nan=False)
     try:
@@ -227,6 +229,8 @@ def audit_directory(directory):
                             or not same(state['policy']['budget'], campaign['budget'])):
                         raise ValueError('transcript task, mode or budget differs from registered campaign')
                     result = audit_transcript(state)
+                    usage_audits.append({'archive': str(relative), 'transcript': name,
+                                         **model_usage_report(state)})
                     audited += 1
                     errors.extend(name + ': ' + error for error in result['errors'])
                     if not same(row['metrics'], metrics(state)):
@@ -237,6 +241,14 @@ def audit_directory(directory):
             errors.append(str(entry.get('path', '<invalid>') if isinstance(entry, dict) else '<invalid>')
                           + ': ' + type(exc).__name__ + ' ' + str(exc))
     return {'valid': not errors, 'errors': errors, 'audited_transcripts': audited,
+            'raw_usage_audit': {
+                'schema': 'far-investigation-campaign-raw-usage-audit/1',
+                'recorded_model_tokens': sum(r['recorded_model_tokens'] for r in usage_audits),
+                'validated_response_tokens_lower_bound': sum(r['validated_response_tokens_lower_bound'] for r in usage_audits),
+                'attempts_with_usage': sum(r['attempts_with_usage'] for r in usage_audits),
+                'attempts_without_usage': sum(r['attempts_without_usage'] for r in usage_audits),
+                'transcripts': usage_audits,
+                'scope': 'Original campaign counters remain byte-checked legacy observations. This separate retained-response telemetry lower bound includes rejected actions; unobserved or timed-out work remains unknown. It is not total consumption, billing, or external authentication.'},
             'scope': 'Declared byte integrity and native replay only; semantic correctness is separate.'}
 
 

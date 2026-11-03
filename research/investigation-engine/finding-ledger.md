@@ -201,3 +201,96 @@ serialization. Final verification passes **220/220 focused tests**, zero skips,
 with the pinned preparation environment; all **24 original transcripts** replay.
 The current fast health checks excluding the separately exercised test suite
 report **124 passed, zero warnings and zero failures**.
+
+## Ordered producer and failed-usage correction after hosted follow-up
+
+The five hosted findings below belong to review **5760546824**, whose review
+receipt names actual reviewed commit
+`2fbf5ddb05903ed18b1a670903f2cb49ed1db396`. The coordinator verified its REST
+`commit_id` and each comment's `original_commit_id` against that source; the
+receipt independently states `2fbf5ddb05`. GitHub remapped the current comment
+positions to `f270539e6b27198623f7a97fa113db6a3787db4c`, while the machine summary
+named that newer head. Those are distinct provenance facts. Every reported
+counterexample was reproduced on current published **f270539e6b27198623f7a97fa113db6a3787db4c**,
+tree `248639e354ff0422e3cf5651ffd8f3282c0d52bb`; no finding was dismissed because
+the service's reviewed-head labels disagreed.
+
+The common architectural failure was incomplete producer reconstruction: several
+outputs had only copy-to-copy or one-way bindings, and accepted tool results were
+incorrectly treated as the only possible retained effects. The correction reuses
+the runtime's pure discovery, bounded-inspection, native-search and report
+builders plus the existing canonical intake compiler. It adds ordered discovery,
+terminal-recheck and freeze lineage and complete retained-output coverage; it
+does not introduce another execution engine or an independent semantic oracle.
+
+| Root cause and hosted source | Reproducer and correction | Defect-detecting verification |
+| --- | --- | --- |
+| **ENG-DISCOVERY-PROPOSAL** — [4461345589](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461345589), `PRRT_kwDOTH_vCM6zXVJ-`, actual reviewed `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, original audit lines 387–390 | Change both discover proposals and retained fixture response to request `2 + 2 == 2`, retaining the `2 + 2 == 4` snapshot/family. Audit previously accepted the substituted contract. Rebuild the complete discovery from actual arguments and then-available sources, evidence, comparisons and searches. Bind terminal recheck and canonical freezing to that reconstructed draft, including assumptions and missing evidence. | `test_discovery_request_cannot_silently_select_a_different_native_contract` failed before correction and now rejects. Early discovery/freeze failures followed by corrected retries remain valid. Provenance rows are reconstructed by unique JSON path while preserving original path-list enumeration across canonical object-key sorting; the 12-evidence serialization control and 24 frozen transcripts pass. |
+| **ENG-TERMINAL-TRANSPORT-BINDING**, extension of the source producer family — [4461345595](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461345595), `PRRT_kwDOTH_vCM6zXVKD`, actual reviewed `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, original audit lines 211–216 | Replace terminal HTTP observations with valid receipts for changed text, retaining successful unchanged recheck records. Audit previously accepted contradictory transport evidence. Each source record now consumes its exact request-bound observation in the producing recheck attempt. Source/search order, complete stability passes, search requests/results/receipts and native metadata projection are bound likewise; final inventories require producers. A failed recheck clears an earlier pass even if parsing fails before a new source record exists. | `test_source_recheck_must_consume_its_exact_http_observation` failed before correction. Native-search coordinated title substitution, changed recheck observation, orphan result and altered request query all reject. Unchanged native/injected adapter controls and retained source/search failure cases pass. |
+| **ENG-FINISH-REPORT-PROPOSAL** — [4461345606](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461345606), `PRRT_kwDOTH_vCM6zXVKJ`, actual reviewed `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, original audit lines 367–368 | Change both report copies' analyst notes, next evidence or scope to a universal/independent-verification claim. These escaped copy equality. Reconstruct the whole report from finish arguments, proposal-derived missing evidence, canonical aggregation, retained native records and every fixed assurance/nonclaim string. Require an accepted finish producer for a retained report. | `test_finish_entire_report_is_derived_from_the_actual_proposal` reproduced six escaping field mutations. All reject; legitimate changed notes/next-evidence arguments pass. An otherwise coherent report attached to a failed execution without finish is rejected. |
+| **ENG-FAILED-MODEL-USAGE** — [4461345609](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461345609), `PRRT_kwDOTH_vCM6zXVKK`, actual reviewed `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, original engine lines 615–616 | On published f270, controlled complete 1,234-token responses recorded 1,234 tokens for one call but zero for two rejected calls. Credit validated response telemetry once per model attempt at observation time, independently of action acceptance. Reject changed/disappearing validated telemetry and bind final envelopes to their ordered attempts. Audit the new explicit accounting rule separately from legacy accepted-proposal counters. | The exact one/two-call runtime control now records 1,234 in both cases without counting duplicate checkpoints. Zeroed new counters reject. Six raw-usage controls cover invalid telemetry, framing failures, repeated copies and the original archive. Its untouched stored counter remains **141,481**; the separate [raw usage correction](raw-usage-correction-v1.json) reports **142,571 known retained-response tokens**, 29 known attempts and seven unknown timeout attempts. H205 alone contributes the omitted 1,090 (1,005 prompt + 85 completion). Neither value is verified total consumption or billed cost. Legacy integrity validity checks its historical emitted counter, not resource completeness; the audit explicitly exposes both scopes. |
+| **ENG-REJECTED-NATIVE-EFFECTS** — [4461345619](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461345619), `PRRT_kwDOTH_vCM6zXVKN`, actual reviewed `2fbf5ddb05903ed18b1a670903f2cb49ed1db396`, original engine lines 445–446 | Advance the controlled clock to 0.3 seconds immediately after verify dispatch under a 0.2-second budget. Runtime correctly fails, retains one native evaluation, and previously fails audit because no accepted result exists. Bind each retained evaluation's complete record to its exact native request interval and recomputed result, whether the post-dispatch outcome was accepted or rejected. Count retained rejected diagnostics separately from successful outcomes. | `test_postdispatch_native_budget_failure_retains_evaluation_without_success` failed before correction and now passes with status `FAILED_OR_INCOMPLETE`, no accepted verify outcome and one retained diagnostic. The same post-dispatch control exposed freeze's accepted-only producer assumption; discover/recheck/freeze/search/FAR-dispatch retention now all audit without completion promotion. The existing transient native failure followed by a successful retry still passes. |
+
+Before correction, the first four new audit methods produced **nine assertion
+failures**; the independent baseline execution separately demonstrated the
+1,234-versus-zero usage defect. Inspection of the remaining deterministic views
+also reproduced a coordinated Boolean inspect-offset mutation accepted despite
+the runtime's exact-integer guard. Runtime and audit now share that guarded
+builder; `test_inspection_reconstruction_preserves_runtime_scalar_guards` rejects
+the original mutation. Corrected early retries, failed recheck clearing and
+canonical serialization supply positive controls against over-rejection.
+
+Local source-construction commit:
+`7d2580d387d0d32b11ed24b8113e1c22e5120de3`. This is an unpublished construction
+identity; published corrective head/tree and final review belong in the linked
+PR. The stabilized whole-PR focused suite passes **238/238**, zero skips, including
+the pinned actual-graph preparation tests. The complete original archive replays
+**24/24**; its ZIP remains SHA-256
+`ac45229fda1e7a38fe23b5127cfd361fc938601bc5b6db94bd5d9a95268473e9`.
+No frozen protocol, selection, transcript, campaign row/summary, scientific source
+identity or negative result is rewritten. Agent 0/8 and both controls 7/8 remain
+the original result; no new model-scored run was performed.
+
+### Final producer-family stabilization
+
+Internal read-only inspection of local construction `7d2580d3` exposed additional
+instances of the same ordered-producer invariant before publication. Each was
+executed and regression-tested rather than treated as a speculative concern:
+
+- A failed search with an identical observation followed by an accepted retry
+  borrowed the later retained row. Controlled first-attempt interruptions of
+  extraction, discovery and FAR dispatch showed the same mechanism. Reserve
+  accepted producing indices before matching rejected diagnostics across all
+  these inventories; earlier failures cannot consume later accepted outputs.
+- Moving finish before native verification, while consistently reordering model
+  envelopes and retained timestamps, still borrowed final evaluations. Finish
+  now receives only earlier produced evaluations and the shared report builder's
+  complete frozen-family prerequisites. The original coordinated mutation rejects.
+- An orphan projection was accepted. Require each present projection's exact
+  source producer and deterministic value, and require projections for accepted
+  retrievals. Preserve legitimate absence when a one-time persistence failure
+  interrupts the explicit raw-source checkpoint before parsing. Inferring that
+  every parseable retained receipt had already produced a projection was itself
+  reproduced as a false rejection and corrected.
+- A second recheck clears an earlier stability pass before its first HTTP budget
+  check. A controlled budget expiry at its proposal checkpoint produced no new
+  HTTP request, but legitimately retained an empty pass. Reconstruct the reset
+  at eligible dispatch, without resetting on frozen/invalid proposals.
+- A one-time `DISCOVERY_INVALIDATED` checkpoint failure left an obsolete draft
+  usable after new evidence had already been retained; the runtime could finish
+  with that stale draft. Clear intake and stability state before journaling the
+  invalidation. The failed execution now remains incomplete; an explicit new
+  discovery followed by recheck/freeze/evaluation completes and audits correctly.
+
+The seven additional regression methods retain these exact hostile/positive
+controls, including both corrected and uncorrected invalidation paths. The
+successor local source-construction identity is
+`2364c3e7f4dcb6cc757f485b67b805f420674208`, tree
+`5a9653b7c36e71d5d5e982971a22332b95e7b036`. These remain local construction
+identities, not presumed GitHub publication commits. Its whole-PR suite passes
+**245/245**, zero skips; native conformance passes **7/7** and the original archive
+remains **24/24**. A separate internal worker re-executed all eight reported
+producer edge controls on the corrected bytes and confirmed the intended
+accept/reject outcomes. This is shared-host engineering review, not external
+scientific independence; final published-head review and protected gates remain
+separate obligations.

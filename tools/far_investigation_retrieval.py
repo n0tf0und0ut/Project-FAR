@@ -359,6 +359,13 @@ def public_search(query: str, provider: str, policy: RetrievalPolicy, *, checkpo
     API contracts: https://www.crossref.org/documentation/retrieve-metadata/rest-api/
     and https://www.mediawiki.org/wiki/API:Search .
     """
+    url = public_search_url(query, provider)
+    receipt = retrieve(url, policy, checkpoint=checkpoint)
+    return project_public_search(query, provider, receipt)
+
+
+def public_search_url(query, provider):
+    """Canonical request locator for the supported no-key adapters."""
     if not isinstance(query, str) or not query.strip() or len(query) > 4000:
         raise ToolError("invalid search query", {"status": "REJECTED", "query": query})
     if provider == "crossref":
@@ -370,7 +377,11 @@ def public_search(query: str, provider: str, policy: RetrievalPolicy, *, checkpo
         })
     else:
         raise ToolError("unknown public search provider", {"status": "UNAVAILABLE", "query": query, "provider": provider})
-    receipt = retrieve(url, policy, checkpoint=checkpoint)
+    return url
+
+
+def project_public_search(query, provider, receipt):
+    """Pure projection of retained native search metadata; no network call."""
     try:
         document = parse_receipt(receipt)["document"]
         hits = []

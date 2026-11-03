@@ -35,6 +35,7 @@ from tools.far_investigation_retrieval import (
 from tools.far_investigation_verifiers import validate_plan, verify
 from tools.far_routing_dispatch import _parse, route_text
 from tools.far_uncertain_routing_pilot import read_bounded_response, ResponseTransportError
+from tools.far_investigation_usage import model_usage_tokens
 
 CLAIM_TYPES = ('factual', 'quantitative', 'causal', 'normative', 'mathematical', 'ambiguous')
 TOOLS = {
@@ -129,6 +130,129 @@ def persist(path: Path, value: dict):
     temporary.replace(path)
 
 
+def build_discovery(s, args, *, cutoff):
+    """Build the canonical draft from observed state and actual arguments."""
+    if not s['sources'] or not s['comparisons']:
+        raise EngineError('actual sources and comparison required before discovery')
+    claims = args.get('claims')
+    if type(claims) is not list or not 1 <= len(claims) <= 8:
+        raise EngineError('one through eight atomic claims required')
+    m = new_manifest(s['question'], 'FAR-ENGINE-' + s['question_sha256'][:16])
+    d = m['discovery']
+    for ident, receipt in s['sources'].items():
+        if ident not in s['projections']:
+            raise EngineError('unparsed source cannot support discovery')
+        d['sources'].append({'id': ident, 'locator': receipt['request']['url'], 'sha256': receipt['sha256'],
+                             'source_type': 'OTHER', 'retrieved_at': receipt['retrieved_at'],
+                             'scope': 'Exact bounded response; source truth and independence unestablished'})
+    for i, claim in enumerate(claims, 1):
+        if claim['type'] not in CLAIM_TYPES or type(claim['statement']) is not str or not claim['statement'].strip():
+            raise EngineError('typed nonempty atomic claim required')
+        parse_id, term_id = f'parse.{i}', f'term.{i}'
+        interpretations = claim['interpretations']
+        if type(interpretations) is not list or not 1 <= len(interpretations) <= 8:
+            raise EngineError('bounded nonempty interpretation family required')
+        interp_ids = [f'interp.{i}.{j}' for j in range(1, len(interpretations) + 1)]
+        d['claim_parses'].append({'id': parse_id, 'statement': claim['statement'], 'term_ids': [term_id],
+                                 'origin': 'INFERENCE', 'derivation': 'Fallible atomic decomposition of exact preserved input; not a semantic completeness proof.'})
+        d['terms'].append({'id': term_id, 'surface': claim['statement'], 'material': True,
+                           'interpretation_ids': interp_ids, 'materiality_basis': 'INFERENCE',
+                           'materiality_source_ids': [], 'materiality_derivation': 'Whole-claim meanings represented as alternatives; substituting meaning can change required evidence and native test.',
+                           'effect_if_misclassified': 'A materially different meaning could be omitted; semantic completeness remains unestablished.'})
+        for j, interpretation in enumerate(interpretations, 1):
+            if type(interpretation['statement']) is not str or not interpretation['statement'].strip():
+                raise EngineError('interpretation statement missing')
+            refs = interpretation['evidence_ids']
+            if type(refs) is not list or not refs or any(r not in s['evidence'] for r in refs):
+                raise EngineError('each interpretation requires actual extracted evidence refs')
+            source_ids = sorted({s['evidence'][r]['source_id'] for r in refs})
+            ident = f'interp.{i}.{j}'
+            d['interpretations'].append({'id': ident, 'term_id': term_id, 'statement': interpretation['statement'],
+                                         'origin': 'SOURCE_SYNTHESIS', 'source_ids': source_ids,
+                                         'derivation': 'Fallible interpretation synthesizes quoted evidence ' + ', '.join(refs) + ' with preserved input; entailment is not established by quote matching.',
+                                         'scope': 'Only this recorded interpretation and native plan'})
+            plan = copy.deepcopy(interpretation['plan'])
+            validate_plan(plan, s['question'], s['sources'], s['evidence'])
+            core = {'format_version': 'far-native-investigation/0.1', 'claim_type': claim['type'],
+                    'statement': interpretation['statement'], 'evidence_ids': refs, 'plan': plan,
+                    'scope': 'Native operation only; semantic translation and source truth are not certified.'}
+            provenance = [{'path': path, 'basis': 'INTERPRETATION', 'source_ids': [],
+                           'interpretation_ids': [ident], 'assumption_ids': [],
+                           'derivation': 'Fallible native specification selected in ' + ident + '; numeric/quote bindings additionally checked by native plan validator.'}
+                          for path, _ in pointer_leaves(core)]
+            d['contract_candidates'].append({'id': f'contract.{i}.{j}', 'claim_parse_id': parse_id,
+                                              'assignments': {term_id: ident}, 'contract': core,
+                                              'sha256': sha256_json(core), 'parameter_provenance': provenance})
+    # Always retain the unverified semantic-correspondence obligation.
+    d['assumptions'] = [{'id': 'asm.semantic', 'statement': 'Extracted atomic claims, material interpretations and native plans adequately capture the original question.',
+                         'status': 'Unknown', 'source_ids': [],
+                         'effect_if_false': 'Native results cannot determine the original natural-language claim.'}]
+    for index, a in enumerate(args.get('assumptions', []), 1):
+        d['assumptions'].append({'id': f'asm.user.{index}', 'statement': a['statement'], 'status': 'Unknown',
+                                 'source_ids': [], 'effect_if_false': a['effect_if_false']})
+    queries = [{'id': f'q.{index}', 'query': r['request']['url'], 'target': 'Material interpretations and evidence in registered bounded source',
+                'source_scope': 'Exact retrieved response and terminal recheck',
+                'term_ids': [t['id'] for t in d['terms']], 'claim_parse_ids': [p['id'] for p in d['claim_parses']]}
+               for index, r in enumerate(s['sources'].values(), 1)]
+    for index, search in enumerate(s['searches'], 1):
+        ident = f'searchsrc.{index}'
+        receipt = search['receipt']
+        d['sources'].append({'id': ident, 'locator': receipt['request']['url'], 'sha256': receipt['sha256'],
+                             'source_type': 'OTHER', 'retrieved_at': receipt['retrieved_at'],
+                             'scope': 'Search result discovery only; not corroborating evidence'})
+        queries.append({'id': f'q.search.{index}', 'query': search['query'], 'target': 'Discovery of support/counterevidence',
+                        'source_scope': search['provider'], 'term_ids': [t['id'] for t in d['terms']],
+                        'claim_parse_ids': [p['id'] for p in d['claim_parses']]})
+    d['search_protocol'] = {'evidence_cutoff': cutoff, 'queries': queries,
+                            'stopping_rule': 'Actual terminal recheck of all registered bounded source projections and search hits; no claim of semantic saturation.',
+                            'saturation_observations': [{'round': 1, 'observed_at': max(r['retrieved_at'] for r in d['sources']),
+                                'query_ids': [q['id'] for q in queries], 'source_ids': [r['id'] for r in d['sources']],
+                                'new_claim_parse_ids': [], 'new_material_interpretation_ids': []}],
+                            'limitations': ['Internal fallible source-to-meaning mapping; unknown assumptions block invariant truth promotion.',
+                                            'Whole-claim alternative enumeration may omit semantic dimensions; substantive adequacy remains unestablished.',
+                                            'Zero-new is projection/hit stability, not independent evidence completeness.']}
+    errors = validate_manifest(m, require_complete=True)
+    if errors:
+        raise EngineError('canonical intake rejected: ' + '; '.join(errors))
+    return m
+
+
+def build_inspection(s, args):
+    """Project a bounded observed source with the runtime's exact guards."""
+    projection = s['projections'][args['source_id']]
+    text = projection['text']
+    if 'query' in args:
+        if type(args['query']) is not str or not args['query']:
+            raise EngineError('inspect query must be nonempty text')
+        start = max(0, text.lower().find(args['query'].lower()) - 800)
+    else:
+        start = args.get('start', 0)
+    if type(start) is not int or not 0 <= start < len(text):
+        raise EngineError('inspect offset outside source projection')
+    return {'source_id': args['source_id'], 'start': start, 'text': text[start:start+8000],
+            'source_length': len(text), 'authority': 'UNTRUSTED_DATA'}
+
+
+def build_report(s, args):
+    """Synthesize the bounded report without committing completion."""
+    intake = s['intake']
+    if not intake or intake['freeze']['status'] != 'FROZEN' or validate_manifest(intake):
+        raise EngineError('valid frozen evaluated family required')
+    aggregate = aggregate_manifest(intake)
+    if aggregate['outcome'] in ('INCOMPLETE', 'INVALID'):
+        raise EngineError('every frozen candidate must be evaluated')
+    if any(i not in s['evidence'] for i in args.get('evidence_ids', [])):
+        raise EngineError('synthesis cites nonexistent evidence')
+    return {'aggregate': aggregate, 'native_results': copy.deepcopy(s['evaluations']),
+              'analyst_notes': args.get('notes', ''), 'notes_assurance': 'UNVERIFIED_NARRATIVE',
+              'next_evidence': args.get('next_evidence', []),
+              'missing_evidence': s.get('missing_evidence', []),
+              'evidence_ids': args.get('evidence_ids', []),
+              'investigation_closure': 'Incomplete',
+              'closure_reason': 'EC-01 through EC-11 substantive methodology audit not established by pipeline execution',
+              'scope': 'Bounded native checks and procedural intake conformance; no universal semantic truth or external independence.'}
+
+
 class LocalModel:
     """Explicit operator-local endpoint. No redirect, remote endpoint or credential.
 
@@ -214,6 +338,7 @@ class Investigation:
                       'comparisons': [], 'rechecks': [], 'discovery_history': [], 'intake': None,
                       'evaluations': [], 'far_verifications': [], 'model_calls': [], 'events': [],
                       'http_calls': 0, 'model_tokens': 0, 'rejected_calls': 0,
+                      'model_token_accounting': 'validated-response-per-attempt/1',
                       'controller_substitutions': 0, 'report': None}
         self.event('START', {'question_sha256': self.state['question_sha256'], 'policy': self.state['policy']})
 
@@ -249,11 +374,14 @@ class Investigation:
 
     def _invalidate(self):
         self._mutable()
-        if self.state['intake']:
-            self.event('DISCOVERY_INVALIDATED', {'intake_sha256': sha256_json(self.state['intake'])})
+        previous = sha256_json(self.state['intake']) if self.state['intake'] else None
         self.state['intake'] = None
         self.state['rechecks'] = []
         self.state.pop('recheck_completed_at', None)
+        # The mutable effect already exists. Invalidate before journaling can
+        # fail so a checkpoint exception cannot leave an obsolete draft usable.
+        if previous is not None:
+            self.event('DISCOVERY_INVALIDATED', {'intake_sha256': previous})
 
     def call(self, proposal: dict):
         self.limits()
@@ -339,18 +467,7 @@ class Investigation:
             self._invalidate()
             return {'evidence_id': ident, **evidence}
         if tool == 'inspect':
-            projection = s['projections'][args['source_id']]
-            text = projection['text']
-            if 'query' in args:
-                if type(args['query']) is not str or not args['query']:
-                    raise EngineError('inspect query must be nonempty text')
-                start = max(0, text.lower().find(args['query'].lower()) - 800)
-            else:
-                start = args.get('start', 0)
-            if type(start) is not int or not 0 <= start < len(text):
-                raise EngineError('inspect offset outside source projection')
-            return {'source_id': args['source_id'], 'start': start, 'text': text[start:start+8000],
-                    'source_length': len(text), 'authority': 'UNTRUSTED_DATA'}
+            return build_inspection(s, args)
         if tool == 'compare':
             self._mutable()
             ids = args['evidence_ids']
@@ -454,113 +571,13 @@ class Investigation:
             s['far_verifications'].append({'source_sha256': receipt['sha256'], 'result': result})
             return result
         if tool == 'finish':
-            intake = s['intake']
-            if not intake or intake['freeze']['status'] != 'FROZEN' or validate_manifest(intake):
-                raise EngineError('valid frozen evaluated family required')
-            aggregate = aggregate_manifest(intake)
-            if aggregate['outcome'] in ('INCOMPLETE', 'INVALID'):
-                raise EngineError('every frozen candidate must be evaluated')
-            if any(i not in s['evidence'] for i in args.get('evidence_ids', [])):
-                raise EngineError('synthesis cites nonexistent evidence')
-            # Free-form synthesis is explicitly fallible; authoritative conclusion is computed.
-            report = {'aggregate': aggregate, 'native_results': copy.deepcopy(s['evaluations']),
-                      'analyst_notes': args.get('notes', ''), 'notes_assurance': 'UNVERIFIED_NARRATIVE',
-                      'next_evidence': args.get('next_evidence', []),
-                      'missing_evidence': s.get('missing_evidence', []),
-                      'evidence_ids': args.get('evidence_ids', []),
-                      'investigation_closure': 'Incomplete',
-                      'closure_reason': 'EC-01 through EC-11 substantive methodology audit not established by pipeline execution',
-                      'scope': 'Bounded native checks and procedural intake conformance; no universal semantic truth or external independence.'}
-            return report
+            return build_report(s, args)
         raise EngineError('unhandled tool')
 
     def _discover(self, args):
-        s = self.state
-        if not s['sources'] or not s['comparisons']:
-            raise EngineError('actual sources and comparison required before discovery')
-        claims = args.get('claims')
-        if type(claims) is not list or not 1 <= len(claims) <= 8:
-            raise EngineError('one through eight atomic claims required')
-        m = new_manifest(s['question'], 'FAR-ENGINE-' + s['question_sha256'][:16])
-        d = m['discovery']
-        cutoff = now()
-        for ident, receipt in s['sources'].items():
-            if ident not in s['projections']:
-                raise EngineError('unparsed source cannot support discovery')
-            d['sources'].append({'id': ident, 'locator': receipt['request']['url'], 'sha256': receipt['sha256'],
-                                 'source_type': 'OTHER', 'retrieved_at': receipt['retrieved_at'],
-                                 'scope': 'Exact bounded response; source truth and independence unestablished'})
-        for i, claim in enumerate(claims, 1):
-            if claim['type'] not in CLAIM_TYPES or type(claim['statement']) is not str or not claim['statement'].strip():
-                raise EngineError('typed nonempty atomic claim required')
-            parse_id, term_id = f'parse.{i}', f'term.{i}'
-            interpretations = claim['interpretations']
-            if type(interpretations) is not list or not 1 <= len(interpretations) <= 8:
-                raise EngineError('bounded nonempty interpretation family required')
-            interp_ids = [f'interp.{i}.{j}' for j in range(1, len(interpretations) + 1)]
-            d['claim_parses'].append({'id': parse_id, 'statement': claim['statement'], 'term_ids': [term_id],
-                                     'origin': 'INFERENCE', 'derivation': 'Fallible atomic decomposition of exact preserved input; not a semantic completeness proof.'})
-            d['terms'].append({'id': term_id, 'surface': claim['statement'], 'material': True,
-                               'interpretation_ids': interp_ids, 'materiality_basis': 'INFERENCE',
-                               'materiality_source_ids': [], 'materiality_derivation': 'Whole-claim meanings represented as alternatives; substituting meaning can change required evidence and native test.',
-                               'effect_if_misclassified': 'A materially different meaning could be omitted; semantic completeness remains unestablished.'})
-            for j, interpretation in enumerate(interpretations, 1):
-                if type(interpretation['statement']) is not str or not interpretation['statement'].strip():
-                    raise EngineError('interpretation statement missing')
-                refs = interpretation['evidence_ids']
-                if type(refs) is not list or not refs or any(r not in s['evidence'] for r in refs):
-                    raise EngineError('each interpretation requires actual extracted evidence refs')
-                source_ids = sorted({s['evidence'][r]['source_id'] for r in refs})
-                ident = f'interp.{i}.{j}'
-                d['interpretations'].append({'id': ident, 'term_id': term_id, 'statement': interpretation['statement'],
-                                             'origin': 'SOURCE_SYNTHESIS', 'source_ids': source_ids,
-                                             'derivation': 'Fallible interpretation synthesizes quoted evidence ' + ', '.join(refs) + ' with preserved input; entailment is not established by quote matching.',
-                                             'scope': 'Only this recorded interpretation and native plan'})
-                plan = copy.deepcopy(interpretation['plan'])
-                validate_plan(plan, s['question'], s['sources'], s['evidence'])
-                core = {'format_version': 'far-native-investigation/0.1', 'claim_type': claim['type'],
-                        'statement': interpretation['statement'], 'evidence_ids': refs, 'plan': plan,
-                        'scope': 'Native operation only; semantic translation and source truth are not certified.'}
-                provenance = [{'path': path, 'basis': 'INTERPRETATION', 'source_ids': [],
-                               'interpretation_ids': [ident], 'assumption_ids': [],
-                               'derivation': 'Fallible native specification selected in ' + ident + '; numeric/quote bindings additionally checked by native plan validator.'}
-                              for path, _ in pointer_leaves(core)]
-                d['contract_candidates'].append({'id': f'contract.{i}.{j}', 'claim_parse_id': parse_id,
-                                                  'assignments': {term_id: ident}, 'contract': core,
-                                                  'sha256': sha256_json(core), 'parameter_provenance': provenance})
-        # Always retain the unverified semantic-correspondence obligation.
-        d['assumptions'] = [{'id': 'asm.semantic', 'statement': 'Extracted atomic claims, material interpretations and native plans adequately capture the original question.',
-                             'status': 'Unknown', 'source_ids': [],
-                             'effect_if_false': 'Native results cannot determine the original natural-language claim.'}]
-        for index, a in enumerate(args.get('assumptions', []), 1):
-            d['assumptions'].append({'id': f'asm.user.{index}', 'statement': a['statement'], 'status': 'Unknown',
-                                     'source_ids': [], 'effect_if_false': a['effect_if_false']})
-        queries = [{'id': f'q.{index}', 'query': r['request']['url'], 'target': 'Material interpretations and evidence in registered bounded source',
-                    'source_scope': 'Exact retrieved response and terminal recheck',
-                    'term_ids': [t['id'] for t in d['terms']], 'claim_parse_ids': [p['id'] for p in d['claim_parses']]}
-                   for index, r in enumerate(s['sources'].values(), 1)]
-        for index, search in enumerate(s['searches'], 1):
-            ident = f'searchsrc.{index}'
-            receipt = search['receipt']
-            d['sources'].append({'id': ident, 'locator': receipt['request']['url'], 'sha256': receipt['sha256'],
-                                 'source_type': 'OTHER', 'retrieved_at': receipt['retrieved_at'],
-                                 'scope': 'Search result discovery only; not corroborating evidence'})
-            queries.append({'id': f'q.search.{index}', 'query': search['query'], 'target': 'Discovery of support/counterevidence',
-                            'source_scope': search['provider'], 'term_ids': [t['id'] for t in d['terms']],
-                            'claim_parse_ids': [p['id'] for p in d['claim_parses']]})
-        d['search_protocol'] = {'evidence_cutoff': cutoff, 'queries': queries,
-                                'stopping_rule': 'Actual terminal recheck of all registered bounded source projections and search hits; no claim of semantic saturation.',
-                                'saturation_observations': [{'round': 1, 'observed_at': max(r['retrieved_at'] for r in d['sources']),
-                                    'query_ids': [q['id'] for q in queries], 'source_ids': [r['id'] for r in d['sources']],
-                                    'new_claim_parse_ids': [], 'new_material_interpretation_ids': []}],
-                                'limitations': ['Internal fallible source-to-meaning mapping; unknown assumptions block invariant truth promotion.',
-                                                'Whole-claim alternative enumeration may omit semantic dimensions; substantive adequacy remains unestablished.',
-                                                'Zero-new is projection/hit stability, not independent evidence completeness.']}
-        errors = validate_manifest(m, require_complete=True)
-        if errors:
-            raise EngineError('canonical intake rejected: ' + '; '.join(errors))
-        s['missing_evidence'] = args.get('missing_evidence', [])
-        return m
+        intake = build_discovery(self.state, args, cutoff=now())
+        self.state['missing_evidence'] = args.get('missing_evidence', [])
+        return intake
 
     def _view_source(self, ident):
         projection = self.state['projections'][ident]
@@ -607,13 +624,29 @@ class Investigation:
                 self.limits()
                 call_index = len(self.state['model_calls'])
                 self.state['model_calls'].append({'status': 'STARTED'})
+                observed_tokens = None
                 def capture(envelope):
+                    nonlocal observed_tokens
                     self.state['model_calls'][call_index] = copy.deepcopy(envelope)
+                    tokens = model_usage_tokens(envelope)
+                    if tokens is not None:
+                        if observed_tokens is not None and observed_tokens != tokens:
+                            raise EngineError('model usage changed within one attempt')
+                        if observed_tokens is None:
+                            self.state['model_tokens'] += tokens
+                            observed_tokens = tokens
                     self.event('MODEL_OBSERVATION', envelope)
                 if isinstance(model, LocalModel):
                     model.timeout = max(.01, min(90., self.budget.max_seconds - (time.monotonic() - self.started)))
                 proposal, meta = model(self.prompt(), capture)
-                self.state['model_tokens'] += meta['tokens']
+                if type(meta['tokens']) is not int or meta['tokens'] < 1:
+                    raise EngineError('model telemetry invalid')
+                if observed_tokens is None:
+                    # Scripted/operator models can return accepted telemetry
+                    # without a native response. Raw audit labels that gap.
+                    self.state['model_tokens'] += meta['tokens']
+                elif observed_tokens != meta['tokens']:
+                    raise EngineError('model metadata differs from observed usage')
                 self.event('MODEL_PROPOSAL', {'proposal': proposal, 'metadata': meta})
                 self.call(proposal)
                 if self.state['status'] == 'BOUNDED_PIPELINE_COMPLETED':

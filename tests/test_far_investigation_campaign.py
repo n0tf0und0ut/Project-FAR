@@ -191,6 +191,14 @@ class RetainedCampaignReplayTests(unittest.TestCase):
         result=audit_directory(self.evidence)
         self.assertTrue(result["valid"],result["errors"])
         self.assertEqual(result["audited_transcripts"],24)
+        usage = result['raw_usage_audit']
+        self.assertEqual(usage['recorded_model_tokens'], 141481)
+        self.assertEqual(usage['validated_response_tokens_lower_bound'], 142571)
+        self.assertEqual(usage['attempts_with_usage'], 29)
+        self.assertEqual(usage['attempts_without_usage'], 7)
+        h205 = next(r for r in usage['transcripts'] if r['transcript'] == 'H205-agent.json')
+        self.assertEqual(h205['recorded_model_tokens'], 0)
+        self.assertEqual(h205['validated_response_tokens_lower_bound'], 1090)
 
     def test_original_failed_h201_transcript_cannot_gain_an_orphan_source(self):
         from tests.test_far_investigation_audit import reseal

@@ -1,0 +1,103 @@
+{
+  "agent_transcripts": [
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 19202,
+      "transcript": "H201-agent.json",
+      "validated_response_tokens_lower_bound": 19202
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 20318,
+      "transcript": "H202-agent.json",
+      "validated_response_tokens_lower_bound": 20318
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 20335,
+      "transcript": "H203-agent.json",
+      "validated_response_tokens_lower_bound": 20335
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 21124,
+      "transcript": "H204-agent.json",
+      "validated_response_tokens_lower_bound": 21124
+    },
+    {
+      "attempts_with_usage": 1,
+      "attempts_without_usage": 0,
+      "missing_usage_attempt_indices": [],
+      "recorded_model_tokens": 0,
+      "transcript": "H205-agent.json",
+      "validated_response_tokens_lower_bound": 1090
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 20255,
+      "transcript": "H206-agent.json",
+      "validated_response_tokens_lower_bound": 20255
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 20951,
+      "transcript": "H207-agent.json",
+      "validated_response_tokens_lower_bound": 20951
+    },
+    {
+      "attempts_with_usage": 4,
+      "attempts_without_usage": 1,
+      "missing_usage_attempt_indices": [
+        4
+      ],
+      "recorded_model_tokens": 19296,
+      "transcript": "H208-agent.json",
+      "validated_response_tokens_lower_bound": 19296
+    }
+  ],
+  "attempts_with_usage": 29,
+  "attempts_without_usage": 7,
+  "correction": {
+    "reason": "Complete response rejected for multiple function calls; valid usage was omitted from the original counter.",
+    "recorded_model_tokens": 0,
+    "retained_usage": {
+      "completion_tokens": 85,
+      "prompt_tokens": 1005,
+      "total_tokens": 1090
+    },
+    "transcript": "H205-agent.json"
+  },
+  "original_execution_source_commit": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+  "recorded_counter_scope": "Original immutable accepted-proposal counter; not total usage.",
+  "recorded_model_tokens": 141481,
+  "schema": "far-investigation-historical-usage-correction/1",
+  "scope": "Validated retained provider telemetry once per model attempt, including rejected actions. This is a known observed lower bound, not total consumption, billed cost, external authentication or a new experiment. Seven timed-out attempts remain unknown. Duplicate envelope/event copies are not additional attempts. Original archive, campaign rows, summary and original negative performance result remain unchanged.",
+  "source_archive": "hosted-recovery-v0.1.zip",
+  "source_archive_sha256": "ac45229fda1e7a38fe23b5127cfd361fc938601bc5b6db94bd5d9a95268473e9",
+  "status": "Research",
+  "validated_response_tokens_lower_bound": 142571
+}

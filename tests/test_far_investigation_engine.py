@@ -376,6 +376,29 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(base64.b64decode(state["model_calls"][0]["response_base64"]), b"malformed response")
         self.assertTrue(audit_transcript(state)["valid"])
 
+    def test_observed_usage_is_counted_once_even_when_model_action_parsing_fails(self):
+        from tests.test_far_investigation_usage import envelope
+        for action_count in (1, 2):
+            function = {'function': {'name': 'inspect', 'arguments': '{"source_id":"absent"}'}}
+            response = {'model': 'CONTROLLED_FIXTURE', 'usage': {'total_tokens': 1234},
+                'choices': [{'message': {'tool_calls': [function] * action_count}}]}
+            observed = envelope(response)
+            raw = base64.b64decode(observed['response_base64'])
+            with self.subTest(action_count=action_count), patch(
+                    'tools.far_investigation_engine.read_bounded_response', return_value=(raw, observed['transport'])):
+                state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+            self.assertEqual(state['model_tokens'], 1234)
+            self.assertEqual(sum(e['kind'] == 'MODEL_PROPOSAL' for e in state['events']), int(action_count == 1))
+            outcome = audit_transcript(state)
+            self.assertTrue(outcome['valid'], outcome)
+            usage = outcome['reconstructed_counters']['raw_usage_audit']
+            self.assertEqual(usage['validated_response_tokens_lower_bound'], 1234)
+            self.assertEqual(usage['attempts_with_usage'], 1)
+            from tests.test_far_investigation_audit import reseal
+            state['model_tokens'] = 0
+            reseal(state)
+            self.assertFalse(audit_transcript(state)['valid'])
+
     def test_integrity_auditor_detects_event_source_and_final_state_mutations(self):
         state = self.runtime().run_agent(ScriptedFixtureModel(full_script()))
         for label in ("event", "source", "report"):

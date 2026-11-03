@@ -15,12 +15,17 @@ calls are rejected and returned to the model; the controller never substitutes
 a successful action. A valid native result does not certify its translation from
 natural language: the unresolved semantic-correspondence assumption is retained.
 
-The independent implementation in
+The offline auditor in
 [`far_investigation_audit.py`](../../tools/far_investigation_audit.py) reconstructs
 raw-byte hashes, quotation coordinates, model-to-tool arguments, counters,
 chronology, canonical freeze/candidate lineage, native results and report
 aggregation offline. This is internal integrity assurance. Self-signed hashes
 cannot establish external authenticity or prevent an author rewriting a history.
+Discovery, native search projection and full report reconstruction reuse the
+runtime's pure builders and canonical intake compiler; this shared code is not
+an independent semantic oracle. The audit binds produced snapshots and final
+inventories to actual ordered attempts, including diagnostic effects retained
+before a post-dispatch budget rejection. A rejected call remains rejected.
 
 The qualitative evidence assessor inventories support, opposition, source
 dependence and missing evidence. Its relation labels remain fallible analyst
@@ -114,6 +119,25 @@ The final measured budget also includes finish journaling in all three lanes;
 an over-budget attempt stays incomplete even when an accepted report is retained
 as diagnostic evidence. Native counterexamples are counted by existence, so an
 empty Boolean valuation `{}` remains a valid witness.
+
+Model usage is recorded once per attempted call as soon as a complete response
+provides valid token telemetry, before action parsing or acceptance. Duplicate
+checkpoint copies do not count again. Missing or incomplete responses leave
+usage unknown. Scripted/operator fixture telemetry remains distinguishable from
+raw model-response telemetry in the audit output.
+
+The frozen hosted campaign's original **141,481** token counter is preserved
+as its historical accepted-proposal counter, not verified total consumption.
+The separate [raw usage correction](raw-usage-correction-v1.json) reconstructs
+**142,571 known response tokens** across 29 attempts, with **seven additional
+attempts unknown**. H205's rejected multi-call response reports 1,090 tokens
+(1,005 prompt plus 85 completion), while its original state records zero.
+The correction counts that one response once. It is a retained-telemetry lower
+bound, not total usage, billed cost, independent measurement or a new efficacy
+run. `python tools/far_investigation_campaign.py audit research/investigation-engine`
+now emits this separate `raw_usage_audit` alongside unchanged byte-checked legacy
+metrics. A valid legacy integrity audit establishes counter consistency with its
+historical rule; it does not establish resource completeness or zero usage.
 
 Sources are projected as strict JSON, UTF-8 text or visible HTML. PDF, OCR,
 audio/video, arbitrary code execution, authenticated sources and consequential
