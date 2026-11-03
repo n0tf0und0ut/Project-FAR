@@ -2,6 +2,8 @@
 
 Status: Research. No production reasoning path imports these tools. Protected-main baseline: `a3f5825ee74af723d660a55e6708ef96e305b156`; governing theory remains PROJECT-FAR-CORE-THEORY-1.1.
 
+The [completed execution report](RESULTS-V0.1.md) preserves 432 actual scored generations and their negative result: the selected edit tied prompting, showed no advantage, and did not qualify for adoption.
+
 The [MIT source/tensor verification](mit/VERIFICATION.md) reconstructs the original Qwen result and exact BF16 edit without new inference. Its [source manifest](mit/mit-source-manifest.json) and [tensor receipt](mit/tensor-replay/receipt.json) preserve immutable upstream identities. It does not show that FAR improved a model. Reproduce source arithmetic with a clone of `RikiyaT/lm_understand-logs` at `4d09ba6d6a7e891dd8063974dfe81b3d78e3494f` placed under `mit/lm_understand-logs`, then run `python research/weight-space/mit/verify_original_evidence.py`. The two `replay_*`/`verify_published_checkpoint.py` scripts perform actual immutable HTTP-range tensor verification, requiring NumPy and network; none execute author-provided code or model inference. Upstream benchmark material remains upstream; this repository preserves hashes and locally authored analysis.
 
 ## Existing evidence and reuse
