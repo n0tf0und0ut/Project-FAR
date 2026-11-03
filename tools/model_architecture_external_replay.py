@@ -16,13 +16,14 @@ import traceback
 # Running directly from repository root is supported without installing FAR.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import model_architecture_external as ex
+from tools import check_model_architecture_external_archive as audit
 
 
 def replay(result, journal, max_runs=None):
+    audit.verify_report(result,journal)
     import numpy as np
     import sklearn
     import torch
-    ex.verify(result,journal)
     env=result["environment"]
     current={"python":platform.python_version(),"torch":torch.__version__,"numpy":np.__version__,
              "scikit_learn":sklearn.__version__,"device":"cpu"}

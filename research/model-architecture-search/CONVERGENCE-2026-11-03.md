@@ -96,3 +96,54 @@ their SHA-256 values are respectively
 (the last hashes the retained base64 file). Both original negative primary
 screens remain unchanged. Complete integration verification, final-head review
 and protected gates remain separate obligations.
+
+`MAS-VERIFY-001` (fixed): duplicated execution configuration and identity were
+not consistently bound across the report, registered protocol, journal start
+and saved replay receipt. Source review: [comment 4461520029](https://github.com/n0tf0und0ut/Project-FAR/pull/615#discussion_r4461520029),
+thread `PRRT_kwDOTH_vCM6zXvAO`, review `5760746572`, reviewed head
+`eb0111f09f15b104ac630d8814e0735dc1b7d556`, archive auditor lines 48–49.
+
+The original reproducer changed only embedded `learning_rate` from 0.004 to
+0.008, recomputed the report checksum, updated the replay receipt's report
+checksum, and rebuilt member checksums in the manifest. The original registered
+protocol and journal remained unchanged. The reviewed archive auditor accepted
+that inconsistent archive. Twelve coordinated archive mutation subcases all
+failed to raise before correction: four embedded protocol fields (learning
+rate, batch size, training threads, study ID), a protocol-plus-digest rewrite
+against the unchanged journal, four report environment/identity substitutions,
+and three replay receipt identity substitutions. The frozen standalone
+`verify()` also accepted the changed learning rate both with and without a
+rebound environment protocol digest, despite receiving the unchanged journal.
+Those are validation defects, not replacement experimental observations.
+
+The current post-execution auditor is version 1.1. Its shared `verify_report()`
+binds canonical embedded protocol bytes to the environment digest and, when
+supplied, registered protocol bytes; checks study ID, device, thread count and
+frozen source identity; and binds the complete report environment and study ID
+to the journal start. Archive validation also binds the saved replay's study,
+source, threads and complete per-trial identities/checkpoints to the report.
+Current replay calls this boundary before training. The current standalone
+command requires a journal and accepts registered protocol bytes; see the
+[current commands](README.md). The frozen original runner, including its weaker
+historical `verify()` and CLI, remains byte-identical and is not current
+verification authority.
+
+Regression controls coordinate mutable report, journal, receipt and manifest
+hashes so stale-checksum rejection cannot conceal the missing bindings. They
+also cover empty replay coverage, a substituted journal-start study, rejection
+at both standalone and replay boundaries before any training call, the actual
+standalone CLI, and a coherently rewritten report/journal that still disagrees
+with separately supplied registered protocol bytes. These consistency checks
+cannot attest the truth of a completely coordinated untrusted replacement
+history, nor establish independent scientific replication.
+
+After correction, all 38 focused architecture tests passed without skips in
+the dependency-equipped environment; the standard-library run passed 34 tests
+with 15 explicit optional-dependency skips. Both current archive and standalone
+report CLI commands accepted the unmodified original evidence, retaining 96
+records, original report digest
+`0e316abb4119d10281cec2c4b0d233fe4cbfca8353db23f22eadf770e415e808`
+and `primary_pass: false`. No original model was retrained for this repair.
+The frozen source, protocol, scientific archives and supplementary integration
+failure ZIP retain their previously recorded identities. Final-head review,
+hosted checks and complete combined integration verification remain separate.

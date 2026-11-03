@@ -79,3 +79,28 @@ The prospectively frozen [v0.3 study](preregistration-v0.3.md) executed 96 known
 **This is neither the official CLRS/NAS-Bench-360 benchmark, externally adjudicated science, nor a demonstrated neural architectural advantage.** The official data/reference environments were unavailable in this runtime; no claim of evaluation on those benchmarks may be made. No general AI self-improvement, architecture novelty or production FAR capability is established.
 
 See [convergence and verification](CONVERGENCE-2026-11-03.md) for optional-dependency regression, signed-cache prerequisite and exact-head review limits.
+
+Current v0.3 verification uses the post-execution **verifier 1.1** in
+`tools/check_model_architecture_external_archive.py`. It binds the embedded
+protocol to its canonical digest and registered bytes, the report's execution
+configuration to the journal start, and saved replay identities to the report.
+The current replay wrapper uses the same boundary. The prospectively frozen
+`model_architecture_external.verify()` and its original CLI remain historical
+source; their weaker checks do not supply current assurance. The original
+96-trial archive and negative primary result remain unchanged.
+
+Validate the retained archive with:
+
+```bash
+python tools/check_model_architecture_external_archive.py --archive research/model-architecture-search/archive-v0.3.zip.b64
+```
+
+For retained standalone report and journal copies, use the current command:
+
+```bash
+python tools/check_model_architecture_external_archive.py --report /tmp/far-mas-v03/RESULTS-V0.3.json --journal /tmp/far-mas-v03/RESULTS-V0.3.json.journal.jsonl --protocol research/model-architecture-search/protocol-v0.3.json
+```
+
+These checks establish submitted-artifact consistency and deterministic score
+reconstruction. They do not independently attest that a fully coordinated
+replacement history truthfully records an execution.

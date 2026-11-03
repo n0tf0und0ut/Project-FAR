@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Cold-reconstruct original FAR-MAS-EXTERNAL-003 evidence and event ordering.
+"""Post-execution verifier 1.1 for FAR-MAS-EXTERNAL-003 reports and archives.
 
 Optional scikit-learn is required for actual outcome regrading; archive digest
-checks operate without PyTorch. Untrusted archive members are never extracted.
+checks operate without PyTorch. The prospectively frozen runner stays unchanged.
+Untrusted archive members are never extracted. Internal consistency is not an
+external attestation that an operator's fully coordinated history is truthful.
 """
 from __future__ import annotations
 import argparse
@@ -18,6 +20,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools import model_architecture_external as ex
 
 
+VERIFICATION_VERSION="1.1"
 REQUIRED={"RESULTS-V0.3.json","RESULTS-V0.3.json.journal.jsonl",
           "model_architecture_external.py","protocol-v0.3.json",
           "preregistration-v0.3.md","test_model_architecture_external.py",
@@ -26,6 +29,34 @@ REQUIRED={"RESULTS-V0.3.json","RESULTS-V0.3.json.journal.jsonl",
           "v0.3-replay-full.json","v0.3-replay.stdout.log","v0.3-replay-exit.txt",
           "model_architecture_external_replay.py","check_model_architecture_external_archive.py",
           "test_model_architecture_external_evidence.py","RESULTS-V0.3.md"}
+
+
+def verify_report(result,journal_bytes=None,protocol_bytes=None):
+    """Bind duplicated configuration before invoking the frozen score verifier."""
+    p=ex.check(result["protocol"])
+    raw=ex.canonical(p)+b"\n"
+    env=result["environment"]
+    if ex.sha(raw)!=env["protocol_sha256"]:
+        raise ValueError("embedded protocol digest mismatch")
+    if protocol_bytes is not None and raw!=protocol_bytes:
+        raise ValueError("embedded protocol differs from registered protocol")
+    if result["study_id"]!=p["study_id"]:
+        raise ValueError("report/protocol study identity mismatch")
+    if ex.canonical([env["device"],env["threads"]])!=ex.canonical([p["device"],p["training_threads"]]):
+        raise ValueError("recorded execution configuration mismatch")
+    if env["source_sha256"]!=p["precommit_source_sha256"] or env["source_sha256"]!=ex.file_sha(ex.__file__):
+        raise ValueError("frozen execution source mismatch")
+    if journal_bytes is not None:
+        if ex.sha(journal_bytes)!=result["journal_sha256"]:
+            raise ValueError("journal checksum invalid")
+        events=[json.loads(row) for row in journal_bytes.splitlines()]
+        if not events or events[0].get("event")!="start":
+            raise ValueError("journal start absent")
+        if ex.canonical(events[0].get("environment"))!=ex.canonical(env):
+            raise ValueError("journal start environment mismatch")
+        if events[0].get("study_id")!=result["study_id"]:
+            raise ValueError("journal start study identity mismatch")
+    ex.verify(result,journal_bytes)
 
 
 def parse_archive(raw, require_replay=True):
@@ -49,7 +80,7 @@ def parse_archive(raw, require_replay=True):
             raise ValueError("registered protocol not bound to original result")
         if z.read("v0.3-exit-code.txt").strip()!=b"0":
             raise ValueError("original run did not exit successfully")
-        ex.verify(report,journal)
+        verify_report(report,journal,z.read("protocol-v0.3.json"))
         events=[json.loads(x) for x in journal.splitlines()]
         started={}
         trained={}
@@ -92,8 +123,17 @@ def parse_archive(raw, require_replay=True):
             full=json.loads(z.read("v0.3-replay-full.json"))
             if (full["status"]!="FULL_MATCH" or full["n_replayed"]!=96 or full["n_expected"]!=96 or
                 full["original_report_sha256"]!=report["report_sha256"] or
-                full["original_journal_sha256"]!=report["journal_sha256"]):
+                full["original_journal_sha256"]!=report["journal_sha256"] or
+                full["study_id"]!=report["study_id"] or
+                full["source_sha256"]!=report["environment"]["source_sha256"] or
+                ex.canonical(full["threads_restored"])!=ex.canonical(report["environment"]["threads"])):
                 raise ValueError("saved deterministic replay did not cover all original trials")
+            expected=[{"index":i,"key":[record[k] for k in ("dataset","scale","steps","family","seed")],
+                       "checkpoint_sha256":record["checkpoint_sha256"],
+                       "validation_predictions_match":True,"test_predictions_match":True}
+                      for i,record in enumerate(report["records"])]
+            if ex.canonical(full["records"])!=ex.canonical(expected):
+                raise ValueError("saved replay trial identities or coverage mismatch")
         return {"study_id":report["study_id"],"n_scored":len(report["records"]),
                 "original_report_sha256":report["report_sha256"],
                 "original_journal_sha256":report["journal_sha256"],
@@ -103,9 +143,23 @@ def parse_archive(raw, require_replay=True):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--archive",type=Path,required=True)
+    inputs=p.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--archive",type=Path)
+    inputs.add_argument("--report",type=Path)
+    p.add_argument("--journal",type=Path)
+    p.add_argument("--protocol",type=Path)
     p.add_argument("--expected-sha256",type=str)
     a=p.parse_args()
+    if a.report:
+        if not a.journal or a.expected_sha256:
+            p.error("--report requires --journal; --expected-sha256 applies only to --archive")
+        report=json.loads(a.report.read_bytes())
+        verify_report(report,a.journal.read_bytes(),a.protocol.read_bytes() if a.protocol else None)
+        print(json.dumps({"verification_version":VERIFICATION_VERSION,"study_id":report["study_id"],
+                          "n_scored":len(report["records"]),"original_report_sha256":report["report_sha256"]},sort_keys=True))
+        return
+    if a.journal or a.protocol:
+        p.error("--journal and --protocol apply only to --report")
     raw=base64.b64decode(a.archive.read_bytes(),validate=False)
     if a.expected_sha256 and ex.sha(raw)!=a.expected_sha256:
         raise ValueError("archive outer SHA-256 mismatch")
