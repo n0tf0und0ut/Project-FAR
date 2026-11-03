@@ -1,0 +1,336 @@
+"""Offline adversarial checks; synthetic providers never count as model evidence."""
+import base64
+import copy
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from tools import tool_agent_reliability as r
+
+
+SOURCE = {"commit": "a"*40, "tree": "b"*40, "files": {}}
+
+
+def action(tool, **args):
+    return {"tool": tool, "args": args}
+
+
+def provider(actions):
+    sequence = iter(actions)
+    def call(request, timeout):
+        v = next(sequence)
+        content = v if isinstance(v, str) else json.dumps(v)
+        return 200, r.encoded({"model":r.MODEL, "done":True, "message":{"role":"assistant","content":content}, "prompt_eval_count":100,"eval_count":20})
+    return call
+
+
+class RunnerTests(unittest.TestCase):
+    def setUp(self):
+        self.protocol = r.load_protocol()
+        self.digest = r.sha(r.DEFAULT_PROTOCOL.read_bytes())
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.out = Path(self.temp.name) / "record.json"
+        self.task = copy.deepcopy(self.protocol["tasks"][0])
+
+    def run_actions(self, actions, task=None, seed=0, **kwargs):
+        return r.run_task(task or self.task,seed,self.digest,SOURCE,self.out,
+                          provider=provider(actions),digest=r.MODEL_DIGEST,**kwargs)
+
+    def replay(self, record, task=None):
+        return r.replay(record,task or self.task,self.digest,SOURCE,allow_synthetic=True)
+
+    def test_real_multiturn_observation_precedes_answer(self):
+        result = self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")])
+        self.assertTrue(result["grade"]["passed"])
+        self.assertEqual(self.replay(result)["model_calls"],2)
+        second = json.loads(result["events"][1]["request_utf8"])
+        self.assertEqual(json.loads(second["messages"][-1]["content"])["observation"]["result"],self.task["files"]["facts.json"])
+        self.assertNotIn("oracle",result["events"][0]["request_utf8"])
+        self.assertNotIn("blue",result["events"][0]["request_utf8"])
+
+    def test_guessed_correct_answer_without_read_fails(self):
+        result = self.run_actions([action("finish",answer="blue")])
+        self.assertFalse(result["grade"]["passed"])
+        self.assertFalse(result["grade"]["checks"]["reads"])
+        self.replay(result)
+
+    def test_scripted_provider_cannot_be_counted_as_live_model(self):
+        result = self.run_actions([action("finish",answer="blue")])
+        with self.assertRaisesRegex(ValueError,"not genuine"):
+            r.replay(result,self.task,self.digest,SOURCE)
+
+    def test_malformed_action_shapes_are_measured_failures(self):
+        for malformed in (None,[],{"tool":[],"args":{}},{"tool":"read_file","args":[]},"not json","["*2000+"0"+"]"*2000):
+            with self.subTest(malformed=str(malformed)[:60]):
+                result = self.run_actions([json.dumps(malformed) if malformed is None else malformed])
+                self.assertEqual(result["terminal_reason"],"INVALID_ACTION")
+                self.assertTrue(result["valid"])
+                self.assertFalse(result["grade"]["passed"])
+                self.replay(result)
+
+    def test_duplicate_nonfinite_and_surrogate_action_json_fail(self):
+        for malformed in ('{"tool":"finish","tool":"read_file","args":{}}','{"tool":"finish","args":{"answer":1e999}}','{"tool":"finish","args":{"answer":"\\ud800"}}'):
+            with self.subTest(malformed=malformed):
+                result=self.run_actions([malformed])
+                self.assertEqual(result["terminal_reason"],"INVALID_ACTION")
+                self.replay(result)
+
+    def test_calculator_is_bounded_and_has_no_execution(self):
+        self.assertEqual(r.compute("(12+3)*4"),60)
+        for expr in ("__import__('os').system('true')","2**1000000000","True+1","1.5+2","1000000000000*2","1/2","1//0"):
+            with self.subTest(expr=expr), self.assertRaises((ValueError,ZeroDivisionError)):
+                r.compute(expr)
+
+    def test_failed_or_irrelevant_calculator_does_not_satisfy_arithmetic(self):
+        task=copy.deepcopy(self.protocol["tasks"][1])
+        for expr in ("1//0","1+1"):
+            result=self.run_actions([action("read_file",path="numbers.txt"),action("calculator",expression=expr),action("finish",answer=214)],task)
+            self.assertFalse(result["grade"]["passed"])
+            self.assertFalse(result["grade"]["checks"]["calculator_result"])
+            self.replay(result,task)
+
+    def test_correct_calculator_based_answer_passes(self):
+        task=copy.deepcopy(self.protocol["tasks"][1])
+        result=self.run_actions([action("read_file",path="numbers.txt"),action("calculator",expression="35*6+4"),action("finish",answer=214)],task)
+        self.assertTrue(result["grade"]["passed"])
+        self.replay(result,task)
+
+    def test_transient_protected_mutation_cannot_be_undone(self):
+        result=self.run_actions([action("read_file",path="facts.json"),action("write_file",path="facts.json",content="wrong"),action("write_file",path="facts.json",content=self.task["files"]["facts.json"]),action("finish",answer="blue")])
+        self.assertEqual(result["final_files"],self.task["files"])
+        self.assertFalse(result["grade"]["passed"])
+        self.assertEqual(result["grade"]["unsafe_writes"],1)
+        self.replay(result)
+
+    def test_unauthorized_new_file_counts_unsafe_write(self):
+        result=self.run_actions([action("read_file",path="facts.json"),action("write_file",path="leak.txt",content="x"),action("finish",answer="blue")])
+        self.assertEqual(result["grade"]["unsafe_writes"],1)
+        self.assertFalse(result["grade"]["passed"])
+        self.replay(result)
+
+    def test_traversal_is_measured_and_does_not_reach_host(self):
+        for path in ("../secret","/etc/passwd","a/../../secret","a\\b"):
+            result=self.run_actions([action("read_file",path=path)])
+            self.assertEqual(result["terminal_reason"],"INVALID_ACTION")
+            self.assertEqual(result["final_files"],self.task["files"])
+            self.replay(result)
+
+    def test_output_write_is_actual_state_change_not_answer_prose(self):
+        task=copy.deepcopy(self.task)
+        task["oracle"]["files"]={"output.txt":"blue"}
+        good=self.run_actions([action("read_file",path="facts.json"),action("write_file",path="output.txt",content="blue"),action("finish",answer="blue")],task)
+        self.assertTrue(good["grade"]["passed"])
+        self.replay(good,task)
+        bad=self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")],task)
+        self.assertFalse(bad["grade"]["checks"]["files"])
+
+    def test_missing_file_recovery_order_is_enforced(self):
+        task=copy.deepcopy(self.task)
+        task["oracle"]["expected_read_errors"]=["old.txt"]
+        good=self.run_actions([action("read_file",path="old.txt"),action("read_file",path="facts.json"),action("finish",answer="blue")],task)
+        self.assertTrue(good["grade"]["passed"])
+        self.replay(good,task)
+        bad=self.run_actions([action("read_file",path="facts.json"),action("read_file",path="old.txt"),action("finish",answer="blue")],task)
+        self.assertFalse(bad["grade"]["checks"]["recovery_order"])
+        self.replay(bad,task)
+
+    def test_recovery_listing_after_target_read_does_not_count(self):
+        task=copy.deepcopy(self.task)
+        task["oracle"]["expected_read_errors"]=["old.txt"]
+        task["oracle"]["required_tools"].append("list_files")
+        bad=self.run_actions([action("read_file",path="old.txt"),action("read_file",path="facts.json"),action("list_files"),action("finish",answer="blue")],task)
+        self.assertFalse(bad["grade"]["checks"]["recovery_order"])
+        self.replay(bad,task)
+        good=self.run_actions([action("read_file",path="old.txt"),action("list_files"),action("read_file",path="facts.json"),action("finish",answer="blue")],task)
+        self.assertTrue(good["grade"]["passed"])
+        self.replay(good,task)
+
+    def test_recovery_task_malformed_arguments_remain_measured(self):
+        task=copy.deepcopy(self.task)
+        task["oracle"]["expected_read_errors"]=["old.txt"]
+        result=self.run_actions([{"tool":"read_file","args":[]}],task)
+        self.assertEqual(result["terminal_reason"],"INVALID_ACTION")
+        self.replay(result,task)
+
+    def test_write_surrogate_is_measured_without_checkpoint_crash(self):
+        result=self.run_actions(['{"tool":"write_file","args":{"path":"out.txt","content":"\\ud800"}}'])
+        self.assertEqual(result["terminal_reason"],"INVALID_ACTION")
+        self.replay(result)
+
+    def test_complete_72_slot_panel_is_recomputed_and_descriptive(self):
+        records=[]
+        for task in [t for t in self.protocol["tasks"] if t["phase"]=="scored"]:
+            for seed in (0,1,2):
+                actions=[action("read_file",path=path) for path in task["oracle"].get("expected_read_errors",[])]
+                if "list_files" in task["oracle"]["required_tools"]:
+                    actions.append(action("list_files"))
+                actions += [action("read_file",path=path) for path in task["oracle"]["required_reads"]]
+                if "calculator" in task["oracle"]["required_tools"]:
+                    actions.append(action("calculator",expression=str(task["oracle"]["answer"])))
+                for path,value in task["oracle"]["files"].items():
+                    actions.append(action("write_file",path=path,content=value))
+                actions.append(action("finish",answer=task["oracle"]["answer"]))
+                records.append(self.run_actions(actions,task,seed=seed))
+        report=r.analyze(self.protocol,records,self.digest,SOURCE,phase="scored",allow_synthetic=True)
+        self.assertTrue(report["complete"],report["errors"])
+        self.assertEqual(report["passed"],72)
+        self.assertEqual(report["all_three_successful_tasks"],24)
+        self.assertEqual(report["at_least_one_successful_tasks"],24)
+        self.assertEqual(report["first_attempt_passed"],24)
+        self.assertTrue(report["scored_engineering_screen_passed"])
+        self.assertEqual({v["passed"] for v in report["families"].values()},{12})
+        self.assertGreater(report["totals"]["tool_actions"],72)
+        self.assertEqual(report["totals"]["input_tokens"],report["totals"]["model_calls"]*100)
+        self.assertEqual(report["general_agent_reliability"],"NOT_ESTABLISHED")
+        self.assertEqual(report["far_causal_effect"],"NOT_TESTED")
+
+    def test_provider_failure_retains_prior_raw_evidence_without_retry(self):
+        calls=[]
+        first=provider([action("read_file",path="facts.json")])
+        def failing(request,timeout):
+            calls.append(request)
+            if len(calls)==1:return first(request,timeout)
+            raise TimeoutError("unavailable")
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=failing,digest=r.MODEL_DIGEST)
+        self.assertEqual(len(calls),2)
+        self.assertEqual(result["terminal_reason"],"PROVIDER_ERROR")
+        self.assertFalse(result["valid"])
+        self.assertIsNotNone(result["events"][0]["response_base64"])
+        self.assertEqual(r.strict_json(self.out.read_bytes()),result)
+        self.replay(result)
+
+    def test_malformed_provider_bytes_preserved_before_validation(self):
+        raw=b'\xffbroken'
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=lambda *a:(200,raw),digest=r.MODEL_DIGEST)
+        self.assertFalse(result["valid"])
+        self.assertEqual(base64.b64decode(result["events"][0]["response_base64"]),raw)
+        self.replay(result)
+
+    def test_excessive_response_is_retained_as_invalid(self):
+        raw=b'x'*(r.MAX_RESPONSE+1)
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=lambda *a:(200,raw),digest=r.MODEL_DIGEST)
+        self.assertEqual(result["terminal_reason"],"PROVIDER_ERROR")
+        self.replay(result)
+
+    def test_success_after_deadline_cannot_pass(self):
+        current=[0.0]
+        base=provider([action("finish",answer="blue")])
+        def slow(request,timeout):
+            current[0]=601.0
+            return base(request,timeout)
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=slow,digest=r.MODEL_DIGEST,clock=lambda:current[0])
+        self.assertEqual(result["terminal_reason"],"TIME_LIMIT")
+        self.assertFalse(result["grade"]["passed"])
+        self.assertIsNone(result["events"][0]["action"])
+        self.replay(result)
+
+    def test_finish_processing_cannot_cross_global_deadline(self):
+        current=[0.0]
+        actual_checkpoint=r.checkpoint
+        def slow_checkpoint(path, record):
+            if record["events"] and record["events"][-1].get("receipt") is not None:
+                current[0]=600.1
+            actual_checkpoint(path,record)
+        # Read is not required here: isolate finish timing from grading failure.
+        task=copy.deepcopy(self.task);task["oracle"]["required_reads"]=[];task["oracle"]["required_tools"]=[]
+        with patch.object(r,"checkpoint",side_effect=slow_checkpoint):
+            result=r.run_task(task,0,self.digest,SOURCE,self.out,provider=provider([action("finish",answer="blue")]),digest=r.MODEL_DIGEST,clock=lambda:current[0])
+        self.assertEqual(result["terminal_reason"],"TIME_LIMIT")
+        self.assertFalse(result["grade"]["passed"])
+        self.replay(result,task)
+
+    def test_request_deadline_is_enforced_even_before_total_deadline(self):
+        current=[0.0]
+        base=provider([action("finish",answer="blue")])
+        def slow(request,timeout):
+            current[0]=121.0
+            return base(request,timeout)
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=slow,digest=r.MODEL_DIGEST,clock=lambda:current[0])
+        self.assertEqual(result["terminal_reason"],"TIME_LIMIT")
+        self.replay(result)
+
+    def test_action_limit_is_not_success(self):
+        result=self.run_actions([action("list_files")]*8)
+        self.assertEqual(result["terminal_reason"],"ACTION_LIMIT")
+        self.assertFalse(result["grade"]["passed"])
+        self.replay(result)
+
+    def test_checkpoint_precedes_provider_and_each_successor(self):
+        seen=[]
+        base=provider([action("read_file",path="facts.json"),action("finish",answer="blue")])
+        def inspect(request,timeout):
+            record=r.strict_json(self.out.read_bytes())
+            self.assertEqual(record["status"],"RUNNING")
+            self.assertIsNone(record["events"][-1]["response_base64"])
+            if seen:self.assertTrue(record["events"][-2]["receipt"]["ok"])
+            seen.append(record)
+            return base(request,timeout)
+        result=r.run_task(self.task,0,self.digest,SOURCE,self.out,provider=inspect,digest=r.MODEL_DIGEST)
+        self.assertEqual(len(seen),2)
+        self.replay(result)
+
+    def test_replay_rejects_mutated_messages_receipts_state_and_score(self):
+        result=self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")])
+        mutators=[lambda v:v["events"][0].update(request_sha256="0"*64),lambda v:v["events"][0].update(response_sha256="0"*64),lambda v:v["events"][0]["receipt"].update(result="wrong"),lambda v:v["grade"].update(passed=False),lambda v:v["final_files"].update(hacked="yes"),lambda v:v.update(valid=False),lambda v:v.update(terminal_reason="PROVIDER_ERROR")]
+        for mutate in mutators:
+            bad=copy.deepcopy(result);mutate(bad)
+            with self.assertRaises(ValueError):self.replay(bad)
+
+    def test_exact_source_model_protocol_and_seed_are_required(self):
+        result=self.run_actions([action("finish",answer="blue")])
+        for key,value in (("source",{}),("model",{}),("protocol_sha256","0"*64),("seed",1)):
+            bad=copy.deepcopy(result);bad[key]=value
+            with self.assertRaises(ValueError):self.replay(bad)
+
+    def test_missing_duplicate_and_synthetic_rows_fail_closed(self):
+        result=self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")])
+        report=r.analyze(self.protocol,[result,result],self.digest,SOURCE,phase="preflight",allow_synthetic=True)
+        self.assertFalse(report["complete"])
+        self.assertTrue(report["errors"])
+        self.assertEqual(len(report["missing_slots"]),2)
+        report=r.analyze(self.protocol,[result],self.digest,SOURCE,phase="preflight")
+        self.assertEqual(report["replayed_records"],0)
+        self.assertFalse(report["preflight_gate_passed"])
+
+    def test_preflight_gate_replays_three_slots_and_stops_on_unsafe(self):
+        tasks=[t for t in self.protocol["tasks"] if t["phase"]=="preflight"]
+        records=[]
+        for task in tasks:
+            actions=[action("read_file",path=path) for path in task["oracle"]["required_reads"]]
+            if "calculator" in task["oracle"]["required_tools"]:actions.append(action("calculator",expression="35*6+4"))
+            for path,value in task["oracle"]["files"].items():actions.append(action("write_file",path=path,content=value))
+            actions.append(action("finish",answer=task["oracle"]["answer"]))
+            records.append(self.run_actions(actions,task))
+        report=r.analyze(self.protocol,records,self.digest,SOURCE,phase="preflight",allow_synthetic=True)
+        self.assertTrue(report["preflight_gate_passed"])
+        self.assertEqual(report["passed"],3)
+        self.assertEqual(report["general_agent_reliability"],"NOT_ESTABLISHED")
+
+    def test_protocol_rejects_mutated_gates_and_oracles(self):
+        for mutate in (lambda p:p["limits"].update(max_actions=9),lambda p:p["model"].update(digest="0"*64),lambda p:p["preflight_gate"].update(minimum_successes=1),lambda p:p["preflight_gate"].update(no_outcome_based_tuning=1),lambda p:p["scored_criteria"].update(minimum_slot_success_fraction=0.1),lambda p:p["tasks"][0]["oracle"].update(required_tools=["shell"])):
+            bad=copy.deepcopy(self.protocol);mutate(bad)
+            with self.assertRaises(ValueError):r.validate_protocol(bad)
+
+    def test_cli_scored_launch_requires_raw_preflight_before_model_access(self):
+        with patch.object(r,"source_identity",return_value=SOURCE),patch.object(r,"installed_digest",side_effect=AssertionError("must not inspect provider")):
+            with self.assertRaises(SystemExit):r.main(["run","--phase","scored","--out",str(self.out)])
+
+    def test_cli_preflight_runs_all_three_tasks_in_single_job(self):
+        with patch.object(r,"source_identity",return_value=SOURCE),patch.object(r,"installed_digest",return_value=r.MODEL_DIGEST),patch.object(r,"run_task",return_value={"valid":True,"grade":{"passed":False},"terminal_reason":"INVALID_ACTION"}) as run:
+            r.main(["run","--phase","preflight","--out",str(Path(self.temp.name)/"preflight")])
+            self.assertEqual(run.call_count,3)
+            self.assertEqual({call.args[0]["id"] for call in run.call_args_list},{t["id"] for t in self.protocol["tasks"] if t["phase"]=="preflight"})
+
+    def test_source_identity_covers_runtime_workflow_and_dependency(self):
+        def git(*args):
+            return "a"*40
+        with patch.object(r,"git_value",side_effect=git):
+            source=r.source_identity()
+        self.assertEqual(set(source["files"]),{"tools/tool_agent_reliability.py","research/tool-agent-reliability/protocol-v0.1.json","scripts/workflow_efficacy_start_ollama.sh","tools/workflow_efficacy_free_agent.py",".github/workflows/far-tool-agent-reliability.yml"})
+
+
+if __name__=="__main__":
+    unittest.main()
