@@ -249,7 +249,12 @@ class RunnerTests(unittest.TestCase):
             base = Path(tmp)
             candidate = base / "submission.py"
             candidate.write_text("def transform(d): return 1\n")
-            with patch("tools.workflow_efficacy_free_agent.subprocess.run", side_effect=OSError("docker unavailable")):
+            with patch("tools.workflow_efficacy_free_agent.subprocess.Popen",
+                       side_effect=AssertionError("offline transport-failure test must not launch Docker")), patch(
+                    "tools.workflow_efficacy_free_agent.capture_candidate_process",
+                    side_effect=OSError("docker unavailable")), patch(
+                    "tools.workflow_efficacy_free_agent.subprocess.run",
+                    return_value=SimpleNamespace(returncode=0, stdout="", stderr="")):
                 success, code, digest, trace, executed = grade(candidate, task(0), base)
         self.assertFalse(success)
         self.assertIsNone(code)
