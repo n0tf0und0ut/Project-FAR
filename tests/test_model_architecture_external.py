@@ -27,6 +27,15 @@ def protocol():
             "expected_data_sha256":DATA_SHA,"expected_split_sha256":SPLIT_SHA}
 
 
+def training_fixture(classes=10,train_size=100,validation_size=30):
+    """Nonbenchmark smoke-test data; every evaluation class must be present."""
+    import torch
+    rng=torch.Generator().manual_seed(42)
+    return {"tokens":8,"token_features":8,"classes":classes,"tensors":{
+        "train":(torch.rand(train_size,8,8,generator=rng),torch.arange(train_size)%classes),
+        "validation":(torch.rand(validation_size,8,8,generator=rng),torch.arange(validation_size)%classes)}}
+
+
 class ProtocolTests(unittest.TestCase):
     def test_protocol_mutations_fail_closed(self):
         p=protocol();mas.check(p)
@@ -44,6 +53,8 @@ class ProtocolTests(unittest.TestCase):
         for pred in ([1,2,0,0], [1], [False,1,0,1]):
             with self.subTest(pred=pred),self.assertRaises(ValueError):
                 mas.grade(pred,[1,0,0,1],2)
+        with self.assertRaisesRegex(ValueError,"missing class in evaluation"):
+            mas.grade([0,0],[0,0],2)
 
     @unittest.skipUnless(importlib.util.find_spec("sklearn"),"optional scikit-learn missing")
     def test_real_data_provenance_and_splits(self):
@@ -75,11 +86,28 @@ class TorchTests(unittest.TestCase):
         import torch
         torch.set_num_threads(1)
 
-    def test_all_architectures_train_and_share_output_contract(self):
+    def setUp(self):
         import torch
-        d={"tokens":8,"token_features":8,"classes":10,
-           "tensors":{"train":(torch.rand(100,8,8),torch.randint(10,(100,))),
-                      "validation":(torch.rand(30,8,8),torch.randint(10,(30,)))}}
+        self.enterContext(torch.random.fork_rng(devices=[]))
+
+    def test_training_fixture_covers_classes_without_ambient_rng_dependency(self):
+        import torch
+        for classes,train_size,validation_size in ((10,100,30),(2,32,20)):
+            reference=training_fixture(classes,train_size,validation_size)
+            for seed in (2,42,999):
+                with self.subTest(classes=classes,ambient_seed=seed):
+                    torch.manual_seed(seed)
+                    torch.rand(17)  # Simulate preceding tests consuming the global generator.
+                    before=torch.get_rng_state().clone()
+                    d=training_fixture(classes,train_size,validation_size)
+                    for split,(x,y) in d["tensors"].items():
+                        self.assertEqual(set(y.tolist()),set(range(classes)))
+                        self.assertTrue(torch.equal(x,reference["tensors"][split][0]))
+                        self.assertTrue(torch.equal(y,reference["tensors"][split][1]))
+                    self.assertTrue(torch.equal(before,torch.get_rng_state()))
+
+    def test_all_architectures_train_and_share_output_contract(self):
+        d=training_fixture()
         p=protocol()
         sp=mas.specs(8,8,10,48,p)
         for family,spec in sp.items():
@@ -102,11 +130,7 @@ class TorchTests(unittest.TestCase):
                     self.assertGreater(z["estimated_forward_macs"],0)
 
     def test_per_seed_repeatability_on_nonbenchmark_random_data(self):
-        import torch
-        torch.manual_seed(42)
-        d={"tokens":8,"token_features":8,"classes":2,"tensors":{
-            "train":(torch.rand(32,8,8),torch.randint(2,(32,))),
-            "validation":(torch.rand(20,8,8),torch.randint(2,(20,)))}}
+        d=training_fixture(classes=2,train_size=32,validation_size=20)
         p=protocol()
         s=mas.specs(8,8,2,48,p)["one_attn"]
         a,ar=mas.train_one(s,d,p,2,333)
