@@ -126,6 +126,9 @@ def run_one(index,arm,out):
     inference_valid=(response is not None and response.get("done") is True
         and response.get("done_reason")=="stop"
         and response.get("model")==MODEL and not response.get("error")
+        and type(response.get("response")) is str
+        and type(response.get("prompt_eval_count")) is int
+        and response["prompt_eval_count"]>0
         and type(response.get("eval_count")) is int
         and response["eval_count"]>0 and error is None)
     if inference_valid:

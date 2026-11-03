@@ -39,12 +39,12 @@ class LocalInferenceTests(unittest.TestCase):
         self.assertFalse(ran)
         self.assertFalse(passed)
         self.assertIsNone(code)
-    def run_provider_reply(self, reason):
+    def run_provider_reply(self, reason, **changes):
         from tools import workflow_efficacy_local_ollama as runner
         with tempfile.TemporaryDirectory() as d, patch.object(runner,"model_sha",return_value="a"*64), patch.object(
                 runner,"instructions",return_value=b"rules"), patch.object(runner,"prompt",return_value="prompt"), patch.object(
                 runner,"request",return_value={"response":"def transform(x): return None","done":True,
-                "done_reason":reason,"model":MODEL,"eval_count":320}), patch.object(
+                "done_reason":reason,"model":MODEL,"eval_count":320,"prompt_eval_count":100,**changes}), patch.object(
                 runner,"grade",return_value=(True,False,1,"failure")) as grader:
             record=runner.run_one(0,"control",Path(d))
             raw=(Path(d)/"FWE-001-control"/"provider-response.json").read_bytes()
@@ -61,6 +61,13 @@ class LocalInferenceTests(unittest.TestCase):
         record,calls=self.run_provider_reply(None)
         self.assertEqual(record["outcome"],"INCOMPLETE")
         self.assertEqual(calls,0)
+
+    def test_malformed_content_or_input_telemetry_never_executes_code(self):
+        for changes in ({"response":[]},{"response":None},{"prompt_eval_count":True},{"prompt_eval_count":0}):
+            with self.subTest(changes=changes):
+                record,calls=self.run_provider_reply("stop",**changes)
+                self.assertEqual(record["outcome"],"INCOMPLETE")
+                self.assertEqual(calls,0)
 
     def test_natural_stop_can_be_a_measured_failure(self):
         record,calls=self.run_provider_reply("stop")

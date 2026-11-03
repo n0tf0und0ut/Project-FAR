@@ -48,5 +48,5 @@ python -m unittest tests.test_workflow_efficacy_internal_fixtures tests.test_wor
 python -m tools.workflow_efficacy_local_ollama contract
 ```
 
-The focused suite passed 69 tests. Any exact-head review, protected workflow
+The focused suite passed 70 tests. Any exact-head review, protected workflow
 repin requirement and required hosted checks remain separate merge prerequisites.

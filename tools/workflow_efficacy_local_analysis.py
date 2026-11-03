@@ -61,7 +61,8 @@ def analyze(root):
             if (record.get("done") is not True or record.get("done_reason")!="stop"
                     or record.get("provider_error_class") is not None):
                 failures.append("UNFINISHED_INFERENCE:"+name)
-            if type(record.get("output_tokens")) is not int or record["output_tokens"]<=0:
+            if any(type(record.get(field)) is not int or record[field]<=0
+                   for field in ("input_tokens","output_tokens")):
                 failures.append("NO_VERIFIED_TOKENS:"+name)
             if record.get("grader_executed") is not True or record.get("grader_exit_code") not in (0,1):
                 failures.append("MISSING_GRADER:"+name)
