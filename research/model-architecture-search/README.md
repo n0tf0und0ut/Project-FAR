@@ -66,3 +66,8 @@ The verifier checks the frozen data split, candidate progression, validation-onl
 ## Claim boundary
 
 Known operators assembled in a new order are not automatically a novel architecture. An architectural successor requires independently verified differences from prior designs, relevant performance and resource advantages at meaningful scale, and reproduction on external data. No such claim is made here.
+
+## Matched-parameter replication (FAR-MAS-MATCHED-002)
+
+The separate, prospectively frozen [v0.2 experiment](preregistration-v0.2.md) completed all 80 conditions and was source-bound and fully replayed using the recorded single-thread CPU configuration. Its [full outcome and failure-preserving evidence](RESULTS-V0.2.md) establish a **negative** primary result: the 120-step, length-15 parameter-matched contrast yielded only **+1.43 percentage points** mean macro accuracy and favored stacked attention in **2/5** seeds, missing the preregistered +2-point / 4-of-5 requirements. Secondary rankings changed with length and budget; wide attention reached 99.86% versus stacked attention's 96.40% at length 15 and 240 steps. The original v0.1 frozen experiment remains intact. Neither experiment establishes architecture novelty or general autonomous AI self-improvement.
+
