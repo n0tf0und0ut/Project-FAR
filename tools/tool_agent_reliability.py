@@ -64,7 +64,7 @@ def policy_for_protocol(p):
 
 def selected_model(model_config=None):
     spec = {"name": MODEL, "digest": MODEL_DIGEST} if model_config is None else model_config
-    if not isinstance(spec, dict) or set(spec) != {"name", "digest"} or not isinstance(spec.get("name"), str) or MODEL_SPECS.get(spec["name"]) != spec.get("digest"):
+    if not isinstance(spec, dict) or set(spec) != {"name", "digest"} or not isinstance(spec.get("name"), str) or spec["name"] not in MODEL_SPECS or MODEL_SPECS[spec["name"]] != spec.get("digest"):
         raise ValueError("unapproved model configuration")
     return dict(spec)
 

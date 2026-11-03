@@ -454,6 +454,27 @@ class ModelV03Tests(unittest.TestCase):
         self.assertEqual(r.model_for_protocol(old),{"name":r.MODEL,"digest":r.MODEL_DIGEST})
         self.assertEqual([t for t in self.protocol["tasks"] if t["phase"]=="scored"],[t for t in old["tasks"] if t["phase"]=="scored"])
 
+    def test_unknown_model_with_null_digest_is_not_allowlisted(self):
+        for name in ("unregistered-model", ""):
+            with self.subTest(name=name):
+                bad = {"name": name, "digest": None}
+                with self.assertRaisesRegex(ValueError, "unapproved model"):
+                    r.selected_model(bad)
+                protocol = copy.deepcopy(self.protocol)
+                protocol["model"] = bad
+                with self.assertRaisesRegex(ValueError, "unapproved model"):
+                    r.validate_protocol(protocol)
+
+    def test_unknown_null_digest_is_rejected_before_backend_access(self):
+        bad = {"name": "unregistered-model", "digest": None}
+        with patch.object(r.urllib.request, "build_opener", side_effect=AssertionError("backend must not be accessed")):
+            with self.assertRaisesRegex(ValueError, "unapproved model"):
+                r.installed_digest(bad)
+            with self.assertRaisesRegex(ValueError, "unapproved model"):
+                r.run_task(self.task, 0, self.protocol_sha, SOURCE, self.out,
+                           agent_policy="v0.2", model_config=bad)
+        self.assertFalse(self.out.exists())
+
     def test_actual_requests_records_and_replay_bind_seven_billion(self):
         result=self.run_model()
         self.assertEqual(result["model"],self.model)

@@ -50,6 +50,10 @@ These tasks are short, static simulations. Policy selection uses supplied fixtur
 
 V0.1 produced correct substantive answers but violated write/answer-type requirements. V0.2's arithmetic task omitted calculation and returned an expression after an unrequested write. Those outcomes remain unchanged. V0.3 changed the backend, used fresh preflight inputs, and kept the 24 still-unexposed scored task objects, policy and thresholds fixed. No additional instruction or larger-model search occurred. The stages are disclosed development history, not pooled observations or an independent causal model comparison.
 
+## Post-execution software correction
+
+Final inspection found a configuration-validation defect outside the registered model domain: an unknown model name with a null digest could pass a helper check. The live CLI already blocked that configuration, and every actual record used the registered 7B name and full digest. [Software patch v0.3.1](POSTEXECUTION-VALIDATION-PATCH-V0.3.1.md) now rejects it before backend access. The measured source remains the immutable v0.3 commit below; the original reports and archive are unchanged. No new performance run or regrade occurred. Offline compatibility checking under the patched guard reproduced both original reports exactly.
+
 ## Permanent evidence and reconstruction
 
 - Frozen execution source: [`6c382c798df0a95824b79e76263318865ee24c68`](https://github.com/n0tf0und0ut/Project-FAR/commit/6c382c798df0a95824b79e76263318865ee24c68); tree `00d7f3ff241e7f26a965f5a77e70257320d6f069`.

@@ -28,6 +28,8 @@ Report first-attempt and pooled success descriptively, every family, all-three-s
 
 General agent reliability, cross-model performance, external replication, autonomous terminal/code-agent efficacy, FAR-specific improvement and deployment readiness remain unestablished. A genuine broader reliability claim additionally requires a named agent/model/version and deployment distribution, representative independently graded held-out tasks, repeated trials, failure/authorization/regression tests, and external validation. No finite test establishes reliability on arbitrary unbounded tasks.
 
+Current software includes the separate [post-execution validation patch v0.3.1](POSTEXECUTION-VALIDATION-PATCH-V0.3.1.md). It rejects unknown/null-digest model configurations; the completed performance result still refers to its original frozen v0.3 source and evidence.
+
 ## Methodological sources
 
 - Yao et al., [τ-bench, arXiv:2406.12045](https://arxiv.org/abs/2406.12045): repeated-success reliability is distinct from obtaining one successful attempt. Its tasks, simulated users and published scores are not reused here.
