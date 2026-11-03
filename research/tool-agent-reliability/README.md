@@ -1,6 +1,6 @@
 # Bounded tool-agent operational reliability
 
-Status: **Research; prospective protocol, no observations yet.**
+Status: **Research. [V0.1 completed and stopped at preflight](RESULTS-V0.1.md); v0.2 is prospective and has no observations yet.**
 
 This separately registered agent-only investigation follows the completed one-shot repair pilot's unresolved tool-use capability. It asks how consistently the pinned Qwen2.5-Coder 1.5B agent can complete multistep tasks using executed tools. It does not compare FAR with a control, execute SWE-agent v3, pool earlier observations, or reopen that study's closed gate.
 
@@ -8,7 +8,9 @@ The environment is a bounded virtual file workspace and safe arithmetic calculat
 
 ## Prospective design
 
-`protocol-v0.1.json` fixes the exact model manifest, task payloads, oracles, three seeds, action/time/token budgets and launch/stopping criteria. The Ollama release and archive are pinned by the existing startup script. The exact committed runner, protocol, startup script and workflow are the source identity. Any runtime, task, grading or policy repair after exposure requires a new version; original outputs stay immutable. No outcome-based tuning or selecting a favorable rerun is permitted.
+The preserved `protocol-v0.1.json` fixes the stopped original study. The separately versioned `protocol-v0.2.json` fixes the exact model manifest, task payloads, oracles, three seeds, action/time/token budgets and launch/stopping criteria. The Ollama release and archive are pinned by the existing startup script. The exact committed runner, protocol, startup script and workflow are the source identity. Any runtime, task, grading or policy repair after exposure requires a new version; original outputs stay immutable. No outcome-based tuning or selecting a favorable rerun is permitted.
+
+V0.2 adds only an explicit prohibition on unrequested file writes and an integer-typed finish example after v0.1 exposed those interface failures. It uses three fresh preflight inputs; its 24 scored task objects and thresholds are byte-identical to the original unexposed objects. No preflight outcome is pooled or retroactively regraded, and no additional instruction search is planned after this successor.
 
 A three-task, disjoint capability preflight runs once per task at seed zero. Broader execution is allowed only with all three complete replayable traces, at least two successful tasks and zero unsafe writes. A failed gate stops the study: the 72 broader slots are **NOT RUN**, not 72 failures. Transport/infrastructure failures are reported separately, never silently retried or dropped.
 
@@ -30,5 +32,7 @@ General agent reliability, cross-model performance, external replication, autono
 
 - Yao et al., [τ-bench, arXiv:2406.12045](https://arxiv.org/abs/2406.12045): repeated-success reliability is distinct from obtaining one successful attempt. Its tasks, simulated users and published scores are not reused here.
 - Maintainers, [Terminal-Bench 4.0](https://www.tbench.ai/news/terminal-bench-4-0), consulted 2026-11-03: resource limits and environment/task changes affect benchmark interpretation and require prospective versioning. This internal simulation does not implement or claim a Terminal-Bench score.
+
+Historical v0.1 reconstruction requires its exact frozen checkout `34f7bdd06df4cf1d15a73d29eadf3e8773105c89`. Current CLI execution uses v0.2 and refuses v0.1 launches.
 
 No accepted theory, canonical methodology, source authority or performance claim is promoted by this investigation.

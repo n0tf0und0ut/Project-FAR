@@ -28,8 +28,9 @@ def provider(actions):
 
 class RunnerTests(unittest.TestCase):
     def setUp(self):
-        self.protocol = r.load_protocol()
-        self.digest = r.sha(r.DEFAULT_PROTOCOL.read_bytes())
+        self.protocol_path = r.ROOT / "research/tool-agent-reliability/protocol-v0.1.json"
+        self.protocol = r.load_protocol(self.protocol_path)
+        self.digest = r.sha(self.protocol_path.read_bytes())
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.out = Path(self.temp.name) / "record.json"
@@ -285,6 +286,13 @@ class RunnerTests(unittest.TestCase):
             bad=copy.deepcopy(result);bad[key]=value
             with self.assertRaises(ValueError):self.replay(bad)
 
+    def test_legacy_records_without_policy_metadata_replay_only_original_system(self):
+        result=self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")])
+        result.pop("agent_policy");result.pop("system_sha256")
+        self.assertTrue(self.replay(result)["passed"])
+        with self.assertRaisesRegex(ValueError,"policy identity"):
+            r.replay(result,self.task,self.digest,SOURCE,allow_synthetic=True,agent_policy="v0.2")
+
     def test_missing_duplicate_and_synthetic_rows_fail_closed(self):
         result=self.run_actions([action("read_file",path="facts.json"),action("finish",answer="blue")])
         report=r.analyze(self.protocol,[result,result],self.digest,SOURCE,phase="preflight",allow_synthetic=True)
@@ -319,17 +327,106 @@ class RunnerTests(unittest.TestCase):
             with self.assertRaises(SystemExit):r.main(["run","--phase","scored","--out",str(self.out)])
 
     def test_cli_preflight_runs_all_three_tasks_in_single_job(self):
+        new_protocol = r.load_protocol()
         with patch.object(r,"source_identity",return_value=SOURCE),patch.object(r,"installed_digest",return_value=r.MODEL_DIGEST),patch.object(r,"run_task",return_value={"valid":True,"grade":{"passed":False},"terminal_reason":"INVALID_ACTION"}) as run:
             r.main(["run","--phase","preflight","--out",str(Path(self.temp.name)/"preflight")])
             self.assertEqual(run.call_count,3)
-            self.assertEqual({call.args[0]["id"] for call in run.call_args_list},{t["id"] for t in self.protocol["tasks"] if t["phase"]=="preflight"})
+            self.assertEqual({call.args[0]["id"] for call in run.call_args_list},{t["id"] for t in new_protocol["tasks"] if t["phase"]=="preflight"})
+            self.assertTrue(all(call.kwargs["agent_policy"] == "v0.2" for call in run.call_args_list))
 
     def test_source_identity_covers_runtime_workflow_and_dependency(self):
         def git(*args):
             return "a"*40
         with patch.object(r,"git_value",side_effect=git):
-            source=r.source_identity()
+            source=r.source_identity(self.protocol_path)
         self.assertEqual(set(source["files"]),{"tools/tool_agent_reliability.py","research/tool-agent-reliability/protocol-v0.1.json","scripts/workflow_efficacy_start_ollama.sh","tools/workflow_efficacy_free_agent.py",".github/workflows/far-tool-agent-reliability.yml"})
+
+
+class PolicyV02Tests(unittest.TestCase):
+    def setUp(self):
+        self.protocol = r.load_protocol()
+        self.protocol_sha = r.sha(r.DEFAULT_PROTOCOL.read_bytes())
+        self.task = copy.deepcopy(next(t for t in self.protocol["tasks"] if t["phase"] == "preflight"))
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.out = Path(self.temp.name) / "successor.json"
+
+    def run_successor(self):
+        actions = [action("read_file",path=path) for path in self.task["oracle"]["required_reads"]]
+        actions.append(action("finish",answer=self.task["oracle"]["answer"]))
+        return r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,provider=provider(actions),digest=r.MODEL_DIGEST,agent_policy="v0.2")
+
+    def test_successor_default_and_policy_in_every_request(self):
+        self.assertEqual(r.DEFAULT_PROTOCOL.name,"protocol-v0.2.json")
+        self.assertEqual(r.policy_for_protocol(self.protocol),"v0.2")
+        result = self.run_successor()
+        self.assertEqual(result["agent_policy"],"v0.2")
+        self.assertEqual(result["system_sha256"],r.sha(r.SYSTEM_V02.encode()))
+        for event in result["events"]:
+            request = json.loads(event["request_utf8"])
+            self.assertEqual(request["messages"][0]["content"],r.SYSTEM_V02)
+            self.assertNotIn("oracle",event["request_utf8"])
+        first_user = json.loads(result["events"][0]["request_utf8"])["messages"][1]["content"]
+        for content in self.task["files"].values():
+            self.assertNotIn(content,first_user)
+        r.replay(result,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2")
+
+    def test_legacy_system_is_preserved_and_successor_only_appends(self):
+        old=r.load_protocol(r.ROOT / "research/tool-agent-reliability/protocol-v0.1.json")
+        self.assertEqual(r.policy_for_protocol(old),"v0.1")
+        self.assertEqual(r.initial_messages(self.task,"v0.1")[0]["content"],r.SYSTEM)
+        self.assertTrue(r.SYSTEM_V02.startswith(r.SYSTEM+"\n"))
+        self.assertIn("no extra output files",r.SYSTEM_V02)
+        self.assertIn('"answer":214',r.SYSTEM_V02)
+        self.assertNotIn("no extra output files",r.SYSTEM)
+
+    def test_policy_metadata_and_raw_prompt_drift_are_rejected(self):
+        result=self.run_successor()
+        for change in (lambda x:x.update(agent_policy="v0.1"),lambda x:x.update(system_sha256="0"*64),lambda x:x.pop("agent_policy"),lambda x:x.pop("system_sha256")):
+            bad=copy.deepcopy(result);change(bad)
+            with self.assertRaisesRegex(ValueError,"policy identity"):
+                r.replay(bad,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2")
+        bad=copy.deepcopy(result)
+        request=json.loads(bad["events"][0]["request_utf8"])
+        request["messages"][0]["content"]=r.SYSTEM
+        raw=r.encoded(request)
+        bad["events"][0].update(request_utf8=raw.decode(),request_sha256=r.sha(raw))
+        with self.assertRaisesRegex(ValueError,"request/prompt drift"):
+            r.replay(bad,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.2")
+        with self.assertRaisesRegex(ValueError,"policy identity"):
+            r.replay(result,self.task,self.protocol_sha,SOURCE,allow_synthetic=True,agent_policy="v0.1")
+
+    def test_analysis_uses_protocol_policy_and_never_coerces_answer(self):
+        task=copy.deepcopy(next(t for t in self.protocol["tasks"] if t["phase"] == "preflight" and "calculator" in t["oracle"]["required_tools"]))
+        steps=[action("read_file",path=path) for path in task["oracle"]["required_reads"]]
+        steps.extend([action("calculator",expression=str(task["oracle"]["answer"])),action("finish",answer=str(task["oracle"]["answer"]))])
+        result=r.run_task(task,0,self.protocol_sha,SOURCE,self.out,provider=provider(steps),digest=r.MODEL_DIGEST,agent_policy="v0.2")
+        report=r.analyze(self.protocol,[result],self.protocol_sha,SOURCE,phase="preflight",allow_synthetic=True)
+        self.assertEqual(report["replayed_records"],1)
+        self.assertEqual(report["passed"],0)
+        self.assertFalse(result["grade"]["checks"]["answer"])
+        self.assertFalse(report["preflight_gate_passed"])
+
+    def test_successor_source_identity_uses_successor_workflow(self):
+        with patch.object(r,"git_value",return_value="a"*40):
+            source=r.source_identity()
+        self.assertIn(".github/workflows/far-tool-agent-reliability-v02.yml",source["files"])
+        self.assertIn("research/tool-agent-reliability/protocol-v0.2.json",source["files"])
+        self.assertNotIn(".github/workflows/far-tool-agent-reliability.yml",source["files"])
+
+    def test_current_cli_refuses_historical_live_execution_before_source_or_provider(self):
+        path=r.ROOT / "research/tool-agent-reliability/protocol-v0.1.json"
+        with patch.object(r,"source_identity",side_effect=AssertionError("must refuse first")),patch.object(r,"installed_digest",side_effect=AssertionError("must not inspect provider")):
+            with self.assertRaises(SystemExit):
+                r.main(["run","--protocol",str(path),"--phase","preflight","--out",str(self.out)])
+
+    def test_unknown_policy_rejected_without_provider_access(self):
+        bad=copy.deepcopy(self.protocol);bad["agent_policy"]="future-unreviewed"
+        with self.assertRaisesRegex(ValueError,"unknown agent policy"):
+            r.validate_protocol(bad)
+        with patch.object(r,"installed_digest",side_effect=AssertionError("must not inspect provider")):
+            with self.assertRaisesRegex(ValueError,"unknown agent policy"):
+                r.run_task(self.task,0,self.protocol_sha,SOURCE,self.out,agent_policy="future-unreviewed")
 
 
 if __name__=="__main__":
