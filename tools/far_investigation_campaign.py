@@ -9,6 +9,8 @@ import argparse
 import hashlib
 import json
 import platform
+import os
+import socket
 import subprocess
 import sys
 import time
@@ -43,6 +45,74 @@ def file_sha(path):
     return h.hexdigest()
 
 
+def _file_identity(path):
+    stat = Path(path).stat()
+    return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+
+
+def _server_identity(server, command, executable_identity, model_identity):
+    """Fail closed unless this live Linux child owns the endpoint and weights.
+
+    A health response alone identifies neither the serving process nor model.
+    Bind the listener's kernel socket inode, exact process arguments, executable
+    file identity and mapped model inode to the process we actually launched.
+    This is local provenance, not protection against a malicious host or runner.
+    """
+    if server.poll() is not None:
+        raise RuntimeError('local server exited during startup or inference')
+    try:
+        # /proc can expose the parent PID namespace while Popen reports the
+        # child's innermost PID. Resolve only our actual direct children; never
+        # interpret an unrelated same-numbered process as the launched server.
+        parent_status = Path('/proc/self/status').read_text().splitlines()
+        parent_pid = next(line.split()[1] for line in parent_status if line.startswith('Pid:'))
+        candidates = []
+        for candidate in Path('/proc').iterdir():
+            if not candidate.name.isdigit():
+                continue
+            try:
+                status = (candidate / 'status').read_text().splitlines()
+            except OSError:
+                continue  # Unrelated processes can disappear or deny access.
+            fields = {line.split(':', 1)[0]: line.split(':', 1)[1].split() for line in status if ':' in line}
+            if fields.get('PPid') != [parent_pid]:
+                continue
+            namespace_ids = fields.get('NSpid', [])
+            if namespace_ids and int(namespace_ids[-1]) == server.pid:
+                candidates.append(candidate)
+        if len(candidates) != 1:
+            raise RuntimeError('cannot uniquely identify the launched direct child')
+        proc = candidates[0]
+        actual_command = [os.fsdecode(x) for x in (proc / 'cmdline').read_bytes().split(b'\0') if x]
+        if actual_command != command or _file_identity(proc / 'exe') != executable_identity:
+            raise RuntimeError('local server executable or command identity changed')
+        model_path = Path(command[command.index('--model') + 1])
+        if _file_identity(model_path) != model_identity:
+            raise RuntimeError('local model file identity changed')
+        device, inode = model_identity[:2]
+        mapped = any(int(parts[4]) == inode
+                     and tuple(int(x, 16) for x in parts[3].split(':'))
+                     == (os.major(device), os.minor(device))
+                     for line in (proc / 'maps').read_text().splitlines()
+                     if len(parts := line.split(None, 5)) >= 5)
+        if not mapped:
+            raise RuntimeError('launched server has not mapped the registered model file')
+        listeners = {parts[9] for line in (proc / 'net' / 'tcp').read_text().splitlines()[1:]
+                     if len(parts := line.split()) >= 10
+                     and parts[1] == '0100007F:1F95' and parts[3] == '0A'}
+        owned = {entry.readlink().as_posix() for entry in (proc / 'fd').iterdir()}
+        matching = sorted(inode for inode in listeners if 'socket:[' + inode + ']' in owned)
+        if len(matching) != 1 or set(matching) != listeners or server.poll() is not None:
+            raise RuntimeError('model endpoint is not exclusively owned by the launched server')
+        return {'pid': server.pid, 'procfs_pid': int(proc.name), 'endpoint': 'http://127.0.0.1:8085',
+                'command': command, 'listener_inode': matching[0],
+                'executable_file_identity': list(executable_identity),
+                'mapped_model_file_identity': list(model_identity),
+                'scope': 'Linux process/listener/file identity; no malicious-host authentication'}
+    except (OSError, ValueError, IndexError, StopIteration) as exc:
+        raise RuntimeError('cannot establish launched server process/model ownership') from exc
+
+
 def metrics(state):
     integrity = audit_transcript(state)
     intake = state['intake']
@@ -53,7 +123,7 @@ def metrics(state):
             'retrieved_sources': len(state['sources']), 'extracted_quotes': len(state['evidence']),
             'source_comparisons': len(state['comparisons']), 'frozen_valid_family': frozen and integrity['valid'],
             'candidate_count': len(candidates), 'native_evaluations': len(state['evaluations']),
-            'native_counterexamples': sum(bool(e['result'].get('counterexample')) for e in state['evaluations']),
+            'native_counterexamples': sum(e['result'].get('counterexample') is not None for e in state['evaluations']),
             'analyst_declared_conflicts': sum(c['asserted_conflict'] for c in state['comparisons']),
             'semantic_correctness': None, 'contract_semantic_completeness': None,
             'unsupported_conclusions': None,
@@ -200,16 +270,34 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
         if 'agent' in modes:
             if not model_path or not server_path or campaign['model_sha256'] != MODEL_SHA256:
                 raise ValueError('actual exact pinned local model and server required')
-            log = (output / 'model-server.log').open('w')
-            server = subprocess.Popen([str(server_path), '--model', str(model_path), '--host', '127.0.0.1',
-                '--port', '8085', '--ctx-size', '16384', '--threads', '6', '--parallel', '1',
-                '--seed', '271828', '--jinja', '--no-webui'], stdout=log, stderr=log)
+            # An unrelated server must not satisfy readiness, even if the new
+            # executable exits before the first successful health response.
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as reservation:
+                try:
+                    reservation.bind(('127.0.0.1', 8085))
+                except OSError as exc:
+                    raise RuntimeError('local model endpoint is occupied') from exc
+            model_path, server_path = Path(model_path).resolve(strict=True), Path(server_path).resolve(strict=True)
+            executable_identity, model_identity = _file_identity(server_path), _file_identity(model_path)
             campaign['server_executable_sha256'] = file_sha(server_path)
+            if (file_sha(model_path) != campaign['model_sha256']
+                    or _file_identity(model_path) != model_identity
+                    or _file_identity(server_path) != executable_identity):
+                raise RuntimeError('model or executable changed while binding launch provenance')
+            command = [str(server_path), '--model', str(model_path), '--host', '127.0.0.1',
+                '--port', '8085', '--ctx-size', '16384', '--threads', '6', '--parallel', '1',
+                '--seed', '271828', '--jinja', '--no-webui']
+            log = (output / 'model-server.log').open('w')
+            server = subprocess.Popen(command, stdout=log, stderr=log)
             persist(output / 'campaign.json', campaign)
             for _ in range(120):
+                if server.poll() is not None:
+                    raise RuntimeError('local server exited during startup')
                 try:
                     with urllib.request.urlopen('http://127.0.0.1:8085/health', timeout=1) as response:
                         if response.status == 200:
+                            campaign['server_process_identity'] = _server_identity(
+                                server, command, executable_identity, model_identity)
                             break
                 except OSError:
                     if server.poll() is not None:
@@ -223,7 +311,8 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
                 path = output / (task['id'] + '-' + mode + '.json')
                 runtime = Investigation(task['question'], policy, seeds=task['source_hints'], mode=mode,
                                        budget=budget, checkpoint=lambda s: persist(path, s))
-                state = runtime.run_agent(LocalModel()) if mode == 'agent' else runtime.run_workflow()
+                state = runtime.run_agent(LocalModel(identity_check=lambda: _server_identity(
+                    server, command, executable_identity, model_identity))) if mode == 'agent' else runtime.run_workflow()
                 persist(path, state)
                 row = {'task_id': task['id'], 'mode': mode, 'transcript': path.name,
                        'transcript_sha256': file_sha(path), 'metrics': metrics(state)}

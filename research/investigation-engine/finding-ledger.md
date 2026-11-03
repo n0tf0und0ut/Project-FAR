@@ -79,3 +79,76 @@ preparation tests pass in the isolated pinned graph environment. Original
 campaign replay passes 24/24 transcripts, native conformance passes 7/7, and fast
 repository health reports 124 passed, zero warnings and zero failures. These
 checks establish the stated engineering invariants, not live-model efficacy.
+
+## Exact-head review correction on November 3, 2026
+
+Reviewed PR #614 head: `1caca4e019ed631812aaf1cf0b076e6684fdb401`.
+Protected main and merge base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`.
+Local construction identity for the implementation/regression fix:
+`0b82c18564e23c97b1589f833f2f3d7a1c17c6b9`.
+Local history-preserving predecessor integration identity:
+`b7eacd0695c1a58560c7b18f1b624e1d7d9409d3` incorporates final PR #608 head
+`3d33b42810a92b8e796c8ecb8ddca4d799996423`; it retains the predecessor's
+source/model timeout/reset checkpoints, native framing controls and ledger.
+These local construction commits are not asserted to be GitHub-reachable.
+The [successor PR](https://github.com/n0tf0und0ut/Project-FAR/pull/614) records
+the published corrective head, tested tree and thread-closure evidence; an API
+publication can preserve the exact tested tree under a different commit identity.
+The shared reader gains optional operator-opener, bounded progressive-read and
+checkpoint parameters for the general source path; its framing and interrupted
+chunk-prefix checks remain shared with the predecessor clients.
+
+| Root cause / source | Violated invariant and observed reproducer | Disposition / regression |
+| --- | --- | --- |
+| **ENG-SOURCE-FRAMING** — thread `PRRT_kwDOTH_vCM6zSj2V`, [4459293320](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293320), `tools/far_investigation_retrieval.py:207–208` | A native response declaring 100 bytes but sending a valid 15-byte prefix was accepted. Native malformed chunk separators and unterminated trailers were also accepted; timeout/reset prefixes were lost. Three framing cases and two interrupted-prefix cases failed before correction. | **Fixed.** Route the general source and public-search paths through the existing hardened reader, preserving forced proxy policy and failure prefixes. `RetrievalTests.test_native_short_and_malformed_chunk_framing_cannot_support_evidence`, complete-length/chunk positive controls, native timeout/reset checkpoints and a valid-JSON-prefix public-search regression pass. |
+| **ENG-SOURCE-TRANSPORT-BINDING** — thread `PRRT_kwDOTH_vCM6zSj2b`, [4459293330](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293330), `tools/far_investigation_audit.py:224–226` | Adding an allowed-host receipt to failed, unfrozen retained `H201-agent.json` and resealing previously passed audit, despite no retrieval observation. Removing/changing a parse-failure source observation or its HTTP request also escaped detection. | **Fixed.** Every retained source consumes one exact matching retrieval-attempt observation bound to both proposal URL and HTTP reservation; successful tool results are not required after parsing fails. `test_resealed_orphan_source_is_rejected_even_without_intake`, `test_parse_failure_source_requires_its_exact_retrieval_observation` and the original-H201 hostile-copy regression pass. Unmodified failed histories remain valid. |
+| **ENG-EXTRACTION-PROPOSAL** — thread `PRRT_kwDOTH_vCM6zSj2i`, [4459293341](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293341), `tools/far_investigation_audit.py:235–236` | Resealing both extraction-result and final-state relation copies as `CONTRADICT` while the actual/model proposals still requested `support` passed audit with zero substitutions. Changing both claim copies also passed. | **Fixed.** Reconstruct every successful extraction from the actual proposal, normalized relation, verified source/quote binding and fixed assurance label, then compare both recorded outputs. `test_resealed_extraction_copies_cannot_override_requested_arguments` rejects relation/claim/source mutations. |
+| **ENG-SERVER-OWNERSHIP** — thread `PRRT_kwDOTH_vCM6zSj2r`, [4459293355](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293355), `tools/far_investigation_campaign.py:211–213` | A fixture listener already on 8085 plus a requested executable exiting 43 and an unrelated successful health response produced an `EXECUTED` campaign before correction. Requested file hashes did not identify the process serving responses. | **Fixed.** Reject occupied startup endpoints; require live direct-child command/executable/model-mapping identity and exclusive kernel-listener ownership at readiness and before/after every model response. A real local fixture process (no inference) passes the positive control; occupied port, wrong command/executable/model/owner, dead child and response-time owner changes fail. Linux `/proc` and model-file mapping are required; unavailable evidence fails closed. |
+| **ENG-FINISH-TRANSACTION** — thread `PRRT_kwDOTH_vCM6zSj2y`, [4459293371](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293371), `tools/far_investigation_engine.py:462–463` | Advancing the controlled clock from 0 to .3 seconds during finish under a .2-second budget yielded rejected finish plus completed status. A separate delayed finish journal escaped the initial narrow correction in all three lanes; its three failures were also reproduced. | **Fixed.** Construct the report without completion side effects, commit completion only after accepted dispatch/budget/result, and fail completion when the final measured time/token budget is exceeded. `test_finish_is_not_committed_when_postdispatch_budget_expires` preserves no rejected report; `test_completion_journal_cost_cannot_escape_the_final_budget_in_any_lane` prevents scored completion after journal delay while preserving accepted diagnostic evidence. Both audit validly as failures. |
+| **ENG-EMPTY-WITNESS** — thread `PRRT_kwDOTH_vCM6zSj26`, [4459293384](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4459293384), `tools/far_investigation_campaign.py:56` | A complete integrity-valid truth-table investigation of `False` from no premises returned `REFUTED` with counterexample `{}` but reported zero witnesses. | **Fixed.** Count `counterexample is not None`. `test_empty_counterexample_valuation_counts_as_a_native_witness` executes the full frozen/native pipeline and reports one witness. |
+
+Verification of the stabilized code, before final documentation-only commit:
+**208/208 focused tests pass**, with zero skips, in an isolated environment with
+the pinned actual Open Deep Research source and preparation dependencies. The
+seven preparation tests comprise five actual-graph tests and two boundary tests;
+the positive actual-graph fixture forbids network connections. Offline
+archive replay remains valid for all 24 original transcripts; native current
+conformance passes 7/7. Before predecessor integration, the ordinary environment
+collected 207 tests with only its five pre-existing optional actual-graph skips;
+the pinned environment passed all 207. The pre-integration `make health-fast`
+run exits zero. After integration, the separately executed focused suite and
+`python tools/repo_health_check.py --fast --skip-canonical-tests` pass; the latter
+reports **124 passed, zero warnings and zero failures**. Final-head hosted review, protected checks and
+merge authorization remain separate, outstanding obligations.
+
+All six hosted findings are accepted, distinct root causes with reproduced
+counterexamples. No frozen archive, registration, selection, protocol, result or
+source binding was rewritten. Original agent **0/8**, deterministic **7/8** and
+declarative **7/8** completions remain the reported bounded result. No new scored
+model run, competitor observation, external independence, semantic correctness,
+superiority, accepted-methodology change or production promotion is claimed.
+
+## Internal review follow-up before publication
+
+Read-only internal reviewer `/root/review_rebuilt_evidence` inspected local
+candidate `b94deb17a4259b451d204a2cf748f2acf324026e`; the coordinator independently
+reproduced the reported comparison, resource, orphan-evidence and transport
+counterexamples. This is internal code inspection on a shared host, without
+external/I2 independence. The local corrective construction identity is
+`6c0da35def84f3073e232b88ad10059b7c971f1a`; published head/tree evidence belongs
+in the PR linked above and is not inferred from that local commit identity.
+
+| Root cause | Reproducer and correction | Verification |
+| --- | --- | --- |
+| **ENG-COMPARISON-PROPOSAL** | Changing both final comparison and matching tool-result `asserted_conflict` to false preserved a valid audit and changed conflict count 1 → 0 despite unchanged support/contradiction evidence and proposals. Forged publisher groups, alternatives, evidence IDs and assurance strings had the same mechanism. An orphan final evidence row or duplicated comparison also escaped the one-way output check. Reconstruct comparison outputs from the actual proposal and previously produced quote-bound evidence, then require exact ordered comparison and evidence-inventory coverage. Preserve legitimate effects retained before post-dispatch rejection, while excluding frozen/duplicate pre-dispatch rejections. Neighboring deterministic retrieve/inspect views and FAR-dispatch outputs receive the same proposal-derived binding and applicable inventory coverage. | `test_resealed_comparison_copies_are_reconstructed_from_the_proposal`, `test_orphan_and_duplicate_final_evidence_and_comparisons_are_rejected`, `test_retrieve_and_inspect_results_cannot_change_the_source_projection` and `test_far_verification_results_and_final_inventory_are_bound_to_dispatch` reject mutations. An extra valid extraction and both extraction/comparison effects retained after budget rejection remain auditable. |
+| **ENG-RESOURCE-SCALARS** | Setting `elapsed_seconds=-10` and resealing passed audit and exported negative time. Boolean elapsed, nonintegral or oversized budget fields, and completed elapsed exactly at the exhausted limit were also accepted. Require finite nonnegative numeric elapsed, exact runtime budget fields/types/positive bounds, and strict remaining completion budgets. This checks recorded scalars only; it does not invent unrecorded wall-clock measurements or authenticate elapsed time. | `test_elapsed_and_budget_scalars_have_runtime_types_bounds_and_completion_limits` rejects all nine negative/boundary/type mutations. Existing valid completion and over-budget failure controls pass. |
+| **ENG-SOURCE-FRAMING**, offline coherence extension | A completed fixture using the real shared retrieval reader stayed audit-valid after every successful receipt's transport was changed to incomplete, prefix-only and `ContentLengthMismatch`. Accepted model proposals had the same optional-envelope coherence gap. Where a transport envelope exists, require complete HTTP 200, untruncated full-body scope, no transport/framing error, and exact retained body/hash/count agreement with the accepted observation. Frozen legacy receipts lacking this envelope remain supported; no historical framing evidence is fabricated. | The real-reader successful-source positive control passes; `test_successful_receipts_cannot_contradict_their_optional_transport` rejects the recursively resealed contradiction. `test_accepted_model_proposal_requires_a_coherent_optional_transport` passes its complete positive control and rejects incomplete accepted model transport. Original legacy archive replay remains 24/24. |
+| **ENG-CAMPAIGN-FIXTURE-LOCK** | Two simultaneous invocations of the real-child/occupied-port tests both failed: one bind raised `EADDRINUSE`, and the other child could not emit `READY`. Hosted canonical and health suites can share the production test endpoint. A cross-process POSIX test lock serializes these two fixed-port fixtures; the actual native listener/process ownership checks remain active. | Four simultaneous invocations pass, eight native fixture tests total. No test is skipped and no ownership assertion is replaced with a mock. |
+
+Before correction, the first five new hostile audit methods produced **20
+assertion failures**. The stabilized focused suite now passes **216/216**, zero
+skips, including the pinned actual-graph preparation controls and all preserved
+predecessor regressions. The real-child fixture invokes no model inference.
+All original archives, frozen protocols, selections, results and their scientific
+source identities remain unchanged. Final independent review and hosted gates
+must cover the published candidate separately.

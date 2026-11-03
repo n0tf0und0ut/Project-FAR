@@ -58,6 +58,197 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         reseal(state)
         self.assert_rejected(state,'transport_time')
 
+    def test_resealed_orphan_source_is_rejected_even_without_intake(self):
+        runtime = self.runtime(budget=Budget(max_steps=1))
+        state = runtime.run_agent(ScriptedFixtureModel([action('inspect', source_id='absent')]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        state['sources']['src.1'] = receipt(URL_A, 'orphan retained')
+        reseal(state)
+        self.assert_rejected(state, 'transport observation')
+
+    def test_parse_failure_source_requires_its_exact_retrieval_observation(self):
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org',)),
+            fetcher=FixtureRetriever({URL_A: ('{"broken":', 'application/json')}),
+            budget=Budget(max_steps=1))
+        original = runtime.run_agent(ScriptedFixtureModel([action('retrieve', url=URL_A)]))
+        self.assertIn('src.1', original['sources'])
+        self.assertNotIn('src.1', original['projections'])
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for mutation in ('remove_observation', 'change_source', 'change_request'):
+            state = copy.deepcopy(original)
+            if mutation == 'remove_observation':
+                state['events'] = [e for e in state['events'] if e['kind'] != 'HTTP_OBSERVATION']
+            elif mutation == 'change_source':
+                state['sources']['src.1'] = receipt(URL_A, '{"different":', 'application/json')
+            else:
+                event = next(e for e in state['events'] if e['kind'] == 'HTTP_REQUEST')
+                event['payload']['url'] = URL_B
+            for index, event in enumerate(state['events'], 1):
+                event['sequence'] = index
+            reseal(state)
+            with self.subTest(mutation=mutation):
+                self.assert_rejected(state, 'transport observation')
+
+    def test_resealed_extraction_copies_cannot_override_requested_arguments(self):
+        original = self.complete()
+        for field, value in (('relation', 'CONTRADICT'), ('claim', 'Different claim'),
+                             ('source_id', 'src.2')):
+            state = copy.deepcopy(original)
+            state['evidence']['ev.1'][field] = value
+            result = next(e['payload']['result'] for e in state['events']
+                          if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'extract')
+            result[field] = value
+            reseal(state)
+            with self.subTest(field=field):
+                self.assert_rejected(state, 'extract')
+
+    def test_resealed_comparison_copies_are_reconstructed_from_the_proposal(self):
+        from tools.far_investigation_campaign import metrics
+        original = self.complete()
+        self.assertEqual(metrics(original)['analyst_declared_conflicts'], 1)
+        mutations = {'asserted_conflict': False, 'publisher_host_groups': {'forged.example.org': ['src.1', 'src.2']},
+            'alternatives': ['A fabricated alternative'], 'evidence_ids': ['ev.1'],
+            'independence': 'ESTABLISHED', 'conflict_assurance': 'mechanically proved'}
+        for field, value in mutations.items():
+            state = copy.deepcopy(original)
+            state['comparisons'][0][field] = copy.deepcopy(value)
+            result = next(e['payload']['result'] for e in state['events']
+                if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'compare')
+            result[field] = copy.deepcopy(value)
+            reseal(state)
+            with self.subTest(field=field):
+                self.assert_rejected(state, 'compare')
+
+    def test_orphan_and_duplicate_final_evidence_and_comparisons_are_rejected(self):
+        original = self.complete()
+        for target in ('orphan_evidence', 'duplicate_comparison'):
+            state = copy.deepcopy(original)
+            if target == 'orphan_evidence':
+                state['evidence']['ev.orphan'] = copy.deepcopy(state['evidence']['ev.1'])
+            else:
+                state['comparisons'].append(copy.deepcopy(state['comparisons'][0]))
+            reseal(state)
+            with self.subTest(target=target):
+                self.assert_rejected(state, 'coverage')
+
+    def test_valid_extra_extraction_and_postdispatch_rejected_effects_remain_auditable(self):
+        script = full_script()
+        script.insert(5, action('extract', source_id='src.1', quote='2 + 2 = 4',
+                                relation='context', claim='A distinct recorded context'))
+        state = self.runtime().run_agent(ScriptedFixtureModel(script))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        for delayed in ('extract', 'compare'):
+            clock = [0.0]
+            with self.subTest(delayed=delayed), patch('tools.far_investigation_engine.time.monotonic', side_effect=lambda: clock[0]):
+                runtime = self.runtime(budget=Budget(max_seconds=.2))
+                dispatch = runtime._dispatch
+                def expire(tool, args):
+                    result = dispatch(tool, args)
+                    if tool == delayed:
+                        clock[0] = .3
+                    return result
+                with patch.object(runtime, '_dispatch', side_effect=expire):
+                    state = runtime.run_agent(ScriptedFixtureModel(full_script()))
+                self.assertTrue(state['evidence'])
+                self.assertEqual(bool(state['comparisons']), delayed == 'compare')
+                self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_retrieve_and_inspect_results_cannot_change_the_source_projection(self):
+        choices = full_script()
+        choices.insert(2, action('inspect', source_id='src.1', query='calculation'))
+        original = self.runtime().run_agent(ScriptedFixtureModel(choices))
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for tool in ('retrieve', 'inspect'):
+            state = copy.deepcopy(original)
+            result = next(e['payload']['result'] for e in state['events']
+                if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == tool)
+            result['text'] = 'Forged observation presented to the model'
+            reseal(state)
+            with self.subTest(tool=tool):
+                self.assert_rejected(state, tool)
+
+    def test_elapsed_and_budget_scalars_have_runtime_types_bounds_and_completion_limits(self):
+        original = self.complete()
+        mutations = [('elapsed_seconds', -10), ('elapsed_seconds', True),
+            ('max_seconds', True), ('max_seconds', 3601), ('max_steps', 32.5),
+            ('max_steps', 101), ('max_http_calls', 101), ('max_model_tokens', 200001),
+            ('elapsed_seconds', original['policy']['budget']['max_seconds'])]
+        for field, value in mutations:
+            state = copy.deepcopy(original)
+            if field == 'elapsed_seconds':
+                state[field] = value
+            else:
+                state['policy']['budget'][field] = value
+                state['events'][0]['payload']['policy']['budget'][field] = value
+            reseal(state)
+            with self.subTest(field=field, value=value):
+                self.assert_rejected(state, 'budget' if field != 'elapsed_seconds' else 'elapsed')
+
+    def test_successful_receipts_cannot_contradict_their_optional_transport(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response((BODY_A if url == URL_A else BODY_B).encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+        state = Investigation(QUESTION, RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            fetcher=fetch).run_agent(ScriptedFixtureModel(full_script()))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        def contradict(node):
+            if isinstance(node, dict):
+                if node.get('status') == 'RETRIEVED' and isinstance(node.get('transport'), dict):
+                    node['transport'].update(response_complete=False, response_hash_scope='retained_prefix',
+                                              framing_error='ContentLengthMismatch')
+                for child in node.values():
+                    contradict(child)
+            elif isinstance(node, list):
+                for child in node:
+                    contradict(child)
+        contradict(state)
+        reseal(state)
+        self.assert_rejected(state, 'transport')
+
+    def test_accepted_model_proposal_requires_a_coherent_optional_transport(self):
+        state = self.complete()
+        def transport(node, complete):
+            if isinstance(node, dict):
+                if node.get('fixture') is True and node.get('response_base64'):
+                    raw = base64.b64decode(node['response_base64'])
+                    node['transport'] = {'http_status': 200, 'response_complete': complete,
+                        'response_truncated': False,
+                        'response_hash_scope': 'complete_body' if complete else 'retained_prefix',
+                        'raw_response_base64': node['response_base64'],
+                        'response_sha256': node['response_sha256'], 'response_bytes_retained': len(raw)}
+                for child in node.values():
+                    transport(child, complete)
+            elif isinstance(node, list):
+                for child in node:
+                    transport(child, complete)
+        transport(state, True)
+        reseal(state)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        transport(state, False)
+        reseal(state)
+        self.assert_rejected(state, 'model_transport')
+
+    def test_far_verification_results_and_final_inventory_are_bound_to_dispatch(self):
+        choices = full_script()
+        choices.insert(2, action('verify_far', source_id='src.1'))
+        original = self.runtime().run_agent(ScriptedFixtureModel(choices))
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for target in ('tool_result', 'orphan_final_result'):
+            state = copy.deepcopy(original)
+            if target == 'tool_result':
+                result = next(e['payload']['result'] for e in state['events']
+                    if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'verify_far')
+                result['status'] = 'VERIFIED_EXPLICIT_CONTRACT'
+            else:
+                state['far_verifications'].append(copy.deepcopy(state['far_verifications'][0]))
+            reseal(state)
+            with self.subTest(target=target):
+                self.assert_rejected(state, 'verify_far' if target == 'tool_result' else 'coverage')
+
     def test_simple_hash_chain_and_seal_mutations_are_rejected(self):
         original = self.complete()
         for mutation in ('source', 'event', 'seal', 'missing_seal'):

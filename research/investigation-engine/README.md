@@ -71,6 +71,16 @@ The campaign additionally records the actual executable hash, source hashes,
 Python/platform identity and all raw model envelopes. Neither weights nor
 credentials are committed. Pin downloads and verify these hashes before use.
 
+Campaign startup now refuses an occupied model endpoint. Before readiness and
+before/after each model response, Linux `/proc` evidence must bind the live direct
+child, exact launch command, executable file identity, mapped model-file inode
+and exclusive listening socket to the requested weights and runner. PID
+namespaces are reconciled against the actual direct-child parent relationship.
+An unavailable process view, unmapped weights, dead/replaced child, or different
+endpoint owner fails the attempt. This is local process provenance; it does not
+authenticate a malicious host or runner. The standalone engine's explicitly
+operator-started model remains a separate, operator-owned provenance boundary.
+
 Default network mode requires all observed DNS addresses to be public. In a
 proxy-only environment, explicitly select `--dns-mode proxy`: this requires the
 inherited HTTPS proxy, forces proxy routing, rejects bypass rules, preserves the
@@ -79,6 +89,31 @@ the configured proxy's DNS/destination enforcement; it does not fabricate a DNS
 answer or claim IP pinning. Source-controlled redirects, credentials, arbitrary
 methods, IP-literal destinations, private hostnames and automatic host expansion
 remain unavailable. Model/source text cannot change this policy.
+
+General source retrieval and public-search adapters use the existing shared
+bounded HTTP reader for declared-length and native chunk-framing validation.
+Incomplete and interrupted bodies retain their bounded byte prefixes and fail
+before evidence parsing. The offline auditor binds every retained source to the
+exact proposal, HTTP reservation and transport observation, including sources
+retained before a parser failure. Extraction is reconstructed from the actual
+proposal and verified quote binding; matching altered output copies cannot
+replace the requested source, claim or relation. These are internal consistency
+checks, without source-truth or external-authenticity assurance.
+
+Comparisons are also reconstructed from the dispatched evidence IDs and
+alternatives, verified quotes, publisher groups and normalized relation labels.
+Every retained evidence/comparison row must correspond to a producing tool
+attempt, including valid effects retained before a post-dispatch budget
+rejection. Recorded time and budgets must satisfy their runtime scalar bounds.
+When an accepted source or model observation includes a transport envelope, its
+complete-body flags, status, bytes and hash must agree; older frozen receipts
+without such an envelope do not gain retrospective framing assurance.
+
+`finish` commits completion only after its dispatch and budget checks succeed.
+The final measured budget also includes finish journaling in all three lanes;
+an over-budget attempt stays incomplete even when an accepted report is retained
+as diagnostic evidence. Native counterexamples are counted by existence, so an
+empty Boolean valuation `{}` remains a valid witness.
 
 Sources are projected as strict JSON, UTF-8 text or visible HTML. PDF, OCR,
 audio/video, arbitrary code execution, authenticated sources and consequential

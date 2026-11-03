@@ -135,10 +135,11 @@ class LocalModel:
     Raw envelope is journaled before JSON/telemetry parsing, including failures.
     A separate immutable model/runner digest record is required for benchmarks.
     """
-    def __init__(self, endpoint='http://127.0.0.1:8085/v1/chat/completions', model='local'):
+    def __init__(self, endpoint='http://127.0.0.1:8085/v1/chat/completions', model='local', *, identity_check=None):
         if endpoint != 'http://127.0.0.1:8085/v1/chat/completions':
             raise ValueError('only explicitly bound loopback model endpoint supported')
         self.endpoint, self.model = endpoint, model
+        self.identity_check = identity_check
         self.timeout = 90.0
 
     def __call__(self, prompt, checkpoint):
@@ -156,6 +157,9 @@ class LocalModel:
                     'requested_at': now(), 'response_base64': None, 'response_sha256': None}
         checkpoint(copy.deepcopy(envelope))
         try:
+            if self.identity_check is not None:
+                envelope['server_identity_before'] = self.identity_check()
+                checkpoint(copy.deepcopy(envelope))
             request = urllib.request.Request(self.endpoint, data=raw_request,
                                             headers={'Content-Type': 'application/json'}, method='POST')
             try:
@@ -168,6 +172,9 @@ class LocalModel:
             envelope.update(transport=transport, response_base64=base64.b64encode(raw).decode(),
                             response_sha256=hashlib.sha256(raw).hexdigest())
             checkpoint(copy.deepcopy(envelope))
+            if self.identity_check is not None:
+                envelope['server_identity_after'] = self.identity_check()
+                checkpoint(copy.deepcopy(envelope))
             parsed = _parse(raw.decode())
             message = parsed['choices'][0]['message']
             tokens = parsed['usage']['total_tokens']
@@ -182,7 +189,7 @@ class LocalModel:
             else:
                 proposal = _parse(message['content'])
             return proposal, {'tokens': tokens, 'model': parsed.get('model'), 'envelope': envelope}
-        except (ValueError, OSError, KeyError, IndexError, TypeError) as exc:
+        except (ValueError, RuntimeError, OSError, KeyError, IndexError, TypeError) as exc:
             envelope['error'] = {'class': type(exc).__name__, 'reason': str(exc)}
             checkpoint(copy.deepcopy(envelope))
             raise EngineError('model call failed: ' + type(exc).__name__) from exc
@@ -275,6 +282,11 @@ class Investigation:
             result = self._dispatch(tool, args)
             self.limits()
             self.event('TOOL_RESULT', {'tool': tool, 'result': result})
+            if tool == 'finish':
+                # Completion is committed only after dispatch, budget validation
+                # and recording the accepted result all succeed.
+                self.state['report'], self.state['status'] = result, 'BOUNDED_PIPELINE_COMPLETED'
+                self.state['finished_at'] = now()
             return result
         except (ValueError, KeyError, TypeError, IndexError, StopIteration, OSError) as exc:
             self.state['rejected_calls'] += 1
@@ -459,8 +471,6 @@ class Investigation:
                       'investigation_closure': 'Incomplete',
                       'closure_reason': 'EC-01 through EC-11 substantive methodology audit not established by pipeline execution',
                       'scope': 'Bounded native checks and procedural intake conformance; no universal semantic truth or external independence.'}
-            s['report'], s['status'] = report, 'BOUNDED_PIPELINE_COMPLETED'
-            s['finished_at'] = now()
             return report
         raise EngineError('unhandled tool')
 
@@ -613,7 +623,19 @@ class Investigation:
         except (ValueError, OSError, KeyError, TypeError) as exc:
             self.state['status'] = 'FAILED_OR_INCOMPLETE'
             self.event('FAILURE', {'class': type(exc).__name__, 'reason': str(exc)})
+        return self._finalize()
+
+    def _finalize(self):
         self.state['elapsed_seconds'] = time.monotonic() - self.started
+        if (self.state['status'] == 'BOUNDED_PIPELINE_COMPLETED'
+                and (self.state['elapsed_seconds'] >= self.budget.max_seconds
+                     or self.state['model_tokens'] >= self.budget.max_model_tokens)):
+            # Final journaling is part of the measured execution too. Preserve
+            # any accepted report as diagnostic evidence, but never score an
+            # over-budget execution as a bounded completion.
+            self.state['status'] = 'FAILED_OR_INCOMPLETE'
+            self.state.pop('finished_at', None)
+            self.event('FAILURE', {'class': 'EngineError', 'reason': 'completion exceeded final execution budget'})
         self.event('FINAL_STATE_SEAL', {'state_sha256': sha256_json({k: v for k, v in self.state.items() if k != 'events'})})
         self.save()
         return self.state
@@ -657,10 +679,7 @@ class Investigation:
         except (ValueError, OSError, KeyError, TypeError) as exc:
             self.state['status'] = 'FAILED_OR_INCOMPLETE'
             self.event('FAILURE', {'class': type(exc).__name__, 'reason': str(exc)})
-        self.state['elapsed_seconds'] = time.monotonic() - self.started
-        self.event('FINAL_STATE_SEAL', {'state_sha256': sha256_json({k: v for k, v in self.state.items() if k != 'events'})})
-        self.save()
-        return self.state
+        return self._finalize()
 
 
 def audit_transcript(state):

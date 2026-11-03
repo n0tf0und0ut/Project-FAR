@@ -189,6 +189,65 @@ class RetrievalTests(unittest.TestCase):
             retrieve("https://example.org/a", self.policy, opener=transport)
         self.assertEqual(base64.b64decode(caught.exception.receipt["raw_base64"]), b"received")
 
+    def test_native_short_and_malformed_chunk_framing_cannot_support_evidence(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        cases = [(b'only 15 bytes!!', b'Content-Length: 100\r\n'),
+                 (b'3\r\nabcXX0\r\n\r\n', b'Transfer-Encoding: chunked\r\n'),
+                 (b'3\r\nabc\r\n0\r\n', b'Transfer-Encoding: chunked\r\n')]
+        for body, headers in cases:
+            with self.subTest(body=body):
+                response = native_http_response(body, headers)
+                response.url = 'https://example.org/a'
+                transport = Mock()
+                transport.open.return_value = response
+                checkpoints = []
+                with self.assertRaises(ToolError) as failed:
+                    retrieve('https://example.org/a', self.policy, opener=transport,
+                             checkpoint=checkpoints.append)
+                row = failed.exception.receipt
+                self.assertEqual(row['status'], 'FAILED')
+                self.assertTrue(base64.b64decode(row['raw_base64']))
+                self.assertEqual(checkpoints[-1], row)
+                with self.assertRaises(ToolError):
+                    parse_receipt(row)
+
+    def test_native_complete_length_and_chunks_are_accepted(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        for body, headers in ((b'abc', b'Content-Length: 3\r\n'),
+                              (b'3\r\nabc\r\n0\r\n\r\n', b'Transfer-Encoding: chunked\r\n')):
+            with self.subTest(headers=headers):
+                transport = Mock()
+                transport.open.return_value = native_http_response(body, headers)
+                transport.open.return_value.url = 'https://example.org/a'
+                row = retrieve('https://example.org/a', self.policy, opener=transport)
+                self.assertEqual(parse_receipt(row)['text'], 'abc')
+
+    def test_native_chunk_timeout_and_reset_preserve_source_checkpoint(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        for error in (TimeoutError, ConnectionResetError):
+            with self.subTest(error=error):
+                transport = Mock()
+                transport.open.return_value = native_http_response(
+                    b'3\r\nabc\r\n', b'Transfer-Encoding: chunked\r\n', error)
+                transport.open.return_value.url = 'https://example.org/a'
+                checkpoints = []
+                with self.assertRaises(ToolError) as failed:
+                    retrieve('https://example.org/a', self.policy, opener=transport,
+                             checkpoint=checkpoints.append)
+                self.assertEqual(base64.b64decode(failed.exception.receipt['raw_base64']), b'abc')
+                self.assertEqual(checkpoints[-1]['status'], 'FAILED')
+
+    def test_public_search_rejects_a_valid_json_prefix_with_short_http_framing(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        raw = b'{"message":{"items":[]}}'
+        response = native_http_response(raw,
+            b'Content-Type: application/json\r\nContent-Length: 100\r\n')
+        policy = RetrievalPolicy(('api.crossref.org',), resolver=dns)
+        with patch('urllib.request.OpenerDirector.open', return_value=response), self.assertRaises(ToolError) as failed:
+            public_search('test', 'crossref', policy)
+        self.assertEqual(base64.b64decode(failed.exception.receipt['raw_base64']), raw)
+        self.assertEqual(failed.exception.receipt['status'], 'FAILED')
+
     def test_incomplete_read_preserves_exception_partial(self):
         response = Response()
         response.read = Mock(side_effect=http.client.IncompleteRead(b"partial", 50))

@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -44,6 +45,20 @@ def audit(state) -> dict:
             raise ValueError('timestamp must name timezone')
         return parsed
 
+    def accepted_transport(path, transport, encoded, digest, size, request_url=None):
+        if (type(transport) is not dict or transport.get('http_status') != 200
+                or transport.get('response_complete') is not True
+                or transport.get('response_truncated') is not False
+                or transport.get('response_hash_scope') != 'complete_body'
+                or any(transport.get(key) is not None for key in ('transport_error', 'framing_error', 'error'))):
+            fail(path, 'accepted observation contradicts its transport completion/status/error flags')
+            return
+        equal(path + '.body', transport['raw_response_base64'], encoded)
+        equal(path + '.hash', transport['response_sha256'], digest)
+        equal(path + '.bytes', transport['response_bytes_retained'], size)
+        if request_url is not None:
+            equal(path + '.request_url', transport['request_url'], request_url)
+
     def envelope_tree(node, path='state', depth=0):
         if depth > 128:
             fail(path, 'nesting exceeds audit bound')
@@ -67,6 +82,11 @@ def audit(state) -> dict:
                             or destination.port not in (None, 443) or destination.fragment
                             or node['request'].get('method') != 'GET'):
                         fail(path, 'successful receipt exceeds recorded read-only destination policy')
+                    # Old frozen receipts have no transport framing envelope;
+                    # do not fabricate one or retroactively certify framing.
+                    if 'transport' in node:
+                        accepted_transport(path + '.transport', node['transport'], node['raw_base64'],
+                                           node['sha256'], node['observed_bytes'], node['request']['url'])
             for raw_key in ('response_base64', 'raw_response_base64'):
                 if raw_key in node:
                     encoded, declared = node[raw_key], node.get('response_sha256')
@@ -99,6 +119,17 @@ def audit(state) -> dict:
             raise ValueError('unsupported transcript')
         # Reject Python-only/non-finite/cyclic objects before walking them.
         _parse(json.dumps(state, allow_nan=False))
+        elapsed, budget = state['elapsed_seconds'], state['policy']['budget']
+        if type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0:
+            fail('elapsed_seconds', 'must be a finite nonnegative execution duration')
+        limits = {'max_steps': 100, 'max_http_calls': 100, 'max_model_tokens': 200000, 'max_seconds': 3600}
+        if set(budget) != set(limits):
+            fail('budget', 'exact runtime budget fields required')
+        for key, maximum in limits.items():
+            value = budget.get(key)
+            types = (int, float) if key == 'max_seconds' else (int,)
+            if type(value) not in types or not math.isfinite(value) or not 0 < value <= maximum:
+                fail('budget.' + key, 'invalid runtime budget type or bound')
         events = state['events']
         if type(events) is not list or not events:
             raise ValueError('event list required')
@@ -113,9 +144,10 @@ def audit(state) -> dict:
         previous, previous_at = None, timestamp(state['started_at'])
         tool_pending, model_pending = None, None
         model_proposals, model_observations, actual_proposals = [], [], []
-        tool_results, source_rechecks, native_requests = [], [], []
+        tool_results, tool_attempts, source_rechecks, native_requests = [], [], [], []
         http_requests, search_requests, reservation_order, rejections, tokens = [], [], [], 0, 0
         discovery_results, freeze_events = [], []
+        retrieval_transports, attempt_http, attempt_observation = [], None, None
         for index, event in enumerate(events, 1):
             path = 'events[' + str(index - 1) + ']'
             body = {k: v for k, v in event.items() if k != 'sha256'}
@@ -140,6 +172,10 @@ def audit(state) -> dict:
                 else:
                     tokens += count
                 env = payload['metadata'].get('envelope')
+                if env and 'transport' in env:
+                    raw = base64.b64decode(env['response_base64'], validate=True)
+                    accepted_transport(path + '.model_transport', env['transport'], env['response_base64'],
+                                       env['response_sha256'], len(raw))
                 if env and not env.get('fixture') and env.get('response_base64'):
                     response = _parse(base64.b64decode(env['response_base64']).decode())
                     message = response['choices'][0]['message']
@@ -161,10 +197,14 @@ def audit(state) -> dict:
                     equal(path + '.model_to_tool', payload, model_pending)
                 model_pending = None
                 tool_pending = payload
+                attempt_http, attempt_observation = None, None
                 actual_proposals.append(payload)
             elif kind == 'HTTP_REQUEST':
                 http_requests.append(payload)
                 reservation_order.append(payload['call'])
+                attempt_http = payload
+            elif kind == 'HTTP_OBSERVATION':
+                attempt_observation = payload
             elif kind == 'SEARCH_REQUEST':
                 search_requests.append(payload)
                 reservation_order.append(payload['call'])
@@ -180,6 +220,12 @@ def audit(state) -> dict:
                     fail(path, 'native verifier invocation differs from actual proposal')
                 native_requests.append((index, payload))
             elif kind in ('TOOL_RESULT', 'TOOL_REJECTED'):
+                if tool_pending is not None:
+                    tool_attempts.append((index, tool_pending, kind, payload))
+                if (tool_pending and tool_pending.get('tool') == 'retrieve'
+                        and attempt_http is not None and attempt_observation is not None):
+                    retrieval_transports.append((tool_pending['args'].get('url'),
+                                                 attempt_http['url'], attempt_observation))
                 if tool_pending is None:
                     fail(path, 'tool outcome lacks a proposal')
                 elif kind == 'TOOL_RESULT':
@@ -209,7 +255,6 @@ def audit(state) -> dict:
         reserved_http = len(http_requests) + len(search_requests)
         equal('http_calls', state['http_calls'], reserved_http)
         equal('HTTP_REQUEST/SEARCH_REQUEST.call', reservation_order, list(range(1, reserved_http + 1)))
-        budget = state['policy']['budget']
         if len(actual_proposals) > budget['max_steps'] or state['http_calls'] > budget['max_http_calls']:
             fail('budget', 'tool/HTTP reservation limit exceeded')
         if state['mode'] != 'agent' and (model_proposals or state['model_calls']):
@@ -222,22 +267,121 @@ def audit(state) -> dict:
                 if call != {'status': 'STARTED'} and call not in model_observations:
                     fail('model_calls[' + str(index) + ']', 'final envelope absent from model observations')
         for ident, receipt in sources.items():
+            matching = next((i for i, (requested, observed, transport) in enumerate(retrieval_transports)
+                             if requested == observed == receipt['request']['url']
+                             and sha256_json(transport) == sha256_json(receipt)), None)
+            if matching is None:
+                fail('sources.' + ident, 'retained source lacks its exact retrieval transport observation')
+            else:
+                retrieval_transports.pop(matching)
             if ident in state['projections']:
                 equal('projections.' + ident, state['projections'][ident], parse_receipt(receipt))
         for ident, row in evidence.items():
-            binding = bind_quote(sources[row['source_id']], row['quote'], start=row['start'])
-            for key, value in binding.items():
-                equal('evidence.' + ident + '.' + key, row.get(key), value)
-        for index, proposal, result in tool_results:
+            binding = guarded('evidence.' + ident, lambda: bind_quote(
+                sources[row['source_id']], row['quote'], start=row['start']))
+            if binding is not None:
+                for key, value in binding.items():
+                    equal('evidence.' + ident + '.' + key, row.get(key), value)
+        def source_view(ident):
+            projection = parse_receipt(sources[ident])
+            return {'url': sources[ident]['request']['url'], 'format': projection['format'],
+                    'text': projection['text'][:3000], 'source_length': len(projection['text']),
+                    'text_truncated_for_model': len(projection['text']) > 3000,
+                    'links': projection['links'][:25], 'authority': 'UNTRUSTED_DATA'}
+
+        def extraction(args):
+            if (set(args) != {'source_id', 'quote', 'relation', 'claim'}
+                    or type(args['relation']) is not str
+                    or args['relation'].upper() not in ('SUPPORT', 'CONTRADICT', 'CONTEXT')
+                    or type(args['claim']) is not str or not args['claim'].strip()
+                    or len(args['quote']) > 4000):
+                raise ValueError('invalid extraction proposal')
+            return {**args, **bind_quote(sources[args['source_id']], args['quote']),
+                    'relation': args['relation'].upper(), 'relation_assurance': 'FALLIBLE_ANALYST_JUDGMENT'}
+
+        def comparison(args, available):
+            ids = args['evidence_ids']
+            alternatives = args.get('alternatives', [])
+            if (type(ids) is not list or not ids or len(set(ids)) != len(ids)
+                    or type(alternatives) is not list or any(type(x) is not str for x in alternatives)):
+                raise ValueError('invalid comparison proposal')
+            rows, groups = [available[ident] for ident in ids], {}
+            for row in rows:
+                host = parse_receipt(sources[row['source_id']])['dependency_host']
+                groups.setdefault(host, []).append(row['source_id'])
+            return {'evidence_ids': ids, 'publisher_host_groups': groups,
+                    'independence': 'UNESTABLISHED; different hosts do not establish independent origins',
+                    'asserted_conflict': any(r['relation'] == 'SUPPORT' for r in rows)
+                        and any(r['relation'] == 'CONTRADICT' for r in rows),
+                    'conflict_assurance': 'relation labels are fallible; no automatic semantic entailment',
+                    'alternatives': alternatives,
+                    'source_evaluation': 'Quote integrity checked; truth, directness and authority require substantive review.'}
+
+        produced_evidence, produced_comparisons, produced_far = {}, [], []
+        completed = set()
+        frozen_index = freeze_events[0][0] if freeze_events else len(events) + 1
+        for index, proposal, kind, payload in tool_attempts:
             tool, args = proposal['tool'], proposal['args']
-            if tool == 'retrieve':
-                equal('retrieve.source', sources[result['source_id']]['request']['url'], args['url'])
-            elif tool == 'extract':
-                equal('extract.evidence', {k: v for k, v in result.items() if k != 'evidence_id'}, evidence[result['evidence_id']])
-            elif tool == 'compare' and result not in state['comparisons']:
-                fail('compare', 'recorded comparison absent from final state')
-            elif tool == 'finish':
-                equal('finish.report', result, state['report'])
+            accepted = kind == 'TOOL_RESULT'
+            result = payload['result'] if accepted else None
+            fingerprint = sha256_json(proposal)
+            if tool in ('extract', 'compare'):
+                # Effects can be retained before the post-dispatch budget check
+                # rejects a call. Reconstruct those effects too, but a frozen or
+                # duplicate pre-dispatch rejection cannot produce another row.
+                eligible = index < frozen_index and fingerprint not in completed
+                if accepted and not eligible:
+                    fail(tool + '.proposal', 'accepted mutable output after freeze or duplicate completion')
+                if eligible:
+                    try:
+                        expected = extraction(args) if tool == 'extract' else comparison(args, produced_evidence)
+                    except Exception as exc:
+                        if accepted:
+                            fail(tool + '.proposal', 'cannot reconstruct accepted output: ' + type(exc).__name__)
+                        expected = None
+                    if expected is not None:
+                        if tool == 'extract':
+                            ident = 'ev.' + str(len(produced_evidence) + 1)
+                            if accepted:
+                                equal('extract.evidence_id', result['evidence_id'], ident)
+                                equal('extract.proposal', {k: v for k, v in result.items() if k != 'evidence_id'}, expected)
+                            if accepted or evidence.get(ident) == expected:
+                                produced_evidence[ident] = expected
+                        else:
+                            if accepted:
+                                equal('compare.proposal', result, expected)
+                            offset = len(produced_comparisons)
+                            if accepted or (offset < len(state['comparisons']) and state['comparisons'][offset] == expected):
+                                produced_comparisons.append(expected)
+            if accepted:
+                completed.add(fingerprint)
+                if tool == 'retrieve':
+                    ident = result['source_id']
+                    equal('retrieve.source', sources[ident]['request']['url'], args['url'])
+                    equal('retrieve.projection', result, {'source_id': ident, **source_view(ident)})
+                elif tool == 'inspect':
+                    text = parse_receipt(sources[args['source_id']])['text']
+                    start = max(0, text.lower().find(args['query'].lower()) - 800) if 'query' in args else args.get('start', 0)
+                    equal('inspect.projection', result, {'source_id': args['source_id'], 'start': start,
+                        'text': text[start:start+8000], 'source_length': len(text), 'authority': 'UNTRUSTED_DATA'})
+                elif tool == 'finish':
+                    equal('finish.report', result, state['report'])
+            if tool == 'verify_far' and (accepted or fingerprint not in completed):
+                try:
+                    receipt = sources[args['source_id']]
+                    expected = {'source_sha256': receipt['sha256'], 'result': route_text(receipt_bytes(receipt).decode())}
+                except Exception as exc:
+                    if accepted:
+                        fail('verify_far.proposal', 'cannot reconstruct accepted output: ' + type(exc).__name__)
+                else:
+                    if accepted:
+                        equal('verify_far.proposal', result, expected['result'])
+                    offset = len(produced_far)
+                    if accepted or (offset < len(state['far_verifications']) and state['far_verifications'][offset] == expected):
+                        produced_far.append(expected)
+        equal('evidence.coverage', evidence, produced_evidence)
+        equal('compare.coverage', state['comparisons'], produced_comparisons)
+        equal('far_verifications.coverage', state['far_verifications'], produced_far)
         if len(discovery_results) != len(state['discovery_history']):
             fail('discovery_history', 'successful discovery count mismatch')
         for (_, result), snapshot in zip(discovery_results, state['discovery_history']):
@@ -347,8 +491,8 @@ def audit(state) -> dict:
                 fail('completion', 'completed pipeline lacks complete frozen evaluated report')
             if not any(p['tool'] == 'finish' for _, p, _ in tool_results):
                 fail('completion', 'completed pipeline lacks successful finish event')
-            if state['elapsed_seconds'] > budget['max_seconds'] or state['model_tokens'] > budget['max_model_tokens']:
-                fail('completion', 'completed pipeline exceeded declared time/token budget')
+            if state['elapsed_seconds'] >= budget['max_seconds'] or state['model_tokens'] >= budget['max_model_tokens']:
+                fail('completion.elapsed_seconds/model_tokens', 'completed pipeline exhausted declared time/token budget')
         counters.update(tool_proposals=len(actual_proposals), model_proposals=len(model_proposals),
                         model_tokens=tokens, http_reservations=reserved_http, rejected_calls=rejections)
 

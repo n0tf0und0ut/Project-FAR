@@ -109,11 +109,15 @@ class _ChunkFramingObserver:
 
 
 def read_bounded_response(request: urllib.request.Request, *, timeout: float,
-                          max_bytes: int) -> tuple[bytes, dict]:
+                          max_bytes: int, opener=None, checkpoint=None,
+                          chunk_size: int | None = None) -> tuple[bytes, dict]:
     """Refuse redirects and retain bounded failures before rejecting the response.
 
     response_sha256 always hashes precisely the retained bytes. On truncation it
     is explicitly a prefix hash, never represented as the hash of the whole body.
+    The optional operator opener preserves its destination/proxy policy. Bounded
+    chunked reads and checkpoints let source tools journal progressive receipts
+    without implementing a second HTTP framing parser.
     """
     envelope = {
         "request_url": request.full_url, "request_method": request.get_method(),
@@ -125,15 +129,27 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
         "received_at": None,
         "timing_scope": "request_start_to_body_read_or_transport_failure",
     }
-    response = None
+    response, observer, raw = None, None, b""
+
+    def retain(data, complete=False):
+        retained = data[:max_bytes]
+        envelope.update(raw_response_base64=base64.b64encode(retained).decode("ascii"),
+                        response_sha256=digest(retained), response_bytes_retained=len(retained),
+                        response_truncated=len(data) > max_bytes, response_complete=complete,
+                        response_hash_scope="complete_body" if complete else "retained_prefix")
+        if checkpoint is not None:
+            checkpoint(json.loads(json.dumps(envelope)))
+
     try:
         try:
-            response = urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout)
+            client = opener if opener is not None else urllib.request.build_opener(NoRedirect())
+            response = client.open(request, timeout=timeout)
         except urllib.error.HTTPError as exc:
             # HTTPError is also a readable response, including for refused redirects.
             response = exc
         with response:
             envelope["http_status"] = response.status
+            envelope["response_url"] = getattr(response, "url", request.full_url)
             headers = getattr(response, "headers", None)
             envelope["response_headers"] = dict(headers.items()) if headers is not None else {}
             get_all = getattr(headers, "get_all", None)
@@ -151,7 +167,6 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 else:
                     declared_length = int(str(lengths[0]).strip())
             native = response if isinstance(response, http.client.HTTPResponse) else getattr(response, "fp", None)
-            observer = None
             if encodings:
                 if len(encodings) != 1 or str(encodings[0]).strip().lower() != "chunked" or lengths:
                     framing_error = "UnsupportedOrAmbiguousTransferFraming"
@@ -161,10 +176,18 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 else:
                     framing_error = "UnverifiedChunkFraming"
             try:
-                raw = response.read(max_bytes + 1)
+                if chunk_size is None:
+                    raw = response.read(max_bytes + 1)
+                else:
+                    while len(raw) <= max_bytes:
+                        chunk = response.read(min(chunk_size, max_bytes + 1 - len(raw)))
+                        if not chunk:
+                            break
+                        raw += chunk
+                        retain(raw)
                 complete = len(raw) <= max_bytes
             except http.client.IncompleteRead as exc:
-                raw, complete = bytes(observer.prefix) if observer else exc.partial, False
+                raw, complete = bytes(observer.prefix) if observer else raw + exc.partial, False
                 envelope["transport_error"] = "IncompleteRead"
             if declared_length is not None and len(raw) != declared_length:
                 framing_error = "ContentLengthMismatch"
@@ -173,16 +196,14 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
             if framing_error:
                 complete = False
                 envelope["framing_error"] = framing_error
-            truncated = len(raw) > max_bytes
-            retained = raw[:max_bytes]
-            envelope.update({
-                "raw_response_base64": base64.b64encode(retained).decode("ascii"),
-                "response_sha256": digest(retained),
-                "response_bytes_retained": len(retained),
-                "response_truncated": truncated, "response_complete": complete,
-                "response_hash_scope": "complete_body" if complete else "retained_prefix",
-            })
+            retain(raw, complete)
     except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
+        # Native chunk decoding can raise after observing complete chunks but
+        # before read() returns its aggregated body. Preserve the observer's
+        # bounded decoded prefix even on timeout, reset, or response-close error.
+        retain(bytes(observer.prefix) if observer is not None else raw)
+        envelope["response_complete"] = False
+        envelope["response_hash_scope"] = "retained_prefix"
         envelope["transport_error"] = type(exc).__name__
         raise ResponseTransportError("HTTP transport failed: " + type(exc).__name__, envelope) from exc
     finally:
@@ -191,7 +212,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
         raise ResponseTransportError("HTTP response rejected: " + str(envelope["http_status"]), envelope)
     if not envelope["response_complete"]:
         raise ResponseTransportError("HTTP response exceeds size ceiling or is incomplete", envelope)
-    return retained, envelope
+    return raw[:max_bytes], envelope
 
 
 def digest(value: bytes) -> str:

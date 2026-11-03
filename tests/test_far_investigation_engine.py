@@ -151,6 +151,44 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertTrue(all(row["freeze_sha256"] == frozen["freeze_sha256"] for row in state["evaluations"]))
         self.assertFalse(validate_manifest(state["intake"]))
 
+    def test_finish_is_not_committed_when_postdispatch_budget_expires(self):
+        clock = [0.0]
+        with patch('tools.far_investigation_engine.time.monotonic', side_effect=lambda: clock[0]):
+            runtime = self.runtime(budget=Budget(max_seconds=.2))
+            dispatch = runtime._dispatch
+            def expire_after_finish(tool, args):
+                result = dispatch(tool, args)
+                if tool == 'finish':
+                    clock[0] = .3
+                return result
+            with patch.object(runtime, '_dispatch', side_effect=expire_after_finish):
+                state = runtime.run_agent(ScriptedFixtureModel(full_script()))
+        self.assertNotEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertIsNone(state['report'])
+        self.assertNotIn('finished_at', state)
+        self.assertTrue(any(e['kind'] == 'TOOL_REJECTED' and 'budget' in e['payload']['reason']
+                            for e in state['events']))
+        self.assertFalse(any(e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == 'finish'
+                             for e in state['events']))
+        self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
+
+    def test_completion_journal_cost_cannot_escape_the_final_budget_in_any_lane(self):
+        from tools.far_investigation_campaign import metrics
+        for mode in ('agent', 'deterministic', 'declarative'):
+            clock = [0.0]
+            def delay_accepted_finish(state):
+                event = state['events'][-1]
+                if event['kind'] == 'TOOL_RESULT' and event['payload']['tool'] == 'finish':
+                    clock[0] = .3
+            with self.subTest(mode=mode), patch('tools.far_investigation_engine.time.monotonic', side_effect=lambda: clock[0]):
+                runtime = Investigation(QUESTION, self.policy, fetcher=FixtureRetriever(), mode=mode,
+                    seeds=[URL_A, URL_B], budget=Budget(max_seconds=.2), checkpoint=delay_accepted_finish)
+                state = (runtime.run_agent(ScriptedFixtureModel(full_script())) if mode == 'agent'
+                         else runtime.run_workflow())
+                self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+                self.assertFalse(metrics(state)['pipeline_completed'])
+                self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
+
     def test_multiple_atomic_claims_and_material_interpretations_all_evaluated(self):
         claims = [{"statement": "Recorded calculation", "type": "mathematical", "interpretations": [
             {"statement": "Exact 2 + 2 equals 4", "evidence_ids": ["ev.1"],
@@ -401,6 +439,22 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(checkpoints[-1]["response_sha256"], hashlib.sha256(raw).hexdigest())
         self.assertEqual(checkpoints[-1]["error"]["class"], "KeyError")
         self.assertTrue(any(row.get("response_base64") is not None and "error" not in row for row in checkpoints))
+
+    def test_local_model_checks_process_ownership_before_and_after_each_response(self):
+        for phase in ('before', 'after'):
+            checkpoints = []
+            identity = unittest.mock.Mock(side_effect=([RuntimeError('owner changed')] if phase == 'before'
+                else [{'pid': 123, 'listener_inode': '456'}, RuntimeError('owner changed')]))
+            raw = b'{"untrusted":"response from a replaced endpoint"}'
+            with self.subTest(phase=phase), \
+                    patch('tools.far_investigation_engine.read_bounded_response', return_value=(raw, {})) as transport:
+                with self.assertRaises(EngineError):
+                    LocalModel(identity_check=identity)('fixture', checkpoints.append)
+                self.assertEqual(transport.call_count, 0 if phase == 'before' else 1)
+                self.assertEqual(checkpoints[-1]['error']['class'], 'RuntimeError')
+                if phase == 'after':
+                    self.assertEqual(base64.b64decode(checkpoints[-1]['response_base64']), raw)
+                    self.assertEqual(identity.call_count, 2)
 
     def test_local_model_midstream_partial_is_kept_by_shared_transport(self):
         class PartialResponse(io.BytesIO):

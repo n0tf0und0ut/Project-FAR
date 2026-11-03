@@ -26,6 +26,7 @@ from typing import Any, Callable
 from urllib.parse import urlencode, urljoin, urlsplit
 
 from mechanization.far_mechanization.intake_v1 import _strict_json_loads
+from tools.far_uncertain_routing_pilot import read_bounded_response, ResponseTransportError
 
 
 def _now() -> str:
@@ -182,47 +183,39 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
                 _RequiredProxyHandler({"https": configured_proxy}), _NoRedirect())
         else:
             client = opener if opener is not None else urllib.request.build_opener(_NoRedirect())
+        def capture(transport):
+            receipt["http_status"] = transport["http_status"]
+            headers = {k.lower(): v for k, v in transport["response_headers"].items()}
+            receipt["content_type"] = headers.get("content-type", "")
+            receipt["content_encoding"] = headers.get("content-encoding", "identity")
+            receipt["response_url"] = transport.get("response_url", url)
+            receipt.update(raw_base64=transport["raw_response_base64"],
+                           sha256=transport["response_sha256"],
+                           observed_bytes=transport["response_bytes_retained"],
+                           truncated=transport["response_bytes_retained"] > policy.max_bytes,
+                           retrieved_at=_now(), status="RECEIVED")
+            save()
+
         try:
-            response = client.open(req, timeout=policy.timeout)
-        except urllib.error.HTTPError as exc:
-            response = exc
-        with response:
-            receipt["http_status"] = response.status
-            receipt["content_type"] = response.headers.get("Content-Type", "")
-            receipt["content_encoding"] = response.headers.get("Content-Encoding", "identity")
-            # Any nonconforming injected transport redirect also fails closed.
-            final_url = response.geturl() if hasattr(response, "geturl") else url
-            receipt["response_url"] = final_url
-            raw = b""
-            while len(raw) <= policy.max_bytes:
-                try:
-                    chunk = response.read(min(65536, policy.max_bytes + 1 - len(raw)))
-                except http.client.IncompleteRead as exc:
-                    raw += exc.partial
-                    receipt.update(raw_base64=base64.b64encode(raw).decode("ascii"),
-                                   sha256=_sha(raw), observed_bytes=len(raw),
-                                   truncated=len(raw) > policy.max_bytes, retrieved_at=_now())
-                    save()
-                    raise
-                if not chunk:
-                    break
-                raw += chunk
-                receipt.update(raw_base64=base64.b64encode(raw).decode("ascii"),
-                               sha256=_sha(raw), observed_bytes=len(raw),
-                               truncated=len(raw) > policy.max_bytes, retrieved_at=_now(),
-                               status="RECEIVED")
-                save()
-            receipt["retrieved_at"] = receipt["retrieved_at"] or _now()
-            if final_url != url:
-                raise ValueError("redirect refused")
-            if response.status != 200:
-                raise ValueError("HTTP status " + str(response.status))
-            if receipt["truncated"]:
-                raise ValueError("response exceeds byte ceiling; preserved prefix only")
-            if receipt["content_encoding"].lower() not in ("", "identity"):
-                raise ValueError("compressed response refused")
-            if not raw:
-                raise ValueError("empty response")
+            # Preserve the established max_bytes+1 failure-prefix contract while
+            # delegating all declared-length and chunk framing checks to the
+            # same bounded reader used by the model and historical source tools.
+            raw, transport = read_bounded_response(
+                req, timeout=policy.timeout, max_bytes=policy.max_bytes + 1,
+                opener=client, checkpoint=capture, chunk_size=65536)
+        except ResponseTransportError as exc:
+            capture(exc.envelope)
+            receipt["transport"] = exc.envelope
+            raise ValueError("incomplete or rejected HTTP transport") from exc
+        receipt["transport"] = transport
+        if receipt["response_url"] != url:
+            raise ValueError("redirect refused")
+        if receipt["truncated"]:
+            raise ValueError("response exceeds byte ceiling; preserved prefix only")
+        if receipt["content_encoding"].lower() not in ("", "identity"):
+            raise ValueError("compressed response refused")
+        if not raw:
+            raise ValueError("empty response")
         receipt["status"] = "RETRIEVED"
         save()
         return receipt

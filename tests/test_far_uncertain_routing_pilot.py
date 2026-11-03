@@ -28,11 +28,17 @@ class FakeResponse:
     def read(self, n): return self.raw[:n]
 
 
-def native_http_response(body, headers):
+def native_http_response(body, headers, failure_on_eof=None):
     """The real stdlib decoder over a deterministic socket byte stream."""
+    wire = b"HTTP/1.1 200 OK\r\n" + headers + b"\r\n" + body
+    class ControlledStream(io.BytesIO):
+        def readline(self, *args):
+            if failure_on_eof is not None and self.tell() == len(wire):
+                raise failure_on_eof("controlled transport failure")
+            return super().readline(*args)
     class MemorySocket:
         def makefile(self, _mode):
-            return io.BytesIO(b"HTTP/1.1 200 OK\r\n" + headers + b"\r\n" + body)
+            return ControlledStream(wire)
     response = http.client.HTTPResponse(MemorySocket())
     response.begin()
     return response
@@ -51,6 +57,29 @@ class NativeFramingTests(unittest.TestCase):
         self.assertEqual(response.read(10000), body)  # no IncompleteRead
         self.assertEqual(response.length, 100)
         response.close()
+
+    def test_native_chunk_transport_exceptions_retain_observed_bounded_prefix(self):
+        # HTTPResponse has decoded abc, then its next chunk-size read fails.
+        # Its local aggregation never returns, but the observer has the bytes.
+        for error in (TimeoutError, ConnectionResetError, http.client.RemoteDisconnected):
+            for limit, expected, truncated in ((10, b"abc", False), (2, b"ab", True)):
+                with self.subTest(error=error, limit=limit):
+                    response = native_http_response(
+                        b"3\r\nabc\r\n", b"Transfer-Encoding: chunked\r\n", error)
+                    with patch("urllib.request.OpenerDirector.open", return_value=response):
+                        with self.assertRaises(study.ResponseTransportError) as failed:
+                            study.read_bounded_response(
+                                study.urllib.request.Request(study.ENDPOINT),
+                                timeout=1, max_bytes=limit)
+                    envelope = failed.exception.envelope
+                    if limit == 10:
+                        self.assertEqual(envelope["transport_error"], error.__name__)
+                    self.assertEqual(base64.b64decode(envelope["raw_response_base64"]), expected)
+                    self.assertEqual(envelope["response_sha256"], hashlib.sha256(expected).hexdigest())
+                    self.assertEqual(envelope["response_bytes_retained"], len(expected))
+                    self.assertEqual(envelope["response_truncated"], truncated)
+                    self.assertFalse(envelope["response_complete"])
+                    self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
 
     def test_short_native_content_length_cannot_be_accepted_as_model_action(self):
         body = FakeResponse().raw
@@ -268,6 +297,23 @@ class UncertainRoutingTests(unittest.TestCase):
             self.assertEqual(data["completed"], 1)
             self.assertEqual(len(data["records"]), 1)
             self.assertEqual(data["claim"], "NOT_ESTABLISHED")
+
+    def test_native_chunk_timeout_and_reset_survive_model_checkpoint(self):
+        for error in (TimeoutError, ConnectionResetError):
+            with self.subTest(error=error):
+                response = native_http_response(
+                    b"3\r\nabc\r\n", b"Transfer-Encoding: chunked\r\n", error)
+                records = []
+                with patch.object(study, "sha256_file", return_value=study.MODEL_SHA256), \
+                        patch("urllib.request.OpenerDirector.open", return_value=response):
+                    with self.assertRaises(study.ModelResponseError):
+                        study.evaluate(self.p, self.digest, Path("/fake"), checkpoint=records.append)
+                self.assertEqual(records[-1]["status"], "FAILED_OR_INCOMPLETE")
+                envelope = records[-1]["failed_model_call"]["raw_envelope"]
+                self.assertEqual(base64.b64decode(envelope["raw_response_base64"]), b"abc")
+                self.assertEqual(envelope["response_sha256"], hashlib.sha256(b"abc").hexdigest())
+                self.assertFalse(envelope["response_complete"])
+                self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
 
     def test_invalid_model_or_malformed_protocol_blocks(self):
         with patch.object(study, "sha256_file", return_value="0" * 64):

@@ -45,6 +45,27 @@ def fake_sources(latest_tag="other-release", list_tag="other-release", change=Fa
 
 
 class RealInvestigationTests(unittest.TestCase):
+    def test_native_chunk_timeout_and_reset_survive_source_checkpoint(self):
+        from tests.test_far_uncertain_routing_pilot import native_http_response
+        for error in (TimeoutError, ConnectionResetError):
+            with self.subTest(error=error):
+                response = native_http_response(
+                    b"3\r\nabc\r\n", b"Transfer-Encoding: chunked\r\n", error)
+                checkpoints = []
+                with patch("urllib.request.OpenerDirector.open", return_value=response):
+                    with self.assertRaises(inv.SourceResponseError):
+                        inv.execute("deterministic", checkpoint=checkpoints.append)
+                state = checkpoints[-1]
+                self.assertEqual(state["status"], "FAILED_OR_INCOMPLETE")
+                self.assertEqual(state["verifier_calls"], 0)
+                self.assertIsNone(state["frozen"])
+                self.assertIsNone(state["aggregate"])
+                envelope = state["failed_source_call"]["raw_envelope"]
+                self.assertEqual(base64.b64decode(envelope["raw_response_base64"]), b"abc")
+                self.assertEqual(envelope["response_sha256"], hashlib.sha256(b"abc").hexdigest())
+                self.assertFalse(envelope["response_complete"])
+                self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
+
     def test_short_native_source_cannot_reach_freeze_or_verification(self):
         from tests.test_far_uncertain_routing_pilot import native_http_response
         attempts, checkpoints = [], []
