@@ -5,15 +5,21 @@ import hashlib
 import json
 import math
 import random
+import re
 from pathlib import Path
 from statistics import mean
 from tools.workflow_efficacy_internal_fixtures import fingerprint, task
-from tools.workflow_efficacy_local_ollama import MODEL, OPTIONS, instructions, sha
+from tools.workflow_efficacy_local_ollama import (
+    MODEL, OPTIONS, HARNESS_VERSION, instructions, sha, extract, order, prompt,
+)
+from tools.workflow_efficacy_free_agent_analysis import _json_loads, _validate_grade, _finite_nonnegative
 
 def analyze(root):
     root=Path(root)
     failures=[]
     rows={}
+    if {p.name for p in root.glob("pair-*.json")}!={f"pair-{i:02d}.json" for i in range(30)}:
+        failures.append("WRONG_PAIR_FILE_SET")
     for i in range(30):
         name=f"pair-{i:02d}.json"
         path=root/name
@@ -21,29 +27,39 @@ def analyze(root):
             failures.append("MISSING_PAIR:"+name)
             continue
         try:
-            pair=json.loads(path.read_text())
+            pair=_json_loads(path.read_text())
             assert isinstance(pair,list) and len(pair)==2
         except (ValueError,AssertionError,OSError,TypeError):
             failures.append("MALFORMED_PAIR:"+name)
             continue
+        if [r.get("arm") if isinstance(r,dict) else None for r in pair]!=list(order(i)):
+            failures.append("PAIR_ORDER_MISMATCH:"+name)
         for record in pair:
             if not isinstance(record,dict):
                 failures.append("MALFORMED_RECORD:"+name)
                 continue
             tid=task(i)["task_id"]
             arm=record.get("arm")
+            if type(arm) is not str or arm not in ("control","treatment"):
+                failures.append("BAD_RUN_ID:"+name)
+                continue
             key=(tid,arm)
-            if arm not in ("control","treatment") or record.get("task_id")!=tid or key in rows:
+            if record.get("task_id")!=tid or key in rows:
                 failures.append("BAD_RUN_ID:"+name)
                 continue
             rows[key]=record
+            if record.get("harness_version")!=HARNESS_VERSION:
+                failures.append("UNSUPPORTED_HARNESS:"+name)
             if record.get("corpus_sha")!=fingerprint():
                 failures.append("CORPUS_MISMATCH:"+name)
             if record.get("model")!=MODEL or record.get("options")!=OPTIONS:
                 failures.append("MODEL_OR_OPTIONS_MISMATCH:"+name)
+            if record.get("prompt_sha")!=sha(prompt(i,arm).encode()):
+                failures.append("PROMPT_MISMATCH:"+name)
             if record.get("instructions_sha")!=sha(instructions(arm)):
                 failures.append("INSTRUCTIONS_MISMATCH:"+name)
-            if record.get("done") is not True or record.get("provider_error_class") is not None:
+            if (record.get("done") is not True or record.get("done_reason")!="stop"
+                    or record.get("provider_error_class") is not None):
                 failures.append("UNFINISHED_INFERENCE:"+name)
             if type(record.get("output_tokens")) is not int or record["output_tokens"]<=0:
                 failures.append("NO_VERIFIED_TOKENS:"+name)
@@ -51,16 +67,41 @@ def analyze(root):
                 failures.append("MISSING_GRADER:"+name)
             if record.get("outcome") not in ("SUCCESS","FAILURE"):
                 failures.append("INVALID_OUTCOME:"+name)
+            if not _finite_nonnegative(record.get("duration_s")):
+                failures.append("INVALID_DURATION:"+name)
             if record.get("outcome")=="SUCCESS" and record.get("grader_exit_code")!=0:
                 failures.append("CONTRADICTORY_SUCCESS:"+name)
             folder=root/(tid+"-"+arm)
             for filename,field in [("model-output.txt","model_output_sha"),
-                                    ("solution.py","solution_sha"),("grade.txt","grade_sha")]:
+                                    ("solution.py","solution_sha"),("grade.txt","grade_sha"),
+                                    ("provider-response.json","provider_response_sha")]:
                 f=folder/filename
                 if not f.is_file() or sha(f.read_bytes())!=record.get(field):
                     failures.append("EVIDENCE_MISMATCH:"+name+":"+filename)
-    digests={r.get("model_digest") for r in rows.values()}
-    if len(digests)!=1 or any(not isinstance(x,str) or len(x)<60 for x in digests):
+            try:
+                provider=_json_loads((folder/"provider-response.json").read_text())
+                if (not isinstance(provider,dict) or provider.get("done") is not True
+                        or provider.get("done_reason")!="stop" or provider.get("model")!=MODEL
+                        or provider.get("error") or not isinstance(provider.get("response"),str)
+                        or provider.get("eval_count")!=record.get("output_tokens")
+                        or provider.get("prompt_eval_count")!=record.get("input_tokens")
+                        or provider["response"]!=(folder/"model-output.txt").read_text()
+                        or extract(provider["response"])!=(folder/"solution.py").read_text()):
+                    failures.append("PROVIDER_EVIDENCE_MISMATCH:"+name)
+                trace=_json_loads((folder/"grade.txt").read_text())
+                errors=[]
+                graded=_validate_grade(trace,task(i),dict(record,
+                    grader_status="EXECUTED" if record.get("grader_executed") is True
+                    else "INFRA_FAILURE"),errors.append)
+                failures.extend(e+":"+name for e in errors)
+                if record.get("outcome")!=("SUCCESS" if graded else "FAILURE"):
+                    failures.append("OUTCOME_EVIDENCE_MISMATCH:"+name)
+            except (OSError,ValueError,TypeError,KeyError,UnicodeError,RecursionError,OverflowError):
+                failures.append("INVALID_REPLAY_EVIDENCE:"+name)
+    declared_digests=[r.get("model_digest") for r in rows.values()]
+    digests={x for x in declared_digests if isinstance(x,str)}
+    if (len(digests)!=1 or len(declared_digests)!=sum(isinstance(x,str) for x in declared_digests)
+            or any(not re.fullmatch(r"[0-9a-f]{64}",x) for x in digests)):
         failures.append("MODEL_DIGEST_NOT_CONSTANT")
     if len(rows)!=60:
         failures.append("NOT_60_UNIQUE_RUNS")

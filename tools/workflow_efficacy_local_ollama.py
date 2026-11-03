@@ -13,10 +13,13 @@ import time
 import urllib.request
 from pathlib import Path
 from tools.workflow_efficacy_internal_fixtures import (
-    task, fingerprint, public_test_code, hidden_test_code,
+    task, fingerprint,
 )
 
+from tools.workflow_efficacy_free_agent import grade as isolated_grade
+
 ROOT=Path(__file__).resolve().parents[1]
+HARNESS_VERSION="local-qwen-validation-v0.2"
 CONTROL="38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab"
 TREATMENT="dc290674b755977378d6170a0128c1540f0a2b6a"
 MODEL="qwen2.5-coder:1.5b"
@@ -84,22 +87,17 @@ def extract(raw):
     return (match.group(1) if match else raw).strip()+"\n"
 
 def grade(code,t,root):
+    """Reuse the hardened trusted-host scorer from completed pilot #605.
+
+    Expected values never enter the submitted Python interpreter. Shared grader
+    bounds output, explicitly removes every container and exposes raw comparisons.
+    """
     root.mkdir(parents=True,exist_ok=True)
-    (root/"solution.py").write_text(code)
-    (root/"test_public.py").write_text(public_test_code(t))
-    (root/"test_hidden.py").write_text(hidden_test_code(t))
-    cmd=["docker","run","--rm","--network","none","--cap-drop","ALL",
-      "--security-opt","no-new-privileges","--memory","384m","--pids-limit","64",
-      "-e","PYTHONDONTWRITEBYTECODE=1","-v",str(root.resolve())+":/app:ro",
-      "-w","/app","python:3.12-slim",
-      "python","-B","-m","unittest","-q","test_public","test_hidden"]
-    try:
-        p=subprocess.run(cmd,text=True,capture_output=True,timeout=60)
-        trace=(p.stdout+p.stderr)[:500000]
-        ran=bool(re.search(r"Ran 2 tests? in ",trace))
-        return (ran, p.returncode==0 and ran, p.returncode, trace)
-    except (OSError,subprocess.TimeoutExpired) as exc:
-        return (False,False,None,type(exc).__name__)
+    source=root/"solution.py"
+    source.write_text(code,encoding="utf-8")
+    passed,returncode,_digest,trace,executed=isolated_grade(source,t,root)
+    return executed,passed,returncode,trace
+
 
 def run_one(index,arm,out):
     t=task(index)
@@ -116,22 +114,34 @@ def run_one(index,arm,out):
     except Exception as exc:
         error=type(exc).__name__
     elapsed=round(time.monotonic()-start,3)
+    if response is not None and not isinstance(response,dict):
+        error="InvalidProviderEnvelope"
+        response=None
     raw="" if response is None else str(response.get("response") or "")
+    provider=json.dumps(response,sort_keys=True,allow_nan=False)+"\n"
+    (root/"provider-response.json").write_text(provider,encoding="utf-8")
     code=extract(raw)
     (root/"model-output.txt").write_text(raw)
     (root/"solution.py").write_text(code)
-    ran,passed,returncode,trace=grade(code,t,root/"grader")
-    (root/"grade.txt").write_text(trace)
-    valid=(response is not None and response.get("done") is True
+    inference_valid=(response is not None and response.get("done") is True
+        and response.get("done_reason")=="stop"
         and response.get("model")==MODEL and not response.get("error")
-        and isinstance(response.get("eval_count"),int)
-        and response["eval_count"]>0 and error is None and ran)
+        and type(response.get("eval_count")) is int
+        and response["eval_count"]>0 and error is None)
+    if inference_valid:
+        ran,passed,returncode,trace=grade(code,t,root/"grader")
+    else:
+        ran,passed,returncode,trace=False,False,None,"INCOMPLETE_INFERENCE: no submitted code executed"
+    (root/"grade.txt").write_text(trace)
+    valid=inference_valid and ran
     state="SUCCESS" if valid and passed else ("FAILURE" if valid else "INCOMPLETE")
-    r={"task_id":t["task_id"],"arm":arm,"model":MODEL,"model_digest":identity,
+    r={"harness_version":HARNESS_VERSION,"task_id":t["task_id"],"arm":arm,"model":MODEL,"model_digest":identity,
        "options":OPTIONS,"corpus_sha":fingerprint(),
        "instructions_sha":sha(instructions(arm)),
        "prompt_sha":sha(text.encode()),"duration_s":elapsed,
        "provider_error_class":error,"done":response.get("done") if response else None,
+       "done_reason":response.get("done_reason") if response else None,
+       "provider_response_sha":sha((root/"provider-response.json").read_bytes()),
        "input_tokens":response.get("prompt_eval_count") if response else None,
        "output_tokens":response.get("eval_count") if response else None,
        "grader_executed":ran,"grader_exit_code":returncode,"outcome":state,
@@ -152,14 +162,8 @@ def main():
             "corpus_sha":fingerprint(),"control":CONTROL,"treatment":TREATMENT,
             "claims":"synthetic one-shot coding-repair only"},indent=2))
         return 0
-    if a.index is None or a.output is None or not 0<=a.index<30:
-        ap.error("run-pair requires --index 0..29 and --output")
-    a.output.mkdir(parents=True,exist_ok=True)
-    records=[run_one(a.index,arm,a.output) for arm in order(a.index)]
-    (a.output/("pair-%02d.json"%a.index)).write_text(json.dumps(records,indent=2))
-    print(json.dumps({"case":a.index,"outcomes":[x["outcome"] for x in records],
-                      "model_digest":records[0]["model_digest"]}))
-    return 0 if all(x["outcome"]!="INCOMPLETE" for x in records) else 2
+    ap.error("Original v0.1 live entry point retired after failed preflight; "
+             "a separately registered successor identity and output location are required.")
 
 if __name__=="__main__":
     sys.exit(main())
