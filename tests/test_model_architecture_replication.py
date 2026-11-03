@@ -10,6 +10,12 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 import model_architecture_replication as rep
 import model_architecture_search as old
 
+try:
+    import torch
+except ImportError:
+    torch = None
+
+
 
 def toy():
     p=json.loads((Path(__file__).resolve().parents[1]/'research/model-architecture-search/protocol-v0.2.json').read_text())
@@ -19,6 +25,7 @@ def toy():
 
 
 class ReplicationTests(unittest.TestCase):
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_capacity_is_actually_matched(self):
         p=toy()
         for length in (13,15,17):
@@ -50,6 +57,7 @@ class ReplicationTests(unittest.TestCase):
         rep.validate_report(report,journal)
         return outfile,report,journal
 
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_real_training_and_full_prediction_scoring(self):
         with tempfile.TemporaryDirectory() as d:
             outfile,report,journal=self.completed(d)
@@ -59,6 +67,7 @@ class ReplicationTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 rep.run(toy(),outfile,rep.encode(toy())+b'\n')
 
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_regrading_detects_forged_prediction_metrics_and_source(self):
         with tempfile.TemporaryDirectory() as d:
             outfile,report,journal=self.completed(d)
@@ -78,6 +87,7 @@ class ReplicationTests(unittest.TestCase):
                 with self.subTest(case=case),self.assertRaises(ValueError):
                     rep.validate_report(modified,journal)
 
+    @unittest.skipUnless(torch is not None, "optional PyTorch not installed")
     def test_failure_is_permanently_recorded(self):
         with tempfile.TemporaryDirectory() as d:
             p=toy()
