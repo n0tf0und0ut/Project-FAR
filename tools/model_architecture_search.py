@@ -356,3 +356,98 @@ def check_metrics(m, count):
     if not 0 <= m["macro_accuracy"] <= 1 or not 0 <= m["micro_accuracy"] <= 1 or m["cross_entropy"] < 0:
         raise ValueError("out-of-bounds metrics")
 
+def verify(report, journal=None, local_source=False):
+    if report.get("status") != "COMPLETE_RESEARCH_PILOT":
+        raise ValueError("non-complete study")
+    if report["report_sha256"] != digest(encoded({k:v for k,v in report.items() if k!="report_sha256"})):
+        raise ValueError("report integrity failure")
+    p=validate_protocol(report["protocol"])
+    if report["protocol_sha256"] != digest(encoded(p)+b"\n"):
+        raise ValueError("protocol integrity failure")
+    if local_source and report["source_sha256"] != digest(Path(__file__).read_bytes()):
+        raise ValueError("source integrity failure")
+    s=splits_for(p)
+    if report["split_sha256"] != digest(encoded(s)) or report["split_sizes"] != {k:len(v) for k,v in s.items()}:
+        raise ValueError("data split integrity failure")
+    rs=report["validation_records"]
+    if len(rs) != p["max_candidates"]:
+        raise ValueError("missing candidate runs")
+    rng=random.Random(p["search_seed"])
+    for i, record in enumerate(rs):
+        candidate,parent=(BASES[i],None) if i < 4 else next_recipe(rs[:i],rng,p["max_blocks"])
+        if (record["slot"] != i or record["seed"] != p["selection_train_seed"] or
+            record["steps"] != p["steps"] or record["parent"] != parent or
+            validate_recipe(record["recipe"],p["max_blocks"]) != candidate or record["parameters"] < 1):
+            raise ValueError("candidate sequence or budget mismatch")
+        check_metrics(record["validation"],p["validation_size"])
+    winner=min(rs,key=rank)
+    choice={"recipe":winner["recipe"],"slot":winner["slot"],"selection_on":"validation_only"}
+    if choice != report["selection"]:
+        raise ValueError("invalid winner selection")
+    recipes=list(dict.fromkeys([*BASES,tuple(winner["recipe"])]))
+    expected=[(r,seed) for r in recipes for seed in p["final_train_seeds"]]
+    final=report["final_records"]
+    if len(final) != len(expected):
+        raise ValueError("incomplete holdout runs")
+    for record,(recipe,seed) in zip(final,expected):
+        if (tuple(record["recipe"]) != recipe or record["seed"] != seed or
+            record["steps"] != p["steps"] or record["parameters"] < 1):
+            raise ValueError("incorrect holdout run coverage")
+        check_metrics(record["test"],p["test_size"])
+    if journal is not None:
+        if digest(journal) != report["journal_sha256"]:
+            raise ValueError("journal integrity failure")
+        events=[json.loads(line) for line in journal.splitlines()]
+        if events[0]["event"] != "study_started" or events[-1]["event"] != "study_complete":
+            raise ValueError("incomplete journal")
+        starts=[e for e in events if e["event"]=="holdout_started"]
+        v=[e["result"] for e in events if e["event"]=="validation_completed"]
+        h=[e["result"] for e in events if e["event"]=="holdout_completed"]
+        locks=[e["selection"] for e in events if e["event"]=="selection_locked"]
+        if v!=rs or h!=final or locks!=[choice] or len(starts)!=len(expected):
+            raise ValueError("evidence journal does not match report")
+
+
+def summarize(report):
+    scores={}
+    for record in report["final_records"]:
+        scores.setdefault(identity(record["recipe"]),[]).append(record["test"]["macro_accuracy"])
+    return {"winner_on_validation":identity(report["selection"]["recipe"]),
+            "mean_test_macro_accuracy":{k:round(sum(v)/len(v),5) for k,v in scores.items()},
+            "seeds_per_architecture":len(report["protocol"]["final_train_seeds"]),
+            "interpretation":"Bounded internal synthetic pilot; neither architecture novelty nor general reliability established."}
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    sub=parser.add_subparsers(dest="command",required=True)
+    run_parser=sub.add_parser("run")
+    run_parser.add_argument("--protocol",type=Path,required=True)
+    run_parser.add_argument("--out",type=Path,required=True)
+    p_parser=sub.add_parser("check-protocol")
+    p_parser.add_argument("--protocol",type=Path,required=True)
+    v_parser=sub.add_parser("verify")
+    v_parser.add_argument("--report",type=Path,required=True)
+    v_parser.add_argument("--journal",type=Path)
+    v_parser.add_argument("--check-local-source",action="store_true")
+    args=parser.parse_args(argv)
+    if args.command in ("run","check-protocol"):
+        raw=args.protocol.read_bytes()
+        p=validate_protocol(json.loads(raw))
+        if raw!=encoded(p)+b"\n":
+            raise ValueError("protocol must use exact canonical JSON and one LF")
+        if args.command=="run":
+            result=run(p,args.out,raw)
+            verify(result,Path(str(args.out)+".journal.jsonl").read_bytes(),local_source=True)
+            print(json.dumps(summarize(result),indent=2))
+        else:
+            print("protocol valid",digest(raw))
+    else:
+        result=json.loads(args.report.read_text())
+        verify(result,args.journal.read_bytes() if args.journal else None,args.check_local_source)
+        print(json.dumps(summarize(result),indent=2))
+    return 0
+
+
+if __name__=="__main__":
+    raise SystemExit(main())
