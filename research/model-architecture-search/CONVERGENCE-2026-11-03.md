@@ -232,3 +232,69 @@ The actual frozen-archive CLI still accepts the original 96 records and
 report digest `0e316abb4119d10281cec2c4b0d233fe4cbfca8353db23f22eadf770e415e808`,
 with `primary_pass: false`. Independent engineering recheck of the final
 commit and combined integration remain separate obligations.
+
+`MAS-VERIFY-004` (fixed): post-execution regrading accidentally used the host
+interpreter's floating-point summation rather than the recorded interpreter's.
+The [actual Python 3.11 compatibility job 126289437121](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41741543817/job/126289437121)
+tested merge `2f3a3d8d96d6d971ba4829aea08a109d5205ead4` of candidate
+`d143ccb6aba0f623ae4d95cc10caac7f499409bf` against protected main. It failed
+canonical tests and health-fast because otherwise coherent comparator mutation
+controls encountered `validation selection evidence mismatch` before their
+intended invariant. A real local CPython 3.11.17 run also rejected the untouched
+original archive with that error. This was an original-positive audit failure,
+not a reason to weaken the mutation-test regex or skip its execution.
+
+The original record declares Python 3.13.5. Four of 32 saved selection means
+differ from Python 3.11's left-fold arithmetic. For example, the digits
+width-48/steps-80 convolution mean is recorded as `0.9018518518518519`, while
+left-fold addition produces `0.9018518518518518`. Frozen `grade()` and
+`finish_analysis()` also contain float sums, so correcting only the current
+journal checker would leave original score/analysis regrading host-dependent.
+Python documents the [3.12 float-summation change](https://docs.python.org/3.13/library/functions.html#sum).
+The relevant exact implementations were inspected at CPython
+[v3.13.5](https://github.com/python/cpython/blob/v3.13.5/Python/bltinmodule.c),
+Git blob `cc93424664c69ce9822abb92b473b6ce58bcc3da`, and
+[v3.11.17](https://github.com/python/cpython/blob/v3.11.17/Python/bltinmodule.c),
+Git blob `f30040507bcb33542a92ed63efd7f4271593c2a2`.
+The mapped 3.12 profile was also checked against
+[v3.12.14](https://github.com/python/cpython/blob/v3.12.14/Python/bltinmodule.c),
+Git blob `2ae28693bee05c4a51c698930aa79de2cb9ac2db`: its relevant integer,
+float-compensation and fallback branches agree on the declared 64-bit numeric
+profile. Native CPython 3.12.14 independently passed the same complete
+32-mean/204-grade/full-analysis and 11 mixed-type edge-vector comparison.
+The compatibility adaptation's attribution, change summary and complete
+upstream license are retained in [the component license](../../tools/cpython-sum-LICENSE.txt).
+
+Current verifier 1.3 supplies the recorded arithmetic profile to isolated
+copies of the frozen `grade`, `finish_analysis` and `verify` function code,
+and uses that same profile for journal means. It mutates neither the frozen
+module nor shared builtins. The 3.12/3.13 profile mirrors the recorded 64-bit
+CPython 3.13.5 summation branches, including the initial integer prefix,
+integer overflow fallback, Neumaier compensation for exact float items,
+uncompensated in-range integers after a float, and finite-compensation return.
+Recorded Python 3.11 uses explicit left-fold addition; unrecognized recorded
+profiles fail explicitly. Profile selection is based on recorded metadata,
+not a new host-environment prerequisite. Original full-model replay's existing
+environment matching remains unchanged. No tolerance was introduced.
+
+Proof on a native CPython 3.13.5 interpreter compared the adapter with the
+unaltered original function code using all original predictions and original
+cohort gold labels reconstructed from the registered data: all 32 journal
+means matched bit-for-bit, all 204 complete grades and the complete analysis
+matched canonical bytes, and 11 mixed-integer/float, overflow and cancellation
+vectors matched native `sum()`. The original negative primary screen remained
+false. This is bounded arithmetic reconstruction, not new model execution or
+independent scientific replication.
+
+Regression controls reconstruct the full original analysis and all retained
+macro-recall/selection sums without optional ML packages, check mixed-type
+summation and concurrent namespace isolation, and reject one-ULP journal and
+derived-cost mean forgeries. Coherent mutation fixtures now recompute analysis
+using the recorded profile so a Python 3.11 host reaches the intended comparator
+and real-score rejection boundaries. The complete architecture suite passed
+53 tests without skips under both actual CPython 3.11.17 and 3.12.14 with the
+scientific dependencies installed. The actual Python 3.11 archive CLI accepted
+the unmodified 96-record original evidence. Frozen source, protocol, original
+scientific archives and prior failure records retain their identities. No
+original model was retrained; hosted reruns and combined integration remain
+separate obligations.

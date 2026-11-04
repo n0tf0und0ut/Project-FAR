@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-execution verifier 1.2 for FAR-MAS-EXTERNAL-003 reports and archives.
+"""Post-execution verifier 1.3 for FAR-MAS-EXTERNAL-003 reports and archives.
 
 Optional scikit-learn is required for actual outcome regrading; archive digest
 checks operate without PyTorch. The prospectively frozen runner stays unchanged.
@@ -15,13 +15,14 @@ import json
 import math
 from pathlib import Path
 import sys
+from types import FunctionType
 import zipfile
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools import model_architecture_external as ex
 
 
-VERIFICATION_VERSION="1.2"
+VERIFICATION_VERSION="1.3"
 COMPARATORS={"logistic_regression","rbf_svm","knn5"}
 TRIAL_FIELDS=("dataset","scale","steps","family","seed")
 SPEC_FIELDS=("family","width","parameters","estimated_forward_macs","parameter_relative_difference",
@@ -45,6 +46,73 @@ def decode_json(raw):
             out[key]=value
         return out
     return json.loads(raw,object_pairs_hook=unique)
+
+
+def _left_sum(values):
+    total=0
+    for value in values:
+        total=total+value
+    return total
+
+
+def _sum313(values):
+    """Recorded CPython 3.13.5, 64-bit sum(), default start, JSON numeric inputs.
+
+    Mirrors Python/bltinmodule.c at v3.13.5 (blob cc93424664c69ce9822abb92b473b6ce58bcc3da).
+    Python adaptation under PSF License Version 2; attribution, change summary
+    and upstream license: tools/cpython-sum-LICENSE.txt.
+    Integer items after the first float do NOT update Neumaier compensation.
+    """
+    iterator=iter(values)
+    total=0
+    minimum,maximum=-(1<<63),(1<<63)-1
+    for value in iterator:
+        if type(value) in (int,bool) and minimum<=value<=maximum and minimum<=total+value<=maximum:
+            total+=value
+            continue
+        total=total+value
+        break
+    else:
+        return total
+    if type(total) is not float:
+        for value in iterator:
+            total=total+value
+        return total
+    correction=0.
+    for value in iterator:
+        if type(value) is float:
+            updated=total+value
+            correction+=(total-updated)+value if abs(total)>=abs(value) else (value-updated)+total
+            total=updated
+        elif type(value) in (int,bool) and minimum<=value<=maximum:
+            total+=float(value)
+        else:
+            if correction and math.isfinite(correction):
+                total+=correction
+            total=total+value
+            for value in iterator:
+                total=total+value
+            return total
+    return total+correction if correction and math.isfinite(correction) else total
+
+
+def _recorded_functions(python_version):
+    """Run frozen scoring code with recorded arithmetic, without mutating its module."""
+    version=python_version.split('.')
+    if len(version)!=3 or any(not part.isdigit() for part in version):
+        raise ValueError("unrecognized recorded Python arithmetic profile")
+    profile=tuple(int(part) for part in version[:2])
+    if profile==(3,11):
+        total=_left_sum
+    elif profile in ((3,12),(3,13)):
+        total=_sum313
+    else:
+        raise ValueError("unsupported recorded Python arithmetic profile")
+    namespace={**vars(ex),"sum":total}
+    for name in ("grade","finish_analysis","verify"):
+        original=getattr(ex,name)
+        namespace[name]=FunctionType(original.__code__,namespace,name,original.__defaults__,original.__closure__)
+    return namespace
 
 
 def _report_matrix(result,p):
@@ -90,7 +158,7 @@ def _report_matrix(result,p):
     return dict(zip(expected,result["records"]))
 
 
-def _journal_matrix(result,p,events,records):
+def _journal_matrix(result,p,events,records,total):
     expected=set(records)
     groups={key[:3] for key in expected}
     started={};trained={};locks={};finished=set();baseline=set()
@@ -123,7 +191,7 @@ def _journal_matrix(result,p,events,records):
             group=(e["dataset"],e["scale"],e["steps"])
             if group not in groups or group in locks or {k for k in trained if k[:3]==group}!={k for k in expected if k[:3]==group}:
                 raise ValueError("selection lock before complete registered training matrix")
-            averages={family:sum(records[k]["validation_metrics"]["accuracy"] for k in records
+            averages={family:total(records[k]["validation_metrics"]["accuracy"] for k in records
                                  if k[:3]==group and k[3]==family)/len(p["seeds"]) for family in p["comparison"]}
             analysis=result["analysis"][f'{group[0]}/width-{group[1]}/steps-{group[2]}']
             if e["selected"]!=analysis["chosen_by_validation"] or ex.canonical(e["average_validation_accuracies"])!=ex.canonical(averages):
@@ -176,8 +244,9 @@ def verify_report(result,journal_bytes=None,protocol_bytes=None):
         raise ValueError("journal start environment mismatch")
     if events[0].get("study_id")!=result["study_id"]:
         raise ValueError("journal start study identity mismatch")
-    _journal_matrix(result,p,events,records)
-    ex.verify(result,journal_bytes)
+    scoring=_recorded_functions(env["python"])
+    _journal_matrix(result,p,events,records,scoring["sum"])
+    scoring["verify"](result,journal_bytes)
 
 
 def parse_archive(raw, require_replay=True):

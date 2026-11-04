@@ -8,6 +8,7 @@ import copy
 import importlib.util
 import io
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -15,6 +16,7 @@ import tempfile
 import unittest
 from unittest import mock
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 
 from tools import model_architecture_external as m
 from tools import check_model_architecture_external_archive as audit
@@ -29,6 +31,86 @@ class ArchiveTests(unittest.TestCase):
         if not ARCHIVE.is_file():
             raise unittest.SkipTest('original v0.3 evidence archive not available')
         cls.raw=base64.b64decode(ARCHIVE.read_bytes())
+
+    def reanalyze(self,report):
+        recorded=audit._recorded_functions(report['environment']['python'])
+        report['analysis']=recorded['finish_analysis'](report['records'],report['protocol'],report['simple_baselines'])
+
+    def test_recorded_arithmetic_matches_all_original_means_grades_and_analysis(self):
+        with zipfile.ZipFile(io.BytesIO(self.raw)) as z:
+            report=json.loads(z.read('RESULTS-V0.3.json'))
+            events=[json.loads(row) for row in z.read('RESULTS-V0.3.json.journal.jsonl').splitlines()]
+        recorded=audit._recorded_functions(report['environment']['python'])
+        original=copy.deepcopy(report['analysis'])
+        self.reanalyze(report)
+        self.assertEqual(m.canonical(report['analysis']),m.canonical(original))
+        changed=0
+        means=0
+        for event in events:
+            if event['event']!='selection_locked':
+                continue
+            for family in report['protocol']['comparison']:
+                values=[r['validation_metrics']['accuracy'] for r in report['records']
+                        if all(r[k]==event[k] for k in ('dataset','scale','steps')) and r['family']==family]
+                expected=event['average_validation_accuracies'][family]
+                self.assertEqual((recorded['sum'](values)/len(values)).hex(),expected.hex())
+                changed+=audit._left_sum(values)/len(values)!=expected
+                means+=1
+        self.assertEqual((means,changed),(32,4))
+        outcomes=report['records']+[r for values in report['simple_baselines'].values() for r in values.values()]
+        grades=0
+        for outcome in outcomes:
+            for split in ('validation','test'):
+                metric=outcome[split+'_metrics']
+                recall=recorded['sum'](v['correct']/v['count'] for v in metric['per_class'].values())/len(metric['per_class'])
+                self.assertEqual(recall.hex(),metric['macro_recall'].hex())
+                grades+=1
+        self.assertEqual(grades,204)
+
+    def test_recorded_float_sum_preserves_integer_branch_and_cancellation(self):
+        vectors=[([float(2**53),1.,1.],float(2**53+2)),
+                 ([float(2**53),1,1],float(2**53)),
+                 ([float(2**53),1.,1,1.],float(2**53+2)),
+                 ([2**63,1024.,1024.],float(2**63)),
+                 ([1.,2**63,1024.,1024.],float(2**63)),
+                 ([1e16,1.,-1e16],1.),([2**100,1,-2**100],1)]
+        for values,expected in vectors:
+            with self.subTest(values=values):
+                actual=audit._sum313(values)
+                self.assertEqual(m.canonical(actual),m.canonical(expected))
+        self.assertEqual(audit._recorded_functions('3.11.17')['sum']([1e16,1.,-1e16]),0.)
+
+    def test_recorded_function_namespaces_are_isolated_from_frozen_module(self):
+        _,report,_=self.rewrite_archive(lambda report,members:None)
+        originals={name:getattr(m,name) for name in ('grade','finish_analysis','verify')}
+        previous_sum=vars(m).get('sum')
+        def compute(version):
+            functions=audit._recorded_functions(version)
+            return functions['finish_analysis'](report['records'],report['protocol'],report['simple_baselines'])
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(compute,['3.13.5','3.11.17']*4))
+        for i,result in enumerate(results):
+            expected=report['analysis'] if i%2==0 else compute('3.11.17')
+            self.assertEqual(m.canonical(result),m.canonical(expected))
+        self.assertTrue(all(getattr(m,name) is original for name,original in originals.items()))
+        self.assertIs(vars(m).get('sum'),previous_sum)
+
+    def test_one_ulp_selection_mean_forgery_is_rejected_without_tolerance(self):
+        def change(report,members):
+            def change_events(events):
+                event=next(e for e in events if e['event']=='selection_locked')
+                value=event['average_validation_accuracies']['conv']
+                event['average_validation_accuracies']['conv']=math.nextafter(value,math.inf)
+            self.update_journal(report,members,change_events)
+        self.assert_rejected_at_current_boundaries(change,'validation selection evidence mismatch')
+
+    @unittest.skipUnless(importlib.util.find_spec('sklearn') and importlib.util.find_spec('torch'),
+                         'optional scikit-learn/PyTorch missing; exact analysis regrading not executed')
+    def test_one_ulp_derived_cost_mean_forgery_is_rejected_without_tolerance(self):
+        def change(report,members):
+            comparison=report['analysis']['digits/width-48/steps-80']['comparison']['conv']
+            comparison['time_seconds_mean']=math.nextafter(comparison['time_seconds_mean'],math.inf)
+        self.assert_rejected_at_current_boundaries(change,'selection/metric analysis mismatch')
 
     def rewrite_archive(self,change):
         """Coordinate mutable checksums so rejection must check cross-record bindings."""
@@ -136,7 +218,7 @@ class ArchiveTests(unittest.TestCase):
                     for suffix in ('predictions','metrics'):
                         a,b='test_'+suffix,'validation_'+suffix
                         control[a],control[b]=control[b],control[a]
-                report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+                self.reanalyze(report)
                 def change_events(events):
                     next(e for e in events if e['event']=='simple_baselines_completed' and e['dataset']==name)['results']=copy.deepcopy(report['simple_baselines'][name])
                 self.update_journal(report,members,change_events)
@@ -180,7 +262,7 @@ class ArchiveTests(unittest.TestCase):
                 def change_events(events):
                     next(e for e in events if e['event']=='simple_baselines_completed' and e['dataset']=='digits')['results']=copy.deepcopy(report['simple_baselines']['digits'])
             self.update_journal(report,members,change_events)
-            report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+            self.reanalyze(report)
         return change
 
     def test_coherently_resigned_negative_and_boolean_durations_are_rejected(self):
@@ -220,7 +302,7 @@ class ArchiveTests(unittest.TestCase):
                         values.pop('logistic_regression');values.pop('rbf_svm')
                     else:
                         values['logistic_regression']=copy.deepcopy(values['knn5'])
-                report['analysis']=m.finish_analysis(report['records'],report['protocol'],report['simple_baselines'])
+                self.reanalyze(report)
             raw,report,members=self.rewrite_archive(change)
             if operation=='keep_only_knn5':
                 self.assertTrue(report['analysis']['primary_screen']['by_dataset']['breast_cancer']['passes_internal_screen'])
