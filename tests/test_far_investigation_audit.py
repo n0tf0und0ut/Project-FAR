@@ -27,6 +27,20 @@ def reseal(state):
         previous = event['sha256']
 
 
+class NativeFunctionFixtureModel(ScriptedFixtureModel):
+    """Native response shape only; explicit scripted fixture, no inference."""
+    def __call__(self, prompt, checkpoint):
+        proposal = next(self.actions)
+        response = {'model': 'NATIVE_FUNCTION_FIXTURE', 'usage': {'total_tokens': 1},
+            'choices': [{'message': {'tool_calls': [{'function': {
+                'name': proposal['tool'], 'arguments': json.dumps(proposal['args'])}}]}}]}
+        raw = json.dumps(response).encode()
+        envelope = {'response_base64': base64.b64encode(raw).decode(),
+                    'response_sha256': hashlib.sha256(raw).hexdigest(), 'status': 200}
+        checkpoint(envelope)
+        return proposal, {'tokens': 1, 'model': response['model'], 'envelope': envelope}
+
+
 class OfflineInvestigationAuditTests(unittest.TestCase):
     def runtime(self, mode='agent', **kwargs):
         return Investigation(QUESTION, RetrievalPolicy(('example.org', 'independent.example.org')),
@@ -511,6 +525,131 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         reseal(state)
         self.assert_rejected(state, 'proposal')
 
+    def test_accepted_verify_requires_its_own_frozen_native_producer(self):
+        state = self.runtime().run_agent(NativeFunctionFixtureModel([
+            action('verify', candidate_id='nonexistent'), *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        event = next(e for e in state['events'] if e['kind'] == 'TOOL_REJECTED')
+        event.update(kind='TOOL_RESULT', payload={'tool': 'verify', 'result': copy.deepcopy(state['evaluations'][0])})
+        state['rejected_calls'] -= 1
+        reseal(state)
+        self.assert_rejected(state, 'verify')
+
+    def test_native_success_cannot_borrow_future_or_repeated_evaluation_producers(self):
+        for position, ident in ((0, 'contract.1.1'), (8, 'contract.1.1'),
+                                (8, 'nonexistent'), (9, 'contract.1.1')):
+            script = full_script()
+            script.insert(position, action('verify', candidate_id=ident))
+            # At position eight a valid candidate actually runs first; the
+            # duplicate original request is rejected afterward. Preserve that
+            # genuine failure as a positive before forging its success.
+            state = self.runtime().run_agent(NativeFunctionFixtureModel(script))
+            self.assertEqual(state['rejected_calls'], 1)
+            self.assertTrue(audit(state)['valid'], audit(state))
+            rejected = next(e for e in state['events'] if e['kind'] == 'TOOL_REJECTED')
+            rejected.update(kind='TOOL_RESULT', payload={'tool': 'verify', 'result': copy.deepcopy(state['evaluations'][0])})
+            state['rejected_calls'] -= 1
+            reseal(state)
+            with self.subTest(position=position, candidate=ident):
+                self.assert_rejected(state, 'verify')
+
+    def test_existing_frozen_verify_requires_one_own_request_and_retained_result(self):
+        original = self.runtime().run_agent(NativeFunctionFixtureModel(full_script()))
+        for target in ('remove_request', 'duplicate_request', 'remove_evaluation'):
+            state = copy.deepcopy(original)
+            position = next(i for i, e in enumerate(state['events']) if e['kind'] == 'NATIVE_VERIFIER_REQUEST')
+            if target == 'remove_request':
+                state['events'].pop(position)
+            elif target == 'duplicate_request':
+                state['events'].insert(position, copy.deepcopy(state['events'][position]))
+            else:
+                state['evaluations'] = []
+                state['intake']['evaluations'] = []
+            for i, event in enumerate(state['events'], 1):
+                event['sequence'] = i
+            reseal(state)
+            with self.subTest(target=target):
+                self.assert_rejected(state, 'verify')
+
+    def test_source_ids_follow_the_actual_retrieval_allocator(self):
+        state = self.runtime(budget=Budget(max_steps=1)).run_agent(
+            NativeFunctionFixtureModel([action('retrieve', url=URL_A)]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        state['sources']['src.0'] = state['sources'].pop('src.1')
+        state['projections']['src.0'] = state['projections'].pop('src.1')
+        next(e['payload']['result'] for e in state['events'] if e['kind'] == 'TOOL_RESULT')['source_id'] = 'src.0'
+        reseal(state)
+        self.assert_rejected(state, 'sources.allocation')
+        state = self.runtime(budget=Budget(max_steps=2)).run_agent(
+            NativeFunctionFixtureModel(full_script()[:2]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        def swapped(node):
+            if isinstance(node, dict):
+                return {swapped(key): swapped(value) for key, value in node.items()}
+            if isinstance(node, list):
+                return [swapped(value) for value in node]
+            return {'src.1': 'src.2', 'src.2': 'src.1'}.get(node, node) if isinstance(node, str) else node
+        state = swapped(state)
+        reseal(state)
+        self.assert_rejected(state, 'sources.allocation')
+
+    def test_recheck_cannot_invent_an_unparsed_original_projection(self):
+        url_c = 'https://independent.example.org/third'
+        raised = False
+        def checkpoint(state):
+            nonlocal raised
+            if 'src.3' in state['sources'] and 'src.3' not in state['projections'] and not raised:
+                raised = True
+                raise OSError('one-time raw-only source checkpoint failure')
+        script = [*full_script()[:5], action('retrieve', url=url_c), action('recheck')]
+        runtime = Investigation(QUESTION, RetrievalPolicy(('example.org', 'independent.example.org')),
+            fetcher=FixtureRetriever({URL_A: BODY_A, URL_B: BODY_B, url_c: 'Third bounded source'}),
+            checkpoint=checkpoint, budget=Budget(max_steps=len(script)))
+        state = runtime.run_agent(NativeFunctionFixtureModel(script))
+        self.assertEqual(state['rejected_calls'], 2)
+        self.assertEqual(len(state['rechecks']), 2)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        observed = next(e['payload'] for e in reversed(state['events']) if e['kind'] == 'HTTP_OBSERVATION')
+        record = {'source_id': 'src.3', 'receipt': copy.deepcopy(observed), 'unchanged_projection': True}
+        position = max(i for i, e in enumerate(state['events']) if e['kind'] == 'TOOL_REJECTED')
+        state['events'].insert(position, {'kind': 'SOURCE_RECHECK', 'payload': copy.deepcopy(record),
+                                        'at': state['events'][position]['at']})
+        state['events'][position+1].update(kind='TOOL_RESULT', payload={'tool': 'recheck', 'result': {
+            'rechecked_sources': 3, 'rechecked_searches': 0,
+            'scope': 'unchanged bounded projections only; not semantic or open-world completeness'}})
+        state['rechecks'].append(record)
+        state['recheck_completed_at'] = state['events'][position]['at']
+        state['rejected_calls'] -= 1
+        for i, event in enumerate(state['events'], 1):
+            event['sequence'] = i
+        reseal(state)
+        self.assert_rejected(state, 'projection')
+
+    def test_all_supported_tools_reconstruct_their_complete_accepted_outputs(self):
+        from tools.far_investigation_engine import TOOLS
+        def searcher(query, provider, policy, checkpoint):
+            row = receipt(URL_A, BODY_A)
+            checkpoint(copy.deepcopy(row))
+            return {'query': query, 'provider': provider, 'receipt': row,
+                    'hits': [], 'status': 'SEARCH_COMPLETED'}
+        script = full_script()
+        choices = [action('search', query='bounded fixture', provider='wikimedia'), *script[:2],
+            action('inspect', source_id='src.1'), action('verify_far', source_id='src.1'), *script[2:]]
+        original = self.runtime(searcher=searcher).run_agent(NativeFunctionFixtureModel(choices))
+        self.assertTrue(audit(original)['valid'], audit(original))
+        covered = {e['payload']['tool'] for e in original['events'] if e['kind'] == 'TOOL_RESULT'}
+        self.assertEqual(covered, set(TOOLS))
+        for tool in covered:
+            state = copy.deepcopy(original)
+            result = next(e['payload']['result'] for e in state['events']
+                          if e['kind'] == 'TOOL_RESULT' and e['payload']['tool'] == tool)
+            result['invented_result_field'] = 'unproduced observation'
+            reseal(state)
+            with self.subTest(tool=tool):
+                self.assert_rejected(state)
+
     def test_invalid_accepted_argument_copies_cannot_bypass_dispatch_validation(self):
         cases = [('finish', 'notes', {'claim': 'universal proof'}),
             ('finish', 'next_evidence', 'No further evidence needed'), ('finish', 'evidence_ids', ''),
@@ -963,6 +1102,11 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(outcome['reconstructed_counters']['native_attempts_recomputed'], 2)
         self.assertEqual(outcome['reconstructed_counters']['native_failed_attempts'], 1)
         self.assertEqual(len(state['evaluations']), 1)
+        rejected = next(e for e in state['events'] if e['kind'] == 'TOOL_REJECTED')
+        rejected.update(kind='TOOL_RESULT', payload={'tool': 'verify', 'result': copy.deepcopy(state['evaluations'][0])})
+        state['rejected_calls'] -= 1
+        reseal(state)
+        self.assert_rejected(state, 'verify')
 
     def test_live_shaped_single_function_call_envelope_reconstructs_actual_arguments(self):
         class FunctionEnvelopeFixture:

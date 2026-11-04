@@ -145,6 +145,21 @@ def validate_dispatch(proposal, intake, completed=()):
     return tool, args
 
 
+def select_native_candidate(intake, args, evaluations):
+    """Select exactly the frozen, not-yet-evaluated candidate the runtime can invoke."""
+    if not intake or intake['freeze']['status'] != 'FROZEN' or validate_manifest(intake):
+        raise EngineError('valid frozen intake required before native evaluation')
+    candidate = next((c for c in intake['discovery']['contract_candidates']
+                      if c['id'] == args['candidate_id']), None)
+    if candidate is None:
+        raise EngineError('candidate absent from frozen family')
+    if any(e['contract_id'] == candidate['id'] for e in evaluations):
+        raise EngineError('candidate already evaluated')
+    if sha256_json(candidate['contract']) != candidate['sha256']:
+        raise EngineError('frozen candidate mutated')
+    return candidate
+
+
 @dataclass(frozen=True)
 class Budget:
     max_steps: int = 32
@@ -580,13 +595,7 @@ class Investigation:
             return s['intake']['freeze']
         if tool == 'verify':
             intake = s['intake']
-            if not intake or intake['freeze']['status'] != 'FROZEN' or validate_manifest(intake):
-                raise EngineError('valid frozen intake required before native evaluation')
-            candidate = next(c for c in intake['discovery']['contract_candidates'] if c['id'] == args['candidate_id'])
-            if any(e['contract_id'] == candidate['id'] for e in s['evaluations']):
-                raise EngineError('candidate already evaluated')
-            if sha256_json(candidate['contract']) != candidate['sha256']:
-                raise EngineError('frozen candidate mutated')
+            candidate = select_native_candidate(intake, args, s['evaluations'])
             self.event('NATIVE_VERIFIER_REQUEST', {'candidate': candidate, 'freeze': intake['freeze']})
             result = verify(candidate['contract']['plan'], s['question'], s['sources'], s['evidence'])
             record = {'contract_id': candidate['id'], 'contract_sha256': candidate['sha256'],

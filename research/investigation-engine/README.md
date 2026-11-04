@@ -154,6 +154,14 @@ subsequent request/record progress to bound committed prefixes when an exception
 interrupts that boundary. An ambiguous diagnostic prefix establishes no completed
 pass or source/search stability beyond its actual recorded observations.
 
+Each accepted native `verify` must select an existing unevaluated candidate from
+the then-frozen family, emit its own native request and retain its exact native
+evaluation. The runtime rejects repeat verification rather than returning a
+cached success. Failed invocations and post-dispatch rejected diagnostics remain
+auditable failures. Retrieval IDs follow the runtime allocator, and recheck
+stability requires an actually retained original projection; raw source bytes
+saved before parsing cannot supply an invented prior projection.
+
 Sources are projected as strict JSON, UTF-8 text or visible HTML. PDF, OCR,
 audio/video, arbitrary code execution, authenticated sources and consequential
 external actions are not supported. Crossref and Wikimedia searches provide

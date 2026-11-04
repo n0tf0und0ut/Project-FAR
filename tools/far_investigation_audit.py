@@ -27,6 +27,7 @@ def audit(state) -> dict:
     # Imported lazily: the runtime exposes this auditor through a lazy wrapper.
     from tools.far_investigation_engine import (
         build_discovery, build_inspection, build_report, validate_dispatch, validate_proposal,
+        select_native_candidate,
     )
     errors = []
     counters = {}
@@ -164,6 +165,7 @@ def audit(state) -> dict:
         model_attempt_envelopes, latest_model_observation = [], None
         model_attempt_usage, observed_attempt_usage = [], set()
         tool_results, tool_attempts, source_rechecks, native_requests = [], [], [], []
+        attempt_native_requests, native_by_attempt = [], {}
         http_requests, search_requests, reservation_order, rejections, tokens = [], [], [], 0, 0
         discovery_results, freeze_events = [], []
         attempt_rechecks, attempt_searches, attempt_terminal = [], [], None
@@ -236,6 +238,7 @@ def audit(state) -> dict:
                 attempt_search_request, attempt_search_observation = None, None
                 attempt_network_started = False
                 attempt_committed_rechecks = 0
+                attempt_native_requests = []
                 actual_proposals.append(payload)
             elif kind == 'HTTP_REQUEST':
                 http_requests.append(payload)
@@ -265,8 +268,12 @@ def audit(state) -> dict:
                     equal(path + '.source_recheck.observation', attempt_observation, payload['receipt'])
                 attempt_http, attempt_observation = None, None
                 equal(path + '.request', payload['receipt']['request']['url'], original['request']['url'])
-                stable = parse_receipt(payload['receipt'])['projection_sha256'] == parse_receipt(original)['projection_sha256']
-                equal(path + '.unchanged_projection', payload['unchanged_projection'], stable)
+                if payload['source_id'] not in state['projections']:
+                    fail(path + '.original_projection', 'source recheck requires its actually retained original projection')
+                else:
+                    stable = (parse_receipt(payload['receipt'])['projection_sha256']
+                              == state['projections'][payload['source_id']]['projection_sha256'])
+                    equal(path + '.unchanged_projection', payload['unchanged_projection'], stable)
                 source_rechecks.append((index, payload))
                 attempt_committed_rechecks = len(attempt_rechecks)
                 attempt_rechecks.append(payload)
@@ -295,6 +302,7 @@ def audit(state) -> dict:
                         or tool_pending.get('args', {}).get('candidate_id') != payload['candidate']['id']):
                     fail(path, 'native verifier invocation differs from actual proposal')
                 native_requests.append((index, payload))
+                attempt_native_requests.append((index, payload))
             elif kind in ('TOOL_RESULT', 'TOOL_REJECTED'):
                 valid_shape = False
                 if tool_pending is not absent:
@@ -307,6 +315,7 @@ def audit(state) -> dict:
                         if attempt_rechecks or attempt_searches or attempt_terminal is not None:
                             fail(path + '.proposal.effects', 'invalid proposal cannot produce discovery/recheck effects')
                     tool_attempts.append((index, tool_pending, kind, payload))
+                    native_by_attempt[index] = attempt_native_requests
                     attempt_details[index] = (attempt_rechecks, attempt_searches, attempt_terminal,
                                               attempt_network_started, attempt_committed_rechecks)
                     if valid_shape and tool_pending['tool'] == 'search':
@@ -378,6 +387,8 @@ def audit(state) -> dict:
         expected_projections = {}
         successful_sources = {result['source_id']: index for index, proposal, result in tool_results
                               if proposal['tool'] == 'retrieve'}
+        equal('sources.allocation', sorted(sources, key=lambda value: int(value.removeprefix('src.'))),
+              ['src.' + str(i) for i in range(1, len(sources) + 1)])
         # IDs follow the runtime's allocation order. Canonical JSON sorts src.10
         # before src.2, so object iteration cannot disambiguate repeated identical
         # failure receipts. Successful retrievals additionally name their producer.
@@ -396,6 +407,9 @@ def audit(state) -> dict:
                     expected_projections[ident] = parse_receipt(receipt)
                 except (ValueError, KeyError, TypeError, UnicodeError):
                     pass  # Raw parser failures legitimately retain no projection.
+        producing_order = list(source_available_at.values())
+        if any(earlier >= later for earlier, later in zip(producing_order, producing_order[1:])):
+            fail('sources.allocation_order', 'source IDs must follow their retained retrieval producing order')
         equal('projections.coverage', state['projections'], expected_projections)
         for ident, row in evidence.items():
             binding = guarded('evidence.' + ident, lambda: bind_quote(
@@ -505,6 +519,25 @@ def audit(state) -> dict:
                     fail('tool.proposal.effects', 'rejected dispatch precondition cannot produce retained sources')
                 continue
             fingerprint = sha256_json(proposal)
+            if tool == 'verify':
+                requests = native_by_attempt[index]
+                if accepted and len(requests) != 1:
+                    fail('verify.producer', 'accepted verification requires exactly one native request in its own attempt')
+                elif len(requests) > 1:
+                    fail('verify.producer', 'one attempt cannot produce multiple native requests')
+                if accepted or requests:
+                    available_evaluations = [row for row in state['evaluations']
+                        if evaluation_available_at.get(row['contract_id'], len(events) + 1) < index]
+                    candidate = guarded('verify.proposal', lambda: select_native_candidate(
+                        replay_intake, args, available_evaluations))
+                    if candidate is not None:
+                        for _, request in requests:
+                            equal('verify.request.candidate', request['candidate'], candidate)
+                            equal('verify.request.freeze', request['freeze'], replay_intake['freeze'])
+                if accepted:
+                    retained = [row for row in state['evaluations'] if sha256_json(row) == sha256_json(result)]
+                    if len(retained) != 1 or evaluation_available_at.get(retained[0]['contract_id']) != index:
+                        fail('verify.evaluation', 'accepted result requires its exact retained evaluation produced by this attempt')
             previous_effects = (len(produced_evidence), len(produced_comparisons))
             search_effect = False
             if tool == 'search' and index < frozen_index:

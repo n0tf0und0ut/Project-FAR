@@ -355,3 +355,95 @@ unchanged trace policy, and retains every executable-file identity, mapped-model
 listener, command and wrong-owner assertion. The occupied-endpoint control also
 passes. Neither executable policy nor protected manifests were changed; a
 versioned executable remains inadmissible through the original parser control.
+
+## Accepted-operation producer coverage
+
+**ENG-NATIVE-OPERATION-PRODUCER** — hosted review **5761265038**,
+[comment 4461967436](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4461967436),
+thread `PRRT_kwDOTH_vCM6zYw6S`, reviewed commit
+`89a4dc6ef0f480f5eb34abfcafd512e65b3c84d2`, tree
+`e78cabcbd7de99015d752a46ec154d8beb23331f`, audit lines 760–761.
+Disposition: **fixed**. The exact native-response-shaped scripted reproducer
+prepends `verify(candidate_id='nonexistent')` before discovery/freezing. Its real
+rejection audits correctly. Replacing that outcome with an accepted verification
+and decrementing rejected calls previously left the completed transcript valid,
+although the operation had neither native invocation nor evaluation. The new
+regression failed before correction, independently of response-shape hashing.
+
+Runtime inspection established that repeat verification is rejected with
+`candidate already evaluated`; there is no permitted cached-success path. The
+existing frozen-family/candidate selection logic is now a shared pure helper.
+Every accepted verification must satisfy those actual preconditions, contain
+exactly one native request in its own attempt, bind the candidate and freeze,
+and equal one retained evaluation produced by that attempt. Its full accepted
+tool result is the native observation; no nonexistent observation marker is
+invented. Request-to-result native recomputation and evaluation-to-request
+coverage remain active in the opposite direction. Genuine failed invocations
+can have no result, and a post-dispatch rejected invocation can retain a bound
+diagnostic evaluation without becoming successful.
+
+Regressions cover the exact prefreeze nonexistent candidate; an existing name
+before freeze; a nonexistent frozen-family member; repeat verification after
+evaluation; missing/duplicated own requests; missing retained evaluation; and a
+failed invocation falsely claiming a later retry's evaluation. Existing transient
+native-failure retry and post-dispatch budget-rejection positives still audit.
+
+The required bounded producer inspection covered every supported operation:
+
+| Accepted operation | Reconstructed producer and prerequisite boundary |
+| --- | --- |
+| `retrieve` | Actual URL/request/transport observation, runtime-allocated source ID, retained bytes/projection and complete returned view. |
+| `search` | Actual query/provider/request/observation, native metadata projection where applicable, retained search row and returned view. |
+| `extract` | Then-available source, exact quotation/coordinates, actual relation/claim and allocated retained evidence row. |
+| `inspect` | Then-available source projection and shared bounded inspection guards/output. |
+| `compare` | Previously produced evidence, publisher projection groups, alternatives, fixed assurance strings and retained comparison. |
+| `discover` | Then-available source/evidence/comparison/search context, actual arguments, shared builder and exact discovery snapshot. |
+| `recheck` | Ordered source/search request-bound observations, actually retained original projections, committed diagnostic prefix and latest accepted full-pass readiness. |
+| `freeze` | Proposal-derived draft, latest complete accepted pass and exact canonical freeze. |
+| `verify` | Existing fresh frozen candidate, one own native request, exact native observation/evaluation and bidirectional coverage. |
+| `verify_far` | Then-available raw source, actual source argument, existing router recomputation and retained result inventory. |
+| `finish` | Earlier native evaluations, shared complete-family/report prerequisites, fixed nonclaims and retained final report. |
+
+This inspection reproduced two additional instances of deterministic output/input
+coverage, both also accepted by the exact published 89a4 auditor in read-only
+baseline execution:
+
+- **ENG-SOURCE-ALLOCATION:** renaming a one-step retained source, projection and
+  accepted result from `src.1` to `src.0` passed despite the allocator always
+  starting at one. Enforce the consecutive runtime ID sequence. This proves a
+  mechanical identity defect; no separate semantic or metric impact is claimed.
+- **ENG-RECHECK-ORIGINAL-PROJECTION:** a third source retained only as raw bytes
+  after a one-time preparse checkpoint failure has no original projection. Real
+  recheck fails after its actual HTTP observation. Forging the impossible third
+  source-recheck event, retained row and accepted outcome previously passed.
+  Require each source-recheck observation to use its actually retained original
+  projection. The original raw-only failed retrieval/recheck remains valid.
+
+A complete native-shaped fixture exercises all eleven tools; adding an invented
+field to each accepted result independently rejects. The all-tool coverage set
+is checked against the supported tool set. This is a bounded mechanical
+regression matrix, not proof of arbitrary semantic correctness or external
+execution authentication.
+
+Local source-construction identity:
+`a5e50483a015db1e6a5f9c37f69c3404c4357b88`, tree
+`8d52644e17a3d90a6e0f17cd8e99ef5cb5626620`. It is not presumed to be a published
+GitHub commit. Whole-PR verification passes **261/261**, zero skips, including
+pinned actual-graph preparation. Original **24/24** transcript replay, frozen
+metrics and the separately labelled **141,481** legacy counter versus **142,571**
+known-response lower bound with seven unknown attempts remain unchanged. No new
+inference, frozen-evidence edit, executable-policy change or GitHub write was
+performed. Final published head/tree, substantive review and hosted gates remain
+separate obligations recorded in the PR.
+
+Final internal review of local construction `a5e50483` also permuted the
+consecutive source IDs `src.1` and `src.2` consistently across a two-retrieval
+state and its returned IDs. The set-only allocator check still accepted that
+impossible producing order. The expanded regression failed before correction.
+IDs now follow strictly increasing retained-retrieval attempt indices as well
+as the exact consecutive allocator sequence. The repeated-identical-failure
+receipt and canonical JSON ordering positive remains valid. This completes the
+same **ENG-SOURCE-ALLOCATION** root cause without claiming a separate scientific
+or metric effect. The successor local source-construction identity is
+`f32bc1b7c232cdc295ed14fd6fc9b0e63076c410`, tree
+`d246b5649254f99002865fd1877ff4f8089c935b`; publication identity remains separate.
