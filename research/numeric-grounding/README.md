@@ -32,6 +32,19 @@ Input formats are far-metric-catalog/0.1 and far-metric-events/0.1. Successful r
 
 This module does not generate SQL, use an LLM judge, connect to NVIDIA NIM, import NVIDIA's code or deploy Postgres. It isolates the semantically relevant acceptance control without adding a parallel agent runtime or claiming equivalent capability to NVIDIA's full product.
 
+## Pinned-source correspondence and guarded reporting
+
+The executable [source replay adapter](source_replay.py) provides a stronger, strictly scoped answer path for FAR's original v0.3 tool-agent reliability screen. It loads the current unchanged original protocol only when its SHA-256 matches `ab6325bbf76d5b02b2a766402147f03eb2c8454b18a9f5896431546f41106e33`, loads the frozen evidence ZIP only when its SHA-256 matches `b4e1ccd17a46db8f91ccee29232853bdd6ba5881a1f6c747351d2dfc242a7809`, and checks the original execution source commit `6c382c798df0a95824b79e76263318865ee24c68`. It then invokes FAR's *existing* `tool_agent_reliability.analyze` over all 72 retained provider/tool records. Only successful exact-slot replay produces a reconstructed measurement table.
+
+The adapter independently reconstructs registered slots and outcomes relative to the caller-supplied table. A self-consistent forged 71/72 table or a truncated denominator that passed original basic shape/arithmetic checks is rejected by `verify_events` because it differs from original replay. The guarded reporting CLI recomputes the registered-success percentage from those original bytes, requires any proposed decimal assertion to agree, and produces an explicit source-correspondence receipt. It never changes historical execution outputs or calls a model.
+
+```sh
+python research/numeric-grounding/source_replay.py --assert-value=100.0000
+python -m unittest tests.test_numeric_grounding_integration -v
+```
+
+The dedicated canonical test entrypoint above additionally loads all original focused numerical-grounding tests. This is an **actual guarded output path for one frozen FAR research metric**, but it is not a universal numeric-answer interception layer or production deployment. Source integrity, deterministic trace replay, and consistency with the original project-authored oracle are auditable; **external ground truth, trusted execution attestation, and independence are still not established**. The original trial does not contain a no-guard vs guard treatment contrast or test model-generated metric answers. The displayed 100% is scoped to 72 authored-simulation attempts, not generalized agent reliability.
+
 ## Verification and recorded observation
 
 Executed locally with Python 3.13.5:
