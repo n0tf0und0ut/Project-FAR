@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from mechanization.far_mechanization.intake_v1 import sha256_json
 from tools.far_investigation_audit import audit
-from tools.far_investigation_engine import Budget, EngineError, Investigation
+from tools.far_investigation_engine import Budget, CheckpointPersistenceError, EngineError, Investigation
 from tools.far_investigation_retrieval import RetrievalPolicy, ToolError
 from tests.test_far_investigation_engine import (
     BODY_A, BODY_B, QUESTION, URL_A, URL_B, FixtureRetriever,
@@ -361,6 +361,36 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(len(state['sources']), 1)
         self.assertEqual(state['projections'], {})
         self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_transient_tool_result_checkpoint_failure_keeps_one_accepted_outcome(self):
+        failed = False
+        persisted = []
+        def checkpoint(state):
+            nonlocal failed
+            if not failed and state['events'][-1]['kind'] == 'TOOL_RESULT':
+                failed = True
+                raise OSError('one-time accepted-result checkpoint failure')
+            persisted.append(state)
+        state = self.runtime(checkpoint=checkpoint).run_agent(NativeFunctionFixtureModel(full_script()))
+        self.assertTrue(failed)
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 0)
+        self.assertEqual(sum(e['kind'] == 'TOOL_PROPOSAL' for e in state['events']),
+                         sum(e['kind'] == 'TOOL_RESULT' for e in state['events']))
+        self.assertFalse(any(e['kind'] == 'TOOL_REJECTED' for e in state['events']))
+        self.assertTrue(any(e['events'][-1]['kind'] == 'TOOL_RESULT' for e in persisted))
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_persistent_tool_result_checkpoint_failure_cannot_claim_completion(self):
+        def checkpoint(state):
+            if state['events'][-1]['kind'] == 'TOOL_RESULT':
+                raise OSError('persistent accepted-result persistence failure')
+        runtime = self.runtime(checkpoint=checkpoint)
+        with self.assertRaisesRegex(CheckpointPersistenceError, 'could not be checkpointed'):
+            runtime.run_agent(NativeFunctionFixtureModel(full_script()))
+        self.assertEqual(runtime.state['status'], 'INCOMPLETE')
+        self.assertFalse(any(e['kind'] == 'TOOL_REJECTED' for e in runtime.state['events']))
+        self.assertFalse(any(e['kind'] == 'FINAL_STATE_SEAL' for e in runtime.state['events']))
 
     def test_accepted_producers_are_reserved_before_transient_failed_retries(self):
         from tools import far_investigation_engine as engine
@@ -850,6 +880,49 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         contradict(state)
         reseal(state)
         self.assert_rejected(state, 'transport')
+
+    def test_native_receipt_content_type_and_encoding_bind_to_transport(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            raw = ('<script>' + BODY_A + '</script>') if url == URL_A else BODY_B
+            client.open.return_value = Response(raw.encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        original = Investigation(
+            QUESTION, RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            fetcher=fetch).run_agent(NativeFunctionFixtureModel(full_script()))
+        self.assertTrue(audit(original)['valid'], audit(original))
+        self.assertIn(BODY_A, original['projections']['src.1']['text'])
+
+        for header, replacement in (('content-type', 'text/html'),
+                                    ('content-encoding', 'gzip')):
+            state = copy.deepcopy(original)
+            mutated = 0
+            def rewrite(node):
+                nonlocal mutated
+                if isinstance(node, dict):
+                    if node.get('status') == 'RETRIEVED' and isinstance(node.get('transport'), dict):
+                        headers = node['transport']['response_headers']
+                        for key in list(headers):
+                            if key.lower() == header:
+                                headers[key] = replacement
+                                mutated += 1
+                        if header not in (key.lower() for key in headers):
+                            headers[header] = replacement
+                            mutated += 1
+                    for child in node.values():
+                        rewrite(child)
+                elif isinstance(node, list):
+                    for child in node:
+                        rewrite(child)
+            rewrite(state)
+            self.assertGreater(mutated, 0)
+            reseal(state)
+            with self.subTest(header=header):
+                self.assert_rejected(state, 'transport.' + header.replace('-', '_'))
 
     def test_accepted_model_proposal_requires_a_coherent_optional_transport(self):
         state = self.complete()

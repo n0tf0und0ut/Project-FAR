@@ -115,6 +115,10 @@ class EngineError(ValueError):
     pass
 
 
+class CheckpointPersistenceError(RuntimeError):
+    """A committed in-memory tool outcome cannot be durably checkpointed."""
+
+
 def validate_proposal(proposal):
     """Authoritative accepted-call shape; rejected proposals need not satisfy it."""
     if type(proposal) is not dict or set(proposal) != {'tool', 'args'}:
@@ -456,7 +460,19 @@ class Investigation:
             recheck_started = tool == 'recheck' and bool(self.state['sources']) and bool(self.state['comparisons'])
             result = self._dispatch(tool, args)
             self.limits()
-            self.event('TOOL_RESULT', {'tool': tool, 'result': result})
+            try:
+                self.event('TOOL_RESULT', {'tool': tool, 'result': result})
+            except OSError as exc:
+                # event() has already appended the accepted outcome. A transient
+                # checkpoint failure must not turn that result into a second,
+                # contradictory TOOL_REJECTED event. Persist the same journal.
+                try:
+                    self.save()
+                except OSError as retry:
+                    # Durability is unavailable. Fail closed rather than return
+                    # a completed investigation with an unauditable transcript.
+                    raise CheckpointPersistenceError(
+                        'accepted tool result could not be checkpointed') from retry
             if tool == 'finish':
                 # Completion is committed only after dispatch, budget validation
                 # and recording the accepted result all succeed.

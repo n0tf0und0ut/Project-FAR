@@ -104,6 +104,25 @@ def audit(state) -> dict:
                     if 'transport' in node:
                         accepted_transport(path + '.transport', node['transport'], node['raw_base64'],
                                            node['sha256'], node['observed_bytes'], node['request']['url'])
+                        # A native retrieval derives parser-driving metadata
+                        # from the observed response headers. A resealed trace
+                        # cannot change the headers while retaining a projection
+                        # computed under another content type or encoding.
+                        headers = node['transport'].get('response_headers')
+                        if type(headers) is not dict or any(
+                                type(k) is not str or type(v) is not str
+                                for k, v in headers.items()):
+                            fail(path + '.transport.response_headers', 'invalid native headers')
+                        else:
+                            normalized = {k.lower(): v for k, v in headers.items()}
+                            equal(path + '.transport.content_type', node.get('content_type'),
+                                  normalized.get('content-type', ''))
+                            equal(path + '.transport.content_encoding', node.get('content_encoding'),
+                                  normalized.get('content-encoding', 'identity'))
+                            equal(path + '.transport.response_url', node.get('response_url'),
+                                  node['transport'].get('response_url', node['request']['url']))
+                            equal(path + '.transport.http_status', node.get('http_status'),
+                                  node['transport'].get('http_status'))
             for raw_key in ('response_base64', 'raw_response_base64'):
                 if raw_key in node:
                     encoded, declared = node[raw_key], node.get('response_sha256')
