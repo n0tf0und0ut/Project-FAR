@@ -106,10 +106,10 @@ def train_encoder(inputs, condition, seed, steps, width):
     torch.set_num_threads(1)
     d = inputs["train"].shape[-1]
     if condition == "pca":
-        train = inputs["train"].mean(axis=1)
+        train = inputs["train"][:, 0]
         _, _, vt = np.linalg.svd(train - train.mean(axis=0), full_matrices=False)
         directions = vt[:width].T
-        return {s: arr.mean(axis=1) @ directions for s, arr in inputs.items()}, 0.0
+        return {s: arr[:, 0] @ directions for s, arr in inputs.items()}, 0.0
     network = torch.nn.Sequential(torch.nn.Linear(d, 64), torch.nn.ReLU(), torch.nn.Linear(64, width))
     optimizer = torch.optim.Adam(network.parameters(), lr=0.003)
     original = torch.as_tensor(inputs["train"], dtype=torch.float32)
