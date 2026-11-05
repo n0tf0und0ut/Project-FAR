@@ -8,6 +8,7 @@ import pilot
 def semantic_view(result):
     return {
         'schema': result['schema'],
+        'method': result['method'],
         'dataset_sha256': result['dataset_sha256'],
         'dataset_origin': result['dataset_origin'],
         'counts': result['counts'],
