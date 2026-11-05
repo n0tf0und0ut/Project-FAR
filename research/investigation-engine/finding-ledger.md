@@ -447,3 +447,22 @@ same **ENG-SOURCE-ALLOCATION** root cause without claiming a separate scientific
 or metric effect. The successor local source-construction identity is
 `f32bc1b7c232cdc295ed14fd6fc9b0e63076c410`, tree
 `d246b5649254f99002865fd1877ff4f8089c935b`; publication identity remains separate.
+
+## November 5 review findings: accepted-outcome durability and source metadata
+
+Reviewed head: `e19f78a12c33bc605720e74fa3143c20ecf4ece0`.
+Protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`.
+Corrective implementation commit: `37cfd0f646139fb8136b8ac5a76b4ac428f3a98f`.
+These are post-execution engineering corrections; frozen investigations and reported
+model outcomes are unchanged. The test suite proves the encoded journal/transport
+invariants at its fixture boundary, not the scientific truth of sources or autonomous
+investigation reliability.
+
+| Root cause and original review | Observed invariant violation | Disposition and regression |
+| --- | --- | --- |
+| **ENG-ACCEPTED-CHECKPOINT-DURABILITY**, thread `PRRT_kwDOTH_vCM6zZGl9`, comment [4462111092](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4462111092), reviewed `e19f78a1`, `tools/far_investigation_engine.py:459` | A one-time OSError from saving an already-appended `TOOL_RESULT` caused both accepted and rejected outcomes for one proposal. The apparent completed transcript then failed the offline audit. | **Fixed in `37cfd0f`**. Retry persistence of the existing accepted journal without adding a rejection. Persistent failure raises a distinct nonrecoverable `CheckpointPersistenceError` and does not return a false completion. `test_transient_tool_result_checkpoint_failure_keeps_one_accepted_outcome` and `test_persistent_tool_result_checkpoint_failure_cannot_claim_completion` exercise complete native-function-shaped fixtures; final hosted exact-head verification is separate. |
+| **ENG-NATIVE-PARSER-METADATA**, thread `PRRT_kwDOTH_vCM6zZGmA`, comment [4462111097](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4462111097), reviewed `e19f78a1`, `tools/far_investigation_audit.py:106` | Native transport headers could be changed from plain text to HTML while receipt parser metadata and evidence stayed unchanged, and a self-consistently resealed trace still passed audit. HTML hiding of `<script>` made the error consequential to extracted quotations. | **Fixed in `37cfd0f`**. Reconstruct receipt content-type, content-encoding, final URL and HTTP status from retained native transport, while retaining legacy receipts without native transport at their declared evidence scope. `test_native_receipt_content_type_and_encoding_bind_to_transport` mutates complete native fixture receipts and seals. |
+
+The branch remains a draft successor to #608. Current required checks,
+independent final-head review, unresolved-thread closure and protected-repin
+authorization must be verified separately before any readiness promotion.
