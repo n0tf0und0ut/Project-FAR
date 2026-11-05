@@ -19,6 +19,8 @@ from urllib.error import HTTPError, URLError
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_replay
 from tools import tool_agent_reliability as original
 from tools.workflow_efficacy_free_agent import local_model_digest
@@ -138,7 +140,7 @@ def predicted(task: dict, arm: str, calls: list[dict], grounded: dict) -> tuple[
         v = first["answer"]
         if v == "UNKNOWN":
             return "UNKNOWN","MODEL_ABSTAINED",False
-        if len(v) <= 16 and source_replay.mg.answer:  # only canonical decimal grammar
+        if len(v) <= 16:  # only canonical decimal grammar
             import re
             if re.fullmatch(r"(?:0|[1-9][0-9]*)\.[0-9]{4}", v):
                 return v,"UNVERIFIED_CONTROL_RELEASE",False
