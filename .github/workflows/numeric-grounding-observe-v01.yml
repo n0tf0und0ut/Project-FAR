@@ -1,0 +1,34 @@
+name: Numeric Grounding Live Evidence Observer
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-bound-observer:
+    if: ${{ github.repository == 'n0tf0und0ut/Project-FAR' && github.event.pull_request.number == 620 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Inspect only original frozen launch without additional model calls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python research/numeric-grounding/observe_live.py
+      - name: Retain observation independently of experiment outcome
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: numeric-grounding-live-observation
+          path: artifacts/numeric-grounding-live-observation.json
+          if-no-files-found: warn
+          retention-days: 30
