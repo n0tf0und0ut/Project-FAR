@@ -12,6 +12,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+import urllib.error
 import zipfile
 
 FROZEN_LAUNCH_SHA = "2b6a52f6c5fdc7d55240a358c42fe45818571672"
@@ -21,15 +22,22 @@ OUT = Path("artifacts/numeric-grounding-live-observation.json")
 
 
 def fetch(url, token, limit=10_000_000):
-    req=urllib.request.Request(url,headers={
-        "Authorization":"Bearer "+token,"Accept":"application/vnd.github+json",
-        "X-GitHub-Api-Version":"2022-11-28",
-        "User-Agent":"FAR-research-evidence-observer"})
-    with urllib.request.urlopen(req,timeout=30) as res:
-        raw=res.read(limit+1)
-        if len(raw)>limit:
-            raise ValueError("GitHub evidence response exceeds byte budget")
-        return raw
+    headers={"Accept":"application/vnd.github+json",
+             "X-GitHub-Api-Version":"2022-11-28",
+             "User-Agent":"FAR-research-evidence-observer"}
+    if token:
+        headers["Authorization"]="Bearer "+token
+    req=urllib.request.Request(url,headers=headers)
+    try:
+        with urllib.request.urlopen(req,timeout=30) as res:
+            raw=res.read(limit+1)
+    except urllib.error.HTTPError as exc:
+        if exc.code==401 and token:
+            return fetch(url,None,limit)
+        raise
+    if len(raw)>limit:
+        raise ValueError("GitHub evidence response exceeds byte budget")
+    return raw
 
 
 def record(value):
