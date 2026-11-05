@@ -16,9 +16,11 @@ from pathlib import Path
 import sys
 import zipfile
 
-from tools import tool_agent_reliability as runner
-
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools import tool_agent_reliability as runner
 ARCHIVE_PATH = "research/tool-agent-reliability/result/v0.3/evidence-v0.3.zip"
 ARCHIVE_SHA256 = "b4e1ccd17a46db8f91ccee29232853bdd6ba5881a1f6c747351d2dfc242a7809"
 PROTOCOL_PATH = "research/tool-agent-reliability/protocol-v0.3.json"
