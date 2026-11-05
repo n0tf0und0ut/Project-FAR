@@ -44,7 +44,8 @@ def record(value):
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(value,indent=2,sort_keys=True)+"\n")
     print(json.dumps(value,sort_keys=True))
-    return 0
+    # An observation must never be marked green when the launch is unverified.
+    return 0 if value.get("status") == "REPLAY_VERIFIED_BOUNDED_RESULT" else 1
 
 
 def main():
