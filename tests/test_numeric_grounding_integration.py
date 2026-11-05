@@ -8,6 +8,8 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
+import sys
 from pathlib import Path
 import unittest
 
@@ -66,6 +68,19 @@ class OriginalTraceCorrespondenceTests(unittest.TestCase):
         with self.assertRaises(mg.GroundingError) as ctx:
             source.grounded_report(asserted_value="99.0000")
         self.assertEqual(ctx.exception.code, "NUMERIC_CLAIM_MISMATCH")
+
+    def test_guarded_cli_releases_valid_answer_and_blocks_false_number(self):
+        command = [sys.executable, str(SOURCE / "source_replay.py")]
+        good = subprocess.run(command + ["--assert-value=100.0000"], cwd=ROOT,
+                              capture_output=True, text=True, timeout=120)
+        self.assertEqual(good.returncode, 0, good.stderr)
+        self.assertEqual(json.loads(good.stdout)["value"], "100.0000")
+        bad = subprocess.run(command + ["--assert-value=99.0000"], cwd=ROOT,
+                             capture_output=True, text=True, timeout=120)
+        self.assertEqual(bad.returncode, 1, bad.stderr)
+        denial = json.loads(bad.stdout)
+        self.assertEqual((denial["status"], denial["code"]),
+                         ("UNANSWERABLE", "NUMERIC_CLAIM_MISMATCH"))
 
     def test_source_archive_maintains_recorded_identity(self):
         self.assertEqual(self.data["sources"][0]["sha256"], source.ARCHIVE_SHA256)
