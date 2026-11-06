@@ -72,6 +72,34 @@ class ComputeTests(unittest.TestCase):
         check, _ = pilot.train_encoder(modified, 'pca', 11, 6, 4)
         np.testing.assert_allclose(baseline['test'], check['test'])
 
+    def test_variable_optional_views_do_not_change_consumed_features(self):
+        np = self.np
+        original = pilot.synthetic(per_split=(18, 6, 6))
+        extra = copy.deepcopy(original)
+        extra["items"][0]["text"].append(list(extra["items"][0]["text"][0]))
+        extra["items"][-1]["image"].append(list(extra["items"][-1]["image"][1]))
+        self.assertEqual(pilot.validate(extra), pilot.validate(original))
+        for modality in ("text", "image"):
+            baseline = pilot.features(original, modality)
+            with_extra = pilot.features(extra, modality)
+            for split in pilot.SPLITS:
+                np.testing.assert_array_equal(baseline[split], with_extra[split])
+
+    def test_unknown_stance_does_not_count_as_opposition(self):
+        np = self.np
+        calibration = np.array([[1., 0.], [0., 1.], [-1., 0.], [0., -1.]])
+        text = {"calibration": calibration, "test": np.array([[0., 1.], [1., 0.]])}
+        image = {"calibration": calibration, "test": np.array([[1., 0.], [0., 1.]])}
+        rows = [{"family_id": "same", "stance": "supports"},
+                {"family_id": "same", "stance": "unknown"}]
+        unknown = pilot.evaluate(text, image, rows)
+        self.assertEqual(unknown["opposition_top1_rate"], 0.0)
+        self.assertIsNone(unknown["stance_discrimination"])
+        rows[1]["stance"] = "opposes"
+        opposing = pilot.evaluate(text, image, rows)
+        self.assertEqual(opposing["opposition_top1_rate"], 1.0)
+        self.assertEqual(opposing["stance_discrimination"], 0.0)
+
     def test_pipeline_is_bounded_and_never_promotes(self):
         result = pilot.run(pilot.synthetic(per_split=(18, 6, 6)), seeds=(11,), steps=6, width=4)
         self.assertEqual(set(result['runs'][0]['conditions']), set(pilot.CONDITIONS))
