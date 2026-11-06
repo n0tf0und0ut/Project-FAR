@@ -85,3 +85,21 @@ failed before correction and now verifies the original declarations, two added
 unknowns, portable replay and a second resume. The complete dependency-equipped
 component suite passes **279/279 tests**. Frozen campaign bytes remain unchanged;
 this correction does not rerun or replace their observations.
+
+## ED-JSON-001 — ambiguous web debugger request
+
+Coordinator review on `94fd7e193b48979428624bc8a37f8e55d3e16003` reproduced
+`{"debugger":true,"debugger":false}` reaching the investigation as `false`
+and returning HTTP 200. The debugger added by this PR therefore inherited a
+web decoder that could silently change the supplied mode or source text.
+The same parser accepted nonfinite JSON constants. The new raw-request
+regression failed three adversarial subcases before the correction.
+
+The web route now reuses the existing bounded `parse_json_artifact` helper,
+rejecting duplicate members and nonfinite constants with HTTP 422 before
+investigation. Tests retain an over-nested negative control and a subsequent
+valid request proving the worker gate is released. The two new tests pass;
+all 281 dependency-equipped component tests pass. This changes request intake
+only; frozen protocols, source snapshots, campaign results and scientific
+assurance are unchanged. A fresh substantive review on the successor head
+and hosted protected checks remain separate obligations.

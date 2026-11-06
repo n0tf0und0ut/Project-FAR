@@ -4,7 +4,6 @@ Do not expose to the internet: this prototype has no authentication, user
 isolation or security-reviewed production rate limiting.
 """
 from __future__ import annotations
-import json
 import os
 import re
 import threading
@@ -14,6 +13,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from acquire import AcquisitionError
 from engine import InvalidBundle
+from full_cli import parse_json_artifact
 from workflow import investigate
 
 app = FastAPI(title="FAR Investigation Lab", version="0.4.6", docs_url=None, redoc_url=None)
@@ -107,7 +107,7 @@ async def analyze(request: Request):
     if not _GATE.acquire(blocking=False):
         raise HTTPException(429, "local research worker busy")
     try:
-        data = json.loads(raw)
+        data = parse_json_artifact(raw, "investigation request")
         if not isinstance(data, dict):
             raise InvalidBundle("request must be an object")
         # This prototype does not offer unauthenticated remote-model calls.
