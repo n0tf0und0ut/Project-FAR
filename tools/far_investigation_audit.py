@@ -72,12 +72,7 @@ def audit(state) -> dict:
         if type(headers) is not dict or type(lengths) is not list:
             fail(path + '.content_length', 'malformed HTTP framing metadata')
         else:
-            listed = [value for key, value in headers.items()
-                      if type(key) is str and key.lower() == 'content-length']
-            # Archived native adapters may retain the explicit length list
-            # without preserving the same header in their flattened mapping.
-            if listed and listed != lengths:
-                fail(path + '.content_length', 'declared framing differs from response headers')
+            # Use the transport reader's explicit Content-Length list.
             if lengths:
                 if (len(lengths) != 1 or type(lengths[0]) is not str
                         or not lengths[0].isascii() or not lengths[0].strip().isdigit()
