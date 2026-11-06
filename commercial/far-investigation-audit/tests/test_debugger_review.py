@@ -163,6 +163,48 @@ class ReviewRegressions(unittest.TestCase):
                 self.assertFalse(m.replay()["invalidated"])
             finally:m.close()
 
+    def test_449514_lineage_does_not_cross_deduplicated_source_occurrences(self):
+        # Two investigations reuse primary snapshot X. Only one declares
+        # that X depends on Y; retracting Y must not taint independent X.
+        derived=request(True,ident="derived")
+        derived["evidence_sources"]=[{"kind":"text","text":"Upstream record of blue birds."}]
+        derived["debugger_options"]={"source_lineage":[
+            {"schema":"far-source-lineage/1.0","source_id":"primary",
+             "relationship":"derived","upstream_source_ids":["ev1"],"root_lineage_ids":["upstream-root"]},
+            {"schema":"far-source-lineage/1.0","source_id":"ev1",
+             "relationship":"origin","upstream_source_ids":[],"root_lineage_ids":["upstream-root"]}]}
+        independent=request(True,ident="independent")
+        independent["debugger_options"]={"source_lineage":[{
+            "schema":"far-source-lineage/1.0","source_id":"primary",
+            "relationship":"origin","upstream_source_ids":[],"root_lineage_ids":["separate-root"]}]}
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t)
+            p=investigate(derived);q=investigate(independent)
+            self.assertEqual(p["bundle"]["sources"][0]["sha256"],q["bundle"]["sources"][0]["sha256"])
+            write_package(root/"derived",p);write_package(root/"independent",q)
+            self.assertTrue(verify_package(root/"derived")["replay_match"])
+            self.assertTrue(verify_package(root/"independent")["replay_match"])
+            memory=Memory(root/"memory.sqlite")
+            try:
+                memory.remember(root/"derived",known_time=T)
+                memory.remember(root/"independent",known_time=T)
+                state=memory.replay()
+                shared="source:"+p["bundle"]["sources"][0]["sha256"]
+                self.assertEqual(len(state["nodes"][shared]["occurrences"]),2)
+                self.assertEqual(sum(n["type"]=="source_occurrence" and n["content_id"]==shared
+                                     for n in state["nodes"].values()),2)
+                upstream="source:"+p["bundle"]["sources"][1]["sha256"]
+                memory.source_state(upstream,active=False,reason="upstream withdrawn",
+                                    known_time=T,valid_time=T)
+                invalid=set(memory.replay()["invalidated"])
+                self.assertIn(p["audit"]["input_sha256"]+":reading:r1",invalid)
+                self.assertNotIn(q["audit"]["input_sha256"]+":reading:r1",invalid)
+                memory.source_state(upstream,active=True,reason="restored",
+                                    known_time=T,valid_time=T)
+                self.assertFalse(memory.replay()["invalidated"])
+            finally:
+                memory.close()
+
     def test_4391124913_nested_count_equivalence_abstains_and_never_collides(self):
         a="If no birds are blue, then rain is wet."
         b="If all birds are not blue, then rain is wet."

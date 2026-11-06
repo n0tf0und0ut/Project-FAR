@@ -140,12 +140,20 @@ class Memory:
             versions.setdefault(p["bundle"]["investigation_id"],[]).append(run)
             mapped={}
             for n in p["debugger"]["graph"]["nodes"]:
-                key="source:"+n["record"]["sha256"] if n["type"]=="source" else run+":"+n["id"]
+                key=run+":"+n["id"]
                 mapped[n["id"]]=key
                 if n["type"]=="source":
-                    if key not in nodes:
-                        nodes[key]={"type":"source","record":{"text":n["record"]["text"],"sha256":n["record"]["sha256"]},"occurrences":[]}
-                    nodes[key]["occurrences"].append({"run":run,"record":n["record"]})
+                    # Deduplicate stored snapshot bytes, not dependency identity.
+                    # A source occurrence has its own declared lineage inside
+                    # one investigation; identical bytes elsewhere can have a
+                    # different, independently valid provenance graph.
+                    content_key="source:"+n["record"]["sha256"]
+                    if content_key not in nodes:
+                        nodes[content_key]={"type":"source","record":{"text":n["record"]["text"],"sha256":n["record"]["sha256"]},"occurrences":[]}
+                    nodes[content_key]["occurrences"].append({"run":run,"record":n["record"]})
+                    nodes[key]={"type":"source_occurrence","record":n["record"],
+                                "run":run,"content_id":content_key}
+                    edges.add((content_key,key,"snapshot_occurrence"))
                 else:
                     nodes[key]={"type":n["type"],"record":n["record"],"run":run}
                 if n["type"]=="interpretation" and n["record"].get("semantic_id"):
