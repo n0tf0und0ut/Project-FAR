@@ -128,6 +128,8 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "**Novelty**: **established**",
             "*Priority*: *confirmed*",
             "**Novelty:** established",
+            "| **External validation** | confirmed |",
+            "| **Priority** | **proved** |",
         )
         for phrase in examples:
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
@@ -139,13 +141,40 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
     def test_negated_labels_do_not_trigger_a_false_alarm(self):
-        for phrase in ("Novelty: not established", "I3: unresolved", "Universality — not proved", "**Novelty**: **not established**"):
+        for phrase in (
+            "Novelty: not established",
+            "I3: unresolved",
+            "Universality — not proved",
+            "**Novelty**: **not established**",
+            "Novelty: established only if independently replicated.",
+            "Novelty: established unless a prior example is found.",
+            "Do not assert novelty: established.",
+            "| **External validation** | confirmed only if independently replicated |",
+        ):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 _fixture(root, GOVERNANCE)
                 _append_promotion(root, phrase)
                 result = _run_checker(root, GOVERNANCE)
                 self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_local_context_does_not_hide_an_adjacent_false_promotion(self):
+        # Two statements on one line must be judged separately, including in
+        # a Markdown-table row. Whole-line NEGATION matching is not sufficient.
+        cases = (
+            "Novelty: not established; Priority: confirmed",
+            "Novelty: established; Priority: not established",
+            "Novelty: established only if independently replicated; Priority: proved",
+            "| **Novelty** | not established | **Priority** | confirmed |",
+        )
+        for phrase in cases:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
 
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
