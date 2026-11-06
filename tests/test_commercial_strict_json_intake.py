@@ -140,6 +140,16 @@ class StrictJSONIntakeTests(unittest.TestCase):
                     manifest.write_text(text, encoding="utf-8")
                     self.assertFalse(verify_evidence_bundle(root))
 
+    def test_synthetic_cli_examples_and_semantic_gate(self) -> None:
+        from far_decision_integrity.adjudicate import adjudicate
+
+        examples = ROOT / "commercial" / "far-decision-integrity" / "examples"
+        clear = load_package(examples / "clear-package.json")
+        contradicted = load_package(examples / "contradicted-package.json")
+        self.assertEqual(adjudicate(clear).status.value, "justified")
+        self.assertEqual(adjudicate(contradicted).status.value, "unsupported")
+        self.assertEqual(adjudicate(clear, require_semantic_contract=True).status.value, "unverifiable")
+
     def test_writer_rejects_nonfinite_numbers(self) -> None:
         for number in (float("nan"), float("inf"), float("-inf")):
             with self.subTest(number=str(number)), self.assertRaises(ValueError):
