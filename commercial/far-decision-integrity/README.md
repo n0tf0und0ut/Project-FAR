@@ -122,3 +122,11 @@ package. Three actual-route assertions failed before correction. Mapping-bearing
 JSONL candidates now retain the exactly-one-record/object contract; non-object
 supporting fragments still skip. Current verification is **48** package and
 **30** dependency-equipped baseline demo tests.
+
+**CJSON-011** (review `4494666947`, thread `PRRT_kwDOTH_vCM60liJH`): native
+SafeLoader normalizes YAML value-tagged keys to strings while flattening. The
+prevalidation walk initially constructed that unsupported tag too early; three
+valid direct/sniffed/fenced inputs failed. It now compares the original scalar
+text using the same string identity without mutating the graph. Legitimate `=`
+keys pass; an explicit equivalent duplicate still rejects. Current verification:
+**48** package tests and **31** dependency-equipped baseline demo tests.

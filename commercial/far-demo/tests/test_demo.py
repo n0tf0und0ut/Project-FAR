@@ -130,6 +130,21 @@ class TestFarDemo(unittest.TestCase):
                 parsed = parse_package_file(filename, content.encode())
                 self.assertEqual(parsed['metadata'], {'origin': 'explicit', 'keep': 'retained'})
 
+    def test_yaml_value_tagged_keys_match_native_string_normalization(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        template = yaml.safe_dump(payload, sort_keys=False)
+        for mapping, expected in [('{=: equals}', 200), ("{=: first, '=': second}", 400)]:
+            raw = template.replace('metadata: {}', 'metadata: ' + mapping)
+            for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                    ('input.md', '```yaml\n' + raw + '\n```')]:
+                with self.subTest(filename=filename, mapping=mapping):
+                    response = self.client.post('/api/analyze', files={
+                        'baseline': (filename, content, 'application/octet-stream'),
+                        'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                    })
+                    self.assertEqual(response.status_code, expected, response.text)
+
     def test_yaml_merge_source_duplicates_are_rejected_before_flattening(self) -> None:
         payload = copy.deepcopy(SAMPLE_BASELINE)
         payload['metadata'] = {}

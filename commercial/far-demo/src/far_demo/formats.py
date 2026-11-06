@@ -78,7 +78,11 @@ def _validate_yaml_keys(loader, root):
                 # constructing them here, which could flatten another node.
                 if not isinstance(key_node, yaml.ScalarNode):
                     raise ValueError('Unhashable YAML mapping key')
-                key = loader.construct_object(key_node)
+                # SafeLoader normalizes this special key tag to a string during
+                # flatten_mapping. Compare that same scalar text without changing
+                # the original node or constructing the unsupported value tag.
+                key = (key_node.value if key_node.tag == 'tag:yaml.org,2002:value'
+                       else loader.construct_object(key_node))
                 if key in seen:
                     raise ValueError(f'Duplicate YAML mapping key {key!r}')
                 seen.add(key)
