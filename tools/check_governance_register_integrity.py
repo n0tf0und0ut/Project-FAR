@@ -48,7 +48,7 @@ CLAUSE = re.compile(r"[,;.:|()]|\s(?:and|but|while|whereas)\s|\s[—–-]\s")
 # deliberately separates colons and table cells, so inspect label/value pairs
 # independently instead of silently accepting "Novelty: established".
 LABEL_PROMOTION = re.compile(
-    rf"{TOPIC.pattern}\\s*(?::|\\||[—–-])\\s*(?:\\*\\*)?{PROMOTION.pattern}(?:\\*\\*)?",
+    rf"{TOPIC.pattern}\s*(?::|\||[—–-])\s*(?:\*\*)?{PROMOTION.pattern}(?:\*\*)?",
     re.I,
 )
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
