@@ -2,6 +2,11 @@
 
 > **Scope update — November 2, 2026 (America/New_York):** This page describes the unexecuted historical-PR agent study v0.1. The separate [local scripted-repair pilot v0.4](KEYLESS-PILOT-RESULTS-V0.4.md) completed 60/60 verified observations: control 11/30, treatment 10/30. That synthetic one-shot result does not execute or establish efficacy for this historical-PR study. The v0.4 [prelaunch protocol](KEYLESS-PILOT-V0.2.md) is retained as frozen history; its NOT EXECUTED label records the prelaunch state, not the completed pilot's current status.
 
+The separate local-Qwen v0.1 condition retains its original failed preflight and
+unexecuted paired study. Its [post-execution validation record](LOCAL-QWEN-VALIDATION-V0.2.md)
+documents repaired grading and evidence checks, retired live execution, and the
+unchanged original registration.
+
 **Status: Research / NOT EXECUTED. No demonstrated improvement.** This is a study of the *agent development workflow*, not a FAR reasoning-engine benchmark or theory-acceptance exercise. Do not merge or pool with `FAR-SWE-V3-001`: that study has its own closed execution gate, different treatment, and external-task constraints.
 
 ## Observed facts at intake (2026-11-02 UTC)
