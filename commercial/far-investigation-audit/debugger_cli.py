@@ -20,7 +20,8 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
     old=verify_package(Path(directory),include_verified_snapshots=True)
     bundle=old["_verified_bundle"]
     def source(s):
-        return {"kind":"verified_snapshot","snapshot_sha256":s["sha256"],
+        return {"kind":"verified_snapshot","snapshot_id":s["id"],
+                "snapshot_sha256":s["sha256"],
                 "origin_id":s["origin_id"],"published_at":s["published_at"]}
     original=next(s for s in bundle["sources"] if s["id"]=="primary")
     evidence_sources=[source(s) for s in bundle["sources"] if s["id"]!="primary"]
@@ -48,7 +49,9 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
             "evidence_sources":evidence_sources+evidence,"proposal_mode":"supplied","proposal":chosen,"debugger":True}
     if captured_at is not None:
         config["captured_at"]=captured_at
-    snapshots={s["sha256"]:s["text"] for s in bundle["sources"]}
+    acquisitions={a["source_id"]:a for a in old["_verified_acquisition"]}
+    snapshots={s["id"]:{"source":s,"acquisition":acquisitions[s["id"]]}
+               for s in bundle["sources"]}
     return VerifiedSnapshotResume(config,snapshots)
 
 
