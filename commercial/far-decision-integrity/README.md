@@ -64,3 +64,20 @@ The abbreviated FAR IR object above only shows placement; the embedded record mu
 This package evaluates disclosed package structure, dependencies, contradictions, alternatives, unknowns, declared trace completeness, and the finite explicit semantics actually encoded in supplied FAR IR records. It does not infer hidden reasoning, prove external factual truth, establish that a domain mapping is correct or complete, certify safety, certify legal compliance, establish empirical utility, or establish novelty.
 
 A `justified` decision means that no failure is present under the disclosed package rules and every required semantic binding cleared its explicitly declared gate. It is not a universal truth or safety certificate.
+
+
+## Commercial demonstration and validation
+
+Two **synthetic, structural-only** packages are included for immediate operator testing:
+
+```bash
+far-decision commercial/far-decision-integrity/examples/clear-package.json
+far-decision commercial/far-decision-integrity/examples/contradicted-package.json
+far-decision commercial/far-decision-integrity/examples/clear-package.json --require-semantic-contract
+```
+
+Expected results are `justified` (exit 0), `unsupported` (exit 30), and `unverifiable` (exit 32), respectively. The clear structural case has no required semantic contract; the third command deliberately checks that the semantic gate refuses to treat it as checked. These fixtures demonstrate deterministic adjudication only; they are not empirical evidence of external accuracy or commercial value.
+
+All commercial JSON file loaders reject duplicate object keys, `NaN`/`Infinity`, and finite-number overflow before domain interpretation. Evidence bundles also refuse to serialize non-finite numeric results.
+
+See [pilot validation](PILOT_VALIDATION.md) for the proposed customer/comparator experiment, economic measurement, failure conditions and evidence gates. Its price and milestones are commercial hypotheses, not validated market facts.
