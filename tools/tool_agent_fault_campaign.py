@@ -134,7 +134,7 @@ def execute_case(name):
                 digest=host.MODEL_DIGEST,
                 clock=FixedClock(),
             )
-        if provider.calls != len(CASES[name]):
+        if provider.calls != len(CASES[name]) or provider.calls != len(record["events"]):
             raise ValueError("unexpected or missing provider invocation")
         # Check that the last atomic checkpoint equals the returned record.
         persisted = host.strict_json((Path(directory) / "record.json").read_bytes())
