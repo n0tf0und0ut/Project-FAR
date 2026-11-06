@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 GOVERNANCE = "tools/check_governance_register_integrity.py"
 CLAIMS = "tools/check_claim_status_ceiling.py"
 SEMANTIC = "tools/check_semantic_consistency.py"
+CI = "tools/check_ci_workflows.py"
+STATUS = "tools/check_project_status.py"
+EXTERNAL = "tools/check_external_validation_terms.py"
 LEGACY = {
     GOVERNANCE: "test_governance_register_integrity.py",
     CLAIMS: "test_claim_status_ceiling.py",
@@ -36,7 +39,8 @@ def _copy(source: str, destination: Path) -> None:
 
 def _fixture(root: Path, checker: str) -> None:
     _copy(checker, root)
-    _copy("tests/" + LEGACY[checker], root)
+    if checker in LEGACY:
+        _copy("tests/" + LEGACY[checker], root)
     if checker == GOVERNANCE:
         for name in (
             "README.md",
@@ -62,6 +66,23 @@ def _fixture(root: Path, checker: str) -> None:
         data = json.loads((ROOT / registry).read_text(encoding="utf-8"))
         for name in data["required_documents"]:
             _copy(name, root)
+    elif checker == CI:
+        workflow = root / ".github/workflows/example.yml"
+        workflow.parent.mkdir(parents=True)
+        workflow.write_text(
+            "name: Validation fixture\\non: workflow_dispatch\\njobs:\\n"
+            "  check:\\n    runs-on: ubuntu-latest\\n    timeout-minutes: 5\\n    steps: []\\n",
+            encoding="utf-8",
+        )
+    elif checker == STATUS:
+        status = root / "docs/project-status.md"
+        status.parent.mkdir(parents=True)
+        status.write_text("# Current status\\n", encoding="utf-8")
+    elif checker == EXTERNAL:
+        for name in ("README.md", "docs/project-status.md"):
+            file = root / name
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_text("# Current facts\\n", encoding="utf-8")
     else:
         raise ValueError(f"unknown checker: {checker}")
 
@@ -99,6 +120,26 @@ def _duplicate_claim(root: Path, claim_id: str) -> None:
     match = next(c for c in data["claims"] if c["id"] == claim_id)
     data["claims"].append(dict(match))
     path.write_text(json.dumps(data) + "\n", encoding="utf-8")
+
+
+def _remove_ci_timeout(root: Path) -> None:
+    path = root / ".github/workflows/example.yml"
+    text = path.read_text(encoding="utf-8")
+    assert "    timeout-minutes: 5\\n" in text
+    path.write_text(text.replace("    timeout-minutes: 5\\n", ""), encoding="utf-8")
+
+
+def _remove_canonical_status(root: Path) -> None:
+    (root / "docs/project-status.md").unlink()
+
+
+def _claim_external_validation(root: Path) -> None:
+    path = root / "README.md"
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        + "\\nIndependent validation achieved without any external replication.\\n",
+        encoding="utf-8",
+    )
 
 
 def _remove_procedure(root: Path, value: str) -> None:
@@ -201,6 +242,35 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             self.assertNotEqual(0, result.returncode, result.stdout)
             self.assertIn("unclassified procedure", result.stdout)
 
+    def test_additional_checker_cli_contracts_reject_false_acceptance(self):
+        # Independent expectations for three further production checkers.
+        cases = (
+            (CI, _remove_ci_timeout, "missing timeout-minutes"),
+            (STATUS, _remove_canonical_status, "missing canonical docs/project-status.md"),
+            (EXTERNAL, _claim_external_validation, "unqualified independent validation"),
+        )
+        for checker, corrupt, diagnostic in cases:
+            with self.subTest(checker=checker), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, checker)
+                baseline = _run_checker(root, checker)
+                self.assertEqual(0, baseline.returncode, baseline.stdout + baseline.stderr)
+                corrupt(root)
+                result = _run_checker(root, checker)
+                self.assertNotEqual(0, result.returncode, checker + "\\n" + result.stdout)
+                self.assertIn(diagnostic, result.stdout)
+
+    def test_additional_checker_benign_inputs_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _fixture(root, EXTERNAL)
+            path = root / "README.md"
+            path.write_text(
+                "Independent validation requires new external evidence.\\n", encoding="utf-8"
+            )
+            result = _run_checker(root, EXTERNAL)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
     def test_semantic_mutants_are_exposed_by_black_box_inputs(self):
         # These mutants retain syntax, realistic branches and failure paths.
         # Some survive the old paired unit tests; the independent CLI fixtures
@@ -232,6 +302,21 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
              '"Pareto comparison", "uncertainty output"',
              lambda root: _remove_procedure(root, "fail report"),
              "required-procedure-erasure"),
+            (CI,
+             "if 'timeout-minutes' not in job:",
+             "if 'timeout-minutes' not in job and job_name != 'check':",
+             _remove_ci_timeout,
+             "ci-timeout-specific-bypass"),
+            (STATUS,
+             "if not (ROOT/'docs/project-status.md').exists():",
+             "if not (ROOT/'docs/project-status.md').exists() and (ROOT/'docs/PROJECT_STATUS.md').exists():",
+             _remove_canonical_status,
+             "canonical-status-absence-bypass"),
+            (EXTERNAL,
+             "'independent validation' in low and not any(",
+             "'independent validation' in low and 'achieved' not in low and not any(",
+             _claim_external_validation,
+             "external-validation-claim-exemption"),
         )
         for checker, before, after, change, identifier in experiments:
             with self.subTest(identifier=identifier), tempfile.TemporaryDirectory() as directory:
@@ -252,21 +337,26 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 )
                 # Baseline paired suite runs against the mutated *implementation*
                 # but unchanged registered inputs, in an independent clean fixture.
-                with tempfile.TemporaryDirectory() as clean_directory:
-                    clean = Path(clean_directory)
-                    _fixture(clean, checker)
-                    baseline_paired = _run_legacy(clean, checker)
-                    self.assertEqual(
-                        0, baseline_paired.returncode,
-                        f"{identifier}: old suite baseline not executable on fixture\\n"
-                        + baseline_paired.stdout + baseline_paired.stderr,
-                    )
-                    (clean / checker).write_text(source.replace(before, after, 1), encoding="utf-8")
-                    old = _run_legacy(clean, checker)
-                    print(
-                        f"ADVERSARIAL {identifier}: original_reject=1 "
-                        f"mutant_false_accept=1 old_suite_survived={int(old.returncode == 0)}"
-                    )
+                # Compare the pre-existing paired tests only where a
+                # registered paired suite exists. No suite is not a PASS.
+                old_suite_result = "not_registered"
+                if checker in LEGACY:
+                    with tempfile.TemporaryDirectory() as clean_directory:
+                        clean = Path(clean_directory)
+                        _fixture(clean, checker)
+                        baseline_paired = _run_legacy(clean, checker)
+                        self.assertEqual(
+                            0, baseline_paired.returncode,
+                            f"{identifier}: old suite baseline not executable on fixture\\n"
+                            + baseline_paired.stdout + baseline_paired.stderr,
+                        )
+                        (clean / checker).write_text(source.replace(before, after, 1), encoding="utf-8")
+                        old = _run_legacy(clean, checker)
+                        old_suite_result = "survived" if old.returncode == 0 else "killed"
+                print(
+                    f"ADVERSARIAL {identifier}: original_reject=1 "
+                    f"mutant_false_accept=1 old_suite={old_suite_result}"
+                )
 
 
 if __name__ == "__main__":
