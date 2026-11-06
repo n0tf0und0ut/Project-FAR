@@ -256,20 +256,55 @@ def run(p: dict, dest: Path, run_commit: str):
     state={"schema":SCHEMA,"protocol_sha256":sha(PFILE.read_bytes()),"source_sha256":ground["source_correspondence"]["archive_sha256"],
            "run_commit":run_commit,"status":"STARTED","records_attempted":0}
     (dest/"state.json").write_bytes(canon(state)+b"\n")
+    attempts_dir=dest/"attempts"
+    attempts_dir.mkdir()
+
+    def recorded_invoke(task, arm, call_index, body):
+        stem=f"{task['id']}-{arm}-call{call_index}"
+        request_raw=canon(body)
+        start_record={"schema":SCHEMA,"event":"REQUEST_STARTED","case_id":task["id"],
+                      "arm":arm,"call_index":call_index,"request":body,
+                      "request_sha256":sha(request_raw),"run_commit":run_commit}
+        with (attempts_dir/(stem+"-start.json")).open("xb") as output:
+            output.write(canon(start_record)+b"\n")
+        state.update(provider_calls_started=state.get("provider_calls_started",0)+1,
+                     last_case=task["id"],last_arm=arm)
+        (dest/"state.json").write_bytes(canon(state)+b"\n")
+        response_path=attempts_dir/(stem+"-response.json")
+
+        def save_response(raw, http_status, elapsed):
+            evidence={"schema":SCHEMA,"event":"RESPONSE_RECEIVED","case_id":task["id"],
+                      "arm":arm,"call_index":call_index,"http_status":http_status,
+                      "raw_response_base64":base64.b64encode(raw).decode("ascii"),
+                      "response_sha256":sha(raw),"elapsed_seconds":elapsed,
+                      "run_commit":run_commit}
+            with response_path.open("xb") as output:
+                output.write(canon(evidence)+b"\n")
+            state.update(provider_responses_received=state.get("provider_responses_received",0)+1)
+            (dest/"state.json").write_bytes(canon(state)+b"\n")
+
+        result=invoke(body,p["generation"]["timeout_seconds"],on_response=save_response)
+        # Test doubles may return a complete envelope without calling on_response.
+        if not response_path.exists():
+            save_response(result["raw_response_utf8"].encode("utf-8"),200,result["elapsed_seconds"])
+        return result
+
     rows=[]
     try:
         for index,task in enumerate(p["tasks"]):
             order=("control","treatment") if index%2==0 else ("treatment","control")
             for arm in order:
+                state.update(records_attempted=state["records_attempted"]+1,last_case=task["id"],last_arm=arm)
+                (dest/"state.json").write_bytes(canon(state)+b"\n")
                 messages=conditions(task,p,arm)
-                calls=[invoke(request(messages,p),p["generation"]["timeout_seconds"])]
+                calls=[recorded_invoke(task,arm,1,request(messages,p))]
                 first=parse_action(calls[0]["response"]["message"]["content"])
                 if arm=="treatment" and first=={"tool":"metric","id":SUPPORTED} and task["answerability"]=="REGISTERED_METRIC":
                     observation={"metric_observation":{"id":SUPPORTED,"value":ground["value"],"unit":"percent",
                                                       "scope":"v0.3-scored","status":"REPLAY_VERIFIED"}}
                     messages=messages+[{"role":"assistant","content":calls[0]["response"]["message"]["content"]},
                                        {"role":"user","content":canon(observation).decode()}]
-                    calls.append(invoke(request(messages,p),p["generation"]["timeout_seconds"]))
+                    calls.append(recorded_invoke(task,arm,2,request(messages,p)))
                 value,reason,tool=predicted(task,arm,calls,ground)
                 record={"schema":SCHEMA,"case_id":task["id"],"arm":arm,"calls":calls,"released":value,
                         "release_reason":reason,"used_metric":tool,"model_digest":MODEL_DIGEST,
@@ -279,11 +314,11 @@ def run(p: dict, dest: Path, run_commit: str):
                 with path.open("xb") as output:
                     output.write(canon(record)+b"\n")
                 rows.append(record)
-                state.update(records_attempted=len(rows),last_case=task["id"],last_arm=arm)
+                state.update(records_completed=len(rows),last_case=task["id"],last_arm=arm)
                 (dest/"state.json").write_bytes(canon(state)+b"\n")
         report=analyze(p,rows,ground,expected_run_commit=run_commit)
         (dest/"analysis.json").write_bytes(canon(report)+b"\n")
-        state.update(status="COMPLETE",records_attempted=len(rows))
+        state.update(status="COMPLETE",records_attempted=len(rows),records_completed=len(rows))
         (dest/"state.json").write_bytes(canon(state)+b"\n")
         print(json.dumps(report["summary"],sort_keys=True))
         return 0
