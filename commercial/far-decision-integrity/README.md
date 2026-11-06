@@ -114,3 +114,11 @@ All three original counterexamples failed across **11** assertions before
 correction; their actual-route regressions now pass. Current verification is
 **48** package tests and **29** dependency-equipped baseline demo tests, including
 additional declared-snippet controls. Frozen parsers/evidence remain untouched.
+
+**CJSON-010** (coordinator counterexample at `52c5aa830d0da0dbe56f7f7fdfe165becebffc97`):
+a declared JSONL fence containing multiple records including mapping objects was
+mistaken for a non-object supporting fragment and skipped in favor of a later
+package. Three actual-route assertions failed before correction. Mapping-bearing
+JSONL candidates now retain the exactly-one-record/object contract; non-object
+supporting fragments still skip. Current verification is **48** package and
+**30** dependency-equipped baseline demo tests.

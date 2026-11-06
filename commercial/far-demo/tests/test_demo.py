@@ -172,6 +172,20 @@ class TestFarDemo(unittest.TestCase):
                     })
                     self.assertEqual(response.status_code, 200, response.text)
 
+    def test_declared_jsonl_with_multiple_mapping_records_is_not_skipped(self) -> None:
+        first = {**SAMPLE_BASELINE, 'decision_id': 'first'}
+        second = {**SAMPLE_BASELINE, 'decision_id': 'second'}
+        third = {**SAMPLE_BASELINE, 'decision_id': 'third'}
+        for index, records in enumerate(((first, second), (first, None), (None, first))):
+            document = '```jsonl\n' + '\n'.join(json.dumps(r) for r in records)
+            document += '\n```\n\n```json\n' + json.dumps(third) + '\n```'
+            with self.subTest(case=index):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': ('input.md', document, 'text/markdown'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 400)
+
     def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
         def toml_value(value):
             if isinstance(value, dict):

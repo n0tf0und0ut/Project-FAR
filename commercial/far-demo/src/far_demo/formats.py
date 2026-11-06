@@ -166,6 +166,8 @@ def _parse_embedded_text(text: str) -> dict[str, Any]:
         # fenced JSON must never be accepted by the more permissive YAML parser.
         if hint in {'json', 'jsonl'}:
             values = _jsonl_values(candidate) if hint == 'jsonl' else [loads_strict(candidate)]
+            if hint == 'jsonl' and len(values) != 1 and any(isinstance(value, dict) for value in values):
+                raise ValueError('A FAR JSONL upload must contain exactly one non-empty JSON object.')
             if len(values) == 1 and isinstance(values[0], dict):
                 return values[0]
             continue
