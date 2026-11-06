@@ -75,9 +75,15 @@ def promotion_clauses(text: str) -> list[str]:
             if TOPIC.search(clause) and PROMOTION.search(clause) and not NEGATION.search(clause):
                 found.append(clause.strip())
         for statement in LABEL_STATEMENT.split(line):
-            if NEGATION.search(statement):
-                continue
             for match in LABEL_PROMOTION.finditer(statement):
+                # A Markdown row can contain several label/value pairs.
+                # Bound context to the nearest cell edges: a different pair's
+                # "not established" must not suppress this pair's promotion.
+                # Retain any leading prohibition and trailing condition.
+                before = statement[:match.start()].rsplit("|", 1)[-1]
+                after = statement[match.end():].split("|", 1)[0]
+                if NEGATION.search(before + match.group(0) + after):
+                    continue
                 label = match.group(0).strip()
                 if label not in found:
                     found.append(label)
