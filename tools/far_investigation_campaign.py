@@ -189,6 +189,9 @@ def audit_directory(directory):
             selection_bytes = (directory / selection_path).read_bytes()
             selection = _parse(selection_bytes.decode())
             tasks = selection['tasks']
+            registered_hosts = sorted({urlsplit(url).hostname for task in tasks
+                                       for url in task['source_hints']}
+                                      | {'api.crossref.org', 'en.wikipedia.org'})
             modes = entry['modes']
             if (not tasks or len({t['id'] for t in tasks}) != len(tasks)
                     or type(modes) is not list or not modes
@@ -208,6 +211,8 @@ def audit_directory(directory):
                         or not same(campaign['selection'], selection)
                         or campaign['selection_sha256'] != hashlib.sha256(selection_bytes).hexdigest()):
                     raise ValueError('campaign differs from registered selection or completion status')
+                if campaign.get('policy_hosts') != registered_hosts:
+                    raise ValueError('campaign host policy differs from registered source hints')
                 if (campaign['git_head'] != entry['source_commit']
                         or campaign['source_hashes'] != entry['source_hashes']):
                     raise ValueError('campaign source identity differs from retained execution binding')
@@ -228,6 +233,9 @@ def audit_directory(directory):
                     if (state['question'] != task['question'] or state['mode'] != mode
                             or not same(state['policy']['budget'], campaign['budget'])):
                         raise ValueError('transcript task, mode or budget differs from registered campaign')
+                    if (not same(state.get('seeds'), task['source_hints']) or
+                            not same(state['policy'].get('allowed_hosts'), registered_hosts)):
+                        raise ValueError('transcript source exposure or permitted hosts differ from registered selection')
                     result = audit_transcript(state)
                     usage_audits.append({'archive': str(relative), 'transcript': name,
                                          **model_usage_report(state)})
