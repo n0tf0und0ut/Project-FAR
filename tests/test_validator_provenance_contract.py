@@ -49,6 +49,10 @@ def provenance_contract_errors(document: str, workflow: dict) -> list[str]:
         issues.append("document does not disclose absent independent attestation")
     if "not independent producer provenance" not in document:
         issues.append("missing explicit boundary on provenance assurance")
+    if key_is_copacked and "ephemeral HMAC key in an Actions artifact" not in document:
+        issues.append("co-packaged ephemeral HMAC key not disclosed in documentation")
+    if key_is_copacked and "No credential value is written to artifacts or logs." in document:
+        issues.append("undisclosed ephemeral signing key in cache artifact")
     if "generating a GitHub Sigstore artifact attestation" in document and not (attested and attest_verified):
         issues.append("unsupported positive Sigstore attestation claim")
     return issues
@@ -74,6 +78,14 @@ class CacheProvenanceContractTests(unittest.TestCase):
 
     def test_missing_provenance_boundary_fails(self):
         altered = self.document.replace("not independent producer provenance", "verified producer provenance", 1)
+        self.assertNotEqual(altered, self.document)
+        self.assertTrue(provenance_contract_errors(altered, self.workflow))
+
+    def test_old_no_artifact_key_claim_fails(self):
+        altered = self.document.replace(
+            "**ephemeral HMAC key in an Actions artifact**",
+            "No credential value is written to artifacts or logs.", 1,
+        )
         self.assertNotEqual(altered, self.document)
         self.assertTrue(provenance_contract_errors(altered, self.workflow))
 
