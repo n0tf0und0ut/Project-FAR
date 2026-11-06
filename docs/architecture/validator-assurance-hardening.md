@@ -36,7 +36,7 @@ These rules are syntactic. A change can still disable a test through a called he
 
 Cache entries and validation certificates use canonical JSON plus HMAC-SHA256 envelopes. Trust is bound to a trust domain and key identifier. CI requires a signing key; unsigned, wrong-domain, wrong-key, and tampered entries are rejected.
 
-The CI workflow proves cross-runner reuse by producing a signed HMAC cache on one runner, packaging its ephemeral verification key with the cache, generating a GitHub Sigstore artifact attestation for the exact bundle, verifying that attestation on a second runner, and then requiring signed cache hits. Persistent cache reuse across separate workflow runs may instead use a protected `FAR_VALIDATION_CACHE_SIGNING_KEY` shared by the authorized runners.
+The current CI workflow demonstrates **cross-runner cache transport and reuse**, not independent producer provenance. The producer creates an ephemeral HMAC key and packages that **same verification/signing key** in the cache archive. It also writes an SHA-256 sidecar digest. The consumer obtains both from GitHub Actions artifacts, checks the digest, extracts the key, and requires an HMAC-signed cache hit. Neither the packaged HMAC nor a digest supplied alongside the data authenticates its origin against an actor capable of replacing both artifact and digest; the artifact service is a separate assumed trust boundary. **No GitHub Sigstore attestation is issued or verified by this workflow.** A future independently authenticated provenance control would need a trusted producer identity and an actual consumer verification step. Persistent cache reuse across separate runs is not demonstrated by this ephemeral-key job; the separate persistent-key mode requires its own authorized trust boundary.
 
 ### Mutation and hostile-acceptance campaign
 
@@ -79,7 +79,7 @@ The nested full-health runner gives the complete canonical test suite the same 9
 - `FAR_VALIDATION_CACHE_SIGNING_KEY`: persistent HMAC secret for cross-runner cache and certificate trust.
 - `FAR_GITHUB_ADMIN_TOKEN`: revoked obsolete administrator token; its undeletable encrypted entry is invalid metadata, not a usable credential. It must not be recreated as a long-lived Actions secret. Future protection changes require an ephemeral, externally controlled administrator credential and a separately reviewed fail-closed procedure that does not execute mutable repository code.
 
-No credential value is written to artifacts or logs.
+The cross-runner cache test intentionally places its **ephemeral HMAC key in an Actions artifact** with the cached data; that key is not a protected credential. The workflow does not intentionally export persistent credentials or privileged GitHub tokens to artifacts or logs. The bundled ephemeral key must not be described as an independently secret authentication key.
 
 ## Commands
 
