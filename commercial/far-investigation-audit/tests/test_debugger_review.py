@@ -141,6 +141,36 @@ class ReviewRegressions(unittest.TestCase):
             write_package(Path(t)/"resumed",resumed)
             self.assertTrue(verify_package(Path(t)/"resumed")["replay_match"])
 
+    def test_449514_resume_reuses_large_verified_snapshots_without_input_bypass(self):
+        original_config=request(True,ident="large-resume")
+        del original_config["captured_at"]
+        original_config["source"]={"kind":"url","url":"https://example.org/primary"}
+        original_config["evidence_sources"]=[
+            {"kind":"url","url":"https://example.org/evidence1"},
+            {"kind":"url","url":"https://example.org/evidence2"},
+        ]
+        payload="Some birds are blue. All birds are blue." + " x"*80000
+        self.assertLess(len(payload.encode()),190000)
+        def fetch_large(url,*,permit_network):
+            return {"url":url,"text":payload,"raw_snapshot_utf8":payload,
+                    "raw_sha256":digest(payload.encode()),"extraction":"utf8_identity_v1"}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            original=investigate(original_config,permit_network=True,source_fetcher=fetch_large)
+            write_package(root/"original",original)
+            self.assertTrue(verify_package(root/"original")["replay_match"])
+            continued=resume_request(root/"original",[])
+            self.assertLess(len(canonical(continued)),450000)
+            self.assertEqual(continued["source"]["kind"],"verified_snapshot")
+            with self.assertRaisesRegex(InvalidBundle,"verified source reference"):
+                investigate(dict(continued))
+            result=investigate(continued)
+            self.assertEqual(len(result["bundle"]["sources"]),3)
+            self.assertEqual(result["proposal"]["resumes_input_sha256"],
+                             original["audit"]["input_sha256"])
+            write_package(root/"resumed",result)
+            self.assertTrue(verify_package(root/"resumed")["replay_match"])
+
     def test_4391124909_declared_lineage_propagates_retraction_and_restore(self):
         cfg=request(False)
         cfg["source"]["text"]="Some birds are blue. Therefore some birds are blue."
