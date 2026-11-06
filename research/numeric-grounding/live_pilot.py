@@ -7,6 +7,7 @@ are write-once and retain exact raw provider replies and deterministic grades.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -94,30 +95,45 @@ def request(messages: list, p: dict) -> dict:
     return {"model":MODEL,"stream":False,"messages":messages,"options":opts}
 
 
-def invoke(body: dict, timeout: int) -> dict:
+def validate_provider_response(data: dict) -> None:
+    """Shared transport and replay rules for a complete provider response."""
+    if type(data) is not dict or data.get("model") not in {MODEL, MODEL+":latest"} or data.get("done") is not True:
+        raise ValueError("incomplete or mismatched model response")
+    message = data.get("message")
+    if type(message) is not dict or type(message.get("content")) is not str:
+        raise ValueError("model response is missing the assistant content")
+    for k in ("prompt_eval_count", "eval_count"):
+        if k in data and (type(data[k]) is not int or data[k] < 0):
+            raise ValueError("invalid provider token counter")
+
+
+def invoke(body: dict, timeout: int, on_response=None) -> dict:
     payload = canon(body)
     start = time.monotonic()
     req = urllib.request.Request(ENDPOINT, data=payload, headers={"Content-Type":"application/json"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
             raw = response.read(512000+1)
-            if len(raw) > 512000:
-                raise ValueError("provider output exceeded 512000-byte bound")
             status = response.status
-    except (HTTPError, URLError, TimeoutError, OSError, ValueError) as exc:
+    except HTTPError as exc:
+        if on_response is not None:
+            on_response(exc.read(512000+1), exc.code, time.monotonic()-start)
+        raise RuntimeError("local model transport failed: HTTPError:"+str(exc)) from exc
+    except (URLError, TimeoutError, OSError, ValueError) as exc:
         raise RuntimeError("local model transport failed: "+type(exc).__name__+":"+str(exc)) from exc
     elapsed = time.monotonic()-start
+    # Archive raw bytes and HTTP status before size, JSON or model validation can fail.
+    if on_response is not None:
+        on_response(raw, status, elapsed)
+    if len(raw) > 512000:
+        raise RuntimeError("provider output exceeded 512000-byte bound")
     if status != 200:
         raise RuntimeError("local model returned unexpected HTTP status")
-    data = original.strict_json(raw)
-    if type(data) is not dict or data.get("model") not in {MODEL, MODEL+":latest"} or data.get("done") is not True:
-        raise RuntimeError("incomplete or mismatched model response")
-    message = data.get("message")
-    if type(message) is not dict or type(message.get("content")) is not str:
-        raise RuntimeError("model response is missing the assistant content")
-    for k in ("prompt_eval_count", "eval_count"):
-        if k in data and (type(data[k]) is not int or data[k] < 0):
-            raise RuntimeError("invalid provider token counter")
+    try:
+        data = original.strict_json(raw)
+        validate_provider_response(data)
+    except (ValueError, TypeError, UnicodeError) as exc:
+        raise RuntimeError("invalid local model response: "+str(exc)) from exc
     return {"request":body, "request_sha256":sha(payload), "response":data,
             "response_sha256":sha(raw), "raw_response_utf8":raw.decode("utf-8"),
             "elapsed_seconds":elapsed}
@@ -161,8 +177,13 @@ def predicted(task: dict, arm: str, calls: list[dict], grounded: dict) -> tuple[
     return grounded["value"],"REPLAY_VERIFIED_RELEASE",True
 
 
-def analyze(p: dict, rows: list[dict], grounded: dict):
+def analyze(p: dict, rows: list[dict], grounded: dict, expected_run_commit: str | None = None):
     expected = {(t["id"],arm) for t in p["tasks"] for arm in ("control","treatment")}
+    if expected_run_commit is None and rows:
+        expected_run_commit = rows[0].get("run_commit") if type(rows[0]) is dict else None
+    if (type(expected_run_commit) is not str or len(expected_run_commit) != 40 or
+            any(c not in "0123456789abcdef" for c in expected_run_commit)):
+        raise ValueError("expected exact execution commit required")
     seen=set()
     results=[]
     for row in rows:
@@ -176,7 +197,7 @@ def analyze(p: dict, rows: list[dict], grounded: dict):
         calls=row["calls"]
         if not isinstance(calls,list) or not 1<=len(calls)<=2 or (key[1]=="control" and len(calls)!=1):
             raise ValueError("invalid model-call count")
-        if row["model_digest"]!=MODEL_DIGEST or row["protocol_sha256"]!=sha(PFILE.read_bytes()) or row["source_archive_sha256"]!=source_replay.ARCHIVE_SHA256 or type(row["run_commit"]) is not str or len(row["run_commit"])!=40:
+        if row["model_digest"]!=MODEL_DIGEST or row["protocol_sha256"]!=sha(PFILE.read_bytes()) or row["source_archive_sha256"]!=source_replay.ARCHIVE_SHA256 or row["run_commit"]!=expected_run_commit:
             raise ValueError("source/model/version mismatch")
         messages=conditions(task,p,key[1])
         for index,call in enumerate(calls):
@@ -187,6 +208,7 @@ def analyze(p: dict, rows: list[dict], grounded: dict):
             raw=call["raw_response_utf8"].encode("utf-8")
             if sha(raw)!=call["response_sha256"] or original.strict_json(raw)!=call["response"]:
                 raise ValueError("provider response-byte mismatch")
+            validate_provider_response(call["response"])
             if type(call["elapsed_seconds"]) not in (float,int) or not 0<=call["elapsed_seconds"]<=p["generation"]["timeout_seconds"]+15:
                 raise ValueError("invalid measured duration")
             if index==0 and key[1]=="treatment":
@@ -259,7 +281,7 @@ def run(p: dict, dest: Path, run_commit: str):
                 rows.append(record)
                 state.update(records_attempted=len(rows),last_case=task["id"],last_arm=arm)
                 (dest/"state.json").write_bytes(canon(state)+b"\n")
-        report=analyze(p,rows,ground)
+        report=analyze(p,rows,ground,expected_run_commit=run_commit)
         (dest/"analysis.json").write_bytes(canon(report)+b"\n")
         state.update(status="COMPLETE",records_attempted=len(rows))
         (dest/"state.json").write_bytes(canon(state)+b"\n")
@@ -287,7 +309,7 @@ def main(argv=None):
         return run(p,opts.output,opts.source_commit)
     records=[original.strict_json(file.read_bytes()) for file in sorted(opts.output.glob("*-*.json"))
              if file.name not in {"analysis.json","state.json"}]
-    report=analyze(p,records,ground)
+    report=analyze(p,records,ground,expected_run_commit=opts.source_commit or None)
     if (opts.output/"analysis.json").is_file() and original.strict_json((opts.output/"analysis.json").read_bytes())!=report:
         raise ValueError("saved summary differs from deterministic replay")
     print(json.dumps(report,sort_keys=True))
