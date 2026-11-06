@@ -105,6 +105,26 @@ class NativeFramingTests(unittest.TestCase):
                         self.assertFalse(envelope['response_complete'])
                         self.assertEqual(envelope['response_hash_scope'], 'retained_prefix')
 
+    def test_interrupted_partial_chunk_body_preserves_bounded_prefix(self):
+        for error in (TimeoutError, ConnectionResetError):
+            for limit, expected, truncated in ((10, b'abc', False), (2, b'ab', True)):
+                with self.subTest(error=error, limit=limit):
+                    response = native_stalling_response(
+                        b'10\r\nabc', b'Transfer-Encoding: chunked\r\n', error)
+                    with patch('urllib.request.OpenerDirector.open', return_value=response):
+                        with self.assertRaises(study.ResponseTransportError) as failed:
+                            study.read_bounded_response(
+                                study.urllib.request.Request(study.ENDPOINT), timeout=1, max_bytes=limit)
+                    envelope = failed.exception.envelope
+                    self.assertEqual(base64.b64decode(envelope['raw_response_base64']), expected)
+                    self.assertEqual(envelope['response_sha256'], hashlib.sha256(expected).hexdigest())
+                    self.assertEqual(envelope['response_bytes_retained'], len(expected))
+                    self.assertEqual(envelope['response_truncated'], truncated)
+                    self.assertFalse(envelope['response_complete'])
+                    self.assertEqual(envelope['response_hash_scope'], 'retained_prefix')
+                    if not truncated:
+                        self.assertEqual(envelope['transport_error'], error.__name__)
+
     def test_native_chunk_transport_exceptions_retain_observed_bounded_prefix(self):
         # HTTPResponse has decoded abc, then its next chunk-size read fails.
         # Its local aggregation never returns, but the observer has the bytes.

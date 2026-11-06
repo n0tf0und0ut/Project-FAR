@@ -78,13 +78,25 @@ class _ChunkFramingObserver:
         return getattr(self.stream, name)
 
     def read(self, amount=-1):
-        data = self.stream.read(amount)
-        if self.phase == "body":
-            self.prefix.extend(data[:max(0, self.limit - len(self.prefix))])
-            self.remaining -= len(data)
+        if self.phase == "body" and amount >= 0:
+            # Native _safe_read expects the requested chunk body size, but a
+            # buffered read may consume a partial body and then raise. Observe
+            # each read1 return before collecting the exact-size decoder input.
+            chunks, received = [], 0
+            reader = getattr(self.stream, "read1", self.stream.read)
+            while received < amount:
+                part = reader(amount - received)
+                if not part:
+                    break
+                self.prefix.extend(part[:max(0, self.limit - len(self.prefix))])
+                self.remaining -= len(part)
+                chunks.append(part)
+                received += len(part)
             if self.remaining == 0:
                 self.phase = "separator"
-        elif self.phase == "separator":
+            return b"".join(chunks)
+        data = self.stream.read(amount)
+        if self.phase == "separator":
             self.framing_bytes += len(data)
             if data != b"\r\n":
                 raise http.client.IncompleteRead(bytes(self.prefix))
