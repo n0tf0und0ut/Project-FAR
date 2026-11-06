@@ -34,7 +34,7 @@ jobs:
         run: python -m pip install 'PyYAML>=6.0,<7' 'jsonschema>=4.22,<5'
       - name: Runtime, adversarial, native oracle and legacy regressions
         run: |
-          python -m unittest tests.test_far_investigation_retrieval tests.test_far_investigation_verifiers tests.test_far_investigation_engine tests.test_far_investigation_audit tests.test_far_investigation_campaign tests.test_far_investigation_odr_preparation tests.test_far_autonomous_investigation tests.test_far_uncertain_routing_pilot tests.test_far_routing_dispatch tests.test_far_intake_v1 -v
+          python -m unittest tests.test_far_investigation_retrieval tests.test_far_investigation_verifiers tests.test_far_investigation_engine tests.test_far_investigation_audit tests.test_far_investigation_campaign tests.test_far_investigation_review_regression tests.test_far_investigation_usage tests.test_far_investigation_odr_preparation tests.test_far_autonomous_investigation tests.test_far_uncertain_routing_pilot tests.test_far_routing_dispatch tests.test_far_intake_v1 -v
           python -m mechanization.far_mechanization.contract_conformance --manifest conformance/far-ir-2.0-current/manifest.json
       - name: Offline transcript reproduction and frozen selection integrity
         run: python tools/far_investigation_campaign.py audit research/investigation-engine

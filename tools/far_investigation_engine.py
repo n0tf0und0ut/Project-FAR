@@ -443,9 +443,12 @@ class Investigation:
         self.limits()
         if sum(e['kind'] == 'TOOL_PROPOSAL' for e in self.state['events']) >= self.budget.max_steps:
             raise EngineError('tool step budget exhausted')
-        self.event('TOOL_PROPOSAL', proposal)
         recheck_started = False
         try:
+            # A failed proposal checkpoint has already appended the proposal.
+            # Record its rejected, undispatched outcome through the same path
+            # as other pre-dispatch failures, rather than leave a dangling call.
+            self.event('TOOL_PROPOSAL', proposal)
             completed = set()
             pending = None
             for event in self.state['events'][:-1]:

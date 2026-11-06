@@ -44,6 +44,29 @@ def native_http_response(body, headers, failure_on_eof=None):
     return response
 
 
+def native_stalling_response(body=b'retained prefix', headers=b'Content-Length: 100\r\n', error=TimeoutError):
+    """Real buffered native reader: read() can lose its buffer on a later fault."""
+    wire = b'HTTP/1.1 200 OK\r\n' + headers + b'\r\n' + body
+    class PrefixThenFailure(io.RawIOBase):
+        def __init__(self):
+            self.offset = 0
+        def readable(self):
+            return True
+        def readinto(self, buffer):
+            if self.offset == len(wire):
+                raise error('controlled stalled native response')
+            count = min(len(buffer), len(wire) - self.offset)
+            buffer[:count] = wire[self.offset:self.offset + count]
+            self.offset += count
+            return count
+    class MemorySocket:
+        def makefile(self, _mode):
+            return io.BufferedReader(PrefixThenFailure())
+    response = http.client.HTTPResponse(MemorySocket())
+    response.begin()
+    return response
+
+
 class NativeFramingTests(unittest.TestCase):
     def read(self, body, headers, limit=10000):
         response = native_http_response(body, headers)
@@ -57,6 +80,30 @@ class NativeFramingTests(unittest.TestCase):
         self.assertEqual(response.read(10000), body)  # no IncompleteRead
         self.assertEqual(response.length, 100)
         response.close()
+
+    def test_native_nonchunked_timeout_and_reset_preserve_observed_prefix(self):
+        prefix = b'retained prefix'
+        for headers in (b'Content-Length: 100\r\n', b'Connection: close\r\n'):
+            for error in (TimeoutError, ConnectionResetError):
+                control = native_stalling_response(prefix, headers, error)
+                with self.assertRaises(error):
+                    control.read(65536)  # Consumes the prefix, then raises without returning it.
+                control.close()
+                for chunk_size in (None, 65536):
+                    with self.subTest(headers=headers, error=error, chunk_size=chunk_size):
+                        response = native_stalling_response(prefix, headers, error)
+                        with patch('urllib.request.OpenerDirector.open', return_value=response):
+                            with self.assertRaises(study.ResponseTransportError) as failed:
+                                study.read_bounded_response(
+                                    study.urllib.request.Request(study.ENDPOINT), timeout=1,
+                                    max_bytes=10000, chunk_size=chunk_size)
+                        envelope = failed.exception.envelope
+                        self.assertEqual(base64.b64decode(envelope['raw_response_base64']), prefix)
+                        self.assertEqual(envelope['response_sha256'], hashlib.sha256(prefix).hexdigest())
+                        self.assertEqual(envelope['response_bytes_retained'], len(prefix))
+                        self.assertEqual(envelope['transport_error'], error.__name__)
+                        self.assertFalse(envelope['response_complete'])
+                        self.assertEqual(envelope['response_hash_scope'], 'retained_prefix')
 
     def test_native_chunk_transport_exceptions_retain_observed_bounded_prefix(self):
         # HTTPResponse has decoded abc, then its next chunk-size read fails.

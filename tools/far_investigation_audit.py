@@ -68,16 +68,33 @@ def audit(state) -> dict:
         # Completion flags cannot override the native reader's declared HTTP
         # framing. Reconstruct Content-Length from retained header metadata.
         headers = transport.get('response_headers', {})
-        lengths = transport.get('content_length_values', [])
-        if type(headers) is not dict or type(lengths) is not list:
-            fail(path + '.content_length', 'malformed HTTP framing metadata')
+        header_lengths = ([value for key, value in headers.items()
+                           if type(key) is str and key.lower() == 'content-length']
+                          if type(headers) is dict else [])
+        header_encodings = ([value for key, value in headers.items()
+                             if type(key) is str and key.lower() == 'transfer-encoding']
+                            if type(headers) is dict else [])
+        # Frozen native envelopes predate the get_all() lists. Their retained
+        # headers still supply declared framing; no missing wire bytes are invented.
+        lengths = transport.get('content_length_values', header_lengths)
+        encodings = transport.get('transfer_encoding_values', header_encodings)
+        if (type(headers) is not dict or type(lengths) is not list or type(encodings) is not list
+                or any(type(k) is not str or type(v) is not str for k, v in headers.items())
+                or any(type(value) is not str for value in lengths + encodings)):
+            fail(path + '.framing', 'malformed HTTP framing metadata')
         else:
-            # Use the transport reader's explicit Content-Length list.
+            # The reader records both the header map and get_all() lists. For
+            # accepted framing there is at most one header of either kind;
+            # omitting/changing one copy cannot erase a declared constraint.
+            equal(path + '.framing.content_length_headers', lengths, header_lengths)
+            equal(path + '.framing.transfer_encoding_headers', encodings, header_encodings)
             if lengths:
                 if (len(lengths) != 1 or type(lengths[0]) is not str
                         or not lengths[0].isascii() or not lengths[0].strip().isdigit()
                         or len(lengths[0].strip()) > 20 or int(lengths[0].strip()) != size):
                     fail(path + '.content_length', 'completed body length contradicts HTTP Content-Length')
+            if encodings and (len(encodings) != 1 or encodings[0].strip().lower() != 'chunked' or lengths):
+                fail(path + '.framing.transfer_encoding', 'unsupported or ambiguous transfer framing')
         if request_url is not None:
             equal(path + '.request_url', transport['request_url'], request_url)
 
