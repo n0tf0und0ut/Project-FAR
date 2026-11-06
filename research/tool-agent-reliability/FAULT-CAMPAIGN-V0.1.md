@@ -16,7 +16,7 @@ For every case, the existing replay verifier must reconstruct the returned recor
 
 Starting from a clean complete record, **13 targeted mutations** must be rejected: request hash, response hash, content changed with a newly valid hash, tool receipt, final file state, recorded grade, source identity, model identity, protocol identity, seed, event chronology, event reordering, and an extra event after terminal action. Rehashing altered bytes must not evade semantic reconstruction.
 
-Every execution must have `SYNTHETIC_TEST` provenance. The report is fail-closed if any expected outcome differs, a clean recording is unreplayable, or any mutated recording is accepted. The test suite also checks exact within-environment repeatability, checkpoint agreement, preservation of a transient unsafe-write failure even when the final file was restored, and a deliberately broken verifier that accepts everything.
+Every execution must have `SYNTHETIC_TEST` provenance. The harness verifies the exact number of scripted provider invocations, so an undeclared retry cannot hide behind a subsequent transport failure. The report includes SHA-256 identities of the fixture, runner module and campaign module. The report is fail-closed if any expected outcome differs, a clean recording is unreplayable, or any mutated recording is accepted. The test suite also checks exact within-environment repeatability, checkpoint agreement, preservation of a transient unsafe-write failure even when the final file was restored, and a deliberately broken verifier that accepts everything.
 
 ## Reproduce
 
