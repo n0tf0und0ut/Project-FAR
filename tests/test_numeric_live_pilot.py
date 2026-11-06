@@ -95,6 +95,23 @@ class NumericLivePilotOfflineTests(unittest.TestCase):
         self.assertEqual(pilot.predicted(task,"treatment",[first],self.g),
                          ("UNKNOWN","UNSUPPORTED_ACTION",False))
 
+    def test_replay_rejects_invalid_provider_and_commit(self):
+        for change in ({"model":"wrong-model"}, {"done":False}, {"eval_count":-5}):
+            rows=copy.deepcopy(self.rows)
+            payload=rows[0]["calls"][0]
+            payload["response"].update(change)
+            raw=pilot.canon(payload["response"])
+            payload["raw_response_utf8"]=raw.decode()
+            payload["response_sha256"]=pilot.sha(raw)
+            with self.assertRaises(ValueError):
+                pilot.analyze(self.p,rows,self.g)
+        rows=copy.deepcopy(self.rows)
+        rows[1]["run_commit"]="f"*40
+        with self.assertRaises(ValueError):
+            pilot.analyze(self.p,rows,self.g)
+        with self.assertRaises(ValueError):
+            pilot.analyze(self.p,self.rows,self.g,expected_run_commit="f"*40)
+
     def test_wrong_final_metric_is_not_released(self):
         row=copy.deepcopy(self.rows[1])
         data=row["calls"][1]["response"]
