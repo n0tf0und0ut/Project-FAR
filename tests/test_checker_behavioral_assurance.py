@@ -125,6 +125,9 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "Universality | proved",
             "I3: validated",
             "Necessity: proven",
+            "**Novelty**: **established**",
+            "*Priority*: *confirmed*",
+            "**Novelty:** established",
         )
         for phrase in examples:
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
@@ -136,7 +139,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
     def test_negated_labels_do_not_trigger_a_false_alarm(self):
-        for phrase in ("Novelty: not established", "I3: unresolved", "Universality — not proved"):
+        for phrase in ("Novelty: not established", "I3: unresolved", "Universality — not proved", "**Novelty**: **not established**"):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 _fixture(root, GOVERNANCE)
