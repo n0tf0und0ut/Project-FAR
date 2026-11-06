@@ -78,6 +78,15 @@ class LiveCommercialVerifierTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'manifest identity'):
                 verifier.verify(copied, replay=False)
 
+    def test_final_inventory_cannot_be_downgraded_to_hide_forged_evidence(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            copied = Path(temporary) / 'copy'
+            shutil.copytree(verifier.DATA, copied)
+            (copied / 'artifact-manifest-v2.json').unlink()
+            (copied / 'verification-evidence-v1.json').write_text('{"replays":999999}')
+            with self.assertRaisesRegex(ValueError, 'final artifact manifest is required'):
+                verifier.verify(copied)
+
 
 if __name__ == '__main__':
     unittest.main()

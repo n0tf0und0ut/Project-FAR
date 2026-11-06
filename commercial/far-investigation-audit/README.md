@@ -467,7 +467,7 @@ The [live commercial access and retrieval comparison](evaluation/live-001/README
 November 6 replay correction (`LIVE-VERIFY-001`, reviewed source
 `ca4d639c1225bee99c40aa9eb74223adb41e62f2`): the post-execution verifier formerly
 accepted a supplied copy whose manifest omitted a corrupted record or rebound
-changed protocol bytes. It now pins both preserved manifest identities before
+changed protocol bytes. It now pins the preserved final manifest identity before
 reading their inventories. Two adversarial regressions failed before correction;
 nine scorer/verifier tests and all twelve receipt scores plus twenty archived
 package replays pass afterward. The prospectively frozen scorer, its tests and
@@ -487,3 +487,11 @@ regression changes the candidate entrypoint to raise and adds an invalid new
 module; all twenty historical packages still replay through nineteen verified
 original source files. An adversarial mismatched recovered blob is rejected.
 These controls provide historical reproducibility, not current-code efficacy.
+
+`LIVE-VERIFY-003` (review comment `4494323858`, thread
+`PRRT_kwDOTH_vCM60ku9r`) prevents downgrade to the incomplete v1 inventory.
+Deleting v2 and fabricating the final verification-evidence file previously
+passed; the regression failed before correction. Complete campaign verification
+now requires the pinned v2 manifest, which covers the retained v1 inventory and
+the post-execution verification evidence. All twelve scorer/verifier tests and
+twenty archived package replays pass. No legacy evidence is rewritten.
