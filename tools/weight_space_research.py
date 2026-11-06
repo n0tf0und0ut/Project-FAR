@@ -245,6 +245,10 @@ def audit_safetensors(base_dir: Path, edited_dir: Path, allowed_tensors: set[str
                 a, b = original.get_slice(key), candidate.get_slice(key)
                 if a.get_shape() != b.get_shape():
                     raise EvidenceError(f"tensor shape changed: {key}")
+                # An empty first axis yields no row chunks. Check lazy metadata
+                # before iterating so zero-element tensors cannot change dtype.
+                if a.get_dtype() != b.get_dtype():
+                    raise EvidenceError(f"tensor dtype changed: {key}")
                 shape = a.get_shape()
                 n = math.prod(shape)
                 total += n
@@ -258,8 +262,6 @@ def audit_safetensors(base_dir: Path, edited_dir: Path, allowed_tensors: set[str
                 else:
                     chunks = ((a[i:i + 1], b[i:i + 1]) for i in range(shape[0]))
                 for x, y in chunks:
-                    if x.dtype != y.dtype:
-                        raise EvidenceError(f"tensor dtype changed: {key}")
                     # CPU isfinite is unavailable for some float8 dtypes. Widen
                     # only this bounded chunk; float64 also preserves finite
                     # values outside float32's range instead of overflowing.

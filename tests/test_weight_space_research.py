@@ -239,6 +239,25 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(result["changed_parameters"], 1)
         self.assertEqual(result["touched_tensors"], ["scalar"])
 
+    def test_empty_tensor_dtype_is_checked_without_value_chunks(self):
+        import torch
+        from safetensors.torch import save_file
+        original = torch.zeros(100)
+        candidate = original.clone()
+        candidate[0] = 1
+        for shape in ((0, 2), (0, 0), (0, 2, 3), (2, 0), (0,)):
+            with self.subTest(shape=shape):
+                save_file({"target": original, "empty": torch.empty(shape, dtype=torch.float32)},
+                          str(self.base / "weights.safetensors"))
+                save_file({"target": candidate, "empty": torch.empty(shape, dtype=torch.float32)},
+                          str(self.edit / "weights.safetensors"))
+                result = audit_safetensors(self.base, self.edit, {"target"}, .10)
+                self.assertEqual((result["total_parameters"], result["changed_parameters"]), (100, 1))
+                save_file({"target": candidate, "empty": torch.empty(shape, dtype=torch.float64)},
+                          str(self.edit / "weights.safetensors"))
+                with self.assertRaisesRegex(EvidenceError, "tensor dtype changed: empty"):
+                    audit_safetensors(self.base, self.edit, {"target"}, .10)
+
     def test_float8_sparse_edits_enforce_finiteness_and_changed_budget(self):
         import torch
         from safetensors.torch import save_file
