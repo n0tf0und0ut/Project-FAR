@@ -78,3 +78,23 @@ summary and sign the linked canonical payload before expiry. No consumption
 entry, signer, evaluator, protected check, frozen observation or test obligation
 was removed or weakened. Final-head hosted checks, independent review and the
 coordinator's repeated combined integration verification remain required.
+
+## Canonical payload integrity and newline hygiene (2026-11-06)
+
+`SC-PY-003`: `check_final_newline.py` rejected the unsigned payload on
+`c1122e74989ac787b39fa6ab00d24f9c2ea000f1` because its own identity was not
+recorded. The [protected-repin procedure](../governance/protected-repin-procedure.md)
+requires canonical authorization bytes with **no trailing newline**. Adding a
+newline would invalidate canonical parsing and any signature over those bytes.
+
+The prepared payload is exactly **731 bytes**, SHA-256
+`9be942dbdd931446601680821d3b91c8a371bf8af030c38717fefa3078569722`.
+This records the precise file the owner inspects and signs, and activates the
+newline checker's existing digest-bound integrity exemption. No new path
+exception or checker behavior is introduced. The payload still parses with the
+canonical authorization parser; its bytes, validity window and transition are
+unchanged. The existing newline regressions cover digest binding and protection
+of unterminated files. The actual checker fails before this identity record and
+passes afterward; its `--fix` run repairs zero files and preserves the payload's
+digest. These hygiene results do not supply the absent owner signature or
+authorize any protected transition.
