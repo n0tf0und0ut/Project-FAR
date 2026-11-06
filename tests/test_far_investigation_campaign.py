@@ -254,6 +254,41 @@ class RetainedCampaignReplayTests(unittest.TestCase):
         self.assertFalse(result['valid'])
         self.assertTrue(any('host policy differs' in error for error in result['errors']),result)
 
+    def test_transcript_sources_must_match_registered_task_hints(self):
+        from tests.test_far_investigation_audit import reseal
+        name='H201-deterministic.json'
+        state=json.loads(self.files[name])
+        self.assertTrue(metrics(state)['integrity_valid'])
+        state['seeds']=['https://unregistered.example.org/answer']
+        reseal(state)
+        self.assertTrue(metrics(state)['integrity_valid'])
+        changed=json.dumps(state,sort_keys=True).encode()
+        campaign=copy.deepcopy(self.campaign)
+        entry_row=next(row for row in campaign['rows'] if row['transcript']==name)
+        entry_row['transcript_sha256']=hashlib.sha256(changed).hexdigest()
+        entry_row['metrics']=metrics(state)
+        campaign['summary']=summarize(campaign['rows'])
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            selection=root/self.entry['selection_path']
+            selection.parent.mkdir(parents=True,exist_ok=True)
+            selection.write_bytes((self.evidence/self.entry['selection_path']).read_bytes())
+            archive_path=root/self.entry['path']
+            archive_path.parent.mkdir(parents=True,exist_ok=True)
+            with zipfile.ZipFile(archive_path,'w',compression=zipfile.ZIP_DEFLATED) as archive:
+                for member,raw in self.files.items():
+                    if member==name:
+                        raw=changed
+                    elif member=='campaign.json':
+                        raw=json.dumps(campaign).encode()
+                    archive.writestr(member,raw)
+            entry=copy.deepcopy(self.entry)
+            entry['sha256']=hashlib.sha256(archive_path.read_bytes()).hexdigest()
+            (root/'evidence-manifest.json').write_text(json.dumps({'files':[entry]}))
+            result=audit_directory(root)
+            self.assertFalse(result['valid'])
+            self.assertTrue(any('source exposure' in error for error in result['errors']),result)
+
     def test_source_identity_mutation_fails(self):
         result=self.mutated(lambda c:c["source_hashes"].update({"tools/far_investigation_engine.py":"0"*64}))
         self.assertFalse(result["valid"])
