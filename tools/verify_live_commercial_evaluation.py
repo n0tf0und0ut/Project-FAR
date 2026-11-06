@@ -12,12 +12,21 @@ import zipfile
 
 from run_live_commercial_evaluation import ROOT, DATA, check_freeze, digest, read, score_retrieval
 
+# Identity anchors for this recorded campaign, not provider authenticity or an
+# independent seal. A supplied copy cannot replace its own verification policy.
+MANIFEST_SHA256 = {
+    'artifact-manifest-v1.json': '22d57fede58b5235150f5bb73b98605404a66cea5f3f092c76e0f05b741a192b',
+    'artifact-manifest-v2.json': '7199defbbb2a240af9a851712aac3adea2fa752ace9b51decf4031e138df2526',
+}
+
 
 def verify(data=DATA, replay=True):
     check_freeze()
     manifest_path = data / 'artifact-manifest-v2.json'
     if not manifest_path.exists():
         manifest_path = data / 'artifact-manifest-v1.json'
+    if digest(manifest_path.read_bytes()) != MANIFEST_SHA256[manifest_path.name]:
+        raise ValueError('recorded artifact manifest identity changed')
     manifest = read(manifest_path)
     for rel, expected in manifest['files'].items():
         path = Path(rel)

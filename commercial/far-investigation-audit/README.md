@@ -463,3 +463,13 @@ concurrency admission control or production readiness.
 The [FAR-INTERNAL-EVAL-001 report](evaluation/internal-001/README.md) records a separately registered, project-controlled exploratory campaign: source-to-report failure controls, identical-formula SymPy comparison, actual Noesis minimal CLI execution, portable replay and actual retained-history treatment. The first harness failure and procedural corrections remain preserved with their registrations and outputs. These results expose semantic and factual coverage limits; they do not execute the frozen benchmark, establish commercial advantage or supply external verification. Research operations share the [single disposition view](../../research/scheduled-task-reconciliation/operations-v1.json).
 
 The [live commercial access and retrieval comparison](evaluation/live-001/README.md) preserves actual Consensus and SciSpace calls, rate-limit failures and an unchanged-input sequential successor. Twenty default FAR raw-text packages replay, while their claims and inference candidates remain unestablished or unformalized. Hosted RoastMyPost and Fact Engineering document analysis require sign-in. Customer value, general reasoning reliability and commercial superiority remain unestablished.
+
+November 6 replay correction (`LIVE-VERIFY-001`, reviewed source
+`ca4d639c1225bee99c40aa9eb74223adb41e62f2`): the post-execution verifier formerly
+accepted a supplied copy whose manifest omitted a corrupted record or rebound
+changed protocol bytes. It now pins both preserved manifest identities before
+reading their inventories. Two adversarial regressions failed before correction;
+nine scorer/verifier tests and all twelve receipt scores plus twenty archived
+package replays pass afterward. The prospectively frozen scorer, its tests and
+all recorded evidence retain their bytes. Manifest identity remains distinct
+from provider authenticity, external replication and real-world accuracy.
