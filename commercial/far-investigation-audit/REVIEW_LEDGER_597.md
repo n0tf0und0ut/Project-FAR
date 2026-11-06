@@ -106,3 +106,20 @@ all 281 dependency-equipped component tests pass. This changes request intake
 only; frozen protocols, source snapshots, campaign results and scientific
 assurance are unchanged. A fresh substantive review on the successor head
 and hosted protected checks remain separate obligations.
+
+## November 6 current review corrections — pending verification
+
+The following substantive Codex findings were reported on the preceding head. Each
+has a distinct reproducer and root cause; commits below are implementation evidence
+only. Exact-head hosted component/integration validation, a fresh independent
+substantive review, and protected required checks are **pending**. Do not close
+threads or assert merge readiness solely from these edits.
+
+| ID / review evidence | Violated invariant and concrete counterexample | Branch correction and regression | Current disposition |
+| --- | --- | --- | --- |
+| ED-R12 / comment `4495176866`, thread `PRRT_kwDOTH_vCM60mvzA` | `Something is not blue` can be true even where `not (Something is blue)` is false; an existential pronoun cannot inherit fixed-referent singular negation. | `8ade9c75bef88ea9c2623584353f81e462ad8ca5` rejects ambiguous quantified/indefinite pronouns in the deliberately bounded grammar. `test_449514_quantified_pronouns_cannot_be_fixed_singular` covers 15 subjects and requires abstention. | Implemented, verification/review pending. |
+| ED-R13 / comment `4495176881`, thread `PRRT_kwDOTH_vCM60mvzK` | Sharing source bytes across investigations incorrectly shared dependency edges; withdrawing Y from one derived X invalidated another independently sourced identical X. | `bcc445fbd641615bc22f4322ff385e9921d4123b` retains one content-addressed byte node but separates source-occurrence nodes and their declared lineage. `test_449514_lineage_does_not_cross_deduplicated_source_occurrences` requires derived-only invalidation, valid independent reading, and successful restoration. | Implemented, verification/review pending. |
+| ED-R14 / comment `4495176875`, thread `PRRT_kwDOTH_vCM60mvzG` | Rebuilding a resume request by inlining three individually valid remote captures of roughly 160 KB exceeds the 450 KB raw-intake limit before verified-source continuation can begin. | Commits `1aabe11ddab71004a08bfa2d557da20f6f667881`, `e963ad46ae961a263f3be06aa28150e7d15e056a`, and `9002272115eacc449b7f2b1a0ab2ac2618c10c8b` introduce local `VerifiedSnapshotResume` references to replay-verified retained bytes; ordinary requests retain their original 450 KB cap and unbound references fail closed. `test_449514_resume_reuses_large_verified_snapshots_without_input_bypass` checks large resume, forged ordinary-dictionary rejection, and second-package replay. | Implemented, verification/review pending. |
+
+All three updates are source/test amendments. Historical frozen experiment outputs,
+registered scientific acceptance criteria, and protected-main theory remain unchanged.
