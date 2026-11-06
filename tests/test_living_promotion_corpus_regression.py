@@ -44,7 +44,17 @@ class PromotionCorpusRegressionTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "repository"
-            subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(root)], check=True)
+            # Clone writes its first reflog before repository-local identity is
+            # configured. An implicit email can resolve the runner's hostname.
+            subprocess.run([
+                "git", "-c", "user.name=promotion-regression",
+                "-c", "user.email=regression@example.invalid",
+                "clone", "--quiet", "--shared", str(ROOT), str(root),
+            ], check=True)
+            self.assertEqual(
+                git(root, "reflog", "show", "-1", "--format=%gn%n%ge", "HEAD"),
+                "promotion-regression\nregression@example.invalid",
+            )
             git(root, "config", "user.name", "promotion-regression")
             git(root, "config", "user.email", "regression@example.invalid")
             base = git(root, "rev-parse", "HEAD")
