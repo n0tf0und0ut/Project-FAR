@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from engine import InvalidBundle, canonical
 from full_cli import read_json_artifact, write_package, verify_package
-from workflow import investigate
+from workflow import VerifiedSnapshotResume, investigate
 from memory import Memory
 
 
@@ -20,7 +20,8 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
     old=verify_package(Path(directory),include_verified_snapshots=True)
     bundle=old["_verified_bundle"]
     def source(s):
-        return {"kind":"text","text":s["text"],"origin_id":s["origin_id"],"published_at":s["published_at"]}
+        return {"kind":"verified_snapshot","snapshot_sha256":s["sha256"],
+                "origin_id":s["origin_id"],"published_at":s["published_at"]}
     original=next(s for s in bundle["sources"] if s["id"]=="primary")
     evidence_sources=[source(s) for s in bundle["sources"] if s["id"]!="primary"]
     if not isinstance(evidence,list):
@@ -47,7 +48,8 @@ def resume_request(directory, evidence, *, proposal=None, captured_at=None):
             "evidence_sources":evidence_sources+evidence,"proposal_mode":"supplied","proposal":chosen,"debugger":True}
     if captured_at is not None:
         config["captured_at"]=captured_at
-    return config
+    snapshots={s["sha256"]:s["text"] for s in bundle["sources"]}
+    return VerifiedSnapshotResume(config,snapshots)
 
 
 def main(argv=None):
