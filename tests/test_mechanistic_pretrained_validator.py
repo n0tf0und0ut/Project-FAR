@@ -79,7 +79,7 @@ def fixture():
             "full_vocabulary_baseline_kl":sum(r["full_vocabulary_mean_kl"] for r in group)/n,
             "cases_worse_than_baseline_full_vocabulary":0,
         }
-    return document, {
+    report = {
         "manifest":{"model_id":MODEL_ID,"model_revision":REVISION,
                     "weights_sha256":"a"*64,"answer_tokens":["yes","no"],
                     "evaluation_n":32,"per_split":12,"train_n":24},
@@ -88,9 +88,63 @@ def fixture():
         "task_accuracy_and_selective_risk":summary,
         "status":"EXPLORATORY_PRETRAINED_LM_PILOT_NO_EXTERNAL_SUPERIORITY_CLAIM",
     }
+    source_text=json.dumps(report["manifest"],sort_keys=True)
+    document["sources"].append({"id":"run-manifest","text":source_text,
+                                "sha256":hashlib.sha256(source_text.encode()).hexdigest()})
+    report["mechanism_audit"]=MechanismAudit.from_dict(document).evaluate()
+    return document,report
 
 
 class ResultVerifierMutationTests(unittest.TestCase):
+    def test_4494409924_coordinated_subcohort_cannot_override_committed_manifest(self):
+        trace,report=fixture()
+        source=next(s for s in trace["sources"] if s["id"]=="run-manifest")
+        committed=source["text"]
+        trace["cases"]=[c for c in trace["cases"] if int(c["id"].rsplit("-",1)[1])<2]
+        report["individual_results"]=[c for c in report["individual_results"] if int(c["id"].rsplit("-",1)[1])<2]
+        report["manifest"].update(per_split=2,evaluation_n=6)
+        report["mechanism_audit"]=MechanismAudit.from_dict(trace).evaluate()
+        for summary in report["task_accuracy_and_selective_risk"].values():
+            summary.update(n=2,fidelity_gate_accepted=2)
+        self.assertEqual(source["text"],committed)
+        self.assertEqual(json.loads(committed)["per_split"],12)
+        with self.assertRaisesRegex(ValueError,"committed.*manifest"):
+            self.check(trace,report)
+
+    def test_preserved_actual_full_cohort_manifest_agrees(self):
+        import zipfile
+        root=Path(__file__).resolve().parents[1]
+        with zipfile.ZipFile(root/"evaluation/evidence/pretrained-original-13051320299.zip") as archive:
+            trace=json.loads(archive.read("far_mech_pretrained_trace.json"))
+            report=json.loads(archive.read("far_mech_pretrained_result.json"))
+        self.assertEqual(self.check(trace,report)["n"],32)
+
+    def test_smaller_cohort_requires_its_own_committed_manifest(self):
+        trace,report=fixture()
+        trace["cases"]=[c for c in trace["cases"] if int(c["id"].rsplit("-",1)[1])<2]
+        report["individual_results"]=[c for c in report["individual_results"] if int(c["id"].rsplit("-",1)[1])<2]
+        report["manifest"].update(per_split=2,evaluation_n=6)
+        for summary in report["task_accuracy_and_selective_risk"].values():
+            summary.update(n=2,fidelity_gate_accepted=2)
+        source=next(s for s in trace["sources"] if s["id"]=="run-manifest")
+        source["text"]=json.dumps(report["manifest"],sort_keys=True)
+        source["sha256"]=hashlib.sha256(source["text"].encode()).hexdigest()
+        report["mechanism_audit"]=MechanismAudit.from_dict(trace).evaluate()
+        self.assertEqual(self.check(trace,report)["n"],6)
+
+    def test_missing_malformed_or_ambiguous_committed_manifest_is_rejected(self):
+        for text in (None, "[]", '{"per_split":2,"per_split":12}'):
+            trace,report=fixture()
+            source=next(s for s in trace["sources"] if s["id"]=="run-manifest")
+            if text is None:
+                trace["sources"].remove(source)
+            else:
+                source["text"]=text
+                source["sha256"]=hashlib.sha256(text.encode()).hexdigest()
+            report["mechanism_audit"]=MechanismAudit.from_dict(trace).evaluate()
+            with self.subTest(text=text), self.assertRaises(ValueError):
+                self.check(trace,report)
+
     def test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity(self):
         trace, report = fixture()
         raw = json.dumps(report)

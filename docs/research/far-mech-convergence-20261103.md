@@ -110,3 +110,29 @@ Those are software regression controls; no archived experiment, frozen data,
 reported outcome or scientific claim is replaced. The original successful and
 failed archives retain their exact bytes and hashes. Final-head independent
 review and protected checks remain separate obligations.
+
+### Committed cohort and metadata binding
+
+MECH-MANIFEST-001 / review comment `4494409924`, thread
+`PRRT_kwDOTH_vCM60k72i`, reviewed head
+`ace3b2221b976f086436a18c678e6d7c93d1869f`: the report could declare
+`per_split=2`, retain only the first two cases in each split and recompute its
+audits/summaries while the trace-committed source still declared the full cohort.
+The earlier single-case omission control did not detect this distinct selector
+substitution. A source-committed synthetic fixture reproduces acceptance of the
+six-case truncation before correction; the untouched preserved full-vocabulary
+archive `13051320299` is the real-data positive control.
+
+The verifier now strictly decodes the existing `run-manifest` source and binds
+the complete report metadata to its canonical JSON bytes before cohort selection.
+Missing, nonobject or duplicate-key committed manifests are rejected. A distinct
+smaller cohort remains valid only when its own manifest is committed consistently;
+no source authenticity or external preregistration is inferred.
+
+The [before log](../../evaluation/evidence/report-intake-convergence-20261106/manifest-before.log)
+retains the failing truncation rejection and passing untouched archive; the
+[after log](../../evaluation/evidence/report-intake-convergence-20261106/manifest-after.log)
+passes both. All **77/77 mechanistic tests pass with zero skips**. The synthetic
+fixture now explicitly commits its run metadata; no original archived source,
+observation, denominator, tolerance or outcome is edited. Fresh exact-head review
+and hosted protected checks remain required.

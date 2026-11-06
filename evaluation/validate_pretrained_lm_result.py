@@ -59,6 +59,13 @@ def verify(trace_path: Path, report_path: Path):
     if raw["model"]["reference_population_sha256"] != expected_population:
         raise ValueError("training reference population commitment mismatch")
     manifest = report["manifest"]
+    committed = next((source for source in raw["sources"]
+                      if source["id"] == "run-manifest"), None)
+    if committed is None:
+        raise ValueError("source-committed run manifest missing")
+    source_manifest = _strict_loads(committed["text"])
+    if not isinstance(source_manifest, dict) or canonical(source_manifest) != canonical(manifest):
+        raise ValueError("source-committed run manifest disagrees with report cohort or metadata")
     per_split = manifest.get("per_split")
     if type(per_split) is not int or not 2 <= per_split <= 12:
         raise ValueError("invalid registered evaluation cohort size")
