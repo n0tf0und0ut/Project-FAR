@@ -22,6 +22,11 @@ defaults retain PyYAML's existing precedence and explicit-override behavior;
 repeating the merge key itself is rejected. This component-local adaptation
 uses the repository's unique-key SafeLoader pattern without importing the
 canonical mechanization package or changing its parser/frozen semantics.
+Validation inspects the complete original YAML node graph before construction,
+including inline/aliased merge sources, so merge flattening cannot erase a
+duplicate or turn valid inherited overrides into false duplicate findings.
+Valid non-object supporting snippets are skipped during embedded package search;
+strict JSON semantic failures remain terminal.
 
 Run its tests in the component environment:
 

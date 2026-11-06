@@ -130,6 +130,48 @@ class TestFarDemo(unittest.TestCase):
                 parsed = parse_package_file(filename, content.encode())
                 self.assertEqual(parsed['metadata'], {'origin': 'explicit', 'keep': 'retained'})
 
+    def test_yaml_merge_source_duplicates_are_rejected_before_flattening(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        raw = yaml.safe_dump(payload, sort_keys=False).replace('metadata: {}',
+            'metadata: {<<: {probe: first, probe: second}}')
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, content, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 400)
+
+    def test_merged_source_can_later_be_referenced_as_an_ordinary_alias(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        payload.pop('proposed_action')
+        raw = yaml.safe_dump(payload, sort_keys=False).replace('metadata: {}',
+            'metadata: {<<: &override {<<: {origin: inherited}, origin: explicit}}\nproposed_action: *override')
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, content, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+                parsed = parse_package_file(filename, content.encode())
+                self.assertEqual(parsed['proposed_action'], {'origin': 'explicit'})
+
+    def test_nonobject_json_fragments_do_not_hide_the_only_package_object(self) -> None:
+        for fragment in ('[]', '"supporting note"', '123', 'true', 'null'):
+            for label in ('', 'json', 'jsonl', 'yaml'):
+                document = '```' + label + '\n' + fragment + '\n```\n\n```json\n' + json.dumps(SAMPLE_BASELINE) + '\n```'
+                with self.subTest(fragment=fragment, label=label):
+                    response = self.client.post('/api/analyze', files={
+                        'baseline': ('input.md', document, 'text/markdown'),
+                        'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
+
     def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
         def toml_value(value):
             if isinstance(value, dict):

@@ -42,32 +42,46 @@ ACCEPT_ATTRIBUTE = ",".join(sorted(SUPPORTED_EXTENSIONS))
 class _UniquePackageYamlLoader(yaml.SafeLoader):
     """Component-local counterpart of the repository's unique-key SafeLoader.
 
-    Check explicit keys before PyYAML flattens merges, preserving its existing
-    inherited-default/explicit-override semantics without accepting duplicates.
+    Inspect the entire original node graph before construction mutates merge
+    sources, retaining native inherited-default/explicit-override semantics.
     """
 
+    def get_single_data(self):
+        node = self.get_single_node()
+        if node is None:
+            return None
+        _validate_yaml_keys(self, node)
+        return self.construct_document(node)
 
-def _unique_yaml_mapping(loader, node, deep=False):
-    seen = set()
-    merge_seen = False
-    for key_node, _ in node.value:
-        if key_node.tag == 'tag:yaml.org,2002:merge':
-            if merge_seen:
-                raise ValueError('Duplicate YAML merge key')
-            merge_seen = True
+
+def _validate_yaml_keys(loader, root):
+    pending = [root]
+    visited = set()
+    while pending:
+        node = pending.pop()
+        if id(node) in visited:
             continue
-        key = loader.construct_object(key_node, deep=deep)
-        try:
-            duplicate = key in seen
-            seen.add(key)
-        except TypeError as exc:
-            raise ValueError('Unhashable YAML mapping key') from exc
-        if duplicate:
-            raise ValueError(f'Duplicate YAML mapping key {key!r}')
-    return loader.construct_mapping(node, deep=deep)
-
-
-_UniquePackageYamlLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_yaml_mapping)
+        visited.add(id(node))
+        if isinstance(node, yaml.SequenceNode):
+            pending.extend(node.value)
+        elif isinstance(node, yaml.MappingNode):
+            seen = set()
+            merge_seen = False
+            for key_node, value_node in node.value:
+                pending.extend((key_node, value_node))
+                if key_node.tag == 'tag:yaml.org,2002:merge':
+                    if merge_seen:
+                        raise ValueError('Duplicate YAML merge key')
+                    merge_seen = True
+                    continue
+                # Complex mapping keys are unhashable under SafeLoader. Avoid
+                # constructing them here, which could flatten another node.
+                if not isinstance(key_node, yaml.ScalarNode):
+                    raise ValueError('Unhashable YAML mapping key')
+                key = loader.construct_object(key_node)
+                if key in seen:
+                    raise ValueError(f'Duplicate YAML mapping key {key!r}')
+                seen.add(key)
 
 
 def _load_yaml(text: str) -> Any:
@@ -128,10 +142,14 @@ def _require_mapping(value: Any) -> dict[str, Any]:
 
 
 def _parse_jsonl(text: str) -> dict[str, Any]:
-    objects = [loads_strict(line) for line in text.splitlines() if line.strip()]
+    objects = _jsonl_values(text)
     if len(objects) != 1:
         raise ValueError("A FAR JSONL upload must contain exactly one non-empty JSON object.")
     return _require_mapping(objects[0])
+
+
+def _jsonl_values(text: str) -> list[Any]:
+    return [loads_strict(line) for line in text.splitlines() if line.strip()]
 
 
 def _parse_embedded_text(text: str) -> dict[str, Any]:
@@ -147,12 +165,23 @@ def _parse_embedded_text(text: str) -> dict[str, Any]:
         # A format declaration is binding. In particular, malformed or ambiguous
         # fenced JSON must never be accepted by the more permissive YAML parser.
         if hint in {'json', 'jsonl'}:
-            return _parse_jsonl(candidate) if hint == 'jsonl' else _require_mapping(loads_strict(candidate))
+            values = _jsonl_values(candidate) if hint == 'jsonl' else [loads_strict(candidate)]
+            if len(values) == 1 and isinstance(values[0], dict):
+                return values[0]
+            continue
         if hint in {'yaml', 'yml', 'toml'}:
             parser = tomllib.loads if hint == 'toml' else _load_yaml
-            return _require_mapping(parser(candidate))
+            value = parser(candidate)
+            if isinstance(value, dict):
+                return value
+            continue
         try:
-            return _require_mapping(loads_strict(candidate))
+            value = loads_strict(candidate)
+            if isinstance(value, dict):
+                return value
+            # Supporting JSON fragments are not package candidates. They do not
+            # relax strict errors or override a later decision-package object.
+            continue
         except json.JSONDecodeError as exc:
             # Syntax that is not JSON may be valid YAML/TOML. Duplicate members,
             # nonfinite numbers and decoder-limit failures are ValueError and

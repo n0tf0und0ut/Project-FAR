@@ -100,3 +100,17 @@ The local unique-key YAML loader closes that ambiguity while preserving tested
 merge defaults/explicit override and legitimate YAML/TOML inputs. All **48**
 package and **26** dependency-equipped baseline demo tests pass; combined
 semantic-augmentation validation is a separate integration obligation.
+
+**CJSON-008** (review comments `4494585732`, `4494585741`; reviewed head
+`4416d2af0543bed1cbcc75cd323ab870a7dbc3d5`) found that constructor-time key checks
+missed inline merge-source duplicates and falsely rejected a valid merged source
+later referenced by an ordinary alias. The YAML loader now checks the complete
+original mapping-node graph before constructing or flattening any merge; alias
+visits are bounded and native merge precedence remains unchanged.
+**CJSON-009** (comment `4494585755`) found valid non-object JSON snippets prevented
+discovery of the sole package object. Such supporting fragments now skip to the
+next candidate while duplicate/nonfinite/nesting failures remain terminal.
+All three original counterexamples failed across **11** assertions before
+correction; their actual-route regressions now pass. Current verification is
+**48** package tests and **29** dependency-equipped baseline demo tests, including
+additional declared-snippet controls. Frozen parsers/evidence remain untouched.
