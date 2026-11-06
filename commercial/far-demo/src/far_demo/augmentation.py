@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -216,13 +217,28 @@ def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _finite_float(token: str) -> float:
+    value = float(token)
+    if not math.isfinite(value):
+        raise ValueError("Non-finite JSON number")
+    return value
+
+
+def _strict_json_loads(source: str | bytes) -> Any:
+    try:
+        return json.loads(source, object_pairs_hook=_unique_pairs,
+                          parse_float=_finite_float,
+                          parse_constant=lambda _: (_ for _ in ()).throw(ValueError("Invalid numeric constant")))
+    except RecursionError as exc:
+        raise ValueError("JSON nesting exceeds the supported decoder limit") from exc
+
+
 async def _json(request: Request, *, max_body: int = MAX_BODY) -> Any:
     body = await request.body()
     if len(body) > max_body:
         raise HTTPException(413, "Augmentation input exceeds the permitted request size")
     try:
-        return json.loads(body, object_pairs_hook=_unique_pairs,
-                          parse_constant=lambda value: (_ for _ in ()).throw(ValueError("Invalid numeric constant")))
+        return _strict_json_loads(body)
     except (ValueError, UnicodeDecodeError) as exc:
         raise HTTPException(400, f"Invalid JSON: {exc}") from exc
 

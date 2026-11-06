@@ -182,6 +182,26 @@ context.URL={createObjectURL:blob=>{downloaded=blob;return 'blob:stub'},revokeOb
         with patch("far_demo.semantic._generate", new=AsyncMock(return_value=duplicate)):
             self.assertEqual(self.endpoint().status_code, 502)
 
+    def test_nested_json_failure_is_bounded_at_user_and_model_boundaries(self):
+        text = '[' * 10000 + '0' + ']' * 10000
+        for route in ("semantic", "semantic/verify"):
+            with self.subTest(route=route):
+                response = self.client.post("/api/augment/" + route, content=text,
+                    headers={"X-FAR-Augment-Token": "operator-access-00000001"})
+                self.assertEqual(response.status_code, 400)
+        with patch("far_demo.semantic._generate", new=AsyncMock(return_value=text)):
+            self.assertEqual(self.endpoint().status_code, 502)
+
+    def test_nonascii_token_or_report_digest_cannot_raise_server_error(self):
+        response = self.client.post("/api/augment/semantic", json={"session": self.session},
+            headers={"X-FAR-Augment-Token": b'\xe9' * 16})
+        self.assertEqual(response.status_code, 401)
+        cfg = Config("https://semantic.example/v1/chat/completions", "model", "", "access-123456789123")
+        report = _create_report(self.session, cfg, model_text())
+        report["sha256"] = "é" * 64
+        response = self.client.post("/api/augment/semantic/verify", json={"session": self.session, "report": report})
+        self.assertEqual(response.status_code, 422)
+
     def test_malformed_model_fields_are_rejected_without_500(self):
         cases = [
             {"findings": [{"category": [], "observation": "x", "inference": "y", "anchors": [{"path": "claim", "quote": "After"}], "alternatives": [], "test": "z", "question": "w"}], "open_questions": []},
@@ -279,6 +299,20 @@ context.URL={createObjectURL:blob=>{downloaded=blob;return 'blob:stub'},revokeOb
             with self.subTest(status=status):
                 transport=httpx.MockTransport(lambda req: httpx.Response(status, content=content))
                 with patch("far_demo.semantic.httpx.AsyncClient", new=lambda *a, **k: original(*a,transport=transport,**k)):
+                    with self.assertRaises(RuntimeError):
+                        asyncio.run(_generate(Config("https://semantic.example/v1/chat/completions", "research-test-model", "", "operator-access-00000001"), _refs(self.session)))
+
+    def test_provider_envelope_rejects_ambiguous_numbers_and_decoder_limits(self):
+        original = httpx.AsyncClient
+        valid = json.dumps({"choices": [{"message": {"content": model_text()}}]})
+        malformed = [('["' + 'x' + '"]') * 2, '[' * 10000 + '0' + ']' * 10000]
+        malformed += [valid[:-1] + ',"ignored":' + number + '}'
+                      for number in ('NaN', 'Infinity', '-Infinity', '1e999')]
+        malformed += [valid[:-1] + ',"choices":[]}' ]
+        for content in malformed:
+            with self.subTest(content=content[:80]):
+                transport = httpx.MockTransport(lambda req: httpx.Response(200, content=content.encode()))
+                with patch("far_demo.semantic.httpx.AsyncClient", new=lambda *a, **k: original(*a, transport=transport, **k)):
                     with self.assertRaises(RuntimeError):
                         asyncio.run(_generate(Config("https://semantic.example/v1/chat/completions", "research-test-model", "", "operator-access-00000001"), _refs(self.session)))
 

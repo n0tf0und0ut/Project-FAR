@@ -35,6 +35,13 @@ class AugmentationTests(unittest.TestCase):
     def start(self, data=None):
         return self.client.post("/api/augment/start", json=data or INPUT)
 
+    def test_excessive_json_nesting_returns_invalid_input(self):
+        text = '[' * 10000 + '0' + ']' * 10000
+        for route in ("start", "revise", "verify"):
+            with self.subTest(route=route):
+                response = self.client.post("/api/augment/" + route, content=text)
+                self.assertEqual(response.status_code, 400)
+
     def revise(self, session, **changes):
         payload = {"session": session, "revised_claim": "The process might reduce errors.",
                    "confidence": 60, "rationale": "A competing explanation remains possible.",

@@ -1,6 +1,6 @@
 # Model-directed semantic augmentation: verification record
 
-Status: **Research-only implementation; no live external model execution**.
+Status: **Research-only implementation; one failed local-model conformance smoke**.
 
 - Source: optional hosted FAR Demo application, separate from FAR Core theory.
 - Model provider integration: HTTPS or loopback Chat Completions compatible;
@@ -14,7 +14,8 @@ Status: **Research-only implementation; no live external model execution**.
 - Local checks: `python -m unittest discover -s commercial/far-demo/tests -p 'test_*.py'`
   and `node --check` against the page script; browser smoke tests exercise
   actual handlers under Chromium with a *scripted model service*.
-- Model quality: **NOT MEASURED**. Model execution on a real provider: **NOT RUN**.
+- Model quality: **NOT MEASURED**. One real local-model access/conformance call
+  **FAILED** output validation; preserved evidence appears below.
 - Independent human reasoning gains: **NOT TESTED**.
 
 **Interpretation limit:** A source-anchored generated critique is not
@@ -88,3 +89,18 @@ HTTP/validation outcome, environment and deterministic byte/sequence verifier.
 The ZIP contains an engineering receipt, not trusted execution attestation or an
 externally independent study. No model checkpoint or production dependency was
 added to FAR.
+
+## November 6 input-boundary corrections
+
+Reviewed source: `9ce45e13613c18d9b854ba01f8fc974cb6a3cc8f`. These are software
+corrections after the recorded live smoke; its frozen source hashes and failure
+remain historical evidence for that earlier implementation.
+
+| Root cause | Before correction | Correction and bounded verification |
+| --- | --- | --- |
+| AUG-SEM-015 — decoder failures escaped invalid-input contracts | A 20,001-byte array nested 10,000 levels raised uncaught `RecursionError` at input and model-output boundaries. Provider envelopes also accepted non-finite numeric constants or overflow in ignored fields. | Shared package-local strict decoding rejects duplicate members, constants, overflow and unsupported nesting. Actual request tests require HTTP 400; malformed model output yields HTTP 502; mocked transport exercises malformed provider envelopes without model inference. |
+| AUG-SEM-016 — non-ASCII values reached string-only HMAC comparison | Non-ASCII access headers or report digests raised `TypeError`, producing a server failure before an authorization/integrity verdict. | Tokens compare UTF-8 bytes; report digests must be 64 lowercase hex characters before constant-time comparison. Actual-route regressions require HTTP 401 and HTTP 422 respectively. |
+
+The dependency-equipped demo suite passes **71 tests**, including the unchanged
+browser round trips, persistence races and scripted-provider controls. No new
+live experiment, semantic effectiveness or customer-value claim follows.

@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 import httpx
 from fastapi import APIRouter, HTTPException, Request
 
-from .augmentation import MAX_SESSION_BODY, _hash, _json, _list_of_text, _text, _unique_pairs, verify
+from .augmentation import MAX_SESSION_BODY, _hash, _json, _list_of_text, _strict_json_loads, _text, verify
 
 router = APIRouter()
 SCHEMA = "far-model-semantic-audit/0.1"
@@ -153,8 +153,7 @@ def _extract_json(text: str) -> dict[str, Any]:
     if len(text.encode("utf-8")) > 35000:
         raise ValueError("Model output exceeds the permitted length")
     try:
-        parsed = json.loads(text, object_pairs_hook=_unique_pairs,
-                            parse_constant=lambda _: (_ for _ in ()).throw(ValueError("Invalid JSON number")))
+        parsed = _strict_json_loads(text)
     except (ValueError, UnicodeDecodeError) as exc:
         raise ValueError("Model output is not a valid strict JSON object") from exc
     if not isinstance(parsed, dict):
@@ -186,7 +185,7 @@ async def _generate(config: Config, refs: dict[str, str]) -> str:
                     content.extend(chunk)
                     if len(content) > 65536:
                         raise RuntimeError("Model service returned an oversized response")
-        response = json.loads(bytes(content), object_pairs_hook=_unique_pairs)
+        response = _strict_json_loads(bytes(content))
         text = response["choices"][0]["message"]["content"]
         if not isinstance(text, str):
             raise ValueError("Missing model message content")
@@ -235,7 +234,10 @@ def verify_report(report: Any, session: Any) -> dict[str, Any]:
     findings, questions = _audit_findings({"findings": report["findings"], "open_questions": report["open_questions"]}, _refs(snapshot))
     if findings != report["findings"] or questions != report["open_questions"] or report["limitations"] != LIMITATIONS:
         raise ValueError("Semantic report normalization or limitations were modified")
-    if not isinstance(report["sha256"], str) or not hmac.compare_digest(_hash(report), report["sha256"]):
+    report_digest = report["sha256"]
+    if (not isinstance(report_digest, str) or len(report_digest) != 64
+            or any(c not in "0123456789abcdef" for c in report_digest)
+            or not hmac.compare_digest(_hash(report), report_digest)):
         raise ValueError("Semantic report fingerprint mismatch")
     return {"valid": True, "assurance": "MODEL_OUTPUT_STRUCTURALLY_BOUND_ONLY", "sha256": report["sha256"]}
 
@@ -253,7 +255,7 @@ async def semantic_analysis(request: Request) -> dict[str, Any]:
     if cfg is None:
         raise HTTPException(503, "Model provider requires operator-configured endpoint, model and access token")
     supplied_token = request.headers.get("X-FAR-Augment-Token", "")
-    if not hmac.compare_digest(supplied_token, cfg.access_token):
+    if not hmac.compare_digest(supplied_token.encode("utf-8"), cfg.access_token.encode("utf-8")):
         raise HTTPException(401, "Access token required")
     try:
         raw = await _json(request, max_body=MAX_SESSION_BODY)
