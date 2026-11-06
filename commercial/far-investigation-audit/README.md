@@ -482,7 +482,7 @@ its exact source inventory, recovers changed source bytes from registered Git
 baseline `38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab`, and checks every source
 SHA-256 before writing an isolated temporary replay runtime. New candidate files
 are excluded; missing/mismatched historical blobs fail closed. The original
-frozen checker and evidence remain untouched. A real temporary Git-worktree
+frozen checker and evidence remain untouched. A private temporary Git-clone
 regression changes the candidate entrypoint to raise and adds an invalid new
 module; all twenty historical packages still replay through nineteen verified
 original source files. An adversarial mismatched recovered blob is rejected.
@@ -503,3 +503,16 @@ failed before correction with `JSONDecodeError`; it now replays the verified
 snapshot and rejects the replaced bytes on a subsequent verification. All
 thirteen scorer/verifier tests pass. This is byte custody for the recorded
 snapshot, not a guarantee that a concurrently writable directory remains intact.
+
+`LIVE-VERIFY-005` corrects test-fixture isolation. Exact-head assurance job
+`127990361298` (run `42246606754`) observed source `.git/worktrees` and
+`.git/packed-refs.lock` writes even though test assertions passed: the temporary
+candidate shared the checkout's Git metadata. The fixture now uses a complete
+private local clone with independent metadata and object files, retaining the
+registered historical objects and all original source-drift/tamper controls.
+The Git-common-directory isolation regression failed before correction because
+source and fixture resolved to the same directory; it passes afterward. All
+fourteen scorer/verifier tests and twelve receipt scores/twenty package replays
+pass locally. Local syscall tracing was attempted but ptrace is unavailable;
+final hosted tracing remains a separate check. No runtime trace allowance,
+protected policy, frozen source or recorded evidence was changed.
