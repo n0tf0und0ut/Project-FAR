@@ -473,3 +473,17 @@ nine scorer/verifier tests and all twelve receipt scores plus twenty archived
 package replays pass afterward. The prospectively frozen scorer, its tests and
 all recorded evidence retain their bytes. Manifest identity remains distinct
 from provider authenticity, external replication and real-world accuracy.
+
+`LIVE-VERIFY-002` closes the dependency interaction with the epistemic-debugger
+PR #597: source evolution and new implementation files formerly made the
+historical checker reject its inventory (`freeze inventory changed`). The
+post-execution verifier now uses the manifest-bound original registration and
+its exact source inventory, recovers changed source bytes from registered Git
+baseline `38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab`, and checks every source
+SHA-256 before writing an isolated temporary replay runtime. New candidate files
+are excluded; missing/mismatched historical blobs fail closed. The original
+frozen checker and evidence remain untouched. A real temporary Git-worktree
+regression changes the candidate entrypoint to raise and adds an invalid new
+module; all twenty historical packages still replay through nineteen verified
+original source files. An adversarial mismatched recovered blob is rejected.
+These controls provide historical reproducibility, not current-code efficacy.

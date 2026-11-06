@@ -2,9 +2,11 @@
 from pathlib import Path
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -12,6 +14,39 @@ import verify_live_commercial_evaluation as verifier
 
 
 class LiveCommercialVerifierTests(unittest.TestCase):
+    def historical_worktree(self):
+        if not shutil.which('git') or subprocess.run(['git', 'cat-file', '-e', verifier.BASE],
+                cwd=ROOT, capture_output=True).returncode:
+            self.skipTest('historical Git objects are required for source-reconstruction controls')
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        copied = Path(temporary.name) / 'candidate'
+        subprocess.run(['git', 'worktree', 'add', '--detach', str(copied), 'HEAD'],
+                       cwd=ROOT, check=True, capture_output=True)
+        self.addCleanup(lambda: subprocess.run(['git', 'worktree', 'remove', '--force', str(copied)],
+                                             cwd=ROOT, check=True, capture_output=True))
+        runtime = copied / 'commercial/far-investigation-audit'
+        # Candidate code must not become the policy or executable for old evidence.
+        (runtime / 'full_cli.py').write_text('raise RuntimeError("candidate code executed")')
+        (runtime / 'new_candidate_extension.py').write_text('not valid Python')
+        return copied, runtime / 'evaluation/live-001'
+
+    def test_evolved_source_and_new_files_cannot_change_historical_replay(self):
+        copied, data = self.historical_worktree()
+        with patch.object(verifier, 'ROOT', copied), patch.object(verifier, 'DATA', data):
+            result = verifier.verify(data)
+        self.assertEqual(result['historical_runtime_sources_verified'], 19)
+        self.assertTrue(result['portable_replay_executed'])
+        self.assertEqual(result['runtime_base_commit'], verifier.BASE)
+
+    def test_mismatched_recovered_git_source_fails_before_execution(self):
+        copied, data = self.historical_worktree()
+        false_blob = subprocess.CompletedProcess(['git', 'show'], 0, stdout=b'wrong source', stderr=b'')
+        with patch.object(verifier, 'ROOT', copied), patch.object(verifier, 'DATA', data), \
+             patch.object(verifier.subprocess, 'run', return_value=false_blob):
+            with self.assertRaisesRegex(ValueError, 'frozen source unavailable or mismatched'):
+                verifier.verify(data)
+
     def test_unchanged_portable_copy_verifies(self):
         with tempfile.TemporaryDirectory() as temporary:
             copied = Path(temporary) / 'copy'
