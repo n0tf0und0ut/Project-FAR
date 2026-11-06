@@ -42,6 +42,22 @@ class AugmentationTests(unittest.TestCase):
                 response = self.client.post("/api/augment/" + route, content=text)
                 self.assertEqual(response.status_code, 400)
 
+    def test_offset_naive_or_mixed_revision_times_fail_before_acceptance(self):
+        session = self.revise(self.start().json()).json()
+        event = session['revisions'][0]
+        event['recorded_at'] = '2026-01-01+00:00'
+        event['sha256'] = _hash(event)
+        session['sha256'] = _hash(session)
+        self.assertEqual(self.client.post('/api/augment/verify', json=session).status_code, 422)
+        self.assertEqual(self.revise(session).status_code, 422)
+
+        later = copy.deepcopy(event)
+        later.update(index=2, previous_sha256=event['sha256'], recorded_at='2026-01-02T00:00:00+00:00')
+        later['sha256'] = _hash(later)
+        session['revisions'].append(later)
+        session['sha256'] = _hash(session)
+        self.assertEqual(self.client.post('/api/augment/verify', json=session).status_code, 422)
+
     def revise(self, session, **changes):
         payload = {"session": session, "revised_claim": "The process might reduce errors.",
                    "confidence": 60, "rationale": "A competing explanation remains possible.",

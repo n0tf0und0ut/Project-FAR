@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -160,6 +160,8 @@ def verify(raw: Any) -> dict[str, Any]:
             raise ValueError(f"Invalid revision {i} time representation")
         try:
             this_time = datetime.fromisoformat(event["recorded_at"])
+            if this_time.tzinfo is None or this_time.utcoffset() != timedelta(0):
+                raise ValueError("Revision time must be timezone-aware UTC")
             if previous_time is not None and this_time < previous_time:
                 raise ValueError("Revision times must be nondecreasing")
             previous_time = this_time

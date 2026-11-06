@@ -104,3 +104,13 @@ remain historical evidence for that earlier implementation.
 The dependency-equipped demo suite passes **71 tests**, including the unchanged
 browser round trips, persistence races and scripted-provider controls. No new
 live experiment, semantic effectiveness or customer-value claim follows.
+
+**AUG-SEM-017** (review comment `4494331106`, thread
+`PRRT_kwDOTH_vCM60kwCj`): `2026-01-01+00:00` passed the string suffix check but
+parsed as an offset-naive datetime. A correctly rehashed one-revision session
+was accepted, then failed when compared with a new UTC-aware revision. The
+actual-route regression failed before correction (`200 != 422`). Parsed times
+now require timezone awareness and zero UTC offset before any comparison; a
+one-revision import, revision attempt and mixed history all return HTTP 422.
+All **72 dependency-equipped demo tests** pass after the correction. Existing
+aware UTC histories, append-only linkage and the frozen live failure remain.
