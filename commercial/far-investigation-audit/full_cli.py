@@ -298,6 +298,7 @@ def verify_package(directory: Path, *, include_verified_snapshots: bool = False)
         outcome["_verified_manifest"] = manifest
         outcome["_verified_audit"] = recalc
         outcome["_verified_bundle"] = bundle
+        outcome["_verified_acquisition"] = acquisition
         outcome["_verified_proposal"] = proposal
         if "debugger_contract" in bundle:
             outcome["_verified_debugger"] = expected_debugger
