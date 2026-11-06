@@ -16,6 +16,9 @@ class ToolAgentFaultCampaignTests(unittest.TestCase):
         self.assertEqual(report["tested"], len(faults.CASES) + len(faults.MUTATIONS))
         self.assertTrue(all(row["ok"] for row in report["cases"]))
         self.assertEqual(report["model_calls"], 0)
+        self.assertEqual(report["fixture_sha256"], faults.PROTOCOL_SHA)
+        self.assertEqual(len(report["runner_sha256"]), 64)
+        self.assertEqual(len(report["campaign_sha256"]), 64)
         self.assertEqual(report["general_agent_reliability"], "NOT_ESTABLISHED")
         self.assertFalse(report["model_provenance_attested"])
 
@@ -62,6 +65,17 @@ class ToolAgentFaultCampaignTests(unittest.TestCase):
             allow_synthetic=False,
         )
         self.assertTrue(replayed["passed"])
+
+    def test_unexpected_hidden_provider_retry_fails_closed(self):
+        original = faults.host.run_task
+
+        def illicit_retry(*args, **kwargs):
+            kwargs["provider"](b"unscheduled request", 1)
+            return original(*args, **kwargs)
+
+        with patch.object(faults.host, "run_task", side_effect=illicit_retry):
+            with self.assertRaisesRegex(ValueError, "provider invocation"):
+                faults.execute_case("clean")
 
     def test_cli_emits_machine_readable_report(self):
         stdout = io.StringIO()
