@@ -70,19 +70,19 @@ def _fixture(root: Path, checker: str) -> None:
         workflow = root / ".github/workflows/example.yml"
         workflow.parent.mkdir(parents=True)
         workflow.write_text(
-            "name: Validation fixture\\non: workflow_dispatch\\njobs:\\n"
-            "  check:\\n    runs-on: ubuntu-latest\\n    timeout-minutes: 5\\n    steps: []\\n",
+            "name: Validation fixture\non: workflow_dispatch\njobs:\n"
+            "  check:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps: []\n",
             encoding="utf-8",
         )
     elif checker == STATUS:
         status = root / "docs/project-status.md"
         status.parent.mkdir(parents=True)
-        status.write_text("# Current status\\n", encoding="utf-8")
+        status.write_text("# Current status\n", encoding="utf-8")
     elif checker == EXTERNAL:
         for name in ("README.md", "docs/project-status.md"):
             file = root / name
             file.parent.mkdir(parents=True, exist_ok=True)
-            file.write_text("# Current facts\\n", encoding="utf-8")
+            file.write_text("# Current facts\n", encoding="utf-8")
     else:
         raise ValueError(f"unknown checker: {checker}")
 
@@ -125,8 +125,8 @@ def _duplicate_claim(root: Path, claim_id: str) -> None:
 def _remove_ci_timeout(root: Path) -> None:
     path = root / ".github/workflows/example.yml"
     text = path.read_text(encoding="utf-8")
-    assert "    timeout-minutes: 5\\n" in text
-    path.write_text(text.replace("    timeout-minutes: 5\\n", ""), encoding="utf-8")
+    assert "    timeout-minutes: 5\n" in text
+    path.write_text(text.replace("    timeout-minutes: 5\n", ""), encoding="utf-8")
 
 
 def _remove_canonical_status(root: Path) -> None:
@@ -137,7 +137,7 @@ def _claim_external_validation(root: Path) -> None:
     path = root / "README.md"
     path.write_text(
         path.read_text(encoding="utf-8")
-        + "\\nIndependent validation achieved without any external replication.\\n",
+        + "\nIndependent validation achieved without any external replication.\n",
         encoding="utf-8",
     )
 
@@ -218,7 +218,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 _fixture(root, GOVERNANCE)
                 _append_promotion(root, phrase)
                 result = _run_checker(root, GOVERNANCE)
-                self.assertNotEqual(0, result.returncode, phrase + "\\n" + result.stdout)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
@@ -257,7 +257,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertEqual(0, baseline.returncode, baseline.stdout + baseline.stderr)
                 corrupt(root)
                 result = _run_checker(root, checker)
-                self.assertNotEqual(0, result.returncode, checker + "\\n" + result.stdout)
+                self.assertNotEqual(0, result.returncode, checker + "\n" + result.stdout)
                 self.assertIn(diagnostic, result.stdout)
 
     def test_additional_checker_benign_inputs_pass(self):
@@ -266,7 +266,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             _fixture(root, EXTERNAL)
             path = root / "README.md"
             path.write_text(
-                "Independent validation requires new external evidence.\\n", encoding="utf-8"
+                "Independent validation requires new external evidence.\n", encoding="utf-8"
             )
             result = _run_checker(root, EXTERNAL)
             self.assertEqual(0, result.returncode, result.stdout + result.stderr)
@@ -347,7 +347,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                         baseline_paired = _run_legacy(clean, checker)
                         self.assertEqual(
                             0, baseline_paired.returncode,
-                            f"{identifier}: old suite baseline not executable on fixture\\n"
+                            f"{identifier}: old suite baseline not executable on fixture\n"
                             + baseline_paired.stdout + baseline_paired.stderr,
                         )
                         (clean / checker).write_text(source.replace(before, after, 1), encoding="utf-8")
