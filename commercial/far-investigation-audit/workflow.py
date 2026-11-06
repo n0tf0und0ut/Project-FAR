@@ -42,14 +42,27 @@ def _now() -> str:
 def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fetcher, permit_files: bool = False, permit_model: bool = False, transcription_client=None, verified_snapshots=None) -> tuple[str, dict, dict]:
     kind = config.get("kind")
     if kind == "verified_snapshot":
-        identity = config.get("snapshot_sha256")
-        raw = verified_snapshots.get(identity) if isinstance(verified_snapshots, dict) and isinstance(identity, str) else None
-        if (not isinstance(raw, str) or not raw.strip() or
-                len(raw.encode("utf-8")) > MAX_INPUT or digest(raw.encode("utf-8")) != identity):
+        # Records came from full_cli.verify_package's complete replay, not a
+        # mutable request field. Preserve the original acquisition route and
+        # source capture time instead of recasting a remote snapshot as text.
+        snapshot_id, identity = config.get("snapshot_id"), config.get("snapshot_sha256")
+        item = (verified_snapshots.get(snapshot_id)
+                if isinstance(verified_snapshots, dict) and isinstance(snapshot_id, str) else None)
+        if (not isinstance(item, dict) or not isinstance(identity, str)
+                or not isinstance(item.get("source"), dict)
+                or not isinstance(item.get("acquisition"), dict)):
             raise InvalidBundle("verified source reference unavailable or invalid")
-        return raw, {"raw_sha256": identity, "raw_snapshot_utf8": raw,
-                     "extraction": "text_provided_v1",
-                     "external_authenticity_verified": False}, config
+        source, acquisition = item["source"], item["acquisition"]
+        raw = source.get("text")
+        if (not isinstance(raw, str) or not raw.strip() or
+                len(raw.encode("utf-8")) > MAX_INPUT
+                or digest(raw.encode("utf-8")) != identity
+                or source.get("sha256") != identity
+                or acquisition.get("source_id") != snapshot_id):
+            raise InvalidBundle("verified source reference unavailable or invalid")
+        provenance = {k: v for k, v in acquisition.items() if k != "source_id"}
+        provenance["captured_at"] = source.get("captured_at")
+        return raw, provenance, config
     if kind in {"pdf_file", "media_file"}:
         if not permit_files:
             raise InvalidBundle("local file paths are disabled in server requests")
@@ -228,6 +241,7 @@ def investigate(config: dict, *, permit_network: bool = False,
         mode == "openai" or proposal.get("method") == "model_proposed_unreviewed" or
         any(item.get("extraction") ==
             "external_speech_transcription_gpt_4o_transcribe_v1"
+            or isinstance(item.get("url"), str)
             for item in acquisitions)
     )
     manifest = {"schema": "far-investigation-delivery/0.3", "investigation_id": inv_id,
