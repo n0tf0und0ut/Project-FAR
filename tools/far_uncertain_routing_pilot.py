@@ -125,7 +125,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
         "received_at": None,
         "timing_scope": "request_start_to_body_read_or_transport_failure",
     }
-    response, observer = None, None
+    response, observer, raw = None, None, b""
     try:
         try:
             response = urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout)
@@ -160,10 +160,19 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 else:
                     framing_error = "UnverifiedChunkFraming"
             try:
-                raw = response.read(max_bytes + 1)
+                # read(n) can consume a buffered prefix and then raise while
+                # waiting for the rest. read1 returns that prefix first.
+                if isinstance(native, http.client.HTTPResponse) and not native.chunked:
+                    while len(raw) <= max_bytes:
+                        chunk = native.read1(min(65536, max_bytes + 1 - len(raw)))
+                        if not chunk:
+                            break
+                        raw += chunk
+                else:
+                    raw = response.read(max_bytes + 1)
                 complete = len(raw) <= max_bytes
             except http.client.IncompleteRead as exc:
-                raw, complete = bytes(observer.prefix) if observer else exc.partial, False
+                raw, complete = bytes(observer.prefix) if observer else raw + exc.partial, False
                 envelope["transport_error"] = "IncompleteRead"
             if declared_length is not None and len(raw) != declared_length:
                 framing_error = "ContentLengthMismatch"
@@ -182,17 +191,16 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 "response_hash_scope": "complete_body" if complete else "retained_prefix",
             })
     except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
-        # Native chunk decoding can raise after observing complete chunks but
-        # before read() returns its aggregated body. Preserve the observer's
-        # bounded decoded prefix even on timeout, reset, or response-close error.
-        if observer is not None:
-            retained = bytes(observer.prefix[:max_bytes])
-            envelope.update({
-                "raw_response_base64": base64.b64encode(retained).decode("ascii"),
-                "response_sha256": digest(retained),
-                "response_bytes_retained": len(retained),
-                "response_truncated": len(observer.prefix) > max_bytes,
-            })
+        # Preserve both incrementally read bodies and decoded chunk prefixes
+        # even when the next read or response close fails.
+        prefix = bytes(observer.prefix) if observer is not None else raw
+        retained = prefix[:max_bytes]
+        envelope.update({
+            "raw_response_base64": base64.b64encode(retained).decode("ascii"),
+            "response_sha256": digest(retained),
+            "response_bytes_retained": len(retained),
+            "response_truncated": len(prefix) > max_bytes,
+        })
         envelope["response_complete"] = False
         envelope["response_hash_scope"] = "retained_prefix"
         envelope["transport_error"] = type(exc).__name__
