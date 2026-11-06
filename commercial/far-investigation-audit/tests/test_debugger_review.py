@@ -55,6 +55,24 @@ class ReviewRegressions(unittest.TestCase):
         self.assertEqual(fidelity("If rain is not wet, then snow is cold.",nested,
                                  {"P":"Rain is wet.","Q":"Snow is cold."})["status"],"CONTRADICTED")
 
+    def test_449514_quantified_pronouns_cannot_be_fixed_singular(self):
+        # "Something is not blue" is not equivalent to
+        # "not (something is blue)" on a mixed-color population.
+        from semantic import compile_text
+        for subject in (
+            "Something", "Someone", "Somebody", "Anything", "Anyone",
+            "Anybody", "Everything", "Everyone", "Everybody", "Nothing",
+            "Nobody", "Each", "Either", "Neither", "Both",
+        ):
+            with self.subTest(subject=subject):
+                affirmative=f"{subject} is blue."
+                negative=f"{subject} is not blue."
+                self.assertIsNone(compile_text(affirmative))
+                self.assertEqual(
+                    fidelity(negative, {"not":{"atom":"P"}}, {"P":affirmative})["status"],
+                    "ABSTAIN",
+                )
+
     def test_4390863035_unsupported_cardinal_cannot_be_singular(self):
         for phrase in ("Exactly thirty birds","Thirty birds","Thirty-two birds","Several birds","Both birds"):
             with self.subTest(phrase=phrase):

@@ -16,6 +16,9 @@ TERM = r"[a-z][a-z0-9_-]*(?: [a-z][a-z0-9_-]*){0,2}"
 WORD = r"[a-z][a-z0-9_-]*"
 RESERVED = set("he she it they this that these those allegedly reportedly probably unless except most many few not and or if then only some all every no before after during in on may must can should would could might will who which whose".split())
 NUMBER_WORDS=dict(zip("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split(),range(21)))
+# Quantified/indefinite pronouns do not name a fixed singular referent.
+# Without explicit quantifier semantics, negating their predicate is unsound.
+RESERVED.update("something someone somebody anything anyone anybody everything everyone everybody nothing nobody each either neither both".split())
 
 
 def normalize(text):
