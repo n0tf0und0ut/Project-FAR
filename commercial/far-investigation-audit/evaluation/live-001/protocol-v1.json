@@ -1,0 +1,32 @@
+{
+  "schema": "far-live-exploratory-protocol/1",
+  "status": "Research",
+  "base_commit": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+  "authorization": "2026-10-27 user: Execute live commercial comparison and establish customer value and general reasoning reliability. This authorizes running available commercial services, not manufacturing a favorable conclusion. External recruitment/messages, EFR and frozen benchmark remain outside this execution.",
+  "freeze": "Hash exact protocol, cases and evaluator before first prediction. Preserve all attempts. References and implementation are exposed; prospective internal registration is not independent preregistration.",
+  "tracks": {
+    "raw_document": "16 fixed self-contained reasoning probes, default FAR heuristic; intended matched QURI fallacy and Fact Engineering arms require authenticated access. Do not give FAR exclusive formulas or cognitive labels.",
+    "live_retrieval": "Four identical natural-language queries sent to each connected Consensus and SciSpace service; target DOI/title are withheld. These are commercial research endpoints, not raw-text argument analyzers. FAR default on the same query is measured separately as an unconfigured discovery control, never ranked as a full configured retrieval competitor."
+  },
+  "metrics": {
+    "retrieval": "Report target DOI and normalized full title presence in the returned payload, separate from target accuracy, relevance, evidence support, rank, recall of all relevant papers and general reliability. Unknown rank/payload limits stay unknown. A DOI in an echoed original request cannot match because requests contain no target DOI.",
+    "raw": "Actual output status, candidate counts, formal decisive coverage, factual abstention, package replay, measured local wall time; semantic labels remain unadjudicated. No subjective pass conversion from plausible prose.",
+    "customer": "Observed actual customer completed tasks, correction counts, active time, financial cost and purchase/retention evidence are required; absent observations are null, never zero or a modeled win.",
+    "cost": "Connected-service per-call charge and human labor unknown unless receipts exist; local CPU time is not total customer effort."
+  },
+  "limits": [
+    "Case selection is project-authored and familiar; no population accuracy estimate or statistical independence assumption.",
+    "No benchmark can prove unrestricted general reasoning reliability. Report coverage, adverse outcomes and exact tested scope.",
+    "No representative customer cohort, independent adjudicators or actual buying evidence is available at registration.",
+    "No providers/keys are configured or reused by this protocol; connected commercial tools use their existing app connection. No new charges/purchases/accounts are authorized.",
+    "Do not modify accepted core, EFR or frozen #518 inputs."
+  ],
+  "budgets": {
+    "consensus_search_calls": 4,
+    "scispace_search_calls": 4,
+    "per_local_case_seconds": 30,
+    "retries_per_live_query": 0,
+    "purchases_dollars": 0
+  },
+  "stopping": "Preserve errors, auth blocks and returned outputs. No replacement cases or outcome-driven prompt changes. Follow-up requires a successor freeze."
+}
