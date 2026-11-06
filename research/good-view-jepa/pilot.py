@@ -93,7 +93,8 @@ def synthetic(seed=1729, per_split=(120, 48, 48)):
 def features(data, modality):
     import numpy as np
     groups = {s: [r for r in data["items"] if r["split"] == s] for s in SPLITS}
-    x = {s: np.asarray([r[modality] for r in rs], dtype="float32") for s, rs in groups.items()}
+    # The input contract permits extra views; training and evaluation use the first two.
+    x = {s: np.asarray([r[modality][:2] for r in rs], dtype="float32") for s, rs in groups.items()}
     train = x["train"].reshape(-1, x["train"].shape[-1])
     mu, sd = train.mean(axis=0), np.maximum(train.std(axis=0), 1e-5)
     return {s: (value - mu) / sd for s, value in x.items()}
@@ -144,6 +145,10 @@ def train_encoder(inputs, condition, seed, steps, width):
     return transformed, time.perf_counter() - start
 
 
+def opposing_labels(left, right):
+    return (left == "supports" and right == "opposes") or (left == "opposes" and right == "supports")
+
+
 def evaluate(text_encoded, image_encoded, test_rows):
     import numpy as np
     x, y = image_encoded["calibration"], text_encoded["calibration"]
@@ -162,10 +167,11 @@ def evaluate(text_encoded, image_encoded, test_rows):
     sibling_count = 0
     for i, row in enumerate(test_rows):
         j = int(ranks[i, 0])
-        if test_rows[j]["family_id"] == row["family_id"] and test_rows[j]["stance"] != row["stance"]:
+        if (test_rows[j]["family_id"] == row["family_id"] and
+                opposing_labels(row["stance"], test_rows[j]["stance"])):
             opposition += 1
         siblings = [j for j, other in enumerate(test_rows) if j != i and
-                    other["family_id"] == row["family_id"] and other["stance"] != row["stance"]]
+                    other["family_id"] == row["family_id"] and opposing_labels(row["stance"], other["stance"])]
         for j in siblings:
             sibling_count += 1
             sibling_wins += int(similarity[i, i] > similarity[i, j])
