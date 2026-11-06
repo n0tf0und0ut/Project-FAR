@@ -1,5 +1,6 @@
 """Reject ambiguous debugger requests before invoking the investigation."""
 import asyncio
+import importlib.util
 import json
 from pathlib import Path
 import sys
@@ -7,11 +8,15 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from fastapi import HTTPException
-from starlette.requests import Request
-import webapp
+HAS_WEB = all(importlib.util.find_spec(name) is not None
+              for name in ("fastapi", "httpx", "multipart"))
+if HAS_WEB:
+    from fastapi import HTTPException
+    from starlette.requests import Request
+    import webapp
 
 
+@unittest.skipUnless(HAS_WEB, "optional component web dependencies are not installed")
 class DebuggerJSONIntakeTests(unittest.TestCase):
     def request(self, raw):
         async def receive():
@@ -23,6 +28,7 @@ class DebuggerJSONIntakeTests(unittest.TestCase):
             b'{"debugger":true,"debugger":false}',
             b'{"source":{"kind":"text","text":"original","text":"replacement"}}',
             b'{"debugger":true,"unused":NaN}',
+            b'{"debugger":true,"unused":1e309}',
             b'[' * 10000 + b'0' + b']' * 10000,
         ]
         for raw in cases:

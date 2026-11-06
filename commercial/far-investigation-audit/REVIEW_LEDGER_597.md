@@ -97,7 +97,10 @@ regression failed three adversarial subcases before the correction.
 
 The web route now reuses the existing bounded `parse_json_artifact` helper,
 rejecting duplicate members and nonfinite constants with HTTP 422 before
-investigation. Tests retain an over-nested negative control and a subsequent
+investigation. A further raw `1e309` counterexample reached investigation as
+infinity on the initial parser-reuse successor; the shared helper now rejects
+exponent overflow during float conversion as well. That regression failed
+before the additional correction. Tests retain an over-nested control and a subsequent
 valid request proving the worker gate is released. The two new tests pass;
 all 281 dependency-equipped component tests pass. This changes request intake
 only; frozen protocols, source snapshots, campaign results and scientific

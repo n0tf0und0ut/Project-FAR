@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+import math
 import os
 import shutil
 import sys
@@ -26,6 +27,11 @@ def parse_json_artifact(raw: bytes, name: str):
     try:
         def nonfinite(token):
             raise ValueError("non-finite JSON artifact")
+        def finite_float(token):
+            value = float(token)
+            if not math.isfinite(value):
+                raise ValueError("non-finite JSON artifact")
+            return value
         def unique_object(pairs):
             found = {}
             for key, value in pairs:
@@ -33,7 +39,8 @@ def parse_json_artifact(raw: bytes, name: str):
                     raise ValueError("duplicate JSON object key")
                 found[key] = value
             return found
-        return json.loads(raw, parse_constant=nonfinite, object_pairs_hook=unique_object)
+        return json.loads(raw, parse_constant=nonfinite, parse_float=finite_float,
+                          object_pairs_hook=unique_object)
     except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
         raise InvalidBundle("invalid or over-nested JSON artifact: " + name) from exc
 
