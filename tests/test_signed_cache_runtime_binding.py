@@ -14,15 +14,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SignedCacheRuntimeBindingTests(unittest.TestCase):
-    def test_cache_jobs_select_one_exact_python_patch_release(self):
-        text = (ROOT / ".github/workflows/validator-assurance.yml").read_text()
+    def test_assurance_lanes_select_one_exact_python_patch_release(self):
         versions = []
-        for name in ("signed-cache-producer", "signed-cache-consumer", "merge-authority"):
-            match = re.search(r"^  " + name + r":\n(.*?)(?=^  [a-z]|\Z)", text, re.M | re.S)
-            self.assertIsNotNone(match, name)
-            version = re.search(r"python-version: '([^']+)'", match.group(1)).group(1)
-            self.assertRegex(version, r"^\d+\.\d+\.\d+$")
-            versions.append(version)
+        lanes = {
+            "validator-assurance.yml": ("signed-cache-producer", "signed-cache-consumer", "merge-authority"),
+            "exact-head-assurance.yml": ("exact-head-assurance",),
+        }
+        for filename, names in lanes.items():
+            text = (ROOT / ".github/workflows" / filename).read_text()
+            for name in names:
+                match = re.search(r"^  " + name + r":\n(.*?)(?=^  [a-z]|\Z)", text, re.M | re.S)
+                self.assertIsNotNone(match, name)
+                version = re.search(r"python-version: '([^']+)'", match.group(1)).group(1)
+                self.assertRegex(version, r"^\d+\.\d+\.\d+$", name)
+                versions.append(version)
         self.assertEqual(len(set(versions)), 1)
 
     def test_patch_mismatch_invalidates_signed_cache_and_same_patch_reuses_it(self):

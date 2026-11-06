@@ -46,3 +46,35 @@ After signature return, use `repin_signature.py bundle` to verify and append;
 required hosted and independent final-head review gates remain separate.
 
 No merge or auto-merge is authorized in this convergence assignment.
+
+## Canonical exact-head runtime correction (2026-11-06)
+
+`SC-PY-002`: the queue integration's canonical workflow comparison failed on
+`802beb09ec4d7eca1ed946cb8031b39bc1d1fe13`. Reproducing that head in isolation
+failed `test_exact_head_lane_cannot_omit_or_change_canonical_assurance_steps`
+at its structural step comparison: canonical merge-authority selected
+`3.12.16`, but the exact-head lane still selected floating `3.12`. The initial
+three-job runtime regression omitted this fourth execution of the canonical
+assurance program. This was a source defect, separate from the missing owner
+signature; successful cache transport could not establish canonical parity.
+
+The correction pins exact-head assurance to the same `3.12.16` and extends the
+runtime regression to all four assurance lanes. Before correction the expanded
+test rejects the exact-head lane's floating version; afterward all 19 focused
+runtime-binding, exact-head-workflow, bootstrap-definition and assurance tests
+pass. The original structural equality test is unchanged. Independent bootstrap
+verification reports 32 checks, 5 protected checks and 51 assurance files.
+
+The candidate validator workflow, its assurance-lock pin and the existing
+unsigned authorization payload have not changed: the old/new transition remains
+`2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a` →
+`26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9`.
+These values were recomputed from protected-main and candidate bytes. The
+exact-head workflow is not a path in the comparison base's assurance lock;
+aligning its runtime adds no protected transition. Preparing a new payload for
+an unchanged transition would not supply the absent owner signature. The owner
+must still compare this one exact transition against the dedicated App's current
+summary and sign the linked canonical payload before expiry. No consumption
+entry, signer, evaluator, protected check, frozen observation or test obligation
+was removed or weakened. Final-head hosted checks, independent review and the
+coordinator's repeated combined integration verification remain required.
