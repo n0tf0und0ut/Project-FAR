@@ -44,6 +44,13 @@ NEGATION = re.compile(
     re.I,
 )
 CLAUSE = re.compile(r"[,;.:|()]|\s(?:and|but|while|whereas)\s|\s[—–-]\s")
+# Structured status entries are still claims. The sentence-level CLAUSE splitter
+# deliberately separates colons and table cells, so inspect label/value pairs
+# independently instead of silently accepting "Novelty: established".
+LABEL_PROMOTION = re.compile(
+    rf"{TOPIC.pattern}\\s*(?::|\\||[—–-])\\s*(?:\\*\\*)?{PROMOTION.pattern}(?:\\*\\*)?",
+    re.I,
+)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
@@ -62,6 +69,10 @@ def promotion_clauses(text: str) -> list[str]:
         for clause in CLAUSE.split(line):
             if TOPIC.search(clause) and PROMOTION.search(clause) and not NEGATION.search(clause):
                 found.append(clause.strip())
+        for match in LABEL_PROMOTION.finditer(line):
+            label = match.group(0).strip()
+            if label not in found:
+                found.append(label)
     return found
 
 
