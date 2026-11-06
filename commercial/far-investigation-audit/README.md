@@ -495,3 +495,11 @@ passed; the regression failed before correction. Complete campaign verification
 now requires the pinned v2 manifest, which covers the retained v1 inventory and
 the post-execution verification evidence. All twelve scorer/verifier tests and
 twenty archived package replays pass. No legacy evidence is rewritten.
+
+`LIVE-VERIFY-004` removes a read-after-verification race: verified manifest,
+registration, receipt and archive bytes are retained for parsing/replay rather
+than reopening mutable supplied files. A deterministic file-replacement test
+failed before correction with `JSONDecodeError`; it now replays the verified
+snapshot and rejects the replaced bytes on a subsequent verification. All
+thirteen scorer/verifier tests pass. This is byte custody for the recorded
+snapshot, not a guarantee that a concurrently writable directory remains intact.

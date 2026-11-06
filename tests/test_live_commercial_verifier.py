@@ -87,6 +87,21 @@ class LiveCommercialVerifierTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'final artifact manifest is required'):
                 verifier.verify(copied)
 
+    def test_verified_bytes_are_not_reread_after_file_replacement(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            copied = Path(temporary) / 'copy'
+            shutil.copytree(verifier.DATA, copied)
+            resolve = verifier.frozen_runtime
+            def replace_after_inventory(*args):
+                (copied / 'registration-v1.json').write_text('not JSON')
+                (copied / 'far-deliveries-v1.zip').write_bytes(b'not ZIP')
+                return resolve(*args)
+            with patch.object(verifier, 'frozen_runtime', side_effect=replace_after_inventory):
+                self.assertTrue(verifier.verify(copied)['portable_replay_executed'])
+            # A later attempt sees changed bytes and must reject them.
+            with self.assertRaisesRegex(ValueError, 'artifact bytes changed'):
+                verifier.verify(copied)
+
 
 if __name__ == '__main__':
     unittest.main()

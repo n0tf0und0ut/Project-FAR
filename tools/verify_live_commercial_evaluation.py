@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 from collections import Counter
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -10,21 +11,20 @@ import sys
 import tempfile
 import zipfile
 
-from run_live_commercial_evaluation import ROOT, DATA, BASE, digest, read, score_retrieval
+from run_live_commercial_evaluation import ROOT, DATA, BASE, digest, score_retrieval
 
 # Identity anchors for this recorded campaign, not provider authenticity or an
 # independent seal. A supplied copy cannot replace its own verification policy.
 FINAL_MANIFEST_SHA256 = '7199defbbb2a240af9a851712aac3adea2fa752ace9b51decf4031e138df2526'
 
 
-def frozen_runtime(data):
+def frozen_runtime(record, artifacts):
     """Resolve the recorded source inventory, independently of later source additions.
 
     Prefer matching checkout bytes. If implementation evolved, recover the exact
     recorded blob from the registered Git baseline and verify its SHA-256 before
     execution. Missing history is an explicit failure, never a current-code fallback.
     """
-    record = read(data / 'registration-v1.json')
     if record['base_commit'] != BASE:
         raise ValueError('registered baseline changed')
     campaign = DATA.relative_to(ROOT)
@@ -34,11 +34,13 @@ def frozen_runtime(data):
         path = Path(rel)
         if path.is_absolute() or '..' in path.parts:
             raise ValueError('unsafe registered source path')
-        current = data / path.relative_to(campaign) if path.is_relative_to(campaign) else ROOT / path
-        try:
-            raw = current.read_bytes()
-        except OSError:
-            raw = b''
+        if path.is_relative_to(campaign):
+            raw = artifacts[str(path.relative_to(campaign))]
+        else:
+            try:
+                raw = (ROOT / path).read_bytes()
+            except OSError:
+                raw = b''
         if digest(raw) != expected:
             recovered = subprocess.run(['git', 'show', BASE + ':' + rel], cwd=ROOT,
                                        capture_output=True, timeout=30)
@@ -60,17 +62,22 @@ def verify(data=DATA, replay=True):
         raise ValueError('final artifact manifest is required') from exc
     if digest(manifest_raw) != FINAL_MANIFEST_SHA256:
         raise ValueError('recorded artifact manifest identity changed')
-    manifest = read(manifest_path)
+    manifest = json.loads(manifest_raw)
+    artifacts = {}
     for rel, expected in manifest['files'].items():
         path = Path(rel)
         if path.is_absolute() or '..' in path.parts:
             raise ValueError('unsafe artifact path')
-        if digest((data / path).read_bytes()) != expected:
+        raw = (data / path).read_bytes()
+        if digest(raw) != expected:
             raise ValueError('artifact bytes changed: ' + rel)
-    sources = frozen_runtime(data)
-    cases = read(data / 'cases-v1.json')['retrieval_cases']
-    original = read(data / 'summary-v1.json')
-    successor = read(data / 'sequential-summary-v2.json')
+        artifacts[rel] = raw
+    # All subsequent parsing and replay use exactly the bytes whose identity was
+    # checked, even if another process replaces the supplied files afterward.
+    sources = frozen_runtime(json.loads(artifacts['registration-v1.json']), artifacts)
+    cases = json.loads(artifacts['cases-v1.json'])['retrieval_cases']
+    original = json.loads(artifacts['summary-v1.json'])
+    successor = json.loads(artifacts['sequential-summary-v2.json'])
     for provider, receipt_dir, rows in [
         ('consensus', 'receipts', [r for r in original['retrieval'] if r['provider'] == 'consensus']),
         ('scispace', 'receipts', [r for r in original['retrieval'] if r['provider'] == 'scispace']),
@@ -79,12 +86,12 @@ def verify(data=DATA, replay=True):
         if len(rows) != len(cases):
             raise ValueError('case count mismatch')
         for c, observed in zip(cases, rows):
-            p = data / receipt_dir / (provider + '-' + c['id'] + '.json')
-            expected = score_retrieval(read(p), c)
-            expected['receipt_sha256'] = digest(p.read_bytes())
+            raw = artifacts[receipt_dir + '/' + provider + '-' + c['id'] + '.json']
+            expected = score_retrieval(json.loads(raw), c)
+            expected['receipt_sha256'] = digest(raw)
             if observed != expected:
                 raise ValueError('retrieval metrics changed')
-    local = read(data / 'far-results-v1.json')['rows']
+    local = json.loads(artifacts['far-results-v1.json'])['rows']
     aggregate = {'cases': len(local), 'errors': sum(r['returncode'] != 0 for r in local),
                  'replay_passes': sum((r.get('replay') or {}).get('returncode') == 0 for r in local),
                  'claim_candidates': sum(r.get('claim_candidates', 0) for r in local),
@@ -102,7 +109,7 @@ def verify(data=DATA, replay=True):
             historical.mkdir()
             for name, raw in sources.items():
                 (historical / name).write_bytes(raw)
-            with zipfile.ZipFile(data / 'far-deliveries-v1.zip') as z:
+            with zipfile.ZipFile(io.BytesIO(artifacts['far-deliveries-v1.zip'])) as z:
                 names = z.namelist()
                 if len(names) != len(set(names)) or sum(i.file_size for i in z.infolist()) > 20_000_000:
                     raise ValueError('invalid archive bounds')
