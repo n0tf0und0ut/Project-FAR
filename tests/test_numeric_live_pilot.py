@@ -3,7 +3,9 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import tempfile
 import unittest
+from unittest import mock
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/"research"/"numeric-grounding"
@@ -111,6 +113,35 @@ class NumericLivePilotOfflineTests(unittest.TestCase):
             pilot.analyze(self.p,rows,self.g)
         with self.assertRaises(ValueError):
             pilot.analyze(self.p,self.rows,self.g,expected_run_commit="f"*40)
+
+    def test_second_request_timeout_retains_attempt_journal(self):
+        replies=['{"answer":"100.0000"}',
+                 '{"tool":"metric","id":"v03_registered_success"}']
+        counter=[0]
+        def fake_invoke(body, timeout, on_response=None):
+            counter[0]+=1
+            if counter[0]==3:
+                raise RuntimeError("timeout after metric request")
+            call=provider_call(body,replies[counter[0]-1])
+            if on_response:
+                on_response(call["raw_response_utf8"].encode(),200,0.01)
+            return call
+        with tempfile.TemporaryDirectory() as tmp:
+            output=Path(tmp)/"evidence"
+            with (mock.patch.object(pilot,"local_model_digest",return_value=pilot.MODEL_DIGEST),
+                  mock.patch.object(pilot.source_replay,"grounded_report",return_value=self.g),
+                  mock.patch.object(pilot,"invoke",side_effect=fake_invoke)):
+                with self.assertRaisesRegex(RuntimeError,"timeout after metric request"):
+                    pilot.run(self.p,output,"0"*40)
+            state=json.loads((output/"state.json").read_text())
+            self.assertEqual(state["status"],"INCOMPLETE")
+            self.assertEqual(state["records_attempted"],2)
+            self.assertEqual(state["records_completed"],1)
+            self.assertEqual(state["provider_calls_started"],3)
+            self.assertEqual(state["provider_responses_received"],2)
+            self.assertEqual(state["last_arm"],"treatment")
+            self.assertTrue((output/"attempts"/"A01-treatment-call2-start.json").exists())
+            self.assertFalse((output/"A01-treatment.json").exists())
 
     def test_wrong_final_metric_is_not_released(self):
         row=copy.deepcopy(self.rows[1])
