@@ -222,6 +222,12 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 with tempfile.TemporaryDirectory() as clean_directory:
                     clean = Path(clean_directory)
                     _fixture(clean, checker)
+                    baseline_paired = _run_legacy(clean, checker)
+                    self.assertEqual(
+                        0, baseline_paired.returncode,
+                        f"{identifier}: old suite baseline not executable on fixture\\n"
+                        + baseline_paired.stdout + baseline_paired.stderr,
+                    )
                     (clean / checker).write_text(source.replace(before, after, 1), encoding="utf-8")
                     old = _run_legacy(clean, checker)
                     print(
