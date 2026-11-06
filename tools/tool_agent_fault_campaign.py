@@ -100,6 +100,7 @@ def scripted_provider(steps):
     queue = iter(steps)
 
     def call(_request, _timeout):
+        call.calls += 1
         step = next(queue)
         if step == "RAISE_TRANSPORT":
             raise ConnectionError("injected transport failure")
@@ -115,6 +116,7 @@ def scripted_provider(steps):
             "message": {"role": "assistant", "content": content},
             "prompt_eval_count": 7, "eval_count": 4,
         })
+    call.calls = 0
     return call
 
 
@@ -122,15 +124,18 @@ def execute_case(name):
     """Execute the actual runner and checkpoint path with a scripted provider."""
     if name not in CASES:
         raise ValueError("unknown fault case")
+    provider = scripted_provider(CASES[name])
     with tempfile.TemporaryDirectory() as directory:
         with patch.object(host, "now", return_value="2026-11-06T00:00:00+00:00"):
             record = host.run_task(
                 copy.deepcopy(TASK), 0, PROTOCOL_SHA, copy.deepcopy(SOURCE),
                 Path(directory) / "record.json",
-                provider=scripted_provider(CASES[name]),
+                provider=provider,
                 digest=host.MODEL_DIGEST,
                 clock=FixedClock(),
             )
+        if provider.calls != len(CASES[name]):
+            raise ValueError("unexpected or missing provider invocation")
         # Check that the last atomic checkpoint equals the returned record.
         persisted = host.strict_json((Path(directory) / "record.json").read_bytes())
         if persisted != record:
@@ -237,6 +242,9 @@ def campaign():
                       "ok": rejected})
     return {
         "version": VERSION,
+        "fixture_sha256": PROTOCOL_SHA,
+        "runner_sha256": host.sha(Path(host.__file__).read_bytes()),
+        "campaign_sha256": host.sha(Path(__file__).read_bytes()),
         "status": "PASS" if all(row["ok"] for row in cases) else "FAIL",
         "scope": "synthetic software invariants only",
         "model_calls": 0,
