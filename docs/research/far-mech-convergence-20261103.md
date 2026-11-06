@@ -90,3 +90,23 @@ FAR's tested token-count explanation still has no probe-specific correctness
 advantage and loses to the mean comparator on every original adversarial case.
 No new semantic circuit explanation, competitor advantage, general agent
 reliability, external validation or commercial benefit is established here.
+
+## November 6 report-intake correction
+
+MECH-JSON-001: review of head
+`2b6a161805458f4c77deb732b9b1819df3f46746` found a raw report with
+contradictory duplicate `status` or nested `model_id` fields could pass source
+verification: the default JSON decoder silently selected the final value.
+A synthetic source-bound fixture reproduces both failures in the
+[before log](../../evaluation/evidence/report-intake-convergence-20261106/before.log).
+
+The report verifier now reuses the existing FAR-MECH strict loader, matching
+the trace-input duplicate-key boundary. The new raw-byte regression rejects
+both variants; the [after log](../../evaluation/evidence/report-intake-convergence-20261106/after.log)
+preserves the corrected result. The complete mechanistic suite passes
+**73/73 tests with zero skips**, including the optional temporary trained-digits
+and separate forward-hook controls using the available CPU dependency runtime.
+Those are software regression controls; no archived experiment, frozen data,
+reported outcome or scientific claim is replaced. The original successful and
+failed archives retain their exact bytes and hashes. Final-head independent
+review and protected checks remain separate obligations.

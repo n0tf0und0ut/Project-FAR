@@ -91,6 +91,24 @@ def fixture():
 
 
 class ResultVerifierMutationTests(unittest.TestCase):
+    def test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity(self):
+        trace, report = fixture()
+        raw = json.dumps(report)
+        bounded = report["status"]
+        variants = [
+            raw.replace(json.dumps("status")+": "+json.dumps(bounded),
+                        '"status":"CLAIMS_SUPERIORITY", "status":'+json.dumps(bounded)),
+            raw.replace(json.dumps("model_id")+": "+json.dumps(MODEL_ID),
+                        '"model_id":"different-model", "model_id":'+json.dumps(MODEL_ID)),
+        ]
+        with tempfile.TemporaryDirectory() as temp:
+            source=Path(temp)/"trace.json";source.write_text(json.dumps(trace))
+            result=Path(temp)/"result.json"
+            for index, candidate in enumerate(variants):
+                result.write_text(candidate)
+                with self.subTest(variant=index), self.assertRaisesRegex(ValueError,"duplicate JSON key"):
+                    verify(source,result)
+
     def check(self, document, report):
         with tempfile.TemporaryDirectory() as temp:
             a = Path(temp)/"trace.json"

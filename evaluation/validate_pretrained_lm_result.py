@@ -13,7 +13,7 @@ import math
 from pathlib import Path
 
 from evaluation.run_pretrained_lm_fidelity import MODEL_ID, REVISION, task_cases, canonical
-from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit
+from mechanization.far_mechanization.mechanistic_fidelity import MechanismAudit, _strict_loads
 
 
 def _binary_kl(p, q):
@@ -43,7 +43,7 @@ def _require_accuracy(value, expected, label):
 
 def verify(trace_path: Path, report_path: Path):
     trace = MechanismAudit.load(trace_path)
-    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    report = _strict_loads(Path(report_path).read_text(encoding="utf-8"))
     reaudited = trace.evaluate()
     if report["mechanism_audit"] != reaudited:
         raise ValueError("FAR-MECH report audit does not match source-committed trace")
