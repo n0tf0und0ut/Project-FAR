@@ -16,6 +16,11 @@ import sys
 from urllib.request import Request, urlopen
 from urllib.parse import urlsplit
 
+# Keep the established direct-script CLI as well as module execution.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from evaluation.worldview_truth_discovery_ablation import loads
+
 ARMS = ("neutral", "orthodox", "placebo")
 SOURCES = {"kalshi", "manifold", "metaculus", "polymarket",
            "acled", "dbnomics", "fred", "serpapi", "wikipedia", "yfinance"}
@@ -106,7 +111,12 @@ def parse_question_set(obj):
             raise ProspectiveError("dataset resolution dates missing")
         if source not in MARKET and not horizons:
             raise ProspectiveError("empty dataset resolution horizons")
+        seen_horizons = set()
         for horizon in horizons:
+            if source not in MARKET:
+                if not isinstance(horizon, str) or horizon in seen_horizons:
+                    raise ProspectiveError("dataset horizons must be distinct date strings")
+                seen_horizons.add(horizon)
             if horizon is not None:
                 try:
                     resolution = date.fromisoformat(horizon)
@@ -122,6 +132,8 @@ def parse_question_set(obj):
                           "resolution_criteria": row["resolution_criteria"],
                           "background": row.get("background", "N/A"),
                           "freeze_value": row.get("freeze_datetime_value", "N/A")})
+    if not units:
+        raise ProspectiveError("no eligible forecast units")
     return due, units
 
 
@@ -137,7 +149,7 @@ def prompt(unit, arm):
 
 def probability(raw):
     try:
-        value = json.loads(raw)
+        value = loads(raw)
     except (ValueError, TypeError) as exc:
         raise ProspectiveError("model output must be JSON") from exc
     if not isinstance(value, dict) or set(value) != {"probability", "reasoning"}:
@@ -183,7 +195,7 @@ class OpenAICompatible:
             headers["Authorization"] = "Bearer " + self.api_key
         request = Request(self.endpoint, data=body, headers=headers, method="POST")
         with urlopen(request, timeout=90) as response:
-            data = json.loads(response.read(1024 * 1024).decode("utf-8"))
+            data = loads(response.read(1024 * 1024).decode("utf-8"))
         try:
             return data["choices"][0]["message"]["content"]
         except (TypeError, KeyError, IndexError) as exc:
@@ -258,7 +270,7 @@ def main(argv=None):
         receipt_path=args.output.with_name(args.output.name+".responses.jsonl")
         if args.output.exists() or receipt_path.exists():
             raise ProspectiveError("output or raw-response receipts already exist: use a new run identity")
-        question_set = json.loads(args.question_set.read_text(encoding="utf-8"))
+        question_set = loads(args.question_set.read_text(encoding="utf-8"))
         backend = OpenAICompatible(args.endpoint, args.model,
                                    (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
         args.output.parent.mkdir(parents=True, exist_ok=True)

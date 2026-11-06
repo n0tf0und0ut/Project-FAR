@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 import hashlib
 import json
+from evaluation.worldview_truth_discovery_ablation import loads
 import os
 from pathlib import Path
 import sys
@@ -74,7 +75,7 @@ def prompt(packet, case, sources, arm):
 
 def answer(raw, visible_ids):
     try:
-        value = json.loads(raw)
+        value = loads(raw)
     except (ValueError, TypeError) as exc:
         raise ProspectiveError("not a JSON investigation response") from exc
     if not isinstance(value, dict) or set(value) != {"status", "cited_source_ids", "rationale"}:
@@ -197,7 +198,7 @@ def main(argv=None):
         receipt_path=args.output.with_name(args.output.name+".responses.jsonl")
         if args.output.exists() or receipt_path.exists():
             raise ProspectiveError("output or raw-response receipts already exist: use a new run identity")
-        packet = json.loads(args.packet.read_text(encoding="utf-8"))
+        packet = loads(args.packet.read_text(encoding="utf-8"))
         backend = OpenAICompatible(args.endpoint, args.model, (os.getenv("FAR_MODEL_API_KEY") or os.getenv("OPENAI_API_KEY")))
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with receipt_path.open("x",encoding="utf-8") as receipt_file:

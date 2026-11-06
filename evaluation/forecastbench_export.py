@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from evaluation.worldview_truth_discovery_ablation import loads
 import math
 from pathlib import Path
 import re
@@ -86,7 +87,7 @@ def main(argv=None):
     p.add_argument("--model-organization", required=True)
     args = p.parse_args(argv)
     try:
-        run = json.loads(args.record.read_text(encoding="utf-8"))
+        run = loads(args.record.read_text(encoding="utf-8"))
         files = export_sets(run, organization=args.organization,
                             model_organization=args.model_organization)
         root = args.output_dir

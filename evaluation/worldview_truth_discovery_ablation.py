@@ -158,9 +158,13 @@ def loads(raw):
             result[k] = v
         return result
     try:
-        return json.loads(raw, object_pairs_hook=unique,
-                          parse_constant=lambda s: (_ for _ in ()).throw(AblationError("nonfinite number")))
-    except (TypeError, ValueError) as exc:
+        value = json.loads(raw, object_pairs_hook=unique,
+                           parse_constant=lambda s: (_ for _ in ()).throw(AblationError("nonfinite number")))
+        # Validate the complete decoded tree: exponent overflow and lone
+        # surrogates can occur without a NaN/Infinity lexical token.
+        json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8", "strict")
+        return value
+    except (TypeError, ValueError, RecursionError) as exc:
         raise AblationError("invalid JSON") from exc
 
 

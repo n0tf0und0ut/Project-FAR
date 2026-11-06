@@ -166,3 +166,25 @@ All 115 focused worldview/forecast/factual contract tests pass after these repai
 **Failure / null:** equal accuracy, lower accuracy, only synthetic improvement, failure to outperform secular rigor, no differential forecasts, loss of source trust or partial data. Such a result limits the *implemented method* without deciding the truth of Orthodox theology.
 
 **Assurance ceiling:** This infrastructure validates input structure, regression behavior and arithmetic. It does not by itself provide independent model inference access, third-party outcome verification, a blinded human review service, official ForecastBench registration, independent data custody or proof of the metaphysical axiom. None of these missing external obligations may be silently marked completed.
+
+## November 6 intake convergence
+
+Reviewed starting head: `a34680d52dbeb861e60d8c4e2b3a4d275fda7451`;
+protected-main base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`.
+These are software corrections before live prospective execution. No frozen
+observations, prompt arms, acceptance rules or scientific outcomes change.
+
+| Root cause | Reproducer and before result | Correction and evidence |
+| --- | --- | --- |
+| WORLD-JSON-001 | Conflicting repeated `probability`, `status`, citation or rationale keys selected the last value; nested duplicate backend content and repeated file keys also passed. Exponent overflow and lone Unicode surrogates bypassed the existing strict loader; excessive nesting raised an unhandled `RecursionError`. | Reuse the existing scorer `loads` across model completions, backend envelopes, question/packet files, export, resolution joining, factual scoring, source audit and confirmation. Reject duplicate keys at every nesting level, recursively require finite JSON and valid UTF-8, and normalize decoder recursion failure to the existing typed error. Raw receipt preservation remains in place before completion parsing. |
+| WORLD-COHORT-001 | A dataset horizon `[null]` created an undated unit, duplicate horizons created repeated identities, and an all-excluded combination set became a complete empty run. | Require distinct date strings for dataset horizons and at least one eligible unit. Every malformed cohort is rejected before any model invocation. Valid mixed market/dataset and combination-exclusion behavior remains covered. |
+
+The seven original adversarial tests produced **15 failed subcases and one
+uncaught error** on the starting head: [original log](../../evaluation/evidence/worldview-intake-convergence-20261106/before.log).
+The corrected successor passes **8/8 intake tests**, including a separate
+compatibility regression for both direct-script and module forecast CLI forms:
+[corrected log](../../evaluation/evidence/worldview-intake-convergence-20261106/after.log).
+The complete focused worldview/forecast/factual suite passes **123/123 tests**.
+All scripted model responses are synthetic software controls. This provides no
+live forecasting, factual reliability, theological, commercial or causal result.
+Final-head independent substantive review and protected checks remain separate.

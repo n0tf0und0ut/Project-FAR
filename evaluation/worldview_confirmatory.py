@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 import hashlib
 import json
+from evaluation.worldview_truth_discovery_ablation import loads
 import math
 import random
 from statistics import NormalDist
@@ -127,8 +128,8 @@ def main(argv=None):
     parser.add_argument("--bootstrap", type=int, default=4096)
     args = parser.parse_args(argv)
     try:
-        manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-        clusters = json.loads(args.clusters.read_text(encoding="utf-8"))
+        manifest = loads(args.manifest.read_text(encoding="utf-8"))
+        clusters = loads(args.clusters.read_text(encoding="utf-8"))
         result = analyze(manifest, clusters, bootstrap=args.bootstrap)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(str(exc), file=sys.stderr)

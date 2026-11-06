@@ -8,6 +8,7 @@ import argparse
 from collections import Counter
 import hashlib
 import json
+from evaluation.worldview_truth_discovery_ablation import loads
 import sys
 from urllib.request import Request, urlopen
 
@@ -27,7 +28,7 @@ def audit_archive(raw: bytes, *, expected_git_blob_sha: str = ARCHIVED_BLOB_SHA1
     if git_blob != expected_git_blob_sha:
         raise ProspectiveError("pinned real question-set Git blob SHA mismatch")
     try:
-        document = json.loads(raw.decode("utf-8"))
+        document = loads(raw.decode("utf-8"))
     except (ValueError, UnicodeError) as exc:
         raise ProspectiveError("archived source is not UTF-8 JSON") from exc
     # Print source inventory *after* checking immutable upstream bytes, even

@@ -6,6 +6,7 @@ Source integrity and registration times require external independent review.
 from __future__ import annotations
 
 import json
+from evaluation.worldview_truth_discovery_ablation import loads
 from pathlib import Path
 import sys
 
@@ -121,8 +122,8 @@ def main(argv=None):
                         default="synthetic")
     args = parser.parse_args(argv)
     try:
-        f = json.loads(args.forecast.read_text(encoding="utf-8"))
-        o = json.loads(args.resolutions.read_text(encoding="utf-8"))
+        f = loads(args.forecast.read_text(encoding="utf-8"))
+        o = loads(args.resolutions.read_text(encoding="utf-8"))
         study, result = join_resolutions(f, o, registered_at=args.registered_at,
                                          protocol_sha256=args.protocol_sha256,
                                          data_class=args.data_class)
