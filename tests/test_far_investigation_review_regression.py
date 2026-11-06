@@ -7,7 +7,7 @@ from tools.far_investigation_audit import audit
 from tools.far_investigation_engine import Investigation
 from tools.far_investigation_retrieval import RetrievalPolicy, retrieve
 from tests.test_far_investigation_audit import NativeFunctionFixtureModel, reseal
-from tests.test_far_investigation_engine import BODY_A, BODY_B, QUESTION, URL_A, full_script
+from tests.test_far_investigation_engine import BODY_A, BODY_B, QUESTION, URL_A, URL_B, full_script, FixtureRetriever, ScriptedFixtureModel
 from tests.test_far_investigation_retrieval import Response, dns
 
 
@@ -41,6 +41,20 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
         reseal(copy_state)
         errors=audit(copy_state)['errors']
         self.assertTrue(any('content_length' in e for e in errors),errors)
+
+    def test_no_tools_can_follow_exhausted_model_budget(self):
+        original=Investigation(QUESTION,
+            RetrievalPolicy(('example.org','independent.example.org')),
+            seeds=[URL_A,URL_B],fetcher=FixtureRetriever()
+        ).run_agent(ScriptedFixtureModel(full_script()))
+        self.assertTrue(audit(original)['valid'])
+        state=copy.deepcopy(original)
+        state['policy']['budget']['max_model_tokens']=1
+        state['events'][0]['payload']['policy']['budget']['max_model_tokens']=1
+        state['status']='FAILED_OR_INCOMPLETE'
+        reseal(state)
+        errors=audit(state)['errors']
+        self.assertTrue(any('token_budget' in e for e in errors),errors)
 
 
 if __name__=='__main__':
