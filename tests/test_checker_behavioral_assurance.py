@@ -163,6 +163,10 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         # a Markdown-table row. Whole-line NEGATION matching is not sufficient.
         cases = (
             "Novelty: not established; Priority: confirmed",
+            "Novelty: not established and Priority: proved",
+            "Novelty: not established but Priority: proved",
+            "Novelty: not established while Priority: proved",
+            "Priority: proved whereas Novelty: not established",
             "Novelty: established; Priority: not established",
             "Novelty: established only if independently replicated; Priority: proved",
             "| **Novelty** | not established | **Priority** | confirmed |",

@@ -55,7 +55,7 @@ LABEL_PROMOTION = re.compile(
 # conditional. The generic CLAUSE splitter separates label from value.
 # Split independent statements instead: a denial in another statement cannot
 # hide an unsupported assertion on the same physical line.
-LABEL_STATEMENT = re.compile(r"[,;.]|\\s(?:and|but|while|whereas)\\s", re.I)
+LABEL_STATEMENT = re.compile(r"[,;.]|\s(?:and|but|while|whereas)\s", re.I)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
