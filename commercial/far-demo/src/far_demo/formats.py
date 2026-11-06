@@ -19,6 +19,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
+from far_decision_integrity.strict_json import loads_strict
 
 SUPPORTED_EXTENSIONS = {
     ".json",
@@ -38,6 +39,44 @@ SUPPORTED_EXTENSIONS = {
 ACCEPT_ATTRIBUTE = ",".join(sorted(SUPPORTED_EXTENSIONS))
 
 
+class _UniquePackageYamlLoader(yaml.SafeLoader):
+    """Component-local counterpart of the repository's unique-key SafeLoader.
+
+    Check explicit keys before PyYAML flattens merges, preserving its existing
+    inherited-default/explicit-override semantics without accepting duplicates.
+    """
+
+
+def _unique_yaml_mapping(loader, node, deep=False):
+    seen = set()
+    merge_seen = False
+    for key_node, _ in node.value:
+        if key_node.tag == 'tag:yaml.org,2002:merge':
+            if merge_seen:
+                raise ValueError('Duplicate YAML merge key')
+            merge_seen = True
+            continue
+        key = loader.construct_object(key_node, deep=deep)
+        try:
+            duplicate = key in seen
+            seen.add(key)
+        except TypeError as exc:
+            raise ValueError('Unhashable YAML mapping key') from exc
+        if duplicate:
+            raise ValueError(f'Duplicate YAML mapping key {key!r}')
+    return loader.construct_mapping(node, deep=deep)
+
+
+_UniquePackageYamlLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_yaml_mapping)
+
+
+def _load_yaml(text: str) -> Any:
+    try:
+        return yaml.load(text, Loader=_UniquePackageYamlLoader)
+    except RecursionError as exc:
+        raise ValueError('YAML nesting exceeds the supported decoder limit') from exc
+
+
 def parse_package_file(filename: str, data: bytes) -> dict[str, Any]:
     try:
         return _parse_package_file(filename, data)
@@ -53,14 +92,11 @@ def _parse_package_file(filename: str, data: bytes) -> dict[str, Any]:
         raise ValueError(f"Unsupported file type {suffix or '(none)'}. Supported: {supported}.")
 
     if suffix == ".json":
-        return _require_mapping(json.loads(data.decode("utf-8")))
+        return _require_mapping(loads_strict(data.decode("utf-8")))
     if suffix == ".jsonl":
-        objects = [json.loads(line) for line in data.decode("utf-8").splitlines() if line.strip()]
-        if len(objects) != 1:
-            raise ValueError("A FAR JSONL upload must contain exactly one non-empty JSON object.")
-        return _require_mapping(objects[0])
+        return _parse_jsonl(data.decode("utf-8"))
     if suffix in {".yaml", ".yml"}:
-        return _require_mapping(yaml.safe_load(data.decode("utf-8")))
+        return _require_mapping(_load_yaml(data.decode("utf-8")))
     if suffix == ".toml":
         return _require_mapping(tomllib.loads(data.decode("utf-8")))
     if suffix == ".xml":
@@ -91,22 +127,43 @@ def _require_mapping(value: Any) -> dict[str, Any]:
     return value
 
 
+def _parse_jsonl(text: str) -> dict[str, Any]:
+    objects = [loads_strict(line) for line in text.splitlines() if line.strip()]
+    if len(objects) != 1:
+        raise ValueError("A FAR JSONL upload must contain exactly one non-empty JSON object.")
+    return _require_mapping(objects[0])
+
+
 def _parse_embedded_text(text: str) -> dict[str, Any]:
-    candidates = [text.strip()]
+    candidates = [(None, text.strip())]
     candidates.extend(
-        match.group(1).strip()
-        for match in re.finditer(r"```(?:json|jsonl|yaml|yml|toml)?\s*(.*?)```", text, re.I | re.S)
+        ((match.group(1) or '').lower(), match.group(2).strip())
+        for match in re.finditer(r"```(jsonl?|yaml|yml|toml)?\s*(.*?)```", text, re.I | re.S)
     )
     errors: list[str] = []
-    for candidate in candidates:
+    for hint, candidate in candidates:
         if not candidate:
             continue
-        for parser in (json.loads, yaml.safe_load, tomllib.loads):
+        # A format declaration is binding. In particular, malformed or ambiguous
+        # fenced JSON must never be accepted by the more permissive YAML parser.
+        if hint in {'json', 'jsonl'}:
+            return _parse_jsonl(candidate) if hint == 'jsonl' else _require_mapping(loads_strict(candidate))
+        if hint in {'yaml', 'yml', 'toml'}:
+            parser = tomllib.loads if hint == 'toml' else _load_yaml
+            return _require_mapping(parser(candidate))
+        try:
+            return _require_mapping(loads_strict(candidate))
+        except json.JSONDecodeError as exc:
+            # Syntax that is not JSON may be valid YAML/TOML. Duplicate members,
+            # nonfinite numbers and decoder-limit failures are ValueError and
+            # deliberately propagate instead of being reinterpreted.
+            errors.append(str(exc))
+        for parser in (_load_yaml, tomllib.loads):
             try:
                 value = parser(candidate)
                 if isinstance(value, dict):
                     return value
-            except Exception as exc:  # parser-specific errors are summarized below
+            except (yaml.YAMLError, tomllib.TOMLDecodeError) as exc:
                 errors.append(str(exc))
     raise ValueError(
         "No embedded FAR package was found. Text, Markdown, PDF, and DOCX files must contain "
@@ -216,6 +273,6 @@ def _coerce(value: Any) -> Any:
     if not text:
         return ""
     try:
-        return json.loads(text)
+        return loads_strict(text)
     except json.JSONDecodeError:
         return text

@@ -81,3 +81,22 @@ Expected results are `justified` (exit 0), `unsupported` (exit 30), and `unverif
 All commercial JSON file loaders reject duplicate object keys, `NaN`/`Infinity`, and finite-number overflow before domain interpretation. Decoder nesting-limit failures use the same invalid-input contract: the decision CLI reports `invalid-package` (exit 40), and evidence verification returns false. Evidence bundles also refuse to serialize non-finite numeric results.
 
 See [pilot validation](PILOT_VALIDATION.md) for the proposed customer/comparator experiment, economic measurement, failure conditions and evidence gates. Its price and milestones are commercial hypotheses, not validated market facts.
+
+The optional hosted demo's upload adapters also share this parser at the original
+JSON-byte boundary. Duplicate/non-finite data must not be decoded permissively
+before calling `DecisionPackage.from_dict`; direct Python objects cannot recover
+ambiguity already lost during parsing. JSON/JSONL uploads, sniffed/declared JSON
+in documents and JSON-valued tabular cells are covered by actual-route tests.
+Both source components must be installed from the same reviewed checkout; no
+new release or effectiveness claim is made.
+
+November 6 boundary follow-up: **CJSON-006** reproduced permissive hosted upload
+decoding before the package's strict loader (31 failed assertions and two parser
+errors in the initial actual-route regression). The demo now shares the strict
+JSON parser across direct, line-delimited, sniffed/fenced and tabular JSON.
+**CJSON-007** reproduced a duplicate-key YAML flow fallback with a trailing comma
+being accepted on direct/sniffed/fenced YAML routes (three failed assertions).
+The local unique-key YAML loader closes that ambiguity while preserving tested
+merge defaults/explicit override and legitimate YAML/TOML inputs. All **48**
+package and **26** dependency-equipped baseline demo tests pass; combined
+semantic-augmentation validation is a separate integration obligation.
