@@ -249,6 +249,11 @@ class RetainedCampaignReplayTests(unittest.TestCase):
     def test_frozen_selection_mutation_fails(self):
         self.assertFalse(self.mutated(mutate_selection=True)["valid"])
 
+    def test_campaign_hosts_must_match_registered_selection(self):
+        result=self.mutated(lambda c:c.update(policy_hosts=['unregistered.example.org']))
+        self.assertFalse(result['valid'])
+        self.assertTrue(any('host policy differs' in error for error in result['errors']),result)
+
     def test_source_identity_mutation_fails(self):
         result=self.mutated(lambda c:c["source_hashes"].update({"tools/far_investigation_engine.py":"0"*64}))
         self.assertFalse(result["valid"])
