@@ -46,7 +46,8 @@ The offline model smoke workflow runs without provider keys or remote model-infe
 
 ```bash
 python -m unittest tests.test_far_architecture_cpu_experiment -v
-# Runtime study is launched by .github/workflows/far-architecture-offline-model.yml
+# Current CI validates offline contracts without launching model inference.
+# The original live workflow is preserved in original-workflow-v0.3.yml.
 # Evidence: GitHub Actions run-artifacts, with raw request/response data
 ```
 
