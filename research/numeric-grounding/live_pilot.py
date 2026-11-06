@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
 if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 import source_replay
+from observe_live import FROZEN_LAUNCH_SHA
 from tools import tool_agent_reliability as original
 from tools.workflow_efficacy_free_agent import local_model_digest
 
@@ -332,7 +333,7 @@ def main(argv=None):
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument("command",choices=("validate","run","analyze"))
     ap.add_argument("--output",type=Path,default=Path("numeric-grounding-evidence"))
-    ap.add_argument("--source-commit",default=os.getenv("GITHUB_SHA",""))
+    ap.add_argument("--source-commit",default="")
     opts=ap.parse_args(argv)
     p=protocol()
     ground=source_replay.grounded_report(asserted_value="100.0000")
@@ -341,10 +342,13 @@ def main(argv=None):
                           "protocol_sha256":sha(PFILE.read_bytes()),"replayed_source_success":ground["value"]},sort_keys=True))
         return 0
     if opts.command=="run":
-        return run(p,opts.output,opts.source_commit)
+        return run(p,opts.output,opts.source_commit or os.getenv("GITHUB_SHA",""))
     records=[original.strict_json(file.read_bytes()) for file in sorted(opts.output.glob("*-*.json"))
              if file.name not in {"analysis.json","state.json"}]
-    report=analyze(p,records,ground,expected_run_commit=opts.source_commit or None)
+    # Every standalone artifact replay, including the read-only hosted observer,
+    # must bind to the exact original launch unless explicitly testing a given
+    # alternate commit with --source-commit.
+    report=analyze(p,records,ground,expected_run_commit=opts.source_commit or FROZEN_LAUNCH_SHA)
     if (opts.output/"analysis.json").is_file() and original.strict_json((opts.output/"analysis.json").read_bytes())!=report:
         raise ValueError("saved summary differs from deterministic replay")
     print(json.dumps(report,sort_keys=True))
