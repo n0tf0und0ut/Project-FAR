@@ -79,7 +79,7 @@ The nested full-health runner gives the complete canonical test suite the same 9
 - `FAR_VALIDATION_CACHE_SIGNING_KEY`: persistent HMAC secret for cross-runner cache and certificate trust.
 - `FAR_GITHUB_ADMIN_TOKEN`: revoked obsolete administrator token; its undeletable encrypted entry is invalid metadata, not a usable credential. It must not be recreated as a long-lived Actions secret. Future protection changes require an ephemeral, externally controlled administrator credential and a separately reviewed fail-closed procedure that does not execute mutable repository code.
 
-No credential value is written to artifacts or logs.
+The cross-runner cache test intentionally places its **ephemeral HMAC key in an Actions artifact** with the cached data; that key is not a protected credential. The workflow does not intentionally export persistent credentials or privileged GitHub tokens to artifacts or logs. The bundled ephemeral key must not be described as an independently secret authentication key.
 
 ## Commands
 
