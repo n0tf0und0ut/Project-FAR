@@ -9,6 +9,7 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -43,24 +44,30 @@ def _decision_package() -> dict:
 
 
 class StrictJSONIntakeTests(unittest.TestCase):
-    def test_decoder_nesting_limit_fails_closed_at_every_reader(self) -> None:
-        # Small raw input can exceed the decoder's supported nesting. This must
-        # use each reader's invalid-input contract rather than escape as a crash.
-        text = '[' * 10000 + '0' + ']' * 10000
-        with self.assertRaisesRegex(ValueError, "nesting"):
-            loads_strict(text)
+    def test_decoder_recursion_error_fails_closed_at_every_reader(self) -> None:
+        # CPython decoder nesting limits vary across supported Python versions.
+        # Inject the actual error boundary on valid JSON rather than assuming
+        # that any fixed nesting depth must fail on every interpreter.
+        text = json.dumps(_decision_package())
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "manifest.json"
             source.write_text(text, encoding="utf-8")
-            for loader, error in ((load_package, PackageValidationError),
-                                  (load_suite, ValueError),
-                                  (load_swe_agent_trace, ValueError)):
-                with self.subTest(loader=loader.__name__), self.assertRaisesRegex(error, "nesting"):
-                    loader(source)
-            self.assertFalse(verify_evidence_bundle(directory))
-            output = io.StringIO()
-            with contextlib.redirect_stdout(output):
-                self.assertEqual(decision_main([str(source)]), 40)
+            with mock.patch(
+                "far_decision_integrity.strict_json.json.loads",
+                side_effect=RecursionError("injected decoder depth overflow"),
+            ) as decoder:
+                with self.assertRaisesRegex(ValueError, "nesting"):
+                    loads_strict(text)
+                for loader, error in ((load_package, PackageValidationError),
+                                      (load_suite, ValueError),
+                                      (load_swe_agent_trace, ValueError)):
+                    with self.subTest(loader=loader.__name__), self.assertRaisesRegex(error, "nesting"):
+                        loader(source)
+                self.assertFalse(verify_evidence_bundle(directory))
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(decision_main([str(source)]), 40)
+                self.assertGreaterEqual(decoder.call_count, 6)
             self.assertEqual(json.loads(output.getvalue())["status"], "invalid-package")
 
     def test_parser_accepts_ordinary_json_and_rejects_ambiguity(self) -> None:
