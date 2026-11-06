@@ -1,6 +1,10 @@
 # Numeric metric grounding — executable Research sidecar v0.1
 
-**Status: Research.** This is a bounded software control over *declared* measurements, not an accepted FAR core theorem, certified business ontology, model-evaluation result, general agent-reliability result, or production answer service.
+**Status: Research.** This is a bounded software control over *declared* measurements and an isolated model-output pilot, not an accepted FAR core theorem, certified business ontology, general agent-reliability result, or production answer service.
+
+## Current live-pilot disposition
+
+The [original live-pilot execution and negative primary result](RESULTS-LIVE-V0.1.md) are now recovered and replayed from authenticated, preserved raw evidence: **32/32 conditions**, control **8/16** correct final outcomes versus treatment **12/16**, and **0 wrong numeric releases in both arms**. The registered wrong-number-reduction gate **fails**. The four additional correct numbers are a secondary observation over variants of one source metric; model calls, tokens and measured generation time increased. No general performance, internal reasoning, causal FAR-specific advantage or production promotion follows. The original failed hosted replay and all original raw bytes remain preserved separately from the corrected post-execution verifier.
 
 ## Question and rationale
 
@@ -63,8 +67,8 @@ The example metric ID delta is part of the authored unit-test catalog, not a glo
 
 ## Limitations and next verification gate
 
-The observed software behavior is limited to rejecting structural/semantic misreporting **given the declared rows and catalog**. It does not detect fabricated outcome rows, wrong source classifications, false source digests, incorrect human definitions or a rigged initial eligible-slot registry. It also does not demonstrate a model choosing the right metric ID, applying the right reference class, improving answers against a control, or reducing real-world numerical errors. The strict pilot prefers abstention over fabricated certainty.
+The observed software behavior is limited to rejecting structural/semantic misreporting **given the declared rows and catalog**. It does not detect fabricated outcome rows, wrong source classifications, false source digests, incorrect human definitions or a rigged initial eligible-slot registry. The basic declared-row guard alone does not demonstrate a model choosing the right metric ID or applying the right reference class. The separate live pilot above observes four supported numerical releases and a negative primary gate at its exact authored scope; it does not establish real-world numerical-error reduction. The strict pilot prefers abstention over fabricated certainty.
 
-Before promoting this approach beyond Research, a separate governed adapter must rebuild eligible slots and outcomes from original replayed agent/tool traces or audited database queries; human/domain reviewers must approve metric meanings; then a prospective paired evaluation should compare the same agent and questions with and without metric grounding, independently score correct numbers **and** legitimate abstentions, and report error reductions, introduced false rejections, latency and cost. Keep the experiment separately registered and frozen before outcome exposure. Do not reinterpret this sidecar as an EFR result or general agent-reliability evidence.
+Before promoting this approach beyond Research, domain reviewers must approve metric meanings and adapters outside the single frozen source; a prospective independently assessed evaluation must use new source metrics, matched simpler comparators, and held-out questions, score correct numbers **and** legitimate abstentions, and report error reductions, introduced false rejections, latency and cost. The current source adapter and bounded authored pilot do not satisfy these broader requirements. Keep the experiment separately registered and frozen before outcome exposure. Do not reinterpret this sidecar as an EFR result or general agent-reliability evidence.
 
 The current PR is deliberately isolated from FAR Core, far-ir schemas, protected main, existing experimental results, CI policy and open workstreams.

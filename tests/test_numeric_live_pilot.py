@@ -1,10 +1,14 @@
 """Prospective numeric-model pilot offline controls; these are NOT model runs."""
 import copy
+import base64
 import importlib.util
+import io
 import json
 from pathlib import Path
 import tempfile
 import unittest
+import warnings
+import zipfile
 from unittest import mock
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -12,6 +16,7 @@ SOURCE=ROOT/"research"/"numeric-grounding"
 spec=importlib.util.spec_from_file_location("far_numeric_live_pilot", SOURCE/"live_pilot.py")
 pilot=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pilot)
+observer=__import__("observe_live")
 
 
 def provider_call(body, content):
@@ -82,6 +87,144 @@ class NumericLivePilotOfflineTests(unittest.TestCase):
     def test_missing_eligible_slot_fails_instead_of_reweighting(self):
         with self.assertRaisesRegex(ValueError,"incomplete registered experiment"):
             pilot.analyze(self.p,self.rows[:-1],self.g)
+
+    def test_missing_required_followup_cannot_be_relabelled_as_abstention(self):
+        rows=copy.deepcopy(self.rows)
+        row=rows[1]
+        row["calls"].pop()
+        row["released"],row["release_reason"],row["used_metric"]=pilot.predicted(
+            self.p["tasks"][0],"treatment",row["calls"],self.g)
+        with self.assertRaisesRegex(ValueError,"model-call count"):
+            pilot.analyze(self.p,rows,self.g)
+
+    def test_unsolicited_second_call_fails_even_with_consistent_release(self):
+        rows=copy.deepcopy(self.rows)
+        row=rows[1]
+        row["calls"][0]=provider_call(row["calls"][0]["request"],
+                                    '{"tool":"finish","answer":"UNKNOWN"}')
+        row["calls"][1]["request"]=copy.deepcopy(row["calls"][0]["request"])
+        row["calls"][1]["request_sha256"]=row["calls"][0]["request_sha256"]
+        row["released"],row["release_reason"],row["used_metric"]=pilot.predicted(
+            self.p["tasks"][0],"treatment",row["calls"],self.g)
+        with self.assertRaisesRegex(ValueError,"model-call count"):
+            pilot.analyze(self.p,rows,self.g)
+
+    def test_analysis_is_independent_of_record_enumeration_order(self):
+        self.assertEqual(pilot.analyze(self.p,self.rows,self.g),
+                         pilot.analyze(self.p,self.rows[::-1],self.g))
+
+    def test_counterbalanced_run_round_trips_through_standalone_replay(self):
+        replies=[]
+        for index,task in enumerate(self.p["tasks"]):
+            order=("control","treatment") if index%2==0 else ("treatment","control")
+            for arm in order:
+                replies.extend(fixture_pair(self.p,task,arm)["calls"])
+        # Different durations expose order-sensitive floating accumulation too.
+        for index,call in enumerate(replies):
+            call["elapsed_seconds"]=0.01+index/10000
+        def fake_invoke(body,timeout,on_response=None):
+            call=replies.pop(0)
+            self.assertEqual(body,call["request"])
+            return call
+        with tempfile.TemporaryDirectory() as tmp:
+            output=Path(tmp)/"evidence"
+            with (mock.patch.object(pilot,"local_model_digest",return_value=pilot.MODEL_DIGEST),
+                  mock.patch.object(pilot.source_replay,"grounded_report",return_value=self.g),
+                  mock.patch.object(pilot,"invoke",side_effect=fake_invoke),
+                  mock.patch("builtins.print")):
+                self.assertEqual(pilot.run(self.p,output,pilot.FROZEN_LAUNCH_SHA),0)
+                self.assertEqual(pilot.main(["analyze","--output",str(output)]),0)
+            self.assertEqual(replies,[])
+
+    def test_legacy_saved_order_is_compatible_but_changed_score_is_not(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output=Path(tmp)
+            rows=copy.deepcopy(self.rows)
+            for row in rows:
+                row["run_commit"]=pilot.FROZEN_LAUNCH_SHA
+                (output/(row["case_id"]+"-"+row["arm"]+".json")).write_bytes(pilot.canon(row))
+            saved=pilot.analyze(self.p,rows,self.g)
+            saved["outcomes"].reverse()
+            (output/"analysis.json").write_bytes(pilot.canon(saved))
+            with (mock.patch.object(pilot.source_replay,"grounded_report",return_value=self.g),
+                  mock.patch("builtins.print")):
+                self.assertEqual(pilot.main(["analyze","--output",str(output)]),0)
+                saved["summary"]["treatment"]["correct"]-=1
+                (output/"analysis.json").write_bytes(pilot.canon(saved))
+                with self.assertRaisesRegex(ValueError,"saved summary differs"):
+                    pilot.main(["analyze","--output",str(output)])
+
+    def test_preserved_original_live_artifact_replays_without_model_calls(self):
+        # These are the original historical calls, not a newly executed study.
+        with (mock.patch.object(observer,"record",side_effect=lambda value:value),
+              mock.patch.object(pilot,"invoke",side_effect=AssertionError("no model calls"))):
+            result=observer.preserved_observation()
+        self.assertEqual(result["artifact_sha256"],observer.PRESERVED_SHA256)
+        self.assertEqual(result["status"],"REPLAY_VERIFIED_BOUNDED_RESULT")
+        self.assertEqual(result["paired_records"],32)
+        self.assertFalse(result["registered_exploratory_gate_passed"])
+        self.assertEqual([result["summary"][arm]["wrong_number"] for arm in ("control","treatment")],[0,0])
+        self.assertEqual(result["workflow_conclusion"],"failure")
+
+    def test_preserved_artifact_mutation_fails_before_replay(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            changed=Path(tmp)/"archive.b64"
+            raw=base64.b64decode(observer.PRESERVED_ARCHIVE.read_bytes().strip(),validate=True)
+            changed.write_bytes(base64.b64encode(raw[:-1]+bytes([raw[-1]^1])))
+            with (mock.patch.object(observer,"PRESERVED_ARCHIVE",changed),
+                  mock.patch.object(observer,"replay_archive") as replay):
+                with self.assertRaisesRegex(ValueError,"digest mismatch"):
+                    observer.preserved_observation()
+                replay.assert_not_called()
+
+    def test_remote_observer_rejects_changed_original_archive(self):
+        run={"id":42090379885,"head_sha":observer.FROZEN_LAUNCH_SHA,"event":"push",
+             "status":"completed","conclusion":"failure"}
+        artifact={"id":13445236161,"name":"numeric-grounding-live-v01-raw-42090379885",
+                  "expired":False,"archive_download_url":"https://example.invalid/archive"}
+        with (mock.patch.dict("os.environ",{"GH_TOKEN":"offline-test"}),
+              mock.patch.object(observer,"fetch",side_effect=[
+                  pilot.canon({"workflow_runs":[run]}),pilot.canon({"artifacts":[artifact]}),b"changed"]),
+              mock.patch.object(observer,"record",side_effect=lambda value:value),
+              mock.patch.object(observer,"replay_archive") as replay):
+            result=observer.main(["--remote"])
+        self.assertEqual(result["status"],"OBSERVER_ERROR")
+        self.assertIn("remote original artifact digest mismatch",result["message"])
+        replay.assert_not_called()
+
+    def test_remote_archive_cannot_hide_extra_or_aliased_members(self):
+        for member in ("extra.json","nested/../analysis.json","./analysis.json","state.json"):
+            with self.subTest(member=member):
+                raw=base64.b64decode(observer.PRESERVED_ARCHIVE.read_bytes().strip(),validate=True)
+                buffer=io.BytesIO(raw)
+                with zipfile.ZipFile(buffer,"a") as archive:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore",UserWarning)
+                        archive.writestr(member,b"{}")
+                with self.assertRaisesRegex(ValueError,"original artifact members"):
+                    observer.replay_archive(buffer.getvalue())
+
+    def test_remote_archive_cannot_claim_incomplete_state_as_verified(self):
+        raw=base64.b64decode(observer.PRESERVED_ARCHIVE.read_bytes().strip(),validate=True)
+        buffer=io.BytesIO()
+        with zipfile.ZipFile(io.BytesIO(raw)) as original,zipfile.ZipFile(buffer,"w") as changed:
+            for name in original.namelist():
+                value=original.read(name)
+                if name=="state.json":
+                    state=json.loads(value)
+                    state["status"]="INCOMPLETE"
+                    value=pilot.canon(state)
+                changed.writestr(name,value)
+        result=observer.replay_archive(buffer.getvalue())
+        self.assertEqual(result["status"],"REPLAY_FAILED")
+        self.assertIn("execution state",result["reason"])
+
+    def test_replay_rejects_wrong_schema_and_boolean_integer_alias(self):
+        for field,value in (("schema","other-study"),("used_metric",1)):
+            rows=copy.deepcopy(self.rows)
+            rows[1][field]=value
+            with self.assertRaisesRegex(ValueError,"schema or metric-use"):
+                pilot.analyze(self.p,rows,self.g)
 
     def test_unknown_case_refuses_unrelated_source_metric(self):
         task=self.p["tasks"][8]

@@ -178,6 +178,13 @@ def predicted(task: dict, arm: str, calls: list[dict], grounded: dict) -> tuple[
     return grounded["value"],"REPLAY_VERIFIED_RELEASE",True
 
 
+def ordered_outcomes(p: dict, outcomes: list[dict]) -> list[dict]:
+    """One derived order; raw counterbalanced execution records remain unchanged."""
+    slot_order={(task["id"],arm):index for index,(task,arm) in enumerate(
+        (task,arm) for task in p["tasks"] for arm in ("control","treatment"))}
+    return sorted(outcomes,key=lambda result:slot_order[(result["case_id"],result["arm"])])
+
+
 def analyze(p: dict, rows: list[dict], grounded: dict, expected_run_commit: str | None = None):
     expected = {(t["id"],arm) for t in p["tasks"] for arm in ("control","treatment")}
     if expected_run_commit is None and rows:
@@ -190,6 +197,8 @@ def analyze(p: dict, rows: list[dict], grounded: dict, expected_run_commit: str 
     for row in rows:
         if type(row) is not dict or set(row)!={"schema","case_id","arm","calls","released","release_reason","used_metric","model_digest","protocol_sha256","source_archive_sha256","run_commit"}:
             raise ValueError("run record schema mismatch")
+        if row["schema"]!=SCHEMA or type(row["used_metric"]) is not bool:
+            raise ValueError("run record schema or metric-use type mismatch")
         key=(row["case_id"],row["arm"])
         if key not in expected or key in seen:
             raise ValueError("unregistered or duplicate scored slot")
@@ -212,9 +221,13 @@ def analyze(p: dict, rows: list[dict], grounded: dict, expected_run_commit: str 
             validate_provider_response(call["response"])
             if type(call["elapsed_seconds"]) not in (float,int) or not 0<=call["elapsed_seconds"]<=p["generation"]["timeout_seconds"]+15:
                 raise ValueError("invalid measured duration")
-            if index==0 and key[1]=="treatment":
+            if index==0:
                 first=parse_action(call["response"]["message"]["content"])
-                if first=={"tool":"metric","id":SUPPORTED} and task["answerability"]=="REGISTERED_METRIC":
+                followup=(key[1]=="treatment" and first=={"tool":"metric","id":SUPPORTED}
+                          and task["answerability"]=="REGISTERED_METRIC")
+                if len(calls)!=(2 if followup else 1):
+                    raise ValueError("invalid response-dependent model-call count")
+                if followup:
                     messages=messages+[{"role":"assistant","content":call["response"]["message"]["content"]},
                                        {"role":"user","content":canon({"metric_observation":{"id":SUPPORTED,"value":grounded["value"],"unit":"percent","scope":"v0.3-scored","status":"REPLAY_VERIFIED"}}).decode()}]
         released,reason,tool=predicted(task,key[1],calls,grounded)
@@ -231,6 +244,10 @@ def analyze(p: dict, rows: list[dict], grounded: dict, expected_run_commit: str 
     missing=sorted(expected-seen)
     if missing:
         raise ValueError("incomplete registered experiment: "+str(missing))
+    # Counterbalanced execution order is preserved in the raw records. Derived
+    # reports use one registered slot order for CLI, observer and in-process replay,
+    # including floating duration accumulation, regardless of file enumeration.
+    results=ordered_outcomes(p,results)
     summary={}
     for arm in ("control","treatment"):
         group=[x for x in results if x["arm"]==arm]
@@ -349,8 +366,22 @@ def main(argv=None):
     # must bind to the exact original launch unless explicitly testing a given
     # alternate commit with --source-commit.
     report=analyze(p,records,ground,expected_run_commit=opts.source_commit or FROZEN_LAUNCH_SHA)
-    if (opts.output/"analysis.json").is_file() and original.strict_json((opts.output/"analysis.json").read_bytes())!=report:
-        raise ValueError("saved summary differs from deterministic replay")
+    if (opts.output/"state.json").is_file():
+        state=original.strict_json((opts.output/"state.json").read_bytes())
+        if (type(state) is not dict or state.get("schema")!=SCHEMA or state.get("status")!="COMPLETE" or
+            type(state.get("records_attempted")) is not int or state["records_attempted"]!=len(records) or
+            state.get("run_commit")!=(opts.source_commit or FROZEN_LAUNCH_SHA) or
+            state.get("protocol_sha256")!=sha(PFILE.read_bytes()) or
+            state.get("source_sha256")!=source_replay.ARCHIVE_SHA256):
+            raise ValueError("saved execution state differs from completed frozen launch")
+    if (opts.output/"analysis.json").is_file():
+        saved=original.strict_json((opts.output/"analysis.json").read_bytes())
+        # Original launch reports enumerated outcomes in execution order. Accept
+        # that ordering difference only, without rewriting the original artifact
+        # or relaxing any outcome, aggregate, duration, grade or provenance field.
+        saved["outcomes"]=ordered_outcomes(p,saved["outcomes"])
+        if saved!=report:
+            raise ValueError("saved summary differs from deterministic replay")
     print(json.dumps(report,sort_keys=True))
     return 0
 

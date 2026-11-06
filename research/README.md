@@ -17,10 +17,10 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 - `axiomatization/` — exploratory axiomatization work.
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.
+- [`numeric-grounding/README.md`](numeric-grounding/README.md) — replay-bound numerical metric guard and separately preregistered limited live-model comparison; no external truth, general reliability, or production promotion.
 - [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.
 - [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.
 - [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.
-- [`numeric-grounding/README.md`](numeric-grounding/README.md) — replay-bound numerical metric guard and separately preregistered limited live-model comparison; no external truth, general reliability, or production promotion.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.
