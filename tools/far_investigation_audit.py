@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 
 from mechanization.far_mechanization.intake_v1 import aggregate_manifest, freeze_manifest, sha256_json, validate_manifest
 from tools.far_investigation_retrieval import (
-    bind_quote, parse_receipt, receipt_bytes, project_public_search, public_search_url,
+    bind_quote, parse_receipt, receipt_bytes, project_public_search, public_search_url, RetrievalPolicy,
 )
 from tools.far_investigation_verifiers import verify
 from tools.far_routing_dispatch import _parse, route_text
@@ -123,6 +123,9 @@ def audit(state) -> dict:
                 if node.get('status') == 'RETRIEVED':
                     if node.get('http_status') != 200 or node.get('truncated') or not node['observed_bytes']:
                         fail(path, 'successful receipt has failed/empty/truncated transport')
+                    if (type(node['observed_bytes']) is not int
+                            or not 0 < node['observed_bytes'] <= state['policy']['max_bytes']):
+                        fail(path, 'successful receipt exceeds recorded source byte ceiling')
                     destination = urlsplit(node['request']['url'])
                     if (destination.scheme != 'https' or destination.hostname not in state['policy']['allowed_hosts']
                             or destination.username is not None or destination.password is not None
@@ -186,6 +189,11 @@ def audit(state) -> dict:
         # Reject Python-only/non-finite/cyclic objects before walking them.
         _parse(json.dumps(state, allow_nan=False))
         elapsed, budget = state['elapsed_seconds'], state['policy']['budget']
+        # Reuse the runtime's pure resource/host-policy validation. Constructing
+        # this policy performs no DNS or network access during offline audit.
+        guarded('policy', lambda: RetrievalPolicy(
+            tuple(state['policy']['allowed_hosts']), max_bytes=state['policy']['max_bytes'],
+            timeout=state['policy']['timeout'], dns_mode=state['policy']['dns_mode']))
         if type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0:
             fail('elapsed_seconds', 'must be a finite nonnegative execution duration')
         limits = {'max_steps': 100, 'max_http_calls': 100, 'max_model_tokens': 200000, 'max_seconds': 3600}

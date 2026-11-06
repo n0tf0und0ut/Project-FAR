@@ -97,6 +97,21 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
                 self.assertFalse(result['valid'], result)
                 self.assertTrue(any('framing' in error for error in result['errors']), result)
 
+    def test_successful_sources_cannot_exceed_recorded_byte_ceiling(self):
+        original = self.native_source_state()
+        largest = max(row['observed_bytes'] for row in original['sources'].values())
+        for ceiling, valid in ((largest, True), (largest - 1, False), (1, False),
+                               (True, False), (0, False), (20_000_001, False)):
+            with self.subTest(ceiling=ceiling):
+                state = copy.deepcopy(original)
+                state['policy']['max_bytes'] = ceiling
+                state['events'][0]['payload']['policy']['max_bytes'] = ceiling
+                reseal(state)
+                result = audit(state)
+                self.assertEqual(result['valid'], valid, result)
+                if not valid:
+                    self.assertTrue(any('byte' in error or 'policy' in error for error in result['errors']), result)
+
     def test_legacy_headers_without_lists_still_enforce_declared_length(self):
         state = self.native_source_state()
         def walk(node, mismatch=False):
