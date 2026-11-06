@@ -12,8 +12,8 @@ hides a buried promotion. These rules instead check meaning:
   established unless the same clause negates or conditions it;
 * the canonical status surface keeps a negated statement for each assurance boundary.
 
-The promotion rule is a clause-level heuristic. It can miss unusual phrasing (for example a
-bare "Universality: established"); it is a complement to, not a replacement for, review.
+The promotion rule is a bounded clause-level heuristic; it is a complement to,
+not a replacement for semantic review.
 """
 from __future__ import annotations
 
@@ -51,6 +51,11 @@ LABEL_PROMOTION = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])\s*(?:\*\*|\*)?\s*{PROMOTION.pattern}(?:\*\*|\*)?",
     re.I,
 )
+# Retain the complete label/value statement when checking negation or a
+# conditional. The generic CLAUSE splitter separates label from value.
+# Split independent statements instead: a denial in another statement cannot
+# hide an unsupported assertion on the same physical line.
+LABEL_STATEMENT = re.compile(r"[,;.]|\\s(?:and|but|while|whereas)\\s", re.I)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
@@ -69,10 +74,13 @@ def promotion_clauses(text: str) -> list[str]:
         for clause in CLAUSE.split(line):
             if TOPIC.search(clause) and PROMOTION.search(clause) and not NEGATION.search(clause):
                 found.append(clause.strip())
-        for match in LABEL_PROMOTION.finditer(line):
-            label = match.group(0).strip()
-            if label not in found:
-                found.append(label)
+        for statement in LABEL_STATEMENT.split(line):
+            if NEGATION.search(statement):
+                continue
+            for match in LABEL_PROMOTION.finditer(statement):
+                label = match.group(0).strip()
+                if label not in found:
+                    found.append(label)
     return found
 
 
