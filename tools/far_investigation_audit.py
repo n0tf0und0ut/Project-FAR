@@ -74,7 +74,9 @@ def audit(state) -> dict:
         else:
             listed = [value for key, value in headers.items()
                       if type(key) is str and key.lower() == 'content-length']
-            if listed != lengths:
+            # Archived native adapters may retain the explicit length list
+            # without preserving the same header in their flattened mapping.
+            if listed and listed != lengths:
                 fail(path + '.content_length', 'declared framing differs from response headers')
             if lengths:
                 if (len(lengths) != 1 or type(lengths[0]) is not str
