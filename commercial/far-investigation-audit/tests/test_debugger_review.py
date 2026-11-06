@@ -168,6 +168,19 @@ class ReviewRegressions(unittest.TestCase):
             self.assertEqual(len(result["bundle"]["sources"]),3)
             self.assertEqual(result["proposal"]["resumes_input_sha256"],
                              original["audit"]["input_sha256"])
+            self.assertTrue(result["manifest"]["network_used"])
+            self.assertEqual(
+                [a["url"] for a in result["acquisition"]],
+                [a["url"] for a in original["acquisition"]],
+            )
+            self.assertEqual(
+                [s["captured_at"] for s in result["bundle"]["sources"]],
+                [s["captured_at"] for s in original["bundle"]["sources"]],
+            )
+            self.assertEqual(
+                [s["sha256"] for s in result["bundle"]["sources"]],
+                [s["sha256"] for s in original["bundle"]["sources"]],
+            )
             write_package(root/"resumed",result)
             self.assertTrue(verify_package(root/"resumed")["replay_match"])
 
