@@ -43,6 +43,26 @@ def _decision_package() -> dict:
 
 
 class StrictJSONIntakeTests(unittest.TestCase):
+    def test_decoder_nesting_limit_fails_closed_at_every_reader(self) -> None:
+        # Small raw input can exceed the decoder's supported nesting. This must
+        # use each reader's invalid-input contract rather than escape as a crash.
+        text = '[' * 10000 + '0' + ']' * 10000
+        with self.assertRaisesRegex(ValueError, "nesting"):
+            loads_strict(text)
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "manifest.json"
+            source.write_text(text, encoding="utf-8")
+            for loader, error in ((load_package, PackageValidationError),
+                                  (load_suite, ValueError),
+                                  (load_swe_agent_trace, ValueError)):
+                with self.subTest(loader=loader.__name__), self.assertRaisesRegex(error, "nesting"):
+                    loader(source)
+            self.assertFalse(verify_evidence_bundle(directory))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(decision_main([str(source)]), 40)
+            self.assertEqual(json.loads(output.getvalue())["status"], "invalid-package")
+
     def test_parser_accepts_ordinary_json_and_rejects_ambiguity(self) -> None:
         self.assertEqual(loads_strict('{"a":[1,2.5,true,null]}'), {"a": [1, 2.5, True, None]})
         for text in (

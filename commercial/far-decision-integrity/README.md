@@ -78,6 +78,6 @@ far-decision commercial/far-decision-integrity/examples/clear-package.json --req
 
 Expected results are `justified` (exit 0), `unsupported` (exit 30), and `unverifiable` (exit 32), respectively. The clear structural case has no required semantic contract; the third command deliberately checks that the semantic gate refuses to treat it as checked. These fixtures demonstrate deterministic adjudication only; they are not empirical evidence of external accuracy or commercial value.
 
-All commercial JSON file loaders reject duplicate object keys, `NaN`/`Infinity`, and finite-number overflow before domain interpretation. Evidence bundles also refuse to serialize non-finite numeric results.
+All commercial JSON file loaders reject duplicate object keys, `NaN`/`Infinity`, and finite-number overflow before domain interpretation. Decoder nesting-limit failures use the same invalid-input contract: the decision CLI reports `invalid-package` (exit 40), and evidence verification returns false. Evidence bundles also refuse to serialize non-finite numeric results.
 
 See [pilot validation](PILOT_VALIDATION.md) for the proposed customer/comparator experiment, economic measurement, failure conditions and evidence gates. Its price and milestones are commercial hypotheses, not validated market facts.
