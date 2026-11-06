@@ -188,3 +188,25 @@ The complete focused worldview/forecast/factual suite passes **123/123 tests**.
 All scripted model responses are synthetic software controls. This provides no
 live forecasting, factual reliability, theological, commercial or causal result.
 Final-head independent substantive review and protected checks remain separate.
+
+### Preregistration boundary correction
+
+WORLD-REGISTRATION-001 / source review comment `4494358588`, thread
+`PRRT_kwDOTH_vCM60k0OP`, reviewed head
+`658f160fb22b04897f9139e7347a9d323324aba5`: joining resolutions accepted
+registration at 10:00:59 during collection from 10:00:00 to 10:01:00.
+Already-flushed arm responses could be inspected before that declaration.
+The protocol requires registration before collection, not merely before its end.
+
+The join now checks aware timestamps with the declared ordering
+`registered_at < forecast_generated_at <= completed_at`. Missing/naive starts
+and reversed collection intervals fail. This checks declared chronology only;
+authentic independent preregistration and timestamp custody remain unverified.
+
+Two root-cause regressions produced **five failed subcases before correction**
+([before](../../evaluation/evidence/worldview-intake-convergence-20261106/registration-before.log))
+and pass afterward
+([after](../../evaluation/evidence/worldview-intake-convergence-20261106/registration-after.log)).
+The complete focused suite now passes **125/125 tests**. No live forecast or
+frozen study is rewritten. This material correction requires fresh exact-head
+independent review and ordinary protected checks.

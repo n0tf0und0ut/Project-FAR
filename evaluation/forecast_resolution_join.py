@@ -30,9 +30,12 @@ def join_resolutions(forecast, resolution, *, registered_at,
     _digest(forecast.get("question_set_sha256"))
     _digest(protocol_sha256)
     reg = _time(registered_at)
+    started = _time(forecast.get("forecast_generated_at"))
     lock = _time(forecast.get("completed_at"))
-    if reg >= lock:
-        raise AblationError("protocol registration must precede prediction lock")
+    if started > lock:
+        raise AblationError("forecast collection start must not follow completion")
+    if reg >= started:
+        raise AblationError("protocol registration must precede forecast collection")
     if not isinstance(resolution, dict) or resolution.get("version") != "FAR-WORLD-RESOLVE/0.1":
         raise AblationError("invalid independently sourced resolution set")
     if resolution.get("question_set_sha256") != forecast["question_set_sha256"]:

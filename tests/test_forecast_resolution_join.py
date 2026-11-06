@@ -51,6 +51,24 @@ def resolutions(forecast):
 
 
 class ResolutionJoinTests(unittest.TestCase):
+    def test_4494358588_registration_precedes_collection_not_just_completion(self):
+        forecast = forecasts()
+        for registered in ("2026-11-08T10:00:00Z", "2026-11-08T10:00:59Z"):
+            with self.subTest(registered=registered), self.assertRaisesRegex(AblationError,"registration"):
+                join_resolutions(forecast,resolutions(forecast),registered_at=registered,
+                                 protocol_sha256=PROTOCOL,data_class="prospective")
+        _, result = join_resolutions(forecast,resolutions(forecast),
+                                     registered_at="2026-11-08T09:59:59Z",
+                                     protocol_sha256=PROTOCOL,data_class="prospective")
+        self.assertEqual(result["n"],2)
+
+    def test_collection_start_is_required_aware_and_not_after_completion(self):
+        for start in (None, "2026-11-08T10:00:00", "2026-11-08T10:02:00Z"):
+            forecast=forecasts();forecast["forecast_generated_at"]=start
+            with self.subTest(start=start), self.assertRaises(AblationError):
+                join_resolutions(forecast,resolutions(forecast),registered_at=REGISTERED,
+                                 protocol_sha256=PROTOCOL,data_class="prospective")
+
     def test_complete_three_arm_forecasts_score_only_after_outcomes(self):
         f = forecasts()
         doc, score = join_resolutions(f, resolutions(f),
