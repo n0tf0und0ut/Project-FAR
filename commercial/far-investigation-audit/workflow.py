@@ -23,12 +23,33 @@ MAX_INPUT = 190_000
 MAX_EVIDENCE_SOURCES = 8
 
 
+class VerifiedSnapshotResume(dict):
+    """Local request carrying snapshots from a replay-verified package.
+
+    The snapshot bytes are deliberately outside the user-facing JSON request.
+    Untrusted dictionaries cannot supply retained snapshots by reference.
+    """
+
+    def __init__(self, config, snapshots):
+        super().__init__(config)
+        self.verified_snapshots = dict(snapshots)
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
-def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fetcher, permit_files: bool = False, permit_model: bool = False, transcription_client=None) -> tuple[str, dict, dict]:
+def _loaded_source(config: dict, *, permit_network: bool, source_fetcher, yt_fetcher, permit_files: bool = False, permit_model: bool = False, transcription_client=None, verified_snapshots=None) -> tuple[str, dict, dict]:
     kind = config.get("kind")
+    if kind == "verified_snapshot":
+        identity = config.get("snapshot_sha256")
+        raw = verified_snapshots.get(identity) if isinstance(verified_snapshots, dict) and isinstance(identity, str) else None
+        if (not isinstance(raw, str) or not raw.strip() or
+                len(raw.encode("utf-8")) > MAX_INPUT or digest(raw.encode("utf-8")) != identity):
+            raise InvalidBundle("verified source reference unavailable or invalid")
+        return raw, {"raw_sha256": identity, "raw_snapshot_utf8": raw,
+                     "extraction": "text_provided_v1",
+                     "external_authenticity_verified": False}, config
     if kind in {"pdf_file", "media_file"}:
         if not permit_files:
             raise InvalidBundle("local file paths are disabled in server requests")
@@ -76,6 +97,8 @@ def investigate(config: dict, *, permit_network: bool = False,
             raise InvalidBundle("investigation request over byte cap")
     except (TypeError, ValueError, RecursionError) as exc:
         raise InvalidBundle("request is not finite valid JSON") from exc
+    verified_snapshots = (config.verified_snapshots
+                          if type(config) is VerifiedSnapshotResume else None)
     requested = config.get("captured_at", _now())
     timestamp(requested, "captured_at")
     primary_cfg = config.get("source")
@@ -96,7 +119,8 @@ def investigate(config: dict, *, permit_network: bool = False,
     text, primary_provenance, _ = _loaded_source(primary_cfg, permit_network=permit_network,
                                                 source_fetcher=source_fetcher, yt_fetcher=yt_fetcher,
                                                 permit_files=permit_files, permit_model=permit_model,
-                                                transcription_client=transcription_client)
+                                                transcription_client=transcription_client,
+                                                verified_snapshots=verified_snapshots)
     source_texts = {"primary": text}
     meta = {"primary": {"origin_id": primary_cfg.get("origin_id"), "publication_date_verified": False,
                         "origin_verified": False,
@@ -104,12 +128,13 @@ def investigate(config: dict, *, permit_network: bool = False,
     publications = {"primary": primary_cfg.get("published_at")}
     acquisitions = [{"source_id": "primary", **primary_provenance}]
     for i, scfg in enumerate(evidence_configs):
-        if scfg.get("kind") not in {"text", "html", "url", "srt", "vtt", "pdf_file"}:
+        if scfg.get("kind") not in {"text", "html", "url", "srt", "vtt", "pdf_file", "verified_snapshot"}:
             raise InvalidBundle("evidence source kind unsupported")
         source, provenance, _ = _loaded_source(scfg, permit_network=permit_network,
                                                 source_fetcher=source_fetcher, yt_fetcher=yt_fetcher,
                                                 permit_files=permit_files, permit_model=permit_model,
-                                                transcription_client=transcription_client)
+                                                transcription_client=transcription_client,
+                                                verified_snapshots=verified_snapshots)
         name = f"ev{i+1}"
         source_texts[name] = source
         publications[name] = scfg.get("published_at")
