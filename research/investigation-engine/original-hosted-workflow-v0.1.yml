@@ -1,0 +1,51 @@
+name: FAR Hosted Investigation Recovery
+on:
+  push:
+    branches: [research/general-investigation-engine-20261103]
+permissions:
+  contents: read
+jobs:
+  frozen-investigations:
+    if: contains(github.event.head_commit.message, '[FAR-INV-HOSTED-001]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - name: Exact source without persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify frozen input and offline controls
+        run: |
+          python -m pip install 'PyYAML>=6.0,<7' 'jsonschema>=4.22,<5'
+          echo 'c10854197fdff2f02785c66ab6ebe1795af1486525fe5885cd917ca939ac0f0a  research/investigation-engine/selection-v2.json' | sha256sum --check
+          python -m unittest tests.test_far_investigation_retrieval tests.test_far_investigation_verifiers tests.test_far_investigation_engine tests.test_far_investigation_audit tests.test_far_investigation_campaign tests.test_far_autonomous_investigation tests.test_far_uncertain_routing_pilot tests.test_far_routing_dispatch tests.test_far_intake_v1 -v
+      - name: Prepare checksum-pinned local model and CPU runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/llama"
+          curl --fail --location --retry 3 --max-time 300 'https://github.com/ggml-org/llama.cpp/releases/download/b12023/llama-b12023-bin-ubuntu-x64.tar.gz' --output "$RUNNER_TEMP/llama.tar.gz"
+          echo "ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0  $RUNNER_TEMP/llama.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/llama.tar.gz" -C "$RUNNER_TEMP/llama"
+          curl --fail --location --retry 3 --max-time 900 'https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF/resolve/f302c64a2269a69fb27b2f9473b362f5bb8e78d8/Qwen2.5-3B-Instruct-Q4_K_M.gguf' --output "$RUNNER_TEMP/model.gguf"
+          echo "9c9f56a391a3abbd5b89d0245bf6106081bcc3173119d4229235dd9d23253f94  $RUNNER_TEMP/model.gguf" | sha256sum --check
+      - name: Execute every frozen question and all three original lanes
+        timeout-minutes: 85
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/llama/llama-b12023:${LD_LIBRARY_PATH:-}"
+          python tools/far_investigation_campaign.py research/investigation-engine/selection-v2.json --output "$RUNNER_TEMP/investigation-evidence" --model "$RUNNER_TEMP/model.gguf" --server "$RUNNER_TEMP/llama/llama-b12023/llama-server" --dns-mode preflight --seconds 420
+      - name: Preserve original and partial raw evidence without model weights
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: far-investigation-recovery-${{ github.sha }}
+          path: ${{ runner.temp }}/investigation-evidence/
+          if-no-files-found: warn
+          retention-days: 90
