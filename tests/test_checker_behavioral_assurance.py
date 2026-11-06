@@ -283,7 +283,7 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
              lambda root: _append_promotion(root, "External validation: confirmed"),
              "promotional-verb-omission"),
             (GOVERNANCE,
-             "for match in LABEL_PROMOTION.finditer(line):",
+             "for match in LABEL_PROMOTION.finditer(statement):",
              "for match in ():",
              lambda root: _append_promotion(root, "Novelty: established"),
              "label-check-disabling"),
