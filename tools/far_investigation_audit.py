@@ -65,6 +65,22 @@ def audit(state) -> dict:
         equal(path + '.body', transport['raw_response_base64'], encoded)
         equal(path + '.hash', transport['response_sha256'], digest)
         equal(path + '.bytes', transport['response_bytes_retained'], size)
+        # Completion flags cannot override the native reader's declared HTTP
+        # framing. Reconstruct Content-Length from retained header metadata.
+        headers = transport.get('response_headers', {})
+        lengths = transport.get('content_length_values', [])
+        if type(headers) is not dict or type(lengths) is not list:
+            fail(path + '.content_length', 'malformed HTTP framing metadata')
+        else:
+            listed = [value for key, value in headers.items()
+                      if type(key) is str and key.lower() == 'content-length']
+            if listed != lengths:
+                fail(path + '.content_length', 'declared framing differs from response headers')
+            if lengths:
+                if (len(lengths) != 1 or type(lengths[0]) is not str
+                        or not lengths[0].isascii() or not lengths[0].strip().isdigit()
+                        or len(lengths[0].strip()) > 20 or int(lengths[0].strip()) != size):
+                    fail(path + '.content_length', 'completed body length contradicts HTTP Content-Length')
         if request_url is not None:
             equal(path + '.request_url', transport['request_url'], request_url)
 
@@ -246,6 +262,11 @@ def audit(state) -> dict:
                     equal(path + '.tokens', response['usage']['total_tokens'], count)
                     equal(path + '.model', response.get('model'), payload['metadata'].get('model'))
             elif kind == 'TOOL_PROPOSAL':
+                # The runtime checks the token budget before journaling a new
+                # proposal, even when a later operation fails. An exhausted
+                # model response cannot produce downstream tool side effects.
+                if state['mode'] == 'agent' and tokens >= budget['max_model_tokens']:
+                    fail(path + '.token_budget', 'tool proposal follows exhausted model token budget')
                 if tool_pending is not absent:
                     fail(path, 'previous tool proposal has no recorded outcome')
                 if state['mode'] == 'agent':
