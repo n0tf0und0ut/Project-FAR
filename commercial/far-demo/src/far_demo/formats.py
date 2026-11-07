@@ -325,3 +325,13 @@ def _coerce(value: Any) -> Any:
         return loads_strict(text)
     except json.JSONDecodeError:
         return text
+    except ValueError:
+        # Strict numeric/member hooks can reject a prefix before the JSON
+        # decoder knows whether the *whole* cell is a JSON value. Only a
+        # syntax-invalid cell may fall back to plain text; complete ambiguous
+        # or non-finite JSON must retain the strict rejection.
+        try:
+            json.loads(text)  # Syntax probe only; never consume its result.
+        except json.JSONDecodeError:
+            return text
+        raise
