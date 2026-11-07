@@ -4338,7 +4338,35 @@
         "tools/far_routing_dispatch.py",
         "tools/far_uncertain_routing_pilot.py"
       ],
-      "changed_files_list_count": 20
+      "changed_files_list_count": 20,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/6f59f8a539717940ac2a27cc26a8cc204eec7b1f/research/uncertain-routing/finding-ledger.md",
+          "kind": "source_blob",
+          "ref_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+          "path": "research/uncertain-routing/finding-ledger.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "061a3ea2fb5cb95dbbcd566694552c7e00b1cd5f",
+          "linked_exists": true,
+          "current_blob_sha": "061a3ea2fb5cb95dbbcd566694552c7e00b1cd5f",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/608#discussion_r4494361655",
+          "kind": "discussion_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        }
+      ]
     },
     {
       "number": 607,
@@ -4634,7 +4662,28 @@
         "tools/workflow_efficacy_local_install.sh",
         "tools/workflow_efficacy_local_ollama.py"
       ],
-      "changed_files_list_count": 15
+      "changed_files_list_count": 15,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41727268815/job/126235238730",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/e959c755bff26a6994df8ddc4ac05e272778a0c0/research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+          "kind": "source_blob",
+          "ref_sha": "e959c755bff26a6994df8ddc4ac05e272778a0c0",
+          "path": "research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903",
+          "linked_exists": true,
+          "current_blob_sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 606,
@@ -4982,7 +5031,21 @@
         "tools/far_architecture_cpu_experiment.py",
         "tools/far_architecture_routing.py"
       ],
-      "changed_files_list_count": 17
+      "changed_files_list_count": 17,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/dd00a19507a617ab6e067c25b845ac08106d6431/research/architecture-routing/finding-ledger.md",
+          "kind": "source_blob",
+          "ref_sha": "dd00a19507a617ab6e067c25b845ac08106d6431",
+          "path": "research/architecture-routing/finding-ledger.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106",
+          "linked_exists": true,
+          "current_blob_sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 601,
@@ -5417,7 +5480,21 @@
         "tests/test_mechanistic_real_digits_optional.py",
         "tests/test_mechanistic_search.py"
       ],
-      "changed_files_list_count": 40
+      "changed_files_list_count": 40,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/a75d6b1fa2450645ef082854a810d731b4bb1262/docs/research/far-mech-convergence-20261103.md",
+          "kind": "source_blob",
+          "ref_sha": "a75d6b1fa2450645ef082854a810d731b4bb1262",
+          "path": "docs/research/far-mech-convergence-20261103.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "d128b4f209e6224050b76fc0885cfba46955b521",
+          "linked_exists": true,
+          "current_blob_sha": "d128b4f209e6224050b76fc0885cfba46955b521",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 600,
