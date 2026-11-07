@@ -1,0 +1,64 @@
+{
+  "schema": "far-investigation-evidence-manifest/0.1",
+  "status": "Research",
+  "files": [
+    {
+      "path": "selection-v1.json",
+      "sha256": "d66d3617b2b4a5453e421156aa0bfeb8ca8dac5ac3985ba9c583b412935b0150",
+      "scope": "Preserved exposed pre-execution selection; not fresh held-out execution evidence."
+    },
+    {
+      "path": "selection-v2.json",
+      "sha256": "c10854197fdff2f02785c66ab6ebe1795af1486525fe5885cd917ca939ac0f0a",
+      "scope": "Fresh independently selected internal eight-task manifest; coordinator not exposed to question contents before original trials."
+    },
+    {
+      "path": "hosted-recovery-v0.1.zip",
+      "sha256": "ac45229fda1e7a38fe23b5127cfd361fc938601bc5b6db94bd5d9a95268473e9",
+      "audit_transcripts": true,
+      "selection_path": "selection-v2.json",
+      "modes": [
+        "deterministic",
+        "declarative",
+        "agent"
+      ],
+      "source_commit": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+      "source_hashes": {
+        "tools/far_autonomous_investigation.py": "b106fc092f88e6d7ce839f3d86353e915f1c0c0b1c9678aa7fe7d287b42e1edd",
+        "tools/far_investigation_audit.py": "f06d7704bd17daebb04efea709b5c2737d493d4795d0faaefd50feac79ad9cdb",
+        "tools/far_investigation_campaign.py": "ac2b1c87bf8177dccd0aa949619b7ef342ba8fb7856274a0b070ad4a1d381fc8",
+        "tools/far_investigation_engine.py": "1e251a2c7100727079642c18c6c1c6c1b636a8f9f63baceb540519ae8f0c7af4",
+        "tools/far_investigation_retrieval.py": "3c1a7605eee25aa9621dcc0316fffd72609321aa5ce7b568a60b646bf556ad60",
+        "tools/far_investigation_verifiers.py": "daff593b4e56cd88ba9dff3c1eed0cd06decc52b9f9536442566ffcff224bd7b",
+        "tools/far_routing_dispatch.py": "bc74c237817bd82937a064113849dadd86ca78323b01983ecee272267dfcc2c2",
+        "tools/far_uncertain_routing_pilot.py": "c8df847bfb554d31b623554e2984e9cd08f82f68a24663be9f3bb1a96808ed47"
+      },
+      "scope": "Original completed negative campaign; 24 exact transcripts, not a successor rerun."
+    },
+    {
+      "path": "recompute-numeric-v0.1.py",
+      "sha256": "919a8a78ad445cdcd7d19d4102fea7d89dd632a6cb76b63e37c0d616e549c7d8",
+      "scope": "Post-hoc deterministic recomputation on retained original bytes, not model execution or independent adjudication."
+    },
+    {
+      "path": "posthoc-numeric-recomputation-v0.1.json",
+      "sha256": "32fee05e168f29efe24701429cbc110e5fa1e1c46985051d6febbb4b0eec547e",
+      "scope": "Post-hoc deterministic recomputation on retained original bytes, not model execution or independent adjudication."
+    },
+    {
+      "path": "record-odr-preparation-v0.1.py",
+      "sha256": "ae3f917801107e20153788dee7dc2e548fd6ed6781ac885700dde776bc3560ce",
+      "scope": "FAR-ODR-PREP-001 scripted actual-upstream-graph engineering preparation; no live comparator efficacy or historical source reconstruction."
+    },
+    {
+      "path": "requirements-odr-preparation-v0.1.txt",
+      "sha256": "60ffac3769dcead4ebf395972b8babd656a18a71f8206eaddb990d96add34247",
+      "scope": "FAR-ODR-PREP-001 scripted actual-upstream-graph engineering preparation; no live comparator efficacy or historical source reconstruction."
+    },
+    {
+      "path": "odr-preparation-observation-v0.1.json",
+      "sha256": "443e85bc7b70a7fe6a1b7944bffd608729560095f0e3c67be8e4da1c3a9d96cb",
+      "scope": "FAR-ODR-PREP-001 scripted actual-upstream-graph engineering preparation; no live comparator efficacy or historical source reconstruction."
+    }
+  ]
+}

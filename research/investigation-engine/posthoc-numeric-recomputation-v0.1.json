@@ -1,0 +1,242 @@
+{
+  "H202": {
+    "amplitude_ratio_decimal_50_digits": "794.32823472428150206591828283638793258896063175548",
+    "bindings": [
+      {
+        "end": 11584,
+        "projection_sha256": "961cdeb7bf2dc913433bdb95ea860cf57790ba551abf641606441000c555c61f",
+        "quote": "10**(8.7-5.8)",
+        "source_sha256": "cc36774f9e6963dcc9451414ae83f1ab31fdc54cc40f826740503e2cc7372884",
+        "source_url": "https://earthquake.usgs.gov/education/how_much_bigger.php",
+        "start": 11571
+      },
+      {
+        "end": 13113,
+        "projection_sha256": "961cdeb7bf2dc913433bdb95ea860cf57790ba551abf641606441000c555c61f",
+        "quote": "10**(1.5*(8.7-5.8))",
+        "source_sha256": "cc36774f9e6963dcc9451414ae83f1ab31fdc54cc40f826740503e2cc7372884",
+        "source_url": "https://earthquake.usgs.gov/education/how_much_bigger.php",
+        "start": 13094
+      }
+    ],
+    "empirical_energy_ratio_decimal_50_digits": "22387.211385683396119549508524657423337072613976838",
+    "nearest_integer_ratios": [
+      794,
+      22387
+    ],
+    "scope": "Recompute quoted formulas only; no intensity, damage or causal-effect inference."
+  },
+  "H203": {
+    "bindings": [
+      {
+        "end": 3117,
+        "projection_sha256": "ae1638a2c319ad6d1d2b0dd566311def22923432cecf6225db4becc3041b0f61",
+        "quote": "50  48  44  56  61  52  53  55  67  51",
+        "source_sha256": "76739c426efdd8f7352c71bc2d1097e0fc87ab87721ac3dc1b19cdd76235f9e4",
+        "source_url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc22.htm",
+        "start": 3079
+      },
+      {
+        "end": 3447,
+        "projection_sha256": "ae1638a2c319ad6d1d2b0dd566311def22923432cecf6225db4becc3041b0f61",
+        "quote": "process mean is 50 counts",
+        "source_sha256": "76739c426efdd8f7352c71bc2d1097e0fc87ab87721ac3dc1b19cdd76235f9e4",
+        "source_url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc22.htm",
+        "start": 3422
+      },
+      {
+        "end": 4355,
+        "projection_sha256": "ae1638a2c319ad6d1d2b0dd566311def22923432cecf6225db4becc3041b0f61",
+        "quote": "t_{1-0.025, \\, 9} = 2.262",
+        "source_sha256": "76739c426efdd8f7352c71bc2d1097e0fc87ab87721ac3dc1b19cdd76235f9e4",
+        "source_url": "https://www.itl.nist.gov/div898/handbook/prc/section2/prc22.htm",
+        "start": 4330
+      }
+    ],
+    "comparison_passed": true,
+    "critical_value_independently_recomputed": false,
+    "decision_using_reported_critical_value": "DO_NOT_REJECT_POINT_NULL",
+    "degrees_of_freedom": 9,
+    "mean_exact": "537/10",
+    "n": 10,
+    "sample": [
+      50,
+      48,
+      44,
+      56,
+      61,
+      52,
+      53,
+      55,
+      67,
+      51
+    ],
+    "sample_sd_decimal": "6.5667512684905480758329207366834319137571746420265",
+    "sample_variance_exact": "3881/90",
+    "scope": "Conditional arithmetic on retained observations; randomness, independence, distribution and process stability unverified.",
+    "source_reported_critical_value": "2.262",
+    "t_statistic_decimal": "1.7817680104263331844078332643248673327170773502271",
+    "two_sided_alpha": "0.05"
+  },
+  "H208": {
+    "bindings": [
+      {
+        "end": 7052,
+        "projection_sha256": "7e8baefab0c297014803f13c667ca5b51694defd5d6253a074bf181f5abac0a8",
+        "quote": "centurial years that are not evenly divisible by 400",
+        "source_sha256": "67aac8da192beb71cd7639231964687aa442f791490902a6dd25dcd500e62a8e",
+        "source_url": "https://aa.usno.navy.mil/faq/leap_years",
+        "start": 7000
+      },
+      {
+        "end": 7382,
+        "projection_sha256": "7e8baefab0c297014803f13c667ca5b51694defd5d6253a074bf181f5abac0a8",
+        "quote": "approximately 365.2422 days",
+        "source_sha256": "67aac8da192beb71cd7639231964687aa442f791490902a6dd25dcd500e62a8e",
+        "source_url": "https://aa.usno.navy.mil/faq/leap_years",
+        "start": 7355
+      }
+    ],
+    "calendar_library_agreement": true,
+    "cycle_end_exclusive": 2400,
+    "cycle_start_inclusive": 2000,
+    "difference_from_quoted_approximate_tropical_year_seconds_exact": "648/25",
+    "enumerated_leap_years": [
+      2000,
+      2004,
+      2008,
+      2012,
+      2016,
+      2020,
+      2024,
+      2028,
+      2032,
+      2036,
+      2040,
+      2044,
+      2048,
+      2052,
+      2056,
+      2060,
+      2064,
+      2068,
+      2072,
+      2076,
+      2080,
+      2084,
+      2088,
+      2092,
+      2096,
+      2104,
+      2108,
+      2112,
+      2116,
+      2120,
+      2124,
+      2128,
+      2132,
+      2136,
+      2140,
+      2144,
+      2148,
+      2152,
+      2156,
+      2160,
+      2164,
+      2168,
+      2172,
+      2176,
+      2180,
+      2184,
+      2188,
+      2192,
+      2196,
+      2204,
+      2208,
+      2212,
+      2216,
+      2220,
+      2224,
+      2228,
+      2232,
+      2236,
+      2240,
+      2244,
+      2248,
+      2252,
+      2256,
+      2260,
+      2264,
+      2268,
+      2272,
+      2276,
+      2280,
+      2284,
+      2288,
+      2292,
+      2296,
+      2304,
+      2308,
+      2312,
+      2316,
+      2320,
+      2324,
+      2328,
+      2332,
+      2336,
+      2340,
+      2344,
+      2348,
+      2352,
+      2356,
+      2360,
+      2364,
+      2368,
+      2372,
+      2376,
+      2380,
+      2384,
+      2388,
+      2392,
+      2396
+    ],
+    "leap_count": 97,
+    "mean_days_exact": "146097/400",
+    "scope": "Specified proleptic Gregorian cycle and quoted approximation only; no universal astronomical-year or long-term synchronization claim.",
+    "total_days": 146097
+  },
+  "independent_semantic_adjudication": false,
+  "limitations": [
+    "Post-hoc analyst selection of three deterministic numeric obligations.",
+    "Calculations do not repair or replace original agent/workflow answers.",
+    "No competitor, human-outcome, population-reliability or causal-superiority estimate."
+  ],
+  "new_model_calls": 0,
+  "original_lane_observation": {
+    "H202": {
+      "all_native_outcomes_unknown": true,
+      "native_evaluations": 1,
+      "native_plan_kinds": [
+        "evidence_assessment"
+      ]
+    },
+    "H203": {
+      "all_native_outcomes_unknown": true,
+      "native_evaluations": 1,
+      "native_plan_kinds": [
+        "evidence_assessment"
+      ]
+    },
+    "H208": {
+      "all_native_outcomes_unknown": true,
+      "native_evaluations": 1,
+      "native_plan_kinds": [
+        "evidence_assessment"
+      ]
+    }
+  },
+  "original_zip_sha256": "ac45229fda1e7a38fe23b5127cfd361fc938601bc5b6db94bd5d9a95268473e9",
+  "recipe_sha256": "919a8a78ad445cdcd7d19d4102fea7d89dd632a6cb76b63e37c0d616e549c7d8",
+  "schema": "far-posthoc-numeric-recomputation/0.1",
+  "status": "INTERNAL_POSTHOC_REPLAY_ONLY"
+}

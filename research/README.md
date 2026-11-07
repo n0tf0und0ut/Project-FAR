@@ -20,6 +20,8 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 - [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.
 - [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.
 - [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.
+- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.
+- [`investigation-engine/README.md`](investigation-engine/README.md) — Research agent-directed retrieval and verification, frozen cross-domain evaluation and auditable failures; general reliability and advantage unestablished.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.

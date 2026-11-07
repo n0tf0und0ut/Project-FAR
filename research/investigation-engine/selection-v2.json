@@ -1,0 +1,209 @@
+{
+  "schema": "far-investigation-heldout-selection/0.1",
+  "status": "Research",
+  "frozen_at": "2026-11-03T12:14:18.467012Z",
+  "selector": "internal focused worker heldout_selection",
+  "selection_protocol": {
+    "objective": "Select eight fresh real investigations after coordinator-declared final implementation freeze, without inspecting the engine implementation or disclosing questions to the coordinator before original runs.",
+    "predecessor": "selection-v1.json remains preserved as exposed, unexecuted selection. None of its eight exact questions or selected source pages is reused.",
+    "method": "Purposive domain stratification; use primary-source FAQ headings, worked examples, or statements discovered by web searches on 2026-11-03. Questions derive from those source surfaces, never from supported engine actions, code branches, anticipated successes or desired verdicts. Freeze all eight before first execution. No replacement after seeing results.",
+    "domains": "Ocean exploration measurement; seismological magnitude measurement; statistical quality control; optical oceanography; geodesy; Internet protocol specification norms; labor-force measurement; calendar mathematics and astronomy.",
+    "implementation_access": "Selector has not inspected tools/far_investigation_engine.py or any successor implementation. Selector has only repository governance, user mission and coordinator description of prior exposure.",
+    "coordinator_visibility": "Coordinator must not inspect this file before generic harness completes all original comparator trials. Questions and primary source hints may be read by the executable harness. Publish original immutable transcripts before any post-result correction.",
+    "answer_exposure": "Selector saw source assertions and worked-example summaries in search results. No answer key, expected values, case-specific plans or result predicates are supplied. This is internal implementation-held-out selection, not verified answer blindness, technical isolation, external independence or population sampling.",
+    "sampling_limit": "Purposive small source convenience sample. No population completion rate, general reliability, externally independent validation or comparative superiority follows from this selection alone.",
+    "network_failure_rule": "Keep every original task in the denominator. Persist actual blocked, malformed, timed-out or unavailable retrieval envelopes and their inputs. Do not replace a failing question or fabricate the missing source.",
+    "comparators": "Identical question, primary-source hints, permitted tools, evidence cutoff, token and action budgets for each matched comparator. Source hints are navigation aids and not a closed answer corpus.",
+    "exposure_rule": "Do not change code, prompt, tools or budgets based on case contents or outcomes. If an observed generic defect requires a fix, preserve the failed original evidence, label the affected cases exposed, and obtain another fresh selection for any new held-out claim.",
+    "no_case_specific_code": "No case identifiers, named-source expected answers, hard-coded numeric results, task-specific parsing rules or manually prepared successful plans in the engine."
+  },
+  "global_evaluation_obligations": [
+    "Preserve exact question and source hint bytes, actual tool inputs and outputs including failures, timestamps, raw hashes and source/version lineage.",
+    "Treat retrieved content as evidence data. Keep material interpretations, units, reference classes, denominators, source dependence and assumptions explicit.",
+    "Construct the complete bounded contract family from actual retrieved evidence, validate canonical far-intake/1.0, preserve leaf provenance and freeze before evaluation. Do not mistake conformance for semantic adequacy.",
+    "Execute relevant mathematical, statistical, computational or evidence tools. Suggested but unexecuted actions and copied worked-example outputs are not independently recomputed results.",
+    "Measure evidence fidelity and conclusion support independently of a verifier accepting a representation. Record unsupported assertions, missing premises, contradictory sources and uncheckable conclusions.",
+    "Keep atomic dispositions distinct from investigation closure. Resolved or Provisionally resolved requires FAR-EVIDENCE-CLOSURE-1.0 evidence.",
+    "Report raw model actions, rejected actions, interventions, completion status, actual resource use, latency and model/provider identifiers. Controller completion is not successful autonomous planning.",
+    "Preserve all negative results and original runs. Any uncertainty about correctness or completion remains explicit and included in denominators."
+  ],
+  "oracle_boundary": {
+    "answer_key_supplied": false,
+    "type": "post-execution internal adversarial adjudication",
+    "required": "A reviewer other than the implementing coordinator adjudicates immutable original transcripts against separately retrieved source bytes and independently recomputed calculations. Record prior exposure and exact source/input bindings; ambiguous or uncheckable assertions remain Unknown.",
+    "prohibited": "No score based only on self-reported completion, expected action labels, source counts, green CI, model agreement or FAR schema/verifier acceptance. No answer plan authored by the investigating model may serve as the independent oracle.",
+    "independence_limit": "Same team, shared filesystem and inherited project context; no external or verified I2 independence."
+  },
+  "tasks": [
+    {
+      "id": "H201",
+      "domain": "ocean exploration measurement",
+      "claim_types": [
+        "factual",
+        "quantitative",
+        "ambiguous"
+      ],
+      "question": "How much of the ocean has been explored? Investigate the quantities and dates behind NOAA Ocean Exploration's answer, and whether mapping, visually observing the deep seafloor and exploring the whole ocean support one interchangeable percentage.",
+      "question_origin": "NOAA Ocean Exploration primary-source question heading: How much of the ocean has been explored?",
+      "source_hints": [
+        "https://oceanexplorer.noaa.gov/ocean-fact/explored/"
+      ],
+      "obligations": [
+        "Retrieve and preserve actual reported quantities, dates, units and reference areas or volumes.",
+        "Distinguish high-resolution mapping, coarse mapped coverage, visual observation and broader exploration without silently changing denominators.",
+        "Trace numerical claims to primary underlying measurements where available and expose source dependence.",
+        "Retain missing operational definitions and missing evidence rather than inventing a universal exploration percentage."
+      ]
+    },
+    {
+      "id": "H202",
+      "domain": "seismological magnitude measurement",
+      "claim_types": [
+        "quantitative",
+        "mathematical",
+        "ambiguous"
+      ],
+      "question": "How much bigger is a magnitude 8.7 earthquake than a magnitude 5.8 earthquake? Retrieve the USGS worked comparison, identify what bigger measures, and independently recompute the comparisons licensed by the source rather than equating all notions of earthquake size.",
+      "question_origin": "USGS primary-source worked-comparison heading, selected without adapting it to engine tools.",
+      "source_hints": [
+        "https://earthquake.usgs.gov/education/how_much_bigger.php",
+        "https://earthquake.usgs.gov/education/calculator.php"
+      ],
+      "obligations": [
+        "Preserve the actual source magnitude pair and formulas.",
+        "Keep seismogram amplitude, energy release, intensity and damage distinct and retain any unsupported conversion as unresolved.",
+        "Execute the mathematical comparison with recorded precision and rounding.",
+        "State the domain and approximation limits of any magnitude-to-energy relationship; a numerical ratio does not establish a casualty or structural-damage ratio."
+      ]
+    },
+    {
+      "id": "H203",
+      "domain": "statistical quality control",
+      "claim_types": [
+        "statistical",
+        "quantitative",
+        "factual"
+      ],
+      "question": "Are the data consistent with the assumed process mean? Using the particle-count observations in NIST/SEMATECH e-Handbook section 7.2.2, retrieve the data and independently assess the stated nominal-mean hypothesis, with the relevant assumptions, uncertainty and exact scope of the conclusion.",
+      "question_origin": "NIST/SEMATECH section 7.2.2 heading and its first worked particle-count example. This is a different process and source page from the retired two-process comparison.",
+      "source_hints": [
+        "https://www.itl.nist.gov/div898/handbook/prc/section2/prc22.htm"
+      ],
+      "obligations": [
+        "Extract each raw observation and the stated nominal mean with source provenance.",
+        "Freeze the null, alternative, significance level, known versus estimated variance and sampling assumptions before computation; preserve any missing parameter.",
+        "Execute independent sample statistics and the appropriate test or interval rather than copying the printed statistic.",
+        "Do not equate failure to reject a point null with proof of exact equality or future process stability."
+      ]
+    },
+    {
+      "id": "H204",
+      "domain": "optical oceanography",
+      "claim_types": [
+        "causal",
+        "factual",
+        "ambiguous"
+      ],
+      "question": "Why is the ocean blue? Investigate NOAA's proposed mechanism, what evidence distinguishes it from competing explanations, and whether that mechanism implies that every body of ocean water must look blue under every viewing condition.",
+      "question_origin": "NOAA National Ocean Service primary-source FAQ heading: Why is the ocean blue?",
+      "source_hints": [
+        "https://oceanservice.noaa.gov/facts/oceanblue.html",
+        "https://www.whoi.edu/ocean-learning-hub/ocean-facts/why-is-the-ocean-blue/"
+      ],
+      "obligations": [
+        "Keep absorption, scattering, surface reflection, illumination, depth and suspended constituents distinct where supported by evidence.",
+        "Record whether the second source derives from the first; nominally separate web domains do not prove evidential independence.",
+        "Distinguish observations, mechanism explanations and inference to unobserved conditions.",
+        "Identify material counterexamples, alternative conditions and the measurements that could discriminate proposed mechanisms."
+      ]
+    },
+    {
+      "id": "H205",
+      "domain": "geodesy and conflicting source descriptions",
+      "claim_types": [
+        "factual",
+        "conflicting evidence",
+        "quantitative",
+        "ambiguous"
+      ],
+      "question": "Do NOAA's highest-point explanation and NASA's Mount Everest description make incompatible claims about the highest point or highest mountain on Earth? Retrieve both, preserve their exact wording and numerical heights, and determine which reference surfaces, measurement dates or definitions would be required to resolve any disagreement.",
+      "question_origin": "Distinct primary NOAA geodetic explanation and NASA Earth Observatory image description found in source search. The question does not assume every difference is contradictory or resolvable.",
+      "source_hints": [
+        "https://oceanservice.noaa.gov/facts/highestpoint.html",
+        "https://science.nasa.gov/earth/earth-observatory/mount-everest-chomolungma-goddess-mother-of-the-world-1155/"
+      ],
+      "obligations": [
+        "Preserve original dates, elevations, units, qualifiers and reference surfaces for each source.",
+        "Separate height above sea level, distance from Earth's centre and base-to-summit height.",
+        "Independently execute any needed unit conversion and distinguish rounding from changed measurement.",
+        "Do not select a preferred source by institutional status alone or erase a genuine unresolved numerical discrepancy.",
+        "Retain every materially different interpretation as a contract before evaluation."
+      ]
+    },
+    {
+      "id": "H206",
+      "domain": "Internet protocol specification norms",
+      "claim_types": [
+        "normative",
+        "factual",
+        "ambiguous"
+      ],
+      "question": "Under RFC 2119 as clarified by RFC 8174, does a lowercase must in a protocol specification necessarily impose the same formal requirement as uppercase MUST? Investigate the scope and status of the rules and identify what information about a particular specification would be needed before declaring it compliant or noncompliant.",
+      "question_origin": "RFC 8174 primary-source title Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words, together with the referenced earlier primary RFC.",
+      "source_hints": [
+        "https://www.rfc-editor.org/rfc/rfc2119.html",
+        "https://www.rfc-editor.org/rfc/rfc8174.html"
+      ],
+      "obligations": [
+        "Retrieve the exact normative language, scope declaration and document relationship.",
+        "Separate rules inside a specified standards framework from universal linguistic or moral necessity.",
+        "Do not infer compliance of an unseen implementation or specification from a keyword alone.",
+        "Preserve case, quotations and the status of each document, including any update relation or relevant errata."
+      ]
+    },
+    {
+      "id": "H207",
+      "domain": "labor-force measurement",
+      "claim_types": [
+        "factual",
+        "quantitative",
+        "ambiguous"
+      ],
+      "question": "Who is counted as unemployed? Investigate the definitions and actual illustrative people in BLS's How the Government Measures Unemployment, and determine whether adults without a paid job can all be assigned to one category or used interchangeably in the unemployment-rate denominator.",
+      "question_origin": "BLS primary-source section heading Who is counted as unemployed? and the document's illustrative classifications.",
+      "source_hints": [
+        "https://www.bls.gov/cps/cps_htgm.htm",
+        "https://www.bls.gov/cps/definitions.htm"
+      ],
+      "obligations": [
+        "Retrieve and preserve each investigated person's relevant stated circumstances rather than inventing missing availability or search activity.",
+        "Make the reference population, time windows, employment, unemployment and labor-force definitions explicit.",
+        "Execute classification or denominator calculations only for supported inputs and retain Unknown for missing relevant facts.",
+        "Do not equate receiving unemployment benefits, having no paid job and the survey's unemployment classification.",
+        "Avoid extrapolating the illustrative sample to current population prevalence."
+      ]
+    },
+    {
+      "id": "H208",
+      "domain": "calendar mathematics and astronomy",
+      "claim_types": [
+        "mathematical",
+        "computational",
+        "factual",
+        "normative"
+      ],
+      "question": "How does the Gregorian leap-year rule differ from simply adding a leap day every four years? Retrieve the U.S. Naval Observatory and NASA JPL explanations, independently enumerate a complete 400-year calendar cycle, and assess the average calendar-year length and its agreement with the astronomical quantities actually supplied by the sources.",
+      "question_origin": "Primary U.S. Naval Observatory Leap Years FAQ and NASA JPL Leap Day Math worked educational material.",
+      "source_hints": [
+        "https://aa.usno.navy.mil/faq/leap_years",
+        "https://www.jpl.nasa.gov/edu/resources/lesson-plan/leap-day-math/"
+      ],
+      "obligations": [
+        "Bind the calendar convention, cycle endpoints and leap-year rule explicitly before enumerating.",
+        "Execute a complete cycle calculation and independently check the count and average length.",
+        "Keep a conventional calendar rule distinct from a physical law or a claim that every kind of astronomical year is identical.",
+        "Preserve source precision and distinguish an approximation from exact long-term synchronization; leave unsupported extrapolation unresolved."
+      ]
+    }
+  ]
+}
