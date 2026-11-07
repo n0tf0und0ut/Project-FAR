@@ -1,0 +1,558 @@
+{
+  "schema": "far-pr-current-head-convergence-snapshot/1",
+  "status": "IN_PROGRESS",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "snapshot_started_utc": "2026-11-07T13:47:38.323Z",
+  "reference_main_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+  "governance": {
+    "root_AGENTS_blob_sha": "ccd372ade932266b03eea0615a40bea4a8c34262",
+    "charter": "docs/governance/research-execution-charter.md",
+    "convergence": "docs/governance/pr-review-convergence.md",
+    "canonical_map": "docs/CANONICAL_MAP.md",
+    "required_contexts_from_governance_2026_10_20": [
+      "merge-authority",
+      "protected-repin-gate",
+      "pr-review-convergence-observation"
+    ],
+    "live_branch_protection_query": "UNAVAILABLE_FROM_CONNECTED_GITHUB_TOOL"
+  },
+  "snapshot_constraints": [
+    "PR body SHA is an assertion; GitHub head controls.",
+    "Unverifiable required-check states fail closed.",
+    "Review metadata does not prove substantive correctness.",
+    "No merge, auto-merge or direct main write authorized.",
+    "Head/base/protection/review changes invalidate snapshot."
+  ],
+  "expected_open_pr_count": 20,
+  "open_pr_count": 8,
+  "open_pr_numbers": [
+    623,
+    622,
+    621,
+    620,
+    619,
+    618,
+    617,
+    616
+  ],
+  "prs": [
+    {
+      "number": 623,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623",
+      "title": "test(assurance): detect semantic false acceptance and correct cache provenance",
+      "state": "open",
+      "draft": true,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "audit/checker-behavioral-provenance-20261106",
+      "head_sha": "9dbc11a0c9402f070a68a6a1f0d2b54dca381b45",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T17:16:04Z",
+      "changed_files": 5,
+      "claimed_candidate_sha": "41f142156ca02e6e9dfd3bd4d77622bccdf1e18f",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "independence, or open-domain correctness. ### Authority and exact scope - Protected base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. - Candidate head: `41f142156ca02e6e9dfd3bd4d77622",
+          "matches_live_head": false,
+          "matches_live_base": true
+        },
+        {
+          "sha": "41f142156ca02e6e9dfd3bd4d77622bccdf1e18f",
+          "context": "xact scope - Protected base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. - Candidate head: `41f142156ca02e6e9dfd3bd4d77622bccdf1e18f`. - Six checker families under behavioral test: `ch",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+          "context": "ment-6690164862), source commit [6f59f8a](https://github.com/n0tf0und0ut/Project-FAR/commit/6f59f8a539717940ac2a27cc26a8cc204eec7b1f). | **Fixed**: imported the exact independent test-",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254195680",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254895954",
+        "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6690201824",
+        "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6690164862",
+        "https://github.com/n0tf0und0ut/Project-FAR/commit/6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254896773"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 622,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/622",
+      "title": "test(agent): deterministic fault injection and evidence replay conformance",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/tool-agent-fault-invariants-20261106",
+      "head_sha": "52ef171bcf0a7e43ddf6351242b873b012b5c0e3",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:53Z",
+      "changed_files": 5,
+      "claimed_candidate_sha": "0762cfca954d50ec6d41de9c176c94eb0311026f",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "12a0656f76ba8fe7dc6c733273c89297f4906bc3",
+          "context": "ount while suppressing a recorded event. - **Before fix:** exact-head targeted workflow on `12a0656f76ba8fe7dc6c733273c89297f4906bc3`, run [42230689638](https://github.com/n0tf0und0ut/",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "0762cfca954d50ec6d41de9c176c94eb0311026f",
+          "context": "osed` on both Python versions (`AssertionError: ValueError not raised`). - **Correction:** `0762cfca954d50ec6d41de9c176c94eb0311026f` requires `provider.calls == len(record.events) ==",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "control only. Four task-scoped additive paths; no existing source changed. Base/merge base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`; final candidate head `0762cfca954d50ec6d41de9c176",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42230689638",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42230839947"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 621,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621",
+      "title": "fix(commercial): fail closed on ambiguous JSON in Decision Integrity",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "fix/commercial-strict-json-intake-20261105",
+      "head_sha": "4769f0fcea38b0d856bf49f70937bd0658c4a97b",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T18:09:56Z",
+      "changed_files": 14,
+      "claimed_candidate_sha": "e6f09057bd27685e3b7a4c332a111b72bbc4a5ee",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "c5fa98ebb84995a82457e8c5b652cd3456e73a8b",
+          "context": "now normalizes decoder-limit failure to each reader's existing invalid-input contract. Fix c5fa98ebb84995a82457e8c5b652cd3456e73a8b. | | CJSON-006 | Hosted adapters decoded permissive",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "4416d2af0543bed1cbcc75cd323ab870a7dbc3d5",
+          "context": "actual multipart upload controls produced 31 failed assertions/two parser errors. Fixed at 4416d2af0543bed1cbcc75cd323ab870a7dbc3d5 with strict direct/JSONL/sniffed/fenced/tabular par",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "e6f09057bd27685e3b7a4c332a111b72bbc4a5ee",
+          "context": "lished. No frozen evidence, canonical parser or governing theory changed. Exact candidate `e6f09057bd27685e3b7a4c332a111b72bbc4a5ee`, tree `ffb75459927dc8e713e34bd671dd20ad48d1e1f2`,",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "ffb75459927dc8e713e34bd671dd20ad48d1e1f2",
+          "context": "overning theory changed. Exact candidate `e6f09057bd27685e3b7a4c332a111b72bbc4a5ee`, tree `ffb75459927dc8e713e34bd671dd20ad48d1e1f2`, protected base/merge base `c7456b469f9dfe88b92d0f",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "11b72bbc4a5ee`, tree `ffb75459927dc8e713e34bd671dd20ad48d1e1f2`, protected base/merge base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Independent review and required gates must conver",
+          "matches_live_head": false,
+          "matches_live_base": true
+        },
+        {
+          "sha": "52c5aa830d0da0dbe56f7f7fdfe165becebffc97",
+          "context": "merge, auto-merge, protected-main write or gate bypass authorized. **CJSON-008 — fixed at `52c5aa830d0da0dbe56f7f7fdfe165becebffc97`:** review4494585732 and4494585741 identified const",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "b0c2509cd3d5ed2907c1a242c63071b934c138d7",
+          "context": "source-linked proof; final changed-head review request6689402213. **CJSON-010 — fixed at `b0c2509cd3d5ed2907c1a242c63071b934c138d7`:** coordinator reproduced a mapping-bearing multi-",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [],
+      "body_pr_reference_contexts": [
+        "; final4416d2a material-change reassessment requested once in comment 6689205022. Hosted checks and #616 combined integration remain separate obligations until verified."
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 620,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/620",
+      "title": "research: ground numerical success claims in registered metric semantics",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/numeric-metric-grounding-20261105",
+      "head_sha": "769ab788275b4455619f228ee0d21a96edd78ce1",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:49:08Z",
+      "changed_files": 19,
+      "claimed_candidate_sha": "8ca6d68fe202e3569f1ad90c1e10e546ff1508c9",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "8ca6d68fe202e3569f1ad90c1e10e546ff1508c9",
+          "context": "e, FAR-specific causal advantage or production promotion is established. Exact candidate: `8ca6d68fe202e3569f1ad90c1e10e546ff1508c9`. Implemented and verified: - The existing source",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "6c382c798df0a95824b79e76263318865ee24c68",
+          "context": "33`, archive `b4e1ccd17a46db8f91ccee29232853bdd6ba5881a1f6c747351d2dfc242a7809` and source `6c382c798df0a95824b79e76263318865ee24c68`, and reconstructs all 72 authored-simulation outco",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "4956893084d49fe42bde275105cf58a0bb240008",
+          "context": "mes do not demonstrate external-world reliability. - The live pilot protocol was frozen at `4956893084d49fe42bde275105cf58a0bb240008` before the one scored launch at `2b6a52f6c5fdc7d55",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "2b6a52f6c5fdc7d55240a358c42fe45818571672",
+          "context": "l was frozen at `4956893084d49fe42bde275105cf58a0bb240008` before the one scored launch at `2b6a52f6c5fdc7d55240a358c42fe45818571672`: sixteen authored question variants per arm, pinne",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885/artifacts/13445236161",
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/8ca6d68fe202e3569f1ad90c1e10e546ff1508c9/research/numeric-grounding/RESULTS-LIVE-V0.1.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 619,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/619",
+      "title": "research: test good-view JEPAs for evidence retrieval and preserve negative pilot",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/good-view-jepa-evidence-20261105",
+      "head_sha": "d888fc27ab248c4b8d32f8124d241b8de7e88ce6",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:49:07Z",
+      "changed_files": 9,
+      "claimed_candidate_sha": null,
+      "claimed_candidate_matches_current_head": null,
+      "all_full_sha_references": [
+        {
+          "sha": "b546d99d5b340ff7820f7d32f135ce9238de0405",
+          "context": "promotion or general reliability claim. Provenance and root causes: - Protocol frozen at `b546d99d5b340ff7820f7d32f135ce9238de0405` before execution; 240 train / 96 calibration / 96",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "ed048d5e6587ab53a44791c24ec7af78327e45fd",
+          "context": "0.2.json` SHA-256 `027812d345412c501169cc0d5a16d3e420232a65bfe2abc4a2816bc2a72c8db3`, blob `ed048d5e6587ab53a44791c24ec7af78327e45fd`. - Reviews 4493849606/4493849614 addressed variabl",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "790c35469103098ad812cdce4c3db5c2d7492bba",
+          "context": "rom opposition comparisons; both threads are resolved. Validation at unchanged final head `790c35469103098ad812cdce4c3db5c2d7492bba`: - Local CPU regression: 10/10 tests pass with tor",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242559173/job/127976304759",
+        "https://github.com/n0tf0und0ut/Project-FAR/pull/619#issuecomment-6687896846",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242558765/job/127976335024",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242558848/job/127976529599",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42243492741/job/127979580691"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 618,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/618",
+      "title": "Research: verify agent reliability exposure and preserve bounded comparator evidence",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "convergence/agent-reliability-evidence-20261103",
+      "head_sha": "354811a6f7d1732371c3730af28bc1bee996223a",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:49:33Z",
+      "changed_files": 14,
+      "claimed_candidate_sha": "8ab8c9d13d696a3e970937d58c83bb490edf357b",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "8ab8c9d13d696a3e970937d58c83bb490edf357b",
+          "context": "t modified; lost unpublished workspace receipts are explicitly excluded. Exact candidate: `8ab8c9d13d696a3e970937d58c83bb490edf357b`; protected-main integration base: `c7456b469f9dfe8",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "ct candidate: `8ab8c9d13d696a3e970937d58c83bb490edf357b`; protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence, limitations and finding l",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/8ab8c9d13d696a3e970937d58c83bb490edf357b/research/repository-convergence/2026-11-03/README.md"
+      ],
+      "body_pr_reference_contexts": [
+        "t behavioral robustness, human decision improvement and economic value remain unestablished. Merged #605 stays11/30 control versus10/30 FAR. LangSmith/Phoenix measurements are exposed-fixture local evaluation plumbing, not v",
+        "endor diagnosis effectiveness. Full AgentRx diagnosis, external/human EFR/#518 comparisons and customer economics lack the required authorized endpoints/independent participants/evidence. Fractions"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 617,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617",
+      "title": "fix(ci): pin Python patch version for signed cross-runner cache",
+      "state": "open",
+      "draft": true,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "fix/signed-cache-python-version-20261103",
+      "head_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:32Z",
+      "changed_files": 7,
+      "claimed_candidate_sha": null,
+      "claimed_candidate_matches_current_head": null,
+      "all_full_sha_references": [
+        {
+          "sha": "f3447d5f86a40da75785b91486ceaa55ceab381b",
+          "context": "remain in the [source-bound defect record](https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/docs/audits/signed-cache-python-patch-mismatch-2026",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "xisting payload remains byte-unchanged and valid for the source transition: protected main `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`, repository ID1283452680, PR617, path `.github/wor",
+          "matches_live_head": false,
+          "matches_live_base": true
+        },
+        {
+          "sha": "74c4a67f0e009f106b569cd48c0343074333073f",
+          "context": "ss is asserted. Final candidate: `f3447d5f86a40da75785b91486ceaa55ceab381b`; tested tree: `74c4a67f0e009f106b569cd48c0343074333073f`; protected-main base: `c7456b469f9dfe88b92d0fc7a21",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/validation/repin-requests/PR-617-signed-cache-python.json"
+      ],
+      "body_pr_reference_contexts": [
+        "elected different patch releases on separate runners, invalidating signed cache reuse. The original #615 producer/consumer evidence and signed-cache regression remain in the [source-bound defect record](https://github.com/n0",
+        ": predecessor802beb09 pinned merge-authority to3.12.16 while exact-head retained3.12. Reproduced on #617 alone; the original canonical equality test failed. Exact-head now selects3.12.16 and the runtime regression covers all"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 616,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/616",
+      "title": "Research: add model-directed source-bound semantic augmentation workspace",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "product/semantic-augmentation-20261103",
+      "head_sha": "a12f711d2f5130034eada4896a3d28c731a1fe76",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:52Z",
+      "changed_files": 14,
+      "claimed_candidate_sha": "01632e92a975a8a51af9287cb9d86db93db6fcc7",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "01632e92a975a8a51af9287cb9d86db93db6fcc7",
+          "context": "ute cost and review effort were not measured; no cost advantage follows. Exact candidate: `01632e92a975a8a51af9287cb9d86db93db6fcc7`; integration base: `c7456b469f9dfe88b92d0fc7a211e5",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "e follows. Exact candidate: `01632e92a975a8a51af9287cb9d86db93db6fcc7`; integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence and finding dispositions](",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/01632e92a975a8a51af9287cb9d86db93db6fcc7/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    }
+  ],
+  "errors": []
+}
