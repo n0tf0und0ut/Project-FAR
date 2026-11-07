@@ -35,7 +35,7 @@ For an optional **navigation** check, ask them to locate (a) the current limitat
 | Actual availability | Identifies limited runnable checks over prepared records, not general news checking or a consumer product. | Confuses the fictional receipt walkthrough or registered toy fixture with a deployed general fact-checking service. |
 | Navigation (optional) | Finds limitations and executable guidance unassisted. | Cannot locate those pages or interprets an index as an assurance result. |
 
-Record each item as **clear**, **partial**, **misunderstood**, or **not observed**. A general statement that "missing details can change decisions" is insufficient for a **clear** mark on the transfer question if the reader cannot distinguish the two different questions about the same price-only screen. Do not equate recognition of an example with evidence of FAR software correctness. Record with the reader's phrasing and the confusing sentence or link when identifiable. Do not assign numerical passing grades or treat fast completion as evidence of scientific comprehension.
+Record each item as **clear**, **partial**, **misunderstood**, or **not observed**. A general statement that "missing details can change decisions" is insufficient for a **clear** mark on the transfer question if the reader cannot distinguish the two different questions about the same price-only screen. Do not equate recognition of an example with evidence of FAR software correctness. Record the reader's own phrasing and, when identifiable, the sentence or link that caused confusion. Do not assign numerical passing grades or treat fast completion as evidence of scientific comprehension.
 
 ## Recording and revision
 
