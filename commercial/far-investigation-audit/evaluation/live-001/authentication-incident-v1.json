@@ -1,0 +1,15 @@
+{
+  "schema": "far-live-authentication-incident/1",
+  "recorded_at": "2026-10-27T17:19:23.328544+00:00",
+  "service": "Fact Engineering",
+  "origin": "https://auth.fact.engineering",
+  "attempted_action": "Secure browserAuth sign-in-method/account-credential request for a frozen document-analysis comparison",
+  "outcome": "REJECTED_BY_AUTOMATIC_APPROVAL_REVIEW",
+  "reason": "The comparison request does not identify or explicitly authorize using a particular account.",
+  "credentials_entered": false,
+  "login_succeeded": false,
+  "document_checks_executed": false,
+  "next_required": "User identifies the intended account and explicitly authorizes its use before another sign-in attempt.",
+  "no_workaround_attempted": true,
+  "no_performance_score": true
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "far-customer-evidence-status/1",
+  "status": "Research",
+  "observed_customers_in_this_campaign": 0,
+  "observed_task_sessions": 0,
+  "observed_purchase_decisions": 0,
+  "actual_customer_time_saved_seconds": null,
+  "customer_value_dollars": null,
+  "willingness_to_pay": null,
+  "retention": null,
+  "result": "NOT_ESTABLISHED",
+  "required_observations": [
+    "Actual customer identity/eligibility and consent appropriate to the pilot",
+    "Identical raw tasks and evidence cutoff for FAR and working alternatives",
+    "Active reviewer minutes and consequential corrections recorded separately from machine latency",
+    "Full configuration and all attributed costs",
+    "Actual purchase or repeated use; self-reported intention recorded separately"
+  ],
+  "no_outreach_sent": true,
+  "no_independence_claim": true
+}

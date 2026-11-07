@@ -1,0 +1,20 @@
+{
+  "provider": "consensus",
+  "case_id": "Q01",
+  "request": "Which original studies tested whether describing identical risky outcomes as lives saved versus lives lost changes people's choices?",
+  "started_at": "2026-10-27T17:10:35.730Z",
+  "elapsed_ms": 1021,
+  "response": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Rate limit exceeded. Please wait a moment before searching again."
+      }
+    ],
+    "structuredContent": {
+      "error_code": "INVALID_ARGUMENT"
+    },
+    "isError": true
+  },
+  "error": null
+}

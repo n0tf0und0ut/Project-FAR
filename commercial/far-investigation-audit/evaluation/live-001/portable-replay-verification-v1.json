@@ -1,0 +1,126 @@
+{
+  "schema": "far-live-portable-replay/1",
+  "archive_sha256": "01ecf840e8236e666e126e1d77ea7e3e8c045bedaf62e276792d6af25b181dda",
+  "packages": [
+    {
+      "case_id": "Q01",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"3040b340c6ea3c2de72563ac12485ff0809c50b02f30d960ffa619cbf7fe2dbb\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "Q02",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"78e7bef76b6f68a9ac50145dcade957e681d6dbb6610a0a1a3618ad0c03c838a\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "Q03",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"9f2da6eb660b337f2906c78aa10aba6fe1a93b4134cfab323e83652e1dd7a6bd\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "Q04",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"baf83a74e102cec0982d6258171aa562a72993398e84e9000ddf3e087ab589ee\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R01",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"e9e060c95ffc8ee94a9c887a7ecd4a6ac1203a1c6e6aba8f9865d7c73912ab7f\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R02",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"9e3ccf81c03e9087a22d9377e33b514b2c0340345ddfc823ebfa7decc58491d3\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R03",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"01b712dbceab9b6f60d539c5833f5a7ba597a1833abd936f35d36a8eeada9ce2\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R04",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"3ee1ea314d463b99065dab13a7f0275ca62fe89a59d53e58c91530464e9780b1\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R05",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"1e6990676a0a975c5050599262777f5df6b04491baa4bed3bef73cde94f88976\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R06",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"15797faa68469f398b233a15573b50652c016504edb9568af566c892026801ef\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R07",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"66bbf3957d1934110ee7fbe9ce423ea55633074eda66dd397cb31d2d59d5f378\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R08",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"896e951d3ca25a2252a8fd606a69368bcc2c50749c9f2643367d6c8e7a7319e3\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R09",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"ebe2d47e0212370b86c73e94cde8bd223e5685352b1fd87ff296d5075ae350ea\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R10",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"42fc14cbe6d8f8beeafb5a1c663019c3efc503883530c66a8af1cb6327ed3fd0\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R11",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"c25cf0fcff888d1779b203fc1addaf735b5812847f8b5c138f6eb1aec6a51038\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R12",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"7d524694d1eb2547333d33ebf1ec6d2c9eb8c170f41c536441a803aca1955e60\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R13",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"68a756ff5e861f83a17cc2781cfaf1e19a1e83f2bdb262843d1f5961345b90a3\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R14",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 1, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"b74f242c09726a848b304de6a902f65c012b56d08fd934a2db3ca085303388e8\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R15",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"ea937b201e8f49208dc1f4ab3c6df81860fb0f7f3379ba90f22c8d70778da3eb\"}\n",
+      "stderr": ""
+    },
+    {
+      "case_id": "R16",
+      "returncode": 0,
+      "stdout": "{\"algorithm_cross_check\": {\"evidence_formulas_rechecked\": 0, \"independent_algorithm_agrees\": true, \"independent_human_replication\": false, \"readings_checked\": 0, \"semantic_correspondence_checked\": false, \"source_hashes_checked\": 1, \"structured_computations_rechecked\": 0}, \"external_truth_verified\": false, \"extraction_not_replayable\": [], \"extraction_replayed\": 1, \"manifest_files_verified\": 6, \"replay_match\": true, \"report_sha256\": \"0c67da77073e578f5f1eac6018274da77ab5fe706a1712846a15aaf01a00bd33\"}\n",
+      "stderr": ""
+    }
+  ]
+}

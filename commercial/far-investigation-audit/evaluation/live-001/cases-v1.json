@@ -1,0 +1,181 @@
+{
+  "schema": "far-live-exploratory-cases/1",
+  "status": "Research",
+  "reference_origin": "PROJECT_AUTHORED_IMPLEMENTATION_EXPOSED_NOT_INDEPENDENT_GOLD",
+  "raw_document_cases": [
+    {
+      "id": "R01",
+      "class": "deduction-positive",
+      "text": "Every robot has a sensor. Ara is a robot. Therefore Ara has a sensor.",
+      "reference": {
+        "disposition": "VALID_CONDITIONAL",
+        "rationale": "Universal instantiation and modus ponens under the stated interpretation."
+      }
+    },
+    {
+      "id": "R02",
+      "class": "converse-error",
+      "text": "Every robot has a sensor. Ara has a sensor. Therefore Ara is a robot.",
+      "reference": {
+        "disposition": "DOES_NOT_ENTAIL",
+        "rationale": "Ara can be a non-robot with a sensor."
+      }
+    },
+    {
+      "id": "R03",
+      "class": "denying-antecedent",
+      "text": "If it rains, the pavement is wet. It does not rain. Therefore the pavement is not wet.",
+      "reference": {
+        "disposition": "DOES_NOT_ENTAIL",
+        "rationale": "A sprinkler can wet the pavement."
+      }
+    },
+    {
+      "id": "R04",
+      "class": "modus-tollens",
+      "text": "If it rains, the pavement is wet. The pavement is not wet. Therefore it does not rain.",
+      "reference": {
+        "disposition": "VALID_CONDITIONAL",
+        "rationale": "Modus tollens under classical interpretation."
+      }
+    },
+    {
+      "id": "R05",
+      "class": "quantifier-expansion",
+      "text": "Some reviewers are lawyers. Therefore all reviewers are lawyers.",
+      "reference": {
+        "disposition": "DOES_NOT_ENTAIL",
+        "rationale": "One lawyer reviewer and one non-lawyer reviewer satisfy the premise."
+      }
+    },
+    {
+      "id": "R06",
+      "class": "negation-scope",
+      "text": "The witness said, \"Not every vehicle was red.\" The report interprets this as, \"No vehicle was red.\"",
+      "reference": {
+        "disposition": "UNFAITHFUL_INTERPRETATION",
+        "rationale": "A red vehicle and a blue vehicle separate the readings."
+      }
+    },
+    {
+      "id": "R07",
+      "class": "intent-attribution",
+      "text": "The politician made incompatible statements about the same event. Therefore the politician deliberately lied.",
+      "reference": {
+        "disposition": "DOES_NOT_ENTAIL",
+        "rationale": "Memory failure, mistake or changed knowledge can explain inconsistency; intention is additional."
+      }
+    },
+    {
+      "id": "R08",
+      "class": "relative-risk",
+      "text": "The observed rate fell from 15 cases per 100 people to 12 cases per 100 people. Therefore the relative reduction was 50 percent.",
+      "reference": {
+        "disposition": "ARITHMETIC_ERROR",
+        "rationale": "The relative reduction is (15-12)/15 = 20 percent; absolute reduction is 3 percentage points."
+      }
+    },
+    {
+      "id": "R09",
+      "class": "temporal-eligibility",
+      "text": "The investigation cutoff is January 1, 2025. Its only evidence is a report first published February 1, 2025. Therefore the claim was supported by eligible evidence at the cutoff.",
+      "reference": {
+        "disposition": "INELIGIBLE_EVIDENCE",
+        "rationale": "The only specified report postdates the cutoff."
+      }
+    },
+    {
+      "id": "R10",
+      "class": "false-premise-valid-inference",
+      "text": "Assume every moon is made of cheese, and assume Luna is a moon. Therefore Luna is made of cheese.",
+      "reference": {
+        "disposition": "VALID_CONDITIONAL",
+        "rationale": "Conditional validity does not verify either premise."
+      }
+    },
+    {
+      "id": "R11",
+      "class": "shared-origin",
+      "text": "Three articles repeat the same wire report without additional reporting. Therefore three independent sources have verified the claim.",
+      "reference": {
+        "disposition": "SOURCE_DEPENDENCE",
+        "rationale": "Three reproductions do not supply three independent reporting origins."
+      }
+    },
+    {
+      "id": "R12",
+      "class": "normative-gap",
+      "text": "Policy A raises total income. Therefore we ought to adopt policy A regardless of its other effects.",
+      "reference": {
+        "disposition": "MISSING_NORMATIVE_PREMISE",
+        "rationale": "The conclusion additionally prioritizes income over other effects."
+      }
+    },
+    {
+      "id": "R13",
+      "class": "confidence-as-proof",
+      "text": "The AI reports 99 percent confidence without evidence or calibration data. Therefore its answer is established as true.",
+      "reference": {
+        "disposition": "DOES_NOT_ENTAIL",
+        "rationale": "An unsupported confidence statement does not establish truth or calibrated accuracy."
+      }
+    },
+    {
+      "id": "R14",
+      "class": "existential-inference",
+      "text": "Some reviewers are lawyers. Every lawyer is trained. Therefore some reviewers are trained.",
+      "reference": {
+        "disposition": "VALID_CONDITIONAL",
+        "rationale": "The existential witness is both a reviewer and trained."
+      }
+    },
+    {
+      "id": "R15",
+      "class": "qualified-authority",
+      "text": "The relevant specialist cites measurements supporting the claim. This testimony is defeasible evidence; additional contrary measurements could change the assessment.",
+      "reference": {
+        "disposition": "NO_SPECIFIED_ERROR",
+        "rationale": "Consulting relevant expertise with evidence and defeaters is not automatically a fallacy."
+      }
+    },
+    {
+      "id": "R16",
+      "class": "quoted-fallacy",
+      "text": "The textbook warns that saying \"all robots have sensors, Ara has a sensor, therefore Ara is a robot\" commits a converse error. It does not endorse that inference.",
+      "reference": {
+        "disposition": "NO_SPECIFIED_ERROR",
+        "rationale": "Discussion of an invalid inference is not endorsement of it."
+      }
+    }
+  ],
+  "retrieval_cases": [
+    {
+      "id": "Q01",
+      "query": "Which original studies tested whether describing identical risky outcomes as lives saved versus lives lost changes people's choices?",
+      "target_doi": "10.1126/science.7455683",
+      "target_title": "The Framing of Decisions and the Psychology of Choice",
+      "reference_provenance": "crossref-reference-metadata-v1.json:Q01"
+    },
+    {
+      "id": "Q02",
+      "query": "Which original experiment tested whether people who disagree about capital punishment evaluate the same mixed evidence differently?",
+      "target_doi": "10.1037/0022-3514.37.11.2098",
+      "target_title": "Biased assimilation and attitude polarization: The effects of prior theories on subsequently considered evidence.",
+      "reference_provenance": "crossref-reference-metadata-v1.json:Q02"
+    },
+    {
+      "id": "Q03",
+      "query": "Which original experiment tested whether changing the verb used to describe a car accident changes witnesses’ speed estimates and reports of broken glass?",
+      "target_doi": "10.1016/s0022-5371(74)80011-3",
+      "target_title": "Reconstruction of automobile destruction: An example of the interaction between language and memory",
+      "reference_provenance": "crossref-reference-metadata-v1.json:Q03"
+    },
+    {
+      "id": "Q04",
+      "query": "Which research review explains why misinformation can continue to influence reasoning after a correction?",
+      "target_doi": "10.1177/1529100612451018",
+      "target_title": "Misinformation and Its Correction",
+      "reference_provenance": "crossref-reference-metadata-v1.json:Q04"
+    }
+  ]
+}
