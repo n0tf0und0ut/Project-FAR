@@ -1,8 +1,11 @@
 """Operational source identity, missingness and no-promotion invariants."""
 import copy
+import io
 import json
 from pathlib import Path
+import subprocess
 import sys
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -102,10 +105,43 @@ class OperationalSourceTests(unittest.TestCase):
         self.assertFalse(state['scientific_promotion_authority'])
 
     def test_committed_index_rebuilds_from_one_operational_source(self):
-        expected=ops.encoded(ops.compile_register())
-        self.assertEqual((ROOT/ops.FOLDER/'operations-index-v3.json').read_bytes(),expected)
-        self.assertEqual(ops.compile_register()['coverage']['intake_sources'],48)
-        self.assertEqual(len(ops.read(ROOT/ops.FOLDER/'intake-2026-10-20.json')['entries']),15)
+        # Scheduled discovery carries uncommitted inbox candidates into its checkout.
+        # The committed index must be checked against the committed inputs, not
+        # against this mutable working tree (which can contain thousands more leads).
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            archive = subprocess.run(
+                ['git', 'archive', '--format=tar', 'HEAD',
+                 ops.FOLDER.as_posix(), 'research/corpus/corpus-v1.0.json',
+                 'research/living/inbox/candidates'],
+                cwd=ROOT, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            ).stdout
+            with tarfile.open(fileobj=io.BytesIO(archive), mode='r:') as bundle:
+                for member in bundle:
+                    if not member.isfile():
+                        continue
+                    target = root / member.name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    source = bundle.extractfile(member)
+                    self.assertIsNotNone(source)
+                    target.write_bytes(source.read())
+
+            manifest = ops.read(root / ops.FOLDER / 'current.json')
+            committed = ops.encoded(ops.compile_register(root))
+            self.assertEqual((root / ops.FOLDER / manifest['index']).read_bytes(), committed)
+            self.assertEqual(ops.compile_register(root)['coverage']['intake_sources'], 48)
+            self.assertEqual(len(ops.read(root / ops.FOLDER / 'intake-2026-10-20.json')['entries']), 15)
+
+            # A live rebuild must still detect newly carried, uncommitted candidates.
+            # The isolation above must not weaken the operational drift check.
+            candidates = root / 'research/living/inbox/candidates'
+            before = len(list(candidates.glob('FAR-LIT-*.json')))
+            (candidates / 'FAR-LIT-UNTRACKED-TEST.json').write_text(
+                '{"source_key":"https://example.org/untracked-test"}\n'
+            )
+            contaminated = ops.compile_register(root)
+            self.assertEqual(contaminated['coverage']['living_candidate_files_inspected'], before + 1)
+            self.assertNotEqual(ops.encoded(contaminated), committed)
 
     def test_current_pointer_cannot_escape_register_or_repeat_an_intake(self):
         import shutil
