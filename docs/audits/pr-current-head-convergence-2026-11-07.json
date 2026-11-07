@@ -2792,7 +2792,21 @@
         "tools/model_architecture_search.py",
         "tools/package_model_architecture_external.py"
       ],
-      "changed_files_list_count": 29
+      "changed_files_list_count": 29,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/87315d1402205a2bf1c56fd880f49532ebb27860/research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+          "kind": "source_blob",
+          "ref_sha": "87315d1402205a2bf1c56fd880f49532ebb27860",
+          "path": "research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd",
+          "linked_exists": true,
+          "current_blob_sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 614,
@@ -3383,7 +3397,28 @@
         "tools/far_routing_dispatch.py",
         "tools/far_uncertain_routing_pilot.py"
       ],
-      "changed_files_list_count": 55
+      "changed_files_list_count": 55,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9/research/investigation-engine/finding-ledger.md",
+          "kind": "source_blob",
+          "ref_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+          "path": "research/investigation-engine/finding-ledger.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "c32448d272a59c3d51b3beee0dff40b3189d284f",
+          "linked_exists": true,
+          "current_blob_sha": "c32448d272a59c3d51b3beee0dff40b3189d284f",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        }
+      ]
     },
     {
       "number": 612,
@@ -3615,7 +3650,21 @@
         "docs/maintenance/agent-workflow-orchestration.md",
         "tests/test_living_promotion_corpus_regression.py"
       ],
-      "changed_files_list_count": 3
+      "changed_files_list_count": 3,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/3fad9fa607dffb18e3bce733be8513c7872fe5fb/docs/maintenance/agent-workflow-orchestration.md",
+          "kind": "source_blob",
+          "ref_sha": "3fad9fa607dffb18e3bce733be8513c7872fe5fb",
+          "path": "docs/maintenance/agent-workflow-orchestration.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "a6236110ddae05fefc5c79a95beb3b516ece2732",
+          "linked_exists": true,
+          "current_blob_sha": "a6236110ddae05fefc5c79a95beb3b516ece2732",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 611,
@@ -3894,7 +3943,21 @@
         "tests/test_weight_space_research.py",
         "tools/weight_space_research.py"
       ],
-      "changed_files_list_count": 6
+      "changed_files_list_count": 6,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0e8364466db56ed3580a248827cedf1e8991f740/research/weight_space_programming/README.md",
+          "kind": "source_blob",
+          "ref_sha": "0e8364466db56ed3580a248827cedf1e8991f740",
+          "path": "research/weight_space_programming/README.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060",
+          "linked_exists": true,
+          "current_blob_sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 608,
