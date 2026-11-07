@@ -203,26 +203,25 @@ class TestFarDemo(unittest.TestCase):
                 self.assertEqual(response.status_code, 400)
 
     def test_unsupported_fence_labels_are_not_declared_json(self) -> None:
-        # A language name beginning with "json" is not itself a JSON
-        # declaration. Supporting nonstandard fences must not suppress a
-        # later, explicitly declared FAR package.
+        # A partial "json" language prefix is not a declaration. Skip
+        # unsupported supporting fences, but keep genuine JSON errors terminal.
         package = json.dumps(SAMPLE_BASELINE)
-        for language in ("jsonc", "json5", "json-schema", "JSON5"):
-            document = (
-                "```" + language + "\n{unrelated: NaN}\n```\n"
-                "```json\n" + package + "\n```"
-            )
-            with self.subTest(language=language):
-                parsed = parse_package_file("input.md", document.encode())
-                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
-                response = self.client.post("/api/analyze", files={
-                    "baseline": ("input.md", document, "text/markdown"),
-                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
-                })
-                self.assertEqual(response.status_code, 200, response.text)
+        for language in ("jsonc", "json5", "json-schema", "JSONC", "JSON5"):
+            for supporting in ("{unrelated: NaN}", "{invalid: syntax,}"):
+                document = (
+                    "```" + language + "\n" + supporting + "\n```\n"
+                    "```json\n" + package + "\n```"
+                )
+                with self.subTest(language=language, supporting=supporting):
+                    parsed = parse_package_file("input.md", document.encode())
+                    self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                    response = self.client.post("/api/analyze", files={
+                        "baseline": ("input.md", document, "text/markdown"),
+                        "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
 
-        # An actual JSON declaration must still reject ambiguous/nonfinite JSON
-        # even when a valid package occurs in a later fence.
+        # Actual declared JSON cannot downgrade to a later valid package.
         declared = (
             '```json\n{"probe":NaN}\n```\n'
             "```json\n" + package + "\n```"
@@ -262,25 +261,6 @@ class TestFarDemo(unittest.TestCase):
                     '{"x":NaN}', '{"x":NaN} trailing'):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 parse_package_file("input.txt", raw.encode())
-
-    def test_unsupported_fence_language_is_not_a_binding_json_prefix(self) -> None:
-        # jsonc/json5/json-schema are unsupported labels, not declarations
-        # of JSON. Their contents must not hide a later valid package fence.
-        package = json.dumps(SAMPLE_BASELINE)
-        for language in ("jsonc", "json5", "json-schema", "JSONC"):
-            document = (
-                "# Supplement\\n"
-                + "```" + language + "\\n{invalid: syntax,}\\n```\\n"
-                + "```json\\n" + package + "\\n```\\n"
-            ).replace("\\n", "\n")
-            with self.subTest(language=language):
-                parsed = parse_package_file("notes.md", document.encode())
-                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
-                response = self.client.post("/api/analyze", files={
-                    "baseline": ("notes.md", document, "text/markdown"),
-                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
-                })
-                self.assertEqual(response.status_code, 200, response.text)
 
     def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
         def toml_value(value):
