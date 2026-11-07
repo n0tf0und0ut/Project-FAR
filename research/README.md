@@ -14,6 +14,7 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 
 ## Major areas
 
+- [`architecture-routing/README.md`](architecture-routing/README.md) — completed bounded three-arm routing study: deterministic/declarative 12/12 each, small-model 9/12; no general reasoning or causal advantage claim.
 - `axiomatization/` — exploratory axiomatization work.
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.

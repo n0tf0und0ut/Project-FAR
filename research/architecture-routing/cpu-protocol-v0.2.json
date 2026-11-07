@@ -1,0 +1,87 @@
+{
+  "schema": "far-architecture-local-model/0.2",
+  "status": "PREREGISTERED_NOT_EXECUTED",
+  "prior_observation": {
+    "run_id": 41500632052,
+    "head_sha": "4a60e21c8270b19d9d7cd1dccf495836c40ad7c8",
+    "methodological_limit": "All 12 routed requests in v0.1 had identical prompt hashes. v0.1 only shows duplicated policy-overhead, not case-sensitive routing."
+  },
+  "question": "With case-specific non-oracle contract descriptions, does a pinned local model's decision to invoke the same verifier change correctness or latency compared with fixed and declarative routing?",
+  "scope": "Twelve exact public internal FAR finite contracts; no independent held-out general reasoning benchmark.",
+  "frozen_sources": "research/architecture-routing/protocol-v0.1.json; each case bound to listed Git blob SHA",
+  "frozen_source_commit": "4e71c7de4457001fd35a65f9b4804d60aac1c4f2",
+  "actions": [
+    "RUN_VERIFIER",
+    "ABSTAIN"
+  ],
+  "malformed_action": "NO_VERDICT; count as incorrect",
+  "model": {
+    "name": "Qwen2.5-0.5B-Instruct-Q4_K_M",
+    "revision": "d71b21e09fe053c278d73092a855b8a99684693a",
+    "sha256": "6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653",
+    "inference": "llama.cpp b12023",
+    "archive_sha256": "ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0",
+    "temperature": 0,
+    "threads": 2,
+    "seed": 271828,
+    "max_new_tokens": 16,
+    "model_calls": 12,
+    "provider_api_calls": 0
+  },
+  "routing_prompt_projection": [
+    "format_version",
+    "contract_id",
+    "contract_mode",
+    "source_domain_kind",
+    "source_description",
+    "source_case_ids",
+    "required_behavior_description",
+    "representation_description",
+    "observation_contexts",
+    "interpretation_profile",
+    "target_model_class",
+    "verification_tool"
+  ],
+  "excluded_from_model": [
+    "report",
+    "expected outcome",
+    "source oracle",
+    "test verdict",
+    "git frozen hash"
+  ],
+  "fail_closed": [
+    "source SHA mismatch",
+    "model SHA mismatch",
+    "missing run",
+    "unknown tool",
+    "insufficient telemetry",
+    "nonlocal endpoint",
+    "nonunique per-case prompt"
+  ],
+  "design": {
+    "cases": 12,
+    "arms": [
+      "deterministic",
+      "declarative",
+      "agent"
+    ],
+    "cells": 36,
+    "order": "frozen six-permutation counterbalanced schedule v0.1",
+    "expected_behavior": "All 12 are explicit, supported verifier inputs. Running verifier is admissible for all. The model may only tie fixed correctness or decrease it by abstaining."
+  },
+  "primary": "correctness of derived FAR outcome versus frozen project-authored reference labels",
+  "secondary": [
+    "paired wall_ms per case",
+    "median end-to-end latency",
+    "total model tokens",
+    "invalid/abstention count"
+  ],
+  "analysis_status": "NOT_EXECUTED_NO_CLAIM",
+  "nonclaims": [
+    "No model adaptation proof without varying valid route choices",
+    "No externally validated ground truth",
+    "No real-world reasoning reliability generalization",
+    "No proven deterministic vs declarative micro-latency edge",
+    "No product or commercial efficacy"
+  ]
+}
