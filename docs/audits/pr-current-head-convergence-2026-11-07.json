@@ -4897,7 +4897,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "db0c95f6568d873e4e4e96aab8c247af5a03d79b",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:58Z"
+      }
     },
     {
       "number": 614,
@@ -5757,7 +5766,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:46:49Z"
+      }
     },
     {
       "number": 612,
@@ -6210,7 +6228,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "ada9f99c2f1238151893bbe49a227ccb4dcf62b6",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:07Z"
+      }
     },
     {
       "number": 611,
@@ -6710,7 +6737,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "e48f6dc29302bb0848a5632b49c726d2128a327d",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:57Z"
+      }
     },
     {
       "number": 608,
@@ -7354,7 +7390,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:45:42Z"
+      }
     },
     {
       "number": 607,
@@ -7886,7 +7931,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "df3b55a70780562937303f5c855c3dba125e83fc",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:40Z"
+      }
     },
     {
       "number": 606,
@@ -8479,7 +8533,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "cec9386fd6d511090250c12150ef314ffbf8a7ea",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:14Z"
+      }
     },
     {
       "number": 601,
@@ -9135,7 +9198,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:01:49.106Z",
+        "head_sha": "71cd19f348a659e43d03ce96d0640b87ac1a2135",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:48:19Z"
+      }
     },
     {
       "number": 600,
