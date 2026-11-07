@@ -99,9 +99,16 @@
       },
       "reviews": {
         "submissions": [],
-        "codex_summary": null,
+        "codex_summary": {
+          "reported": null,
+          "exact_head": false,
+          "reason": "NOT_FOUND"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 0,
+        "resolved_thread_ids": [],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -160,9 +167,24 @@
       },
       "reviews": {
         "submissions": [],
-        "codex_summary": null,
+        "codex_summary": {
+          "id": 6686766151,
+          "updated_at": "2026-11-06T16:48:53Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "52ef171bcf0a7e43ddf6351242b873b012b5c0e3",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/622#issuecomment-6686766151"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 0,
+        "resolved_thread_ids": [],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -243,10 +265,102 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
-        "unresolved_threads": [],
-        "thread_count": null
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeNNhw",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T16:03:07Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `4416d2af05`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeRaqg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T16:07:20Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeRdqg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T16:07:23Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeRglA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T16:07:26Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeUREA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T16:10:15Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `52c5aa830d`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeYWaw",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T16:14:29Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWe4yiA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T16:49:59Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `591a5f3336`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          }
+        ],
+        "codex_summary": {
+          "id": 6673150735,
+          "updated_at": "2026-11-06T18:09:55Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "4769f0fcea38b0d856bf49f70937bd0658c4a97b",
+            "has_any_findings": true,
+            "has_unresolved_findings": true,
+            "status": "failed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/621#issuecomment-6673150735"
+        },
+        "unresolved_threads": [
+          {
+            "thread_id": "PRRT_kwDOTH_vCM60mqzr",
+            "outdated": true,
+            "path": "commercial/far-decision-integrity/tests/test_strict_json_intake.py",
+            "line": null,
+            "comments": [
+              {
+                "id": 4495142869,
+                "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid assuming a fixed JSON decoder nesting limit**\n\nOn Python 3.14.4, which satisfies the package's declared `requires-python = \">=3.11\"`, `json.loads` successfully parses this 10,000-level array, so the assertion fails even though `loads_strict` behaves correctly. Running `python -m unittest discover -s commercial/far-decision-integrity/tests -p 'test_*.py'` on the exact head produces 47 passes and this failure; all 48 pass on Python 3.11.15. Make the decoder-error regression independent of a particular interpreter's nesting threshold, for example by injecting a decoder `RecursionError`, rather than requiring this valid JSON input to exceed every supported decoder's limit.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->",
+                "author": "chatgpt-codex-connector",
+                "timestamp": "2026-11-06T16:49:59Z",
+                "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621#discussion_r4495142869"
+              }
+            ]
+          }
+        ],
+        "thread_count": 5,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM60lWGz",
+          "PRRT_kwDOTH_vCM60lWG7",
+          "PRRT_kwDOTH_vCM60lWHE",
+          "PRRT_kwDOTH_vCM60liJH"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": [
+          {
+            "id": 4495142869,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621#discussion_r4495142869",
+            "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid assuming a fixed JSON decoder nesting limit**\n\nOn Python 3.14.4, which satisfies the package's declared `requires-python = \">=3.11\"`, `json.loads` successfully parses this 10,000-level array, so the assertion fails even though `loads_strict` behaves correctly. Running `python -m unittest discover -s commercial/far-decision-integrity/tests -p 'test_*.py'` on the exact head produces 47 passes and this failure; all 48 pass on Python 3.11.15. Make the decoder-error regression independent of a particular interpreter's nesting threshold, for example by injecting a decoder `RecursionError`, rather than requiring this valid JSON input to exceed every supported decoder's limit.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->"
+          }
+        ]
       },
       "dependencies": {
         "explicit": [],
@@ -311,10 +425,81 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWdT2fw",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:04:45Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `73fe315b3b`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWdsibg",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:31:32Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `655d4222f0`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8P-w",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:39Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8TKA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:41Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8WJA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:44Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8Z8g",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:48Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8dHg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:51Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6687892854,
+          "updated_at": "2026-11-06T16:49:08Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "769ab788275b4455619f228ee0d21a96edd78ce1",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/620#issuecomment-6687892854"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 5,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM60jq24",
+          "PRRT_kwDOTH_vCM60jq3D",
+          "PRRT_kwDOTH_vCM60jq3I",
+          "PRRT_kwDOTH_vCM60kauJ",
+          "PRRT_kwDOTH_vCM60kauO"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -1297,5 +1482,6 @@
       "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
     }
   ],
-  "errors": []
+  "errors": [],
+  "last_enriched_utc": "2026-11-07T13:49:12.530Z"
 }
