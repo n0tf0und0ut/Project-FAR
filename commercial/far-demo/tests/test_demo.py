@@ -202,6 +202,34 @@ class TestFarDemo(unittest.TestCase):
                 })
                 self.assertEqual(response.status_code, 400)
 
+    def test_unsupported_fence_labels_are_not_declared_json(self) -> None:
+        # A language name beginning with "json" is not itself a JSON
+        # declaration. Supporting nonstandard fences must not suppress a
+        # later, explicitly declared FAR package.
+        package = json.dumps(SAMPLE_BASELINE)
+        for language in ("jsonc", "json5", "json-schema", "JSON5"):
+            document = (
+                "```" + language + "\n{unrelated: NaN}\n```\n"
+                "```json\n" + package + "\n```"
+            )
+            with self.subTest(language=language):
+                parsed = parse_package_file("input.md", document.encode())
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                response = self.client.post("/api/analyze", files={
+                    "baseline": ("input.md", document, "text/markdown"),
+                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+
+        # An actual JSON declaration must still reject ambiguous/nonfinite JSON
+        # even when a valid package occurs in a later fence.
+        declared = (
+            '```json\n{"probe":NaN}\n```\n'
+            "```json\n" + package + "\n```"
+        )
+        with self.assertRaises(ValueError):
+            parse_package_file("input.md", declared.encode())
+
     def test_unlabeled_non_json_prefix_keeps_safe_document_fallback(self) -> None:
         # JSON's parse_constant hook can fail before the full JSON syntax is
         # established. Ordinary prose and YAML must remain discoverable.
