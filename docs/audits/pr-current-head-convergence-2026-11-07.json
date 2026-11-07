@@ -284,7 +284,15 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "docs/architecture/validator-assurance-hardening.md",
+        "tests/test_checker_behavioral_assurance.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_validator_provenance_contract.py",
+        "tools/check_governance_register_integrity.py"
+      ],
+      "changed_files_list_count": 5
     },
     {
       "number": 622,
@@ -526,7 +534,15 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/tool-agent-fault-campaign.yml",
+        "research/tool-agent-reliability/FAULT-CAMPAIGN-V0.1.md",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_tool_agent_fault_campaign.py",
+        "tools/tool_agent_fault_campaign.py"
+      ],
+      "changed_files_list_count": 5
     },
     {
       "number": 621,
@@ -913,7 +929,24 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "commercial/far-decision-integrity/PILOT_VALIDATION.md",
+        "commercial/far-decision-integrity/README.md",
+        "commercial/far-decision-integrity/examples/clear-package.json",
+        "commercial/far-decision-integrity/examples/contradicted-package.json",
+        "commercial/far-decision-integrity/src/far_decision_integrity/evidence.py",
+        "commercial/far-decision-integrity/src/far_decision_integrity/io.py",
+        "commercial/far-decision-integrity/src/far_decision_integrity/regression.py",
+        "commercial/far-decision-integrity/src/far_decision_integrity/strict_json.py",
+        "commercial/far-decision-integrity/src/far_decision_integrity/swe_agent.py",
+        "commercial/far-decision-integrity/tests/test_strict_json_intake.py",
+        "commercial/far-demo/README.md",
+        "commercial/far-demo/src/far_demo/formats.py",
+        "commercial/far-demo/tests/test_demo.py",
+        "tests/test_living_promotion_corpus_regression.py"
+      ],
+      "changed_files_list_count": 14
     },
     {
       "number": 620,
@@ -1218,7 +1251,29 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/numeric-grounding-live-v01.yml",
+        ".github/workflows/numeric-grounding-observe-v01.yml",
+        "research/README.md",
+        "research/numeric-grounding/LIVE-EXPERIMENT-V0.1.md",
+        "research/numeric-grounding/README.md",
+        "research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+        "research/numeric-grounding/live_pilot.py",
+        "research/numeric-grounding/metric_grounding.py",
+        "research/numeric-grounding/observe_live.py",
+        "research/numeric-grounding/original-launch-42090379885.log",
+        "research/numeric-grounding/original-live-42090379885.zip.b64",
+        "research/numeric-grounding/preserved-live-v0.1.json",
+        "research/numeric-grounding/protocol-live-v0.1.json",
+        "research/numeric-grounding/replay-live-v0.1.json",
+        "research/numeric-grounding/source_replay.py",
+        "research/numeric-grounding/test_metric_grounding.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_numeric_grounding_integration.py",
+        "tests/test_numeric_live_pilot.py"
+      ],
+      "changed_files_list_count": 19
     },
     {
       "number": 619,
@@ -1481,7 +1536,19 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/good-view-jepa-regression.yml",
+        "research/good-view-jepa/PROTOCOL.md",
+        "research/good-view-jepa/README.md",
+        "research/good-view-jepa/pilot.py",
+        "research/good-view-jepa/results-initial-invalid-v0.1.json",
+        "research/good-view-jepa/results-synthetic-v0.2.json",
+        "research/good-view-jepa/test_pilot.py",
+        "research/good-view-jepa/verify_replay.py",
+        "tests/test_living_promotion_corpus_regression.py"
+      ],
+      "changed_files_list_count": 9
     },
     {
       "number": 618,
@@ -1727,7 +1794,24 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "research/README.md",
+        "research/repository-convergence/2026-11-03/README.md",
+        "research/repository-convergence/2026-11-03/causal-commercial-evidence.zip",
+        "research/repository-convergence/2026-11-03/causal-commercial-results.md",
+        "research/repository-convergence/2026-11-03/comparator-relocation-reconstruction-evidence.zip",
+        "research/repository-convergence/2026-11-03/initial-repository-observation.json",
+        "research/tool-agent-reliability/EVIDENCE-CONTRACT-V0.1.md",
+        "research/tool-agent-reliability/README.md",
+        "research/tool-agent-reliability/evidence-contract-validation-v0.1.json",
+        "tests/test_agent_reliability_evidence.py",
+        "tests/test_convergence_comparator_replay.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tools/agent_reliability_evidence.py",
+        "tools/replay_convergence_comparators.py"
+      ],
+      "changed_files_list_count": 14
     },
     {
       "number": 617,
@@ -1981,7 +2065,17 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/exact-head-assurance.yml",
+        ".github/workflows/validator-assurance.yml",
+        "docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_signed_cache_runtime_binding.py",
+        "validation/repin-requests/PR-617-signed-cache-python.json",
+        "validation_bootstrap/assurance-lock.json"
+      ],
+      "changed_files_list_count": 7
     },
     {
       "number": 616,
@@ -2303,7 +2397,24 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "commercial/far-demo/AUGMENTATION.md",
+        "commercial/far-demo/README.md",
+        "commercial/far-demo/SEMANTIC_VALIDATION.md",
+        "commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+        "commercial/far-demo/evaluation/semantic-live-smoke-20261103.zip",
+        "commercial/far-demo/pyproject.toml",
+        "commercial/far-demo/src/far_demo/app.py",
+        "commercial/far-demo/src/far_demo/augmentation.html",
+        "commercial/far-demo/src/far_demo/augmentation.py",
+        "commercial/far-demo/src/far_demo/semantic.py",
+        "commercial/far-demo/tests/test_augmentation.py",
+        "commercial/far-demo/tests/test_augmentation_browser.py",
+        "commercial/far-demo/tests/test_semantic.py",
+        "tests/test_living_promotion_corpus_regression.py"
+      ],
+      "changed_files_list_count": 14
     },
     {
       "number": 615,
