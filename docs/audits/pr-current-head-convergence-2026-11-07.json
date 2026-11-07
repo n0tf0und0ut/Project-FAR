@@ -94,8 +94,174 @@
       ],
       "body_pr_reference_contexts": [],
       "checks": {
-        "observed_workflow_runs": [],
-        "required_contexts": "NOT_YET_OBSERVED"
+        "observed_workflow_runs": [
+          {
+            "id": 42260067865,
+            "name": "Validator Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317125785,
+            "run_number": 3791,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067865"
+          },
+          {
+            "id": 42260068100,
+            "name": "Repository Health (full)",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309411651,
+            "run_number": 4086,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068100"
+          },
+          {
+            "id": 42260067826,
+            "name": "Repository Health",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309015330,
+            "run_number": 4406,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067826"
+          },
+          {
+            "id": 42260067789,
+            "name": "Lean Mechanization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314561344,
+            "run_number": 3954,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067789"
+          },
+          {
+            "id": 42260067974,
+            "name": "FAR-CORE v1.1 Formalization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 344897371,
+            "run_number": 2014,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067974"
+          },
+          {
+            "id": 42260068013,
+            "name": "Formal Artifact Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314534243,
+            "run_number": 3959,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068013"
+          },
+          {
+            "id": 42260067966,
+            "name": "Checker Rule Mutation",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 367106784,
+            "run_number": 31,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067966"
+          },
+          {
+            "id": 42260067808,
+            "name": "Required PR Review Convergence",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 391069742,
+            "run_number": 910,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067808"
+          },
+          {
+            "id": 42260068053,
+            "name": "Unified Validation Shadow",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317083517,
+            "run_number": 3549,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068053"
+          },
+          {
+            "id": 42260068018,
+            "name": "PCA-W6 Empirical Audit Utility",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348884124,
+            "run_number": 1874,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068018"
+          },
+          {
+            "id": 42260067933,
+            "name": "PCA-W5 Approximation and Cost",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348061302,
+            "run_number": 1899,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067933"
+          },
+          {
+            "id": 42260067778,
+            "name": "Specification Export",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314655925,
+            "run_number": 4051,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067778"
+          },
+          {
+            "id": 42260068055,
+            "name": "Exact Head Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 351278771,
+            "run_number": 1811,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068055"
+          }
+        ],
+        "required_contexts": [
+          {
+            "name": "merge-authority",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "protected-repin-gate",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "pr-review-convergence-observation",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": {
+              "id": 128037348534,
+              "name": "pr-review-convergence-observation",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 42260067808
+            },
+            "job_observation_run_id": 42260067808
+          }
+        ],
+        "review_workflow_latest": {
+          "id": 42260067808,
+          "name": "Required PR Review Convergence",
+          "status": "completed",
+          "conclusion": "success",
+          "workflow_id": 391069742,
+          "run_number": 910,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067808"
+        },
+        "commit_statuses": [],
+        "review_workflow_jobs": [
+          {
+            "id": 128037348534,
+            "name": "pr-review-convergence-observation",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42260067808
+          }
+        ]
       },
       "reviews": {
         "submissions": [],
@@ -162,8 +328,174 @@
       ],
       "body_pr_reference_contexts": [],
       "checks": {
-        "observed_workflow_runs": [],
-        "required_contexts": "NOT_YET_OBSERVED"
+        "observed_workflow_runs": [
+          {
+            "id": 42255449541,
+            "name": "Validator Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317125785,
+            "run_number": 3774,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449541"
+          },
+          {
+            "id": 42255449366,
+            "name": "Repository Health (full)",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309411651,
+            "run_number": 4069,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449366"
+          },
+          {
+            "id": 42255449427,
+            "name": "Unified Validation Shadow",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317083517,
+            "run_number": 3532,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449427"
+          },
+          {
+            "id": 42255449382,
+            "name": "Lean Mechanization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314561344,
+            "run_number": 3937,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449382"
+          },
+          {
+            "id": 42255449367,
+            "name": "PCA-W5 Approximation and Cost",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348061302,
+            "run_number": 1882,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449367"
+          },
+          {
+            "id": 42255449375,
+            "name": "FAR-CORE v1.1 Formalization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 344897371,
+            "run_number": 1997,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449375"
+          },
+          {
+            "id": 42255449408,
+            "name": "Formal Artifact Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314534243,
+            "run_number": 3942,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449408"
+          },
+          {
+            "id": 42255449571,
+            "name": "Tool Agent Synthetic Fault Regression",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 409383689,
+            "run_number": 7,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449571"
+          },
+          {
+            "id": 42255449341,
+            "name": "Repository Health",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309015330,
+            "run_number": 4389,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449341"
+          },
+          {
+            "id": 42255449691,
+            "name": "Specification Export",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314655925,
+            "run_number": 4034,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449691"
+          },
+          {
+            "id": 42255449318,
+            "name": "PCA-W6 Empirical Audit Utility",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348884124,
+            "run_number": 1857,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449318"
+          },
+          {
+            "id": 42255449373,
+            "name": "Required PR Review Convergence",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 391069742,
+            "run_number": 889,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449373"
+          },
+          {
+            "id": 42255449621,
+            "name": "Exact Head Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 351278771,
+            "run_number": 1794,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449621"
+          }
+        ],
+        "required_contexts": [
+          {
+            "name": "merge-authority",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "protected-repin-gate",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "pr-review-convergence-observation",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": {
+              "id": 128021304480,
+              "name": "pr-review-convergence-observation",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 42255449373
+            },
+            "job_observation_run_id": 42255449373
+          }
+        ],
+        "review_workflow_latest": {
+          "id": 42255449373,
+          "name": "Required PR Review Convergence",
+          "status": "completed",
+          "conclusion": "success",
+          "workflow_id": 391069742,
+          "run_number": 889,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255449373"
+        },
+        "commit_statuses": [],
+        "review_workflow_jobs": [
+          {
+            "id": 128021304480,
+            "name": "pr-review-convergence-observation",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42255449373
+          }
+        ]
       },
       "reviews": {
         "submissions": [],
@@ -261,8 +593,219 @@
         "; final4416d2a material-change reassessment requested once in comment 6689205022. Hosted checks and #616 combined integration remain separate obligations until verified."
       ],
       "checks": {
-        "observed_workflow_runs": [],
-        "required_contexts": "NOT_YET_OBSERVED"
+        "observed_workflow_runs": [
+          {
+            "id": 42257709512,
+            "name": "Validator Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317125785,
+            "run_number": 3781,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257709512"
+          },
+          {
+            "id": 42257708708,
+            "name": "PCA-W6 Empirical Audit Utility",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348884124,
+            "run_number": 1864,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708708"
+          },
+          {
+            "id": 42257708741,
+            "name": "Repository Health",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309015330,
+            "run_number": 4396,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708741"
+          },
+          {
+            "id": 42257708770,
+            "name": "Lean Mechanization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314561344,
+            "run_number": 3944,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708770"
+          },
+          {
+            "id": 42257708790,
+            "name": "Repository Health (full)",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309411651,
+            "run_number": 4076,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708790"
+          },
+          {
+            "id": 42257708793,
+            "name": "Formal Artifact Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314534243,
+            "run_number": 3949,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708793"
+          },
+          {
+            "id": 42257708665,
+            "name": "Specification Export",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314655925,
+            "run_number": 4041,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708665"
+          },
+          {
+            "id": 42257708766,
+            "name": "Unified Validation Shadow",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317083517,
+            "run_number": 3539,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708766"
+          },
+          {
+            "id": 42257708646,
+            "name": "Exact Head Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 351278771,
+            "run_number": 1801,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708646"
+          },
+          {
+            "id": 42257708876,
+            "name": "PCA-W5 Approximation and Cost",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348061302,
+            "run_number": 1889,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708876"
+          },
+          {
+            "id": 42257708682,
+            "name": "FAR Decision Integrity Core",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319290426,
+            "run_number": 297,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708682"
+          },
+          {
+            "id": 42257708815,
+            "name": "Project FAR 1.0 Golden Clean Install",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319335311,
+            "run_number": 122,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708815"
+          },
+          {
+            "id": 42257708821,
+            "name": "FAR Hosted Demo",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319361571,
+            "run_number": 135,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708821"
+          },
+          {
+            "id": 42257708892,
+            "name": "Required PR Review Convergence",
+            "status": "completed",
+            "conclusion": "failure",
+            "workflow_id": 391069742,
+            "run_number": 899,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708892"
+          },
+          {
+            "id": 42257708806,
+            "name": "Trace Candidate 002 Execution",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319327717,
+            "run_number": 113,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708806"
+          },
+          {
+            "id": 42257708697,
+            "name": "Trace Candidate 001 Execution",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319318113,
+            "run_number": 117,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708697"
+          },
+          {
+            "id": 42257708810,
+            "name": "Project FAR 1.0 Exact Release Candidate",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 319346745,
+            "run_number": 114,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708810"
+          },
+          {
+            "id": 42257708769,
+            "name": "FAR-CORE v1.1 Formalization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 344897371,
+            "run_number": 2004,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708769"
+          }
+        ],
+        "required_contexts": [
+          {
+            "name": "merge-authority",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "protected-repin-gate",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "pr-review-convergence-observation",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": {
+              "id": 128029201067,
+              "name": "pr-review-convergence-observation",
+              "status": "completed",
+              "conclusion": "failure",
+              "run_id": 42257708892
+            },
+            "job_observation_run_id": 42257708892
+          }
+        ],
+        "review_workflow_latest": {
+          "id": 42257708892,
+          "name": "Required PR Review Convergence",
+          "status": "completed",
+          "conclusion": "failure",
+          "workflow_id": 391069742,
+          "run_number": 899,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42257708892"
+        },
+        "commit_statuses": [],
+        "review_workflow_jobs": [
+          {
+            "id": 128029201067,
+            "name": "pr-review-convergence-observation",
+            "status": "completed",
+            "conclusion": "failure",
+            "run_id": 42257708892
+          }
+        ]
       },
       "reviews": {
         "submissions": [
@@ -421,8 +964,174 @@
       ],
       "body_pr_reference_contexts": [],
       "checks": {
-        "observed_workflow_runs": [],
-        "required_contexts": "NOT_YET_OBSERVED"
+        "observed_workflow_runs": [
+          {
+            "id": 42255438038,
+            "name": "Numeric Grounding Live Evidence Observer",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 408539299,
+            "run_number": 13,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255438038"
+          },
+          {
+            "id": 42255437867,
+            "name": "Validator Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317125785,
+            "run_number": 3772,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437867"
+          },
+          {
+            "id": 42255437707,
+            "name": "Specification Export",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314655925,
+            "run_number": 4032,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437707"
+          },
+          {
+            "id": 42255437690,
+            "name": "Lean Mechanization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314561344,
+            "run_number": 3935,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437690"
+          },
+          {
+            "id": 42255437698,
+            "name": "Repository Health",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309015330,
+            "run_number": 4387,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437698"
+          },
+          {
+            "id": 42255437853,
+            "name": "Formal Artifact Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 314534243,
+            "run_number": 3940,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437853"
+          },
+          {
+            "id": 42255437921,
+            "name": "Repository Health (full)",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 309411651,
+            "run_number": 4067,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437921"
+          },
+          {
+            "id": 42255437755,
+            "name": "PCA-W5 Approximation and Cost",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348061302,
+            "run_number": 1880,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437755"
+          },
+          {
+            "id": 42255437661,
+            "name": "Required PR Review Convergence",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 391069742,
+            "run_number": 887,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437661"
+          },
+          {
+            "id": 42255437804,
+            "name": "FAR-CORE v1.1 Formalization",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 344897371,
+            "run_number": 1995,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437804"
+          },
+          {
+            "id": 42255437770,
+            "name": "Unified Validation Shadow",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 317083517,
+            "run_number": 3530,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437770"
+          },
+          {
+            "id": 42255437788,
+            "name": "Exact Head Assurance",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 351278771,
+            "run_number": 1792,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437788"
+          },
+          {
+            "id": 42255437717,
+            "name": "PCA-W6 Empirical Audit Utility",
+            "status": "completed",
+            "conclusion": "success",
+            "workflow_id": 348884124,
+            "run_number": 1855,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437717"
+          }
+        ],
+        "required_contexts": [
+          {
+            "name": "merge-authority",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "protected-repin-gate",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": null
+          },
+          {
+            "name": "pr-review-convergence-observation",
+            "governing_source": "docs/governance/pr-review-convergence.md",
+            "live_branch_rule_verified": false,
+            "check_run_state": "UNOBSERVABLE_DIRECT_CHECK_RUN_API",
+            "job_observation": {
+              "id": 128021262052,
+              "name": "pr-review-convergence-observation",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 42255437661
+            },
+            "job_observation_run_id": 42255437661
+          }
+        ],
+        "review_workflow_latest": {
+          "id": 42255437661,
+          "name": "Required PR Review Convergence",
+          "status": "completed",
+          "conclusion": "success",
+          "workflow_id": 391069742,
+          "run_number": 887,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42255437661"
+        },
+        "commit_statuses": [],
+        "review_workflow_jobs": [
+          {
+            "id": 128021262052,
+            "name": "pr-review-convergence-observation",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 42255437661
+          }
+        ]
       },
       "reviews": {
         "submissions": [
