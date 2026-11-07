@@ -24,7 +24,7 @@
     "Head/base/protection/review changes invalidate snapshot."
   ],
   "expected_open_pr_count": 20,
-  "open_pr_count": 16,
+  "open_pr_count": 20,
   "open_pr_numbers": [
     623,
     622,
@@ -41,7 +41,11 @@
     608,
     607,
     606,
-    601
+    601,
+    600,
+    599,
+    597,
+    490
   ],
   "prs": [
     {
@@ -1024,6 +1028,253 @@
       "body_evidence_urls": [
         "https://github.com/n0tf0und0ut/Project-FAR/blob/a75d6b1fa2450645ef082854a810d731b4bb1262/docs/research/far-mech-convergence-20261103.md"
       ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 600,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/600",
+      "title": "Implement prospective forecasting and blinded factual investigation for Orthodox FAR",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "codex/orthodox-worldview-profile-v01",
+      "head_sha": "58ef77dac335cf2dc8da0062cbbb3c90c6038fa1",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:55:01Z",
+      "changed_files": 38,
+      "claimed_candidate_sha": "ee6219337074e58b8dda26fc09764caffb31e29a",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "ee6219337074e58b8dda26fc09764caffb31e29a",
+          "context": "indings: [execution and convergence ledger](https://github.com/n0tf0und0ut/Project-FAR/blob/ee6219337074e58b8dda26fc09764caffb31e29a/docs/research/orthodox-forecast-factual-experiment-",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "0e7d4987ad662f46fbe6b03f38390af1c499444e",
+          "context": "er value is established. Exact candidate: `ee6219337074e58b8dda26fc09764caffb31e29a`; tree `0e7d4987ad662f46fbe6b03f38390af1c499444e`; merge base/protected main `c7456b469f9dfe88b92d0f",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "64caffb31e29a`; tree `0e7d4987ad662f46fbe6b03f38390af1c499444e`; merge base/protected main `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Final-head independent review was requested after",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/ee6219337074e58b8dda26fc09764caffb31e29a/docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md"
+      ],
+      "body_pr_reference_contexts": [
+        "isites. The historical signed-cache consumer failure is the Python patch binding defect governed by #617; no cache-integrity rule or protected workflow is weakened here. **Do not merge or enable auto-merge.**"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 599,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/599",
+      "title": "Record live commercial retrieval comparison and raw-text reliability limits",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "codex/live-commercial-evaluation-20261027",
+      "head_sha": "abf71a30a5906cdd7270cb155d98f0df1cc4b522",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:54:43Z",
+      "changed_files": 38,
+      "claimed_candidate_sha": "5e521f93f29d3b9dcf84334a3c2ef4262e4683e0",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "74d46cca56e462855755a574f6d6551c274bd80e",
+          "context": "t-execution verifier binds exact final manifest identity before using its inventory. Commit 74d46cca56e462855755a574f6d6551c274bd80e. | | LIVE-VERIFY-002 | Combined #597 source evoluti",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+          "context": "verifies every frozen source hash, and recovers changed source from registered Git baseline 38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab. Nineteen original source files replay in an isolat",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "0f72780b9548642eef514f6f9538e55722622d78",
+          "context": "fails closed. Real Git-worktree source-drift/new-file and wrong-blob controls pass. Commit 0f72780b9548642eef514f6f9538e55722622d78. | | LIVE-VERIFY-003 | Review 4494323858/thread PRR",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "a8b31e2f5e0e72e0aaa251293e3d30612893b7fe",
+          "context": "1 as a covered historical artifact. Reply 4494382368 records proof; thread resolved. Commit a8b31e2f5e0e72e0aaa251293e3d30612893b7fe. | | LIVE-VERIFY-004 | Verified files were reopened",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "8d8bc41b7e9654c9812deed05d1556c8b16422dd",
+          "context": "igest, source decision and ZIP extraction; a subsequent call rejects replaced files. Commit 8d8bc41b7e9654c9812deed05d1556c8b16422dd. | ## Final verification and review Fourteen scor",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "5e521f93f29d3b9dcf84334a3c2ef4262e4683e0",
+          "context": "n gates remain separate and must finish before any merge-readiness claim. Exact candidate `5e521f93f29d3b9dcf84334a3c2ef4262e4683e0`, tree `a7cd243be8af15a1bdc53b154570efc8b2d332f8`,",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "a7cd243be8af15a1bdc53b154570efc8b2d332f8",
+          "context": "y merge-readiness claim. Exact candidate `5e521f93f29d3b9dcf84334a3c2ef4262e4683e0`, tree `a7cd243be8af15a1bdc53b154570efc8b2d332f8`, protected base `c7456b469f9dfe88b92d0fc7a211e5c9e",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "cf84334a3c2ef4262e4683e0`, tree `a7cd243be8af15a1bdc53b154570efc8b2d332f8`, protected base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Ready for protected review as this bounded incomp",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246606754/job/127990361298"
+      ],
+      "body_pr_reference_contexts": [
+        "| LIVE-VERIFY-002 | Combined #597 source evolution/new files caused `freeze inventory changed`. Historical reconstruction now uses the manifest-bound reg"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 597,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597",
+      "title": "Research: integrated bounded epistemic debugger and hostile source-to-report evaluation",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/epistemic-debugger-001",
+      "head_sha": "ababafde8888b897cdf5312c0fd40385b974a6b3",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T18:09:46Z",
+      "changed_files": 115,
+      "claimed_candidate_sha": "3a72aea5e9cc1f089648d7820a8939fc8fedeed5",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "3a72aea5e9cc1f089648d7820a8939fc8fedeed5",
+          "context": "uman decision benefit and commercial effectiveness remain unestablished. Exact candidate: `3a72aea5e9cc1f089648d7820a8939fc8fedeed5`; integration base: `c7456b469f9dfe88b92d0fc7a211e5",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "tablished. Exact candidate: `3a72aea5e9cc1f089648d7820a8939fc8fedeed5`; integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence and finding dispositions](",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/3a72aea5e9cc1f089648d7820a8939fc8fedeed5/commercial/far-investigation-audit/REVIEW_LEDGER_597.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 490,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/490",
+      "title": "Research: permanent rolling living-repository inbox — DO NOT MERGE",
+      "state": "open",
+      "draft": true,
+      "mergeable_reported": false,
+      "base_branch": "main",
+      "base_sha": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+      "head_branch": "automation/living-research-inbox",
+      "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T15:07:53Z",
+      "changed_files": 3718,
+      "claimed_candidate_sha": null,
+      "claimed_candidate_matches_current_head": null,
+      "all_full_sha_references": [],
+      "body_evidence_urls": [],
       "body_pr_reference_contexts": [],
       "checks": {
         "observed_workflow_runs": [],
