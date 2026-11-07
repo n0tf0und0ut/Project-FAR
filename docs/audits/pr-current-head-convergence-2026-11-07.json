@@ -2264,10 +2264,65 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVy1j0w",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-03T18:33:14Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `837a6a1b36`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzNcAg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T19:03:56Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzNewQ",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T19:04:00Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd6YjQ",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:44:51Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `658f160fb2`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd9NMw",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:47:35Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6504085083,
+          "updated_at": "2026-11-06T16:55:01Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "58ef77dac335cf2dc8da0062cbbb3c90c6038fa1",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/600#issuecomment-6504085083"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 3,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM6zRnpQ",
+          "PRRT_kwDOTH_vCM6zRnpV",
+          "PRRT_kwDOTH_vCM60k0OP"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -2356,10 +2411,42 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd3X5g",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:42:05Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `74d46cca56`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8aHA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:48Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6612212165,
+          "updated_at": "2026-11-06T16:54:43Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "abf71a30a5906cdd7270cb155d98f0df1cc4b522",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/599#issuecomment-6612212165"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 1,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM60ku9r"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -2410,10 +2497,227 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
-        "unresolved_threads": [],
-        "thread_count": null
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfZ2ZA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-10-27T15:48:09Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `ef88af8cf2`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfoURA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:02:59Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfoYBg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:03:02Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfoc2A",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:03:05Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfohig",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:03:09Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfol_g",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:03:13Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfoppA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:03:16Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUfu3NQ",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-10-27T16:10:12Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `cf26c03160`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUgAdmQ",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:28:55Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUgAhqg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-10-27T16:28:59Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABUgRZEA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-10-27T16:47:59Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `5667383fff`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVyz40g",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:23Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVyz7rw",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:26Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVy2JFg",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-03T18:34:02Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `16573648e9`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzNZaQ",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T19:03:53Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeAYWA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:50:37Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `4d2336123f`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWeVw-g",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T16:11:45Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWe7gHA",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T16:53:19Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `b4193710f2`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          }
+        ],
+        "codex_summary": {
+          "id": 6446273256,
+          "updated_at": "2026-11-06T18:09:44Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "ababafde8888b897cdf5312c0fd40385b974a6b3",
+            "has_any_findings": true,
+            "has_unresolved_findings": true,
+            "status": "failed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#issuecomment-6446273256"
+        },
+        "unresolved_threads": [
+          {
+            "thread_id": "PRRT_kwDOTH_vCM60mvzA",
+            "outdated": false,
+            "path": "commercial/far-investigation-audit/semantic.py",
+            "line": 67,
+            "comments": [
+              {
+                "id": 4495176866,
+                "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Exclude quantified pronouns from singular negation**\n\nWhen the subject is a quantified pronoun, this guard still assigns fixed-reference singular semantics and permits an invalid negation rewrite. Fresh evidence beyond the repaired count-prefix cases: `fidelity('Something is not blue.', {'not': {'atom': 'P'}}, {'P': 'Something is blue.'})` returns `SUPPORTED_IN_GRAMMAR`. With one blue object and one nonblue object, the source is true while the encoded negation is false. I also verified that a supplied investigation using this mapping receives conditional acceptance and successfully replays. Reject quantified pronouns such as `something` and `someone` before the singular fallback, or explicitly model their quantification.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->",
+                "author": "chatgpt-codex-connector",
+                "timestamp": "2026-11-06T16:53:20Z",
+                "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176866"
+              }
+            ]
+          },
+          {
+            "thread_id": "PRRT_kwDOTH_vCM60mvzG",
+            "outdated": false,
+            "path": "commercial/far-investigation-audit/debugger_cli.py",
+            "line": 49,
+            "comments": [
+              {
+                "id": 4495176875,
+                "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Support expanded verified snapshots when resuming packages**\n\nFor valid packages whose retained remote snapshots collectively exceed 450,000 bytes, converting every snapshot into inline request text makes even `resume_request(path, [])` fail at `investigate()`'s request-size check. I reproduced this with three URL sources of 160,021 bytes each: the original package verifies successfully, but its resumed configuration is 481,619 bytes and is rejected before acquisition. Each source is within the supported individual limit. Pass verified retained snapshots through a separately bounded resume mechanism so the small intake-config cap does not prevent resuming otherwise supported investigations.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->",
+                "author": "chatgpt-codex-connector",
+                "timestamp": "2026-11-06T16:53:20Z",
+                "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176875"
+              }
+            ]
+          },
+          {
+            "thread_id": "PRRT_kwDOTH_vCM60mvzK",
+            "outdated": true,
+            "path": "commercial/far-investigation-audit/memory.py",
+            "line": null,
+            "comments": [
+              {
+                "id": 4495176881,
+                "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep lineage dependencies scoped to source occurrences**\n\nWhen two investigations contain identical source bytes but different declared lineage, merging their source nodes also merges their upstream dependencies. I reproduced an investigation whose primary snapshot X derives from Y, plus another investigation whose identical X snapshot explicitly declares an independent origin with no upstream sources: both packages verify, but retracting Y invalidates both investigations' readings even though Y does not occur in the independent investigation. Byte deduplication should not turn one occurrence's lineage into every occurrence's dependency; retain occurrence-scoped dependency nodes or equivalent provenance-aware traversal while sharing the stored bytes.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->",
+                "author": "chatgpt-codex-connector",
+                "timestamp": "2026-11-06T16:53:20Z",
+                "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176881"
+              }
+            ]
+          }
+        ],
+        "thread_count": 15,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM6ww34b",
+          "PRRT_kwDOTH_vCM6ww34m",
+          "PRRT_kwDOTH_vCM6ww34r",
+          "PRRT_kwDOTH_vCM6ww342",
+          "PRRT_kwDOTH_vCM6ww35B",
+          "PRRT_kwDOTH_vCM6ww35P",
+          "PRRT_kwDOTH_vCM6wxfhd",
+          "PRRT_kwDOTH_vCM6wxfhg",
+          "PRRT_kwDOTH_vCM6wyewB",
+          "PRRT_kwDOTH_vCM6wyewK",
+          "PRRT_kwDOTH_vCM6zRo3v",
+          "PRRT_kwDOTH_vCM60k-6M"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": [
+          {
+            "id": 4495176866,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176866",
+            "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Exclude quantified pronouns from singular negation**\n\nWhen the subject is a quantified pronoun, this guard still assigns fixed-reference singular semantics and permits an invalid negation rewrite. Fresh evidence beyond the repaired count-prefix cases: `fidelity('Something is not blue.', {'not': {'atom': 'P'}}, {'P': 'Something is blue.'})` returns `SUPPORTED_IN_GRAMMAR`. With one blue object and one nonblue object, the source is true while the encoded negation is false. I also verified that a supplied investigation using this mapping receives conditional acceptance and successfully replays. Reject quantified pronouns such as `something` and `someone` before the singular fallback, or explicitly model their quantification.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->"
+          },
+          {
+            "id": 4495176875,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176875",
+            "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Support expanded verified snapshots when resuming packages**\n\nFor valid packages whose retained remote snapshots collectively exceed 450,000 bytes, converting every snapshot into inline request text makes even `resume_request(path, [])` fail at `investigate()`'s request-size check. I reproduced this with three URL sources of 160,021 bytes each: the original package verifies successfully, but its resumed configuration is 481,619 bytes and is rejected before acquisition. Each source is within the supported individual limit. Pass verified retained snapshots through a separately bounded resume mechanism so the small intake-config cap does not prevent resuming otherwise supported investigations.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->"
+          },
+          {
+            "id": 4495176881,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#discussion_r4495176881",
+            "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep lineage dependencies scoped to source occurrences**\n\nWhen two investigations contain identical source bytes but different declared lineage, merging their source nodes also merges their upstream dependencies. I reproduced an investigation whose primary snapshot X derives from Y, plus another investigation whose identical X snapshot explicitly declares an independent origin with no upstream sources: both packages verify, but retracting Y invalidates both investigations' readings even though Y does not occur in the independent investigation. Byte deduplication should not turn one occurrence's lineage into every occurrence's dependency; retain occurrence-scoped dependency nodes or equivalent provenance-aware traversal while sharing the stored bytes.\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->"
+          }
+        ]
       },
       "dependencies": {
         "explicit": [],
@@ -2450,9 +2754,24 @@
       },
       "reviews": {
         "submissions": [],
-        "codex_summary": null,
+        "codex_summary": {
+          "id": 6687893760,
+          "updated_at": "2026-11-06T15:07:53Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/490#issuecomment-6687893760"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 0,
+        "resolved_thread_ids": [],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -2466,5 +2785,5 @@
     }
   ],
   "errors": [],
-  "last_enriched_utc": "2026-11-07T13:50:24.141Z"
+  "last_enriched_utc": "2026-11-07T13:50:49.080Z"
 }
