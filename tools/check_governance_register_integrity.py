@@ -51,11 +51,15 @@ LABEL_PROMOTION = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])\s*(?:\*\*|\*)?\s*{PROMOTION.pattern}(?:\*\*|\*)?",
     re.I,
 )
-# Retain the complete label/value statement when checking negation or a
-# conditional. The generic CLAUSE splitter separates label from value.
-# Split independent statements instead: a denial in another statement cannot
-# hide an unsupported assertion on the same physical line.
-LABEL_STATEMENT = re.compile(r"[,;.]|\s(?:and|but|while|whereas)\s", re.I)
+# Commas can introduce a condition *belonging to the status claim*:
+# "If replicated, novelty: established" and "Novelty: established, only if".
+# Do not split there. Separate semicolons/sentences and explicit conjunctions,
+# then scope each label to its own adjacent status statement below.
+LABEL_STATEMENT = re.compile(r"[;.]|\s(?:and|but|while|whereas)\s", re.I)
+LABEL_MARKER = re.compile(
+    rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
+    re.I,
+)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
@@ -81,7 +85,21 @@ def promotion_clauses(text: str) -> list[str]:
                 # "not established" must not suppress this pair's promotion.
                 # Retain any leading prohibition and trailing condition.
                 before = statement[:match.start()].rsplit("|", 1)[-1]
+                # If another status label precedes this one, its conditions
+                # and negations are independent. Bound preceding context to
+                # the last comma after that preceding label (or to empty
+                # context for adjacent labels without a comma).
+                earlier = list(LABEL_MARKER.finditer(statement[:match.start()]))
+                if earlier:
+                    separator = statement.rfind(",", earlier[-1].end(), match.start())
+                    before = (
+                        statement[separator + 1:match.start()].rsplit("|", 1)[-1]
+                        if separator >= 0 else ""
+                    )
                 after = statement[match.end():].split("|", 1)[0]
+                later = LABEL_MARKER.search(after)
+                if later:
+                    after = after[:later.start()]
                 if NEGATION.search(before + match.group(0) + after):
                     continue
                 label = match.group(0).strip()
