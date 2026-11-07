@@ -14,6 +14,7 @@ import io
 import json
 
 import yaml
+from openpyxl import Workbook
 from fastapi.testclient import TestClient
 
 from far_demo.app import SAMPLE_BASELINE, SAMPLE_CANDIDATE, app
@@ -301,6 +302,60 @@ class TestFarDemo(unittest.TestCase):
                 'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
             })
             self.assertEqual(response.status_code, 400)
+
+    def test_tabular_numeric_prefix_text_is_not_mistaken_for_complete_json(self) -> None:
+        # Both actual upload routes must retain plain text while complete
+        # nonfinite/duplicate JSON remains terminal at the cell boundary.
+        fields = [
+            "record_type", "key", "value", "node_id", "kind", "statement",
+            "attributes", "source_id", "target_id", "relation",
+        ]
+        for phrase in ("NaN handling is described below.",
+                       "Infinity threshold applies later.",
+                       "1e999 records are not a number."):
+            stream = io.StringIO()
+            writer = csv.DictWriter(stream, fieldnames=fields)
+            writer.writeheader()
+            for key in (
+                "schema_version", "decision_id", "decision_type", "policy_version",
+                "decision_root", "trace_completeness",
+            ):
+                writer.writerow({"record_type": "meta", "key": key, "value": json.dumps(SAMPLE_BASELINE[key])})
+            for key, value in SAMPLE_BASELINE["proposed_action"].items():
+                writer.writerow({"record_type": "meta", "key": f"proposed_action.{key}", "value": json.dumps(value)})
+            for node in SAMPLE_BASELINE["nodes"]:
+                writer.writerow({"record_type": "node", **node, "attributes": json.dumps(node["attributes"])})
+            for dependency in SAMPLE_BASELINE["dependencies"]:
+                writer.writerow({"record_type": "dependency", **dependency})
+            for node_id in SAMPLE_BASELINE["authorization_requirements"]:
+                writer.writerow({"record_type": "authorization_requirement", "node_id": node_id})
+            writer.writerow({"record_type": "meta", "key": "metadata.probe", "value": phrase})
+            csv_bytes = stream.getvalue().encode("utf-8")
+
+            workbook = Workbook()
+            sheet = workbook.active
+            sheet.append(fields)
+            for record in csv.DictReader(io.StringIO(stream.getvalue())):
+                sheet.append([record[field] for field in fields])
+            output = io.BytesIO()
+            workbook.save(output)
+            xlsx_bytes = output.getvalue()
+
+            for filename, data in (("input.csv", csv_bytes), ("input.xlsx", xlsx_bytes)):
+                with self.subTest(filename=filename, phrase=phrase):
+                    parsed = parse_package_file(filename, data)
+                    self.assertEqual(parsed["metadata"]["probe"], phrase)
+                    response = self.client.post("/api/analyze", files={
+                        "baseline": (filename, data, "application/octet-stream"),
+                        "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
+
+        for value in ("NaN", "Infinity", "-Infinity", "1e999",
+                      '{"probe":NaN}', '{"probe":1e999}', '{"probe":1,"probe":2}'):
+            with self.subTest(complete_json=value), self.assertRaises(ValueError):
+                from far_demo.formats import _coerce
+                _coerce(value)
 
     def test_common_extensions_are_declared(self) -> None:
         expected = {
