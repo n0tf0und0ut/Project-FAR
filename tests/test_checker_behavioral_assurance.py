@@ -190,8 +190,12 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "Novelty: established only if independently replicated.",
             "Novelty: established unless a prior example is found.",
             "If independently replicated, novelty: established.",
+            "If independently replicated and externally reviewed, novelty: established.",
             "Novelty: established, only if independently replicated.",
+            "Novelty: established, but only if independently replicated.",
             "Novelty: established, unless a prior example is found.",
+            "| Assurance | Status | Condition |\\n|---|---|---|\\n| Novelty | established | only if independently replicated |".replace("\\n", "\n"),
+            "| Novelty | established | unless a prior example is found |",
             "Novelty: not established, Priority: not confirmed.",
             "Do not assert novelty: established.",
             "| **External validation** | confirmed only if independently replicated |",
@@ -218,6 +222,9 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "Novelty: not established, Priority: proved",
             "If independently replicated, novelty: established, Priority: proved",
             "Novelty: established, only if independently replicated, Priority: proved",
+            "Novelty: established, but only if independently replicated, Priority: proved",
+            "| Novelty | established | only if independently replicated | Priority | confirmed |",
+            "| Novelty | established | not confirmed |",
             "| **Novelty** | not established | **Priority** | confirmed |",
         )
         for phrase in cases:
