@@ -5827,7 +5827,21 @@
         "tests/test_worldview_intake_convergence.py",
         "tests/test_worldview_truth_ablation.py"
       ],
-      "changed_files_list_count": 38
+      "changed_files_list_count": 38,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/ee6219337074e58b8dda26fc09764caffb31e29a/docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+          "kind": "source_blob",
+          "ref_sha": "ee6219337074e58b8dda26fc09764caffb31e29a",
+          "path": "docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb",
+          "linked_exists": true,
+          "current_blob_sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 599,
@@ -6158,7 +6172,16 @@
         "tools/run_live_commercial_evaluation.py",
         "tools/verify_live_commercial_evaluation.py"
       ],
-      "changed_files_list_count": 38
+      "changed_files_list_count": 38,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246606754/job/127990361298",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        }
+      ]
     },
     {
       "number": 597,
@@ -6722,7 +6745,21 @@
         "tools/debugger_controls.py",
         "tools/run_debugger_evaluation.py"
       ],
-      "changed_files_list_count": 115
+      "changed_files_list_count": 115,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/3a72aea5e9cc1f089648d7820a8939fc8fedeed5/commercial/far-investigation-audit/REVIEW_LEDGER_597.md",
+          "kind": "source_blob",
+          "ref_sha": "3a72aea5e9cc1f089648d7820a8939fc8fedeed5",
+          "path": "commercial/far-investigation-audit/REVIEW_LEDGER_597.md",
+          "verification": "VERIFIED_HISTORICAL_DIFFERS_FROM_CURRENT",
+          "linked_blob_sha": "3a63b9833c94f71af97e2a89ce5e61e16934d63b",
+          "linked_exists": true,
+          "current_blob_sha": "43c8f8b082d0803daebe5daea524c90b877f7ee6",
+          "current_exists": true,
+          "byte_identical_across_refs": false
+        }
+      ]
     },
     {
       "number": 490,
@@ -9931,7 +9968,8 @@
         "research/living/inbox/candidates/FAR-LIT-E7727880988347DB.json",
         "research/living/inbox/candidates/FAR-LIT-E77A2623806B8BA2.json"
       ],
-      "changed_files_list_count": 3000
+      "changed_files_list_count": 3000,
+      "evidence_refs": []
     }
   ],
   "errors": [],
