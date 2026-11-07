@@ -9769,7 +9769,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:02:12.843Z",
+        "head_sha": "58ef77dac335cf2dc8da0062cbbb3c90c6038fa1",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:55:01Z"
+      }
     },
     {
       "number": 599,
@@ -10334,7 +10343,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:02:12.843Z",
+        "head_sha": "abf71a30a5906cdd7270cb155d98f0df1cc4b522",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T16:54:43Z"
+      }
     },
     {
       "number": 597,
@@ -11147,7 +11165,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:02:12.843Z",
+        "head_sha": "ababafde8888b897cdf5312c0fd40385b974a6b3",
+        "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+        "draft": false,
+        "state": "open",
+        "updated_at": "2026-11-06T18:09:46Z"
+      }
     },
     {
       "number": 490,
@@ -14422,7 +14449,16 @@
           "code": "MERGE_AUTHORIZATION_NOT_GRANTED",
           "authority": "User's explicit Project FAR restriction"
         }
-      ]
+      ],
+      "revalidation": {
+        "verified": true,
+        "checked_utc": "2026-11-07T14:02:12.843Z",
+        "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+        "base_sha": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+        "draft": true,
+        "state": "open",
+        "updated_at": "2026-11-06T15:07:53Z"
+      }
     }
   ],
   "errors": [],
@@ -14469,6 +14505,36 @@
         "git_ancestry_verified": true
       }
     ],
-    "strictly_merge_ready": 0
-  }
+    "strictly_merge_ready": 0,
+    "exact_head_revalidated": 20,
+    "open_inventory_revalidated": true
+  },
+  "open_inventory_revalidation": {
+    "checked_utc": "2026-11-07T14:02:12.843Z",
+    "observed_total": 20,
+    "live_numbers": [
+      490,
+      597,
+      599,
+      600,
+      601,
+      606,
+      607,
+      608,
+      611,
+      612,
+      614,
+      615,
+      616,
+      617,
+      618,
+      619,
+      620,
+      621,
+      622,
+      623
+    ],
+    "unchanged": true
+  },
+  "snapshot_finalized_utc": "2026-11-07T14:02:12.843Z"
 }
