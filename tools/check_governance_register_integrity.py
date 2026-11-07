@@ -58,7 +58,7 @@ LABEL_PROMOTION = re.compile(
 LABEL_STATEMENT = re.compile(r"[;.]")
 # Only an explicit condition column qualifies the preceding status. A
 # neighboring non-condition cell must never hide an unsupported promotion.
-CONDITION_CELL = re.compile(r"^(?:only\\s+if|if|unless)\\b", re.I)
+CONDITION_CELL = re.compile(r"^(?:only\s+if|if|unless)\b", re.I)
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
     re.I,
