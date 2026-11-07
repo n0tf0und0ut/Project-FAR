@@ -235,6 +235,25 @@ class TestFarDemo(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 parse_package_file("input.txt", raw.encode())
 
+    def test_unsupported_fence_language_is_not_a_binding_json_prefix(self) -> None:
+        # jsonc/json5/json-schema are unsupported labels, not declarations
+        # of JSON. Their contents must not hide a later valid package fence.
+        package = json.dumps(SAMPLE_BASELINE)
+        for language in ("jsonc", "json5", "json-schema", "JSONC"):
+            document = (
+                "# Supplement\\n"
+                + "```" + language + "\\n{invalid: syntax,}\\n```\\n"
+                + "```json\\n" + package + "\\n```\\n"
+            ).replace("\\n", "\n")
+            with self.subTest(language=language):
+                parsed = parse_package_file("notes.md", document.encode())
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                response = self.client.post("/api/analyze", files={
+                    "baseline": ("notes.md", document, "text/markdown"),
+                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+
     def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
         def toml_value(value):
             if isinstance(value, dict):
