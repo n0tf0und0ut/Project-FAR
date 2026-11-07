@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from unittest.mock import patch
 
 if importlib.util.find_spec("fastapi") is None:
     raise unittest.SkipTest(
@@ -383,6 +384,15 @@ class TestFarDemo(unittest.TestCase):
             with self.subTest(complete_json=value), self.assertRaises(ValueError):
                 from far_demo.formats import _coerce
                 _coerce(value)
+
+    def test_tabular_json_nesting_decoder_failure_remains_invalid_input(self) -> None:
+        # The real JSON decoder's nesting limit differs across interpreters.
+        # Deterministically reproduce the early strict-decoder failure and the
+        # subsequent syntax-only probe reaching the same decoder boundary.
+        from far_demo.formats import _coerce
+        with patch("far_demo.formats.json.loads", side_effect=RecursionError("forced depth")):
+            with self.assertRaisesRegex(ValueError, "JSON nesting exceeds"):
+                _coerce('{"probe":1}')
 
     def test_common_extensions_are_declared(self) -> None:
         expected = {
