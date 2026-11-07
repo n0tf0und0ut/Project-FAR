@@ -1273,7 +1273,35 @@
         "tests/test_numeric_grounding_integration.py",
         "tests/test_numeric_live_pilot.py"
       ],
-      "changed_files_list_count": 19
+      "changed_files_list_count": 19,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885/artifacts/13445236161",
+          "kind": "workflow_link",
+          "ref_sha": null,
+          "path": null,
+          "verification": "UNVERIFIED"
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ca6d68fe202e3569f1ad90c1e10e546ff1508c9/research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+          "kind": "source_blob",
+          "ref_sha": "8ca6d68fe202e3569f1ad90c1e10e546ff1508c9",
+          "path": "research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5",
+          "linked_exists": true,
+          "current_blob_sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 619,
@@ -1811,7 +1839,21 @@
         "tools/agent_reliability_evidence.py",
         "tools/replay_convergence_comparators.py"
       ],
-      "changed_files_list_count": 14
+      "changed_files_list_count": 14,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ab8c9d13d696a3e970937d58c83bb490edf357b/research/repository-convergence/2026-11-03/README.md",
+          "kind": "source_blob",
+          "ref_sha": "8ab8c9d13d696a3e970937d58c83bb490edf357b",
+          "path": "research/repository-convergence/2026-11-03/README.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14",
+          "linked_exists": true,
+          "current_blob_sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 617,
@@ -2075,7 +2117,33 @@
         "validation/repin-requests/PR-617-signed-cache-python.json",
         "validation_bootstrap/assurance-lock.json"
       ],
-      "changed_files_list_count": 7
+      "changed_files_list_count": 7,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+          "kind": "source_blob",
+          "ref_sha": "f3447d5f86a40da75785b91486ceaa55ceab381b",
+          "path": "docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "066ffc3804bfbb3ab7e2df8a92e8a4bf0621450e",
+          "linked_exists": true,
+          "current_blob_sha": "066ffc3804bfbb3ab7e2df8a92e8a4bf0621450e",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        },
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/validation/repin-requests/PR-617-signed-cache-python.json",
+          "kind": "source_blob",
+          "ref_sha": "f3447d5f86a40da75785b91486ceaa55ceab381b",
+          "path": "validation/repin-requests/PR-617-signed-cache-python.json",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
+          "linked_exists": true,
+          "current_blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 616,
@@ -2414,7 +2482,21 @@
         "commercial/far-demo/tests/test_semantic.py",
         "tests/test_living_promotion_corpus_regression.py"
       ],
-      "changed_files_list_count": 14
+      "changed_files_list_count": 14,
+      "evidence_refs": [
+        {
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/01632e92a975a8a51af9287cb9d86db93db6fcc7/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+          "kind": "source_blob",
+          "ref_sha": "01632e92a975a8a51af9287cb9d86db93db6fcc7",
+          "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+          "verification": "VERIFIED_IDENTICAL_AT_CURRENT_HEAD",
+          "linked_blob_sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b",
+          "linked_exists": true,
+          "current_blob_sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b",
+          "current_exists": true,
+          "byte_identical_across_refs": true
+        }
+      ]
     },
     {
       "number": 615,
