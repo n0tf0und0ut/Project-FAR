@@ -189,10 +189,24 @@ def _parse_embedded_text(text: str) -> dict[str, Any]:
             # relax strict errors or override a later decision-package object.
             continue
         except json.JSONDecodeError as exc:
-            # Syntax that is not JSON may be valid YAML/TOML. Duplicate members,
-            # nonfinite numbers and decoder-limit failures are ValueError and
-            # deliberately propagate instead of being reinterpreted.
+            # Unlabeled text can contain a YAML/TOML document, not JSON.
             errors.append(str(exc))
+        except ValueError as exc:
+            # The strict JSON decoder can invoke a semantic hook before checking
+            # whether the candidate is a *complete* JSON value. For example,
+            # "NaN handling..." or "NaN: note" begins with a nonfinite token
+            # but is ordinary prose or YAML, respectively. Only such syntax
+            # failures may fall through to document parsers. A complete JSON
+            # value containing nonfinite numbers, duplicate keys, or overflow
+            # remains terminal, as does any JSON-shaped object/array.
+            if candidate.lstrip().startswith(("{", "[")):
+                raise
+            try:
+                json.loads(candidate)  # Syntax probe only; never use its result.
+            except json.JSONDecodeError:
+                errors.append(str(exc))
+            else:
+                raise
         for parser in (_load_yaml, tomllib.loads):
             try:
                 value = parser(candidate)
