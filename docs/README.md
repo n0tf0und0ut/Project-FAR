@@ -4,14 +4,17 @@ Project-level documentation lives here. This directory provides orientation, gov
 
 ## Find what you need
 
+Paths for different readers: **Newcomer** — [FAR in five minutes](START_HERE.md); **Builder** — [mechanization guide](../mechanization/README.md); **Researcher** — [current status](project-status.md) and [governing theory](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md). These are routes to existing authority, not competing definitions.
+
 | Your task | Start here | Boundary |
 |---|---|---|
-| Understand FAR in context | [Overview](OVERVIEW.md) and [educational example](../examples/simple-investigation.md) | Examples illustrate methods; they do not establish empirical performance. |
+| Understand FAR without science or coding | [Five-minute explanation and receipt example](START_HERE.md), then [overview](OVERVIEW.md) | The receipt is invented and illustrates a principle, not a software result. |
 | Find the current governing theory | [Project status](project-status.md), then [core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) | Historical v1.0 remains preserved, not current theory authority. |
 | Find code and run tests | [Mechanization guide](../mechanization/README.md), [contributor guide](../CONTRIBUTING.md), and [repository health checks](maintenance/repository-health-checks.md) | Verification applies only to the encoded test/contract scope. |
 | Trace a research result to evidence | [W1–W6 matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md), [research index](../research/README.md), and [limitations](governance/limitations-register.md) | Research records and generated views cannot promote claims. |
 | Determine where a concept belongs | [Canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md) | The map identifies authority; the domain registry controls repository placement. |
 | Locate a specific file | [Generated repository index](planning/repository-index.md) | A file index is a discovery aid, not a status or acceptance decision. |
+| Check whether newcomers understand | [Plain-language comprehension and navigation procedure](maintenance/beginner-comprehension-check.md) | Reader observations are not formal proof or a claim of completed usability research. |
 
 For the full repository entry point use the [root README](../README.md). For a documentation change, prefer improving an existing route over creating another competing index.
 
@@ -36,6 +39,8 @@ For the full repository entry point use the [root README](../README.md). For a d
 - `ROADMAP.md` — gated future work.
 - `CHANGELOG.md` — chronological change history.
 - `DECISION_LOG.md` — canonical project decision log.
+- [Five-minute explanation](START_HERE.md) — first-time, nontechnical learning route; illustrative and non-authoritative.
+- [Beginner comprehension check](maintenance/beginner-comprehension-check.md) — practical human-reader usability procedure, not research evidence.
 - [Overview](OVERVIEW.md) — project overview.
 - [`planning/repository-index.md`](planning/repository-index.md) — generated repository-wide artifact navigation; an index, not an authority source.
 - `STYLE_GUIDE.md` — documentation style standards.
