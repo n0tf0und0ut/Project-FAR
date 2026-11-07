@@ -201,6 +201,39 @@ class TestFarDemo(unittest.TestCase):
                 })
                 self.assertEqual(response.status_code, 400)
 
+    def test_unlabeled_non_json_prefix_keeps_safe_document_fallback(self) -> None:
+        # JSON's parse_constant hook can fail before the full JSON syntax is
+        # established. Ordinary prose and YAML must remain discoverable.
+        package = json.dumps(SAMPLE_BASELINE)
+        for prefix in (
+            "NaN handling is described below.",
+            "Infinity handling is described below.",
+            "-Infinity handling is described below.",
+        ):
+            document = prefix + "\n\n```json\n" + package + "\n```"
+            with self.subTest(prefix=prefix):
+                parsed = parse_package_file("input.md", document.encode())
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                response = self.client.post("/api/analyze", files={
+                    "baseline": ("input.md", document, "text/markdown"),
+                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+
+        for label in ("NaN", "Infinity", "-Infinity"):
+            raw = label + ": note\n" + yaml.safe_dump(SAMPLE_BASELINE, sort_keys=False)
+            with self.subTest(label=label):
+                parsed = parse_package_file("input.txt", raw.encode())
+                self.assertEqual(parsed[label], "note")
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+
+        # Fully valid non-finite JSON is still forbidden, even unlabeled.
+        # JSON-shaped malformed content must never downgrade to YAML.
+        for raw in ("NaN", "Infinity", "-Infinity",
+                    '{"x":NaN}', '{"x":NaN} trailing'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                parse_package_file("input.txt", raw.encode())
+
     def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
         def toml_value(value):
             if isinstance(value, dict):
