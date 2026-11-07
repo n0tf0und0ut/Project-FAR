@@ -2678,7 +2678,39 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+        "research/model-architecture-search/README.md",
+        "research/model-architecture-search/RESULTS-V0.2.md",
+        "research/model-architecture-search/RESULTS-V0.3.md",
+        "research/model-architecture-search/archive-v0.3.zip.b64",
+        "research/model-architecture-search/integration-fixture-regression-20261103.zip",
+        "research/model-architecture-search/pilot-v0.1-evidence.zip.b64",
+        "research/model-architecture-search/preregistration-v0.2.md",
+        "research/model-architecture-search/preregistration-v0.3.md",
+        "research/model-architecture-search/protocol-v0.1.json",
+        "research/model-architecture-search/protocol-v0.2.json",
+        "research/model-architecture-search/protocol-v0.3.json",
+        "research/model-architecture-search/replication-v0.2-analysis.json",
+        "research/model-architecture-search/replication-v0.2-evidence.zip.b64",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_model_architecture_evidence_archive.py",
+        "tests/test_model_architecture_external.py",
+        "tests/test_model_architecture_external_evidence.py",
+        "tests/test_model_architecture_replay.py",
+        "tests/test_model_architecture_replication.py",
+        "tests/test_model_architecture_search.py",
+        "tools/check_model_architecture_external_archive.py",
+        "tools/cpython-sum-LICENSE.txt",
+        "tools/model_architecture_external.py",
+        "tools/model_architecture_external_replay.py",
+        "tools/model_architecture_replay.py",
+        "tools/model_architecture_replication.py",
+        "tools/model_architecture_search.py",
+        "tools/package_model_architecture_external.py"
+      ],
+      "changed_files_list_count": 29
     },
     {
       "number": 614,
@@ -3211,7 +3243,65 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/far-investigation-engine.yml",
+        ".github/workflows/far-investigation-hosted-campaign.yml",
+        ".github/workflows/far-live-autonomous-investigation.yml",
+        ".github/workflows/far-uncertain-routing-pilot.yml",
+        "research/README.md",
+        "research/investigation-engine/README.md",
+        "research/investigation-engine/evidence-manifest.json",
+        "research/investigation-engine/execution-interruption-v0.1.md",
+        "research/investigation-engine/execution-profile-v0.1.json",
+        "research/investigation-engine/finding-ledger.md",
+        "research/investigation-engine/hosted-recovery-observation-v0.1.md",
+        "research/investigation-engine/hosted-recovery-v0.1.zip",
+        "research/investigation-engine/odr-preparation-observation-v0.1.json",
+        "research/investigation-engine/odr-preparation-v0.1.md",
+        "research/investigation-engine/original-hosted-workflow-v0.1.yml",
+        "research/investigation-engine/posthoc-numeric-recomputation-v0.1.json",
+        "research/investigation-engine/preregistration-v0.1.md",
+        "research/investigation-engine/raw-usage-correction-v1.json",
+        "research/investigation-engine/recompute-numeric-v0.1.py",
+        "research/investigation-engine/record-odr-preparation-v0.1.py",
+        "research/investigation-engine/requirements-odr-preparation-v0.1.txt",
+        "research/investigation-engine/selection-v1.json",
+        "research/investigation-engine/selection-v2.json",
+        "research/uncertain-routing/README.md",
+        "research/uncertain-routing/execution-v0.1.md",
+        "research/uncertain-routing/finding-ledger.md",
+        "research/uncertain-routing/frozen-v0.1.json",
+        "research/uncertain-routing/live-execution-v0.1.md",
+        "research/uncertain-routing/live-investigation-prereg-v0.1.md",
+        "research/uncertain-routing/original-live-workflow-v0.1.yml",
+        "research/uncertain-routing/original-uncertain-workflow-v0.1.yml",
+        "research/uncertain-routing/run-artifacts/.gitkeep",
+        "tests/redirect_transport_fixture.py",
+        "tests/test_far_autonomous_investigation.py",
+        "tests/test_far_investigation_audit.py",
+        "tests/test_far_investigation_campaign.py",
+        "tests/test_far_investigation_engine.py",
+        "tests/test_far_investigation_odr_preparation.py",
+        "tests/test_far_investigation_retrieval.py",
+        "tests/test_far_investigation_review_regression.py",
+        "tests/test_far_investigation_usage.py",
+        "tests/test_far_investigation_verifiers.py",
+        "tests/test_far_routing_dispatch.py",
+        "tests/test_far_uncertain_routing_pilot.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tools/far_autonomous_investigation.py",
+        "tools/far_investigation_audit.py",
+        "tools/far_investigation_campaign.py",
+        "tools/far_investigation_engine.py",
+        "tools/far_investigation_odr_preparation.py",
+        "tools/far_investigation_retrieval.py",
+        "tools/far_investigation_usage.py",
+        "tools/far_investigation_verifiers.py",
+        "tools/far_routing_dispatch.py",
+        "tools/far_uncertain_routing_pilot.py"
+      ],
+      "changed_files_list_count": 55
     },
     {
       "number": 612,
@@ -3437,7 +3527,13 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        "AGENTS.md",
+        "docs/maintenance/agent-workflow-orchestration.md",
+        "tests/test_living_promotion_corpus_regression.py"
+      ],
+      "changed_files_list_count": 3
     },
     {
       "number": 611,
@@ -3707,7 +3803,16 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/weight-space-offline-checks.yml",
+        "research/weight_space_programming/README.md",
+        "research/weight_space_programming/protocol-v0.1.md",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_weight_space_research.py",
+        "tools/weight_space_research.py"
+      ],
+      "changed_files_list_count": 6
     },
     {
       "number": 608,
@@ -4065,7 +4170,30 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/far-live-autonomous-investigation.yml",
+        ".github/workflows/far-uncertain-routing-pilot.yml",
+        "research/README.md",
+        "research/uncertain-routing/README.md",
+        "research/uncertain-routing/execution-v0.1.md",
+        "research/uncertain-routing/finding-ledger.md",
+        "research/uncertain-routing/frozen-v0.1.json",
+        "research/uncertain-routing/live-execution-v0.1.md",
+        "research/uncertain-routing/live-investigation-prereg-v0.1.md",
+        "research/uncertain-routing/original-live-workflow-v0.1.yml",
+        "research/uncertain-routing/original-uncertain-workflow-v0.1.yml",
+        "research/uncertain-routing/run-artifacts/.gitkeep",
+        "tests/redirect_transport_fixture.py",
+        "tests/test_far_autonomous_investigation.py",
+        "tests/test_far_routing_dispatch.py",
+        "tests/test_far_uncertain_routing_pilot.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tools/far_autonomous_investigation.py",
+        "tools/far_routing_dispatch.py",
+        "tools/far_uncertain_routing_pilot.py"
+      ],
+      "changed_files_list_count": 20
     },
     {
       "number": 607,
@@ -4343,7 +4471,25 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/far-workflow-efficacy-local-smoke.yml",
+        "research/workflow-efficacy/LOCAL-QWEN-V0.1.md",
+        "research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+        "research/workflow-efficacy/README.md",
+        "research/workflow-efficacy/local-merged-results/.gitkeep",
+        "research/workflow-efficacy/local-pair-results/.gitkeep",
+        "research/workflow-efficacy/local-qwen-original-workflow-v0.1.yml",
+        "research/workflow-efficacy/local-report/.gitkeep",
+        "research/workflow-efficacy/local-smoke/.gitkeep",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_workflow_efficacy_local_analysis.py",
+        "tests/test_workflow_efficacy_local_ollama.py",
+        "tools/workflow_efficacy_local_analysis.py",
+        "tools/workflow_efficacy_local_install.sh",
+        "tools/workflow_efficacy_local_ollama.py"
+      ],
+      "changed_files_list_count": 15
     },
     {
       "number": 606,
@@ -4671,7 +4817,27 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/far-architecture-offline-model.yml",
+        "research/README.md",
+        "research/architecture-routing/README.md",
+        "research/architecture-routing/cpu-protocol-v0.2.json",
+        "research/architecture-routing/cpu-protocol-v0.3.json",
+        "research/architecture-routing/execution-observation-v0.1.md",
+        "research/architecture-routing/execution-observation-v0.3.md",
+        "research/architecture-routing/finding-ledger.md",
+        "research/architecture-routing/original-workflow-v0.3.yml",
+        "research/architecture-routing/preflight-failure-v0.2.md",
+        "research/architecture-routing/protocol-v0.1.json",
+        "research/architecture-routing/run-artifacts/.gitkeep",
+        "tests/test_far_architecture_cpu_experiment.py",
+        "tests/test_far_architecture_routing.py",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tools/far_architecture_cpu_experiment.py",
+        "tools/far_architecture_routing.py"
+      ],
+      "changed_files_list_count": 17
     },
     {
       "number": 601,
@@ -5063,7 +5229,50 @@
         "protected_app_repin": "UNVERIFIED",
         "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
       },
-      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE",
+      "changed_filenames": [
+        ".github/workflows/far-pretrained-lm-mechanism.yml",
+        "docs/research/far-mech-convergence-20261103.md",
+        "docs/research/far-mech-exact-scope-adjudication-20261031.md",
+        "docs/research/far-mech-pretrained-lm-pilot-v0.2.md",
+        "docs/research/far-mech-real-digit-interventions-20261030.md",
+        "docs/research/far-mechanistic-fidelity-v0.1.md",
+        "evaluation/evidence/pretrained-original-13050862275.zip",
+        "evaluation/evidence/pretrained-original-13051320299.zip",
+        "evaluation/evidence/pretrained-original-13052923193.zip",
+        "evaluation/evidence/pretrained-originals-manifest.json",
+        "evaluation/evidence/pretrained-replay-regression-20261103.zip",
+        "evaluation/evidence/report-intake-convergence-20261106/after.log",
+        "evaluation/evidence/report-intake-convergence-20261106/before.log",
+        "evaluation/evidence/report-intake-convergence-20261106/manifest-after.log",
+        "evaluation/evidence/report-intake-convergence-20261106/manifest-before.log",
+        "evaluation/fixtures/real-digits-three-case-extract-v0.1.json",
+        "evaluation/replay_pretrained_lm_metrics.py",
+        "evaluation/replay_real_digits_mechanism.py",
+        "evaluation/results/far-mech-exact-scope-disposition-20261031.json",
+        "evaluation/results/real-digits-mechanistic-fidelity-20261030.json",
+        "evaluation/results/smollm2-135m-fullvocab-followup-20261031.json",
+        "evaluation/results/smollm2-135m-real-mechanistic-fidelity-20261031.json",
+        "evaluation/run_pretrained_lm_fidelity.py",
+        "evaluation/run_real_digits_mechanism.py",
+        "evaluation/validate_pretrained_lm_result.py",
+        "examples/mechanistic-fidelity/synthetic-neuron-replacement.json",
+        "mechanization/far_mechanization/mechanistic_fidelity.py",
+        "mechanization/far_mechanization/mechanistic_search.py",
+        "mechanization/far_mechanization/mechanistic_toy_reference.py",
+        "schemas/far-mechanistic-fidelity-v0.1.schema.json",
+        "tests/test_living_promotion_corpus_regression.py",
+        "tests/test_mechanistic_archived_evidence.py",
+        "tests/test_mechanistic_claim_disposition.py",
+        "tests/test_mechanistic_fidelity.py",
+        "tests/test_mechanistic_pretrained_protocol.py",
+        "tests/test_mechanistic_pretrained_replay.py",
+        "tests/test_mechanistic_pretrained_validator.py",
+        "tests/test_mechanistic_real_digits_extract.py",
+        "tests/test_mechanistic_real_digits_optional.py",
+        "tests/test_mechanistic_search.py"
+      ],
+      "changed_files_list_count": 40
     },
     {
       "number": 600,
