@@ -24,7 +24,7 @@
     "Head/base/protection/review changes invalidate snapshot."
   ],
   "expected_open_pr_count": 20,
-  "open_pr_count": 8,
+  "open_pr_count": 16,
   "open_pr_numbers": [
     623,
     622,
@@ -33,7 +33,15 @@
     619,
     618,
     617,
-    616
+    616,
+    615,
+    614,
+    612,
+    611,
+    608,
+    607,
+    606,
+    601
   ],
   "prs": [
     {
@@ -531,6 +539,490 @@
       ],
       "body_evidence_urls": [
         "https://github.com/n0tf0und0ut/Project-FAR/blob/01632e92a975a8a51af9287cb9d86db93db6fcc7/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 615,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/615",
+      "title": "research: architecture search with negative matched-capacity and external-data evidence",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/model-architecture-search-20261103",
+      "head_sha": "db0c95f6568d873e4e4e96aab8c247af5a03d79b",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:58Z",
+      "changed_files": 29,
+      "claimed_candidate_sha": "87315d1402205a2bf1c56fd880f49532ebb27860",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "87315d1402205a2bf1c56fd880f49532ebb27860",
+          "context": "is preserved separately in integration-fixture-regression-20261103.zip. Exact candidate: `87315d1402205a2bf1c56fd880f49532ebb27860`; tested/published tree: `77a7b9a2c9467a35e073aa587",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "77a7b9a2c9467a35e073aa587caccafcd7af5117",
+          "context": ".zip. Exact candidate: `87315d1402205a2bf1c56fd880f49532ebb27860`; tested/published tree: `77a7b9a2c9467a35e073aa587caccafcd7af5117`; protected-main integration base: `c7456b469f9dfe8",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "blished tree: `77a7b9a2c9467a35e073aa587caccafcd7af5117`; protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Findings, reviewed source identities, reproducer",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/87315d1402205a2bf1c56fd880f49532ebb27860/research/model-architecture-search/CONVERGENCE-2026-11-03.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 614,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/614",
+      "title": "Research: execute and audit general investigation tools without controller substitution",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/general-investigation-engine-20261103",
+      "head_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:46:49Z",
+      "changed_files": 55,
+      "claimed_candidate_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+      "claimed_candidate_matches_current_head": true,
+      "all_full_sha_references": [
+        {
+          "sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+          "context": "ce recorded source-byte ceilings using the runtime's pure policy validation. Current head `0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9`, tree `d06928264cc3c98fb9038252618cc589fb2dc33f`;",
+          "matches_live_head": true,
+          "matches_live_base": false
+        },
+        {
+          "sha": "d06928264cc3c98fb9038252618cc589fb2dc33f",
+          "context": "e's pure policy validation. Current head `0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9`, tree `d06928264cc3c98fb9038252618cc589fb2dc33f`; protected-main base `c7456b469f9dfe88b92d0fc7a211",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "3f80c4cd02d1986a0f9`, tree `d06928264cc3c98fb9038252618cc589fb2dc33f`; protected-main base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Current #608 predecessor `6f59f8a539717940ac2a27c",
+          "matches_live_head": false,
+          "matches_live_base": true
+        },
+        {
+          "sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+          "context": "; protected-main base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Current #608 predecessor `6f59f8a539717940ac2a27cc26a8cc204eec7b1f` is retained in development ancestry and must conve",
+          "matches_live_head": false,
+          "matches_live_base": false
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9/research/investigation-engine/finding-ledger.md",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478"
+      ],
+      "body_pr_reference_contexts": [
+        "fb9038252618cc589fb2dc33f`; protected-main base `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. Current #608 predecessor `6f59f8a539717940ac2a27cc26a8cc204eec7b1f` is retained in development ancestry and must converge before thi"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 612,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/612",
+      "title": "docs: require current AGENTS.md startup across Chat, Work and Codex",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "docs/cross-mode-agents-startup-20261103",
+      "head_sha": "ada9f99c2f1238151893bbe49a227ccb4dcf62b6",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:07Z",
+      "changed_files": 3,
+      "claimed_candidate_sha": "3fad9fa607dffb18e3bce733be8513c7872fe5fb",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "3fad9fa607dffb18e3bce733be8513c7872fe5fb",
+          "context": "er configuration; it is not required to merge this documentation change. Exact candidate: `3fad9fa607dffb18e3bce733be8513c7872fe5fb`; integration base: `c7456b469f9dfe88b92d0fc7a211e5",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "on change. Exact candidate: `3fad9fa607dffb18e3bce733be8513c7872fe5fb`; integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence and finding dispositions](",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/3fad9fa607dffb18e3bce733be8513c7872fe5fb/docs/maintenance/agent-workflow-orchestration.md"
+      ],
+      "body_pr_reference_contexts": [],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 611,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/611",
+      "title": "research: introduce falsifiable weight-space intervention audit",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/weight-space-programming-20261103",
+      "head_sha": "e48f6dc29302bb0848a5632b49c726d2128a327d",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:57Z",
+      "changed_files": 6,
+      "claimed_candidate_sha": "0e8364466db56ed3580a248827cedf1e8991f740",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "0e8364466db56ed3580a248827cedf1e8991f740",
+          "context": "veness and external oracle correctness are not established by the audit. Exact candidate: `0e8364466db56ed3580a248827cedf1e8991f740`; protected-main integration base: `c7456b469f9dfe8",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "ct candidate: `0e8364466db56ed3580a248827cedf1e8991f740`; protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence, limitations and finding l",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/0e8364466db56ed3580a248827cedf1e8991f740/research/weight_space_programming/README.md"
+      ],
+      "body_pr_reference_contexts": [
+        "odel inference was generated by these repairs. The existing432-generation pilot is already on main (#613) and remains a negative adoption result; it is not a new FAR-WSP five-arm campaign. Causal diagnosis, real-world effect"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 608,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/608",
+      "title": "research: enforce explicit FAR verifier routing; isolate ambiguous agent selection",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/explicit-dispatch-uncertain-routing-20261102",
+      "head_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:45:42Z",
+      "changed_files": 20,
+      "claimed_candidate_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+      "claimed_candidate_matches_current_head": true,
+      "all_full_sha_references": [
+        {
+          "sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+          "context": "the separate protected cache-runtime prerequisite when that check fails. Exact candidate: `6f59f8a539717940ac2a27cc26a8cc204eec7b1f`; protected-main integration base: `c7456b469f9dfe8",
+          "matches_live_head": true,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "ct candidate: `6f59f8a539717940ac2a27cc26a8cc204eec7b1f`; protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence, limitations and finding l",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/6f59f8a539717940ac2a27cc26a8cc204eec7b1f/research/uncertain-routing/finding-ledger.md",
+        "https://github.com/n0tf0und0ut/Project-FAR/pull/608#discussion_r4494361655",
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478"
+      ],
+      "body_pr_reference_contexts": [
+        "l original live artifacts, protocols, negatives and reviewed identities remain unchanged. Successor #614 depends on this final branch integration; #617 is the separate protected cache-runtime prerequisite when that check fai"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 607,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/607",
+      "title": "research: run credential-free local Qwen instruction-effect comparison",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/workflow-efficacy-local-qwen-20261102",
+      "head_sha": "df3b55a70780562937303f5c855c3dba125e83fc",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:40Z",
+      "changed_files": 15,
+      "claimed_candidate_sha": "e959c755bff26a6994df8ddc4ac05e272778a0c0",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "1e1161358556a9ae6c3e01002c906d124369148e",
+          "context": "ce/tree, closing that verification requirement. Certificate artifact13277480809 binds tree `1e1161358556a9ae6c3e01002c906d124369148e`. ## Scientific and operational disposition Merge",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "e959c755bff26a6994df8ddc4ac05e272778a0c0",
+          "context": "ergence. No assurance dependency rule or protected manifest is weakened. Exact candidate: `e959c755bff26a6994df8ddc4ac05e272778a0c0`; protected-main integration base: `c7456b469f9dfe8",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "ct candidate: `e959c755bff26a6994df8ddc4ac05e272778a0c0`; protected-main integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence, limitations and finding l",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41727268815/job/126235238730",
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/e959c755bff26a6994df8ddc4ac05e272778a0c0/research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md"
+      ],
+      "body_pr_reference_contexts": [
+        "Merged #605 remains control11/30 versus FAR10/30, no demonstrated advantage; this maintenance does not replace that experiment or e",
+        "ned-cache producer/consumer, exact-head assurance and all three protected required contexts passed. #617 remains separately owner-gated for future producer/consumer Python patch divergence. No assurance dependency rule or pr"
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 606,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/606",
+      "title": "research: preregister and implement bounded FAR architecture-routing pilot",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/far-architecture-routing-pilot-20261102",
+      "head_sha": "cec9386fd6d511090250c12150ef314ffbf8a7ea",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:14Z",
+      "changed_files": 17,
+      "claimed_candidate_sha": "dd00a19507a617ab6e067c25b845ac08106d6431",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "cd77adffc3473439445fc295756f7d3f853e4c00",
+          "context": "aptive routing advantage, general reliability or cost benefit is demonstrated. Predecessor `cd77adffc3473439445fc295756f7d3f853e4c00` passed signed-cache producer/consumer, exact-head",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "dd00a19507a617ab6e067c25b845ac08106d6431",
+          "context": "r/consumer Python patch divergence, not an observed predecessor failure. Exact candidate: `dd00a19507a617ab6e067c25b845ac08106d6431`; tested tree: `e4e44aefe73bff1e28f83c905ed3358b90e",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "e4e44aefe73bff1e28f83c905ed3358b90ee5c61",
+          "context": "cessor failure. Exact candidate: `dd00a19507a617ab6e067c25b845ac08106d6431`; tested tree: `e4e44aefe73bff1e28f83c905ed3358b90ee5c61`; protected-main base: `c7456b469f9dfe88b92d0fc7a21",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "08106d6431`; tested tree: `e4e44aefe73bff1e28f83c905ed3358b90ee5c61`; protected-main base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence, limitations and finding l",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/dd00a19507a617ab6e067c25b845ac08106d6431/research/architecture-routing/finding-ledger.md"
+      ],
+      "body_pr_reference_contexts": [
+        "al negative evidence. The prior navigation correction avoids adjacent research-index conflicts with #608/#614. The final documentation correction removes the stale claim that maintenance CI launches the completed runtime stu",
+        "ad checks and substantive review; predecessor success is not successor success. Independently gated #617 remains relevant to future producer/consumer Python patch divergence, not an observed predecessor failure."
+      ],
+      "checks": {
+        "observed_workflow_runs": [],
+        "required_contexts": "NOT_YET_OBSERVED"
+      },
+      "reviews": {
+        "submissions": [],
+        "codex_summary": null,
+        "unresolved_threads": [],
+        "thread_count": null
+      },
+      "dependencies": {
+        "explicit": [],
+        "potential": []
+      },
+      "authorization": {
+        "protected_app_repin": "UNVERIFIED",
+        "owner_merge_approval": "NOT_GRANTED_BY_THIS_TASK"
+      },
+      "reconciliation_state": "PENDING_INDEPENDENT_EVIDENCE"
+    },
+    {
+      "number": 601,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/601",
+      "title": "Falsify bounded FAR-MECH mechanism and reliability claims; harden audits",
+      "state": "open",
+      "draft": false,
+      "mergeable_reported": true,
+      "base_branch": "main",
+      "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "head_branch": "research/mechanistic-explanation-fidelity-v01",
+      "head_sha": "71cd19f348a659e43d03ce96d0640b87ac1a2135",
+      "head_repo": "n0tf0und0ut/Project-FAR",
+      "updated_at": "2026-11-06T16:48:19Z",
+      "changed_files": 40,
+      "claimed_candidate_sha": "a75d6b1fa2450645ef082854a810d731b4bb1262",
+      "claimed_candidate_matches_current_head": false,
+      "all_full_sha_references": [
+        {
+          "sha": "a75d6b1fa2450645ef082854a810d731b4bb1262",
+          "context": "ty, independent replication and commercial benefit remain unestablished. Exact candidate: `a75d6b1fa2450645ef082854a810d731b4bb1262`; integration base: `c7456b469f9dfe88b92d0fc7a211e5",
+          "matches_live_head": false,
+          "matches_live_base": false
+        },
+        {
+          "sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+          "context": "tablished. Exact candidate: `a75d6b1fa2450645ef082854a810d731b4bb1262`; integration base: `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. [Source-bound evidence and finding dispositions](",
+          "matches_live_head": false,
+          "matches_live_base": true
+        }
+      ],
+      "body_evidence_urls": [
+        "https://github.com/n0tf0und0ut/Project-FAR/blob/a75d6b1fa2450645ef082854a810d731b4bb1262/docs/research/far-mech-convergence-20261103.md"
       ],
       "body_pr_reference_contexts": [],
       "checks": {
