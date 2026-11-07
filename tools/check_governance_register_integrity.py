@@ -55,7 +55,10 @@ LABEL_PROMOTION = re.compile(
 # "If replicated, novelty: established" and "Novelty: established, only if".
 # Do not split there. Separate semicolons/sentences and explicit conjunctions,
 # then scope each label to its own adjacent status statement below.
-LABEL_STATEMENT = re.compile(r"[;.]|\s(?:and|but|while|whereas)\s", re.I)
+LABEL_STATEMENT = re.compile(r"[;.]")
+# Only an explicit condition column qualifies the preceding status. A
+# neighboring non-condition cell must never hide an unsupported promotion.
+CONDITION_CELL = re.compile(r"^(?:only\\s+if|if|unless)\\b", re.I)
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
     re.I,
@@ -96,10 +99,20 @@ def promotion_clauses(text: str) -> list[str]:
                         statement[separator + 1:match.start()].rsplit("|", 1)[-1]
                         if separator >= 0 else ""
                     )
-                after = statement[match.end():].split("|", 1)[0]
+                after = statement[match.end():]
                 later = LABEL_MARKER.search(after)
                 if later:
                     after = after[:later.start()]
+                # The next Markdown table cell may expressly state a
+                # condition: "| Novelty | established | only if ... |".
+                # Keep only that one condition cell, never an arbitrary
+                # adjacent cell or the next independently labeled status.
+                if "|" in after:
+                    first, next_cell, *_ = (after.split("|") + [""])[:3]
+                    after = first + (
+                        " " + next_cell
+                        if CONDITION_CELL.match(next_cell.strip()) else ""
+                    )
                 if NEGATION.search(before + match.group(0) + after):
                     continue
                 label = match.group(0).strip()
