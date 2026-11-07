@@ -158,10 +158,13 @@ def _jsonl_values(text: str) -> list[Any]:
 
 def _parse_embedded_text(text: str) -> dict[str, Any]:
     candidates = [(None, text.strip())]
-    candidates.extend(
-        ((match.group(1) or '').lower(), match.group(2).strip())
-        for match in re.finditer(r"```(jsonl?|yaml|yml|toml)?\s*(.*?)```", text, re.I | re.S)
-    )
+    # Complete fence labels are authoritative. A prefix such as "jsonc",
+    # "json5", or "json-schema" is not a declared JSON block. Unsupported
+    # labeled snippets must not suppress a later legitimate package.
+    for match in re.finditer(r"```([^\r\n`]*)\r?\n(.*?)```", text, re.I | re.S):
+        language = match.group(1).strip().lower()
+        if language in {"", "json", "jsonl", "yaml", "yml", "toml"}:
+            candidates.append((language, match.group(2).strip()))
     errors: list[str] = []
     for hint, candidate in candidates:
         if not candidate:
