@@ -29,6 +29,23 @@ The key idea is simple: **a summary can be good enough for one question and inad
 
 This receipt example is fictional and worked out by hand. It is **not** a claim that FAR software processed actual receipts, confirmed tax amounts, or detected a real error.
 
+## See an actual FAR software check
+
+The receipts above were only a teaching example. The repository also has a **real, registered test case** for a similar kind of lost information.
+
+| Number in the test | Answer the test requires | Shortened label kept |
+|---|---|---|
+| 0 | even | same |
+| 1 | odd | same |
+
+The two numbers have been given the **same shortened label**, although the question "Is it odd or even?" needs different answers. The [stored collision example](../conformance/far-ir-2.0/valid-collision.json) records that failure as `REFUTED` with checked evidence. In the [official test list](../conformance/far-ir-2.0-current/manifest.json), case **CV-002** expects the checker to accept this *correct description of a failure*.
+
+A second [stored example](../conformance/far-ir-2.0/invalid-factorization.json) incorrectly claims its rule works for both numbers while answering "even" for 1. Case **CV-004** requires the checker to reject that incorrect claim with `FACTORIZATION_FAILURE`. That is another kind of useful negative result.
+
+These are actual inputs to FAR's existing verifier, not hypothetical product screens. The project's [conformance test](../tests/test_far_contract_v2_strict.py) runs the registered cases. The [GitHub Actions log for PR #625's earlier exact head](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42422391193/job/128553408474) records `test_current_verification_conformance_suite ... ok`, meaning the registered test passed there. **The overall workflow failed separately** on an outdated README checksum; the passing subtest does not make the whole workflow green, establish the correctness of real-world inputs, or prove FAR improves ordinary decisions. Later commits require their own tests.
+
+The everyday lesson and the software result are related but not identical: the receipts explain why a shortened description may lose a needed difference; the recorded FAR fixtures check specific claims about two explicitly provided numbers.
+
 ## What FAR can do — and what it cannot promise
 
 | What exists or is established within a stated scope | What that does *not* establish |
