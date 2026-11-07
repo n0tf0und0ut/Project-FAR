@@ -560,10 +560,43 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWdSWTQ",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:02:58Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `d7432505bf`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWdqP-w",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:29:16Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6687896846,
+          "updated_at": "2026-11-06T16:49:07Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "d888fc27ab248c4b8d32f8124d241b8de7e88ce6",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/619#issuecomment-6687896846"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 2,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM60joDM",
+          "PRRT_kwDOTH_vCM60joDR"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -617,10 +650,42 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzEWZg",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-03T18:51:48Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `f17d826455`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABV1Sm0Q",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T22:04:34Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6612631290,
+          "updated_at": "2026-11-06T16:49:33Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "354811a6f7d1732371c3730af28bc1bee996223a",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/618#issuecomment-6612631290"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 1,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM6zSEXt"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -682,9 +747,24 @@
       },
       "reviews": {
         "submissions": [],
-        "codex_summary": null,
+        "codex_summary": {
+          "id": 6612214385,
+          "updated_at": "2026-11-06T16:48:32Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/617#issuecomment-6612214385"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 0,
+        "resolved_thread_ids": [],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -735,10 +815,112 @@
         "required_contexts": "NOT_YET_OBSERVED"
       },
       "reviews": {
-        "submissions": [],
-        "codex_summary": null,
+        "submissions": [
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVysKkQ",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-03T18:21:05Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `fcf6860ea2`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVyzMaQ",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-03T18:30:28Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `70eab5ed00`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVyz-Xg",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:29Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVy0Bjw",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:33Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVy0E1Q",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:37Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVy0G0w",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:31:39Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzB3ow",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:48:50Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzB6fQ",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:48:53Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABVzB9jA",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-03T18:48:56Z",
+            "body": ""
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd4Aqw",
+            "state": "COMMENTED",
+            "author": "chatgpt-codex-connector",
+            "submitted_at": "2026-11-06T15:42:40Z",
+            "body": "<!-- codex-review-receipt:v1 -->\n\n\n### 💡 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `ec900aa143`\n    \n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; "
+          },
+          {
+            "id": "PRR_kwDOTH_vCM8AAAABWd8dVQ",
+            "state": "COMMENTED",
+            "author": "n0tf0und0ut",
+            "submitted_at": "2026-11-06T15:46:51Z",
+            "body": ""
+          }
+        ],
+        "codex_summary": {
+          "id": 6611963267,
+          "updated_at": "2026-11-06T16:48:52Z",
+          "author": "chatgpt-codex-connector[bot]",
+          "reported": {
+            "commit_sha": "a12f711d2f5130034eada4896a3d28c731a1fe76",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "exact_head": true,
+          "uri": "https://github.com/n0tf0und0ut/Project-FAR/pull/616#issuecomment-6611963267"
+        },
         "unresolved_threads": [],
-        "thread_count": null
+        "thread_count": 8,
+        "resolved_thread_ids": [
+          "PRRT_kwDOTH_vCM6zRVAx",
+          "PRRT_kwDOTH_vCM6zRVA-",
+          "PRRT_kwDOTH_vCM6zRVBJ",
+          "PRRT_kwDOTH_vCM6zRVBW",
+          "PRRT_kwDOTH_vCM6zRjY5",
+          "PRRT_kwDOTH_vCM6zRjZD",
+          "PRRT_kwDOTH_vCM6zRjZI",
+          "PRRT_kwDOTH_vCM60kwCj"
+        ],
+        "changes_requested": [],
+        "open_machine_findings": []
       },
       "dependencies": {
         "explicit": [],
@@ -1483,5 +1665,5 @@
     }
   ],
   "errors": [],
-  "last_enriched_utc": "2026-11-07T13:49:12.530Z"
+  "last_enriched_utc": "2026-11-07T13:49:37.884Z"
 }
