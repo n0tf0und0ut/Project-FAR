@@ -1,0 +1,42 @@
+name: Numeric Grounding Live Research v0.1
+on:
+  push:
+    branches:
+      - research/numeric-metric-grounding-20261105
+permissions:
+  contents: read
+concurrency:
+  group: numeric-grounding-research-v01
+  cancel-in-progress: false
+jobs:
+  paired-live-pilot:
+    if: ${{ github.repository == 'n0tf0und0ut/Project-FAR' && contains(github.event.head_commit.message, '[NUMERIC-GUARD-LAUNCH]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Validate registered scope and source replay without model calls
+        run: |
+          python -m unittest tests.test_numeric_grounding_integration tests.test_numeric_live_pilot -v
+          python research/numeric-grounding/live_pilot.py validate
+      - name: Start exact pinned model from existing Research bootstrap
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Execute all registered questions with both conditions once
+        run: python research/numeric-grounding/live_pilot.py run --output numeric-grounding-evidence --source-commit "$GITHUB_SHA"
+      - name: Independently re-evaluate saved provider bytes and slots
+        run: python research/numeric-grounding/live_pilot.py analyze --output numeric-grounding-evidence
+      - name: Preserve every raw attempt and failure state
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: numeric-grounding-live-v01-raw-${{ github.run_id }}
+          path: numeric-grounding-evidence/
+          if-no-files-found: warn
+          retention-days: 30

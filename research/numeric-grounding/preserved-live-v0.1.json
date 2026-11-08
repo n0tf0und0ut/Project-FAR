@@ -1,0 +1,22 @@
+{
+  "artifact_id": 13445236161,
+  "assurance": "Raw-byte/source correspondence and deterministic replay; no cryptographic trusted execution or independent model-origin attestation",
+  "cause": "derived outcome enumeration differed between counterbalanced execution and filename-order replay",
+  "failure_stage": "Independently re-evaluate saved provider bytes and slots",
+  "job_id": 127466539393,
+  "launch_sha": "2b6a52f6c5fdc7d55240a358c42fe45818571672",
+  "model_reexecution": false,
+  "original_archive_bytes": 48898,
+  "original_archive_sha256": "b731cfb1730f443d0f06eff07535fe23cf09c16b9beec6d4aa0c30613b7b89a3",
+  "preserved_archive": "original-live-42090379885.zip.b64",
+  "primary_gate_passed": false,
+  "raw_archive_modified": false,
+  "retrieval": "Authenticated GitHub connector artifact download",
+  "retrieved_at": "2026-11-06",
+  "run_id": 42090379885,
+  "schema": "far-numeric-preserved-live-evidence/0.1",
+  "source_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885/artifacts/13445236161",
+  "status": "Research",
+  "verifier_correction": "Post-execution only: complete response-dependent call counts; canonical derived outcome ordering; normalize legacy outcome order without relaxing saved numeric fields",
+  "workflow_conclusion": "failure"
+}
