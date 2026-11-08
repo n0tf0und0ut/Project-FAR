@@ -51,10 +51,6 @@ CLAUSE = re.compile(r"[,;.:|()]|\s(?:and|but|while|whereas)\s|\s[—–-]\s")
 # Structured status entries are still claims. The sentence-level CLAUSE splitter
 # deliberately separates colons and table cells, so inspect label/value pairs
 # independently instead of silently accepting "Novelty: established".
-LABEL_PROMOTION = re.compile(
-    rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])\s*(?:\*\*|\*)?\s*{PROMOTION.pattern}(?:\*\*|\*)?",
-    re.I,
-)
 # Commas can introduce a condition *belonging to the status claim*:
 # "If replicated, novelty: established" and "Novelty: established, only if".
 # Do not split there. Separate semicolons/sentences and explicit conjunctions,
@@ -105,6 +101,13 @@ LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
     re.I,
 )
+# Keep each atom's polarity separate from the label's external qualifiers.
+# Matching the complete chain also finds positive atoms after negative ones.
+LABEL_PROMOTION = re.compile(
+    rf"(?P<label>{LABEL_MARKER.pattern})\s*(?P<status>{STATUS_VALUE.pattern})",
+    re.I,
+)
+STATUS_ATOM_MATCH = re.compile(STATUS_ATOM, re.I)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
@@ -190,9 +193,11 @@ def label_prefix(statement: str, start: int) -> str:
         # independent coordinated prose clause and remains within scope.
         separate_prose = re.search(
             rf"{PROSE_ASSERTION}"
-            r"[^|]*?(?:,\s*|\s+)(?:and|but|while|whereas)\s*$",
+            r"[^|]*?(?:,\s*|\s+)(?:and|but|while|whereas)\s*(?P<group_intro>both\s*)?$",
             prefix, re.I)
-        return "" if separate_prose else prefix
+        # Preserve a following pair introducer while discarding only the
+        # independent prose assertion. Its negation cannot qualify the pair.
+        return (separate_prose.group("group_intro") or "") if separate_prose else prefix
     previous = earlier[-1]
     if leading := following_claim_qualifier(statement[previous.end():start]):
         return leading[1]
@@ -296,17 +301,27 @@ def promotion_clauses(text: str) -> list[str]:
                 statement = normalized
             shared = shared_pair_contexts(statement)
             for match in LABEL_PROMOTION.finditer(statement):
-                # A Markdown row can contain several label/value pairs.
-                # Bound context to the nearest cell edges: a different pair's
-                # "not established" must not suppress this pair's promotion.
-                # Retain any leading prohibition and trailing condition.
+                # Local status polarity is never an external qualifier. Only
+                # the prefix, suffix and explicit shared context can qualify
+                # all atoms; another atom's NOT cannot hide a positive one.
                 before = label_prefix(statement, match.start())
                 after = label_suffix(statement, match.end())
-                if NEGATION.search(" ".join((before, match.group(0), after, shared.get(match.start(), "")))):
+                if NEGATION.search(" ".join((before, after, shared.get(match.start(), "")))):
                     continue
-                label = match.group(0).strip()
-                if label not in found:
-                    found.append(label)
+                status = match.group("status")
+                previous_end = 0
+                for atom in STATUS_ATOM_MATCH.finditer(status):
+                    coordinator = status[previous_end:atom.start()]
+                    previous_end = atom.end()
+                    # NOR supplies negation to its following local atom; it
+                    # does not negate an earlier independent positive atom.
+                    if (not PROMOTION.search(atom.group(0))
+                            or NEGATION.search(atom.group(0))
+                            or re.search(r"\bnor\b", coordinator, re.I)):
+                        continue
+                    label = match.group("label").strip() + " " + atom.group(0).strip()
+                    if label not in found:
+                        found.append(label)
     return found
 
 
