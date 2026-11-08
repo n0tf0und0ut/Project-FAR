@@ -464,6 +464,53 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 result = _run_checker(root, GOVERNANCE)
                 self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
 
+    def test_unstructured_prose_cannot_donate_negation_across_claim_boundary(self):
+        # Independent preceding prose and modal trailing prose must not
+        # qualify a structured promotion (PRRT_kwDOTH_vCM61Czql).
+        for phrase in (
+            "Priority is not established, but novelty: established.",
+            "Priority remains unresolved, whereas novelty: established.",
+            "Novelty: established, but priority will not be established.",
+            "Novelty: established, whereas priority shouldn't be confirmed.",
+            "Novelty: established, but priority won't be proved.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
+    def test_compound_left_status_still_preserves_shared_leading_conditions(self):
+        # "not established and not confirmed" is one local left status.
+        # The left status's negation cannot leak to the right, but a true
+        # explicit leading condition/prohibition qualifies the whole pair.
+        for phrase in (
+            "If independently replicated, both novelty: not established and not confirmed and priority: established.",
+            "Do not assert both novelty: not established and not confirmed and priority: established.",
+            "Unless a prior example is found, both novelty: not established and not confirmed and priority: established.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+        for phrase in (
+            "Both novelty: not established and not confirmed and priority: established.",
+            "Both novelty: established and not confirmed and priority: established.",
+            "Novelty: not established and not confirmed and priority: established.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
     def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
         for phrase in (
             "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
