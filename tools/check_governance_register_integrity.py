@@ -238,9 +238,16 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
             group_condition = re.match(
                 r"^(?:,\s*)?(?:but\s+)?(?:only\s+if|if|unless)\b",
                 suffix, re.I)
+            # A plural predicate after an explicit "both X and Y" belongs to
+            # the pair, including "are not confirmed", "are not yet
+            # established", or "have not been demonstrated".  A right-hand
+            # scalar extension such as "and not confirmed" is NOT plural and
+            # remains local to Y.
             group_predicate = re.match(
-                r"^(?:are\s+not\s+(?:asserted|established)"
-                r"|remain\s+(?:unresolved|open))\b", suffix, re.I)
+                r"^(?:(?:are|were)\s+(?:not|never|unresolved)\b"
+                r"|(?:have|had)\s+(?:not|never)\b"
+                r"|remains?\s+(?:not|never|unresolved|open)\b)",
+                suffix, re.I)
             if group_condition or group_predicate:
                 context += " " + suffix
         if NEGATION.search(context):
