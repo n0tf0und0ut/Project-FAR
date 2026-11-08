@@ -36,7 +36,7 @@ Canonical theory may depend on foundations.
 
 ## Layer 2 — Shared Theory
 
-Shared theory is governed by `PROJECT-FAR-CORE-THEORY-1.0`: declared comparison contracts induce behavior maps, factorization tests, observational equivalence and quotients, and scoped invariance/common-theory results. It supplies no contract-free primitive inventory.
+Shared theory is governed by [Project FAR Core Theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) (`PROJECT-FAR-CORE-THEORY-1.1`): declared comparison contracts induce behavior maps, factorization tests, observational equivalence and quotients, and scoped invariance/common-theory results. It supplies no contract-free primitive inventory. The v1.0 theory is preserved as historical provenance, not current authority.
 
 
 Shared theory contains canonical definitions, axioms, semantics, operators, notation, theorems, proofs, and consistency material.
@@ -96,6 +96,8 @@ frameworks/FARO/
   ↓
 methodology/, examples/, research/, papers/
 ```
+
+This is a conceptual dependency graph. It does not assert that all downstream framework operations are production-ready. Consult [current project status](project-status.md) and [canonical framework boundaries](governance/framework-boundaries.md) for accepted scopes and implementation limits.
 
 ---
 

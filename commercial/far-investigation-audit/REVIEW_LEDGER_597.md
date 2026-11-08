@@ -135,3 +135,27 @@ misreport remote provenance despite retaining source bytes.
 
 All updates are source/test amendments. Historical frozen experiment outputs,
 registered scientific acceptance criteria, and protected-main theory remain unchanged.
+
+## DOC-CROSS-597-625 — documentation integration (2026-11-08)
+
+Integrated protected main `eff47bc4fc9e272e87d71ecfc8d559cd1176753e`
+through PR #625's refreshed head `6ebc988553d4e6b20963cf9dc6fb3db9165bb1d1`.
+PR #625 remains a merge dependency until its reviewed documentation reaches main.
+The candidate is a normal merge successor of #597 head
+`94603603fd6c863cf3895496af64cf2f003db480`; no shared history is rewritten.
+
+The merge reproduced conflicts in README and both W4/W6 current-state supplements.
+After preserving #625's newcomer/task routes and relocating #597's unchanged
+scoped Research debugger paragraph below Framework roles, each actual campaign
+checker rejected the retained predecessor digest independently with
+`W4_SUPPLEMENT_CURRENT_DIGEST_DRIFT` / `W6_SUPPLEMENT_CURRENT_DIGEST_DRIFT`.
+Both existing README entries now bind the combined living document at SHA-256
+`6af9fc8762db5da3f2548343f56059daf954ddca2ddbacb29f62d95473aee484`.
+The executed digests, frozen manifests, sources, protocol, results, and all
+non-README supplement entries remain unchanged by this correction.
+
+After correction the W4 campaign check, all 34 W4/W6 unit tests, and W6 campaign
+recomputation pass. This is documentation-integrity and bounded replay evidence;
+it introduces no new scientific result or empirical advantage claim. Final-head
+hosted gates, substantive independent review and the #625 merge dependency remain
+separate obligations.

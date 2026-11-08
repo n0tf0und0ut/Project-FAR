@@ -2,7 +2,17 @@
 
 Status: operational guidance only. This document does not establish or change FAR theory, research authorization, evidence, governance, claim status, or merge authority.
 
-This supplements the runtime-specific instructions in [`AGENTS.md`](../../AGENTS.md) (Codex) and [`CLAUDE.md`](../../CLAUDE.md) (Claude). The [Research Execution Charter](../governance/research-execution-charter.md), current canonical state, tool capabilities, protected-branch rules, and [PR review convergence policy](../governance/pr-review-convergence.md) control in case of conflict. A workflow aid never grants permission to perform a governed investigation or promote a result.
+This supplements the repository instructions in [`AGENTS.md`](../../AGENTS.md) (Codex and ChatGPT Chat/Work) and the separate runtime-specific [`CLAUDE.md`](../../CLAUDE.md) (Claude). The [Research Execution Charter](../governance/research-execution-charter.md), current canonical state, tool capabilities, protected-branch rules, and [PR review convergence policy](../governance/pr-review-convergence.md) control in case of conflict. A workflow aid never grants permission to perform a governed investigation or promote a result.
+
+## ChatGPT Chat and Work bootstrap
+
+Codex's native repository instruction discovery can load root `AGENTS.md` from a checkout. ChatGPT Chat and Work do not have a documented guarantee of automatically loading this repository file from GitHub merely because it exists. Their supported Project instructions can request a fresh fetch whenever a task involves FAR. This setup applies to chats launched *inside that ChatGPT Project*. Repository-only changes cannot enforce it across arbitrary chats or prove that a model actually followed a retrieved instruction.
+
+Install the following in the **Project FAR** ChatGPT Project's **Project settings → Instructions** (preserve any other project instructions):
+
+> Whenever a task concerns `n0tf0und0ut/Project-FAR`—including questions, analysis, reviews, implementation, or autonomous work—first retrieve and read the complete root `AGENTS.md` from the current GitHub `main` branch using the authorized GitHub connection, before substantive repository work. Treat it as the active repository operating instructions, subject to higher-priority instructions and actual permissions. Then follow its current-authority startup requirements, including `README.md`, `docs/project-status.md`, `docs/CANONICAL_MAP.md`, and the applicable governance files. Do not substitute memory, an earlier conversation, or an archived copy for the current file. When a task uses a different branch, also inspect that branch's `AGENTS.md` if changed. If access fails, identify the limitation explicitly; never say the file was read unless it actually was. Recheck after a material repository revision or context reset.
+
+This is a one-time Project configuration; it is not a claim that GitHub automatically pushes instruction changes into active Chat/Work conversations. Tasks launched outside this ChatGPT Project require equivalent instructions or an explicit fetch. Codex continues to use native discovery. The only authoritative repository operating text for these three OpenAI modes remains the root `AGENTS.md`; this bootstrap is just a pointer and freshness rule, not a competing copy of its substantive instructions.
 
 ## 1. Plan mode by default for non-trivial work
 
