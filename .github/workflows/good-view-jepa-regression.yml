@@ -1,0 +1,24 @@
+name: Research Good-View JEPA Regression
+on:
+  pull_request:
+    paths:
+      - "research/good-view-jepa/**"
+      - ".github/workflows/good-view-jepa-regression.yml"
+  workflow_dispatch:
+jobs:
+  bounded-research-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install pinned CPU research dependencies
+        run: |
+          python -m pip install --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu "torch==2.10.0+cpu"
+          python -m pip install --disable-pip-version-check "numpy==2.3.5"
+      - name: Run every isolated JEPA regression
+        run: python -m unittest discover -s research/good-view-jepa -p "test_*.py" -v
