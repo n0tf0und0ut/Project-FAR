@@ -200,6 +200,10 @@ class PR572ReviewRegressionTests(unittest.TestCase):
             *[item["path"] for item in data.get("dynamic_dependencies", [])],
         }
         material_paths.update({"tools/validate_research_carry.py", "tests/test_pr572_review_regressions.py"})
+        # Reconciliation hashes these upstream surfaces before corpus validation;
+        # omitting a surface can hide stale dynamic dependencies until after merge.
+        surfaces = corpus.load_json(Path("research/living/repository-surfaces-v1.0.json"))
+        material_paths.update(row["path"] for row in surfaces["surfaces"])
         uncovered = sorted(path for path in material_paths if not any(fnmatch.fnmatch(path, pattern) for pattern in patterns))
         self.assertEqual(uncovered, [])
 

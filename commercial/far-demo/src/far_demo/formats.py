@@ -19,6 +19,7 @@ from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
+from far_decision_integrity.strict_json import loads_strict
 
 SUPPORTED_EXTENSIONS = {
     ".json",
@@ -38,6 +39,62 @@ SUPPORTED_EXTENSIONS = {
 ACCEPT_ATTRIBUTE = ",".join(sorted(SUPPORTED_EXTENSIONS))
 
 
+class _UniquePackageYamlLoader(yaml.SafeLoader):
+    """Component-local counterpart of the repository's unique-key SafeLoader.
+
+    Inspect the entire original node graph before construction mutates merge
+    sources, retaining native inherited-default/explicit-override semantics.
+    """
+
+    def get_single_data(self):
+        node = self.get_single_node()
+        if node is None:
+            return None
+        _validate_yaml_keys(self, node)
+        return self.construct_document(node)
+
+
+def _validate_yaml_keys(loader, root):
+    pending = [root]
+    visited = set()
+    while pending:
+        node = pending.pop()
+        if id(node) in visited:
+            continue
+        visited.add(id(node))
+        if isinstance(node, yaml.SequenceNode):
+            pending.extend(node.value)
+        elif isinstance(node, yaml.MappingNode):
+            seen = set()
+            merge_seen = False
+            for key_node, value_node in node.value:
+                pending.extend((key_node, value_node))
+                if key_node.tag == 'tag:yaml.org,2002:merge':
+                    if merge_seen:
+                        raise ValueError('Duplicate YAML merge key')
+                    merge_seen = True
+                    continue
+                # Complex mapping keys are unhashable under SafeLoader. Avoid
+                # constructing them here, which could flatten another node.
+                if not isinstance(key_node, yaml.ScalarNode):
+                    raise ValueError('Unhashable YAML mapping key')
+                # SafeLoader normalizes this special key tag to a string during
+                # flatten_mapping. Compare that same scalar text without changing
+                # the original node or constructing the unsupported value tag.
+                key = (key_node.value if key_node.tag == 'tag:yaml.org,2002:value'
+                       else loader.construct_object(key_node))
+                if key in seen:
+                    raise ValueError(f'Duplicate YAML mapping key {key!r}')
+                seen.add(key)
+
+
+def _load_yaml(text: str) -> Any:
+    try:
+        return yaml.load(text, Loader=_UniquePackageYamlLoader)
+    except RecursionError as exc:
+        raise ValueError('YAML nesting exceeds the supported decoder limit') from exc
+
+
 def parse_package_file(filename: str, data: bytes) -> dict[str, Any]:
     try:
         return _parse_package_file(filename, data)
@@ -53,14 +110,11 @@ def _parse_package_file(filename: str, data: bytes) -> dict[str, Any]:
         raise ValueError(f"Unsupported file type {suffix or '(none)'}. Supported: {supported}.")
 
     if suffix == ".json":
-        return _require_mapping(json.loads(data.decode("utf-8")))
+        return _require_mapping(loads_strict(data.decode("utf-8")))
     if suffix == ".jsonl":
-        objects = [json.loads(line) for line in data.decode("utf-8").splitlines() if line.strip()]
-        if len(objects) != 1:
-            raise ValueError("A FAR JSONL upload must contain exactly one non-empty JSON object.")
-        return _require_mapping(objects[0])
+        return _parse_jsonl(data.decode("utf-8"))
     if suffix in {".yaml", ".yml"}:
-        return _require_mapping(yaml.safe_load(data.decode("utf-8")))
+        return _require_mapping(_load_yaml(data.decode("utf-8")))
     if suffix == ".toml":
         return _require_mapping(tomllib.loads(data.decode("utf-8")))
     if suffix == ".xml":
@@ -91,22 +145,77 @@ def _require_mapping(value: Any) -> dict[str, Any]:
     return value
 
 
+def _parse_jsonl(text: str) -> dict[str, Any]:
+    objects = _jsonl_values(text)
+    if len(objects) != 1:
+        raise ValueError("A FAR JSONL upload must contain exactly one non-empty JSON object.")
+    return _require_mapping(objects[0])
+
+
+def _jsonl_values(text: str) -> list[Any]:
+    return [loads_strict(line) for line in text.splitlines() if line.strip()]
+
+
 def _parse_embedded_text(text: str) -> dict[str, Any]:
-    candidates = [text.strip()]
-    candidates.extend(
-        match.group(1).strip()
-        for match in re.finditer(r"```(?:json|jsonl|yaml|yml|toml)?\s*(.*?)```", text, re.I | re.S)
-    )
+    candidates = [(None, text.strip())]
+    # Complete fence labels are authoritative. A prefix such as "jsonc",
+    # "json5", or "json-schema" is not a declared JSON block. Unsupported
+    # labeled snippets must not suppress a later legitimate package.
+    for match in re.finditer(r"```([^\r\n`]*)\r?\n(.*?)```", text, re.I | re.S):
+        language = match.group(1).strip().lower()
+        if language in {"", "json", "jsonl", "yaml", "yml", "toml"}:
+            candidates.append((language, match.group(2).strip()))
     errors: list[str] = []
-    for candidate in candidates:
+    for hint, candidate in candidates:
         if not candidate:
             continue
-        for parser in (json.loads, yaml.safe_load, tomllib.loads):
+        # A format declaration is binding. In particular, malformed or ambiguous
+        # fenced JSON must never be accepted by the more permissive YAML parser.
+        if hint in {'json', 'jsonl'}:
+            values = _jsonl_values(candidate) if hint == 'jsonl' else [loads_strict(candidate)]
+            if hint == 'jsonl' and len(values) != 1 and any(isinstance(value, dict) for value in values):
+                raise ValueError('A FAR JSONL upload must contain exactly one non-empty JSON object.')
+            if len(values) == 1 and isinstance(values[0], dict):
+                return values[0]
+            continue
+        if hint in {'yaml', 'yml', 'toml'}:
+            parser = tomllib.loads if hint == 'toml' else _load_yaml
+            value = parser(candidate)
+            if isinstance(value, dict):
+                return value
+            continue
+        try:
+            value = loads_strict(candidate)
+            if isinstance(value, dict):
+                return value
+            # Supporting JSON fragments are not package candidates. They do not
+            # relax strict errors or override a later decision-package object.
+            continue
+        except json.JSONDecodeError as exc:
+            # Unlabeled text can contain a YAML/TOML document, not JSON.
+            errors.append(str(exc))
+        except ValueError as exc:
+            # The strict JSON decoder can invoke a semantic hook before checking
+            # whether the candidate is a *complete* JSON value. For example,
+            # "NaN handling..." or "NaN: note" begins with a nonfinite token
+            # but is ordinary prose or YAML, respectively. Only such syntax
+            # failures may fall through to document parsers. A complete JSON
+            # value containing nonfinite numbers, duplicate keys, or overflow
+            # remains terminal, as does any JSON-shaped object/array.
+            if candidate.lstrip().startswith(("{", "[")):
+                raise
+            try:
+                json.loads(candidate)  # Syntax probe only; never use its result.
+            except json.JSONDecodeError:
+                errors.append(str(exc))
+            else:
+                raise
+        for parser in (_load_yaml, tomllib.loads):
             try:
                 value = parser(candidate)
                 if isinstance(value, dict):
                     return value
-            except Exception as exc:  # parser-specific errors are summarized below
+            except (yaml.YAMLError, tomllib.TOMLDecodeError) as exc:
                 errors.append(str(exc))
     raise ValueError(
         "No embedded FAR package was found. Text, Markdown, PDF, and DOCX files must contain "
@@ -216,6 +325,20 @@ def _coerce(value: Any) -> Any:
     if not text:
         return ""
     try:
-        return json.loads(text)
+        return loads_strict(text)
     except json.JSONDecodeError:
         return text
+    except ValueError as strict_error:
+        # Strict numeric/member hooks can reject a prefix before the JSON
+        # decoder knows whether the *whole* cell is a JSON value. Only a
+        # syntax-invalid cell may fall back to plain text; complete ambiguous
+        # or non-finite JSON must retain the strict rejection.
+        try:
+            json.loads(text)  # Syntax probe only; never consume its result.
+        except json.JSONDecodeError:
+            return text
+        except RecursionError:
+            # Never replace a bounded invalid-input result with a raw decoder
+            # exception when the diagnostic probe hits its own nesting limit.
+            raise strict_error
+        raise

@@ -1,0 +1,178 @@
+{
+  "format_version": "FAR-MECH/0.1",
+  "status": "Research",
+  "id": "synthetic-neuron-fidelity-01",
+  "data_class": "synthetic",
+  "registered_at": "2026-10-01T00:00:00Z",
+  "model": {
+    "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "component_id": "toy-neuron-7",
+    "intervention_type": "single_component_activation_replacement",
+    "reference_population_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "execution_contract": {
+      "deterministic": true,
+      "same_nonintervened_state": true,
+      "exact_output_distributions": true
+    }
+  },
+  "explanation": {
+    "id": "toy-pattern",
+    "description": "Synthetic deterministic clipped-linear model: small input error may amplify to a large downstream distribution change.",
+    "hypothesis_source_ids": [
+      "synthetic-log"
+    ]
+  },
+  "sources": [
+    {
+      "id": "synthetic-log",
+      "text": "abc",
+      "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    }
+  ],
+  "cases": [
+    {
+      "id": "heldout-1",
+      "split": "heldout",
+      "input_sha256": "4b9d5c98ec67e16e2bdceb593451497e8c8b9873e837a8d66a340e225bc674bf",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "1.000000",
+      "explained_activation": "0.999900",
+      "baseline_activation": "0.995000",
+      "original_probs": [
+        "0.200000",
+        "0.800000"
+      ],
+      "replacement_probs": [
+        "0.206000",
+        "0.794000"
+      ],
+      "baseline_probs": [
+        "0.500000",
+        "0.500000"
+      ]
+    },
+    {
+      "id": "heldout-2",
+      "split": "heldout",
+      "input_sha256": "9092d547e4db58aa487ff48b996f3652bd011d4d8bf19b6e30d6dcbb883617c8",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "1.000000",
+      "explained_activation": "0.999900",
+      "baseline_activation": "0.995000",
+      "original_probs": [
+        "0.200000",
+        "0.800000"
+      ],
+      "replacement_probs": [
+        "0.206000",
+        "0.794000"
+      ],
+      "baseline_probs": [
+        "0.500000",
+        "0.500000"
+      ]
+    },
+    {
+      "id": "adversarial-1",
+      "split": "adversarial",
+      "input_sha256": "cf19ac6058d79db50d4fe761782d46217f01d0bedfd56eb32b7562776eff29af",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "1.000000",
+      "explained_activation": "0.990000",
+      "baseline_activation": "0.998333",
+      "original_probs": [
+        "0.200000",
+        "0.800000"
+      ],
+      "replacement_probs": [
+        "0.800000",
+        "0.200000"
+      ],
+      "baseline_probs": [
+        "0.300020",
+        "0.699980"
+      ]
+    },
+    {
+      "id": "adversarial-2",
+      "split": "adversarial",
+      "input_sha256": "4e53ca273ccf88dc06ff3cdc2b2602aee03a46dd3e7f051e0d0500733a89cb1c",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "1.000000",
+      "explained_activation": "0.990000",
+      "baseline_activation": "0.998333",
+      "original_probs": [
+        "0.200000",
+        "0.800000"
+      ],
+      "replacement_probs": [
+        "0.800000",
+        "0.200000"
+      ],
+      "baseline_probs": [
+        "0.300020",
+        "0.699980"
+      ]
+    },
+    {
+      "id": "control-1",
+      "split": "control",
+      "input_sha256": "ecf640c9e60ba958d1c44c4ff2a68c91636b1c7511476fd43b9e072816bcb140",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "0.995000",
+      "explained_activation": "0.995000",
+      "baseline_activation": "0.995000",
+      "original_probs": [
+        "0.500000",
+        "0.500000"
+      ],
+      "replacement_probs": [
+        "0.500000",
+        "0.500000"
+      ],
+      "baseline_probs": [
+        "0.500000",
+        "0.500000"
+      ]
+    },
+    {
+      "id": "control-2",
+      "split": "control",
+      "input_sha256": "f451345042cfd45fd6042f0c87da64932bdf02e2a3fae0503fbf434bd5b756cf",
+      "measured_at": "2026-10-29T12:00:00Z",
+      "source_ids": [
+        "synthetic-log"
+      ],
+      "observed_activation": "0.995000",
+      "explained_activation": "0.995000",
+      "baseline_activation": "0.995000",
+      "original_probs": [
+        "0.500000",
+        "0.500000"
+      ],
+      "replacement_probs": [
+        "0.500000",
+        "0.500000"
+      ],
+      "baseline_probs": [
+        "0.500000",
+        "0.500000"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/07074b8659e8/Project-FAR/tools/run_debugger_evaluation.py", line 140, in <module>
+    if __name__=="__main__":main()
+                            ^^^^^^
+  File "/workspace/scratch/07074b8659e8/Project-FAR/tools/run_debugger_evaluation.py", line 136, in main
+    else:value=run(a.registration,a.baseline,a.output,a.noesis)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/07074b8659e8/Project-FAR/tools/run_debugger_evaluation.py", line 82, in run
+    record=json.loads(registration.read_text())
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'commercial/far-investigation-audit/evaluation/debugger-001/registration-v1.json'
