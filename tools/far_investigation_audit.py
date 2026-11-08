@@ -97,6 +97,16 @@ def audit(state) -> dict:
                 fail(path + '.framing.transfer_encoding', 'unsupported or ambiguous transfer framing')
         if request_url is not None:
             equal(path + '.request_url', transport['request_url'], request_url)
+            # A successful native retrieval cannot redirect or return compressed
+            # bytes: the real retrieval path rejects both after transport read.
+            if transport.get('response_url', request_url) != request_url:
+                fail(path + '.response_url', 'native retrieval cannot accept redirects')
+            if type(headers) is dict:
+                native_encodings = [value for key, value in headers.items()
+                                    if key.lower() == 'content-encoding']
+                if (len(native_encodings) > 1 or any(
+                        value.lower() not in ('', 'identity') for value in native_encodings)):
+                    fail(path + '.content_encoding', 'native retrieval cannot accept compression')
 
     def search_projection(path, row):
         # Operator-installed test/other adapters retain their explicit result
@@ -703,7 +713,15 @@ def audit(state) -> dict:
                 registered = list(available_sources)
                 can_start = (not args and bool(available_sources) and bool(produced_comparisons)
                              and not (replay_intake and replay_intake['freeze']['status'] == 'FROZEN'))
-                if can_start or network_started or records or accepted or terminal is not None:
+                # The proposal is journaled before its checkpoint succeeds.
+                # An OSError there records a rejection without dispatch, so it
+                # cannot revoke an earlier completed terminal recheck.
+                undispatched_checkpoint_failure = (
+                    not accepted and kind == 'TOOL_REJECTED' and payload.get('class') == 'OSError'
+                    and not network_started and not records and not search_records
+                    and terminal is None)
+                if (not undispatched_checkpoint_failure
+                        and (can_start or network_started or records or accepted or terminal is not None)):
                     # Starting any successor pass revokes the prior completion,
                     # even when all sources pass and a later search fails.
                     replay_recheck_complete = False
