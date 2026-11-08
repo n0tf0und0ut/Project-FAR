@@ -2,7 +2,7 @@
   "schema": "far-pr-convergence-live/1",
   "repository": "n0tf0und0ut/Project-FAR",
   "authoritative": false,
-  "status": "WORK_IN_PROGRESS",
+  "status": "Research",
   "snapshot": {
     "started_at": "2026-11-08T07:27:12.902Z",
     "ended_at": "2026-11-08T07:27:15.483Z",
@@ -1869,13 +1869,13 @@
     "Original frozen research data and ten-file historical #626 bundle were not rewritten.",
     "This is an in-progress checkpoint. Current GitHub state may have advanced during publication."
   ],
-  "saved_at": "2026-11-08T07:40:27.379Z",
+  "saved_at": "2026-11-08T07:55:08.780Z",
   "execution_environment": {
-    "state": "unavailable",
-    "observed_at": "2026-11-08T07:34:17Z",
-    "source": "Runtime status and confirmed exec_command failure",
-    "local_execution_claims_after_unavailability": false,
-    "continuation_mode": "GitHub connector and genuine hosted checks"
+    "shell_available": true,
+    "restoration_observed_at": "2026-11-08T07:51:37Z",
+    "unavailable_observed_at": "2026-11-08T07:34:17Z",
+    "source": "Confirmed exec_command failures followed by successful execution; connector remained usable",
+    "local_execution_claims_during_unavailability": false
   },
   "coordination": {
     "exclusive_merge_worker": "/root/review_convergence",
@@ -1934,5 +1934,6 @@
       "fix": "Separate archival errata and reachable publication locator",
       "evidence": "Original 10 files preserved; 15 archival tests, 9 checksums; docs/links/orphans; clean review."
     }
-  ]
+  ],
+  "execution_status": "WORK_IN_PROGRESS"
 }

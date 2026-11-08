@@ -1,5 +1,7 @@
 # Project FAR convergence checkpoint
 
+Status: Research. Execution state: work in progress.
+
 Non-authoritative execution state saved 2026-11-08T07:40:27.379Z. This record grants no merge or research authority. Follow current root AGENTS.md and current user authorization.
 
 - Verified merged: #608 as main 9021c0218fe89232777c4b36c5e0128d107e79b3; normal protected merge, PR/main/parents/tree read back.
