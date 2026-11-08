@@ -585,6 +585,76 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} ownership composition failures: {failures[:8]}")
         print(f"STATUS_CHAIN_PROSE_OWNERSHIP: {len(cases)} exact-identity cases passed")
 
+    def test_mixed_status_atoms_and_preceding_prose_pair_cli(self):
+        # A negative scalar atom cannot qualify a different positive atom,
+        # including when the positive atom follows it in the same status.
+        cases = (
+            ("Both novelty: established and not confirmed and priority: not established.", {"novelty"}),
+            ("Both novelty: not confirmed and established and priority: not established.", {"novelty"}),
+            ("Both novelty: not established and priority: established and not confirmed.", {"priority"}),
+            ("Both novelty: not established and priority: not confirmed and established.", {"priority"}),
+            ("Novelty: not established and confirmed.", {"novelty"}),
+            ("Novelty: not established nor confirmed.", set()),
+            ("If independently replicated, both novelty: established and not confirmed and priority: established.", set()),
+            ("Do not assert both novelty: not confirmed and established and priority: established.", set()),
+            ("Priority is not established, but both novelty: established and uniqueness: established.", {"novelty", "uniqueness"}),
+            ("Priority won't be established, whereas both novelty: established and uniqueness: established.", {"novelty", "uniqueness"}),
+            ("Priority is not established, but do not assert both novelty: established and uniqueness: established.", set()),
+        )
+        for phrase, expected in cases:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                unsupported = re.findall(r"unnegated assurance promotion: '([^']+)'", result.stdout, re.I)
+                observed = {name for name in ("novelty", "priority", "uniqueness")
+                            if any(re.search(r"\b" + name + r"\b", item, re.I) for item in unsupported)}
+                self.assertEqual(expected, observed, phrase + "\n" + result.stdout)
+                self.assertEqual(not expected, result.returncode == 0, result.stdout)
+
+    def test_mixed_atom_and_pair_prefix_composition_oracle(self):
+        # Labels, atom polarities and NOR ownership are specified here, never
+        # derived from a production helper or production regex.
+        spec = importlib.util.spec_from_file_location("mixed_atom_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        atoms = (("established", True), ("not confirmed", False),
+                 ("not yet proved", False), ("cannot be validated", False))
+        chains = list(atoms)
+        for first, first_positive in atoms:
+            for second, second_positive in atoms:
+                for coordinator in ("and", "nor"):
+                    chains.append((first + " " + coordinator + " " + second,
+                                   first_positive or (second_positive and coordinator != "nor")))
+        cases = []
+        for left, left_positive in chains:
+            for right, right_positive in chains:
+                pair = "both novelty: " + left + " and priority: " + right
+                expected = ({"novelty"} if left_positive else set()) | ({"priority"} if right_positive else set())
+                cases.extend(((pair + ".", expected),
+                              ("If independently replicated, " + pair + ".", set()),
+                              ("Do not assert " + pair + ".", set()),
+                              (pair + ", only if independently replicated.", set())))
+        for chain, positive in chains:
+            cases.append(("Novelty: " + chain + ".", {"novelty"} if positive else set()))
+        for join in ("and", "but", "while", "whereas"):
+            for predicate in ("is not established", "won't be established", "remains unresolved"):
+                prose = "Priority " + predicate + ", " + join + " "
+                pair = "both novelty: established and uniqueness: established."
+                cases.extend(((prose + pair, {"novelty", "uniqueness"}),
+                              (prose + "do not assert " + pair, set()),
+                              (prose + "if independently replicated, " + pair, set())))
+        failures = []
+        for phrase, expected in cases:
+            result = checker.promotion_clauses(phrase)
+            observed = {name for name in ("novelty", "priority", "uniqueness")
+                        if any(re.search(r"\b" + name + r"\b", item, re.I) for item in result)}
+            if observed != expected:
+                failures.append((phrase, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} mixed-atom/pair-prefix failures: {failures[:8]}")
+        print(f"MIXED_ATOM_PAIR_PREFIX: {len(cases)} exact-identity cases passed")
+
     def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
         for phrase in (
             "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
