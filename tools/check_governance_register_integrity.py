@@ -64,6 +64,11 @@ CONDITION_CELL = re.compile(rf"^{CONDITION_PREFIX}\b", re.I)
 # Comma-separated independent assertions and separate table cells remain local.
 SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:both\b\s*)?$", re.I)
 CLAIM_COORDINATOR = re.compile(r"\b(?:and|but|while|whereas)\b\s*", re.I)
+FORWARD_PROHIBITION = re.compile(
+    r"(?:do\s+not\s+(?:assert|claim)|never\s+(?:assert|claim)"
+    r"|no\s+basis\s+to\s+(?:assert|claim)|without\s+(?:asserting|claiming))",
+    re.I,
+)
 COORDINATION = re.compile(r"\s+and\s+", re.I)
 BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
 # Status values are consumed separately from pair-level qualifiers. A local
@@ -100,11 +105,22 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     if boundaries:
         last = boundaries[-1]
         last_tail = context[last.end():].strip()
+        chain_start = len(boundaries) - 1
+        if FORWARD_PROHIBITION.fullmatch(last_tail.strip(" ,")):
+            while chain_start > 0:
+                preceding = context[boundaries[chain_start - 1].end():boundaries[chain_start].start()]
+                if not FORWARD_PROHIBITION.fullmatch(preceding.strip(" ,")):
+                    break
+                chain_start -= 1
+        # Coordinated forward prohibitions are one prefix unit; their internal
+        # conjunction cannot leave half the prohibition with the prior claim.
+        if chain_start < len(boundaries) - 1:
+            boundaries = [boundaries[chain_start]]
         # A final join immediately before a label, or before its own local
         # qualifier, begins that independent claim. Earlier trailing conditions
         # stay with the previous label. Do not split conjunctions inside a
         # comma-terminated leading condition ("if C and D, Y").
-        if (
+        elif (
             not last_tail
             or re.search(r",\s*$", context[:last.start()])
             or ("," not in last_tail and NEGATION.search(last_tail))

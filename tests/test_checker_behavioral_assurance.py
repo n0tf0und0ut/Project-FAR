@@ -567,6 +567,57 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} ownership failures; first cases: {failures[:8]}")
         print(f"BOUNDED_COMPOSITION: {len(cases)} independently specified ownership cases passed")
 
+    def test_coordinated_prohibitions_remain_one_forward_qualifier(self):
+        for phrase in (
+            "Novelty: established, but do not assert and never claim priority: established.",
+            "Both novelty: established and priority: established, but do not assert and never claim uniqueness: established.",
+            "Novelty: not established and do not assert and never claim priority: established.",
+            "Novelty: not established and do not assert and never claim both priority: established and uniqueness: established.",
+        ):
+            expected = "Novelty: established" not in phrase and not phrase.startswith("Both")
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(expected, result.returncode == 0, phrase + "\n" + result.stdout)
+
+    def test_coordinated_prohibition_composition_matrix(self):
+        spec = importlib.util.spec_from_file_location("prohibition_composition_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        prohibitions = ("do not assert", "do not claim", "never assert", "never claim", "no basis to assert", "no basis to claim", "without asserting", "without claiming")
+        cases = []
+        for left in prohibitions:
+            for right in prohibitions:
+                for internal in (" and ", " but ", " while ", " whereas "):
+                    chain = left + internal + right
+                    for outer in (", and ", ", but ", " and ", " but "):
+                        cases.extend((
+                            ("Novelty: established" + outer + chain + " priority: established.", {"novelty"}),
+                            ("Novelty: not established" + outer + chain + " priority: established.", set()),
+                            ("Both novelty: established and priority: established" + outer + chain + " uniqueness: established.", {"novelty", "priority"}),
+                            ("Novelty: not established" + outer + chain + " both priority: established and uniqueness: established.", set()),
+                        ))
+        for first in prohibitions:
+            for second in prohibitions:
+                for third in prohibitions:
+                    chain = first + " and " + second + " and " + third
+                    for outer in (", but ", " but "):
+                        cases.extend((
+                            ("Novelty: established" + outer + chain + " priority: established.", {"novelty"}),
+                            ("Novelty: not established" + outer + chain + " priority: established.", set()),
+                        ))
+        failures = []
+        for text, expected in cases:
+            result = checker.promotion_clauses(text)
+            observed = {name for name in ("novelty", "priority", "uniqueness")
+                        if any(re.search(r"\b" + name + r"\b", entry, re.I) for entry in result)}
+            if observed != expected:
+                failures.append((text, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} coordinated-prohibition failures: {failures[:8]}")
+        print(f"PROHIBITION_COMPOSITION: {len(cases)} independently specified ownership cases passed")
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:
