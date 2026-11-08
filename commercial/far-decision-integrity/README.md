@@ -64,3 +64,69 @@ The abbreviated FAR IR object above only shows placement; the embedded record mu
 This package evaluates disclosed package structure, dependencies, contradictions, alternatives, unknowns, declared trace completeness, and the finite explicit semantics actually encoded in supplied FAR IR records. It does not infer hidden reasoning, prove external factual truth, establish that a domain mapping is correct or complete, certify safety, certify legal compliance, establish empirical utility, or establish novelty.
 
 A `justified` decision means that no failure is present under the disclosed package rules and every required semantic binding cleared its explicitly declared gate. It is not a universal truth or safety certificate.
+
+
+## Commercial demonstration and validation
+
+Two **synthetic, structural-only** packages are included for immediate operator testing:
+
+```bash
+far-decision commercial/far-decision-integrity/examples/clear-package.json
+far-decision commercial/far-decision-integrity/examples/contradicted-package.json
+far-decision commercial/far-decision-integrity/examples/clear-package.json --require-semantic-contract
+```
+
+Expected results are `justified` (exit 0), `unsupported` (exit 30), and `unverifiable` (exit 32), respectively. The clear structural case has no required semantic contract; the third command deliberately checks that the semantic gate refuses to treat it as checked. These fixtures demonstrate deterministic adjudication only; they are not empirical evidence of external accuracy or commercial value.
+
+All commercial JSON file loaders reject duplicate object keys, `NaN`/`Infinity`, and finite-number overflow before domain interpretation. Decoder nesting-limit failures use the same invalid-input contract: the decision CLI reports `invalid-package` (exit 40), and evidence verification returns false. Evidence bundles also refuse to serialize non-finite numeric results.
+
+See [pilot validation](PILOT_VALIDATION.md) for the proposed customer/comparator experiment, economic measurement, failure conditions and evidence gates. Its price and milestones are commercial hypotheses, not validated market facts.
+
+The optional hosted demo's upload adapters also share this parser at the original
+JSON-byte boundary. Duplicate/non-finite data must not be decoded permissively
+before calling `DecisionPackage.from_dict`; direct Python objects cannot recover
+ambiguity already lost during parsing. JSON/JSONL uploads, sniffed/declared JSON
+in documents and JSON-valued tabular cells are covered by actual-route tests.
+Both source components must be installed from the same reviewed checkout; no
+new release or effectiveness claim is made.
+
+November 6 boundary follow-up: **CJSON-006** reproduced permissive hosted upload
+decoding before the package's strict loader (31 failed assertions and two parser
+errors in the initial actual-route regression). The demo now shares the strict
+JSON parser across direct, line-delimited, sniffed/fenced and tabular JSON.
+**CJSON-007** reproduced a duplicate-key YAML flow fallback with a trailing comma
+being accepted on direct/sniffed/fenced YAML routes (three failed assertions).
+The local unique-key YAML loader closes that ambiguity while preserving tested
+merge defaults/explicit override and legitimate YAML/TOML inputs. All **48**
+package and **26** dependency-equipped baseline demo tests pass; combined
+semantic-augmentation validation is a separate integration obligation.
+
+**CJSON-008** (review comments `4494585732`, `4494585741`; reviewed head
+`4416d2af0543bed1cbcc75cd323ab870a7dbc3d5`) found that constructor-time key checks
+missed inline merge-source duplicates and falsely rejected a valid merged source
+later referenced by an ordinary alias. The YAML loader now checks the complete
+original mapping-node graph before constructing or flattening any merge; alias
+visits are bounded and native merge precedence remains unchanged.
+**CJSON-009** (comment `4494585755`) found valid non-object JSON snippets prevented
+discovery of the sole package object. Such supporting fragments now skip to the
+next candidate while duplicate/nonfinite/nesting failures remain terminal.
+All three original counterexamples failed across **11** assertions before
+correction; their actual-route regressions now pass. Current verification is
+**48** package tests and **29** dependency-equipped baseline demo tests, including
+additional declared-snippet controls. Frozen parsers/evidence remain untouched.
+
+**CJSON-010** (coordinator counterexample at `52c5aa830d0da0dbe56f7f7fdfe165becebffc97`):
+a declared JSONL fence containing multiple records including mapping objects was
+mistaken for a non-object supporting fragment and skipped in favor of a later
+package. Three actual-route assertions failed before correction. Mapping-bearing
+JSONL candidates now retain the exactly-one-record/object contract; non-object
+supporting fragments still skip. Current verification is **48** package and
+**30** dependency-equipped baseline demo tests.
+
+**CJSON-011** (review `4494666947`, thread `PRRT_kwDOTH_vCM60liJH`): native
+SafeLoader normalizes YAML value-tagged keys to strings while flattening. The
+prevalidation walk initially constructed that unsupported tag too early; three
+valid direct/sniffed/fenced inputs failed. It now compares the original scalar
+text using the same string identity without mutating the graph. Legitimate `=`
+keys pass; an explicit equivalent duplicate still rejects. Current verification:
+**48** package tests and **31** dependency-equipped baseline demo tests.

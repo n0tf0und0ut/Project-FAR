@@ -625,14 +625,23 @@
     {
       "id": "SRC-STATUS",
       "path": "docs/project-status.md",
-      "sha256": "1379fbf53f539ffd9a27e7956a9c3b5f12963174b844bf2bf8cb60a9d7d2fd53",
-      "version": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
+      "version": "content-sha256:8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
       "evidence_class": "canonical_status",
       "kind": "repository_artifact",
       "evidence_usable": true,
       "material": true,
       "scope": "exact cited artifact at bound bytes/version",
-      "history": [],
+      "history": [
+        {
+          "change": "Navigation-only addition for the Research Epistemic Debugger; existing scoped observations and authority unchanged.",
+          "previous_sha256": "1379fbf53f539ffd9a27e7956a9c3b5f12963174b844bf2bf8cb60a9d7d2fd53",
+          "previous_version": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+          "previous_external_identifier": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+          "preserved_at": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5:docs/project-status.md",
+          "replacement_sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36"
+        }
+      ],
       "supersedes": [],
       "corrects": [],
       "observations": [
@@ -677,7 +686,7 @@
         }
       ],
       "source_identity": "SRC-STATUS",
-      "external_identifier": "git:81914e530365c39d94af7659dfe1acbb2dedf6b5",
+      "external_identifier": "repository:docs/project-status.md@sha256:8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
       "current_availability": "available",
       "historical_availability": "PRESENT",
       "review_status": "GOVERNED_REPOSITORY_SOURCE",

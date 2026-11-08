@@ -4,6 +4,12 @@ The root [README Command Center](../README.md) is the canonical entry point for 
 
 ## Purpose
 
+Suppose two receipts show the same total, but one includes tax and the other does not. A summary containing only the totals works if we want to know how much was paid. It does not work if we want to know how much tax was charged. Whether information has been preserved depends on the question we need to answer.
+
+Project FAR studies how to make those questions explicit and check whether a representation keeps the differences needed for them. This does not establish whether the original receipts are genuine or whether any answer about the real world is true. See [FAR in five minutes](START_HERE.md) for the full beginner example, and the governing sources below for exact theory.
+
+### Technical statement
+
 Project FAR is a contract-relative framework for representing, analyzing, comparing, and auditing structured, explicit reasoning. Its closed core proves that exact sufficiency is a factorization property and that each fixed exact comparison contract induces a unique least-informative observational quotient. It also proves that no nontrivial representation is minimal across unrestricted observation contracts.
 
 Project FAR does not claim one universal primitive ontology or one fixed minimal operator basis.
