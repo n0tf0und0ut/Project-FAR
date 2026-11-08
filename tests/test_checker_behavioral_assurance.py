@@ -383,6 +383,80 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_explicit_pair_preserves_shared_leading_prohibitions(self):
+        for qualifier in ("Do not assert", "Do not claim", "Never claim", "No basis to claim"):
+            for pair in (
+                "both novelty: established and priority: established.",
+                "both **novelty:** **established** and _priority_: _established_.",
+            ):
+                phrase = qualifier + " " + pair
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_explicit_pair_preserves_shared_trailing_qualification(self):
+        for qualifier in (
+            ", only if independently replicated.",
+            " only if independently replicated.",
+            ", if independently replicated.",
+            ", unless a prior example is found.",
+            ", but only if independently replicated.",
+            " are not asserted.",
+            " remain unresolved.",
+            " are not established.",
+            ", **only** if p < 0.05.",
+        ):
+            for pair in (
+                "Both novelty: established and priority: established",
+                "Both novelty: established and priority: not established",
+            ):
+                phrase = pair + qualifier
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_explicit_pair_context_never_masks_independent_promotions(self):
+        cases = (
+            "Do not assert novelty: established and priority: established.",
+            "Do not assert both novelty: established, priority: established.",
+            "Do not assert both novelty: established and priority: established; uniqueness: proved.",
+            "Never claim both novelty: established and priority: established, uniqueness: proved.",
+            "Both novelty: not established and priority: established.",
+            "Both novelty: established and priority: not established.",
+            "Both novelty: established and priority: established, only if replicated; uniqueness: proved.",
+            "Both novelty: established and priority: established, only if replicated, uniqueness: proved.",
+            "Both novelty: established and priority: established, but if replicated, uniqueness: not established.",
+            "| Both novelty | established | and priority | not established |",
+            "| Do not assert both novelty | established | and priority | established |",
+            "Novelty: established, only if replicated but priority: proved.",
+            "Both novelty: established and priority: established, only if replicated but uniqueness: proved.",
+            "Both novelty: established and priority: established, unless refuted whereas uniqueness: proved.",
+        )
+        cases += tuple(
+            qualifier + " both novelty: established and priority: established" + separator + "uniqueness: proved."
+            for qualifier in ("Do not assert", "Do not claim", "Never claim", "No basis to claim")
+            for separator in (", ", "; ", " but ", " and ", " while ", " whereas ")
+        )
+        cases += tuple(
+            "Both novelty: established and priority: established, " + qualifier + separator + "uniqueness: proved."
+            for qualifier in ("only if replicated", "unless refuted", "if externally replicated")
+            for separator in (", ", "; ", " but ", " and ", " while ", " whereas ")
+        )
+        for phrase in cases:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:

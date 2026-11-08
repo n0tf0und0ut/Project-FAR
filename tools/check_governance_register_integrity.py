@@ -70,7 +70,14 @@ FOLLOWING_CLAIM_CONDITION = re.compile(
     rf"(?:^|,|\s)\s*(?:and|but|while|whereas)\s+({CONDITION_PREFIX}\b[^|]*?)\s*,?\s*$",
     re.I,
 )
-COORDINATION = re.compile(r"\s*[^,;|]+?\s+and\s+", re.I)
+COORDINATION = re.compile(r"\s+and\s+", re.I)
+BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
+# Status values are consumed separately from pair-level qualifiers. A local
+# "not established" in one member must never qualify the other member.
+STATUS_VALUE = re.compile(
+    rf"\s*(?:(?:not|never)\s+(?:yet\s+)?)?(?:{PROMOTION.pattern}|unresolved|unknown|refuted|impossible|open)\b",
+    re.I,
+)
 INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
@@ -97,7 +104,54 @@ def label_prefix(statement: str, start: int) -> str:
     if leading := FOLLOWING_CLAIM_CONDITION.search(statement[previous.end():start]):
         return leading.group(1)
     separator = statement.rfind(",", previous.end(), start)
-    return statement[separator + 1:start].rsplit("|", 1)[-1] if separator >= 0 else ""
+    tail = statement[separator + 1:start].rsplit("|", 1)[-1] if separator >= 0 else ""
+    # A prior label's trailing qualifier cannot cross an independent
+    # conjunction into this label. Leading conditions were retained above.
+    return CLAUSE.split(tail)[-1]
+
+
+def label_suffix(statement: str, end: int) -> str:
+    """Return only this label's post-value context and explicit condition cell."""
+    after = statement[end:]
+    if later := LABEL_MARKER.search(after):
+        after = after[:later.start()]
+        if following := FOLLOWING_CLAIM_CONDITION.search(after):
+            after = after[:following.start()]
+    if "|" in after:
+        first, next_cell, *_ = (after.split("|") + [""])[:3]
+        next_cell = next_cell.strip()
+        after = first + (" " + next_cell if CONDITION_CELL.match(next_cell) else "")
+    return after
+
+
+def shared_pair_contexts(statement: str) -> dict[int, str]:
+    """Bind qualifiers to bounded two-status units before local label scans.
+
+    Explicit "both" binds leading prohibitions and trailing qualification to
+    the pair. An explicit leading condition also binds an adjacent X-and-Y
+    pair. Status values, independent labels, table cells and clauses remain
+    outside shared context; this is not a general natural-language parser.
+    """
+    shared = {}
+    markers = list(LABEL_MARKER.finditer(statement))
+    for left, right in zip(markers, markers[1:]):
+        left_value = STATUS_VALUE.match(statement, left.end())
+        right_value = STATUS_VALUE.match(statement, right.end())
+        if not left_value or not right_value:
+            continue
+        if not COORDINATION.fullmatch(statement[left_value.end():right.start()]):
+            continue
+        prefix = label_prefix(statement, left.start())
+        explicit_pair = BOTH_PREFIX.search(prefix)
+        context = ""
+        if explicit_pair or SHARED_CONDITION.fullmatch(prefix):
+            context = prefix
+        if explicit_pair:
+            context += " " + label_suffix(statement, right_value.end())
+        if NEGATION.search(context):
+            shared[left.start()] = context
+            shared[right.start()] = context
+    return shared
 
 
 def promotion_clauses(text: str) -> list[str]:
@@ -112,42 +166,15 @@ def promotion_clauses(text: str) -> list[str]:
             # if") must have the same scope as formatting the whole qualifier.
             while (normalized := INLINE_FORMATTING.sub(r"\2", statement)) != statement:
                 statement = normalized
+            shared = shared_pair_contexts(statement)
             for match in LABEL_PROMOTION.finditer(statement):
                 # A Markdown row can contain several label/value pairs.
                 # Bound context to the nearest cell edges: a different pair's
                 # "not established" must not suppress this pair's promotion.
                 # Retain any leading prohibition and trailing condition.
                 before = label_prefix(statement, match.start())
-                earlier = list(LABEL_MARKER.finditer(statement[:match.start()]))
-                if earlier:
-                    # Do not discard the condition in "If ..., both X and Y".
-                    # The pair may follow another independent claim. Recover
-                    # the preceding label's own prefix, never the whole line's
-                    # condition, so unrelated third statuses cannot inherit it.
-                    prefix = label_prefix(statement, earlier[-1].start())
-                    if (
-                        SHARED_CONDITION.fullmatch(prefix)
-                        and COORDINATION.fullmatch(statement[earlier[-1].end():match.start()])
-                    ):
-                        before = prefix
-                after = statement[match.end():]
-                later = LABEL_MARKER.search(after)
-                if later:
-                    after = after[:later.start()]
-                    if following := FOLLOWING_CLAIM_CONDITION.search(after):
-                        after = after[:following.start()]
-                # The next Markdown table cell may expressly state a
-                # condition: "| Novelty | established | only if ... |".
-                # Keep only that one condition cell, never an arbitrary
-                # adjacent cell or the next independently labeled status.
-                if "|" in after:
-                    first, next_cell, *_ = (after.split("|") + [""])[:3]
-                    next_cell = next_cell.strip()
-                    after = first + (
-                        " " + next_cell
-                        if CONDITION_CELL.match(next_cell) else ""
-                    )
-                if NEGATION.search(before + match.group(0) + after):
+                after = label_suffix(statement, match.end())
+                if NEGATION.search(" ".join((before, match.group(0), after, shared.get(match.start(), "")))):
                     continue
                 label = match.group(0).strip()
                 if label not in found:
