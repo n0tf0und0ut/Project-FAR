@@ -125,6 +125,8 @@ The authoritative dependency order is **foundations → shared theory → FARA �
 
 Construct, Differentiate, and Restrict are workflow verbs. Resolve and Ω are derived. No global primitive count or operator basis is claimed.
 
+The [Epistemic Debugger Research application](commercial/far-investigation-audit/EPISTEMIC_DEBUGGER.md) adds bounded semantic checks, checked assumption edits and revisable investigation memory to the existing source-to-report workflow. General semantic/factual reliability and commercial advantage remain unestablished.
+
 ## Historical boundaries
 
 The historical UPP proposition remains not refuted, but its frozen derivation is defective and the theorem is not established. Its artifacts are preserved as history and are not current theorem authority.
