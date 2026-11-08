@@ -96,7 +96,21 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     "but if C, Y" and "but do not assert Y" have the same ownership boundary.
     "|" always ends this context, so another table cell cannot supply it.
     """
-    for boundary in CLAIM_COORDINATOR.finditer(context):
+    boundaries = list(CLAIM_COORDINATOR.finditer(context))
+    if boundaries:
+        last = boundaries[-1]
+        last_tail = context[last.end():].strip()
+        # A final join immediately before a label, or before its own local
+        # qualifier, begins that independent claim. Earlier trailing conditions
+        # stay with the previous label. Do not split conjunctions inside a
+        # comma-terminated leading condition ("if C and D, Y").
+        if (
+            not last_tail
+            or re.search(r",\s*$", context[:last.start()])
+            or ("," not in last_tail and NEGATION.search(last_tail))
+        ):
+            boundaries = [last]
+    for boundary in boundaries:
         qualifier = context[boundary.end():].strip(" ,")
         if "|" not in qualifier and NEGATION.search(qualifier):
             return boundary.start(), qualifier

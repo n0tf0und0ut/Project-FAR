@@ -9,6 +9,8 @@ confined to temporary copies; the tracked checker and evidence are untouched.
 from __future__ import annotations
 
 import json
+import importlib.util
+import re
 import shutil
 import subprocess
 import sys
@@ -484,6 +486,86 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                         _append_promotion(root, phrase)
                         result = _run_checker(root, GOVERNANCE)
                         self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_trailing_qualification_composes_with_following_independent_claim(self):
+        for condition in ("if independently replicated", "only if independently replicated", "unless refuted"):
+            for conjunction in ("and", "but", "while", "whereas"):
+                for preceding in (
+                    "Novelty: established",
+                    "Both novelty: established and priority: established",
+                ):
+                    for following, accepted in (
+                        ("uniqueness: not established.", True),
+                        ("do not assert uniqueness: established.", True),
+                        ("uniqueness: established.", False),
+                    ):
+                        phrase = preceding + ", but " + condition + ", " + conjunction + " " + following
+                        with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                            root = Path(directory)
+                            _fixture(root, GOVERNANCE)
+                            _append_promotion(root, phrase)
+                            result = _run_checker(root, GOVERNANCE)
+                            self.assertEqual(accepted, result.returncode == 0, phrase + "\n" + result.stdout)
+
+    def test_conjunctions_inside_leading_conditions_stay_with_their_claim(self):
+        for condition in (
+            "if independently replicated and externally reviewed",
+            "only if independently replicated and externally reviewed",
+            "unless refuted or contradicted",
+        ):
+            phrase = "Novelty: not established, but " + condition + ", priority: established."
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_bounded_qualifier_composition_matrix(self):
+        # Expected claim ownership is declared by templates, independently of
+        # the parser. This is a finite controlled grammar, not general English.
+        spec = importlib.util.spec_from_file_location("composition_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        leading = (
+            ("If independently replicated, ", True),
+            ("Only if p < 0.05, ", True),
+            ("Unless refuted, ", True),
+            ("**Only** if p < .05 and independently replicated, ", True),
+            ("Do not assert ", False), ("Never claim ", False), ("No basis to claim ", False),
+        )
+        trailing = (
+            ", only if independently replicated",
+            ", but only if p < 0.05",
+            ", unless refuted",
+            ", **only** if p < .05",
+            " are not asserted", " remain unresolved",
+        )
+        cases = []
+        for mark in ("", "**", "`"):
+            x, y, z = (mark + name + mark + ": " + mark + "established" + mark for name in ("novelty", "priority", "uniqueness"))
+            for join in (", and ", ", but ", " and ", " but "):
+                for following, expected in ((z, {"uniqueness"}), ("uniqueness: not established", set())):
+                    for prefix, conditional_pair in leading:
+                        # Existing controlled grammar shares a leading
+                        # condition across X-and-Y even without "both".
+                        member_expected = set() if conditional_pair and join == " and " else expected
+                        cases.append((prefix + x + join + following, member_expected))
+                        cases.append((prefix + "both " + x + " and " + y + join + following, expected))
+                        cases.append((x + join + prefix + following, {"novelty"}))
+                        cases.append(("Both " + x + " and " + y + join + prefix + following, {"novelty", "priority"}))
+                    for suffix in trailing:
+                        cases.append((x + suffix + join + following, expected))
+                        cases.append(("Both " + x + " and " + y + suffix + join + following, expected))
+        failures = []
+        for text, expected in cases:
+            result = checker.promotion_clauses(text + ".")
+            observed = {name for name in ("novelty", "priority", "uniqueness")
+                        if any(re.search(r"\b" + name + r"\b", entry, re.I) for entry in result)}
+            if observed != expected:
+                failures.append((text, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} ownership failures; first cases: {failures[:8]}")
+        print(f"BOUNDED_COMPOSITION: {len(cases)} independently specified ownership cases passed")
 
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
