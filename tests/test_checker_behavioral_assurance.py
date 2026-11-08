@@ -764,6 +764,58 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{count} independent-claim/pair failures: {failures[:8]}")
         print(f"INDEPENDENT_THEN_PAIR: {count} exact-identity cases passed")
 
+    def test_explicit_then_consequent_keeps_shared_condition_cli(self):
+        for intro in ("then ", "then both ", "only then ", "only then both "):
+            pair = "If independently replicated, " + intro + "novelty: established and priority: established"
+            for phrase, expected in ((pair + ".", set()),
+                                     (pair + ", but uniqueness: established.", {"uniqueness"}),
+                                     ("Uniqueness: established and " + pair + ".", {"uniqueness"})):
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    unsupported = re.findall(r"unnegated assurance promotion: '([^']+)'", result.stdout, re.I)
+                    observed = {name for name in ("novelty", "priority", "uniqueness")
+                                if any(re.search(r"\b" + name + r"\b", item, re.I) for item in unsupported)}
+                    self.assertEqual(expected, observed, phrase + "\n" + result.stdout)
+                    self.assertEqual(not expected, result.returncode == 0, result.stdout)
+
+    def test_conditional_consequent_introducer_scope_matrix(self):
+        spec = importlib.util.spec_from_file_location("then_consequent_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        failures, count = [], 0
+        conditions = ("If independently replicated", "Only if p < 0.05", "Unless refuted",
+                      "If independently replicated and externally reviewed")
+        intros = ("", "both ", "then ", "then both ", "only then ", "only then both ",
+                  "**then** ", chr(96) + "then" + chr(96) + " both ", "THEN ")
+        for mark in ("", "**", chr(96)):
+            for intro in intros:
+                for verb in ("established", "proved", "proven", "demonstrated", "confirmed", "validated"):
+                    for x_positive, y_positive in ((True, True), (True, False), (False, True), (False, False)):
+                        x = mark + "novelty" + mark + ": " + mark + (verb if x_positive else "not " + verb) + mark
+                        y = mark + "priority" + mark + ": " + mark + (verb if y_positive else "not " + verb) + mark
+                        pair = intro + x + " and " + y
+                        unqualified = ({"novelty"} if x_positive else set()) | ({"priority"} if y_positive else set())
+                        cases = [(pair + ".", unqualified)]
+                        for condition in conditions:
+                            qualified = condition + ", " + pair
+                            cases.extend(((qualified + ".", set()),
+                                          (qualified + ", and uniqueness: established.", {"uniqueness"}),
+                                          (qualified + ", and uniqueness: not established.", set()),
+                                          ("Uniqueness: established and " + qualified + ".", {"uniqueness"}),
+                                          ("Uniqueness: not established and " + qualified + ".", set())))
+                        for phrase, expected in cases:
+                            result = checker.promotion_clauses(phrase)
+                            observed = {name for name in ("novelty", "priority", "uniqueness")
+                                        if any(re.search(r"\b" + name + r"\b", item, re.I) for item in result)}
+                            count += 1
+                            if observed != expected:
+                                failures.append((phrase, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{count} consequent-introducer scope failures: {failures[:8]}")
+        print(f"CONSEQUENT_INTRODUCER_SCOPE: {count} exact-identity cases passed")
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:
