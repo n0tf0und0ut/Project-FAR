@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+from .strict_json import loads_strict
 
 
 class RegressionDecision(str, Enum):
@@ -80,8 +81,8 @@ def compare_corpus(suite_id: str, baseline: list[RunResult], candidate: list[Run
 
 def load_suite(path: str | Path) -> tuple[str, list[RunResult], list[RunResult]]:
     try:
-        payload = json.loads(Path(path).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        payload = loads_strict(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
         raise ValueError(f"unable to load regression suite: {exc}") from exc
     if not isinstance(payload, dict):
         raise ValueError("regression suite must be an object")

@@ -5,6 +5,21 @@
 
 Project FAR is a framework for representing, analyzing, and comparing structured, explicit, auditable reasoning under declared contracts.
 
+**New to FAR? No science or coding needed:** [Understand FAR in five minutes](docs/START_HERE.md). The [short overview](docs/OVERVIEW.md) then connects the example to the formal project.
+
+## Start here
+
+FAR asks whether an explicit representation preserves the distinctions required by a *declared comparison contract*. For example, if two cases receive the same representation but a contract requires different outcomes, that representation loses information needed for the comparison. This illustrates the idea; it is not an experimental result or a claim of general agent reliability.
+
+Choose a route based on your task:
+
+- **Understand the idea (no technical background):** [FAR in five minutes](docs/START_HERE.md), then the [overview](docs/OVERVIEW.md). The separate [umbrella investigation](examples/simple-investigation.md) is an educational architectural illustration, not validation evidence.
+- **Run or modify the software:** [Contributor entry point](CONTRIBUTING.md), [mechanization guide](mechanization/README.md), and [validation commands](#validation).
+- **Check a scientific claim:** [Current project status](docs/project-status.md), [W1–W6 claim/evidence matrix](docs/governance/w1-w6-claim-evidence-matrix-v1.0.md), and [limitations](docs/governance/limitations-register.md).
+- **Locate the authoritative source or a file:** [Canonical map](docs/CANONICAL_MAP.md), [documentation index](docs/README.md), and [generated file index](docs/planning/repository-index.md). The generated index is a locator, not an authority source.
+
+The core's accepted claims are contract-relative and scoped. Formalization, software conformance, or a passing test does not establish general-purpose agent performance, external scientific validation, or commercial effectiveness. See [project status](docs/project-status.md) for current boundaries.
+
 ## Latest release: v1.0.0
 
 The latest published GitHub repository release is [v1.0.0](https://github.com/notfoundout/Project-FAR/releases/tag/v1.0.0). The executable package metadata currently declares a separate installable version. These are separate version surfaces: the GitHub release records the published repository release, while package metadata governs the installable software version.
@@ -109,6 +124,8 @@ The authoritative dependency order is **foundations → shared theory → FARA �
 - FARM: governance/change coordination.
 
 Construct, Differentiate, and Restrict are workflow verbs. Resolve and Ω are derived. No global primitive count or operator basis is claimed.
+
+The [Epistemic Debugger Research application](commercial/far-investigation-audit/EPISTEMIC_DEBUGGER.md) adds bounded semantic checks, checked assumption edits and revisable investigation memory to the existing source-to-report workflow. General semantic/factual reliability and commercial advantage remain unestablished.
 
 ## Historical boundaries
 

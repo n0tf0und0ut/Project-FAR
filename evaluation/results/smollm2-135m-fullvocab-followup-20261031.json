@@ -1,0 +1,72 @@
+{
+  "format_version": "FAR-MECH-FULLVOCAB-RESULT/0.1",
+  "status": "OBSERVED_PRETRAINED_LM_PILOT_NOT_GENERAL_EXPLANATION",
+  "observed_on": "2026-10-31",
+  "workflow_run_id": 41223761759,
+  "workflow_head_sha": "0e91dc202e33caa1fc5ce582ed1654890b396edb",
+  "workflow_success": true,
+  "artifact_id": 13051320299,
+  "artifact_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41223761759/artifacts/13051320299",
+  "artifact_sha256": "ee8a60502f6735f71d07018fb16f4c0e3c4f5608844247514da594a7d8291281",
+  "trace_json_sha256": "45c94257672bb9051922526769dcf690e8b9714799d51c2a7fa2192b0fdd9392",
+  "result_json_sha256": "2486737cf3cc4c24b890ff3c13f15d7c8164cb455ccae04cc665dcbef8992682",
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "model_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "weight_tensor_sha256": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594",
+  "component": "layer0.mlp.down_proj.input[1270]",
+  "training_n": 24,
+  "assessment_n": 32,
+  "split_results": {
+    "heldout": {
+      "n": 12,
+      "full_vocabulary_probe_kl": 8.3982139923604e-7,
+      "full_vocabulary_mean_baseline_kl": 0.000002351485579804554,
+      "worse": 1,
+      "activation_mae": 0.017734166666666457,
+      "model_correct": 5,
+      "probe_correct": 6,
+      "mean_correct": 6,
+      "fidelity_accepted": 12
+    },
+    "adversarial_framing": {
+      "n": 12,
+      "full_vocabulary_probe_kl": 0.00003674138675424202,
+      "full_vocabulary_mean_baseline_kl": 0.000003166602047474787,
+      "worse": 12,
+      "activation_mae": 0.12576383333333307,
+      "model_correct": 8,
+      "probe_correct": 8,
+      "mean_correct": 8,
+      "fidelity_accepted": 12
+    },
+    "control": {
+      "n": 8,
+      "full_vocabulary_probe_kl": 0,
+      "full_vocabulary_mean_baseline_kl": 0.0000026687820015411406,
+      "worse": 0,
+      "activation_mae": 0,
+      "model_correct": 4,
+      "probe_correct": 4,
+      "mean_correct": 4,
+      "fidelity_accepted": 8
+    }
+  },
+  "measurement_scope": "full-vocabulary next-token KL as separate result plus two-token conditioned FAR-MECH audit",
+  "method_comparison": "one nonsemantic scalar token-length probe vs training-mean activation, not MIB or DAS or SAE",
+  "research_claim_verdicts": {
+    "neural_mechanistic_accurate_explanation": "NOT_DEMONSTRATED_SEMANTICALLY_AND_ADVERSARIALLY_FRAGILE",
+    "superiority_to_competitors": "NOT_TESTED_NO_MATCHED_MIB_OR_SAE_OR_DAS_OR_TRANSFORMERLENS_METHOD",
+    "general_reasoning_reliability": "NO_GAIN_ESTABLISHED_FIDELITY_GATE_ACCEPTS_EVERY_CASE"
+  },
+  "source_integrity": "case and source hashes validated; results and KL aggregation independently recomputed from downloaded evidence, but no second independent full-model forward-pass replay",
+  "assurance": "FINITE_SINGLE_MODEL_EXPERIMENT_NOT_GENERALIZABLE",
+  "limitations": [
+    "one pretrained 135M-parameter instruct model",
+    "one MLP coordinate selected from 24 calibration cases",
+    "24 non-control entailment cases, small and synthetic-language prompts",
+    "probe not a semantic or full circuit explanation",
+    "identity control exact in both distribution scopes",
+    "matched strong interpretation methods not executed",
+    "pretrained model checkpoint pinned but no independent third-party scientific replication"
+  ]
+}

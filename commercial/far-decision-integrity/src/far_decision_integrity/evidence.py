@@ -5,11 +5,13 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
+from .strict_json import loads_strict
+
 EVIDENCE_MANIFEST_VERSION = "far-evidence-manifest/0.1"
 
 
 def canonical_json_bytes(payload: Mapping[str, Any]) -> bytes:
-    return (json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8")
+    return (json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -73,8 +75,8 @@ def _safe_report_path(root: Path, raw_path: Any) -> Path | None:
 def verify_evidence_bundle(output_directory: str | Path) -> bool:
     root = Path(output_directory)
     try:
-        manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        manifest = loads_strict((root / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
         return False
     if not isinstance(manifest, dict) or manifest.get("schema_version") != EVIDENCE_MANIFEST_VERSION:
         return False

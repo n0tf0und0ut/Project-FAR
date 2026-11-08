@@ -2,23 +2,26 @@
 
 ## Purpose
 
-This directory contains proof-assistant and formal-methods prototypes for Project FAR.
+This directory contains executable representation/conformance machinery and proof-assistant formalization for Project FAR. Their authority is limited to the exact contracts, premises, and scopes documented in the current governance records.
 
-The first scaffold targets Lean because it is well suited for formal definitions, structures, and theorem statements.
+## Current status and routes
 
-## Current Status
+- **Lean formalization:** [PCA-W2 status](../docs/governance/pca-w2-formalization-status-v1.0.md) records 14/14 governed core claims formalized under pinned Lean 4.19.0, with the explicit assurance and premise limits in that record. This supersedes the earlier partial-scaffold description.
+- **`far-ir/1.0`:** the original storage/graph MVP remains at its declared interchange scope; it is not silently reinterpreted as the later contract verifier.
+- **`far-ir/2.0`:** [contract specification](../docs/specification/far-ir-2.0-contract.md), [current strict verification rule](../docs/specification/far-ir-2.0-current-verification.md), and [W3 status](../docs/governance/pca-w3-contract-schema-status-v1.0.md) describe the finite-explicit contract and conformance machinery.
+- **`far-ir/2.1`:** [approximation/cost specification](../docs/specification/far-ir-2.1-approximation-cost.md) and [W5 status](../docs/governance/pca-w5-approximation-cost-status-v1.0.md) delimit its additional finite-explicit verification scope.
 
-The repository contains an executable `far-ir/1.0` storage/graph MVP and partial Lean scaffolding. Neither verifies the Project FAR Core Theory or certifies representation sufficiency.
+## Run a bounded contract check
 
-## Current goals
+From the repository root:
 
-1. Preserve `far-ir/1.0` compatibility without silently changing its meaning.
-2. Formalize `FAR-CORE-001` through `FAR-CORE-004` first.
-3. Implement the versioned contract/factorization requirements in `docs/mechanization/contract-relative-far-ir-v1.1-requirements.md`.
-4. Add positive decoder and negative collision fixtures.
-5. Distinguish determinate absence from epistemic Unknown when the contract requires it.
-6. Report exactly which definitions and theorems are proof-assistant checked.
+```bash
+python -m mechanization.far_mechanization.contract_conformance --manifest conformance/far-ir-2.0-current/manifest.json
+python -m unittest tests.test_far_contract_v2 tests.test_far_contract_v2_strict
+```
+
+The [tests](../tests/test_far_contract_v2.py) and registered [conformance fixtures](../conformance/far-ir-2.0-current/manifest.json) show what the checks exercise. See [repository health checks](../docs/maintenance/repository-health-checks.md) for broader validation.
 
 ## Boundary
 
-The current repository verifier checks structural and claim-state consistency. `far-ir/1.0` does not encode the complete comparison contract, decoder/factorization certificate, observational quotient, or cost order required to verify the core claims. Mechanization may raise assurance but is not a premise of theory closure.
+Formalization, verifier conformance, and successful tests are distinct assurance dimensions. They do not by themselves establish external replication, general-purpose agent reliability, scientific novelty, or production readiness. For governing interpretation use the [project status](../docs/project-status.md) and [canonical map](../docs/CANONICAL_MAP.md).
