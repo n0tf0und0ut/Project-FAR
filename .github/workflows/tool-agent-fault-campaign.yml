@@ -1,0 +1,44 @@
+name: Tool Agent Synthetic Fault Regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/tool-agent-fault-campaign.yml'
+      - 'tools/tool_agent_fault_campaign.py'
+      - 'tools/tool_agent_reliability.py'
+      - 'tests/test_tool_agent_fault_campaign.py'
+      - 'tests/test_tool_agent_reliability.py'
+      - 'research/tool-agent-reliability/FAULT-CAMPAIGN-V0.1.md'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-faults:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Existing tool-agent and new fault regression checks
+        run: python -m unittest tests.test_tool_agent_reliability tests.test_tool_agent_fault_campaign -v
+      - name: Execute synthetic fault report (no model, no credentials)
+        run: python -m tools.tool_agent_fault_campaign --out fault-report.json
+      - name: Preserve bounded software evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fault-report-py${{ matrix.python-version }}
+          path: fault-report.json
+          if-no-files-found: warn
+          retention-days: 14
