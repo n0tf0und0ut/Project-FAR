@@ -1,0 +1,57 @@
+test_4494358588_registration_precedes_collection_not_just_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_4494358588_registration_precedes_collection_not_just_completion) ...
+  test_4494358588_registration_precedes_collection_not_just_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_4494358588_registration_precedes_collection_not_just_completion) (registered='2026-11-08T10:00:00Z') ... FAIL
+  test_4494358588_registration_precedes_collection_not_just_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_4494358588_registration_precedes_collection_not_just_completion) (registered='2026-11-08T10:00:59Z') ... FAIL
+test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) ...
+  test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start=None) ... FAIL
+  test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start='2026-11-08T10:00:00') ... FAIL
+  test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start='2026-11-08T10:02:00Z') ... FAIL
+
+======================================================================
+FAIL: test_4494358588_registration_precedes_collection_not_just_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_4494358588_registration_precedes_collection_not_just_completion) (registered='2026-11-08T10:00:00Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr600-final/tests/test_forecast_resolution_join.py", line 57, in test_4494358588_registration_precedes_collection_not_just_completion
+    with self.subTest(registered=registered), self.assertRaisesRegex(AblationError,"registration"):
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AblationError not raised
+
+======================================================================
+FAIL: test_4494358588_registration_precedes_collection_not_just_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_4494358588_registration_precedes_collection_not_just_completion) (registered='2026-11-08T10:00:59Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr600-final/tests/test_forecast_resolution_join.py", line 57, in test_4494358588_registration_precedes_collection_not_just_completion
+    with self.subTest(registered=registered), self.assertRaisesRegex(AblationError,"registration"):
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AblationError not raised
+
+======================================================================
+FAIL: test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr600-final/tests/test_forecast_resolution_join.py", line 68, in test_collection_start_is_required_aware_and_not_after_completion
+    with self.subTest(start=start), self.assertRaises(AblationError):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AblationError not raised
+
+======================================================================
+FAIL: test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start='2026-11-08T10:00:00')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr600-final/tests/test_forecast_resolution_join.py", line 68, in test_collection_start_is_required_aware_and_not_after_completion
+    with self.subTest(start=start), self.assertRaises(AblationError):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AblationError not raised
+
+======================================================================
+FAIL: test_collection_start_is_required_aware_and_not_after_completion (tests.test_forecast_resolution_join.ResolutionJoinTests.test_collection_start_is_required_aware_and_not_after_completion) (start='2026-11-08T10:02:00Z')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr600-final/tests/test_forecast_resolution_join.py", line 68, in test_collection_start_is_required_aware_and_not_after_completion
+    with self.subTest(start=start), self.assertRaises(AblationError):
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: AblationError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (failures=5)

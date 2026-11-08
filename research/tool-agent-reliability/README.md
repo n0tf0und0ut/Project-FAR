@@ -30,6 +30,14 @@ General agent reliability, cross-model performance, external replication, autono
 
 Current software includes the separate [post-execution validation patch v0.3.1](POSTEXECUTION-VALIDATION-PATCH-V0.3.1.md). It rejects unknown/null-digest model configurations; the completed performance result still refers to its original frozen v0.3 source and evidence.
 
+The additive [reliability evidence audit profile v0.1](EVIDENCE-CONTRACT-V0.1.md)
+reuses the existing evidence-package envelope and deterministic replay to expose
+common task/runtime identities, complete action/observation provenance, exposure,
+safety, cost and assurance dimensions. It reconstructs both the 72/72 v0.3 cohort
+and the separately stopped 2/3 v0.2 preflight without changing their frozen bytes
+or pooling them. Missing billing, causal identification and external independence
+remain unknown; incident collections cannot acquire failure rates.
+
 ## Methodological sources
 
 - Yao et al., [τ-bench, arXiv:2406.12045](https://arxiv.org/abs/2406.12045): repeated-success reliability is distinct from obtaining one successful attempt. Its tasks, simulated users and published scores are not reused here.
