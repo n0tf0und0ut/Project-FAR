@@ -1,0 +1,71 @@
+{
+  "format_version": "FAR-MECH-CLAIM-DISPOSITION/0.1",
+  "status": "Research",
+  "source": {
+    "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "weight_tensor_sha256": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594",
+    "result_json_sha256": "2486737cf3cc4c24b890ff3c13f15d7c8164cb455ccae04cc665dcbef8992682",
+    "trace_json_sha256": "45c94257672bb9051922526769dcf690e8b9714799d51c2a7fa2192b0fdd9392",
+    "workflow_run": 41223761759,
+    "artifact_id": 13051320299
+  },
+  "finite_evidence": {
+    "heldout": {
+      "n": 12,
+      "probe_kl_mean": 8.3982139923604e-7,
+      "mean_replacement_kl_mean": 0.000002351485579804554,
+      "probe_worse_cases": 1,
+      "original_correct": 5,
+      "probe_correct": 6,
+      "mean_correct": 6,
+      "gate_accepted": 12
+    },
+    "adversarial": {
+      "n": 12,
+      "probe_kl_mean": 0.00003674138675424202,
+      "mean_replacement_kl_mean": 0.000003166602047474787,
+      "probe_worse_cases": 12,
+      "original_correct": 8,
+      "probe_correct": 8,
+      "mean_correct": 8,
+      "gate_accepted": 12
+    },
+    "control": {
+      "n": 8,
+      "probe_kl_mean": 0,
+      "mean_replacement_kl_mean": 0.0000026687820015411406,
+      "probe_worse_cases": 0,
+      "original_correct": 4,
+      "probe_correct": 4,
+      "mean_correct": 4,
+      "gate_accepted": 8
+    }
+  },
+  "dispositions": {
+    "probe_uniformly_better_than_mean_on_adversarial": "REFUTED_ON_FROZEN_SET",
+    "probe_beats_mean_on_heldout_mean_kl": "SUPPORTED_ON_FROZEN_SET",
+    "fidelity_gate_selective_reliability_uplift": "REFUTED_ON_FROZEN_SET",
+    "reasoning_accuracy_gain_specific_to_probe": "NOT_OBSERVED_VS_MEAN",
+    "correct_semantic_circuit_explanation": "NOT_ESTABLISHED",
+    "superior_to_mib_das_sae": "NOT_TESTED",
+    "universal_general_reasoning_reliability": "NOT_IDENTIFIABLE_FROM_FINITE_COHORT"
+  },
+  "proof_obligations": {
+    "finite_sample_declaration": true,
+    "frozen_source_hashes": true,
+    "independent_case_recomputation": "CONVERSATION_EVIDENCE_BUNDLE",
+    "independent_model_forward_replay": false,
+    "matched_strong_baselines": false
+  },
+  "nonidentifiability_witness": {
+    "domain": "nonnegative integers",
+    "observation_set": "finite S",
+    "unobserved": "min nonnegative integer not in S",
+    "f": "constant zero",
+    "g": "zero except g(unobserved)=1",
+    "coincide_on_S": true,
+    "differ_outside_S": true
+  },
+  "assurance": "EXACT_FINITE_COHORT_FALSIFICATION_NO_UNIVERSAL_COMPLETENESS_CLAIM"
+}
