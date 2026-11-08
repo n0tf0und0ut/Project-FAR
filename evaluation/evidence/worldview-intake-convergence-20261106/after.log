@@ -1,0 +1,13 @@
+test_all_excluded_questions_cannot_produce_complete_empty_run (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_all_excluded_questions_cannot_produce_complete_empty_run) ... ok
+test_backend_envelope_rejects_duplicate_nested_completion_fields (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_backend_envelope_rejects_duplicate_nested_completion_fields) ... ok
+test_duplicate_completion_keys_cannot_choose_a_scored_prediction (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_duplicate_completion_keys_cannot_choose_a_scored_prediction) ... ok
+test_forecast_and_factual_cli_reject_ambiguous_files_before_backend_creation (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_forecast_and_factual_cli_reject_ambiguous_files_before_backend_creation) ... ok
+test_forecast_runner_preserves_both_established_cli_forms (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_forecast_runner_preserves_both_established_cli_forms) ... ok
+test_invalid_dataset_horizons_refuse_before_any_inference (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_invalid_dataset_horizons_refuse_before_any_inference) ... ok
+test_scoring_export_and_confirmation_clis_refuse_ambiguous_files (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_scoring_export_and_confirmation_clis_refuse_ambiguous_files) ... ok
+test_strict_loader_rejects_nonfinite_numbers_and_non_utf8_strings_recursively (tests.test_worldview_intake_convergence.WorldviewIntakeConvergenceTests.test_strict_loader_rejects_nonfinite_numbers_and_non_utf8_strings_recursively) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.120s
+
+OK

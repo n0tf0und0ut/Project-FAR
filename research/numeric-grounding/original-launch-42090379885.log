@@ -1,0 +1,983 @@
+﻿2026-11-05T19:04:40.8528888Z Current runner version: '2.338.2'
+2026-11-05T19:04:40.8558461Z ##[group]Runner Image Provisioner
+2026-11-05T19:04:40.8559413Z Hosted Compute Agent
+2026-11-05T19:04:40.8560052Z Version: 20261028.624
+2026-11-05T19:04:40.8560705Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-05T19:04:40.8561547Z Build Date: 2026-10-28T21:51:42Z
+2026-11-05T19:04:40.8562249Z Worker ID: {1dc2cddc-bd4d-4107-9389-383d3edb9a72}
+2026-11-05T19:04:40.8563057Z Region: centralus
+2026-11-05T19:04:40.8563643Z Cloud: Azure
+2026-11-05T19:04:40.8564203Z ##[endgroup]
+2026-11-05T19:04:40.8565893Z ##[group]Operating System
+2026-11-05T19:04:40.8566558Z Ubuntu
+2026-11-05T19:04:40.8567403Z 24.04.5
+2026-11-05T19:04:40.8568026Z LTS
+2026-11-05T19:04:40.8568562Z ##[endgroup]
+2026-11-05T19:04:40.8569600Z ##[group]Runner Image
+2026-11-05T19:04:40.8570283Z Image: ubuntu-24.04
+2026-11-05T19:04:40.8570907Z Version: 20261101.360.1
+2026-11-05T19:04:40.8572271Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-05T19:04:40.8573936Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-05T19:04:40.8574952Z ##[endgroup]
+2026-11-05T19:04:40.8576136Z ##[group]GITHUB_TOKEN Permissions
+2026-11-05T19:04:40.8578649Z Contents: read
+2026-11-05T19:04:40.8579311Z Metadata: read
+2026-11-05T19:04:40.8579995Z ##[endgroup]
+2026-11-05T19:04:40.8582238Z Secret source: Actions
+2026-11-05T19:04:40.8583285Z Cache mode: write
+2026-11-05T19:04:40.8584323Z Prepare workflow directory
+2026-11-05T19:04:40.9015803Z Prepare all required actions
+2026-11-05T19:04:40.9092336Z Getting action download info
+2026-11-05T19:04:41.1835787Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-05T19:04:41.3006506Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-05T19:04:41.3865246Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-05T19:04:41.6053097Z Complete job name: paired-live-pilot
+2026-11-05T19:04:41.6960682Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-11-05T19:04:41.6962121Z with:
+2026-11-05T19:04:41.6962575Z   fetch-depth: 0
+2026-11-05T19:04:41.6963051Z   persist-credentials: false
+2026-11-05T19:04:41.6963576Z   show-progress: false
+2026-11-05T19:04:41.6964082Z   repository: n0tf0und0ut/Project-FAR
+2026-11-05T19:04:41.6968118Z   token: ***
+2026-11-05T19:04:41.6968554Z   ssh-strict: true
+2026-11-05T19:04:41.6968986Z   ssh-user: git
+2026-11-05T19:04:41.6969399Z   clean: true
+2026-11-05T19:04:41.6969843Z   sparse-checkout-cone-mode: true
+2026-11-05T19:04:41.6970375Z   fetch-tags: false
+2026-11-05T19:04:41.6970803Z   lfs: false
+2026-11-05T19:04:41.6971208Z   submodules: false
+2026-11-05T19:04:41.6971654Z   set-safe-directory: true
+2026-11-05T19:04:41.6972186Z   allow-unsafe-pr-checkout: false
+2026-11-05T19:04:41.6973067Z ##[endgroup]
+2026-11-05T19:04:42.0252587Z Syncing repository: n0tf0und0ut/Project-FAR
+2026-11-05T19:04:42.0255726Z ##[group]Getting Git version info
+2026-11-05T19:04:42.0257221Z Working directory is '/home/runner/work/Project-FAR/Project-FAR'
+2026-11-05T19:04:42.0259103Z [command]/usr/bin/git version
+2026-11-05T19:04:42.0371470Z git version 2.56.0
+2026-11-05T19:04:42.0398395Z ##[endgroup]
+2026-11-05T19:04:42.0418192Z Temporarily overriding HOME='/home/runner/work/_temp/db7974fd-9f2b-4a84-9c5c-27e039bfd898' before making global git config changes
+2026-11-05T19:04:42.0421117Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-05T19:04:42.0426687Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Project-FAR/Project-FAR
+2026-11-05T19:04:42.0499155Z Deleting the contents of '/home/runner/work/Project-FAR/Project-FAR'
+2026-11-05T19:04:42.0505292Z ##[group]Initializing the repository
+2026-11-05T19:04:42.0509979Z [command]/usr/bin/git init /home/runner/work/Project-FAR/Project-FAR
+2026-11-05T19:04:42.0659976Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-05T19:04:42.0661754Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-05T19:04:42.0663254Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-05T19:04:42.0664510Z hint: call:
+2026-11-05T19:04:42.0665214Z hint:
+2026-11-05T19:04:42.0666092Z hint: 	git config --global init.defaultBranch <name>
+2026-11-05T19:04:42.0667309Z hint:
+2026-11-05T19:04:42.0668235Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-05T19:04:42.0669772Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-05T19:04:42.0671055Z hint:
+2026-11-05T19:04:42.0671761Z hint: 	git branch -m <name>
+2026-11-05T19:04:42.0672562Z hint:
+2026-11-05T19:04:42.0673563Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-05T19:04:42.0692363Z Initialized empty Git repository in /home/runner/work/Project-FAR/Project-FAR/.git/
+2026-11-05T19:04:42.0719274Z [command]/usr/bin/git remote add origin https://github.com/n0tf0und0ut/Project-FAR
+2026-11-05T19:04:42.0787814Z ##[endgroup]
+2026-11-05T19:04:42.0789036Z ##[group]Disabling automatic garbage collection
+2026-11-05T19:04:42.0792157Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-05T19:04:42.0831679Z ##[endgroup]
+2026-11-05T19:04:42.0832863Z ##[group]Setting up auth
+2026-11-05T19:04:42.0840572Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-05T19:04:42.0883673Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-05T19:04:42.1347610Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-05T19:04:42.1400033Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-05T19:04:42.1660912Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-05T19:04:42.1711813Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-05T19:04:42.1970002Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-05T19:04:42.2023557Z ##[endgroup]
+2026-11-05T19:04:42.2024608Z ##[group]Fetching the repository
+2026-11-05T19:04:42.2038611Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-11-05T19:04:44.3049670Z From https://github.com/n0tf0und0ut/Project-FAR
+2026-11-05T19:04:44.3052393Z  * [new branch]        __w5-object-staging-ignore -> origin/__w5-object-staging-ignore
+2026-11-05T19:04:44.3055662Z  * [new branch]        agent/1-0-canonical-interfaces -> origin/agent/1-0-canonical-interfaces
+2026-11-05T19:04:44.3059646Z  * [new branch]        agent/1-0-exact-release-gate -> origin/agent/1-0-exact-release-gate
+2026-11-05T19:04:44.3062522Z  * [new branch]        agent/1-0-publication-authorization -> origin/agent/1-0-publication-authorization
+2026-11-05T19:04:44.3065739Z  * [new branch]        agent/1-0-release-notes-golden -> origin/agent/1-0-release-notes-golden
+2026-11-05T19:04:44.3069227Z  * [new branch]        agent/add-claude-instructions -> origin/agent/add-claude-instructions
+2026-11-05T19:04:44.3072454Z  * [new branch]        agent/add-claude-learning-rule -> origin/agent/add-claude-learning-rule
+2026-11-05T19:04:44.3075591Z  * [new branch]        agent/alternative-vocabulary-competition -> origin/agent/alternative-vocabulary-competition
+2026-11-05T19:04:44.3078686Z  * [new branch]        agent/anti-self-validation-controls -> origin/agent/anti-self-validation-controls
+2026-11-05T19:04:44.3081895Z  * [new branch]        agent/audit-target-category-discovery -> origin/agent/audit-target-category-discovery
+2026-11-05T19:04:44.3084884Z  * [new branch]        agent/begin-cre004-execution-run-001 -> origin/agent/begin-cre004-execution-run-001
+2026-11-05T19:04:44.3089065Z  * [new branch]        agent/candidate-001-execution -> origin/agent/candidate-001-execution
+2026-11-05T19:04:44.3092654Z  * [new branch]        agent/candidate-001-findings-candidate-002-freeze -> origin/agent/candidate-001-findings-candidate-002-freeze
+2026-11-05T19:04:44.3095975Z  * [new branch]        agent/candidate-001-run -> origin/agent/candidate-001-run
+2026-11-05T19:04:44.3099496Z  * [new branch]        agent/candidate-002-findings-1-0-consolidation -> origin/agent/candidate-002-findings-1-0-consolidation
+2026-11-05T19:04:44.3103168Z  * [new branch]        agent/candidate-002-staged-execution -> origin/agent/candidate-002-staged-execution
+2026-11-05T19:04:44.3106409Z  * [new branch]        agent/canonical-fara-relational-kernel -> origin/agent/canonical-fara-relational-kernel
+2026-11-05T19:04:44.3110036Z  * [new branch]        agent/canonical-universality-umbrella -> origin/agent/canonical-universality-umbrella
+2026-11-05T19:04:44.3113965Z  * [new branch]        agent/close-structured-reasoning-compositional-question -> origin/agent/close-structured-reasoning-compositional-question
+2026-11-05T19:04:44.3118287Z  * [new branch]        agent/conclude-cre001-evaluator-pilot -> origin/agent/conclude-cre001-evaluator-pilot
+2026-11-05T19:04:44.3121690Z  * [new branch]        agent/cre004-blind-discrimination-protocol -> origin/agent/cre004-blind-discrimination-protocol
+2026-11-05T19:04:44.3125441Z  * [new branch]        agent/execute-cre003-vocabulary-competition -> origin/agent/execute-cre003-vocabulary-competition
+2026-11-05T19:04:44.3129682Z  * [new branch]        agent/execute-primitive-independence-evaluation -> origin/agent/execute-primitive-independence-evaluation
+2026-11-05T19:04:44.3133089Z  * [new branch]        agent/external-trace-adapter -> origin/agent/external-trace-adapter
+2026-11-05T19:04:44.3136323Z  * [new branch]        agent/far-agent-state-consistency -> origin/agent/far-agent-state-consistency
+2026-11-05T19:04:44.3139471Z  * [new branch]        agent/far-canonical-bridge -> origin/agent/far-canonical-bridge
+2026-11-05T19:04:44.3142215Z  * [new branch]        agent/far-canonical-countermodel -> origin/agent/far-canonical-countermodel
+2026-11-05T19:04:44.3145293Z  * [new branch]        agent/far-canonical-final-decision -> origin/agent/far-canonical-final-decision
+2026-11-05T19:04:44.3148944Z  * [new branch]        agent/far-canonical-grounded-answer -> origin/agent/far-canonical-grounded-answer
+2026-11-05T19:04:44.3152019Z  * [new branch]        agent/far-demo-conflict-free -> origin/agent/far-demo-conflict-free
+2026-11-05T19:04:44.3154938Z  * [new branch]        agent/far-demo-frontier-redesign -> origin/agent/far-demo-frontier-redesign
+2026-11-05T19:04:44.3159401Z  * [new branch]        agent/far-demo-mobile-palette -> origin/agent/far-demo-mobile-palette
+2026-11-05T19:04:44.3164389Z  * [new branch]        agent/far-demo-mobile-visual-cleanup -> origin/agent/far-demo-mobile-visual-cleanup
+2026-11-05T19:04:44.3170234Z  * [new branch]        agent/far-demo-neutral-multiformat -> origin/agent/far-demo-neutral-multiformat
+2026-11-05T19:04:44.3175213Z  * [new branch]        agent/far-demo-product-redesign -> origin/agent/far-demo-product-redesign
+2026-11-05T19:04:44.3181266Z  * [new branch]        agent/far-demo-silicon-valley-v2 -> origin/agent/far-demo-silicon-valley-v2
+2026-11-05T19:04:44.3186229Z  * [new branch]        agent/far-demo-validation-feedback -> origin/agent/far-demo-validation-feedback
+2026-11-05T19:04:44.3190707Z  * [new branch]        agent/fix-436-audit     -> origin/agent/fix-436-audit
+2026-11-05T19:04:44.3194740Z  * [new branch]        agent/fix-resolve-image-artifact -> origin/agent/fix-resolve-image-artifact
+2026-11-05T19:04:44.3200306Z  * [new branch]        agent/fix-swebench-interface-clean -> origin/agent/fix-swebench-interface-clean
+2026-11-05T19:04:44.3204180Z  * [new branch]        agent/fix-swebench-interface-v2 -> origin/agent/fix-swebench-interface-v2
+2026-11-05T19:04:44.3207565Z  * [new branch]        agent/fix-swebench-source-import -> origin/agent/fix-swebench-source-import
+2026-11-05T19:04:44.3211157Z  * [new branch]        agent/formal-primitive-independence-framework -> origin/agent/formal-primitive-independence-framework
+2026-11-05T19:04:44.3215946Z  * [new branch]        agent/freeze-cre004-evaluator-package -> origin/agent/freeze-cre004-evaluator-package
+2026-11-05T19:04:44.3219892Z  * [new branch]        agent/freeze-cre004-run001-coordinator-controls -> origin/agent/freeze-cre004-run001-coordinator-controls
+2026-11-05T19:04:44.3223642Z  * [new branch]        agent/g1-semantic-kernel -> origin/agent/g1-semantic-kernel
+2026-11-05T19:04:44.3228038Z  * [new branch]        agent/g2-open-world-lower-bound -> origin/agent/g2-open-world-lower-bound
+2026-11-05T19:04:44.3232822Z  * [new branch]        agent/g3-epistemic-maximality -> origin/agent/g3-epistemic-maximality
+2026-11-05T19:04:44.3237953Z  * [new branch]        agent/global-minimality-assessment -> origin/agent/global-minimality-assessment
+2026-11-05T19:04:44.3242303Z  * [new branch]        agent/hosted-far-demo   -> origin/agent/hosted-far-demo
+2026-11-05T19:04:44.3247338Z  * [new branch]        agent/implement-cre001-deterministic-verifier -> origin/agent/implement-cre001-deterministic-verifier
+2026-11-05T19:04:44.3253528Z  * [new branch]        agent/implement-cre004-execution-pipeline -> origin/agent/implement-cre004-execution-pipeline
+2026-11-05T19:04:44.3257905Z  * [new branch]        agent/implement-cre004-execution-replay-pipeline -> origin/agent/implement-cre004-execution-replay-pipeline
+2026-11-05T19:04:44.3261500Z  * [new branch]        agent/independent-scope-definition -> origin/agent/independent-scope-definition
+2026-11-05T19:04:44.3265435Z  * [new branch]        agent/local-swebench-environment-freeze -> origin/agent/local-swebench-environment-freeze
+2026-11-05T19:04:44.3269975Z  * [new branch]        agent/moltbook-red-team-pilot-v1 -> origin/agent/moltbook-red-team-pilot-v1
+2026-11-05T19:04:44.3273019Z  * [new branch]        agent/port-decision-integrity-core -> origin/agent/port-decision-integrity-core
+2026-11-05T19:04:44.3275943Z  * [new branch]        agent/port-regression-evidence -> origin/agent/port-regression-evidence
+2026-11-05T19:04:44.3279232Z  * [new branch]        agent/registry-digest-resolution -> origin/agent/registry-digest-resolution
+2026-11-05T19:04:44.3281996Z  * [new branch]        agent/repository-convergence -> origin/agent/repository-convergence
+2026-11-05T19:04:44.3284777Z  * [new branch]        agent/repository-convergence-2 -> origin/agent/repository-convergence-2
+2026-11-05T19:04:44.3288258Z  * [new branch]        agent/semantic-discrimination-benchmark -> origin/agent/semantic-discrimination-benchmark
+2026-11-05T19:04:44.3291816Z  * [new branch]        agent/swe-agent-execution-freeze -> origin/agent/swe-agent-execution-freeze
+2026-11-05T19:04:44.3295433Z  * [new branch]        agent/swe-agent-release-comparison-freeze -> origin/agent/swe-agent-release-comparison-freeze
+2026-11-05T19:04:44.3300110Z  * [new branch]        agent/swebench-interface-final -> origin/agent/swebench-interface-final
+2026-11-05T19:04:44.3304835Z  * [new branch]        agent/tcd-protocol-hardening-v1-3 -> origin/agent/tcd-protocol-hardening-v1-3
+2026-11-05T19:04:44.3310058Z  * [new branch]        agent/unified-validation-platform -> origin/agent/unified-validation-platform
+2026-11-05T19:04:44.3315036Z  * [new branch]        agent/universality-remainder-theorem -> origin/agent/universality-remainder-theorem
+2026-11-05T19:04:44.3320364Z  * [new branch]        agent/validator-assurance-hardening -> origin/agent/validator-assurance-hardening
+2026-11-05T19:04:44.3324682Z  * [new branch]        agent/w3-5-candidate-tests -> origin/agent/w3-5-candidate-tests
+2026-11-05T19:04:44.3327678Z  * [new branch]        agent/w3-5-factorization -> origin/agent/w3-5-factorization
+2026-11-05T19:04:44.3329968Z  * [new branch]        agent/w3-5-specificity  -> origin/agent/w3-5-specificity
+2026-11-05T19:04:44.3332411Z  * [new branch]        analyze-cre002-ext001-evidence -> origin/analyze-cre002-ext001-evidence
+2026-11-05T19:04:44.3336147Z  * [new branch]        audit/authenticated-review-data-30232116023 -> origin/audit/authenticated-review-data-30232116023
+2026-11-05T19:04:44.3340764Z  * [new branch]        audit/authenticated-review-data-30235081112 -> origin/audit/authenticated-review-data-30235081112
+2026-11-05T19:04:44.3344374Z  * [new branch]        audit/authenticated-review-data-34549600024-1 -> origin/audit/authenticated-review-data-34549600024-1
+2026-11-05T19:04:44.3348489Z  * [new branch]        audit/authenticated-review-data-36507725602-1 -> origin/audit/authenticated-review-data-36507725602-1
+2026-11-05T19:04:44.3353708Z  * [new branch]        audit/authenticated-review-export-pipeline -> origin/audit/authenticated-review-export-pipeline
+2026-11-05T19:04:44.3359990Z  * [new branch]        audit/classify-frozen-merged-pr-reviews -> origin/audit/classify-frozen-merged-pr-reviews
+2026-11-05T19:04:44.3365542Z  * [new branch]        audit/epistemic-calibration-2026-09-06 -> origin/audit/epistemic-calibration-2026-09-06
+2026-11-05T19:04:44.3371454Z  * [new branch]        audit/epistemic-calibration-and-archive-repro -> origin/audit/epistemic-calibration-and-archive-repro
+2026-11-05T19:04:44.3377632Z  * [new branch]        audit/epistemic-calibration-and-archive-repro-v2 -> origin/audit/epistemic-calibration-and-archive-repro-v2
+2026-11-05T19:04:44.3380744Z  * [new branch]        audit/far-calibration   -> origin/audit/far-calibration
+2026-11-05T19:04:44.3383026Z  * [new branch]        audit/far-calibration-work -> origin/audit/far-calibration-work
+2026-11-05T19:04:44.3385623Z  * [new branch]        audit/far-core-calibration-final -> origin/audit/far-core-calibration-final
+2026-11-05T19:04:44.3389684Z  * [new branch]        authorize-cre002-ext001-execution -> origin/authorize-cre002-ext001-execution
+2026-11-05T19:04:44.3395270Z  * [new branch]        automation/living-promotion-0093737349deef673704688762225aad749dce0b-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-0093737349deef673704688762225aad749dce0b-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3403464Z  * [new branch]        automation/living-promotion-00a046cc390a9ee656ad6c66ab321226d6bd691c-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-00a046cc390a9ee656ad6c66ab321226d6bd691c-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3411790Z  * [new branch]        automation/living-promotion-0b69365279fbc301455a95bfd7e24b055d17ee90-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-0b69365279fbc301455a95bfd7e24b055d17ee90-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3419971Z  * [new branch]        automation/living-promotion-1074373d514bfea5c91ee71e19ff4610d79c9f89-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-1074373d514bfea5c91ee71e19ff4610d79c9f89-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3427909Z  * [new branch]        automation/living-promotion-12697f3da3c70bfca4fb9161d0e15195537f6488-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-12697f3da3c70bfca4fb9161d0e15195537f6488-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3435696Z  * [new branch]        automation/living-promotion-144e27f4c8fd91d57e80f8aa37814d4ccdeea379-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-144e27f4c8fd91d57e80f8aa37814d4ccdeea379-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3443568Z  * [new branch]        automation/living-promotion-15a98e75238e8e00b2ae350f1c7628496f008ca6-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-15a98e75238e8e00b2ae350f1c7628496f008ca6-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3451790Z  * [new branch]        automation/living-promotion-260f2dad613f056562c4a17b3cc03e8814417447-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-260f2dad613f056562c4a17b3cc03e8814417447-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3459629Z  * [new branch]        automation/living-promotion-28febaa7c504af229065b7417ea26f216c1bc8c8-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-28febaa7c504af229065b7417ea26f216c1bc8c8-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.3467423Z  * [new branch]        automation/living-promotion-2a2610f98c749e2836d23028f8e1aa8e2707f6e5-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-2a2610f98c749e2836d23028f8e1aa8e2707f6e5-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3474909Z  * [new branch]        automation/living-promotion-2a510967ec5f1c8909ef131be5f1973d86209ba9-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-2a510967ec5f1c8909ef131be5f1973d86209ba9-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3482608Z  * [new branch]        automation/living-promotion-2b85214869ea794f99c1f1f59a392380738193fa-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-2b85214869ea794f99c1f1f59a392380738193fa-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3490241Z  * [new branch]        automation/living-promotion-2f3dbbd0e7724e169314365c6dafa5b213efce24-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-2f3dbbd0e7724e169314365c6dafa5b213efce24-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3497947Z  * [new branch]        automation/living-promotion-2faae92f65da4b1d3658cd9af21848efd9f2c23a-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-2faae92f65da4b1d3658cd9af21848efd9f2c23a-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.3505576Z  * [new branch]        automation/living-promotion-328cd2b15da98fa84d084a56c025d7c926c31afd-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-328cd2b15da98fa84d084a56c025d7c926c31afd-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3513181Z  * [new branch]        automation/living-promotion-376952868a2f6a0b94827ff1558dccd97d0343d0-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-376952868a2f6a0b94827ff1558dccd97d0343d0-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3602718Z  * [new branch]        automation/living-promotion-39276cb96ebc8a880b66aedbe393d190fd4f27f2-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-39276cb96ebc8a880b66aedbe393d190fd4f27f2-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3615866Z  * [new branch]        automation/living-promotion-3ada2c790a4b87ff400f6f3c9549a2c9472d23e0-2cba79aba3a8e747acba7f133a0c278569862f10 -> origin/automation/living-promotion-3ada2c790a4b87ff400f6f3c9549a2c9472d23e0-2cba79aba3a8e747acba7f133a0c278569862f10
+2026-11-05T19:04:44.3623652Z  * [new branch]        automation/living-promotion-3e01a92df234b0197040c3e28b35894ac51d4d3d-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-3e01a92df234b0197040c3e28b35894ac51d4d3d-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3631227Z  * [new branch]        automation/living-promotion-3f503e1d2a88ec531606b33e6d4ffe04bffce3fd-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-3f503e1d2a88ec531606b33e6d4ffe04bffce3fd-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3638765Z  * [new branch]        automation/living-promotion-492a8ce74862395e8c113886bc7c2c49e0daccab-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-492a8ce74862395e8c113886bc7c2c49e0daccab-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.3646047Z  * [new branch]        automation/living-promotion-4b804e5f20e79f7ac1e41dcc725f62a84d15bc50-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-4b804e5f20e79f7ac1e41dcc725f62a84d15bc50-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3653937Z  * [new branch]        automation/living-promotion-4e4545c6f33a51687cb410b2046b65cac56a5aea-052cf2cf04401d81dba337912f214fec1820c7ea -> origin/automation/living-promotion-4e4545c6f33a51687cb410b2046b65cac56a5aea-052cf2cf04401d81dba337912f214fec1820c7ea
+2026-11-05T19:04:44.3661794Z  * [new branch]        automation/living-promotion-51af033c9c6851127c7c9019b07c256f3d3180b0-c8fc77be102edd6a4eae61d4a29f1f20452475da -> origin/automation/living-promotion-51af033c9c6851127c7c9019b07c256f3d3180b0-c8fc77be102edd6a4eae61d4a29f1f20452475da
+2026-11-05T19:04:44.3669750Z  * [new branch]        automation/living-promotion-51f0aed13f2bbbb7fa6f15b0029ebde4b4cb6a86-ceb58e12e449f70ff8716c21a0871a9e68dcd553 -> origin/automation/living-promotion-51f0aed13f2bbbb7fa6f15b0029ebde4b4cb6a86-ceb58e12e449f70ff8716c21a0871a9e68dcd553
+2026-11-05T19:04:44.3677319Z  * [new branch]        automation/living-promotion-5829b73df50403c9f00ced3189e550f3d576fcd6-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-5829b73df50403c9f00ced3189e550f3d576fcd6-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3684537Z  * [new branch]        automation/living-promotion-5a23d6cf220b474ba9d38f5e639b3c48e17d463b-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-5a23d6cf220b474ba9d38f5e639b3c48e17d463b-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3692000Z  * [new branch]        automation/living-promotion-5b854bd7f9d1d170774a376cd8d8d6c02284f873-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-5b854bd7f9d1d170774a376cd8d8d6c02284f873-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3699430Z  * [new branch]        automation/living-promotion-5b9f56976c6577c58f49e575011fc60c9c95c054-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-5b9f56976c6577c58f49e575011fc60c9c95c054-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3706785Z  * [new branch]        automation/living-promotion-5bbbdfc0bf15bb440173c1956a47653a4965fccb-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-5bbbdfc0bf15bb440173c1956a47653a4965fccb-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3714374Z  * [new branch]        automation/living-promotion-6110ed9195e55f05892674c2ab41d7c7e7bdf528-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-6110ed9195e55f05892674c2ab41d7c7e7bdf528-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3721797Z  * [new branch]        automation/living-promotion-6450135c135b21804ea8fc7eb564d017a21d0272-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-6450135c135b21804ea8fc7eb564d017a21d0272-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3728941Z  * [new branch]        automation/living-promotion-67c098850e69cfd5e5c22c3b57b4774c6c674716-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-67c098850e69cfd5e5c22c3b57b4774c6c674716-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.3735984Z  * [new branch]        automation/living-promotion-68c94d0fa785e255882ec54b984b4bccfdd2f172-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-68c94d0fa785e255882ec54b984b4bccfdd2f172-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3743186Z  * [new branch]        automation/living-promotion-6e276ad105d13c7112f23477122779ac3bd2bb5a-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-6e276ad105d13c7112f23477122779ac3bd2bb5a-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3750395Z  * [new branch]        automation/living-promotion-7094edffe2b5dd09bc109bb2be670282940a263c-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-7094edffe2b5dd09bc109bb2be670282940a263c-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3758002Z  * [new branch]        automation/living-promotion-724b52171e4bdad0d66072ef1c5d26612971d92b-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-724b52171e4bdad0d66072ef1c5d26612971d92b-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3765350Z  * [new branch]        automation/living-promotion-75a73b9eabf3a6e020d46bb05e6aed475789dbd8-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-75a73b9eabf3a6e020d46bb05e6aed475789dbd8-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3772699Z  * [new branch]        automation/living-promotion-78249152c8c349158fff433922644219a91150a0-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-78249152c8c349158fff433922644219a91150a0-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3779874Z  * [new branch]        automation/living-promotion-7c76f014c86b11b502caf6b37c15c16e31575ed2-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-7c76f014c86b11b502caf6b37c15c16e31575ed2-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3787205Z  * [new branch]        automation/living-promotion-7ced0bd47f73e68fbc2bf42ba96c45f986662e49-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-7ced0bd47f73e68fbc2bf42ba96c45f986662e49-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3794210Z  * [new branch]        automation/living-promotion-7f1506063a6b533eb30497828688e8037b101c53-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-7f1506063a6b533eb30497828688e8037b101c53-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3801463Z  * [new branch]        automation/living-promotion-812c16ae56358ec5a271ad8fa60ca27abf96f270-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-812c16ae56358ec5a271ad8fa60ca27abf96f270-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3808794Z  * [new branch]        automation/living-promotion-838a64cfdb177318136f51c7c0c4fc0b5243e537-052cf2cf04401d81dba337912f214fec1820c7ea -> origin/automation/living-promotion-838a64cfdb177318136f51c7c0c4fc0b5243e537-052cf2cf04401d81dba337912f214fec1820c7ea
+2026-11-05T19:04:44.3815757Z  * [new branch]        automation/living-promotion-8a1669aaaf8b0fe2c85d314888f35a5fc3b03c08-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-8a1669aaaf8b0fe2c85d314888f35a5fc3b03c08-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3823069Z  * [new branch]        automation/living-promotion-9218eb22d49f5f408e63dd65ca01a3fc43ff2b1b-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-9218eb22d49f5f408e63dd65ca01a3fc43ff2b1b-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3830138Z  * [new branch]        automation/living-promotion-932a5c032db60d0349988ec7f3f48b38681e374c-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-932a5c032db60d0349988ec7f3f48b38681e374c-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3837306Z  * [new branch]        automation/living-promotion-95a6235cd6909ce464776bbe159a24845bc4a544-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-95a6235cd6909ce464776bbe159a24845bc4a544-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3844238Z  * [new branch]        automation/living-promotion-99ed2cd3fd5ca759fe6277a32f127dcde9a82097-a0e71819463cdb5f96106892765f7b7b83279b62 -> origin/automation/living-promotion-99ed2cd3fd5ca759fe6277a32f127dcde9a82097-a0e71819463cdb5f96106892765f7b7b83279b62
+2026-11-05T19:04:44.3851322Z  * [new branch]        automation/living-promotion-a18c0d219f9ddaed385a9a8594e6732f8b48f860-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-a18c0d219f9ddaed385a9a8594e6732f8b48f860-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3858582Z  * [new branch]        automation/living-promotion-a1c3df0db95d9953c053fdcc120d4a81e3d7f88c-c8fc77be102edd6a4eae61d4a29f1f20452475da -> origin/automation/living-promotion-a1c3df0db95d9953c053fdcc120d4a81e3d7f88c-c8fc77be102edd6a4eae61d4a29f1f20452475da
+2026-11-05T19:04:44.3865795Z  * [new branch]        automation/living-promotion-a60ad3876ea4d006637e870edbc0613b3ef4700b-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-a60ad3876ea4d006637e870edbc0613b3ef4700b-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3872858Z  * [new branch]        automation/living-promotion-a6c43c1152d76e5787eba0a6d4aaaa5023d0ed4d-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-a6c43c1152d76e5787eba0a6d4aaaa5023d0ed4d-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3880020Z  * [new branch]        automation/living-promotion-a948a563463afc909feb4b6e2404cccee043fb39-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-a948a563463afc909feb4b6e2404cccee043fb39-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3887058Z  * [new branch]        automation/living-promotion-a99c2b74011a165d9d80f635cf43bb70b13508cf-ff398005894827ef2dbf91a0195b98048a9deafd -> origin/automation/living-promotion-a99c2b74011a165d9d80f635cf43bb70b13508cf-ff398005894827ef2dbf91a0195b98048a9deafd
+2026-11-05T19:04:44.3893886Z  * [new branch]        automation/living-promotion-aa169ab0ba99189bedcfa653528476841c004166-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-aa169ab0ba99189bedcfa653528476841c004166-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3901124Z  * [new branch]        automation/living-promotion-ab3f53abaae2b0a7ee289c8cebecda43cc9f753a-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-ab3f53abaae2b0a7ee289c8cebecda43cc9f753a-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.3908227Z  * [new branch]        automation/living-promotion-abe21c00fcbeef82b0f78f8dc2159900946d4189-c2769a146efe36d13fc50172f46d06527e550a6f -> origin/automation/living-promotion-abe21c00fcbeef82b0f78f8dc2159900946d4189-c2769a146efe36d13fc50172f46d06527e550a6f
+2026-11-05T19:04:44.3915306Z  * [new branch]        automation/living-promotion-ac52824075cf33ed77fe935bb1825c82dc2264e6-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-ac52824075cf33ed77fe935bb1825c82dc2264e6-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.3922465Z  * [new branch]        automation/living-promotion-ac8a9a795ec03191e96fc9d914597429e28b0856-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-ac8a9a795ec03191e96fc9d914597429e28b0856-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3929430Z  * [new branch]        automation/living-promotion-af8159399153798cdbcef18d48eec2ccca94e0b4-588a61c508a0a897bed471e61ddf9084439aeb3c -> origin/automation/living-promotion-af8159399153798cdbcef18d48eec2ccca94e0b4-588a61c508a0a897bed471e61ddf9084439aeb3c
+2026-11-05T19:04:44.3936427Z  * [new branch]        automation/living-promotion-b21ec6dc07388eb21bbebca5629e0d5ff6dd1118-c8fc77be102edd6a4eae61d4a29f1f20452475da -> origin/automation/living-promotion-b21ec6dc07388eb21bbebca5629e0d5ff6dd1118-c8fc77be102edd6a4eae61d4a29f1f20452475da
+2026-11-05T19:04:44.3943613Z  * [new branch]        automation/living-promotion-b729158a692313c968cb053098d4ac0ae0d9b360-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-b729158a692313c968cb053098d4ac0ae0d9b360-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3950563Z  * [new branch]        automation/living-promotion-baf0209a28d69286b5a2307ee2e26dab3270a404-442886b7b4c05298bb299c04e37bb8105234fbd7 -> origin/automation/living-promotion-baf0209a28d69286b5a2307ee2e26dab3270a404-442886b7b4c05298bb299c04e37bb8105234fbd7
+2026-11-05T19:04:44.3957603Z  * [new branch]        automation/living-promotion-bd48f38074bb65b7c87cf51e734eab154d2a9f67-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-bd48f38074bb65b7c87cf51e734eab154d2a9f67-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3964726Z  * [new branch]        automation/living-promotion-beeb2efb2644838f5ce5b1c4b9c19677bf5581ec-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-beeb2efb2644838f5ce5b1c4b9c19677bf5581ec-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.3971755Z  * [new branch]        automation/living-promotion-c33a7fe0691106756d7f2e9bf1a0ec0fabfe90d7-a0e71819463cdb5f96106892765f7b7b83279b62 -> origin/automation/living-promotion-c33a7fe0691106756d7f2e9bf1a0ec0fabfe90d7-a0e71819463cdb5f96106892765f7b7b83279b62
+2026-11-05T19:04:44.3978846Z  * [new branch]        automation/living-promotion-c601b611bbaa787e3e3b0162f267f3b498b5e703-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-c601b611bbaa787e3e3b0162f267f3b498b5e703-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.3985667Z  * [new branch]        automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-02dfecc118a140695c0051bb23bda1c49ce47678 -> origin/automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-02dfecc118a140695c0051bb23bda1c49ce47678
+2026-11-05T19:04:44.3992662Z  * [new branch]        automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-72bacbedafbc26c3370ffbdb0460c3a78aea4187 -> origin/automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-72bacbedafbc26c3370ffbdb0460c3a78aea4187
+2026-11-05T19:04:44.4000249Z  * [new branch]        automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-c82d29d6ec7291be68dc9837c292d200904c4c0d-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.4008308Z  * [new branch]        automation/living-promotion-d03f50e767e15fadecd5e6ffefc8bd7202fb9ab6-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-d03f50e767e15fadecd5e6ffefc8bd7202fb9ab6-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.4015504Z  * [new branch]        automation/living-promotion-da24c81b2aecefd51db54f611c3f14ddafb68c7c-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-da24c81b2aecefd51db54f611c3f14ddafb68c7c-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.4022922Z  * [new branch]        automation/living-promotion-dc2a7f1a2e62cc9baa86c43d9a2216b011962a50-052cf2cf04401d81dba337912f214fec1820c7ea -> origin/automation/living-promotion-dc2a7f1a2e62cc9baa86c43d9a2216b011962a50-052cf2cf04401d81dba337912f214fec1820c7ea
+2026-11-05T19:04:44.4030006Z  * [new branch]        automation/living-promotion-dee33ed7f5ca927522c18e2a0883bee4d3117016-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-dee33ed7f5ca927522c18e2a0883bee4d3117016-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.4037821Z  * [new branch]        automation/living-promotion-e59da3ddbaf2ef45c56815455d6555369f48666b-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-e59da3ddbaf2ef45c56815455d6555369f48666b-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.4044657Z  * [new branch]        automation/living-promotion-ea0e9993057694e7647785b631dce9f11f0c187c-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-ea0e9993057694e7647785b631dce9f11f0c187c-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.4051857Z  * [new branch]        automation/living-promotion-ed8deee1c10a3175f52ab45a50017a173f5ccf97-c2769a146efe36d13fc50172f46d06527e550a6f -> origin/automation/living-promotion-ed8deee1c10a3175f52ab45a50017a173f5ccf97-c2769a146efe36d13fc50172f46d06527e550a6f
+2026-11-05T19:04:44.4058978Z  * [new branch]        automation/living-promotion-eec1dfd25b177d6a87d895c0f61d8915f01a7790-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-eec1dfd25b177d6a87d895c0f61d8915f01a7790-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.4065747Z  * [new branch]        automation/living-promotion-f07859e6684fed96d05e5005ee1399cd55c468b8-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-f07859e6684fed96d05e5005ee1399cd55c468b8-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.4072920Z  * [new branch]        automation/living-promotion-f187cfd7b3af835b8ffbbbf6c01e3e472dfb6e35-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-f187cfd7b3af835b8ffbbbf6c01e3e472dfb6e35-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.4080059Z  * [new branch]        automation/living-promotion-f7bb9e97d7dd24a675e2ae51d552fcdbf83d5717-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-f7bb9e97d7dd24a675e2ae51d552fcdbf83d5717-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.4086845Z  * [new branch]        automation/living-promotion-f7c3d580c0928c470cd65341fa9420f579de3983-cfa3f1910666172a57f023bd0d09bdf3584451ea -> origin/automation/living-promotion-f7c3d580c0928c470cd65341fa9420f579de3983-cfa3f1910666172a57f023bd0d09bdf3584451ea
+2026-11-05T19:04:44.4093853Z  * [new branch]        automation/living-promotion-f8e007a97cc72828cbdbb703fde5655984e67587-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-f8e007a97cc72828cbdbb703fde5655984e67587-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.4100712Z  * [new branch]        automation/living-promotion-f926e2a292d8a9081d8f138c0fa241e68e42cfc3-83e753cf058b6fff8f8f3302781fd02efc1dc108 -> origin/automation/living-promotion-f926e2a292d8a9081d8f138c0fa241e68e42cfc3-83e753cf058b6fff8f8f3302781fd02efc1dc108
+2026-11-05T19:04:44.4108275Z  * [new branch]        automation/living-promotion-fc1be082e31af69fc34c583459c5b9339d5f950e-28bde8932cc6158489e8bd44af794328cce6b47a -> origin/automation/living-promotion-fc1be082e31af69fc34c583459c5b9339d5f950e-28bde8932cc6158489e8bd44af794328cce6b47a
+2026-11-05T19:04:44.4115101Z  * [new branch]        automation/living-promotion-fe507ed6ddb748f4c943d4017dbf76bac0ff7bd2-7fb4816e4aa53aed749b7008b46ba9393d3d29b2 -> origin/automation/living-promotion-fe507ed6ddb748f4c943d4017dbf76bac0ff7bd2-7fb4816e4aa53aed749b7008b46ba9393d3d29b2
+2026-11-05T19:04:44.4120232Z  * [new branch]        automation/living-research-inbox -> origin/automation/living-research-inbox
+2026-11-05T19:04:44.4122913Z  * [new branch]        automation/living-research-postmerge-smoke -> origin/automation/living-research-postmerge-smoke
+2026-11-05T19:04:44.4125688Z  * [new branch]        backup/pr-163-pre-conflict-resolution -> origin/backup/pr-163-pre-conflict-resolution
+2026-11-05T19:04:44.4128271Z  * [new branch]        bootstrap/agepony-repin -> origin/bootstrap/agepony-repin
+2026-11-05T19:04:44.4130204Z  * [new branch]        canonicalization-cleanup -> origin/canonicalization-cleanup
+2026-11-05T19:04:44.4132421Z  * [new branch]        checksum-lock-cre002-ext001-rep001 -> origin/checksum-lock-cre002-ext001-rep001
+2026-11-05T19:04:44.4134518Z  * [new branch]        ci/full-green-audit     -> origin/ci/full-green-audit
+2026-11-05T19:04:44.4136679Z  * [new branch]        claude/far-environment-verify-gtjjby -> origin/claude/far-environment-verify-gtjjby
+2026-11-05T19:04:44.4139785Z  * [new branch]        claude/far-live-theory-reconstruction-1l3dqm -> origin/claude/far-live-theory-reconstruction-1l3dqm
+2026-11-05T19:04:44.4142558Z  * [new branch]        claude/far-pr-436-merge-ready-wvzfnd -> origin/claude/far-pr-436-merge-ready-wvzfnd
+2026-11-05T19:04:44.4144973Z  * [new branch]        claude/far-strategy-audit-dixefu -> origin/claude/far-strategy-audit-dixefu
+2026-11-05T19:04:44.4147690Z  * [new branch]        claude/far-three-lane-cross-audit-ajls7a -> origin/claude/far-three-lane-cross-audit-ajls7a
+2026-11-05T19:04:44.4150107Z  * [new branch]        claude/new-session-l15j91 -> origin/claude/new-session-l15j91
+2026-11-05T19:04:44.4152468Z  * [new branch]        claude/pr-448-refresh-current-main-g3ciau -> origin/claude/pr-448-refresh-current-main-g3ciau
+2026-11-05T19:04:44.4155246Z  * [new branch]        claude/presenting-far-transcript-ingest -> origin/claude/presenting-far-transcript-ingest
+2026-11-05T19:04:44.4158401Z  * [new branch]        claude/project-far-archival-1-08r079 -> origin/claude/project-far-archival-1-08r079
+2026-11-05T19:04:44.4160899Z  * [new branch]        claude/project-far-research-hutt49 -> origin/claude/project-far-research-hutt49
+2026-11-05T19:04:44.4163389Z  * [new branch]        claude/project-far-usefulness-b3fqy0 -> origin/claude/project-far-usefulness-b3fqy0
+2026-11-05T19:04:44.4165616Z  * [new branch]        claude/r5-package-freeze -> origin/claude/r5-package-freeze
+2026-11-05T19:04:44.4168052Z  * [new branch]        claude/reformat-repository-4hnthp -> origin/claude/reformat-repository-4hnthp
+2026-11-05T19:04:44.4170517Z  * [new branch]        claude/setup-code-tool-stack-1nkc27 -> origin/claude/setup-code-tool-stack-1nkc27
+2026-11-05T19:04:44.4173266Z  * [new branch]        codex/add-isolation-classification-doctrine -> origin/codex/add-isolation-classification-doctrine
+2026-11-05T19:04:44.4176301Z  * [new branch]        codex/add-project-far-self-advancement-planner -> origin/codex/add-project-far-self-advancement-planner
+2026-11-05T19:04:44.4179818Z  * [new branch]        codex/add-project-far-self-advancement-planner-1mnwv0 -> origin/codex/add-project-far-self-advancement-planner-1mnwv0
+2026-11-05T19:04:44.4183028Z  * [new branch]        codex/adjudicate-merged-pr-review-findings -> origin/codex/adjudicate-merged-pr-review-findings
+2026-11-05T19:04:44.4185765Z  * [new branch]        codex/analyze-project-far-repository -> origin/codex/analyze-project-far-repository
+2026-11-05T19:04:44.4188600Z  * [new branch]        codex/audit-and-update-pr-review-findings -> origin/codex/audit-and-update-pr-review-findings
+2026-11-05T19:04:44.4191601Z  * [new branch]        codex/audit-and-update-repository-documentation -> origin/codex/audit-and-update-repository-documentation
+2026-11-05T19:04:44.4194992Z  * [new branch]        codex/audit-and-update-repository-documentation-dvm8t8 -> origin/codex/audit-and-update-repository-documentation-dvm8t8
+2026-11-05T19:04:44.4198887Z  * [new branch]        codex/audit-and-update-repository-documentation-jwh0x8 -> origin/codex/audit-and-update-repository-documentation-jwh0x8
+2026-11-05T19:04:44.4202822Z  * [new branch]        codex/audit-pr-#384-on-repair/comprehensive-repository-health -> origin/codex/audit-pr-#384-on-repair/comprehensive-repository-health
+2026-11-05T19:04:44.4206339Z  * [new branch]        codex/audit-theory-and-protocol-for-project-far -> origin/codex/audit-theory-and-protocol-for-project-far
+2026-11-05T19:04:44.4210093Z  * [new branch]        codex/build-versioned-far-specification-export-system -> origin/codex/build-versioned-far-specification-export-system
+2026-11-05T19:04:44.4213652Z  * [new branch]        codex/conduct-forensic-reconstruction-of-swe-agent-v2 -> origin/codex/conduct-forensic-reconstruction-of-swe-agent-v2
+2026-11-05T19:04:44.4216785Z  * [new branch]        codex/correct-inconsistency-from-pr-#422 -> origin/codex/correct-inconsistency-from-pr-#422
+2026-11-05T19:04:44.4220204Z  * [new branch]        codex/create-branch-and-draft-pr-for-certification -> origin/codex/create-branch-and-draft-pr-for-certification
+2026-11-05T19:04:44.4223390Z  * [new branch]        codex/create-branch-and-draft-pr-for-phase-3 -> origin/codex/create-branch-and-draft-pr-for-phase-3
+2026-11-05T19:04:44.4226558Z  * [new branch]        codex/create-branch-and-draft-pr-for-phase-3-l796h1 -> origin/codex/create-branch-and-draft-pr-for-phase-3-l796h1
+2026-11-05T19:04:44.4229709Z  * [new branch]        codex/create-branch-codex/validate-l001 -> origin/codex/create-branch-codex/validate-l001
+2026-11-05T19:04:44.4232749Z  * [new branch]        codex/create-branch-codex/validate-l003-for-validation -> origin/codex/create-branch-codex/validate-l003-for-validation
+2026-11-05T19:04:44.4236188Z  * [new branch]        codex/create-branch-for-ax-001-candidate-adjudication -> origin/codex/create-branch-for-ax-001-candidate-adjudication
+2026-11-05T19:04:44.4240015Z  * [new branch]        codex/create-branch-for-ax-001-circularity-resolution -> origin/codex/create-branch-for-ax-001-circularity-resolution
+2026-11-05T19:04:44.4243535Z  * [new branch]        codex/create-branch-for-dependency-audit-rerun -> origin/codex/create-branch-for-dependency-audit-rerun
+2026-11-05T19:04:44.4246817Z  * [new branch]        codex/create-branch-for-foundation-consistency-audit -> origin/codex/create-branch-for-foundation-consistency-audit
+2026-11-05T19:04:44.4252076Z  * [new branch]        codex/create-branch-for-l-008-validation -> origin/codex/create-branch-for-l-008-validation
+2026-11-05T19:04:44.4254905Z  * [new branch]        codex/create-branch-for-minimality-audit -> origin/codex/create-branch-for-minimality-audit
+2026-11-05T19:04:44.4258226Z  * [new branch]        codex/create-branch-for-missing-validation-artifacts -> origin/codex/create-branch-for-missing-validation-artifacts
+2026-11-05T19:04:44.4261338Z  * [new branch]        codex/create-branch-for-t-005-validation -> origin/codex/create-branch-for-t-005-validation
+2026-11-05T19:04:44.4264085Z  * [new branch]        codex/create-branch-for-t-012-validation -> origin/codex/create-branch-for-t-012-validation
+2026-11-05T19:04:44.4266809Z  * [new branch]        codex/create-branch-for-t-014-validation -> origin/codex/create-branch-for-t-014-validation
+2026-11-05T19:04:44.4270064Z  * [new branch]        codex/create-branch-for-validating-t-015 -> origin/codex/create-branch-for-validating-t-015
+2026-11-05T19:04:44.4273016Z  * [new branch]        codex/create-branch-for-w1-independence-testing -> origin/codex/create-branch-for-w1-independence-testing
+2026-11-05T19:04:44.4276165Z  * [new branch]        codex/create-canonical-mathematics-audit-branch -> origin/codex/create-canonical-mathematics-audit-branch
+2026-11-05T19:04:44.4279639Z  * [new branch]        codex/create-deterministic-comparison-branch -> origin/codex/create-deterministic-comparison-branch
+2026-11-05T19:04:44.4282634Z  * [new branch]        codex/create-new-branch-for-w0-implementation -> origin/codex/create-new-branch-for-w0-implementation
+2026-11-05T19:04:44.4285448Z  * [new branch]        codex/create-new-branch-for-w2-testing -> origin/codex/create-new-branch-for-w2-testing
+2026-11-05T19:04:44.4288927Z  * [new branch]        codex/create-new-branch-for-w3-architecture-testing -> origin/codex/create-new-branch-for-w3-architecture-testing
+2026-11-05T19:04:44.4291992Z  * [new branch]        codex/create-new-branch-for-w4-execution -> origin/codex/create-new-branch-for-w4-execution
+2026-11-05T19:04:44.4294674Z  * [new branch]        codex/create-new-branch-for-w5-research -> origin/codex/create-new-branch-for-w5-research
+2026-11-05T19:04:44.4297638Z  * [new branch]        codex/create-phase-2-campaign-4-draft-pr -> origin/codex/create-phase-2-campaign-4-draft-pr
+2026-11-05T19:04:44.4300481Z  * [new branch]        codex/create-pr-for-remediation-finding-fix -> origin/codex/create-pr-for-remediation-finding-fix
+2026-11-05T19:04:44.4303188Z  * [new branch]        codex/create-pr-to-expand-fara-model -> origin/codex/create-pr-to-expand-fara-model
+2026-11-05T19:04:44.4305926Z  * [new branch]        codex/create-replacement-for-unmerged-pr-#385 -> origin/codex/create-replacement-for-unmerged-pr-#385
+2026-11-05T19:04:44.4308999Z  * [new branch]        codex/create-stability-review-for-ax-001 -> origin/codex/create-stability-review-for-ax-001
+2026-11-05T19:04:44.4311819Z  * [new branch]        codex/discover-current-state-of-project-far -> origin/codex/discover-current-state-of-project-far
+2026-11-05T19:04:44.4314658Z  * [new branch]        codex/document-cre-001-ai-evaluator-pilot -> origin/codex/document-cre-001-ai-evaluator-pilot
+2026-11-05T19:04:44.4317841Z  * [new branch]        codex/execute-formal-fara-research-workstream -> origin/codex/execute-formal-fara-research-workstream
+2026-11-05T19:04:44.4321067Z  * [new branch]        codex/execute-next-research-workstream-after-pr-#421 -> origin/codex/execute-next-research-workstream-after-pr-#421
+2026-11-05T19:04:44.4324583Z  * [new branch]        codex/execute-vocabulary-sufficiency-research-workstream -> origin/codex/execute-vocabulary-sufficiency-research-workstream
+2026-11-05T19:04:44.4328481Z  * [new branch]        codex/execute-w5-implementation-as-single-pr -> origin/codex/execute-w5-implementation-as-single-pr
+2026-11-05T19:04:44.4331124Z  * [new branch]        codex/far-subagent-orchestration -> origin/codex/far-subagent-orchestration
+2026-11-05T19:04:44.4333522Z  * [new branch]        codex/far-v020-falsification-harness -> origin/codex/far-v020-falsification-harness
+2026-11-05T19:04:44.4336120Z  * [new branch]        codex/finalize-project-far-v0.2.0-release -> origin/codex/finalize-project-far-v0.2.0-release
+2026-11-05T19:04:44.4338897Z  * [new branch]        codex/fix-broken-math-display-links -> origin/codex/fix-broken-math-display-links
+2026-11-05T19:04:44.4341652Z  * [new branch]        codex/fix-high-priority-bugs-from-codex-review -> origin/codex/fix-high-priority-bugs-from-codex-review
+2026-11-05T19:04:44.4344654Z  * [new branch]        codex/fix-high-risk-confirmed-defect-cluster -> origin/codex/fix-high-risk-confirmed-defect-cluster
+2026-11-05T19:04:44.4347809Z  * [new branch]        codex/fix-semantic-overlap-and-orphan-warnings -> origin/codex/fix-semantic-overlap-and-orphan-warnings
+2026-11-05T19:04:44.4350954Z  * [new branch]        codex/fix-slotted-dataclass-inheritance-failure -> origin/codex/fix-slotted-dataclass-inheritance-failure
+2026-11-05T19:04:44.4354039Z  * [new branch]        codex/generate-mdef-006-to-mdef-010-definitions -> origin/codex/generate-mdef-006-to-mdef-010-definitions
+2026-11-05T19:04:44.4357566Z  * [new branch]        codex/generate-mdef-006-to-mdef-010-definitions-b7gsqy -> origin/codex/generate-mdef-006-to-mdef-010-definitions-b7gsqy
+2026-11-05T19:04:44.4361430Z  * [new branch]        codex/github-mention-research-preregister-real-world-investigati -> origin/codex/github-mention-research-preregister-real-world-investigati
+2026-11-05T19:04:44.4365837Z  * [new branch]        codex/github-mention-research-preregister-real-world-investigati-sdkhi8 -> origin/codex/github-mention-research-preregister-real-world-investigati-sdkhi8
+2026-11-05T19:04:44.4371000Z  * [new branch]        codex/github-mention-research-preregister-real-world-investigati-tl1nrp -> origin/codex/github-mention-research-preregister-real-world-investigati-tl1nrp
+2026-11-05T19:04:44.4374920Z  * [new branch]        codex/implement-semantic-proof-checking-and-fir -> origin/codex/implement-semantic-proof-checking-and-fir
+2026-11-05T19:04:44.4378573Z  * [new branch]        codex/implement-semantic-proof-checking-and-fir-e5lz8u -> origin/codex/implement-semantic-proof-checking-and-fir-e5lz8u
+2026-11-05T19:04:44.4382172Z  * [new branch]        codex/implement-semantic-proof-checking-and-fir-z06caj -> origin/codex/implement-semantic-proof-checking-and-fir-z06caj
+2026-11-05T19:04:44.4385494Z  * [new branch]        codex/initialize-cre-001-experimental-execution -> origin/codex/initialize-cre-001-experimental-execution
+2026-11-05T19:04:44.4388599Z  * [new branch]        codex/live-commercial-evaluation-20261027 -> origin/codex/live-commercial-evaluation-20261027
+2026-11-05T19:04:44.4391604Z  * [new branch]        codex/machine-readable-canonical-artifacts-clean -> origin/codex/machine-readable-canonical-artifacts-clean
+2026-11-05T19:04:44.4394864Z  * [new branch]        codex/normalize-findings-into-authoritative-matrix -> origin/codex/normalize-findings-into-authoritative-matrix
+2026-11-05T19:04:44.4398675Z  * [new branch]        codex/normalize-findings-into-authoritative-matrix-css3ci -> origin/codex/normalize-findings-into-authoritative-matrix-css3ci
+2026-11-05T19:04:44.4402438Z  * [new branch]        codex/normalize-findings-into-authoritative-matrix-ubiavf -> origin/codex/normalize-findings-into-authoritative-matrix-ubiavf
+2026-11-05T19:04:44.4406160Z  * [new branch]        codex/normalize-findings-into-authoritative-matrix-ypd0si -> origin/codex/normalize-findings-into-authoritative-matrix-ypd0si
+2026-11-05T19:04:44.4409620Z  * [new branch]        codex/orthodox-worldview-profile-v01 -> origin/codex/orthodox-worldview-profile-v01
+2026-11-05T19:04:44.4412842Z  * [new branch]        codex/perform-post-swe-agent-v2-stabilization-pass -> origin/codex/perform-post-swe-agent-v2-stabilization-pass
+2026-11-05T19:04:44.4415721Z  * [new branch]        codex/project-far-theory-closure-v1 -> origin/codex/project-far-theory-closure-v1
+2026-11-05T19:04:44.4418455Z  * [new branch]        codex/project-far-theory-closure-v1-ci -> origin/codex/project-far-theory-closure-v1-ci
+2026-11-05T19:04:44.4421153Z  * [new branch]        codex/project-far-theory-closure-v1-final -> origin/codex/project-far-theory-closure-v1-final
+2026-11-05T19:04:44.4423465Z  * [new branch]        codex/proof-object-t003 -> origin/codex/proof-object-t003
+2026-11-05T19:04:44.4425428Z  * [new branch]        codex/proof-objects-t004-t006 -> origin/codex/proof-objects-t004-t006
+2026-11-05T19:04:44.4428034Z  * [new branch]        codex/proof-objects-t004-t006-2 -> origin/codex/proof-objects-t004-t006-2
+2026-11-05T19:04:44.4430433Z  * [new branch]        codex/proof-objects-t004-t006-active -> origin/codex/proof-objects-t004-t006-active
+2026-11-05T19:04:44.4432892Z  * [new branch]        codex/proof-objects-t004-t006-clean -> origin/codex/proof-objects-t004-t006-clean
+2026-11-05T19:04:44.4435392Z  * [new branch]        codex/proof-objects-t004-t006-final -> origin/codex/proof-objects-t004-t006-final
+2026-11-05T19:04:44.4438037Z  * [new branch]        codex/proof-objects-t004-t006-now -> origin/codex/proof-objects-t004-t006-now
+2026-11-05T19:04:44.4440390Z  * [new branch]        codex/proof-objects-t004-t006-now2 -> origin/codex/proof-objects-t004-t006-now2
+2026-11-05T19:04:44.4442823Z  * [new branch]        codex/proof-objects-t004-t006-working -> origin/codex/proof-objects-t004-t006-working
+2026-11-05T19:04:44.4445170Z  * [new branch]        codex/proof-objects-t004-t006-x -> origin/codex/proof-objects-t004-t006-x
+2026-11-05T19:04:44.4448143Z  * [new branch]        codex/refactor-project-far-repository-structure -> origin/codex/refactor-project-far-repository-structure
+2026-11-05T19:04:44.4451165Z  * [new branch]        codex/repair-foundation-inconsistencies -> origin/codex/repair-foundation-inconsistencies
+2026-11-05T19:04:44.4454065Z  * [new branch]        codex/resolve-minimality-audit-findings -> origin/codex/resolve-minimality-audit-findings
+2026-11-05T19:04:44.4457255Z  * [new branch]        codex/resolve-minimality-audit-findings-a3pv9r -> origin/codex/resolve-minimality-audit-findings-a3pv9r
+2026-11-05T19:04:44.4460185Z  * [new branch]        codex/restore-scoped-status-resolution -> origin/codex/restore-scoped-status-resolution
+2026-11-05T19:04:44.4462778Z  * [new branch]        codex/revise-ax-001-operation-wording -> origin/codex/revise-ax-001-operation-wording
+2026-11-05T19:04:44.4465505Z  * [new branch]        codex/transform-readme-into-command-center -> origin/codex/transform-readme-into-command-center
+2026-11-05T19:04:44.4467941Z  * [new branch]        codex/validate-l004     -> origin/codex/validate-l004
+2026-11-05T19:04:44.4469689Z  * [new branch]        codex/validate-l005     -> origin/codex/validate-l005
+2026-11-05T19:04:44.4471388Z  * [new branch]        codex/validate-l006     -> origin/codex/validate-l006
+2026-11-05T19:04:44.4473096Z  * [new branch]        codex/validate-l007     -> origin/codex/validate-l007
+2026-11-05T19:04:44.4475363Z  * [new branch]        codex/verify-foundation-repository-health -> origin/codex/verify-foundation-repository-health
+2026-11-05T19:04:44.4479420Z  * [new branch]        codex/w2-rebased-integration -> origin/codex/w2-rebased-integration
+2026-11-05T19:04:44.4481819Z  * [new branch]        commercial/far-authorization-runtime -> origin/commercial/far-authorization-runtime
+2026-11-05T19:04:44.4484339Z  * [new branch]        commercial/far-decision-adjudication -> origin/commercial/far-decision-adjudication
+2026-11-05T19:04:44.4487356Z  * [new branch]        commercial/far-decision-package-contract -> origin/commercial/far-decision-package-contract
+2026-11-05T19:04:44.4490043Z  * [new branch]        commercial/far-distributed-runtime -> origin/commercial/far-distributed-runtime
+2026-11-05T19:04:44.4493019Z  * [new branch]        commercial/far-external-identity-observability -> origin/commercial/far-external-identity-observability
+2026-11-05T19:04:44.4495914Z  * [new branch]        commercial/far-http-authorization-service -> origin/commercial/far-http-authorization-service
+2026-11-05T19:04:44.4498820Z  * [new branch]        commercial/far-instrumentation-sdk -> origin/commercial/far-instrumentation-sdk
+2026-11-05T19:04:44.4501270Z  * [new branch]        commercial/far-oidc-otlp-integration -> origin/commercial/far-oidc-otlp-integration
+2026-11-05T19:04:44.4503868Z  * [new branch]        commercial/far-persistent-evidence-store -> origin/commercial/far-persistent-evidence-store
+2026-11-05T19:04:44.4506285Z  * [new branch]        commercial/far-policy-impact -> origin/commercial/far-policy-impact
+2026-11-05T19:04:44.4508729Z  * [new branch]        commercial/far-production-operations -> origin/commercial/far-production-operations
+2026-11-05T19:04:44.4511217Z  * [new branch]        commercial/far-reasoning-regression -> origin/commercial/far-reasoning-regression
+2026-11-05T19:04:44.4513889Z  * [new branch]        commercial/far-recovery-deployment-hardening -> origin/commercial/far-recovery-deployment-hardening
+2026-11-05T19:04:44.4516555Z  * [new branch]        commercial/far-refund-authorization -> origin/commercial/far-refund-authorization
+2026-11-05T19:04:44.4519327Z  * [new branch]        commercial/far-release-assurance-comparison -> origin/commercial/far-release-assurance-comparison
+2026-11-05T19:04:44.4522273Z  * [new branch]        commercial/far-release-assurance-comparison-v2 -> origin/commercial/far-release-assurance-comparison-v2
+2026-11-05T19:04:44.4525145Z  * [new branch]        commercial/far-release-assurance-e2e-gate -> origin/commercial/far-release-assurance-e2e-gate
+2026-11-05T19:04:44.4528260Z  * [new branch]        commercial/far-release-assurance-foundation -> origin/commercial/far-release-assurance-foundation
+2026-11-05T19:04:44.4531117Z  * [new branch]        commercial/far-release-assurance-ingestion -> origin/commercial/far-release-assurance-ingestion
+2026-11-05T19:04:44.4534083Z  * [new branch]        commercial/far-release-assurance-packaging -> origin/commercial/far-release-assurance-packaging
+2026-11-05T19:04:44.4537406Z  * [new branch]        commercial/far-release-assurance-reference-agent -> origin/commercial/far-release-assurance-reference-agent
+2026-11-05T19:04:44.4540385Z  * [new branch]        commercial/far-release-assurance-reports -> origin/commercial/far-release-assurance-reports
+2026-11-05T19:04:44.4543215Z  * [new branch]        commercial/far-runtime-operations-integration -> origin/commercial/far-runtime-operations-integration
+2026-11-05T19:04:44.4545668Z  * [new branch]        commercial/far-secured-mvp -> origin/commercial/far-secured-mvp
+2026-11-05T19:04:44.4548099Z  * [new branch]        commercial/far-tenant-policy-security -> origin/commercial/far-tenant-policy-security
+2026-11-05T19:04:44.4550643Z  * [new branch]        commercial/far-trace-ingestion -> origin/commercial/far-trace-ingestion
+2026-11-05T19:04:44.4553486Z  * [new branch]        convergence/agent-reliability-evidence-20261103 -> origin/convergence/agent-reliability-evidence-20261103
+2026-11-05T19:04:44.4555771Z  * [new branch]        discovery               -> origin/discovery
+2026-11-05T19:04:44.4558140Z  * [new branch]        docs/cross-mode-agents-startup-20261103 -> origin/docs/cross-mode-agents-startup-20261103
+2026-11-05T19:04:44.4560367Z  * [new branch]        execute-cre002-ext001   -> origin/execute-cre002-ext001
+2026-11-05T19:04:44.4562552Z  * [new branch]        execute-cre002-prospective-comparison -> origin/execute-cre002-prospective-comparison
+2026-11-05T19:04:44.4564604Z  * [new branch]        execution               -> origin/execution
+2026-11-05T19:04:44.4566240Z  * [new branch]        external/efr-handoff-v1 -> origin/external/efr-handoff-v1
+2026-11-05T19:04:44.4568580Z  * [new branch]        far-phase-4-consistency-audit -> origin/far-phase-4-consistency-audit
+2026-11-05T19:04:44.4571138Z  * [new branch]        far-phase-4-consistency-audit-clean -> origin/far-phase-4-consistency-audit-clean
+2026-11-05T19:04:44.4573617Z  * [new branch]        far-phase-4-consistency-audit-final -> origin/far-phase-4-consistency-audit-final
+2026-11-05T19:04:44.4575992Z  * [new branch]        far-phase-4-consistency-audit-v2 -> origin/far-phase-4-consistency-audit-v2
+2026-11-05T19:04:44.4578416Z  * [new branch]        far/efr-handoff-480     -> origin/far/efr-handoff-480
+2026-11-05T19:04:44.4580099Z  * [new branch]        fare-v01-math-core      -> origin/fare-v01-math-core
+2026-11-05T19:04:44.4581700Z  * [new branch]        farm-phase-2            -> origin/farm-phase-2
+2026-11-05T19:04:44.4583936Z  * [new branch]        feature/automatic-critical-study-corrections -> origin/feature/automatic-critical-study-corrections
+2026-11-05T19:04:44.4587094Z  * [new branch]        feature/automatic-critical-study-corrections-v2 -> origin/feature/automatic-critical-study-corrections-v2
+2026-11-05T19:04:44.4589939Z  * [new branch]        feature/bounded-compare-adjudicate-v1 -> origin/feature/bounded-compare-adjudicate-v1
+2026-11-05T19:04:44.4592587Z  * [new branch]        feature/living-autonomous-adjudication-v1 -> origin/feature/living-autonomous-adjudication-v1
+2026-11-05T19:04:44.4595350Z  * [new branch]        feature/snapshot-authorization-evidence -> origin/feature/snapshot-authorization-evidence
+2026-11-05T19:04:44.4598116Z  * [new branch]        feature/swe-agent-execution-completion -> origin/feature/swe-agent-execution-completion
+2026-11-05T19:04:44.4600699Z  * [new branch]        fix/auto-repair-legacy-sweagent-state -> origin/fix/auto-repair-legacy-sweagent-state
+2026-11-05T19:04:44.4603422Z  * [new branch]        fix/auto-repair-legacy-sweagent-state-v2 -> origin/fix/auto-repair-legacy-sweagent-state-v2
+2026-11-05T19:04:44.4605981Z  * [new branch]        fix/gemini-3-1-access-probe-thinking -> origin/fix/gemini-3-1-access-probe-thinking
+2026-11-05T19:04:44.4608744Z  * [new branch]        fix/gemini-v2-post-freeze-validation -> origin/fix/gemini-v2-post-freeze-validation
+2026-11-05T19:04:44.4611600Z  * [new branch]        fix/internal-result-validation-state-repair -> origin/fix/internal-result-validation-state-repair
+2026-11-05T19:04:44.4614316Z  * [new branch]        fix/investigation-step-identity-gate -> origin/fix/investigation-step-identity-gate
+2026-11-05T19:04:44.4616778Z  * [new branch]        fix/living-promotion-runtime-import -> origin/fix/living-promotion-runtime-import
+2026-11-05T19:04:44.4619616Z  * [new branch]        fix/perfect-run-preflight-hardening -> origin/fix/perfect-run-preflight-hardening
+2026-11-05T19:04:44.4622298Z  * [new branch]        fix/permanent-provider-error-classification -> origin/fix/permanent-provider-error-classification
+2026-11-05T19:04:44.4624894Z  * [new branch]        fix/retry-transient-review-export -> origin/fix/retry-transient-review-export
+2026-11-05T19:04:44.4627560Z  * [new branch]        fix/signed-cache-python-version-20261103 -> origin/fix/signed-cache-python-version-20261103
+2026-11-05T19:04:44.4630440Z  * [new branch]        fix/sweagent-native-prediction-reconciliation -> origin/fix/sweagent-native-prediction-reconciliation
+2026-11-05T19:04:44.4633027Z  * [new branch]        fix/tcd-validation-source-split -> origin/fix/tcd-validation-source-split
+2026-11-05T19:04:44.4635248Z  * [new branch]        fix/v2-budget-limited-completion -> origin/fix/v2-budget-limited-completion
+2026-11-05T19:04:44.4637750Z  * [new branch]        fix/w0-material-closure-witness -> origin/fix/w0-material-closure-witness
+2026-11-05T19:04:44.4639928Z  * [new branch]        formal-semantics-and-grammar -> origin/formal-semantics-and-grammar
+2026-11-05T19:04:44.4642019Z  * [new branch]        formalize/mechanize-w5-result -> origin/formalize/mechanize-w5-result
+2026-11-05T19:04:44.4644432Z  * [new branch]        freeze-vocabulary-semantics-baseline-1.1 -> origin/freeze-vocabulary-semantics-baseline-1.1
+2026-11-05T19:04:44.4648018Z  * [new branch]        freeze/swe-agent-gemini-3-1-pro-preview-v2-30200390269 -> origin/freeze/swe-agent-gemini-3-1-pro-preview-v2-30200390269
+2026-11-05T19:04:44.4651476Z  * [new branch]        freeze/swe-agent-gemini-3-1-pro-preview-v2-30200408859 -> origin/freeze/swe-agent-gemini-3-1-pro-preview-v2-30200408859
+2026-11-05T19:04:44.4654461Z  * [new branch]        freeze/swe-agent-v2-primary-comparison -> origin/freeze/swe-agent-v2-primary-comparison
+2026-11-05T19:04:44.4657478Z  * [new branch]        governance/accept-promote-fara-formal-kernel -> origin/governance/accept-promote-fara-formal-kernel
+2026-11-05T19:04:44.4660258Z  * [new branch]        governance/canonical-branch-protection -> origin/governance/canonical-branch-protection
+2026-11-05T19:04:44.4662650Z  * [new branch]        governance/efr-external-handoff -> origin/governance/efr-external-handoff
+2026-11-05T19:04:44.4665208Z  * [new branch]        governance/establish-evidence-authority-model -> origin/governance/establish-evidence-authority-model
+2026-11-05T19:04:44.4668464Z  * [new branch]        governance/freeze-theory-dependency-reconciliation -> origin/governance/freeze-theory-dependency-reconciliation
+2026-11-05T19:04:44.4671546Z  * [new branch]        governance/pr436-trusted-repin-authorizations -> origin/governance/pr436-trusted-repin-authorizations
+2026-11-05T19:04:44.4674258Z  * [new branch]        governance/prepare-native-merge-queue -> origin/governance/prepare-native-merge-queue
+2026-11-05T19:04:44.4677008Z  * [new branch]        governance/w6-provenance-branch-protection -> origin/governance/w6-provenance-branch-protection
+2026-11-05T19:04:44.4679894Z  * [new branch]        hotfix/install-controller-yaml-before-execute -> origin/hotfix/install-controller-yaml-before-execute
+2026-11-05T19:04:44.4682524Z  * [new branch]        hotfix/parse-pinned-cli-path-tags -> origin/hotfix/parse-pinned-cli-path-tags
+2026-11-05T19:04:44.4684652Z  * [new branch]        hotfix/release-v1-authority -> origin/hotfix/release-v1-authority
+2026-11-05T19:04:44.4686680Z  * [new branch]        hotfix/swe-agent-cli-contract -> origin/hotfix/swe-agent-cli-contract
+2026-11-05T19:04:44.4689620Z  * [new branch]        hotfix/swe-agent-restore-working-directory -> origin/hotfix/swe-agent-restore-working-directory
+2026-11-05T19:04:44.4692156Z  * [new branch]        independent-process-end-to-end -> origin/independent-process-end-to-end
+2026-11-05T19:04:44.4694337Z  * [new branch]        independent-process-semantics -> origin/independent-process-semantics
+2026-11-05T19:04:44.4696454Z  * [new branch]        integration/pr538-current-main -> origin/integration/pr538-current-main
+2026-11-05T19:04:44.4698998Z  * [new branch]        integration/pr550-clean-overlaps -> origin/integration/pr550-clean-overlaps
+2026-11-05T19:04:44.4701074Z  * [new branch]        integration/pr550-post-548 -> origin/integration/pr550-post-548
+2026-11-05T19:04:44.4702913Z  * [new branch]        integration/w4-after-w3 -> origin/integration/w4-after-w3
+2026-11-05T19:04:44.4704820Z  * [new branch]        lock-cre002-ext001-checksums -> origin/lock-cre002-ext001-checksums
+2026-11-05T19:04:44.4707282Z  * [new branch]        lock-cre002-preregistration-checksums -> origin/lock-cre002-preregistration-checksums
+2026-11-05T19:04:44.4709290Z  * [new branch]        main                    -> origin/main
+2026-11-05T19:04:44.4711344Z  * [new branch]        maintenance/repository-truth-revalidation -> origin/maintenance/repository-truth-revalidation
+2026-11-05T19:04:44.4713576Z  * [new branch]        mechanize-t003-lean     -> origin/mechanize-t003-lean
+2026-11-05T19:04:44.4715100Z  * [new branch]        merge                   -> origin/merge
+2026-11-05T19:04:44.4717335Z  * [new branch]        methodology/post-evidence-closure-gate -> origin/methodology/post-evidence-closure-gate
+2026-11-05T19:04:44.4719565Z  * [new branch]        move-fare-meta-theorems -> origin/move-fare-meta-theorems
+2026-11-05T19:04:44.4721164Z  * [new branch]        noop                    -> origin/noop
+2026-11-05T19:04:44.4722797Z  * [new branch]        noop2                   -> origin/noop2
+2026-11-05T19:04:44.4724429Z  * [new branch]        normalize-fare-canonical -> origin/normalize-fare-canonical
+2026-11-05T19:04:44.4726221Z  * [new branch]        notfoundout-patch-1     -> origin/notfoundout-patch-1
+2026-11-05T19:04:44.4728224Z  * [new branch]        obsidian-vault          -> origin/obsidian-vault
+2026-11-05T19:04:44.4730653Z  * [new branch]        owner-authorization/pr576-fixture-isolation-20261018 -> origin/owner-authorization/pr576-fixture-isolation-20261018
+2026-11-05T19:04:44.4733397Z  * [new branch]        phase2/formal-systems-campaign-1 -> origin/phase2/formal-systems-campaign-1
+2026-11-05T19:04:44.4735558Z  * [new branch]        phase2/philosophy-validation -> origin/phase2/philosophy-validation
+2026-11-05T19:04:44.4737826Z  * [new branch]        preregister-cre002-ext001 -> origin/preregister-cre002-ext001
+2026-11-05T19:04:44.4740434Z  * [new branch]        preregister-cre002-ext001-independent-replication -> origin/preregister-cre002-ext001-independent-replication
+2026-11-05T19:04:44.4743319Z  * [new branch]        preregister-cre002-prospective-test -> origin/preregister-cre002-prospective-test
+2026-11-05T19:04:44.4745396Z  * [new branch]        probe/p1-shadowing      -> origin/probe/p1-shadowing
+2026-11-05T19:04:44.4747673Z  * [new branch]        product/semantic-augmentation-20261103 -> origin/product/semantic-augmentation-20261103
+2026-11-05T19:04:44.4749995Z  * [new branch]        proof-objects-next-batch -> origin/proof-objects-next-batch
+2026-11-05T19:04:44.4752107Z  * [new branch]        proof-objects-t004-t006-final-only -> origin/proof-objects-t004-t006-final-only
+2026-11-05T19:04:44.4754297Z  * [new branch]        proof-objects-t004-t006-keep -> origin/proof-objects-t004-t006-keep
+2026-11-05T19:04:44.4756328Z  * [new branch]        proof-objects-t004-t006-lock -> origin/proof-objects-t004-t006-lock
+2026-11-05T19:04:44.4758493Z  * [new branch]        proof-objects-t004-t006-real -> origin/proof-objects-t004-t006-real
+2026-11-05T19:04:44.4760742Z  * [new branch]        register-cre002-ext001-rep001-teams -> origin/register-cre002-ext001-rep001-teams
+2026-11-05T19:04:44.4762921Z  * [new branch]        repair-main-health      -> origin/repair-main-health
+2026-11-05T19:04:44.4764604Z  * [new branch]        repair-mdef-001-010     -> origin/repair-mdef-001-010
+2026-11-05T19:04:44.4766753Z  * [new branch]        repair/comprehensive-repository-health -> origin/repair/comprehensive-repository-health
+2026-11-05T19:04:44.4769902Z  * [new branch]        repair/legacy-review-publications-20261023 -> origin/repair/legacy-review-publications-20261023
+2026-11-05T19:04:44.4772809Z  * [new branch]        repair/legacy-review-publications-20261026-73fb -> origin/repair/legacy-review-publications-20261026-73fb
+2026-11-05T19:04:44.4775380Z  * [new branch]        repair/post-w6-audit-hardening -> origin/repair/post-w6-audit-hardening
+2026-11-05T19:04:44.4777912Z  * [new branch]        repair/pr435-final-contract-closure -> origin/repair/pr435-final-contract-closure
+2026-11-05T19:04:44.4780391Z  * [new branch]        repair/pr435-single-source-integrity -> origin/repair/pr435-single-source-integrity
+2026-11-05T19:04:44.4782752Z  * [new branch]        repair/pr436-assurance-lock-final -> origin/repair/pr436-assurance-lock-final
+2026-11-05T19:04:44.4785022Z  * [new branch]        repair/pr436-final-integrate-main -> origin/repair/pr436-final-integrate-main
+2026-11-05T19:04:44.4787647Z  * [new branch]        repair/pr436-final-main-integration-v2 -> origin/repair/pr436-final-main-integration-v2
+2026-11-05T19:04:44.4789982Z  * [new branch]        repair/pr436-final-two-p2-root -> origin/repair/pr436-final-two-p2-root
+2026-11-05T19:04:44.4792081Z  * [new branch]        repair/pr436-final-zero-review -> origin/repair/pr436-final-zero-review
+2026-11-05T19:04:44.4794238Z  * [new branch]        repair/pr436-live-call-assurance -> origin/repair/pr436-live-call-assurance
+2026-11-05T19:04:44.4796669Z  * [new branch]        repair/pr436-validator-binding-integrity -> origin/repair/pr436-validator-binding-integrity
+2026-11-05T19:04:44.4799698Z  * [new branch]        repair/pr438-final-adversarial-audit -> origin/repair/pr438-final-adversarial-audit
+2026-11-05T19:04:44.4801962Z  * [new branch]        repair/pr438-final-review-fix -> origin/repair/pr438-final-review-fix
+2026-11-05T19:04:44.4804044Z  * [new branch]        repair/pr438-zero-review-final -> origin/repair/pr438-zero-review-final
+2026-11-05T19:04:44.4806264Z  * [new branch]        repair/pr458-post-merge-review-gaps -> origin/repair/pr458-post-merge-review-gaps
+2026-11-05T19:04:44.4809027Z  * [new branch]        repair/project-far-core-theory-v1.1-w1 -> origin/repair/project-far-core-theory-v1.1-w1
+2026-11-05T19:04:44.4811439Z  * [new branch]        replace-cre002-human-replication -> origin/replace-cre002-human-replication
+2026-11-05T19:04:44.4813580Z  * [new branch]        repository-canonicalization -> origin/repository-canonicalization
+2026-11-05T19:04:44.4815498Z  * [new branch]        repository-refactor-v2  -> origin/repository-refactor-v2
+2026-11-05T19:04:44.4818570Z  * [new branch]        research/add-w3-5-universal-structure-gates -> origin/research/add-w3-5-universal-structure-gates
+2026-11-05T19:04:44.4821171Z  * [new branch]        research/build-s-core-lemma-ledger -> origin/research/build-s-core-lemma-ledger
+2026-11-05T19:04:44.4823254Z  * [new branch]        research/central-program -> origin/research/central-program
+2026-11-05T19:04:44.4826021Z  * [new branch]        research/christian-framing-external-evidence-audit-20261030 -> origin/research/christian-framing-external-evidence-audit-20261030
+2026-11-05T19:04:44.4829158Z  * [new branch]        research/close-w3-5-adjudication -> origin/research/close-w3-5-adjudication
+2026-11-05T19:04:44.4831691Z  * [new branch]        research/complete-architecture-neutral-reset -> origin/research/complete-architecture-neutral-reset
+2026-11-05T19:04:44.4834249Z  * [new branch]        research/epistemic-debugger-001 -> origin/research/epistemic-debugger-001
+2026-11-05T19:04:44.4837085Z  * [new branch]        research/execute-ikd-w2-expanded-competition -> origin/research/execute-ikd-w2-expanded-competition
+2026-11-05T19:04:44.4839799Z  * [new branch]        research/execute-ikd-w3-common-factor -> origin/research/execute-ikd-w3-common-factor
+2026-11-05T19:04:44.4842598Z  * [new branch]        research/execute-ikd-w4-cross-feature-composition -> origin/research/execute-ikd-w4-cross-feature-composition
+2026-11-05T19:04:44.4845574Z  * [new branch]        research/execute-ikd-w5-expanded-invariance -> origin/research/execute-ikd-w5-expanded-invariance
+2026-11-05T19:04:44.4848717Z  * [new branch]        research/execute-ikd-w6-global-reconstruction -> origin/research/execute-ikd-w6-global-reconstruction
+2026-11-05T19:04:44.4851417Z  * [new branch]        research/execute-ikd-w7-lower-bounds -> origin/research/execute-ikd-w7-lower-bounds
+2026-11-05T19:04:44.4853968Z  * [new branch]        research/execute-ikd-w8-minimal-frontier -> origin/research/execute-ikd-w8-minimal-frontier
+2026-11-05T19:04:44.4856784Z  * [new branch]        research/execute-ikd-w9-terminal-adjudication -> origin/research/execute-ikd-w9-terminal-adjudication
+2026-11-05T19:04:44.4859640Z  * [new branch]        research/execute-pbts001-run001 -> origin/research/execute-pbts001-run001
+2026-11-05T19:04:44.4862123Z  * [new branch]        research/execute-pte-w1-independent-review -> origin/research/execute-pte-w1-independent-review
+2026-11-05T19:04:44.4864853Z  * [new branch]        research/execute-sc-w2-boundary-reasoning -> origin/research/execute-sc-w2-boundary-reasoning
+2026-11-05T19:04:44.4867595Z  * [new branch]        research/execute-sc-w3-contract-ladder -> origin/research/execute-sc-w3-contract-ladder
+2026-11-05T19:04:44.4870310Z  * [new branch]        research/execute-sc-w4-representation-escape -> origin/research/execute-sc-w4-representation-escape
+2026-11-05T19:04:44.4873048Z  * [new branch]        research/execute-sc-w5-held-out-contexts -> origin/research/execute-sc-w5-held-out-contexts
+2026-11-05T19:04:44.4876136Z  * [new branch]        research/execute-sc-w6-final-internal-adjudication -> origin/research/execute-sc-w6-final-internal-adjudication
+2026-11-05T19:04:44.4879385Z  * [new branch]        research/execute-theory-dependency-audit -> origin/research/execute-theory-dependency-audit
+2026-11-05T19:04:44.4882049Z  * [new branch]        research/execute-tue-w1-unknown-boundary -> origin/research/execute-tue-w1-unknown-boundary
+2026-11-05T19:04:44.4885029Z  * [new branch]        research/execute-tue-w2-defeating-condition-campaign -> origin/research/execute-tue-w2-defeating-condition-campaign
+2026-11-05T19:04:44.4888202Z  * [new branch]        research/execute-tue-w3-deeper-kernel -> origin/research/execute-tue-w3-deeper-kernel
+2026-11-05T19:04:44.4890913Z  * [new branch]        research/execute-tue-w4-final-question-answer -> origin/research/execute-tue-w4-final-question-answer
+2026-11-05T19:04:44.4893518Z  * [new branch]        research/execute-upp-w1-foundation -> origin/research/execute-upp-w1-foundation
+2026-11-05T19:04:44.4896241Z  * [new branch]        research/execute-upp-w10-semantic-interpretation -> origin/research/execute-upp-w10-semantic-interpretation
+2026-11-05T19:04:44.4899451Z  * [new branch]        research/execute-upp-w11-historical-trace -> origin/research/execute-upp-w11-historical-trace
+2026-11-05T19:04:44.4902312Z  * [new branch]        research/execute-upp-w12-component-independence -> origin/research/execute-upp-w12-component-independence
+2026-11-05T19:04:44.4905383Z  * [new branch]        research/execute-upp-w13-sufficiency-construction -> origin/research/execute-upp-w13-sufficiency-construction
+2026-11-05T19:04:44.4908680Z  * [new branch]        research/execute-upp-w14-irreducibility-maximality -> origin/research/execute-upp-w14-irreducibility-maximality
+2026-11-05T19:04:44.4911631Z  * [new branch]        research/execute-upp-w15-terminal-theorem -> origin/research/execute-upp-w15-terminal-theorem
+2026-11-05T19:04:44.4914073Z  * [new branch]        research/execute-upp-w2-class -> origin/research/execute-upp-w2-class
+2026-11-05T19:04:44.4916353Z  * [new branch]        research/execute-upp-w3-contract -> origin/research/execute-upp-w3-contract
+2026-11-05T19:04:44.4918962Z  * [new branch]        research/execute-upp-w4-representations -> origin/research/execute-upp-w4-representations
+2026-11-05T19:04:44.4921639Z  * [new branch]        research/execute-upp-w5-machinery-closure -> origin/research/execute-upp-w5-machinery-closure
+2026-11-05T19:04:44.4924169Z  * [new branch]        research/execute-upp-w6-equivalence -> origin/research/execute-upp-w6-equivalence
+2026-11-05T19:04:44.4927043Z  * [new branch]        research/execute-upp-w7-recoverable-commitment -> origin/research/execute-upp-w7-recoverable-commitment
+2026-11-05T19:04:44.4930080Z  * [new branch]        research/execute-upp-w8-constrained-evolution -> origin/research/execute-upp-w8-constrained-evolution
+2026-11-05T19:04:44.4932981Z  * [new branch]        research/execute-upp-w9-dependency-structure -> origin/research/execute-upp-w9-dependency-structure
+2026-11-05T19:04:44.4936223Z  * [new branch]        research/execute-usd-w1-actual-process-correspondence -> origin/research/execute-usd-w1-actual-process-correspondence
+2026-11-05T19:04:44.4939659Z  * [new branch]        research/execute-usd-w1-continuous-dynamics -> origin/research/execute-usd-w1-continuous-dynamics
+2026-11-05T19:04:44.4942404Z  * [new branch]        research/execute-usd-w1-infinite-carriers -> origin/research/execute-usd-w1-infinite-carriers
+2026-11-05T19:04:44.4945249Z  * [new branch]        research/execute-usd-w1-nonfinite-stochasticity -> origin/research/execute-usd-w1-nonfinite-stochasticity
+2026-11-05T19:04:44.4948321Z  * [new branch]        research/execute-usd-w1-open-ended-histories -> origin/research/execute-usd-w1-open-ended-histories
+2026-11-05T19:04:44.4951244Z  * [new branch]        research/execute-usd-w1-partial-observability -> origin/research/execute-usd-w1-partial-observability
+2026-11-05T19:04:44.4954223Z  * [new branch]        research/execute-usd-w1-semantic-change -> origin/research/execute-usd-w1-semantic-change
+2026-11-05T19:04:44.4957669Z  * [new branch]        research/execute-usd-w2-alternative-vocabulary-competition -> origin/research/execute-usd-w2-alternative-vocabulary-competition
+2026-11-05T19:04:44.4961111Z  * [new branch]        research/execute-usd-w3-representation-invariance -> origin/research/execute-usd-w3-representation-invariance
+2026-11-05T19:04:44.4964177Z  * [new branch]        research/execute-usd-w4-ablation-reconstruction -> origin/research/execute-usd-w4-ablation-reconstruction
+2026-11-05T19:04:44.4967406Z  * [new branch]        research/execute-usd-w5-minimality-equivalence -> origin/research/execute-usd-w5-minimality-equivalence
+2026-11-05T19:04:44.4970143Z  * [new branch]        research/execute-usd-w6-independence -> origin/research/execute-usd-w6-independence
+2026-11-05T19:04:44.4972569Z  * [new branch]        research/execute-w5-theorem-assembly -> origin/research/execute-w5-theorem-assembly
+2026-11-05T19:04:44.4975493Z  * [new branch]        research/explicit-dispatch-uncertain-routing-20261102 -> origin/research/explicit-dispatch-uncertain-routing-20261102
+2026-11-05T19:04:44.4978646Z  * [new branch]        research/external-validation-batch-3 -> origin/research/external-validation-batch-3
+2026-11-05T19:04:44.4981405Z  * [new branch]        research/far-architecture-routing-pilot-20261102 -> origin/research/far-architecture-routing-pilot-20261102
+2026-11-05T19:04:44.4984369Z  * [new branch]        research/fara-kernel-independent-replication -> origin/research/fara-kernel-independent-replication
+2026-11-05T19:04:44.4987348Z  * [new branch]        research/formalize-faithful-representation -> origin/research/formalize-faithful-representation
+2026-11-05T19:04:44.4990250Z  * [new branch]        research/freeze-evc-w1-external-review-package -> origin/research/freeze-evc-w1-external-review-package
+2026-11-05T19:04:44.4993161Z  * [new branch]        research/freeze-evc-w2-r3-replication-package -> origin/research/freeze-evc-w2-r3-replication-package
+2026-11-05T19:04:44.4996215Z  * [new branch]        research/freeze-evc-w3-r4-adversarial-package -> origin/research/freeze-evc-w3-r4-adversarial-package
+2026-11-05T19:04:44.4999207Z  * [new branch]        research/freeze-evc-w4-candidate-expansion -> origin/research/freeze-evc-w4-candidate-expansion
+2026-11-05T19:04:44.5002389Z  * [new branch]        research/freeze-ikd-w1-candidate-architectures -> origin/research/freeze-ikd-w1-candidate-architectures
+2026-11-05T19:04:44.5005433Z  * [new branch]        research/freeze-independent-reasoning-definition -> origin/research/freeze-independent-reasoning-definition
+2026-11-05T19:04:44.5008491Z  * [new branch]        research/freeze-pb001-test-suite -> origin/research/freeze-pb001-test-suite
+2026-11-05T19:04:44.5011369Z  * [new branch]        research/freeze-pbts001-independent-replication-package -> origin/research/freeze-pbts001-independent-replication-package
+2026-11-05T19:04:44.5014587Z  * [new branch]        research/freeze-pbts001-rep001-run001-controls -> origin/research/freeze-pbts001-rep001-run001-controls
+2026-11-05T19:04:44.5017935Z  * [new branch]        research/freeze-preservation-basis-investigation -> origin/research/freeze-preservation-basis-investigation
+2026-11-05T19:04:44.5021017Z  * [new branch]        research/freeze-reasoning-domain-specification -> origin/research/freeze-reasoning-domain-specification
+2026-11-05T19:04:44.5023548Z  * [new branch]        research/freeze-thm-target-001 -> origin/research/freeze-thm-target-001
+2026-11-05T19:04:44.5025590Z  * [new branch]        research/freeze-w3-5-corpora -> origin/research/freeze-w3-5-corpora
+2026-11-05T19:04:44.5028205Z  * [new branch]        research/freeze-w5-independent-review-package -> origin/research/freeze-w5-independent-review-package
+2026-11-05T19:04:44.5031143Z  * [new branch]        research/general-investigation-engine-20261103 -> origin/research/general-investigation-engine-20261103
+2026-11-05T19:04:44.5034172Z  * [new branch]        research/good-view-jepa-evidence-20261105 -> origin/research/good-view-jepa-evidence-20261105
+2026-11-05T19:04:44.5037288Z  * [new branch]        research/mechanistic-explanation-fidelity-v01 -> origin/research/mechanistic-explanation-fidelity-v01
+2026-11-05T19:04:44.5040210Z  * [new branch]        research/model-architecture-search-20261103 -> origin/research/model-architecture-search-20261103
+2026-11-05T19:04:44.5042972Z  * [new branch]        research/numeric-metric-grounding-20261105 -> origin/research/numeric-metric-grounding-20261105
+2026-11-05T19:04:44.5045734Z  * [new branch]        research/pca-w1-core-v1.1-independent-review -> origin/research/pca-w1-core-v1.1-independent-review
+2026-11-05T19:04:44.5048528Z  * [new branch]        research/pca-w3-contract-schema -> origin/research/pca-w3-contract-schema
+2026-11-05T19:04:44.5050735Z  * [new branch]        research/pca-w4-domain-contracts -> origin/research/pca-w4-domain-contracts
+2026-11-05T19:04:44.5053010Z  * [new branch]        research/pca-w5-approximation-cost -> origin/research/pca-w5-approximation-cost
+2026-11-05T19:04:44.5055206Z  * [new branch]        research/pca-w6-audit-utility -> origin/research/pca-w6-audit-utility
+2026-11-05T19:04:44.5058138Z  * [new branch]        research/post-terminal-public-evaluation-integration -> origin/research/post-terminal-public-evaluation-integration
+2026-11-05T19:04:44.5061734Z  * [new branch]        research/post-w1-infrastructure-w2-formalization -> origin/research/post-w1-infrastructure-w2-formalization
+2026-11-05T19:04:44.5064576Z  * [new branch]        research/prove-s-core-w0-normalization -> origin/research/prove-s-core-w0-normalization
+2026-11-05T19:04:44.5079673Z  * [new branch]        research/prove-s-core-w1-direct-axes -> origin/research/prove-s-core-w1-direct-axes
+2026-11-05T19:04:44.5082237Z  * [new branch]        research/prove-s-core-w2-dynamics-history -> origin/research/prove-s-core-w2-dynamics-history
+2026-11-05T19:04:44.5084853Z  * [new branch]        research/prove-s-core-w3-global-witness -> origin/research/prove-s-core-w3-global-witness
+2026-11-05T19:04:44.5088022Z  * [new branch]        research/prove-s-core-w4-negative-controls -> origin/research/prove-s-core-w4-negative-controls
+2026-11-05T19:04:44.5090699Z  * [new branch]        research/reexecute-w3-5-candidate-tests -> origin/research/reexecute-w3-5-candidate-tests
+2026-11-05T19:04:44.5093791Z  * [new branch]        research/register-post-usd-internal-discovery-continuation -> origin/research/register-post-usd-internal-discovery-continuation
+2026-11-05T19:04:44.5097595Z  * [new branch]        research/register-post-w5-universal-structure-program -> origin/research/register-post-w5-universal-structure-program
+2026-11-05T19:04:44.5100670Z  * [new branch]        research/register-post-w9-scope-challenge -> origin/research/register-post-w9-scope-challenge
+2026-11-05T19:04:44.5103686Z  * [new branch]        research/register-terminal-universality-extension -> origin/research/register-terminal-universality-extension
+2026-11-05T19:04:44.5106614Z  * [new branch]        research/register-universal-proof-program -> origin/research/register-universal-proof-program
+2026-11-05T19:04:44.5109379Z  * [new branch]        research/resolve-p8-theorem-role -> origin/research/resolve-p8-theorem-role
+2026-11-05T19:04:44.5112033Z  * [new branch]        research/shift-central-program-to-deduction-first -> origin/research/shift-central-program-to-deduction-first
+2026-11-05T19:04:44.5114544Z  * [new branch]        research/swe-agent-v3-design -> origin/research/swe-agent-v3-design
+2026-11-05T19:04:44.5116795Z  * [new branch]        research/swe-agent-v3-design-clean -> origin/research/swe-agent-v3-design-clean
+2026-11-05T19:04:44.5119483Z  * [new branch]        research/swe-agent-v3-preregistration -> origin/research/swe-agent-v3-preregistration
+2026-11-05T19:04:44.5121975Z  * [new branch]        research/synthesize-post-w5-usd-program -> origin/research/synthesize-post-w5-usd-program
+2026-11-05T19:04:44.5124596Z  * [new branch]        research/weight-space-programming-20261103 -> origin/research/weight-space-programming-20261103
+2026-11-05T19:04:44.5127739Z  * [new branch]        research/workflow-efficacy-local-qwen-20261102 -> origin/research/workflow-efficacy-local-qwen-20261102
+2026-11-05T19:04:44.5130021Z  * [new branch]        resolve-pr170-clean     -> origin/resolve-pr170-clean
+2026-11-05T19:04:44.5131861Z  * [new branch]        reveal/swe-agent-v2-30219440701 -> origin/reveal/swe-agent-v2-30219440701
+2026-11-05T19:04:44.5134535Z  * [new branch]        revert-151-codex/create-branch-and-draft-pr-for-phase-3 -> origin/revert-151-codex/create-branch-and-draft-pr-for-phase-3
+2026-11-05T19:04:44.5137434Z  * [new branch]        revert/pr-381-unverified-merge -> origin/revert/pr-381-unverified-merge
+2026-11-05T19:04:44.5139164Z  * [new branch]        review                  -> origin/review
+2026-11-05T19:04:44.5140526Z  * [new branch]        review2                 -> origin/review2
+2026-11-05T19:04:44.5142372Z  * [new branch]        separate-compiler-implementations -> origin/separate-compiler-implementations
+2026-11-05T19:04:44.5144856Z  * [new branch]        setup/swe-agent-gemini-3-1-pro-preview-v2 -> origin/setup/swe-agent-gemini-3-1-pro-preview-v2
+2026-11-05T19:04:44.5147175Z  * [new branch]        snapshot-auth-digests   -> origin/snapshot-auth-digests
+2026-11-05T19:04:44.5149220Z  * [new branch]        staging/swe-v3-blinding-output-locks -> origin/staging/swe-v3-blinding-output-locks
+2026-11-05T19:04:44.5151616Z  * [new branch]        staging/swe-v3-evidence-contract-lock -> origin/staging/swe-v3-evidence-contract-lock
+2026-11-05T19:04:44.5154165Z  * [new branch]        staging/swe-v3-final-analysis-marker-locks -> origin/staging/swe-v3-final-analysis-marker-locks
+2026-11-05T19:04:44.5156644Z  * [new branch]        staging/swe-v3-final-contract-locks -> origin/staging/swe-v3-final-contract-locks
+2026-11-05T19:04:44.5159032Z  * [new branch]        staging/swe-v3-final-review-locks -> origin/staging/swe-v3-final-review-locks
+2026-11-05T19:04:44.5161330Z  * [new branch]        staging/swe-v3-final-shape-hardening -> origin/staging/swe-v3-final-shape-hardening
+2026-11-05T19:04:44.5163961Z  * [new branch]        staging/swe-v3-fix-real-section-boundary -> origin/staging/swe-v3-fix-real-section-boundary
+2026-11-05T19:04:44.5166307Z  * [new branch]        staging/swe-v3-node-declaration -> origin/staging/swe-v3-node-declaration
+2026-11-05T19:04:44.5168789Z  * [new branch]        staging/swe-v3-primary-prebehavior-locks -> origin/staging/swe-v3-primary-prebehavior-locks
+2026-11-05T19:04:44.5171133Z  * [new branch]        staging/swe-v3-review-hardening -> origin/staging/swe-v3-review-hardening
+2026-11-05T19:04:44.5173229Z  * [new branch]        t003-assumption-adequacy-audit -> origin/t003-assumption-adequacy-audit
+2026-11-05T19:04:44.5175068Z  * [new branch]        temp-do-not-use         -> origin/temp-do-not-use
+2026-11-05T19:04:44.5176632Z  * [new branch]        temp-do-not-use-2       -> origin/temp-do-not-use-2
+2026-11-05T19:04:44.5178479Z  * [new branch]        temp-do-not-use-3       -> origin/temp-do-not-use-3
+2026-11-05T19:04:44.5180539Z  * [new branch]        test/full-no-model-execution-rehearsal -> origin/test/full-no-model-execution-rehearsal
+2026-11-05T19:04:44.5183230Z  * [new branch]        test/living-promotion-runtime-canary-20261001 -> origin/test/living-promotion-runtime-canary-20261001
+2026-11-05T19:04:44.5185364Z  * [new branch]        tmp/noop                -> origin/tmp/noop
+2026-11-05T19:04:44.5187034Z  * [new branch]        unlock-cre002-execution -> origin/unlock-cre002-execution
+2026-11-05T19:04:44.5188938Z  * [new branch]        unlock-cre002-ext001-execution -> origin/unlock-cre002-ext001-execution
+2026-11-05T19:04:44.5190807Z  * [new branch]        validation-probe-p1     -> origin/validation-probe-p1
+2026-11-05T19:04:44.5192482Z  * [new branch]        validation-probe-p1b    -> origin/validation-probe-p1b
+2026-11-05T19:04:44.5194164Z  * [new branch]        validation-probe-p2     -> origin/validation-probe-p2
+2026-11-05T19:04:44.5196100Z  * [new branch]        validation-probe-p2-clean -> origin/validation-probe-p2-clean
+2026-11-05T19:04:44.5198019Z  * [new branch]        validation-probe-p3     -> origin/validation-probe-p3
+2026-11-05T19:04:44.5199686Z  * [new branch]        validation-probe-p4     -> origin/validation-probe-p4
+2026-11-05T19:04:44.5201363Z  * [new branch]        validation-probe-p6     -> origin/validation-probe-p6
+2026-11-05T19:04:44.5203021Z  * [new branch]        validation-probe-p7     -> origin/validation-probe-p7
+2026-11-05T19:04:44.5204868Z  * [new branch]        validation/trace-candidate-001 -> origin/validation/trace-candidate-001
+2026-11-05T19:04:44.5206713Z  * [new branch]        verify-freeze-temp      -> origin/verify-freeze-temp
+2026-11-05T19:04:44.5208711Z  * [new tag]           far-swe-agent-v2-source-53438d4e327f -> far-swe-agent-v2-source-53438d4e327f
+2026-11-05T19:04:44.5210411Z  * [new tag]           v0.1.0                  -> v0.1.0
+2026-11-05T19:04:44.5211599Z  * [new tag]           v0.2.0                  -> v0.2.0
+2026-11-05T19:04:44.5212788Z  * [new tag]           v0.3.0                  -> v0.3.0
+2026-11-05T19:04:44.5213985Z  * [new tag]           v0.3.1                  -> v0.3.1
+2026-11-05T19:04:44.5215167Z  * [new tag]           v0.4.0                  -> v0.4.0
+2026-11-05T19:04:44.5216349Z  * [new tag]           v1.0                    -> v1.0
+2026-11-05T19:04:44.5219599Z [command]/usr/bin/git branch --list --remote origin/research/numeric-metric-grounding-20261105
+2026-11-05T19:04:44.5221458Z   origin/research/numeric-metric-grounding-20261105
+2026-11-05T19:04:44.5224230Z [command]/usr/bin/git rev-parse refs/remotes/origin/research/numeric-metric-grounding-20261105
+2026-11-05T19:04:44.5225905Z 2b6a52f6c5fdc7d55240a358c42fe45818571672
+2026-11-05T19:04:44.5228577Z ##[endgroup]
+2026-11-05T19:04:44.5229898Z ##[group]Determining the checkout info
+2026-11-05T19:04:44.5231381Z ##[endgroup]
+2026-11-05T19:04:44.5232235Z [command]/usr/bin/git sparse-checkout disable
+2026-11-05T19:04:44.5234694Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-05T19:04:44.5237730Z ##[group]Checking out the ref
+2026-11-05T19:04:44.5240189Z [command]/usr/bin/git checkout --progress --force -B research/numeric-metric-grounding-20261105 refs/remotes/origin/research/numeric-metric-grounding-20261105
+2026-11-05T19:04:44.6292303Z Switched to a new branch 'research/numeric-metric-grounding-20261105'
+2026-11-05T19:04:44.6298504Z branch 'research/numeric-metric-grounding-20261105' set up to track 'origin/research/numeric-metric-grounding-20261105'.
+2026-11-05T19:04:44.6323199Z ##[endgroup]
+2026-11-05T19:04:44.6382692Z [command]/usr/bin/git log -1 --format=%H
+2026-11-05T19:04:44.6420867Z 2b6a52f6c5fdc7d55240a358c42fe45818571672
+2026-11-05T19:04:44.6432171Z ##[group]Removing auth
+2026-11-05T19:04:44.6435935Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-05T19:04:44.6478942Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-05T19:04:44.6743453Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-05T19:04:44.6785224Z http.https://github.com/.extraheader
+2026-11-05T19:04:44.6794166Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-05T19:04:44.6839378Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-05T19:04:44.7102066Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-05T19:04:44.7146676Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-05T19:04:44.7403909Z ##[endgroup]
+2026-11-05T19:04:44.7691643Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+2026-11-05T19:04:44.7692220Z with:
+2026-11-05T19:04:44.7692513Z   python-version: 3.12
+2026-11-05T19:04:44.7692851Z   check-latest: false
+2026-11-05T19:04:44.7695788Z   token: ***
+2026-11-05T19:04:44.7696114Z   update-environment: true
+2026-11-05T19:04:44.7696465Z   allow-prereleases: false
+2026-11-05T19:04:44.7696802Z   freethreaded: false
+2026-11-05T19:04:44.7697304Z ##[endgroup]
+2026-11-05T19:04:44.9177283Z ##[group]Installed versions
+2026-11-05T19:04:44.9278206Z (node:2438) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-05T19:04:44.9279939Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-05T19:04:44.9280960Z Successfully set up CPython (3.12.16)
+2026-11-05T19:04:44.9282075Z ##[endgroup]
+2026-11-05T19:04:44.9521863Z ##[group]Run python -m unittest tests.test_numeric_grounding_integration tests.test_numeric_live_pilot -v
+2026-11-05T19:04:44.9523040Z [36;1mpython -m unittest tests.test_numeric_grounding_integration tests.test_numeric_live_pilot -v[0m
+2026-11-05T19:04:44.9523851Z [36;1mpython research/numeric-grounding/live_pilot.py validate[0m
+2026-11-05T19:04:44.9563560Z shell: /usr/bin/bash -e {0}
+2026-11-05T19:04:44.9563997Z env:
+2026-11-05T19:04:44.9564444Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:44.9565096Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-05T19:04:44.9565709Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:44.9566272Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:44.9566834Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:44.9567745Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-05T19:04:44.9568318Z ##[endgroup]
+2026-11-05T19:04:45.3553615Z test_fabricated_denominator_is_rejected (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_fabricated_denominator_is_rejected) ... ok
+2026-11-05T19:04:45.4035998Z test_fabricated_outcome_with_self_consistent_count_is_rejected (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_fabricated_outcome_with_self_consistent_count_is_rejected) ... ok
+2026-11-05T19:04:45.4508841Z test_fabricated_source_digest_is_rejected (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_fabricated_source_digest_is_rejected) ... ok
+2026-11-05T19:04:45.4511660Z test_frozen_original_traces_supply_all_72_eligible_outcomes (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_frozen_original_traces_supply_all_72_eligible_outcomes) ... ok
+2026-11-05T19:04:45.7218969Z test_guarded_cli_releases_valid_answer_and_blocks_false_number (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_guarded_cli_releases_valid_answer_and_blocks_false_number) ... ok
+2026-11-05T19:04:45.7712012Z test_guarded_report_requires_replay_and_retains_boundaries (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_guarded_report_requires_replay_and_retains_boundaries) ... ok
+2026-11-05T19:04:45.7714399Z test_source_archive_maintains_recorded_identity (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_source_archive_maintains_recorded_identity) ... ok
+2026-11-05T19:04:45.8208434Z test_wrong_claim_fails_closed (tests.test_numeric_grounding_integration.OriginalTraceCorrespondenceTests.test_wrong_claim_fails_closed) ... ok
+2026-11-05T19:04:45.8218759Z test_abstention_counts_against_registered_exposure (far_original_metric_tests.MetricGroundingTests.test_abstention_counts_against_registered_exposure) ... ok
+2026-11-05T19:04:45.8234040Z test_correct_registered_rates_and_paired_difference (far_original_metric_tests.MetricGroundingTests.test_correct_registered_rates_and_paired_difference) ... ok
+2026-11-05T19:04:45.8236310Z test_duplicate_json_keys_and_binary_float_rejected (far_original_metric_tests.MetricGroundingTests.test_duplicate_json_keys_and_binary_float_rejected) ... ok
+2026-11-05T19:04:45.8248551Z test_duplicate_observation_rejected (far_original_metric_tests.MetricGroundingTests.test_duplicate_observation_rejected) ... ok
+2026-11-05T19:04:45.8254013Z test_duplicate_slot_rejected (far_original_metric_tests.MetricGroundingTests.test_duplicate_slot_rejected) ... ok
+2026-11-05T19:04:45.8256279Z test_false_certification_rejected (far_original_metric_tests.MetricGroundingTests.test_false_certification_rejected) ... ok
+2026-11-05T19:04:45.8278257Z test_input_hashes_change_on_mutation (far_original_metric_tests.MetricGroundingTests.test_input_hashes_change_on_mutation) ... ok
+2026-11-05T19:04:45.8288494Z test_malformed_type_rejected_without_crashing (far_original_metric_tests.MetricGroundingTests.test_malformed_type_rejected_without_crashing) ... ok
+2026-11-05T19:04:45.8290490Z test_metric_redefinition_rejected (far_original_metric_tests.MetricGroundingTests.test_metric_redefinition_rejected) ... ok
+2026-11-05T19:04:45.8299346Z test_missing_cohort_pair (far_original_metric_tests.MetricGroundingTests.test_missing_cohort_pair) ... ok
+2026-11-05T19:04:45.8309349Z test_unknown_outcome_not_failure (far_original_metric_tests.MetricGroundingTests.test_unknown_outcome_not_failure) ... ok
+2026-11-05T19:04:45.8317327Z test_unknown_source_rejected (far_original_metric_tests.MetricGroundingTests.test_unknown_source_rejected) ... ok
+2026-11-05T19:04:45.8323606Z test_unrecognized_metric_rejected (far_original_metric_tests.MetricGroundingTests.test_unrecognized_metric_rejected) ... ok
+2026-11-05T19:04:45.8340509Z test_wrong_answer_rejected (far_original_metric_tests.MetricGroundingTests.test_wrong_answer_rejected) ... ok
+2026-11-05T19:04:45.8350802Z test_wrong_denominator_is_not_accepted (far_original_metric_tests.MetricGroundingTests.test_wrong_denominator_is_not_accepted) ... ok
+2026-11-05T19:04:45.8361580Z test_wrong_scope_and_numeric_scale_rejected (far_original_metric_tests.MetricGroundingTests.test_wrong_scope_and_numeric_scale_rejected) ... ok
+2026-11-05T19:04:45.8946121Z test_missing_eligible_slot_fails_instead_of_reweighting (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_missing_eligible_slot_fails_instead_of_reweighting) ... ok
+2026-11-05T19:04:45.8962197Z test_mutation_of_result_label_fails (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_mutation_of_result_label_fails) ... ok
+2026-11-05T19:04:45.8976399Z test_mutation_of_saved_raw_response_fails (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_mutation_of_saved_raw_response_fails) ... ok
+2026-11-05T19:04:45.8978928Z test_numeric_finish_without_tool_is_rejected (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_numeric_finish_without_tool_is_rejected) ... ok
+2026-11-05T19:04:45.8981282Z test_protocol_frozen_cases_oracles_and_replay_source (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_protocol_frozen_cases_oracles_and_replay_source) ... ok
+2026-11-05T19:04:45.9013923Z test_synthetic_replay_exact_counts_and_nonclaims (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_synthetic_replay_exact_counts_and_nonclaims) ... ok
+2026-11-05T19:04:45.9016347Z test_unknown_case_refuses_unrelated_source_metric (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_unknown_case_refuses_unrelated_source_metric) ... ok
+2026-11-05T19:04:45.9018832Z test_wrong_final_metric_is_not_released (tests.test_numeric_live_pilot.NumericLivePilotOfflineTests.test_wrong_final_metric_is_not_released) ... ok
+2026-11-05T19:04:45.9019963Z 
+2026-11-05T19:04:45.9020257Z ----------------------------------------------------------------------
+2026-11-05T19:04:45.9020900Z Ran 32 tests in 0.646s
+2026-11-05T19:04:45.9021161Z 
+2026-11-05T19:04:45.9021302Z OK
+2026-11-05T19:04:46.0511017Z {"protocol_sha256": "b95530d105de30f74aba84c639ebb6458794ce5e894d22a195059de4801e7f80", "registered_tasks": 16, "replayed_source_success": "100.0000", "schema": "far-numeric-live-filter-pilot/0.1", "valid": true}
+2026-11-05T19:04:46.0682856Z ##[group]Run bash scripts/workflow_efficacy_start_ollama.sh
+2026-11-05T19:04:46.0683359Z [36;1mbash scripts/workflow_efficacy_start_ollama.sh[0m
+2026-11-05T19:04:46.0705451Z shell: /usr/bin/bash -e {0}
+2026-11-05T19:04:46.0705754Z env:
+2026-11-05T19:04:46.0706068Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:46.0706561Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-05T19:04:46.0707202Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:46.0707625Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:46.0708050Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:04:46.0708475Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-05T19:04:46.0708836Z ##[endgroup]
+2026-11-05T19:04:46.0862016Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2026-11-05T19:04:46.0863320Z                                  Dload  Upload   Total   Spent    Left  Speed
+2026-11-05T19:04:46.0864032Z 
+2026-11-05T19:04:46.3160392Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-11-05T19:04:46.3161260Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-11-05T19:04:46.6905959Z 
+2026-11-05T19:04:47.6888987Z   4 1367M    4 60.0M    0     0  99.2M      0  0:00:13 --:--:--  0:00:13 99.2M
+2026-11-05T19:04:48.6926188Z  18 1367M   18  257M    0     0   160M      0  0:00:08  0:00:01  0:00:07  197M
+2026-11-05T19:04:49.6862688Z  33 1367M   33  459M    0     0   176M      0  0:00:07  0:00:02  0:00:05  199M
+2026-11-05T19:04:50.6848297Z  47 1367M   47  650M    0     0   180M      0  0:00:07  0:00:03  0:00:04  196M
+2026-11-05T19:04:51.6888267Z  61 1367M   61  847M    0     0   184M      0  0:00:07  0:00:04  0:00:03  197M
+2026-11-05T19:04:52.6937198Z  76 1367M   76 1039M    0     0   185M      0  0:00:07  0:00:05  0:00:02  195M
+2026-11-05T19:04:53.4071650Z  88 1367M   88 1215M    0     0   184M      0  0:00:07  0:00:06  0:00:01  191M
+2026-11-05T19:04:53.4072259Z 100 1367M  100 1367M    0     0   186M      0  0:00:07  0:00:07 --:--:--  192M
+2026-11-05T19:04:57.9379771Z Ollama PID 2464 (CPU-local, without cloud model requests)
+2026-11-05T19:04:59.5683198Z [?2026h[?25l[1Gpulling manifest ⠋ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠙ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠹ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠸ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠼ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠴ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠦ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠧ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest ⠇ [K[?25h[?2026l[?2026h[?25l[1Gpulling manifest [K
+2026-11-05T19:04:59.6679907Z pulling 29d8c98fa6b0:   1% ▕                  ▏ 6.5 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:04:59.7678978Z pulling 29d8c98fa6b0:   6% ▕█                 ▏  62 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:04:59.8680057Z pulling 29d8c98fa6b0:  11% ▕██                ▏ 109 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:04:59.9681538Z pulling 29d8c98fa6b0:  14% ▕██                ▏ 134 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.0679252Z pulling 29d8c98fa6b0:  18% ▕███               ▏ 181 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.1681468Z pulling 29d8c98fa6b0:  24% ▕████              ▏ 236 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.2681673Z pulling 29d8c98fa6b0:  26% ▕████              ▏ 258 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.3682010Z pulling 29d8c98fa6b0:  32% ▕█████             ▏ 311 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.4682216Z pulling 29d8c98fa6b0:  37% ▕██████            ▏ 361 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.5682431Z pulling 29d8c98fa6b0:  40% ▕███████           ▏ 391 MB/986 MB                  [K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.6682366Z pulling 29d8c98fa6b0:  45% ▕████████          ▏ 441 MB/986 MB  434 MB/s      1s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.7688377Z pulling 29d8c98fa6b0:  51% ▕█████████         ▏ 501 MB/986 MB  434 MB/s      1s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.8680384Z pulling 29d8c98fa6b0:  54% ▕█████████         ▏ 530 MB/986 MB  434 MB/s      1s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:00.9685136Z pulling 29d8c98fa6b0:  60% ▕██████████        ▏ 587 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.0680315Z pulling 29d8c98fa6b0:  65% ▕███████████       ▏ 641 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.1682128Z pulling 29d8c98fa6b0:  67% ▕████████████      ▏ 662 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.2678370Z pulling 29d8c98fa6b0:  70% ▕████████████      ▏ 690 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.3680511Z pulling 29d8c98fa6b0:  73% ▕█████████████     ▏ 715 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.4679761Z pulling 29d8c98fa6b0:  74% ▕█████████████     ▏ 726 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.5680388Z pulling 29d8c98fa6b0:  77% ▕█████████████     ▏ 760 MB/986 MB  434 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.6681393Z pulling 29d8c98fa6b0:  80% ▕██████████████    ▏ 784 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.7681320Z pulling 29d8c98fa6b0:  81% ▕██████████████    ▏ 794 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.8682955Z pulling 29d8c98fa6b0:  82% ▕██████████████    ▏ 812 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:01.9679167Z pulling 29d8c98fa6b0:  84% ▕███████████████   ▏ 830 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.0677629Z pulling 29d8c98fa6b0:  85% ▕███████████████   ▏ 841 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.1679296Z pulling 29d8c98fa6b0:  86% ▕███████████████   ▏ 850 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.2682696Z pulling 29d8c98fa6b0:  87% ▕███████████████   ▏ 860 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.3680198Z pulling 29d8c98fa6b0:  87% ▕███████████████   ▏ 862 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.4677442Z pulling 29d8c98fa6b0:  88% ▕███████████████   ▏ 868 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.5684796Z pulling 29d8c98fa6b0:  89% ▕███████████████   ▏ 873 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.6681127Z pulling 29d8c98fa6b0:  89% ▕████████████████  ▏ 877 MB/986 MB  388 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.7679007Z pulling 29d8c98fa6b0:  90% ▕████████████████  ▏ 883 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.8675947Z pulling 29d8c98fa6b0:  91% ▕████████████████  ▏ 898 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:02.9681995Z pulling 29d8c98fa6b0:  91% ▕████████████████  ▏ 900 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.0680459Z pulling 29d8c98fa6b0:  93% ▕████████████████  ▏ 912 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.1679817Z pulling 29d8c98fa6b0:  94% ▕████████████████  ▏ 925 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.2678378Z pulling 29d8c98fa6b0:  95% ▕█████████████████ ▏ 936 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.3679869Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 946 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.4678010Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 946 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.5678183Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 947 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.6684051Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 947 MB/986 MB  291 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.7681932Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 948 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.8684760Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 948 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:03.9677310Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 949 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.0684215Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 950 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.1679058Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 950 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.2683319Z pulling 29d8c98fa6b0:  96% ▕█████████████████ ▏ 951 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.3676564Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 952 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.4681711Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 953 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.5680465Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 954 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.6682014Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 956 MB/986 MB  235 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.7678472Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 957 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.8685890Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 959 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:04.9678349Z pulling 29d8c98fa6b0:  97% ▕█████████████████ ▏ 960 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.0684249Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 961 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.1685439Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 963 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.2676000Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 965 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.3679809Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 966 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.4678802Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 968 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.5685533Z pulling 29d8c98fa6b0:  98% ▕█████████████████ ▏ 970 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.6675704Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 971 MB/986 MB  190 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.7683716Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 972 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.8683521Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 974 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:05.9678882Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 976 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.0685728Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 977 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.1682856Z pulling 29d8c98fa6b0:  99% ▕█████████████████ ▏ 980 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.2676281Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 981 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.3677123Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 982 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.4682991Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 984 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.5684968Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.6678542Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.7685023Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.8676826Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:06.9680407Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.0684828Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.1680980Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.2684663Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.3677530Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.4681421Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.5683713Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.6676097Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.7682624Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.8678101Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.9683312Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K[?25h[?2026l[?2026h[?25l[A[1Gpulling manifest [K
+2026-11-05T19:05:07.9684273Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.0683127Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K[?25h[?2026l[?2026h[?25l[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.0684158Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.0684970Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.1676244Z verifying sha256 digest ⠋ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.1677676Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.1678598Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.2681401Z verifying sha256 digest ⠙ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.2682260Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.2682996Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.3685501Z verifying sha256 digest ⠹ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.3686425Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.3687608Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.4679555Z verifying sha256 digest ⠸ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.4680499Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.4681313Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.5683956Z verifying sha256 digest ⠼ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.5685035Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.5685911Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.6678393Z verifying sha256 digest ⠴ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.6679251Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.6679987Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.7182583Z verifying sha256 digest ⠦ [K[?25h[?2026l[?2026h[?25l[A[A[A[1Gpulling manifest [K
+2026-11-05T19:05:08.7183881Z pulling 29d8c98fa6b0: 100% ▕█████████████████ ▏ 985 MB/986 MB  160 MB/s      0s[K
+2026-11-05T19:05:08.7185364Z pulling 152cb442202b: 100% ▕██████████████████▏  487 B                         [K
+2026-11-05T19:05:08.7186428Z verifying sha256 digest [K
+2026-11-05T19:05:08.7187412Z writing manifest [K
+2026-11-05T19:05:08.7187938Z success [K[?25h[?2026l
+2026-11-05T19:05:08.8049641Z model: ollama/qwen2.5-coder:1.5b sha256: d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668
+2026-11-05T19:05:08.8212633Z ##[group]Run python research/numeric-grounding/live_pilot.py run --output numeric-grounding-evidence --source-commit "$GITHUB_SHA"
+2026-11-05T19:05:08.8213654Z [36;1mpython research/numeric-grounding/live_pilot.py run --output numeric-grounding-evidence --source-commit "$GITHUB_SHA"[0m
+2026-11-05T19:05:08.8234830Z shell: /usr/bin/bash -e {0}
+2026-11-05T19:05:08.8235112Z env:
+2026-11-05T19:05:08.8235390Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:05:08.8235850Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-05T19:05:08.8236305Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:05:08.8236701Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:05:08.8237343Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:05:08.8237746Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-05T19:05:08.8238086Z ##[endgroup]
+2026-11-05T19:06:00.6232156Z {"control": {"correct": 8, "input_tokens": 2517, "model_calls": 16, "model_seconds": 18.783667184999985, "output_tokens": 176, "total": 16, "unnecessary_abstention": 8, "wrong_number": 0}, "treatment": {"correct": 12, "input_tokens": 4096, "model_calls": 20, "model_seconds": 32.68937596500001, "output_tokens": 447, "total": 16, "unnecessary_abstention": 4, "wrong_number": 0}}
+2026-11-05T19:06:00.6420190Z ##[group]Run python research/numeric-grounding/live_pilot.py analyze --output numeric-grounding-evidence
+2026-11-05T19:06:00.6420998Z [36;1mpython research/numeric-grounding/live_pilot.py analyze --output numeric-grounding-evidence[0m
+2026-11-05T19:06:00.6441995Z shell: /usr/bin/bash -e {0}
+2026-11-05T19:06:00.6442239Z env:
+2026-11-05T19:06:00.6442500Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.6442938Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-05T19:06:00.6443378Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.6443754Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.6444139Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.6444520Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-05T19:06:00.6444847Z ##[endgroup]
+2026-11-05T19:06:00.7786815Z Traceback (most recent call last):
+2026-11-05T19:06:00.7797286Z   File "/home/runner/work/Project-FAR/Project-FAR/research/numeric-grounding/live_pilot.py", line 298, in <module>
+2026-11-05T19:06:00.7798318Z     raise SystemExit(main())
+2026-11-05T19:06:00.7798709Z                      ^^^^^^
+2026-11-05T19:06:00.7799570Z   File "/home/runner/work/Project-FAR/Project-FAR/research/numeric-grounding/live_pilot.py", line 292, in main
+2026-11-05T19:06:00.7800626Z     raise ValueError("saved summary differs from deterministic replay")
+2026-11-05T19:06:00.7801326Z ValueError: saved summary differs from deterministic replay
+2026-11-05T19:06:00.7948554Z ##[error]Process completed with exit code 1.
+2026-11-05T19:06:00.8110100Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-05T19:06:00.8110542Z with:
+2026-11-05T19:06:00.8110794Z   name: numeric-grounding-live-v01-raw-42090379885
+2026-11-05T19:06:00.8111144Z   path: numeric-grounding-evidence/
+2026-11-05T19:06:00.8111410Z   if-no-files-found: warn
+2026-11-05T19:06:00.8111646Z   retention-days: 30
+2026-11-05T19:06:00.8111870Z   compression-level: 6
+2026-11-05T19:06:00.8112085Z   overwrite: false
+2026-11-05T19:06:00.8112301Z   include-hidden-files: false
+2026-11-05T19:06:00.8112542Z env:
+2026-11-05T19:06:00.8112794Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.8113226Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-05T19:06:00.8113646Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.8114024Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.8114440Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-05T19:06:00.8114841Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-05T19:06:00.8115166Z ##[endgroup]
+2026-11-05T19:06:00.9897816Z (node:2561) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-05T19:06:00.9899141Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-05T19:06:01.0082716Z With the provided path, there will be 34 files uploaded
+2026-11-05T19:06:01.0085601Z Artifact name is valid!
+2026-11-05T19:06:01.0086560Z Root directory input is valid!
+2026-11-05T19:06:01.3141871Z Beginning upload of artifact content to blob storage
+2026-11-05T19:06:01.3776242Z (node:2561) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-05T19:06:01.5933699Z Uploaded bytes 48898
+2026-11-05T19:06:01.6412980Z Finished uploading artifact content to blob storage!
+2026-11-05T19:06:01.6414275Z SHA256 digest of uploaded artifact zip is b731cfb1730f443d0f06eff07535fe23cf09c16b9beec6d4aa0c30613b7b89a3
+2026-11-05T19:06:01.6416293Z Finalizing artifact upload
+2026-11-05T19:06:02.0885023Z Artifact numeric-grounding-live-v01-raw-42090379885.zip successfully finalized. Artifact ID 13445236161
+2026-11-05T19:06:02.0887977Z Artifact numeric-grounding-live-v01-raw-42090379885 has been successfully uploaded! Final size is 48898 bytes. Artifact ID is 13445236161
+2026-11-05T19:06:02.0893140Z Artifact download URL: https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885/artifacts/13445236161
+2026-11-05T19:06:02.1111536Z Post job cleanup.
+2026-11-05T19:06:02.1997126Z [command]/usr/bin/git version
+2026-11-05T19:06:02.2047667Z git version 2.56.0
+2026-11-05T19:06:02.2094367Z Temporarily overriding HOME='/home/runner/work/_temp/ef134d63-abe8-4a6f-af91-3d8f92b459d3' before making global git config changes
+2026-11-05T19:06:02.2095609Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-05T19:06:02.2101159Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Project-FAR/Project-FAR
+2026-11-05T19:06:02.2146828Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-05T19:06:02.2189851Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-05T19:06:02.2485424Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-05T19:06:02.2527522Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-05T19:06:02.2838141Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-05T19:06:02.2890792Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-05T19:06:02.3319308Z Cleaning up orphan processes
+2026-11-05T19:06:02.3677544Z Terminate orphan process: pid (2464) (ollama)
+2026-11-05T19:06:02.3723860Z Terminate orphan process: pid (2535) (llama-server)
+2026-11-05T19:06:02.3817477Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

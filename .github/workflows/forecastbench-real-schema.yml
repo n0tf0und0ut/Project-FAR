@@ -1,0 +1,33 @@
+name: ForecastBench Real-Data Schema Compatibility
+
+on:
+  pull_request:
+    paths:
+      - "evaluation/forecastbench_schema_audit.py"
+      - "evaluation/prospective_forecast_runner.py"
+      - "tests/test_prospective_forecast_runner.py"
+      - ".github/workflows/forecastbench-real-schema.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pinned-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Real-source verified ForecastBench schema audit
+        run: python -m evaluation.forecastbench_schema_audit
+      - name: Confirm archived audit cannot be prospective evidence
+        run: |
+          python - <<'PY'
+          from evaluation.forecastbench_schema_audit import ARCHIVED_BLOB_SHA1
+          assert len(ARCHIVED_BLOB_SHA1) == 40
+          print("PASS: pinned historical benchmark only, not an official live forecast")
+          PY
