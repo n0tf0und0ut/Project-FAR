@@ -154,10 +154,15 @@ class CampaignTests(unittest.TestCase):
             with redirect_stdout(io.StringIO()), self.assertRaisesRegex(ValueError, 'campaign index'):
                 run(selection, output, modes=('deterministic',))
             index = output / 'campaign.json'
-            self.assertLessEqual(index.stat().st_size, MAX_CAMPAIGN_INDEX_BYTES)
-            self.assertNotEqual(json.loads(index.read_text())['status'], 'EXECUTED')
             transcripts = [p for p in output.glob('*.json') if p.name != 'campaign.json']
-            self.assertGreater(len(transcripts), 0)
+            if index.exists():
+                self.assertLessEqual(index.stat().st_size, MAX_CAMPAIGN_INDEX_BYTES)
+                self.assertNotEqual(json.loads(index.read_text())['status'], 'EXECUTED')
+            else:
+                # This selection alone already exceeds the index ceiling.
+                # Safe initial refusal precedes all transcript production.
+                self.assertEqual(transcripts, [])
+            self.assertFalse(index.with_suffix('.json.tmp').exists())
             self.assertTrue(all(audit_transcript(json.loads(p.read_text()))['valid']
                                 for p in transcripts))
 

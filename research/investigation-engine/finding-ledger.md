@@ -561,3 +561,32 @@ execution, source truth, semantic correctness, general investigation reliability
 or FAR superiority. Frozen campaign evidence, original source-hash bindings,
 registrations, protocols, selections, results and negative findings retain their
 bytes. No model inference or new scientific experiment was performed.
+
+### Hosted regression evidence and safe-initial-refusal oracle correction
+
+The unchanged regression-only head
+`663655bcaba541769140f5cd53422b62e41b7bb7` produced **six expected assertion
+failures and zero runner errors** in [investigation-runtime job
+128820379233](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42509869420/job/128820379233);
+the exact index/total positive-boundary control passed.
+
+The corrective source head
+`e59afac49ec40c44e339730e38f43ced157ce518` then ran **284 tests**, with **zero
+assertion failures, one runner error and five explicit optional skips** in
+[investigation-runtime job 128821554436](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42510247938/job/128821554436).
+The four other new regression methods passed: overflow stages, final cumulative
+budget, exact positive boundaries and Unicode serialization accounting. The
+remaining error was a test-oracle defect: after the required controlled
+`ValueError`, the original 23-question test unconditionally called
+`campaign.json.stat()`, although its initial selection was already larger than
+the index ceiling and the helper correctly refused before creating any index or
+transcript.
+
+The successor changes only that oracle and this ledger. It retains the controlled
+overflow exception requirement. If a durable prefix exists, the test still
+requires a bounded non-`EXECUTED` index and integrity-valid retained transcripts;
+if the index was never committed, it requires zero transcripts and no temporary
+index. The separate explicit per-case/final last-bounded-byte controls remain
+unchanged. Campaign source blob
+`90431288e2572b562246af12361b53ad11a4965c` is unchanged. The corrected-oracle
+hosted run and final-head review remain pending; no new pass is claimed here.
