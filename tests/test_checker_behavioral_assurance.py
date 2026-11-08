@@ -662,6 +662,58 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{count} status-noninterference failures: {failures[:8]}")
         print(f"GROUP_STATUS_NONINTERFERENCE: {count} exact-identity cases passed")
 
+    def test_recognized_negative_status_phrases_keep_shared_scope(self):
+        for status in ("open", "remain open", "remains open", "excluded", "nonclaim", "nonclaims", "prohibited", "prohibition", "cannot be established", "isn't established", "aren't proved", "wasn't confirmed", "weren't validated"):
+            cases = (
+                ("If independently replicated, both novelty: " + status + " and priority: established.", True),
+                ("Both novelty: established and priority: " + status + ", only if independently replicated.", True),
+                ("Both novelty: " + status + " and priority: established.", False),
+            )
+            for phrase, accepted in cases:
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertEqual(accepted, result.returncode == 0, phrase + "\n" + result.stdout)
+                    if not accepted:
+                        self.assertIn("unnegated assurance promotion: 'priority: established'", result.stdout.lower())
+
+    def test_scalar_status_lexicon_scope_matrix(self):
+        # Scalar status atoms are declared independently of NEGATION or
+        # STATUS_VALUE. Qualifier words such as if/unless are not status atoms.
+        statuses = ("unresolved", "unknown", "refuted", "impossible", "open", "remain open", "remains open", "excluded", "nonclaim", "nonclaims", "prohibited", "prohibition")
+        statuses += tuple(prefix + verb for prefix in ("not ", "not yet ", "never ", "never yet ", "cannot be ", "isn't ", "aren't ", "wasn't ", "weren't ")
+                          for verb in ("established", "proved", "proven", "demonstrated", "confirmed", "validated"))
+        spec = importlib.util.spec_from_file_location("status_lexicon_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        failures, count = [], 0
+        for status in statuses:
+            for mark in ("", "**", "`"):
+                for left_negative in (False, True):
+                    x_status, y_status = (status, "established") if left_negative else ("established", status)
+                    x = mark + "novelty" + mark + ": " + mark + x_status + mark
+                    y = mark + "priority" + mark + ": " + mark + y_status + mark
+                    pair = "both " + x + " and " + y
+                    controls = (
+                        ("If independently replicated, " + pair, set()),
+                        (pair + ", only if p < 0.05", set()),
+                        ("Do not assert " + pair, set()),
+                        (pair, {"priority"} if left_negative else {"novelty"}),
+                    )
+                    for text, expected_pair in controls:
+                        for suffix, extra in (("", set()), (", and uniqueness: established", {"uniqueness"}), (", and uniqueness: not established", set())):
+                            count += 1
+                            result = checker.promotion_clauses(text + suffix + ".")
+                            observed = {name for name in ("novelty", "priority", "uniqueness")
+                                        if any(re.search(r"\b" + name + r"\b", entry, re.I) for entry in result)}
+                            expected = expected_pair | extra
+                            if observed != expected:
+                                failures.append((text + suffix, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{count} scalar-status scope failures: {failures[:8]}")
+        print(f"SCALAR_STATUS_SCOPE: {count} exact-identity cases passed across {len(statuses)} declared status forms")
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:

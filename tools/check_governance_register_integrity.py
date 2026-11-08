@@ -38,9 +38,13 @@ TOPIC = re.compile(
     re.I,
 )
 PROMOTION = re.compile(r"\b(established|proved|proven|demonstrated|confirmed|validated)\b", re.I)
+# These scalar status atoms are also negation vocabulary. Keep their complete
+# spans shared with STATUS_VALUE so a recognized negative status cannot erase
+# the surrounding pair's conditional/prohibition scope. Qualifier introducers
+# such as if/unless/whether remain separate from scalar status values.
+NEGATIVE_STATUS = r"(?:unresolved|remains? open|refuted|impossible|nonclaims?|excluded|prohibit\w*)"
 NEGATION = re.compile(
-    r"\b(not|no|neither|nor|without|never|cannot|unresolved|remains? open|refuted|impossible|nonclaims?"
-    r"|excluded|prohibit\w*|unless|whether|if)\b|n't",
+    rf"\b(not|no|neither|nor|without|never|cannot|{NEGATIVE_STATUS}|unless|whether|if)\b|n't",
     re.I,
 )
 CLAUSE = re.compile(r"[,;.:|()]|\s(?:and|but|while|whereas)\s|\s[—–-]\s")
@@ -73,8 +77,11 @@ COORDINATION = re.compile(r"\s+and\s+", re.I)
 BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
 # Status values are consumed separately from pair-level qualifiers. A local
 # "not established" in one member must never qualify the other member.
+# This finite prefix grammar shares NEGATION's cannot/n't semantics; arbitrary
+# adverbs and general English verb phrases are outside this scalar grammar.
+NEGATIVE_STATUS_PREFIX = r"(?:(?:not|never)\s+(?:yet\s+)?|cannot\s+be\s+|(?:isn't|aren't|wasn't|weren't)\s+)"
 STATUS_VALUE = re.compile(
-    rf"\s*(?:(?:not|never)\s+(?:yet\s+)?)?(?:{PROMOTION.pattern}|unresolved|unknown|refuted|impossible|open)\b",
+    rf"\s*(?:{NEGATIVE_STATUS_PREFIX})?(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open)\b",
     re.I,
 )
 INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
