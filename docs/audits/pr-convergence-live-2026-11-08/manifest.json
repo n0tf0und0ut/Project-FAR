@@ -1905,8 +1905,7 @@
     "target_pr": 617,
     "source_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/4651fa065b1847901871d3903b9ebcdc57e787aa/validation/repin-requests/PR-617-signed-cache-python.json",
     "blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
-    "signature_observed": false,
-    "library_named_signature_search": "No matching signature found; only this task's manifest was returned."
+    "signature_observed": false
   },
   "work_completed": [
     {
