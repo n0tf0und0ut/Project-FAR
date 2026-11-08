@@ -1,0 +1,6 @@
+test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.022s
+
+OK

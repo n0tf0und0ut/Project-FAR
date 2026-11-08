@@ -1,0 +1,189 @@
+{
+  "accuracy_world_truth": null,
+  "commercial_advantage": "UNESTABLISHED",
+  "external_API_charge": 0,
+  "host_and_analyst_cost": "UNMEASURED",
+  "metrics": {
+    "confusion": {
+      "ABSTAIN -> ABSTAIN": 8,
+      "CONTRADICTED -> CONTRADICTED": 8,
+      "SUPPORTED_IN_GRAMMAR -> SUPPORTED_IN_GRAMMAR": 8
+    },
+    "coverage": {
+      "new_factual_verdicts": {
+        "NOT_ADJUDICATED": 85
+      },
+      "semantic_acceptances": 10,
+      "source_to_report_cases": 40,
+      "unseen_or_independent_cases": 0
+    },
+    "latency_mean_seconds": {
+      "baseline": 0.00849143077498411,
+      "debugger": 0.024537990050043847
+    }
+  },
+  "missingness": {
+    "ASPARTIX_DoWhy_Graphiti": "PRIOR_ART_ONLY_NOT_EXECUTED",
+    "Fact_Engineering": "NOT_RUN_AUTHENTICATED_ARM_UNAVAILABLE",
+    "Factiverse": "NOT_RUN_AUTHENTICATED_ARM_UNAVAILABLE",
+    "Minerval": "NOT_RUN_LOCAL_SERVICE_MODEL_CONFIGURATION_UNAVAILABLE",
+    "QURI": "NOT_RUN_SERVICE_CONFIG_UNAVAILABLE",
+    "frontier_model": "NOT_RUN_NO_CONFIGURED_BENCHMARK_PROVIDER",
+    "scite": "NOT_RUN_MATCHED_PRODUCT_ARM_UNAVAILABLE"
+  },
+  "noesis_runs": [
+    {
+      "case_id": "true-premises-invalid",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 7.508798457000012,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 1,
+        "elapsed_seconds": 7.515480617999856,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    },
+    {
+      "case_id": "false-premise-valid",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 8.581021637000049,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 1,
+        "elapsed_seconds": 8.587197120000383,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    },
+    {
+      "case_id": "quantifier-faithful",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 8.387058698001965,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 1,
+        "elapsed_seconds": 8.393947501999719,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    },
+    {
+      "case_id": "threshold-faithful",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 7.004378163998808,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 1,
+        "elapsed_seconds": 7.012236280999787,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    },
+    {
+      "case_id": "exact-citation-irrelevant",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 11.61650427999939,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          },
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 2,
+        "elapsed_seconds": 11.620527011999911,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    },
+    {
+      "case_id": "hindsight-later-capture",
+      "result": {
+        "answer_status": "refused",
+        "claim_quotes": [],
+        "claims_detected": 0,
+        "cli_elapsed_seconds": 10.392603848998078,
+        "degradation_warnings": [
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          },
+          {
+            "code": "extractor_unavailable",
+            "message": "one or more documents could not be claim-extracted"
+          }
+        ],
+        "documents_considered": 2,
+        "elapsed_seconds": 10.407115277999765,
+        "evidence_bundle_verified": true,
+        "reported_verdicts": [
+          "unverifiable"
+        ],
+        "reused_prior_warehouse": false,
+        "scope": "MINIMAL_MODEL_FREE_CONFIG_NOT_FULL_NOESIS_CAPABILITY",
+        "world_truth_verdicts": []
+      }
+    }
+  ],
+  "schema": "far-debugger-results/1.0"
+}

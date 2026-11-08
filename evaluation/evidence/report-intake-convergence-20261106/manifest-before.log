@@ -1,0 +1,16 @@
+test_4494409924_coordinated_subcohort_cannot_override_committed_manifest (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_4494409924_coordinated_subcohort_cannot_override_committed_manifest) ... FAIL
+test_preserved_actual_full_cohort_manifest_agrees (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_preserved_actual_full_cohort_manifest_agrees) ... ok
+
+======================================================================
+FAIL: test_4494409924_coordinated_subcohort_cannot_override_committed_manifest (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_4494409924_coordinated_subcohort_cannot_override_committed_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr601/tests/test_mechanistic_pretrained_validator.py", line 111, in test_4494409924_coordinated_subcohort_cannot_override_committed_manifest
+    with self.assertRaisesRegex(ValueError,"committed.*manifest"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.033s
+
+FAILED (failures=1)

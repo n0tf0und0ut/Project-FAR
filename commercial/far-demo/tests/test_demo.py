@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from unittest.mock import patch
 
 if importlib.util.find_spec("fastapi") is None:
     raise unittest.SkipTest(
@@ -14,6 +15,7 @@ import io
 import json
 
 import yaml
+from openpyxl import Workbook
 from fastapi.testclient import TestClient
 
 from far_demo.app import SAMPLE_BASELINE, SAMPLE_CANDIDATE, app
@@ -77,6 +79,209 @@ class TestFarDemo(unittest.TestCase):
         self.assertIn("2 dependencies", payload["plain_summary"])
         self.assertNotIn("NovaGrid", payload["headline"])
 
+    def test_all_json_upload_paths_reject_ambiguity_before_adjudication(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {'probe': 'placeholder'}
+        plain = json.dumps(payload)
+        hostile = [plain.replace('"decision_id":', '"decision_id":"injected","decision_id":', 1),
+                   plain.replace('"probe": "placeholder"', '"probe":1,"probe":2')]
+        hostile += [plain.replace('"placeholder"', token)
+                    for token in ('NaN', 'Infinity', '-Infinity', '1e999')]
+        hostile.append('[' * 10000 + '0' + ']' * 10000)
+        for raw in hostile:
+            for filename, content in [('input.json', raw), ('input.jsonl', raw + '\n'),
+                    ('input.txt', raw), ('input.md', '# Package\n```json\n' + raw + '\n```'),
+                    ('input.md', '```jsonl\n' + raw + '\n```'),
+                    ('input.md', '```\n' + raw + '\n```')]:
+                with self.subTest(filename=filename, raw=raw[:100]):
+                    response = self.client.post('/api/analyze', files={
+                        'baseline': (filename, content, 'application/octet-stream'),
+                        'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                    })
+                    self.assertEqual(response.status_code, 400, response.text)
+
+    def test_declared_fenced_json_cannot_be_reinterpreted_as_yaml(self) -> None:
+        # Valid YAML flow syntax, invalid JSON: a JSON declaration must control.
+        raw = json.dumps(SAMPLE_BASELINE)[:-1] + ',}'
+        response = self.client.post('/api/analyze', files={
+            'baseline': ('input.md', '```json\n' + raw + '\n```', 'text/markdown'),
+            'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_yaml_fallback_cannot_erase_duplicate_mapping_keys(self) -> None:
+        raw = json.dumps(SAMPLE_BASELINE).replace('"decision_id":',
+            '"decision_id":"injected","decision_id":', 1)[:-1] + ',}'
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, content, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 400, response.text)
+
+    def test_yaml_merge_defaults_and_explicit_override_are_preserved(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        raw = yaml.safe_dump(payload, sort_keys=False).replace('metadata: {}',
+            'metadata:\n  <<: &defaults {origin: inherited, keep: retained}\n  origin: explicit')
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                parsed = parse_package_file(filename, content.encode())
+                self.assertEqual(parsed['metadata'], {'origin': 'explicit', 'keep': 'retained'})
+
+    def test_yaml_value_tagged_keys_match_native_string_normalization(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        template = yaml.safe_dump(payload, sort_keys=False)
+        for mapping, expected in [('{=: equals}', 200), ("{=: first, '=': second}", 400)]:
+            raw = template.replace('metadata: {}', 'metadata: ' + mapping)
+            for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                    ('input.md', '```yaml\n' + raw + '\n```')]:
+                with self.subTest(filename=filename, mapping=mapping):
+                    response = self.client.post('/api/analyze', files={
+                        'baseline': (filename, content, 'application/octet-stream'),
+                        'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                    })
+                    self.assertEqual(response.status_code, expected, response.text)
+
+    def test_yaml_merge_source_duplicates_are_rejected_before_flattening(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        raw = yaml.safe_dump(payload, sort_keys=False).replace('metadata: {}',
+            'metadata: {<<: {probe: first, probe: second}}')
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, content, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 400)
+
+    def test_merged_source_can_later_be_referenced_as_an_ordinary_alias(self) -> None:
+        payload = copy.deepcopy(SAMPLE_BASELINE)
+        payload['metadata'] = {}
+        payload.pop('proposed_action')
+        raw = yaml.safe_dump(payload, sort_keys=False).replace('metadata: {}',
+            'metadata: {<<: &override {<<: {origin: inherited}, origin: explicit}}\nproposed_action: *override')
+        for filename, content in [('input.yaml', raw), ('input.txt', raw),
+                ('input.md', '```yaml\n' + raw + '\n```')]:
+            with self.subTest(filename=filename):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, content, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+                parsed = parse_package_file(filename, content.encode())
+                self.assertEqual(parsed['proposed_action'], {'origin': 'explicit'})
+
+    def test_nonobject_json_fragments_do_not_hide_the_only_package_object(self) -> None:
+        for fragment in ('[]', '"supporting note"', '123', 'true', 'null'):
+            for label in ('', 'json', 'jsonl', 'yaml'):
+                document = '```' + label + '\n' + fragment + '\n```\n\n```json\n' + json.dumps(SAMPLE_BASELINE) + '\n```'
+                with self.subTest(fragment=fragment, label=label):
+                    response = self.client.post('/api/analyze', files={
+                        'baseline': ('input.md', document, 'text/markdown'),
+                        'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
+
+    def test_declared_jsonl_with_multiple_mapping_records_is_not_skipped(self) -> None:
+        first = {**SAMPLE_BASELINE, 'decision_id': 'first'}
+        second = {**SAMPLE_BASELINE, 'decision_id': 'second'}
+        third = {**SAMPLE_BASELINE, 'decision_id': 'third'}
+        for index, records in enumerate(((first, second), (first, None), (None, first))):
+            document = '```jsonl\n' + '\n'.join(json.dumps(r) for r in records)
+            document += '\n```\n\n```json\n' + json.dumps(third) + '\n```'
+            with self.subTest(case=index):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': ('input.md', document, 'text/markdown'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 400)
+
+    def test_unsupported_fence_labels_are_not_declared_json(self) -> None:
+        # A partial "json" language prefix is not a declaration. Skip
+        # unsupported supporting fences, but keep genuine JSON errors terminal.
+        package = json.dumps(SAMPLE_BASELINE)
+        for language in ("jsonc", "json5", "json-schema", "JSONC", "JSON5"):
+            for supporting in ("{unrelated: NaN}", "{invalid: syntax,}"):
+                document = (
+                    "```" + language + "\n" + supporting + "\n```\n"
+                    "```json\n" + package + "\n```"
+                )
+                with self.subTest(language=language, supporting=supporting):
+                    parsed = parse_package_file("input.md", document.encode())
+                    self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                    response = self.client.post("/api/analyze", files={
+                        "baseline": ("input.md", document, "text/markdown"),
+                        "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
+
+        # Actual declared JSON cannot downgrade to a later valid package.
+        declared = (
+            '```json\n{"probe":NaN}\n```\n'
+            "```json\n" + package + "\n```"
+        )
+        with self.assertRaises(ValueError):
+            parse_package_file("input.md", declared.encode())
+
+    def test_unlabeled_non_json_prefix_keeps_safe_document_fallback(self) -> None:
+        # JSON's parse_constant hook can fail before the full JSON syntax is
+        # established. Ordinary prose and YAML must remain discoverable.
+        package = json.dumps(SAMPLE_BASELINE)
+        for prefix in (
+            "NaN handling is described below.",
+            "Infinity handling is described below.",
+            "-Infinity handling is described below.",
+        ):
+            document = prefix + "\n\n```json\n" + package + "\n```"
+            with self.subTest(prefix=prefix):
+                parsed = parse_package_file("input.md", document.encode())
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+                response = self.client.post("/api/analyze", files={
+                    "baseline": ("input.md", document, "text/markdown"),
+                    "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+
+        for label in ("NaN", "Infinity", "-Infinity"):
+            raw = label + ": note\n" + yaml.safe_dump(SAMPLE_BASELINE, sort_keys=False)
+            with self.subTest(label=label):
+                parsed = parse_package_file("input.txt", raw.encode())
+                self.assertEqual(parsed[label], "note")
+                self.assertEqual(parsed["decision_id"], SAMPLE_BASELINE["decision_id"])
+
+        # Fully valid non-finite JSON is still forbidden, even unlabeled.
+        # JSON-shaped malformed content must never downgrade to YAML.
+        for raw in ("NaN", "Infinity", "-Infinity",
+                    '{"x":NaN}', '{"x":NaN} trailing'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                parse_package_file("input.txt", raw.encode())
+
+    def test_yaml_and_toml_text_routes_remain_supported(self) -> None:
+        def toml_value(value):
+            if isinstance(value, dict):
+                return '{' + ','.join(json.dumps(k) + '=' + toml_value(v) for k, v in value.items()) + '}'
+            if isinstance(value, list):
+                return '[' + ','.join(toml_value(v) for v in value) + ']'
+            return json.dumps(value)
+        yaml_text = yaml.safe_dump(SAMPLE_BASELINE, sort_keys=False)
+        toml_text = '\n'.join(k + '=' + toml_value(v) for k, v in SAMPLE_BASELINE.items())
+        for filename, raw in [('input.yaml', yaml_text), ('input.txt', yaml_text),
+                ('input.md', '```yaml\n' + yaml_text + '\n```'), ('input.toml', toml_text),
+                ('input.txt', toml_text), ('input.md', '```toml\n' + toml_text + '\n```')]:
+            with self.subTest(filename=filename, raw=raw[:50]):
+                response = self.client.post('/api/analyze', files={
+                    'baseline': (filename, raw, 'application/octet-stream'),
+                    'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+                })
+                self.assertEqual(response.status_code, 200, response.text)
+
     def test_yaml_and_markdown_can_be_mixed(self) -> None:
         baseline_yaml = yaml.safe_dump(SAMPLE_BASELINE, sort_keys=False)
         candidate_markdown = "# Candidate\n\n```json\n" + json.dumps(SAMPLE_CANDIDATE) + "\n```\n"
@@ -116,6 +321,78 @@ class TestFarDemo(unittest.TestCase):
         self.assertEqual(len(parsed["nodes"]), 8)
         self.assertEqual(len(parsed["dependencies"]), 7)
         self.assertEqual(len(parsed["authorization_requirements"]), 2)
+        for value in ('{"probe":1,"probe":2}', '{"probe":NaN}', '{"probe":1e999}'):
+            extra = io.StringIO()
+            csv.DictWriter(extra, fieldnames=fields).writerow({
+                'record_type': 'meta', 'key': 'metadata.probe', 'value': value})
+            response = self.client.post('/api/analyze', files={
+                'baseline': ('input.csv', stream.getvalue() + extra.getvalue(), 'text/csv'),
+                'candidate': ('good.json', json.dumps(SAMPLE_CANDIDATE), 'application/json'),
+            })
+            self.assertEqual(response.status_code, 400)
+
+    def test_tabular_numeric_prefix_text_is_not_mistaken_for_complete_json(self) -> None:
+        # Both actual upload routes must retain plain text while complete
+        # nonfinite/duplicate JSON remains terminal at the cell boundary.
+        fields = [
+            "record_type", "key", "value", "node_id", "kind", "statement",
+            "attributes", "source_id", "target_id", "relation",
+        ]
+        for phrase in ("NaN handling is described below.",
+                       "Infinity threshold applies later.",
+                       "1e999 records are not a number."):
+            stream = io.StringIO()
+            writer = csv.DictWriter(stream, fieldnames=fields)
+            writer.writeheader()
+            for key in (
+                "schema_version", "decision_id", "decision_type", "policy_version",
+                "decision_root", "trace_completeness",
+            ):
+                writer.writerow({"record_type": "meta", "key": key, "value": json.dumps(SAMPLE_BASELINE[key])})
+            for key, value in SAMPLE_BASELINE["proposed_action"].items():
+                writer.writerow({"record_type": "meta", "key": f"proposed_action.{key}", "value": json.dumps(value)})
+            for node in SAMPLE_BASELINE["nodes"]:
+                writer.writerow({"record_type": "node", **node, "attributes": json.dumps(node["attributes"])})
+            for dependency in SAMPLE_BASELINE["dependencies"]:
+                writer.writerow({"record_type": "dependency", **dependency})
+            for node_id in SAMPLE_BASELINE["authorization_requirements"]:
+                writer.writerow({"record_type": "authorization_requirement", "node_id": node_id})
+            writer.writerow({"record_type": "meta", "key": "metadata.probe", "value": phrase})
+            csv_bytes = stream.getvalue().encode("utf-8")
+
+            workbook = Workbook()
+            sheet = workbook.active
+            sheet.append(fields)
+            for record in csv.DictReader(io.StringIO(stream.getvalue())):
+                sheet.append([record[field] for field in fields])
+            output = io.BytesIO()
+            workbook.save(output)
+            xlsx_bytes = output.getvalue()
+
+            for filename, data in (("input.csv", csv_bytes), ("input.xlsx", xlsx_bytes)):
+                with self.subTest(filename=filename, phrase=phrase):
+                    parsed = parse_package_file(filename, data)
+                    self.assertEqual(parsed["metadata"]["probe"], phrase)
+                    response = self.client.post("/api/analyze", files={
+                        "baseline": (filename, data, "application/octet-stream"),
+                        "candidate": ("good.json", json.dumps(SAMPLE_CANDIDATE), "application/json"),
+                    })
+                    self.assertEqual(response.status_code, 200, response.text)
+
+        for value in ("NaN", "Infinity", "-Infinity", "1e999",
+                      '{"probe":NaN}', '{"probe":1e999}', '{"probe":1,"probe":2}'):
+            with self.subTest(complete_json=value), self.assertRaises(ValueError):
+                from far_demo.formats import _coerce
+                _coerce(value)
+
+    def test_tabular_json_nesting_decoder_failure_remains_invalid_input(self) -> None:
+        # The real JSON decoder's nesting limit differs across interpreters.
+        # Deterministically reproduce the early strict-decoder failure and the
+        # subsequent syntax-only probe reaching the same decoder boundary.
+        from far_demo.formats import _coerce
+        with patch("far_demo.formats.json.loads", side_effect=RecursionError("forced depth")):
+            with self.assertRaisesRegex(ValueError, "JSON nesting exceeds"):
+                _coerce('{"probe":1}')
 
     def test_common_extensions_are_declared(self) -> None:
         expected = {
