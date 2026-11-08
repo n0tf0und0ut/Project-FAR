@@ -141,7 +141,10 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     for boundary in boundaries:
         qualifier = context[boundary.end():].strip(" ,")
         if "|" not in qualifier and NEGATION.search(qualifier):
-            return boundary.start(), qualifier
+            # Keep a comma-terminated leading condition intact. Stripping its
+            # final comma erases the shared-pair delimiter after a prior claim.
+            scoped = context[boundary.end():].strip()
+            return boundary.start(), scoped if SHARED_CONDITION.fullmatch(scoped) else qualifier
     return None
 
 
