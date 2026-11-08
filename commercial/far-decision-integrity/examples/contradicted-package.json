@@ -1,0 +1,38 @@
+{
+  "schema_version": "far-decision-package/0.1",
+  "decision_id": "demo-contradicted-001",
+  "decision_type": "synthetic-approval-check",
+  "policy_version": "demo-1",
+  "decision_root": "recommendation",
+  "proposed_action": {
+    "action": "review"
+  },
+  "nodes": [
+    {
+      "node_id": "recommendation",
+      "kind": "decision",
+      "statement": "The disclosed package meets its declared structural checks."
+    },
+    {
+      "node_id": "evidence",
+      "kind": "evidence",
+      "statement": "An explicitly contradicted claim is presented as supporting evidence.",
+      "attributes": {
+        "contradicted": true
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "source_id": "evidence",
+      "target_id": "recommendation",
+      "relation": "supports"
+    }
+  ],
+  "authorization_requirements": [],
+  "unknowns": [],
+  "trace_completeness": 1,
+  "metadata": {
+    "demo_only": true
+  }
+}
