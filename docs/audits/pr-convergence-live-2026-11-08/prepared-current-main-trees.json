@@ -1,0 +1,3589 @@
+{
+  "schema": "far-prepared-normal-merge-plans/2",
+  "status": "Research",
+  "scope": "Remote Git object preparation; branch refs unchanged; no current-head test/review/merge authorization",
+  "base_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+  "no_local_execution": true,
+  "plans": [
+    {
+      "pr": 621,
+      "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": "commercial/far-decision-integrity/PILOT_VALIDATION.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "686c45d674f0ead4bc07b8fd74a2a31f5fecd419"
+        },
+        {
+          "path": "commercial/far-decision-integrity/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "200d8de835fa1191712df9cac83ad287ec1f71fd"
+        },
+        {
+          "path": "commercial/far-decision-integrity/examples/clear-package.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7e0ae8ea659a90945cec7cab6df4655b255ab131"
+        },
+        {
+          "path": "commercial/far-decision-integrity/examples/contradicted-package.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "566e8159832c4b657a2f1552bc1e2c8a752b3cf7"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/evidence.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "867afd748fc46cc1749d4db6c6354b6c23a9fdb8"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/io.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "304fdd3ce864cfdaba826c641a617575affbb256"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/regression.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0dfcdd2e925ff833c366baf8765daa2967e41abe"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/strict_json.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "19b5517117369900df3c0f88f189e68dec81a18c"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/swe_agent.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "502f9f2aa2d5354922bfe6a518339c57a7402d51"
+        },
+        {
+          "path": "commercial/far-decision-integrity/tests/test_strict_json_intake.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f7cc509bd911fd3b77013e101e22b04153b887cb"
+        },
+        {
+          "path": "commercial/far-demo/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ef8237bfac15430cb1441b1d5c72c4b976d89931"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/formats.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5ca4e82220ff119354cded211e0a582cbb2fa478"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_demo.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7171abd63ce7e883b06d762e9a4342a42f5e732d"
+        }
+      ],
+      "proof": [
+        {
+          "path": "commercial/far-decision-integrity/PILOT_VALIDATION.md",
+          "mode": "100644",
+          "source_sha": "686c45d674f0ead4bc07b8fd74a2a31f5fecd419",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/README.md",
+          "mode": "100644",
+          "source_sha": "200d8de835fa1191712df9cac83ad287ec1f71fd",
+          "current_main_sha": "57c243fca5a37c483decd7ea6b43440ae3932f98",
+          "base_sha": "57c243fca5a37c483decd7ea6b43440ae3932f98",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/examples/clear-package.json",
+          "mode": "100644",
+          "source_sha": "7e0ae8ea659a90945cec7cab6df4655b255ab131",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/examples/contradicted-package.json",
+          "mode": "100644",
+          "source_sha": "566e8159832c4b657a2f1552bc1e2c8a752b3cf7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/evidence.py",
+          "mode": "100644",
+          "source_sha": "867afd748fc46cc1749d4db6c6354b6c23a9fdb8",
+          "current_main_sha": "194be03b94b77ecf419c779f38e36d6094490b32",
+          "base_sha": "194be03b94b77ecf419c779f38e36d6094490b32",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/io.py",
+          "mode": "100644",
+          "source_sha": "304fdd3ce864cfdaba826c641a617575affbb256",
+          "current_main_sha": "d31bccd09eda280bdd58be8fa9ffaae877320388",
+          "base_sha": "d31bccd09eda280bdd58be8fa9ffaae877320388",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/regression.py",
+          "mode": "100644",
+          "source_sha": "0dfcdd2e925ff833c366baf8765daa2967e41abe",
+          "current_main_sha": "4d389894860b05ec545305776f8a2077282ddab7",
+          "base_sha": "4d389894860b05ec545305776f8a2077282ddab7",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/strict_json.py",
+          "mode": "100644",
+          "source_sha": "19b5517117369900df3c0f88f189e68dec81a18c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/src/far_decision_integrity/swe_agent.py",
+          "mode": "100644",
+          "source_sha": "502f9f2aa2d5354922bfe6a518339c57a7402d51",
+          "current_main_sha": "3458bf373917564fa8cd49cafafdb7c0fca8da4a",
+          "base_sha": "3458bf373917564fa8cd49cafafdb7c0fca8da4a",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-decision-integrity/tests/test_strict_json_intake.py",
+          "mode": "100644",
+          "source_sha": "f7cc509bd911fd3b77013e101e22b04153b887cb",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/README.md",
+          "mode": "100644",
+          "source_sha": "ef8237bfac15430cb1441b1d5c72c4b976d89931",
+          "current_main_sha": "8ed555ce794363a8216eba861891dfce846d099c",
+          "base_sha": "8ed555ce794363a8216eba861891dfce846d099c",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/formats.py",
+          "mode": "100644",
+          "source_sha": "5ca4e82220ff119354cded211e0a582cbb2fa478",
+          "current_main_sha": "ba75dac54074e99b4b13b7d78125fd95a405a669",
+          "base_sha": "ba75dac54074e99b4b13b7d78125fd95a405a669",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_demo.py",
+          "mode": "100644",
+          "source_sha": "7171abd63ce7e883b06d762e9a4342a42f5e732d",
+          "current_main_sha": "554cf8d9b758a97dc76503ba72619bc0d064c6f5",
+          "base_sha": "554cf8d9b758a97dc76503ba72619bc0d064c6f5",
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 13,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "9dc83f77c1447e49ea942aa993228e61b0fb7cfd",
+      "prepared_at": "2026-11-08T10:57:45.056Z",
+      "verified_leaf_count": 13,
+      "verified_at": "2026-11-08T10:58:20.077Z"
+    },
+    {
+      "pr": 620,
+      "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/numeric-grounding-live-v01.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "faa04d3999431e8f01225f8fe65ac019f204d758"
+        },
+        {
+          "path": ".github/workflows/numeric-grounding-observe-v01.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "98c9e39cd349081db4eea028c28db367160a4b66"
+        },
+        {
+          "path": "research/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`numeric-grounding/README.md`](numeric-grounding/README.md) — replay-bound numerical metric guard and separately preregistered limited live-model comparison; no external truth, general reliability, or production promotion.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n"
+        },
+        {
+          "path": "research/numeric-grounding/LIVE-EXPERIMENT-V0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f4d6baaf862aa61224eaed83c0112a90fd85cb18"
+        },
+        {
+          "path": "research/numeric-grounding/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "85fe83cb73175cda1773167bc9cd41a54e2261f3"
+        },
+        {
+          "path": "research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5"
+        },
+        {
+          "path": "research/numeric-grounding/live_pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7b9375986447b03f41662d664c3a391b837fe0e8"
+        },
+        {
+          "path": "research/numeric-grounding/metric_grounding.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "1087a4f67d30f44df4b8d26c65b09c15a3c16d56"
+        },
+        {
+          "path": "research/numeric-grounding/observe_live.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "bf147754ac87ac3f352d3e7c0dc5d9ef62b95322"
+        },
+        {
+          "path": "research/numeric-grounding/original-launch-42090379885.log",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d1377eebadd7252a321fe7c8e77c3ae701d3820c"
+        },
+        {
+          "path": "research/numeric-grounding/original-live-42090379885.zip.b64",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ae2db98fac76f3afc74b6366ee922c9d09566015"
+        },
+        {
+          "path": "research/numeric-grounding/preserved-live-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f937fe87bde1ff6b9af23496adece43d1df4a189"
+        },
+        {
+          "path": "research/numeric-grounding/protocol-live-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b86575b8ce2d1374181ddc60be4698c28e0e95f9"
+        },
+        {
+          "path": "research/numeric-grounding/replay-live-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "39a38340ae601fe2d3740962ee2c8d1b3ddf311c"
+        },
+        {
+          "path": "research/numeric-grounding/source_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "076cbc0a8cbc5a64365b62a50a6751c85050012a"
+        },
+        {
+          "path": "research/numeric-grounding/test_metric_grounding.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "335843c16754efc1fb5a459295ffaa0ddedc064a"
+        },
+        {
+          "path": "tests/test_numeric_grounding_integration.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "110f68c2df0b4f0d417dae6fe378f4f0b261d802"
+        },
+        {
+          "path": "tests/test_numeric_live_pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ad49e7bd1fb4191f68a45cebc46a391056bea18b"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/numeric-grounding-live-v01.yml",
+          "mode": "100644",
+          "source_sha": "faa04d3999431e8f01225f8fe65ac019f204d758",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": ".github/workflows/numeric-grounding-observe-v01.yml",
+          "mode": "100644",
+          "source_sha": "98c9e39cd349081db4eea028c28db367160a4b66",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/README.md",
+          "mode": "100644",
+          "source_sha": "15ec9b34dab8f4a2609f7d4d9d44a25fa170c04f",
+          "current_main_sha": "ef0dba1ca5fbf7546faf0dcfb11060a890516ecf",
+          "base_sha": "a7c97429682b03e7cdb1e300e5ce831bd2c55a3a",
+          "method": "strict unique common-base patch hunks onto current main; preserve both navigation additions",
+          "merged_content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`numeric-grounding/README.md`](numeric-grounding/README.md) — replay-bound numerical metric guard and separately preregistered limited live-model comparison; no external truth, general reliability, or production promotion.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n"
+        },
+        {
+          "path": "research/numeric-grounding/LIVE-EXPERIMENT-V0.1.md",
+          "mode": "100644",
+          "source_sha": "f4d6baaf862aa61224eaed83c0112a90fd85cb18",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/README.md",
+          "mode": "100644",
+          "source_sha": "85fe83cb73175cda1773167bc9cd41a54e2261f3",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+          "mode": "100644",
+          "source_sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/live_pilot.py",
+          "mode": "100644",
+          "source_sha": "7b9375986447b03f41662d664c3a391b837fe0e8",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/metric_grounding.py",
+          "mode": "100644",
+          "source_sha": "1087a4f67d30f44df4b8d26c65b09c15a3c16d56",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/observe_live.py",
+          "mode": "100644",
+          "source_sha": "bf147754ac87ac3f352d3e7c0dc5d9ef62b95322",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/original-launch-42090379885.log",
+          "mode": "100644",
+          "source_sha": "d1377eebadd7252a321fe7c8e77c3ae701d3820c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/original-live-42090379885.zip.b64",
+          "mode": "100644",
+          "source_sha": "ae2db98fac76f3afc74b6366ee922c9d09566015",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/preserved-live-v0.1.json",
+          "mode": "100644",
+          "source_sha": "f937fe87bde1ff6b9af23496adece43d1df4a189",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/protocol-live-v0.1.json",
+          "mode": "100644",
+          "source_sha": "b86575b8ce2d1374181ddc60be4698c28e0e95f9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/replay-live-v0.1.json",
+          "mode": "100644",
+          "source_sha": "39a38340ae601fe2d3740962ee2c8d1b3ddf311c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/source_replay.py",
+          "mode": "100644",
+          "source_sha": "076cbc0a8cbc5a64365b62a50a6751c85050012a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/numeric-grounding/test_metric_grounding.py",
+          "mode": "100644",
+          "source_sha": "335843c16754efc1fb5a459295ffaa0ddedc064a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_numeric_grounding_integration.py",
+          "mode": "100644",
+          "source_sha": "110f68c2df0b4f0d417dae6fe378f4f0b261d802",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_numeric_live_pilot.py",
+          "mode": "100644",
+          "source_sha": "ad49e7bd1fb4191f68a45cebc46a391056bea18b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 18,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "fda48e0193daafeaa9711dff2e81ff64ac21f00c",
+      "prepared_at": "2026-11-08T10:57:45.699Z",
+      "verified_leaf_count": 18,
+      "verified_at": "2026-11-08T10:58:32.198Z"
+    },
+    {
+      "pr": 619,
+      "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/good-view-jepa-regression.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d81f978e443a60407096abde7c545ba6a120c732"
+        },
+        {
+          "path": "research/good-view-jepa/PROTOCOL.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "88958902416d7d0ddcc3b388e829db2f1a4ed4f9"
+        },
+        {
+          "path": "research/good-view-jepa/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0fabeca599665d07e92e0515a0c463bc7f3bd977"
+        },
+        {
+          "path": "research/good-view-jepa/pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "1ad79becbfb3ea8c7b6050e23d9137d0c4df8e3d"
+        },
+        {
+          "path": "research/good-view-jepa/results-initial-invalid-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3e0dd5fd5ad80678020f21ffaf61c69ac5b8096e"
+        },
+        {
+          "path": "research/good-view-jepa/results-synthetic-v0.2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ed048d5e6587ab53a44791c24ec7af78327e45fd"
+        },
+        {
+          "path": "research/good-view-jepa/test_pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "242e9584d3451749d4c09071de50912de0f74bb7"
+        },
+        {
+          "path": "research/good-view-jepa/verify_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a4da5d1391968971dc50486e6a48c41a99ca4faa"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/good-view-jepa-regression.yml",
+          "mode": "100644",
+          "source_sha": "d81f978e443a60407096abde7c545ba6a120c732",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/PROTOCOL.md",
+          "mode": "100644",
+          "source_sha": "88958902416d7d0ddcc3b388e829db2f1a4ed4f9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/README.md",
+          "mode": "100644",
+          "source_sha": "0fabeca599665d07e92e0515a0c463bc7f3bd977",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/pilot.py",
+          "mode": "100644",
+          "source_sha": "1ad79becbfb3ea8c7b6050e23d9137d0c4df8e3d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/results-initial-invalid-v0.1.json",
+          "mode": "100644",
+          "source_sha": "3e0dd5fd5ad80678020f21ffaf61c69ac5b8096e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/results-synthetic-v0.2.json",
+          "mode": "100644",
+          "source_sha": "ed048d5e6587ab53a44791c24ec7af78327e45fd",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/test_pilot.py",
+          "mode": "100644",
+          "source_sha": "242e9584d3451749d4c09071de50912de0f74bb7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/good-view-jepa/verify_replay.py",
+          "mode": "100644",
+          "source_sha": "a4da5d1391968971dc50486e6a48c41a99ca4faa",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 8,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "75614b349b09f9f2cf2c18bf2c5d0ed24a883581",
+      "prepared_at": "2026-11-08T10:57:46.519Z",
+      "verified_leaf_count": 8,
+      "verified_at": "2026-11-08T10:58:32.575Z"
+    },
+    {
+      "pr": 618,
+      "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": "research/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n\n- [Repository convergence and bounded comparator execution](repository-convergence/2026-11-03/README.md) — Research-only initial inventory, executed local SDK comparison and unresolved human/customer gates.\n"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/causal-commercial-evidence.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "179212f7746bc24b93e3bfe36078372ee46bf7e6"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/causal-commercial-results.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9a8e103f3f100ce31191c2288c53f17044e6cfbe"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/comparator-relocation-reconstruction-evidence.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f47962b7398f9fcc24a9d21a826bde634f5aae61"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/initial-repository-observation.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e7d1c8f80ff46fad0d4e11315969fdbf8fe17c5c"
+        },
+        {
+          "path": "research/tool-agent-reliability/EVIDENCE-CONTRACT-V0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c55cbbc65e3f50aca3f04d39c76c0cabf7fec2e6"
+        },
+        {
+          "path": "research/tool-agent-reliability/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d30827d4aa00f7b3b7227ddea49f6906279b8466"
+        },
+        {
+          "path": "research/tool-agent-reliability/evidence-contract-validation-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ddc49b7a3c49549649ebdd403e4e212b4c4af752"
+        },
+        {
+          "path": "tests/test_agent_reliability_evidence.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "587b503c5357f298e7d3be513f89fd3d444a7e43"
+        },
+        {
+          "path": "tests/test_convergence_comparator_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e3b022a6206a5496de0ad980238175c1bb8a40cd"
+        },
+        {
+          "path": "tools/agent_reliability_evidence.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5ccc87ffb762cb435c3c9234cad0fea1deac9fb8"
+        },
+        {
+          "path": "tools/replay_convergence_comparators.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3c3bf55921df6eb67bfa1ef34eacd1604680f7ce"
+        }
+      ],
+      "proof": [
+        {
+          "path": "research/README.md",
+          "mode": "100644",
+          "source_sha": "1cfdb84a376bc254b9fd0942d23d6c7c1789aa05",
+          "current_main_sha": "ef0dba1ca5fbf7546faf0dcfb11060a890516ecf",
+          "base_sha": "a7c97429682b03e7cdb1e300e5ce831bd2c55a3a",
+          "method": "strict unique common-base patch hunks onto current main; preserve both navigation additions",
+          "merged_content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n\n- [Repository convergence and bounded comparator execution](repository-convergence/2026-11-03/README.md) — Research-only initial inventory, executed local SDK comparison and unresolved human/customer gates.\n"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/README.md",
+          "mode": "100644",
+          "source_sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/causal-commercial-evidence.zip",
+          "mode": "100644",
+          "source_sha": "179212f7746bc24b93e3bfe36078372ee46bf7e6",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/causal-commercial-results.md",
+          "mode": "100644",
+          "source_sha": "9a8e103f3f100ce31191c2288c53f17044e6cfbe",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/comparator-relocation-reconstruction-evidence.zip",
+          "mode": "100644",
+          "source_sha": "f47962b7398f9fcc24a9d21a826bde634f5aae61",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/repository-convergence/2026-11-03/initial-repository-observation.json",
+          "mode": "100644",
+          "source_sha": "e7d1c8f80ff46fad0d4e11315969fdbf8fe17c5c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/tool-agent-reliability/EVIDENCE-CONTRACT-V0.1.md",
+          "mode": "100644",
+          "source_sha": "c55cbbc65e3f50aca3f04d39c76c0cabf7fec2e6",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/tool-agent-reliability/README.md",
+          "mode": "100644",
+          "source_sha": "d30827d4aa00f7b3b7227ddea49f6906279b8466",
+          "current_main_sha": "ec11a673a9db378fae67acc5a9ceef42ec840930",
+          "base_sha": "ec11a673a9db378fae67acc5a9ceef42ec840930",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/tool-agent-reliability/evidence-contract-validation-v0.1.json",
+          "mode": "100644",
+          "source_sha": "ddc49b7a3c49549649ebdd403e4e212b4c4af752",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_agent_reliability_evidence.py",
+          "mode": "100644",
+          "source_sha": "587b503c5357f298e7d3be513f89fd3d444a7e43",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_convergence_comparator_replay.py",
+          "mode": "100644",
+          "source_sha": "e3b022a6206a5496de0ad980238175c1bb8a40cd",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/agent_reliability_evidence.py",
+          "mode": "100644",
+          "source_sha": "5ccc87ffb762cb435c3c9234cad0fea1deac9fb8",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/replay_convergence_comparators.py",
+          "mode": "100644",
+          "source_sha": "3c3bf55921df6eb67bfa1ef34eacd1604680f7ce",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 13,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "2b1aebccac4713934bf6416ad3bb7467808ff036",
+      "prepared_at": "2026-11-08T10:57:47.187Z",
+      "verified_leaf_count": 13,
+      "verified_at": "2026-11-08T10:58:32.031Z"
+    },
+    {
+      "pr": 616,
+      "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": "commercial/far-demo/AUGMENTATION.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e606fcf1c567379de7d6874b0193ec4f862a2c2a"
+        },
+        {
+          "path": "commercial/far-demo/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "bcc9c24cbd0815ac4dadf828b821ec8d2b1e1188"
+        },
+        {
+          "path": "commercial/far-demo/SEMANTIC_VALIDATION.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "142b8a471158f1e78f1ec160342572deba52f241"
+        },
+        {
+          "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b"
+        },
+        {
+          "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d9cee6200d801cd0820f158f7cb80454f59e982c"
+        },
+        {
+          "path": "commercial/far-demo/pyproject.toml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fcbbe1f9d6c6d970e04f92e8f74d76bc012e7d4e"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/app.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f8b7e4854b1544f6771dba88ba45ac3df6b0bbd1"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/augmentation.html",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "cf5ab83a63f9d3881440ba65f0fe96b5633d8a61"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/augmentation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "87db19b43b0fd115fd2e8ea11fae53165ec7937e"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/semantic.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "6e231383882694d2ed6f0ef5cf4bef213edc33c9"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_augmentation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "cab4b95002deeb9f108b8fecdb30cb94de83be71"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_augmentation_browser.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "56067bab7fccb8b89ec51e71f0a3a1e9dc19d1e7"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_semantic.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "09c96a95f9d793911c9b1657f18c5090d494e3d5"
+        }
+      ],
+      "proof": [
+        {
+          "path": "commercial/far-demo/AUGMENTATION.md",
+          "mode": "100644",
+          "source_sha": "e606fcf1c567379de7d6874b0193ec4f862a2c2a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/README.md",
+          "mode": "100644",
+          "source_sha": "bcc9c24cbd0815ac4dadf828b821ec8d2b1e1188",
+          "current_main_sha": "8ed555ce794363a8216eba861891dfce846d099c",
+          "base_sha": "8ed555ce794363a8216eba861891dfce846d099c",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/SEMANTIC_VALIDATION.md",
+          "mode": "100644",
+          "source_sha": "142b8a471158f1e78f1ec160342572deba52f241",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+          "mode": "100644",
+          "source_sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.zip",
+          "mode": "100644",
+          "source_sha": "d9cee6200d801cd0820f158f7cb80454f59e982c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/pyproject.toml",
+          "mode": "100644",
+          "source_sha": "fcbbe1f9d6c6d970e04f92e8f74d76bc012e7d4e",
+          "current_main_sha": "264e261153a010b1cb58be1c3f175916426e860f",
+          "base_sha": "264e261153a010b1cb58be1c3f175916426e860f",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/app.py",
+          "mode": "100644",
+          "source_sha": "f8b7e4854b1544f6771dba88ba45ac3df6b0bbd1",
+          "current_main_sha": "3faa2173c7813c2f825cb8b7d01dba71d54d3005",
+          "base_sha": "3faa2173c7813c2f825cb8b7d01dba71d54d3005",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/augmentation.html",
+          "mode": "100644",
+          "source_sha": "cf5ab83a63f9d3881440ba65f0fe96b5633d8a61",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/augmentation.py",
+          "mode": "100644",
+          "source_sha": "87db19b43b0fd115fd2e8ea11fae53165ec7937e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/src/far_demo/semantic.py",
+          "mode": "100644",
+          "source_sha": "6e231383882694d2ed6f0ef5cf4bef213edc33c9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_augmentation.py",
+          "mode": "100644",
+          "source_sha": "cab4b95002deeb9f108b8fecdb30cb94de83be71",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_augmentation_browser.py",
+          "mode": "100644",
+          "source_sha": "56067bab7fccb8b89ec51e71f0a3a1e9dc19d1e7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-demo/tests/test_semantic.py",
+          "mode": "100644",
+          "source_sha": "09c96a95f9d793911c9b1657f18c5090d494e3d5",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 13,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "2676d6dd5c586157d6d98bb1eb8625119d97c308",
+      "prepared_at": "2026-11-08T10:57:47.745Z",
+      "verified_leaf_count": 13,
+      "verified_at": "2026-11-08T10:58:31.915Z"
+    },
+    {
+      "pr": 615,
+      "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": "research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd"
+        },
+        {
+          "path": "research/model-architecture-search/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d47ae0cd13f1a2dc0a3ed399cdb3607e791663a8"
+        },
+        {
+          "path": "research/model-architecture-search/RESULTS-V0.2.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "8e4bd46a6cf18ed620e0c09a5373fa5dcfc4c960"
+        },
+        {
+          "path": "research/model-architecture-search/RESULTS-V0.3.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "192cdf27e6e7cb5a68b6cc3662d6917f005fd6e3"
+        },
+        {
+          "path": "research/model-architecture-search/archive-v0.3.zip.b64",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "aa0fe9d38fb57f1727631e30b6769ae3bf47c5da"
+        },
+        {
+          "path": "research/model-architecture-search/integration-fixture-regression-20261103.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "73bb43441c48d74e4714d0bcd59699e92dff5b41"
+        },
+        {
+          "path": "research/model-architecture-search/pilot-v0.1-evidence.zip.b64",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "833b7c1a31d30ea1748e1a45f93e8e0cf6045363"
+        },
+        {
+          "path": "research/model-architecture-search/preregistration-v0.2.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a441ab6c65ad28ac6db4bec10e77eb15a6e57fa7"
+        },
+        {
+          "path": "research/model-architecture-search/preregistration-v0.3.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0155335b1ecc0e026c775330075f9739acc747c0"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3f0e3d0a772ecc0844b58fbcec254ae1902fc2c7"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9f001445956fd433f70989e0f5cde757bcf592d0"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.3.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "cd992805573bd51d61492e7272df679a737d2d13"
+        },
+        {
+          "path": "research/model-architecture-search/replication-v0.2-analysis.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5618cba1719247ccea8e742fedbb6982687aa36c"
+        },
+        {
+          "path": "research/model-architecture-search/replication-v0.2-evidence.zip.b64",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a2446f73c2b0aed86aa40127a656019580179af2"
+        },
+        {
+          "path": "tests/test_model_architecture_evidence_archive.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fadf2a4d33b9d8fa6bd34ed05d7ca67ac1c599b4"
+        },
+        {
+          "path": "tests/test_model_architecture_external.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ba866e84dc0624c05e529b4c44781c2b80e071f3"
+        },
+        {
+          "path": "tests/test_model_architecture_external_evidence.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f9ea3e07e53a83c3c60bfc2091c9d95cdf78403b"
+        },
+        {
+          "path": "tests/test_model_architecture_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7a971b8a4417298534c4d4f02ce2edd441ad569d"
+        },
+        {
+          "path": "tests/test_model_architecture_replication.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b2b83fa67a2eb7f4c939e10cd341f0747f2d09b9"
+        },
+        {
+          "path": "tests/test_model_architecture_search.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "cac3dbbdf0ebe66493f7af381c5a8ae5103eb6a9"
+        },
+        {
+          "path": "tools/check_model_architecture_external_archive.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "87200bc1c88d1b1a2b4248329b4ecaeeb26f01a0"
+        },
+        {
+          "path": "tools/cpython-sum-LICENSE.txt",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "44015c174ff68fe3df79176fbde5da4fc5082f64"
+        },
+        {
+          "path": "tools/model_architecture_external.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "77950421bd857866b0b13217fbf1fb0f6592332a"
+        },
+        {
+          "path": "tools/model_architecture_external_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9d7ae8fe8b8ec7dc2eb77e189e10380b62a77cf8"
+        },
+        {
+          "path": "tools/model_architecture_replay.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e1aefc3a639ecee7dd3fb37524fc3b13ac2be073"
+        },
+        {
+          "path": "tools/model_architecture_replication.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f20cb054dbc3ca0e58daf02643086cfc029451c9"
+        },
+        {
+          "path": "tools/model_architecture_search.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0a6a4d0107183c4a86478ece2b1fb8902adb4224"
+        },
+        {
+          "path": "tools/package_model_architecture_external.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c46dc53b2532057e4f66790071d9daf9007443bf"
+        }
+      ],
+      "proof": [
+        {
+          "path": "research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+          "mode": "100644",
+          "source_sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/README.md",
+          "mode": "100644",
+          "source_sha": "d47ae0cd13f1a2dc0a3ed399cdb3607e791663a8",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/RESULTS-V0.2.md",
+          "mode": "100644",
+          "source_sha": "8e4bd46a6cf18ed620e0c09a5373fa5dcfc4c960",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/RESULTS-V0.3.md",
+          "mode": "100644",
+          "source_sha": "192cdf27e6e7cb5a68b6cc3662d6917f005fd6e3",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/archive-v0.3.zip.b64",
+          "mode": "100644",
+          "source_sha": "aa0fe9d38fb57f1727631e30b6769ae3bf47c5da",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/integration-fixture-regression-20261103.zip",
+          "mode": "100644",
+          "source_sha": "73bb43441c48d74e4714d0bcd59699e92dff5b41",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/pilot-v0.1-evidence.zip.b64",
+          "mode": "100644",
+          "source_sha": "833b7c1a31d30ea1748e1a45f93e8e0cf6045363",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/preregistration-v0.2.md",
+          "mode": "100644",
+          "source_sha": "a441ab6c65ad28ac6db4bec10e77eb15a6e57fa7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/preregistration-v0.3.md",
+          "mode": "100644",
+          "source_sha": "0155335b1ecc0e026c775330075f9739acc747c0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.1.json",
+          "mode": "100644",
+          "source_sha": "3f0e3d0a772ecc0844b58fbcec254ae1902fc2c7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.2.json",
+          "mode": "100644",
+          "source_sha": "9f001445956fd433f70989e0f5cde757bcf592d0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/protocol-v0.3.json",
+          "mode": "100644",
+          "source_sha": "cd992805573bd51d61492e7272df679a737d2d13",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/replication-v0.2-analysis.json",
+          "mode": "100644",
+          "source_sha": "5618cba1719247ccea8e742fedbb6982687aa36c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/model-architecture-search/replication-v0.2-evidence.zip.b64",
+          "mode": "100644",
+          "source_sha": "a2446f73c2b0aed86aa40127a656019580179af2",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_evidence_archive.py",
+          "mode": "100644",
+          "source_sha": "fadf2a4d33b9d8fa6bd34ed05d7ca67ac1c599b4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_external.py",
+          "mode": "100644",
+          "source_sha": "ba866e84dc0624c05e529b4c44781c2b80e071f3",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_external_evidence.py",
+          "mode": "100644",
+          "source_sha": "f9ea3e07e53a83c3c60bfc2091c9d95cdf78403b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_replay.py",
+          "mode": "100644",
+          "source_sha": "7a971b8a4417298534c4d4f02ce2edd441ad569d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_replication.py",
+          "mode": "100644",
+          "source_sha": "b2b83fa67a2eb7f4c939e10cd341f0747f2d09b9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_model_architecture_search.py",
+          "mode": "100644",
+          "source_sha": "cac3dbbdf0ebe66493f7af381c5a8ae5103eb6a9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/check_model_architecture_external_archive.py",
+          "mode": "100644",
+          "source_sha": "87200bc1c88d1b1a2b4248329b4ecaeeb26f01a0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/cpython-sum-LICENSE.txt",
+          "mode": "100644",
+          "source_sha": "44015c174ff68fe3df79176fbde5da4fc5082f64",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/model_architecture_external.py",
+          "mode": "100644",
+          "source_sha": "77950421bd857866b0b13217fbf1fb0f6592332a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/model_architecture_external_replay.py",
+          "mode": "100644",
+          "source_sha": "9d7ae8fe8b8ec7dc2eb77e189e10380b62a77cf8",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/model_architecture_replay.py",
+          "mode": "100644",
+          "source_sha": "e1aefc3a639ecee7dd3fb37524fc3b13ac2be073",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/model_architecture_replication.py",
+          "mode": "100644",
+          "source_sha": "f20cb054dbc3ca0e58daf02643086cfc029451c9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/model_architecture_search.py",
+          "mode": "100644",
+          "source_sha": "0a6a4d0107183c4a86478ece2b1fb8902adb4224",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/package_model_architecture_external.py",
+          "mode": "100644",
+          "source_sha": "c46dc53b2532057e4f66790071d9daf9007443bf",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 28,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "5ca47d516efe03247e14373d02ec192d792bc128",
+      "prepared_at": "2026-11-08T10:57:48.794Z",
+      "verified_leaf_count": 28,
+      "verified_at": "2026-11-08T10:58:32.260Z"
+    },
+    {
+      "pr": 614,
+      "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+      "common_base": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/far-investigation-engine.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "974a5f82090b61eaea7c620ca94b3d9ec4c3bc2d"
+        },
+        {
+          "path": ".github/workflows/far-investigation-hosted-campaign.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f10fa54fdce7feeee7f71e06a7e3fc5c53d0b2b7"
+        },
+        {
+          "path": "research/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2e2262ca1de3979bb50893c04218f46cf4dd9694"
+        },
+        {
+          "path": "research/investigation-engine/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "70f1a2b51471378a677ea0ca9b2e373a27bde252"
+        },
+        {
+          "path": "research/investigation-engine/evidence-manifest.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3bb9c39a70a31b4f42492735a32c35b6c72c8b12"
+        },
+        {
+          "path": "research/investigation-engine/execution-interruption-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7b1d751e166af816104262f1950b143061ee0f62"
+        },
+        {
+          "path": "research/investigation-engine/execution-profile-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "43e879375850ec2f1fc7193139fb0b94cf5e5421"
+        },
+        {
+          "path": "research/investigation-engine/finding-ledger.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c32448d272a59c3d51b3beee0dff40b3189d284f"
+        },
+        {
+          "path": "research/investigation-engine/hosted-recovery-observation-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a34e0fc95001c9e5ccef53b8970f9b9aad21fd6e"
+        },
+        {
+          "path": "research/investigation-engine/hosted-recovery-v0.1.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "1957cc791746a975f0fc6d3199073594412ed4ae"
+        },
+        {
+          "path": "research/investigation-engine/odr-preparation-observation-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "046526cb741b09452fe8006347675afaedefb470"
+        },
+        {
+          "path": "research/investigation-engine/odr-preparation-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "05dc4d07840bb308d13c9b08b60c89d3ad6bb2b5"
+        },
+        {
+          "path": "research/investigation-engine/original-hosted-workflow-v0.1.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b3f9ee2248f1e71cff4494264e75855274aead42"
+        },
+        {
+          "path": "research/investigation-engine/posthoc-numeric-recomputation-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5a678c715c635915ab6b2904973327074c589321"
+        },
+        {
+          "path": "research/investigation-engine/preregistration-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "064e9bf858e552fe127a77b399f84efd8ab8016a"
+        },
+        {
+          "path": "research/investigation-engine/raw-usage-correction-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "56c738e108803635c84de2aac4560e9afa9dfd8e"
+        },
+        {
+          "path": "research/investigation-engine/recompute-numeric-v0.1.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2432e72fdb43da46d1a9fc649d5eaa06721c1bc4"
+        },
+        {
+          "path": "research/investigation-engine/record-odr-preparation-v0.1.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "286fbcc127ca2631ed272a8a072a44e795a82e11"
+        },
+        {
+          "path": "research/investigation-engine/requirements-odr-preparation-v0.1.txt",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0778060fc80d42aa8f6e9e69440a13b0c0adfd1f"
+        },
+        {
+          "path": "research/investigation-engine/selection-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "967bc0494f99705343fa586cab081e39a6124512"
+        },
+        {
+          "path": "research/investigation-engine/selection-v2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d7654a3553291844ec2169836010e33c914db427"
+        },
+        {
+          "path": "tests/test_far_investigation_audit.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "81359b3b05f2585bc0a7ba45e34b69c8052754e4"
+        },
+        {
+          "path": "tests/test_far_investigation_campaign.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fcbfc3fba11973b32d75ccc28e7867ab058869b1"
+        },
+        {
+          "path": "tests/test_far_investigation_engine.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b4ba42f1aeb0285e10ff9214a89b791d002256cc"
+        },
+        {
+          "path": "tests/test_far_investigation_odr_preparation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5454b93d9619aeb748ca165a6f6007df2701ce0e"
+        },
+        {
+          "path": "tests/test_far_investigation_retrieval.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "33ef7d902cb56c571bc5d1981dad372b1ed27a4b"
+        },
+        {
+          "path": "tests/test_far_investigation_review_regression.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f4ca57cea999135baba1c2d6f67577468b1614df"
+        },
+        {
+          "path": "tests/test_far_investigation_usage.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3459bf6fe82042c69d0a1340e11cfdbb9f8f1e56"
+        },
+        {
+          "path": "tests/test_far_investigation_verifiers.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c0eb74bb3b06c72abdf082087c75559cc312476a"
+        },
+        {
+          "path": "tests/test_far_uncertain_routing_pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3c3eb790bb89cc7e56809d4c2757c1e93f878620"
+        },
+        {
+          "path": "tools/far_investigation_audit.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "0b12322f21f82277feff256964f6c24171d84250"
+        },
+        {
+          "path": "tools/far_investigation_campaign.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "da8257cb9cb9591da5bfb1b4d201ff5e368eb240"
+        },
+        {
+          "path": "tools/far_investigation_engine.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "ad104eb86e5afba2f8a3e1597fe606074d9f9811"
+        },
+        {
+          "path": "tools/far_investigation_odr_preparation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7521f02dffc5ddbeaaf28bee83c0ec0fd6f25566"
+        },
+        {
+          "path": "tools/far_investigation_retrieval.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a22e848408776f1ad347b179dff175a3615b47a9"
+        },
+        {
+          "path": "tools/far_investigation_usage.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "8e0cc43841293314a1540c3136ede1627dc2ad74"
+        },
+        {
+          "path": "tools/far_investigation_verifiers.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c782711b905c3434bb033a981d724b05ca1f0b0d"
+        },
+        {
+          "path": "tools/far_uncertain_routing_pilot.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f7ebe6cffdd3a4e70b34219419441dfd1e4f17b9"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/far-investigation-engine.yml",
+          "mode": "100644",
+          "source_sha": "974a5f82090b61eaea7c620ca94b3d9ec4c3bc2d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": ".github/workflows/far-investigation-hosted-campaign.yml",
+          "mode": "100644",
+          "source_sha": "f10fa54fdce7feeee7f71e06a7e3fc5c53d0b2b7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/README.md",
+          "mode": "100644",
+          "source_sha": "2e2262ca1de3979bb50893c04218f46cf4dd9694",
+          "current_main_sha": "ef0dba1ca5fbf7546faf0dcfb11060a890516ecf",
+          "base_sha": "ef0dba1ca5fbf7546faf0dcfb11060a890516ecf",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/README.md",
+          "mode": "100644",
+          "source_sha": "70f1a2b51471378a677ea0ca9b2e373a27bde252",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/evidence-manifest.json",
+          "mode": "100644",
+          "source_sha": "3bb9c39a70a31b4f42492735a32c35b6c72c8b12",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/execution-interruption-v0.1.md",
+          "mode": "100644",
+          "source_sha": "7b1d751e166af816104262f1950b143061ee0f62",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/execution-profile-v0.1.json",
+          "mode": "100644",
+          "source_sha": "43e879375850ec2f1fc7193139fb0b94cf5e5421",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/finding-ledger.md",
+          "mode": "100644",
+          "source_sha": "c32448d272a59c3d51b3beee0dff40b3189d284f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/hosted-recovery-observation-v0.1.md",
+          "mode": "100644",
+          "source_sha": "a34e0fc95001c9e5ccef53b8970f9b9aad21fd6e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/hosted-recovery-v0.1.zip",
+          "mode": "100644",
+          "source_sha": "1957cc791746a975f0fc6d3199073594412ed4ae",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/odr-preparation-observation-v0.1.json",
+          "mode": "100644",
+          "source_sha": "046526cb741b09452fe8006347675afaedefb470",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/odr-preparation-v0.1.md",
+          "mode": "100644",
+          "source_sha": "05dc4d07840bb308d13c9b08b60c89d3ad6bb2b5",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/original-hosted-workflow-v0.1.yml",
+          "mode": "100644",
+          "source_sha": "b3f9ee2248f1e71cff4494264e75855274aead42",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/posthoc-numeric-recomputation-v0.1.json",
+          "mode": "100644",
+          "source_sha": "5a678c715c635915ab6b2904973327074c589321",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/preregistration-v0.1.md",
+          "mode": "100644",
+          "source_sha": "064e9bf858e552fe127a77b399f84efd8ab8016a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/raw-usage-correction-v1.json",
+          "mode": "100644",
+          "source_sha": "56c738e108803635c84de2aac4560e9afa9dfd8e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/recompute-numeric-v0.1.py",
+          "mode": "100644",
+          "source_sha": "2432e72fdb43da46d1a9fc649d5eaa06721c1bc4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/record-odr-preparation-v0.1.py",
+          "mode": "100644",
+          "source_sha": "286fbcc127ca2631ed272a8a072a44e795a82e11",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/requirements-odr-preparation-v0.1.txt",
+          "mode": "100644",
+          "source_sha": "0778060fc80d42aa8f6e9e69440a13b0c0adfd1f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/selection-v1.json",
+          "mode": "100644",
+          "source_sha": "967bc0494f99705343fa586cab081e39a6124512",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/investigation-engine/selection-v2.json",
+          "mode": "100644",
+          "source_sha": "d7654a3553291844ec2169836010e33c914db427",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_audit.py",
+          "mode": "100644",
+          "source_sha": "81359b3b05f2585bc0a7ba45e34b69c8052754e4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_campaign.py",
+          "mode": "100644",
+          "source_sha": "fcbfc3fba11973b32d75ccc28e7867ab058869b1",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_engine.py",
+          "mode": "100644",
+          "source_sha": "b4ba42f1aeb0285e10ff9214a89b791d002256cc",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_odr_preparation.py",
+          "mode": "100644",
+          "source_sha": "5454b93d9619aeb748ca165a6f6007df2701ce0e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_retrieval.py",
+          "mode": "100644",
+          "source_sha": "33ef7d902cb56c571bc5d1981dad372b1ed27a4b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_review_regression.py",
+          "mode": "100644",
+          "source_sha": "f4ca57cea999135baba1c2d6f67577468b1614df",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_usage.py",
+          "mode": "100644",
+          "source_sha": "3459bf6fe82042c69d0a1340e11cfdbb9f8f1e56",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_investigation_verifiers.py",
+          "mode": "100644",
+          "source_sha": "c0eb74bb3b06c72abdf082087c75559cc312476a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_uncertain_routing_pilot.py",
+          "mode": "100644",
+          "source_sha": "3c3eb790bb89cc7e56809d4c2757c1e93f878620",
+          "current_main_sha": "4408c13e1d4ddc2c8edbb0416a0fe3694a84ffb1",
+          "base_sha": "4408c13e1d4ddc2c8edbb0416a0fe3694a84ffb1",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_audit.py",
+          "mode": "100644",
+          "source_sha": "0b12322f21f82277feff256964f6c24171d84250",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_campaign.py",
+          "mode": "100644",
+          "source_sha": "da8257cb9cb9591da5bfb1b4d201ff5e368eb240",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_engine.py",
+          "mode": "100644",
+          "source_sha": "ad104eb86e5afba2f8a3e1597fe606074d9f9811",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_odr_preparation.py",
+          "mode": "100644",
+          "source_sha": "7521f02dffc5ddbeaaf28bee83c0ec0fd6f25566",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_retrieval.py",
+          "mode": "100644",
+          "source_sha": "a22e848408776f1ad347b179dff175a3615b47a9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_usage.py",
+          "mode": "100644",
+          "source_sha": "8e0cc43841293314a1540c3136ede1627dc2ad74",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_investigation_verifiers.py",
+          "mode": "100644",
+          "source_sha": "c782711b905c3434bb033a981d724b05ca1f0b0d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_uncertain_routing_pilot.py",
+          "mode": "100644",
+          "source_sha": "f7ebe6cffdd3a4e70b34219419441dfd1e4f17b9",
+          "current_main_sha": "9ce603657552de00859c74a3135e389a558fce1d",
+          "base_sha": "9ce603657552de00859c74a3135e389a558fce1d",
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 38,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "fc78d17c15a749479ff8cc03d777b5d1aa5a03c2",
+      "prepared_at": "2026-11-08T10:57:49.858Z",
+      "verified_leaf_count": 38,
+      "verified_at": "2026-11-08T10:58:32.312Z"
+    },
+    {
+      "pr": 611,
+      "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/weight-space-offline-checks.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "dec81474749449d3a20dbdd03c52ca242ece2a07"
+        },
+        {
+          "path": "research/weight_space_programming/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060"
+        },
+        {
+          "path": "research/weight_space_programming/protocol-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "10e496f51993d4638d2ae9bb30bc81aa5b6600e6"
+        },
+        {
+          "path": "tests/test_weight_space_research.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a521093a2750e3acb417241984d0796795184d3f"
+        },
+        {
+          "path": "tools/weight_space_research.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "62d1aa95b31c59cc6e7785d8fcf8670a07b0c9d4"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/weight-space-offline-checks.yml",
+          "mode": "100644",
+          "source_sha": "dec81474749449d3a20dbdd03c52ca242ece2a07",
+          "current_main_sha": "56865ffd4a4ee38578a098f9750e614564858ac4",
+          "base_sha": "56865ffd4a4ee38578a098f9750e614564858ac4",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/weight_space_programming/README.md",
+          "mode": "100644",
+          "source_sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/weight_space_programming/protocol-v0.1.md",
+          "mode": "100644",
+          "source_sha": "10e496f51993d4638d2ae9bb30bc81aa5b6600e6",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_weight_space_research.py",
+          "mode": "100644",
+          "source_sha": "a521093a2750e3acb417241984d0796795184d3f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/weight_space_research.py",
+          "mode": "100644",
+          "source_sha": "62d1aa95b31c59cc6e7785d8fcf8670a07b0c9d4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 5,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "61678a2889164d4701eebebb188c30100fa4accf",
+      "prepared_at": "2026-11-08T10:57:50.322Z",
+      "verified_leaf_count": 5,
+      "verified_at": "2026-11-08T10:58:32.435Z"
+    },
+    {
+      "pr": 607,
+      "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/far-workflow-efficacy-local-smoke.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5383ae9a7749d090389a76d21fc9e8f435874a84"
+        },
+        {
+          "path": "research/workflow-efficacy/LOCAL-QWEN-V0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "380d08e3120d2d389abfc37b4699704d6343d88c"
+        },
+        {
+          "path": "research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903"
+        },
+        {
+          "path": "research/workflow-efficacy/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "447f2b17af1eba6f3b168fcd81c463e17e63c061"
+        },
+        {
+          "path": "research/workflow-efficacy/local-merged-results/.gitkeep",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "966c9f239d96f56bc43fe4743c25f7d3d601aac3"
+        },
+        {
+          "path": "research/workflow-efficacy/local-pair-results/.gitkeep",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "33f473ab7ba07bbb2532a9102820fc4cfcb82b96"
+        },
+        {
+          "path": "research/workflow-efficacy/local-qwen-original-workflow-v0.1.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "50f062a6817d925710ab7522334f2c31f11bf4ab"
+        },
+        {
+          "path": "research/workflow-efficacy/local-report/.gitkeep",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "070cac7daae8ba4bfb1ceaa8b7ec1726c8dac87d"
+        },
+        {
+          "path": "research/workflow-efficacy/local-smoke/.gitkeep",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5f176476c4bf067207f7f9abb7eba0193e2b55a6"
+        },
+        {
+          "path": "tests/test_workflow_efficacy_local_analysis.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "39f7fa54fe698eeea714c70c662f46964a62a769"
+        },
+        {
+          "path": "tests/test_workflow_efficacy_local_ollama.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e8568a5f6a8cba92b27354a6eada89caa30380f0"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_analysis.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "aeac1f6e3fab7663c0f5d34fc839a8135b6dbfba"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_install.sh",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "cf0153b08f0f86fc5bb7073ccddc001409e94879"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_ollama.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "042d2d18233d7bf67bfd8de5a6ab4f6f4d8917a2"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/far-workflow-efficacy-local-smoke.yml",
+          "mode": "100644",
+          "source_sha": "5383ae9a7749d090389a76d21fc9e8f435874a84",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/LOCAL-QWEN-V0.1.md",
+          "mode": "100644",
+          "source_sha": "380d08e3120d2d389abfc37b4699704d6343d88c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+          "mode": "100644",
+          "source_sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/README.md",
+          "mode": "100644",
+          "source_sha": "447f2b17af1eba6f3b168fcd81c463e17e63c061",
+          "current_main_sha": "3cad4438c8ef68010964631b8c7ce0b279e6c415",
+          "base_sha": "3cad4438c8ef68010964631b8c7ce0b279e6c415",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/local-merged-results/.gitkeep",
+          "mode": "100644",
+          "source_sha": "966c9f239d96f56bc43fe4743c25f7d3d601aac3",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/local-pair-results/.gitkeep",
+          "mode": "100644",
+          "source_sha": "33f473ab7ba07bbb2532a9102820fc4cfcb82b96",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/local-qwen-original-workflow-v0.1.yml",
+          "mode": "100644",
+          "source_sha": "50f062a6817d925710ab7522334f2c31f11bf4ab",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/local-report/.gitkeep",
+          "mode": "100644",
+          "source_sha": "070cac7daae8ba4bfb1ceaa8b7ec1726c8dac87d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/workflow-efficacy/local-smoke/.gitkeep",
+          "mode": "100644",
+          "source_sha": "5f176476c4bf067207f7f9abb7eba0193e2b55a6",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_workflow_efficacy_local_analysis.py",
+          "mode": "100644",
+          "source_sha": "39f7fa54fe698eeea714c70c662f46964a62a769",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_workflow_efficacy_local_ollama.py",
+          "mode": "100644",
+          "source_sha": "e8568a5f6a8cba92b27354a6eada89caa30380f0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_analysis.py",
+          "mode": "100644",
+          "source_sha": "aeac1f6e3fab7663c0f5d34fc839a8135b6dbfba",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_install.sh",
+          "mode": "100644",
+          "source_sha": "cf0153b08f0f86fc5bb7073ccddc001409e94879",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/workflow_efficacy_local_ollama.py",
+          "mode": "100644",
+          "source_sha": "042d2d18233d7bf67bfd8de5a6ab4f6f4d8917a2",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 14,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "d84fc263d68210f353a6e64c1daf9d120fe1a93d",
+      "prepared_at": "2026-11-08T10:57:50.821Z",
+      "verified_leaf_count": 14,
+      "verified_at": "2026-11-08T10:58:32.461Z"
+    },
+    {
+      "pr": 606,
+      "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/far-architecture-offline-model.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "faf4ebda3e293551ea9591da43bf036d56c2a836"
+        },
+        {
+          "path": "research/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- [`architecture-routing/README.md`](architecture-routing/README.md) — completed bounded three-arm routing study: deterministic/declarative 12/12 each, small-model 9/12; no general reasoning or causal advantage claim.\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n"
+        },
+        {
+          "path": "research/architecture-routing/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "571159d2bebb6e41ad234e60786e7a530173fefc"
+        },
+        {
+          "path": "research/architecture-routing/cpu-protocol-v0.2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e314fbe77a7c51873fe9f272c9e4f38700b9b062"
+        },
+        {
+          "path": "research/architecture-routing/cpu-protocol-v0.3.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7a7abfffdbf0aa3989fae8160c1b6bc33fbc94ce"
+        },
+        {
+          "path": "research/architecture-routing/execution-observation-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "a034f7c622dca7a9b859af9a51fd6dd70706e803"
+        },
+        {
+          "path": "research/architecture-routing/execution-observation-v0.3.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b017e1b526f57bba07108b9ff1774de713265d00"
+        },
+        {
+          "path": "research/architecture-routing/finding-ledger.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106"
+        },
+        {
+          "path": "research/architecture-routing/original-workflow-v0.3.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "58d442b2330ed75af2d65a33dc6b3eff1d1f3fb4"
+        },
+        {
+          "path": "research/architecture-routing/preflight-failure-v0.2.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c12f74e271f1d8d19a058909735442b14053ef8d"
+        },
+        {
+          "path": "research/architecture-routing/protocol-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2e279bda28e4e35647919144e1b9a99f667d080a"
+        },
+        {
+          "path": "research/architecture-routing/run-artifacts/.gitkeep",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "tests/test_far_architecture_cpu_experiment.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "42a51b886349fca6d117a971358eb1dd3e927e4a"
+        },
+        {
+          "path": "tests/test_far_architecture_routing.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "631bb9af2c8dfab8e12e7d9308b58e9ecef92fc9"
+        },
+        {
+          "path": "tools/far_architecture_cpu_experiment.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f9437b036d6d2e4f6131709ca58cccf75360e212"
+        },
+        {
+          "path": "tools/far_architecture_routing.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f0efdf7cabd67cd5b0a036be51ada34f38bd1129"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/far-architecture-offline-model.yml",
+          "mode": "100644",
+          "source_sha": "faf4ebda3e293551ea9591da43bf036d56c2a836",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/README.md",
+          "mode": "100644",
+          "source_sha": "d076f388f20ba372dc657161d1dbaccd3b64722a",
+          "current_main_sha": "ef0dba1ca5fbf7546faf0dcfb11060a890516ecf",
+          "base_sha": "a7c97429682b03e7cdb1e300e5ce831bd2c55a3a",
+          "method": "strict unique common-base patch hunks onto current main; preserve both navigation additions",
+          "merged_content": "# Research Index\n\nStatus: Research navigation; non-canonical\n\n## Purpose\n\nThis file is the navigation entry point for exploratory and provisional work under `research/`.\n\n## Authority boundary\n\nThe Repository Domain Registry defines `research/` as non-canonical exploratory/provisional material. Nothing indexed here becomes accepted theory, current governance, or claim authority merely by appearing in this directory or this index.\n\nUse [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current canonical sources and [`../docs/governance/research-execution-charter.md`](../docs/governance/research-execution-charter.md) for research status and promotion rules.\n\n## Major areas\n\n- [`architecture-routing/README.md`](architecture-routing/README.md) — completed bounded three-arm routing study: deterministic/declarative 12/12 each, small-model 9/12; no general reasoning or causal advantage claim.\n- `axiomatization/` — exploratory axiomatization work.\n- `bibliography/` and `literature/` — research-source records.\n- `comparisons/` — exploratory comparative work.\n- [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.\n- [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.\n- [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.\n- [`uncertain-routing/README.md`](uncertain-routing/README.md) — explicit-contract dispatch and bounded live retrieval/intake/verifier execution; seven of eight model proposals required controller substitution.\n- `discovery/` — discovery records.\n- `foundations/` — research concerning foundational questions; not the accepted `../foundations/` domain.\n- `methodology/` — research-stage methodology work; not the canonical methodology/governance layer.\n- `notes/` — working research notes.\n- `open-problems/` — research-stage problem material.\n- `proofs/` — proof research and draft proof-navigation material; not accepted proof authority unless separately promoted by canonical governance.\n- `validation/` — research validation investigations and execution evidence.\n\n## Preservation rule\n\nResearch records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.\n"
+        },
+        {
+          "path": "research/architecture-routing/README.md",
+          "mode": "100644",
+          "source_sha": "571159d2bebb6e41ad234e60786e7a530173fefc",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/cpu-protocol-v0.2.json",
+          "mode": "100644",
+          "source_sha": "e314fbe77a7c51873fe9f272c9e4f38700b9b062",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/cpu-protocol-v0.3.json",
+          "mode": "100644",
+          "source_sha": "7a7abfffdbf0aa3989fae8160c1b6bc33fbc94ce",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/execution-observation-v0.1.md",
+          "mode": "100644",
+          "source_sha": "a034f7c622dca7a9b859af9a51fd6dd70706e803",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/execution-observation-v0.3.md",
+          "mode": "100644",
+          "source_sha": "b017e1b526f57bba07108b9ff1774de713265d00",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/finding-ledger.md",
+          "mode": "100644",
+          "source_sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/original-workflow-v0.3.yml",
+          "mode": "100644",
+          "source_sha": "58d442b2330ed75af2d65a33dc6b3eff1d1f3fb4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/preflight-failure-v0.2.md",
+          "mode": "100644",
+          "source_sha": "c12f74e271f1d8d19a058909735442b14053ef8d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/protocol-v0.1.json",
+          "mode": "100644",
+          "source_sha": "2e279bda28e4e35647919144e1b9a99f667d080a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "research/architecture-routing/run-artifacts/.gitkeep",
+          "mode": "100644",
+          "source_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_architecture_cpu_experiment.py",
+          "mode": "100644",
+          "source_sha": "42a51b886349fca6d117a971358eb1dd3e927e4a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_far_architecture_routing.py",
+          "mode": "100644",
+          "source_sha": "631bb9af2c8dfab8e12e7d9308b58e9ecef92fc9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_architecture_cpu_experiment.py",
+          "mode": "100644",
+          "source_sha": "f9437b036d6d2e4f6131709ca58cccf75360e212",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/far_architecture_routing.py",
+          "mode": "100644",
+          "source_sha": "f0efdf7cabd67cd5b0a036be51ada34f38bd1129",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 16,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "4e4fa01f0f281887bb88906dd69665e5aa89345b",
+      "prepared_at": "2026-11-08T10:57:51.728Z",
+      "verified_leaf_count": 16,
+      "verified_at": "2026-11-08T10:58:32.268Z"
+    },
+    {
+      "pr": 600,
+      "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": ".github/workflows/forecastbench-real-schema.yml",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "67179f8cbb8ad32a977f019d9c85b94f7124c391"
+        },
+        {
+          "path": "docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb"
+        },
+        {
+          "path": "docs/research/orthodox-world-model-theory-impact-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "8296a6e2f80fd4f7c0b11a67fc91fcc829386ff9"
+        },
+        {
+          "path": "docs/research/worldview-truth-discovery-ablation-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "80efdac5b71032161fa891eae55e37e46e58ad10"
+        },
+        {
+          "path": "docs/specification/far-world-model-v0.1.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c5595e935b256609215d2b077c1231a75a3c8767"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/after.log",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "50458fab01566c6ae3f7e5d9de7a447c93c09a1a"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/before.log",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9da582be551c57499be9e57d01fc77575800dd9d"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/registration-after.log",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "217b638eeb3291d0bd4052732125ef8b2b607f41"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/registration-before.log",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "8037759cc4db4c6286d0da983be74114093f3014"
+        },
+        {
+          "path": "evaluation/external_christian_integrity_reanalysis.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "edc218220d03ec446e76dba3026f50a1526c7f75"
+        },
+        {
+          "path": "evaluation/factual_investigation_runner.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "16e963ae8bce7cd87fe7af3814180acc2080a72a"
+        },
+        {
+          "path": "evaluation/fixtures/factual-answer-key-synthetic-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fcc735027d9fdccc8e1ae53bbc60c09710b54eb0"
+        },
+        {
+          "path": "evaluation/fixtures/factual-packet-synthetic-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2e1885e16c3bcbb637717258e53b79494450405d"
+        },
+        {
+          "path": "evaluation/fixtures/worldview-ablation-source-clusters-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "791a224610e3f3c31a1b5d95ea82d4460ec2f88f"
+        },
+        {
+          "path": "evaluation/fixtures/worldview-ablation-synthetic-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3835d25839b4173fefa5ff8314244ded98138022"
+        },
+        {
+          "path": "evaluation/forecast_resolution_join.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b8c6a864df63c0923f9562bc3aad4fab509043ca"
+        },
+        {
+          "path": "evaluation/forecastbench_export.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d49deed4b2a41ee341becf1f8349726ff5ada982"
+        },
+        {
+          "path": "evaluation/forecastbench_schema_audit.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f14da56c1c6db0f20e4824b4aae2cad72f6a3300"
+        },
+        {
+          "path": "evaluation/intake/forecastbench-2026-10-31-source-audit.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d398becb7f5a5f0b527c67cf0522c16f5da8219c"
+        },
+        {
+          "path": "evaluation/prospective_forecast_runner.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "217d5a371be45e781241a308c20a2ea56b4a70a7"
+        },
+        {
+          "path": "evaluation/results/worldview-ablation-synthetic-report-v0.1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "6c82cd78a38b42af170bdeca7825f1a4bdc43a57"
+        },
+        {
+          "path": "evaluation/score_factual_investigation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "bdd3934d513504d32452b7c2378a3d79166c6d42"
+        },
+        {
+          "path": "evaluation/worldview_confirmatory.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "766ce06e0550432b9c0094c630c38bb613239181"
+        },
+        {
+          "path": "evaluation/worldview_truth_discovery_ablation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e73ffa37e968a19e1636e316da23b44d12925f3a"
+        },
+        {
+          "path": "examples/world-model/orthodox-example.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "4ee1da0f5c3651e1a9ac16f90902cc57351b8fdd"
+        },
+        {
+          "path": "mechanization/far_mechanization/world_model.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7f9b689686ad46ae77f0ea9fceb05178814b9fbe"
+        },
+        {
+          "path": "schemas/far-world-model-v0.1.schema.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "50f7158730df70a367be65fcc0a7783429a52e52"
+        },
+        {
+          "path": "tests/test_external_christian_integrity_reanalysis.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fe49b5d9b00aae6a96578b8cbde5540c71079788"
+        },
+        {
+          "path": "tests/test_factual_investigation_runner.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "da63f27a5981ea8c2b75787919033717f316027f"
+        },
+        {
+          "path": "tests/test_forecast_resolution_join.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "c3d2ec3a0e6fbbde7f34d34bf4c7a10865d43849"
+        },
+        {
+          "path": "tests/test_forecastbench_export.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7bef3a9de5cc4239c6c2fbc058bea1fb25540c8c"
+        },
+        {
+          "path": "tests/test_prospective_forecast_runner.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "51d37608696720d6b042985c246d1d1630b1c171"
+        },
+        {
+          "path": "tests/test_world_model.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "bfc78fac0b7df57d3d0e4904e008444ef31e6904"
+        },
+        {
+          "path": "tests/test_worldview_confirmatory.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "4cc1cbf76dfe2ab1bc1162756dc33a310350762b"
+        },
+        {
+          "path": "tests/test_worldview_factorization.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9a8a956988cc1fad4bb679dbbbd339cb20b15edc"
+        },
+        {
+          "path": "tests/test_worldview_intake_convergence.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9f5b15e03dc6137dbdd1d8da2b4f3c3bcc4b1b27"
+        },
+        {
+          "path": "tests/test_worldview_truth_ablation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "d30eb6d93080624c9a024fe454cdeef1818bb1f1"
+        }
+      ],
+      "proof": [
+        {
+          "path": ".github/workflows/forecastbench-real-schema.yml",
+          "mode": "100644",
+          "source_sha": "67179f8cbb8ad32a977f019d9c85b94f7124c391",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+          "mode": "100644",
+          "source_sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "docs/research/orthodox-world-model-theory-impact-v0.1.md",
+          "mode": "100644",
+          "source_sha": "8296a6e2f80fd4f7c0b11a67fc91fcc829386ff9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "docs/research/worldview-truth-discovery-ablation-v0.1.md",
+          "mode": "100644",
+          "source_sha": "80efdac5b71032161fa891eae55e37e46e58ad10",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "docs/specification/far-world-model-v0.1.md",
+          "mode": "100644",
+          "source_sha": "c5595e935b256609215d2b077c1231a75a3c8767",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/after.log",
+          "mode": "100644",
+          "source_sha": "50458fab01566c6ae3f7e5d9de7a447c93c09a1a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/before.log",
+          "mode": "100644",
+          "source_sha": "9da582be551c57499be9e57d01fc77575800dd9d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/registration-after.log",
+          "mode": "100644",
+          "source_sha": "217b638eeb3291d0bd4052732125ef8b2b607f41",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/evidence/worldview-intake-convergence-20261106/registration-before.log",
+          "mode": "100644",
+          "source_sha": "8037759cc4db4c6286d0da983be74114093f3014",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/external_christian_integrity_reanalysis.py",
+          "mode": "100644",
+          "source_sha": "edc218220d03ec446e76dba3026f50a1526c7f75",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/factual_investigation_runner.py",
+          "mode": "100644",
+          "source_sha": "16e963ae8bce7cd87fe7af3814180acc2080a72a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/fixtures/factual-answer-key-synthetic-v0.1.json",
+          "mode": "100644",
+          "source_sha": "fcc735027d9fdccc8e1ae53bbc60c09710b54eb0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/fixtures/factual-packet-synthetic-v0.1.json",
+          "mode": "100644",
+          "source_sha": "2e1885e16c3bcbb637717258e53b79494450405d",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/fixtures/worldview-ablation-source-clusters-v0.1.json",
+          "mode": "100644",
+          "source_sha": "791a224610e3f3c31a1b5d95ea82d4460ec2f88f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/fixtures/worldview-ablation-synthetic-v0.1.json",
+          "mode": "100644",
+          "source_sha": "3835d25839b4173fefa5ff8314244ded98138022",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/forecast_resolution_join.py",
+          "mode": "100644",
+          "source_sha": "b8c6a864df63c0923f9562bc3aad4fab509043ca",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/forecastbench_export.py",
+          "mode": "100644",
+          "source_sha": "d49deed4b2a41ee341becf1f8349726ff5ada982",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/forecastbench_schema_audit.py",
+          "mode": "100644",
+          "source_sha": "f14da56c1c6db0f20e4824b4aae2cad72f6a3300",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/intake/forecastbench-2026-10-31-source-audit.json",
+          "mode": "100644",
+          "source_sha": "d398becb7f5a5f0b527c67cf0522c16f5da8219c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/prospective_forecast_runner.py",
+          "mode": "100644",
+          "source_sha": "217d5a371be45e781241a308c20a2ea56b4a70a7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/results/worldview-ablation-synthetic-report-v0.1.json",
+          "mode": "100644",
+          "source_sha": "6c82cd78a38b42af170bdeca7825f1a4bdc43a57",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/score_factual_investigation.py",
+          "mode": "100644",
+          "source_sha": "bdd3934d513504d32452b7c2378a3d79166c6d42",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/worldview_confirmatory.py",
+          "mode": "100644",
+          "source_sha": "766ce06e0550432b9c0094c630c38bb613239181",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "evaluation/worldview_truth_discovery_ablation.py",
+          "mode": "100644",
+          "source_sha": "e73ffa37e968a19e1636e316da23b44d12925f3a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "examples/world-model/orthodox-example.json",
+          "mode": "100644",
+          "source_sha": "4ee1da0f5c3651e1a9ac16f90902cc57351b8fdd",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "mechanization/far_mechanization/world_model.py",
+          "mode": "100644",
+          "source_sha": "7f9b689686ad46ae77f0ea9fceb05178814b9fbe",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "schemas/far-world-model-v0.1.schema.json",
+          "mode": "100644",
+          "source_sha": "50f7158730df70a367be65fcc0a7783429a52e52",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_external_christian_integrity_reanalysis.py",
+          "mode": "100644",
+          "source_sha": "fe49b5d9b00aae6a96578b8cbde5540c71079788",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_factual_investigation_runner.py",
+          "mode": "100644",
+          "source_sha": "da63f27a5981ea8c2b75787919033717f316027f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_forecast_resolution_join.py",
+          "mode": "100644",
+          "source_sha": "c3d2ec3a0e6fbbde7f34d34bf4c7a10865d43849",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_forecastbench_export.py",
+          "mode": "100644",
+          "source_sha": "7bef3a9de5cc4239c6c2fbc058bea1fb25540c8c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_prospective_forecast_runner.py",
+          "mode": "100644",
+          "source_sha": "51d37608696720d6b042985c246d1d1630b1c171",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_world_model.py",
+          "mode": "100644",
+          "source_sha": "bfc78fac0b7df57d3d0e4904e008444ef31e6904",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_worldview_confirmatory.py",
+          "mode": "100644",
+          "source_sha": "4cc1cbf76dfe2ab1bc1162756dc33a310350762b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_worldview_factorization.py",
+          "mode": "100644",
+          "source_sha": "9a8a956988cc1fad4bb679dbbbd339cb20b15edc",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_worldview_intake_convergence.py",
+          "mode": "100644",
+          "source_sha": "9f5b15e03dc6137dbdd1d8da2b4f3c3bcc4b1b27",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_worldview_truth_ablation.py",
+          "mode": "100644",
+          "source_sha": "d30eb6d93080624c9a024fe454cdeef1818bb1f1",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 37,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "4c4cfe90fc1ca77938f37fd52d824b10b7333e16",
+      "prepared_at": "2026-11-08T10:57:52.508Z",
+      "verified_leaf_count": 37,
+      "verified_at": "2026-11-08T10:58:32.652Z"
+    },
+    {
+      "pr": 599,
+      "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+      "common_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "current_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+      "current_main_tree": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "entries": [
+        {
+          "path": "commercial/far-investigation-audit/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "e824f9f01b11366ae4fb1d3c279ce623e895f2ec"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/.gitignore",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "22e7b82f37b82125d71482bb433c720cdee83bec"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/README.md",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3dbc5808db3689eb070f7dab081874300e2c3ae7"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/access-observations-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "fd196131524782bd06aca6242ac2f5e0cbdfaea9"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/artifact-manifest-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5eff66ed7da663a61d13fd12af3cc3057c207776"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/artifact-manifest-v2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "74f29344b8235c195ef363d514e741169f7af465"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/authentication-incident-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "aafbf9323777d03daa2787a3a588a47848704f4b"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/cases-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "f2e2f02235c45b3d040af65974332845bb4f63cf"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/crossref-reference-metadata-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "65af21f26fc2d4d11ef8ca3005817365a100bb9f"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/customer-evidence-status-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b9842c0226f360627f40856bb613cefe88f9bed0"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/far-deliveries-v1.zip",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2c42207d89559224923179c568573311247d6873"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/far-results-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "4242b265f9e3c33f43e03f553d9bcaafb0edd12f"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/metadata-verification/consensus-5c61fe194ff556a496d1beb94326a814.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3ed9a1ad7be235e96750e8d26b6c80ca2ca77289"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/metadata-verification/consensus-ffbd42770c0252a085462c5576a3aac2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "46ec1857edde3ec7c73abfb0b672afe8929f0971"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/portable-replay-verification-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "6463be9594e43dcab625e402bfa14dbf8537461b"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/protocol-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "db8fe5b1c01c83b87d08ad529e2a8cca3bcaac5b"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q01.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "b2d3e4389693ca6058e86f1e9f92d21a547b75c4"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q02.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "37697b77763aacab053d1b455d6aee59f3ee456c"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q03.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "4a2be8072c5a8e58e3422e7e41e7889752452902"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q04.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "86c892d709499d38c803f17b5c96884b8001d390"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q01.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9b90fa5c09e0e3013b6c68a8b3112db2eb90dc6e"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q02.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "789d6d6c498dd072abd821cdb2715b8a224849c7"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q03.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "9471a7e9e6644c8d8a33bb3231326915cd2616c8"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q04.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "36f42a7da46399b68a100d3dbac7574502b44881"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q01.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7ee622fe24e33039cfd343903f02352124e7bb94"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q02.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "099e8a37ea3e9ca8488199bfd16c7ccb9dd0157f"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q03.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "2602f3fd2e295cceb65a693a67bee36da9ba9ee1"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q04.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "1cd7790e79b97d15f077c63a39a7dc99996c4d72"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/registration-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "355e0276f8648ff092252beb55d6d13e0fa6fb4a"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/sequential-successor-registration-v2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "7b5df7b25286c39fc47b6f8e6ab6dfd304b26a5b"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/sequential-summary-v2.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "98118c6d12060a79efc22f66038c51d59d713db6"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/summary-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "902aab3216525ed5f356d082e6de5f7bfb8868fe"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/verification-evidence-v1.json",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "6e9aaa4b1d0b2d830596072b90eb1ad89406626c"
+        },
+        {
+          "path": "tests/test_live_commercial_evaluation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "3758f5a0c429bf297efe5ad1bcb2a4202c7442b0"
+        },
+        {
+          "path": "tests/test_live_commercial_verifier.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "de0f71c65e0854367ea0171c4079580aaac9de9c"
+        },
+        {
+          "path": "tools/run_live_commercial_evaluation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "00357f584c03c3268f01195b84202172fae76c87"
+        },
+        {
+          "path": "tools/verify_live_commercial_evaluation.py",
+          "type": "blob",
+          "mode": "100644",
+          "sha": "5f0c4d40cb8beee20eae207755b706afc5b5d778"
+        }
+      ],
+      "proof": [
+        {
+          "path": "commercial/far-investigation-audit/README.md",
+          "mode": "100644",
+          "source_sha": "e824f9f01b11366ae4fb1d3c279ce623e895f2ec",
+          "current_main_sha": "9c96543a37be653da2e26723d7d5419df6d37e83",
+          "base_sha": "9c96543a37be653da2e26723d7d5419df6d37e83",
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/.gitignore",
+          "mode": "100644",
+          "source_sha": "22e7b82f37b82125d71482bb433c720cdee83bec",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/README.md",
+          "mode": "100644",
+          "source_sha": "3dbc5808db3689eb070f7dab081874300e2c3ae7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/access-observations-v1.json",
+          "mode": "100644",
+          "source_sha": "fd196131524782bd06aca6242ac2f5e0cbdfaea9",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/artifact-manifest-v1.json",
+          "mode": "100644",
+          "source_sha": "5eff66ed7da663a61d13fd12af3cc3057c207776",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/artifact-manifest-v2.json",
+          "mode": "100644",
+          "source_sha": "74f29344b8235c195ef363d514e741169f7af465",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/authentication-incident-v1.json",
+          "mode": "100644",
+          "source_sha": "aafbf9323777d03daa2787a3a588a47848704f4b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/cases-v1.json",
+          "mode": "100644",
+          "source_sha": "f2e2f02235c45b3d040af65974332845bb4f63cf",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/crossref-reference-metadata-v1.json",
+          "mode": "100644",
+          "source_sha": "65af21f26fc2d4d11ef8ca3005817365a100bb9f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/customer-evidence-status-v1.json",
+          "mode": "100644",
+          "source_sha": "b9842c0226f360627f40856bb613cefe88f9bed0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/far-deliveries-v1.zip",
+          "mode": "100644",
+          "source_sha": "2c42207d89559224923179c568573311247d6873",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/far-results-v1.json",
+          "mode": "100644",
+          "source_sha": "4242b265f9e3c33f43e03f553d9bcaafb0edd12f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/metadata-verification/consensus-5c61fe194ff556a496d1beb94326a814.json",
+          "mode": "100644",
+          "source_sha": "3ed9a1ad7be235e96750e8d26b6c80ca2ca77289",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/metadata-verification/consensus-ffbd42770c0252a085462c5576a3aac2.json",
+          "mode": "100644",
+          "source_sha": "46ec1857edde3ec7c73abfb0b672afe8929f0971",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/portable-replay-verification-v1.json",
+          "mode": "100644",
+          "source_sha": "6463be9594e43dcab625e402bfa14dbf8537461b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/protocol-v1.json",
+          "mode": "100644",
+          "source_sha": "db8fe5b1c01c83b87d08ad529e2a8cca3bcaac5b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q01.json",
+          "mode": "100644",
+          "source_sha": "b2d3e4389693ca6058e86f1e9f92d21a547b75c4",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q02.json",
+          "mode": "100644",
+          "source_sha": "37697b77763aacab053d1b455d6aee59f3ee456c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q03.json",
+          "mode": "100644",
+          "source_sha": "4a2be8072c5a8e58e3422e7e41e7889752452902",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts-v2/consensus-Q04.json",
+          "mode": "100644",
+          "source_sha": "86c892d709499d38c803f17b5c96884b8001d390",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q01.json",
+          "mode": "100644",
+          "source_sha": "9b90fa5c09e0e3013b6c68a8b3112db2eb90dc6e",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q02.json",
+          "mode": "100644",
+          "source_sha": "789d6d6c498dd072abd821cdb2715b8a224849c7",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q03.json",
+          "mode": "100644",
+          "source_sha": "9471a7e9e6644c8d8a33bb3231326915cd2616c8",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/consensus-Q04.json",
+          "mode": "100644",
+          "source_sha": "36f42a7da46399b68a100d3dbac7574502b44881",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q01.json",
+          "mode": "100644",
+          "source_sha": "7ee622fe24e33039cfd343903f02352124e7bb94",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q02.json",
+          "mode": "100644",
+          "source_sha": "099e8a37ea3e9ca8488199bfd16c7ccb9dd0157f",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q03.json",
+          "mode": "100644",
+          "source_sha": "2602f3fd2e295cceb65a693a67bee36da9ba9ee1",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/receipts/scispace-Q04.json",
+          "mode": "100644",
+          "source_sha": "1cd7790e79b97d15f077c63a39a7dc99996c4d72",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/registration-v1.json",
+          "mode": "100644",
+          "source_sha": "355e0276f8648ff092252beb55d6d13e0fa6fb4a",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/sequential-successor-registration-v2.json",
+          "mode": "100644",
+          "source_sha": "7b5df7b25286c39fc47b6f8e6ab6dfd304b26a5b",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/sequential-summary-v2.json",
+          "mode": "100644",
+          "source_sha": "98118c6d12060a79efc22f66038c51d59d713db6",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/summary-v1.json",
+          "mode": "100644",
+          "source_sha": "902aab3216525ed5f356d082e6de5f7bfb8868fe",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "commercial/far-investigation-audit/evaluation/live-001/verification-evidence-v1.json",
+          "mode": "100644",
+          "source_sha": "6e9aaa4b1d0b2d830596072b90eb1ad89406626c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_live_commercial_evaluation.py",
+          "mode": "100644",
+          "source_sha": "3758f5a0c429bf297efe5ad1bcb2a4202c7442b0",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tests/test_live_commercial_verifier.py",
+          "mode": "100644",
+          "source_sha": "de0f71c65e0854367ea0171c4079580aaac9de9c",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/run_live_commercial_evaluation.py",
+          "mode": "100644",
+          "source_sha": "00357f584c03c3268f01195b84202172fae76c87",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        },
+        {
+          "path": "tools/verify_live_commercial_evaluation.py",
+          "mode": "100644",
+          "source_sha": "5f0c4d40cb8beee20eae207755b706afc5b5d778",
+          "current_main_sha": null,
+          "base_sha": null,
+          "method": "exact source blob; current main equals common base"
+        }
+      ],
+      "source_files": 37,
+      "no_local_execution": true,
+      "status": "PREPARED_NOT_PUBLISHED",
+      "prepared_tree_sha": "780813c41966145f2f614e291efbcb2a944236d1",
+      "prepared_at": "2026-11-08T10:57:53.106Z",
+      "verified_leaf_count": 37,
+      "verified_at": "2026-11-08T10:58:32.659Z"
+    }
+  ],
+  "total_source_paths_verified": 240
+}

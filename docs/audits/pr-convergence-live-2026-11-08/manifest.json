@@ -136,7 +136,7 @@
       "pr": 623,
       "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623",
       "title": "test(assurance): detect semantic false acceptance and correct cache provenance",
-      "head_sha": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
+      "head_sha": "bea74416c92967b19fa6fd896bb585ea36eab189",
       "branch": "audit/checker-behavioral-provenance-20261106",
       "draft": false,
       "observed_base_sha": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
@@ -214,14 +214,7 @@
         {
           "context": "merge-authority",
           "required_app_id": 15368,
-          "observed": {
-            "id": 128709073700,
-            "head_sha": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
-            "status": "in_progress",
-            "conclusion": null,
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42473305134/job/128709073700"
-          }
+          "observed": null
         },
         {
           "context": "protected-repin-gate",
@@ -231,26 +224,12 @@
         {
           "context": "pr-review-convergence-observation",
           "required_app_id": 15368,
-          "observed": {
-            "id": 128708924651,
-            "head_sha": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
-            "status": "completed",
-            "conclusion": "failure",
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42473305136/job/128708924651"
-          }
+          "observed": null
         }
       ],
-      "exact_head_assurance": [
-        {
-          "id": 128708986600,
-          "head_sha": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
-          "status": "in_progress",
-          "conclusion": null,
-          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42473305172/job/128708986600"
-        }
-      ],
+      "exact_head_assurance": [],
       "review": {
+        "historical_only": true,
         "commit_sha": "2494c70ff6a4c32d47f043bb4a15a7e8bce5efdc",
         "has_any_findings": true,
         "has_unresolved_findings": true,
@@ -294,13 +273,29 @@
           "fixed_head": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
           "fixed_tree": "bf517f2ed24c2d5bf7050d8820e83b1a6575eb76",
           "green_status": "PENDING",
-          "no_local_execution": true
+          "no_local_execution": true,
+          "first_fix": {
+            "head": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
+            "tree": "bf517f2ed24c2d5bf7050d8820e83b1a6575eb76",
+            "parent": "94c1cf9d68cb3258b833afe8eb7878ed36895370"
+          },
+          "second_red_job": 128708924799,
+          "second_red_failures": 288,
+          "matrix_cases": 13608,
+          "current_fix": {
+            "head": "bea74416c92967b19fa6fd896bb585ea36eab189",
+            "tree": "15ca8cd39b1a92159dc0eac82365ca20c7b2f6b5",
+            "parent": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
+            "second_red_job": 128708924799,
+            "defect": "288/13608 independent-oracle cases lost final condition comma following a preceding independent status",
+            "tests_unchanged": true
+          }
         }
       },
       "current_main_sha": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
       "contains_current_main": true,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_observed_at": "2026-11-08T10:54:29.361Z",
+      "checks_observed_at": null,
       "check_evidence_scope": "Exact observed head; stale base/App decisions do not authorize current-main integration."
     },
     {
@@ -1803,7 +1798,7 @@
     "Original frozen research data and ten-file historical #626 bundle were not rewritten.",
     "This is an in-progress checkpoint. Current GitHub state may have advanced during publication."
   ],
-  "saved_at": "2026-11-08T10:55:12.157Z",
+  "saved_at": "2026-11-08T10:59:03.088Z",
   "execution_environment": {
     "local_runtime": "UNAVAILABLE",
     "observed_at": "2026-11-08T10:27:35Z",
@@ -1906,12 +1901,13 @@
     "no_workflow_or_checksum_bypass": true
   },
   "prepared_refresh_evidence": {
-    "path": "prepared-normal-merges.json",
-    "base_main": "275252bfa72b37b5ef99b305b52d34e0543ac494",
-    "pr_count": 13,
-    "unique_files_preserved": 241,
+    "path": "prepared-current-main-trees.json",
+    "base_main": "f3aa2b465e0a3253ab0508731d59dff4a52103be",
+    "pr_count": 12,
+    "source_paths_verified": 240,
     "published": false,
-    "correction": "Previous 14-plan baseafce total was253, not293; earlier checkpoint prose overstated the sum. The machine count computed by reduction was253."
+    "no_local_execution": true,
+    "previous_source_bound_plan": "prepared-normal-merges.json"
   },
   "current_lane_refresh": {
     "622": {
@@ -2042,9 +2038,12 @@
       "verified_at": "2026-11-08T10:31:35.050Z",
       "review_request_comment": 6720408848,
       "then_consequent": {
-        "head": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
-        "tree": "bf517f2ed24c2d5bf7050d8820e83b1a6575eb76",
-        "parent": "94c1cf9d68cb3258b833afe8eb7878ed36895370"
+        "head": "bea74416c92967b19fa6fd896bb585ea36eab189",
+        "tree": "15ca8cd39b1a92159dc0eac82365ca20c7b2f6b5",
+        "parent": "78d8f01ed270681204b50ca3cf6a745d4cd79d55",
+        "second_red_job": 128708924799,
+        "defect": "288/13608 independent-oracle cases lost final condition comma following a preceding independent status",
+        "tests_unchanged": true
       }
     }
   },
