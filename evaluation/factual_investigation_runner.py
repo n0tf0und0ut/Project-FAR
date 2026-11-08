@@ -122,7 +122,7 @@ def investigate(packet, backend, model_id, timestamp, *, response_sink=None):
 
 
 def score_investigation(packet, predictions, key):
-    packet_validate(packet)
+    sources = packet_validate(packet)
     if predictions.get("packet_sha256") != digest(packet):
         raise ProspectiveError("packet changed since investigation")
     if not isinstance(key, dict) or set(key) != {"version", "study_id", "data_class", "labels"}:
@@ -150,6 +150,9 @@ def score_investigation(packet, predictions, key):
     for row in predictions.get("predictions", []):
         if not isinstance(row, dict) or row.get("arm") not in ARMS or row.get("case_id") not in gold:
             raise ProspectiveError("unknown prediction")
+        expected_prompt = prompt(packet, cases[row["case_id"]], sources, row["arm"])
+        if row.get("prompt_sha256") != digest(expected_prompt):
+            raise ProspectiveError("missing or hash-mismatched factual prompt")
         item = (row["case_id"], row["arm"])
         if item in seen:
             raise ProspectiveError("duplicate prediction")

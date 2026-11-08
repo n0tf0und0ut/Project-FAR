@@ -210,3 +210,31 @@ and pass afterward
 The complete focused suite now passes **125/125 tests**. No live forecast or
 frozen study is rewritten. This material correction requires fresh exact-head
 independent review and ordinary protected checks.
+
+## November 8 factual prompt-attribution correction
+
+**WORLD-FACT-PROMPT-001** — review comment
+[`4507123882`](https://github.com/n0tf0und0ut/Project-FAR/pull/600#discussion_r4507123882),
+thread `PRRT_kwDOTH_vCM61CysV`, reviewed head
+`3500adc6e4cc578e503e99b8fd3ee78ab812024e`.
+The factual scorer replayed original response bytes but did not check their
+retained prompt commitment before assigning the response to a treatment arm.
+Swapping only the `neutral` and `orthodox` labels in a scripted fixture therefore
+moved correct-answer totals from `{neutral: 0, orthodox: 3, placebo: 0}` to the
+wrong arms while all original response hashes remained valid.
+
+The scorer now reconstructs each case/arm prompt from the validated supplied
+packet and checks `prompt_sha256` before attributing any score to that row.
+Two regression methods failed with **64 assertions and zero errors** before the
+source repair: the original arm-label swap and all nine rows with missing,
+malformed, wrong-arm or wrong-case prompt commitments. They pass after repair;
+unchanged predictions and reordered valid rows retain their scores. All **127**
+focused factual/worldview/forecast tests pass, including the original raw-response
+and intake regressions.
+
+This verifies local record consistency only. A coordinated rewrite of labels and
+commitments is not authenticated execution, and the check establishes no external
+model, source, annotation or treatment provenance. Prompt construction, frozen
+protocols, fixture bytes and historical results are unchanged; no new model call
+or experiment was performed. Fresh substantive review and required protected
+checks must cover the corrective head.

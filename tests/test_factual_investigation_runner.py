@@ -15,6 +15,7 @@ from unittest.mock import patch
 from evaluation.factual_investigation_runner import (
     ProspectiveError, investigate, packet_validate, score_investigation, prompt
 )
+from evaluation.prospective_forecast_runner import CONDITIONS, digest
 
 
 def packet():
@@ -84,6 +85,62 @@ class DocumentaryInvestigationTests(unittest.TestCase):
             changed=copy.deepcopy(output);mutate(changed["predictions"][0])
             with self.subTest(mutate=mutate),self.assertRaises(ProspectiveError):
                 score_investigation(packet(),changed,answer_key())
+
+    def test_scorer_rejects_swapped_arm_labels_with_valid_response_hashes(self):
+        study = packet()
+
+        def arm_sensitive(messages):
+            response = json.loads(mocked(messages))
+            if not messages[0]["content"].startswith(CONDITIONS["orthodox"]):
+                response["status"] = {
+                    "SUPPORTED": "REFUTED", "REFUTED": "INSUFFICIENT",
+                    "INSUFFICIENT": "SUPPORTED",
+                }[response["status"]]
+            return json.dumps(response)
+
+        output = investigate(study, arm_sensitive, "mock",
+                             datetime(2026, 10, 30, tzinfo=timezone.utc))
+        expected = {"neutral": 0, "orthodox": 3, "placebo": 0}
+        self.assertEqual({arm: stats["correct"] for arm, stats in
+                          score_investigation(study, output, answer_key())["scores"].items()},
+                         expected)
+        changed = copy.deepcopy(output)
+        for row in changed["predictions"]:
+            row["arm"] = {"neutral": "orthodox", "orthodox": "neutral",
+                          "placebo": "placebo"}[row["arm"]]
+            self.assertEqual(hashlib.sha256(row["raw_response"].encode()).hexdigest(),
+                             row["response_sha256"])
+        with self.assertRaisesRegex(ProspectiveError, "factual prompt"):
+            score_investigation(study, changed, answer_key())
+
+    def test_scorer_binds_every_prompt_to_its_case_and_arm(self):
+        study = packet()
+        output = investigate(study, mocked, "mock",
+                             datetime(2026, 10, 30, tzinfo=timezone.utc))
+        sources = packet_validate(study)
+        for index, row in enumerate(output["predictions"]):
+            other_arm = next(arm for arm in CONDITIONS if arm != row["arm"])
+            case = next(case for case in study["cases"] if case["id"] == row["case_id"])
+            other_case = next(case for case in study["cases"] if case["id"] != row["case_id"])
+            wrong_hashes = [None, "0" * 64, [], 0,
+                            digest(prompt(study, case, sources, other_arm)),
+                            digest(prompt(study, other_case, sources, row["arm"]))]
+            for bad_hash in wrong_hashes:
+                changed = copy.deepcopy(output)
+                changed["predictions"][index]["prompt_sha256"] = bad_hash
+                with self.subTest(index=index, bad_hash=bad_hash):
+                    with self.assertRaisesRegex(ProspectiveError, "factual prompt"):
+                        score_investigation(study, changed, answer_key())
+            changed = copy.deepcopy(output)
+            del changed["predictions"][index]["prompt_sha256"]
+            with self.subTest(index=index, missing=True):
+                with self.assertRaisesRegex(ProspectiveError, "factual prompt"):
+                    score_investigation(study, changed, answer_key())
+        # Prompt reconstruction follows identities, not saved row order.
+        reordered = copy.deepcopy(output)
+        reordered["predictions"].reverse()
+        self.assertEqual(score_investigation(study, reordered, answer_key()),
+                         score_investigation(study, output, answer_key()))
 
     def test_failed_factual_cli_retains_both_valid_and_invalid_raw_responses(self):
         from evaluation.factual_investigation_runner import main
