@@ -106,7 +106,11 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
         last = boundaries[-1]
         last_tail = context[last.end():].strip()
         chain_start = len(boundaries) - 1
-        if FORWARD_PROHIBITION.fullmatch(last_tail.strip(" ,")):
+        # "both" introduces the following status group, not another part of
+        # the forward-prohibition phrase. Classify the chain without that
+        # introducer, while retaining the original context for group scoping.
+        chain_tail = BOTH_PREFIX.sub("", last_tail).strip(" ,")
+        if FORWARD_PROHIBITION.fullmatch(chain_tail):
             while chain_start > 0:
                 preceding = context[boundaries[chain_start - 1].end():boundaries[chain_start].start()]
                 if not FORWARD_PROHIBITION.fullmatch(preceding.strip(" ,")):

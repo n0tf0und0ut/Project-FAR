@@ -618,6 +618,50 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} coordinated-prohibition failures: {failures[:8]}")
         print(f"PROHIBITION_COMPOSITION: {len(cases)} independently specified ownership cases passed")
 
+    def test_positive_preceding_claim_is_not_masked_by_prohibited_group(self):
+        phrase = "Novelty: established, but do not assert and never claim both priority: established and uniqueness: established."
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _fixture(root, GOVERNANCE)
+            _append_promotion(root, phrase)
+            result = _run_checker(root, GOVERNANCE)
+            self.assertNotEqual(0, result.returncode, result.stdout)
+            self.assertIn("unnegated assurance promotion: 'novelty: established'", result.stdout.lower())
+
+    def test_prohibition_chain_group_status_noninterference_matrix(self):
+        # Vary each status independently so a negative control cannot mask an
+        # omitted positive claim. Expected identities come only from templates.
+        spec = importlib.util.spec_from_file_location("group_status_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        prohibitions = ("do not assert", "do not claim", "never assert", "never claim", "no basis to assert", "no basis to claim", "without asserting", "without claiming")
+        chains = [left + join + right for left in prohibitions for right in prohibitions
+                  for join in (" and ", " but ", " while ", " whereas ")]
+        chains += [first + " and " + second + " and " + third for first in prohibitions
+                   for second in prohibitions for third in prohibitions]
+        failures, count = [], 0
+        for chain in chains:
+            for join in (", and ", ", but ", " and ", " but "):
+                for x_positive in (False, True):
+                    for y_positive in (False, True):
+                        for z_positive in (False, True):
+                            x = "novelty: " + ("established" if x_positive else "not established")
+                            y = "priority: " + ("established" if y_positive else "not established")
+                            z = "uniqueness: " + ("established" if z_positive else "not established")
+                            cases = (
+                                (x + join + chain + " both " + y + " and " + z, {"novelty"} if x_positive else set()),
+                                (chain + " both " + x + " and " + y + join + z, {"uniqueness"} if z_positive else set()),
+                            )
+                            for text, expected in cases:
+                                count += 1
+                                result = checker.promotion_clauses(text + ".")
+                                observed = {name for name in ("novelty", "priority", "uniqueness")
+                                            if any(re.search(r"\b" + name + r"\b", entry, re.I) for entry in result)}
+                                if observed != expected:
+                                    failures.append((text, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{count} status-noninterference failures: {failures[:8]}")
+        print(f"GROUP_STATUS_NONINTERFERENCE: {count} exact-identity cases passed")
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:
