@@ -1,0 +1,1076 @@
+{
+  "schema": "far-private-integration-inputs/1",
+  "scope": "all registered corpus inventory, all declared living surfaces, source/schema/generator inputs; referenced frozen snapshot graph validated by existing corpus checker",
+  "records": [
+    {
+      "path": "README.md",
+      "sha256": "6af9fc8762db5da3f2548343f56059daf954ddca2ddbacb29f62d95473aee484",
+      "bytes": 19930
+    },
+    {
+      "path": "docs/CANONICAL_MAP.md",
+      "sha256": "725f7851616f3941a680f12b821b31b084a87e0c6f7045deee1528322b0510bf",
+      "bytes": 35009
+    },
+    {
+      "path": "docs/architecture/saturation-baseline-v0.5.md",
+      "sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
+      "bytes": 47541
+    },
+    {
+      "path": "docs/audits/far-core-epistemic-calibration-v1.0.md",
+      "sha256": "3e93cf7a653cb49135141646028b594166cd80391ab852e16bb695f4495760c6",
+      "bytes": 13667
+    },
+    {
+      "path": "docs/audits/ikd-w2-expanded-candidate-competition-audit.md",
+      "sha256": "559fb5bb7167e6bb9dd20e87503ca81c1ac9bd3d332cb6268996f3234fba8085",
+      "bytes": 1665
+    },
+    {
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-20.md",
+      "sha256": "1cd72a86e35cc46c9b0b50745af595eb8494aa6e1fa3ee683fbabcd37ccc3b7e",
+      "bytes": 17856
+    },
+    {
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-29.md",
+      "sha256": "a93b37022dff5cee2839c6085c849e2e3b603fabea47e590a95f3548d2d008ca",
+      "bytes": 17740
+    },
+    {
+      "path": "docs/audits/merged-pr-review-classification/FINDINGS.md",
+      "sha256": "8018a33c02fff08800e609bd0868cfee5de912eec39c7109e5a5381c065ab066",
+      "bytes": 557361
+    },
+    {
+      "path": "docs/audits/root-of-trust-audit-2026-09.md",
+      "sha256": "2d477eabe765404a3fd59b5146aaa3b0992862e802aa02bb403ba9a140b3f8d4",
+      "bytes": 30456
+    },
+    {
+      "path": "docs/audits/usd-w2-alternative-vocabulary-competition-audit.md",
+      "sha256": "22f926c465b6c607ca302d07d9607ca5b800e066d697f9c0740ab951d41cc826",
+      "bytes": 1540
+    },
+    {
+      "path": "docs/governance/claim-status-matrix.md",
+      "sha256": "8215a1254351a111ba7a8ddafdc378bf730f99f9b09f4a1a85ad73f275a79237",
+      "bytes": 46646
+    },
+    {
+      "path": "docs/governance/dependency-specification.md",
+      "sha256": "0bc23eb468a2505b91b80abc2ee915d42299b9030de47cbff88d2c155771c0b5",
+      "bytes": 816
+    },
+    {
+      "path": "docs/governance/external-falsification-and-replication-comparator-amendment-v2.0.md",
+      "sha256": "a2a6cc08a4ac57274df66d37b7824560aaf18e481667cabeb33b541a6d7a1570",
+      "bytes": 12416
+    },
+    {
+      "path": "docs/governance/external-falsification-and-replication-program-v1.0.md",
+      "sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
+      "bytes": 49940
+    },
+    {
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.1.md",
+      "sha256": "f2efbf02dbd8c430ef014519c9b4365eb723a152fb68636e2939b502429f4232",
+      "bytes": 7234
+    },
+    {
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.2.md",
+      "sha256": "799326e285553835039fc24892cd2152d2ed9e329bbe355f2ed9258bccf855f8",
+      "bytes": 8152
+    },
+    {
+      "path": "docs/governance/framework-boundaries.md",
+      "sha256": "fef98d2fbf9dc77a5379a77cb78cb90e2b8ffa992668159becf3a2708884a7d3",
+      "bytes": 2952
+    },
+    {
+      "path": "docs/governance/limitations-register.md",
+      "sha256": "4c7d9edd2d728174558132db06da212c920190c0207d49bd104df07b5d02355f",
+      "bytes": 33316
+    },
+    {
+      "path": "docs/governance/open-problems-register.md",
+      "sha256": "517aa07def99613488adc2f208cd0edcf789731ee0aec7e708ffee5877a0f627",
+      "bytes": 21349
+    },
+    {
+      "path": "docs/governance/research-execution-charter.md",
+      "sha256": "1a5d958354aae05fcf5ffddff7b7610c55e8004475d039c837a881c3c879e0cf",
+      "bytes": 5052
+    },
+    {
+      "path": "docs/governance/research-tool-authority-v1.0.md",
+      "sha256": "efe8ca6f19b7e3f8afd7579fbd0ed7de743b8a4ef53547f4dce015d0ffeb78b3",
+      "bytes": 5710
+    },
+    {
+      "path": "docs/governance/theorem-proof-status-register.md",
+      "sha256": "684029245f0b53a3603e58bae8460fb26eb516a958db545d520196cc532de2fb",
+      "bytes": 11177
+    },
+    {
+      "path": "docs/governance/unresolved-questions-register.md",
+      "sha256": "a4ef925b677c80a12c2a09acfc8f55b89c884fc9b928b75120065fb2ad6020a2",
+      "bytes": 22369
+    },
+    {
+      "path": "docs/governance/w1-w6-claim-evidence-matrix-v1.0.md",
+      "sha256": "08cf27fc610d7910a6a28d6b2baadf6221942b6b2cd78ef7357f36451b03d9ad",
+      "bytes": 7064
+    },
+    {
+      "path": "docs/project-status.md",
+      "sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
+      "bytes": 20929
+    },
+    {
+      "path": "docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md",
+      "sha256": "beec81427d14d2bd49250e15278d375d1bbca23a543fbac067c2d21ef46a101e",
+      "bytes": 7728
+    },
+    {
+      "path": "research/comparisons/far-investigation-benchmark-v0.1.md",
+      "sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
+      "bytes": 19606
+    },
+    {
+      "path": "research/corpus/corpus-v1.0.json",
+      "sha256": "6acaa5a7106fe014bc4d4fd5825836e6c96903683c3dfecc4b22e20882937719",
+      "bytes": 51910
+    },
+    {
+      "path": "research/corpus/reviewed-inputs-v1.0.json",
+      "sha256": "e1977fb0f90e575b9cd6e7765cce7c90630a9989f4d54bb33611ab1d10ec1c47",
+      "bytes": 126
+    },
+    {
+      "path": "research/corpus/snapshots/pr-490-manifest-v1.0.json",
+      "sha256": "542e0418dd77d32aeea03e9c86407cccfa9545dd384562c3a46bbaf508538640",
+      "bytes": 535562
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571-manifest-v1.0.json",
+      "sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "bytes": 1903
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/docs/architecture/saturation-baseline-v0.5-amendment-a1.md",
+      "sha256": "ef0deb7215e2fb52052b90f64b8fc39743364b400c6f029a077d91b9166e95ec",
+      "bytes": 1482
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/research/saturation-falsification-001/README.md",
+      "sha256": "4d8541a89d611da98a20b22c552297e7abf09aa0d3845c535e81c3dbfd804c26",
+      "bytes": 6378
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/research/saturation-falsification-001/counterexamples-v1.0.json",
+      "sha256": "4ccc26bbb85661ead7e09a46838b6a50c19e4e50eb1ae0090c4d164dd5dd488a",
+      "bytes": 6910
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/research/saturation-falsification-001/findings-v1.0.json",
+      "sha256": "32899191b2cc5ca9f1fbe0fcaf5c9d8cbcc90aa4a6b7d330e6a94c5d40ece656",
+      "bytes": 16675
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/research/saturation-falsification-001/replication.md",
+      "sha256": "1bc3878cde37d83f61500e74a4159095239c972519155a13786c5a5bdb2c4a84",
+      "bytes": 8375
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/research/saturation-falsification-001/source-receipts-v1.0.json",
+      "sha256": "61a5cc7377e5340d6e8eee1666720f33a7ad1c2563e6060c62f575369b415183",
+      "bytes": 1406
+    },
+    {
+      "path": "research/corpus/snapshots/pr-571/tests/test_saturation_falsification_001.py",
+      "sha256": "a7e005c3bd8bc2165f11a211b909fca4f1f020520af82304890f4327a7879bc1",
+      "bytes": 10806
+    },
+    {
+      "path": "research/living/README.md",
+      "sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
+      "bytes": 13785
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-0180C9D6CDB2EBB2.json",
+      "sha256": "e382f05ce83646db306ad5e40a625121c0ba22b238d3b5b1ff70e5a174de0a3b",
+      "bytes": 2083
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-02484DC7458931D4.json",
+      "sha256": "baf5a93160c5e371915bce27918547c0362bc38d3d7e77d23f78bf53a434269a",
+      "bytes": 2034
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-033D503034599C1C.json",
+      "sha256": "5195546c778268914bf180f8ba8a675a0f1813912afdafb3deee405dbd0deb9e",
+      "bytes": 2077
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-043CA73C5F30AC0F.json",
+      "sha256": "df9412e2beb3b8d0c7e6ce879c4f7d2a07b9906a6ac167fa85f32030a3a07b9b",
+      "bytes": 2153
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-06FA06EE9F5DF130.json",
+      "sha256": "48c4e21c63f21db05b6ef57883607ecea212fbfd834688ac07e59cd6b31ff43e",
+      "bytes": 2472
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-0744A8F074BBD9BD.json",
+      "sha256": "df6333dbafe21c65155c71a2ec792163a18b21f0bf4ece5c3c429b690a7ce062",
+      "bytes": 2447
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-0763118995CA7A8F.json",
+      "sha256": "1e890c031f71ea66b548afa674e996c25277e2e6e44b0c6ddfd9f0a434dc3754",
+      "bytes": 2051
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-0785F3B958AFE416.json",
+      "sha256": "82013eeec3d15e66bb3a9ebebab498815c696fe5efaf8f391c37fe975b50a482",
+      "bytes": 2131
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-07F874C8E5A99181.json",
+      "sha256": "948a7ffb526cd137d31cae31254857da8f9c3a374d53f78e5f822e1b5b34cd62",
+      "bytes": 2043
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-0AC2BD04416451DB.json",
+      "sha256": "a893085d7b25caba49297a40f2e3bcd37dd2a499e4a54ab2080ef10f92e9f4f5",
+      "bytes": 2441
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-13A36E11778EFCD9.json",
+      "sha256": "56e944f2dfbd4d34b649f122dd8c48f8a7cca55fb105461dd6a3946fc2ce4178",
+      "bytes": 2792
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-158441F707E87D83.json",
+      "sha256": "072c25201a6e0ac30253a4046d3aa151931d4f7507ef459279a71bafbcb7730e",
+      "bytes": 1996
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-172CE1028E4B74AB.json",
+      "sha256": "8c429f2e0fb7bc79eab452cd28209655db9639573f3852d16c5d3380f4f44d58",
+      "bytes": 2480
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-1767BED18173AC5C.json",
+      "sha256": "c66ba158df66709e1695aef1bfd724af6b389505ad9882ccfc26078977e97542",
+      "bytes": 2012
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-18C6EEA38091548E.json",
+      "sha256": "d52e391f038b1cae9e3f6352748896f4c45cf11f0d507f800df5943062fa7bd3",
+      "bytes": 2535
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-1951A5296ED5E987.json",
+      "sha256": "dc5bc5b3bdb6b85ec305af3e2e1190deaf91a77807d9098298857c7c54616cf7",
+      "bytes": 1885
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-1BCC02EE57CB7379.json",
+      "sha256": "e54a53f9f89a6403c6c5a429e1a609e52f644e536f89d3f8c8997548a8cac178",
+      "bytes": 2409
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-1C7E543B45222412.json",
+      "sha256": "50d76d741f087fbe548226dae7a7d347cae58a24e0f918d2123ed0dc0e247b21",
+      "bytes": 2122
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-20430256AC0FCF80.json",
+      "sha256": "876db73cb8ca0188d9e0df927862122ebd691b884e67a805a857e6582c80cb22",
+      "bytes": 2029
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-20A0FAABD3234D03.json",
+      "sha256": "c38cee78dc7120c602e3f11711b973bbbc6fb65fcf569a6c4bce26f24203c4eb",
+      "bytes": 2462
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-260A2A0D280429C2.json",
+      "sha256": "27bc003e00df25c3e504a33fd6961f7e6a009ae895ddf0d0bebeca768381f0a6",
+      "bytes": 1950
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-26F85E5BE6B408E3.json",
+      "sha256": "c0c8fddb9597d4cb749fb4b94023080da1c74e69866fc2369a68159bd67e5c22",
+      "bytes": 2055
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-27FCE770C48E09C9.json",
+      "sha256": "91ca6bad403f540653fbe7530fe055775785def96a7f2776d5ffc3fd278f2e90",
+      "bytes": 2194
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-288D236516771286.json",
+      "sha256": "796b19e8039f5fc725be3644f2dc5f2d80f023a689a7cfeb3c8da85b9fc5fed1",
+      "bytes": 2094
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-2F038B44017F7DB4.json",
+      "sha256": "6ba3861fe7f89981e1a832dfd7282f4266200d68af0e07a09d3132d9165ce53c",
+      "bytes": 1979
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-30F10678234475F5.json",
+      "sha256": "eb2816bcc141320b26fa90f726f2581aff00f178dbffc209923f68bbb999fa3b",
+      "bytes": 1924
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-33A851CFA08D4DBE.json",
+      "sha256": "209b20ed2d53e4837a4dfdf76e870a6aee27388f1ef90b16dc731a41a1d18639",
+      "bytes": 1953
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-33DFCBD89BF5A1E0.json",
+      "sha256": "a134ee51a351c81a2fdec2a0d3a26a486acfa1c551357f69edef42af740d30f6",
+      "bytes": 2543
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-3441152C2A0F8F62.json",
+      "sha256": "0d501c433cc7f3e06e3702108145b4cfc6c0c5d2155d43b1cbb822090c327e89",
+      "bytes": 2091
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-363D4621665BDA3A.json",
+      "sha256": "71965c532478e4b5b680e3c89c8a6041f345e7f5f1ac4e2dcae0e340d495fe35",
+      "bytes": 2481
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-3A7B090BBAFB58D8.json",
+      "sha256": "94a0d4bd2a26ba782f4d7c382ea457ef39061968fc5609c366bd86f6781335c2",
+      "bytes": 2036
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-3A883FBB7B5C6949.json",
+      "sha256": "7748276fb991f0e2b0da5622979d6111eebd4f9d93e31833b624987c49ca504c",
+      "bytes": 2530
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-3BB7FE203EFE428D.json",
+      "sha256": "df7eb459b19c2bdbe1e6f0059b036288f90362aafe4f655ca477989822c0bffc",
+      "bytes": 2602
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-3D66B3A6FF75DC04.json",
+      "sha256": "348993bc690f8e3eb291a28cf940084330c6a978630fdc9a2eed2a10ab1e6b12",
+      "bytes": 2652
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-403BD34D2C22942E.json",
+      "sha256": "31c089fc0993ae928980e73fb4b79a0d00c77c43352da8bdefbcbc5efdce93ef",
+      "bytes": 2516
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-418D221CCCA888F2.json",
+      "sha256": "85ebe35bb63ce3e9e1510e4c29dc0fab6e4736fc7c5da36e5015317307c4d939",
+      "bytes": 2036
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-429CB00A42C69430.json",
+      "sha256": "fde300d7607062cb547c7503fc8a332c165cd4825d02339e196c8b00cebd8925",
+      "bytes": 2501
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-47D2D1BA9E0903EF.json",
+      "sha256": "1868c7b2ef2809ff537159b5567b4f2eb0d1345a11c2c7f780cd9e79d9d12394",
+      "bytes": 1989
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-49B135493AAF1C75.json",
+      "sha256": "2a6dec1505fcd54a78c90b2220d4b43cc5155c553e74b4baa2dc87b2fcb7adb5",
+      "bytes": 2433
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-4A2E922B00E02D68.json",
+      "sha256": "935e49f6cc91a449bfe476ed6f730e4b7b20633e2dd8243c40b91dbb83123705",
+      "bytes": 2143
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-4D1209A4DE0FEB5B.json",
+      "sha256": "08c899b5c1116e50112586a0c8468fb170d584cc5bfc8453894e9af633f322f8",
+      "bytes": 2485
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-4DA11F10E06B7DED.json",
+      "sha256": "9d372732e8d6a93debe5c28c5e0b7816d8cc7763fd3cfd12c150497ec7df359c",
+      "bytes": 2110
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-53DFC270017A43FD.json",
+      "sha256": "f48d47be77ea669f45958f478f8cf67db9a1b76264a9dac0b93c41f38741547c",
+      "bytes": 2111
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-552B3F4A53BDEF61.json",
+      "sha256": "e643750678762a8d95773dad3025efdd3ec2f45ca2f5d41496ee5c7cc431954b",
+      "bytes": 2328
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5628ED03E29B8A76.json",
+      "sha256": "40e9a94240c8dd57f6b79ea446a12e23c909c43dce4de8851cac7ece86841c08",
+      "bytes": 2179
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5892F4207E8C1FF3.json",
+      "sha256": "43abf37e72ce6fbfda3eabf397caf773bea4dbd30aae55a190d274c372152a9e",
+      "bytes": 2464
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5910D303EB8AD8A3.json",
+      "sha256": "5f0c35312976fca2ef34221b04cca3e60baa523152923d00f8f5a16eeb139e88",
+      "bytes": 2026
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5C441F014FBC6F1A.json",
+      "sha256": "eb1fe5dfa8f46539f09c56438afe647ff690be154ee2184257a2c08792d1eb53",
+      "bytes": 2568
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5CBFAAA09817FCB2.json",
+      "sha256": "ebccebe48bd41150a1d15c1616b9891ea988c880ae89642d41ac595ebb1496fa",
+      "bytes": 2439
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-5D79A57DAF964F18.json",
+      "sha256": "43f85778415037775fa927026dcdc5cf7015692c9c88db3cb1bb93260edb6e14",
+      "bytes": 2077
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-619CF2F37804F570.json",
+      "sha256": "831febc851dd0413c8f03507d8ba07a788633e0c93aa060d8aca42be9fada260",
+      "bytes": 2463
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-61E7185BE1577C40.json",
+      "sha256": "6eadf74979bbba66f059dfe62ecc4fa3dc2089adc1654e6cb6bce1f6889ec2f3",
+      "bytes": 3110
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6212BA166B0241F1.json",
+      "sha256": "3fe411d87f9928a2df868801360f6a6982eefd5397fbca0e3a6796de929bccf9",
+      "bytes": 2132
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-62BC360827EEFA47.json",
+      "sha256": "ffceec8e70d961039485d1730909757a296c580dc0c73d50fd9bd389eac0a878",
+      "bytes": 2473
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-62D8DB0EFB8AFA80.json",
+      "sha256": "cdcc7167d64597c2eadc9ff991d89ba575c44d806aca7d10fce2dddc8b8b87ef",
+      "bytes": 2516
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-632E0621B441810F.json",
+      "sha256": "b88072808aa2b2c9f0d08bc5b80392ee1b46a6ffa836cad5bf08a3551009aa94",
+      "bytes": 2086
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-638CA1E77FFD8E4D.json",
+      "sha256": "1345b43cc6fbe29c895cdf978c5b406dc4dc8330ce92b8cc01ba55f155828bf7",
+      "bytes": 1968
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-688562646950539F.json",
+      "sha256": "e99b06869c1d03788fea4686056fd65d79db0f7a371a662d33006e35b797a926",
+      "bytes": 2072
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-68CFB85A5F364BB5.json",
+      "sha256": "e49d9bc4620cfa4fe81b01780d33ffe1d55c106cbba2a07dd1069136735e9f43",
+      "bytes": 2204
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-69264B847C5EA7E6.json",
+      "sha256": "59a264d121abf206bc831cd956fed6edce3f714020df646241d0cfc622cc67f7",
+      "bytes": 3280
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-69F8335460DA79A4.json",
+      "sha256": "3a4068f4384ca5db4f0334e11c4e20534f27d1fa1921e6d1cf7a569f8de23969",
+      "bytes": 2441
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6A07111C488BC5E6.json",
+      "sha256": "ffd620cfd46db4b764eb5d25d749fe3dc3a441ad828c53f6592aaa00388c2f0c",
+      "bytes": 2065
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6A0FC0AA715EEA03.json",
+      "sha256": "8f2253b72947ae29b820256980a753e9e986634cf9450bf172c352fd258a085f",
+      "bytes": 2493
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6A63E309A6AB3C72.json",
+      "sha256": "d659b34f89cb6201cc7f44e3eb08c713b655be12909b1822659408b663790059",
+      "bytes": 2057
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6ACBAA22705D5813.json",
+      "sha256": "babbce8ade1e37314941f6e07ff925f66b460735fbf388afa701085ce254a0f2",
+      "bytes": 2116
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6AD30B600F884B60.json",
+      "sha256": "6dca3a20b977b20be61810ee72dcfd9a8f3487f7598502711cc7c7dbb9e719e6",
+      "bytes": 2130
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6D3CCCBF7C233889.json",
+      "sha256": "e6c53f8dcc4c4b4549ff1d2fac91a7947c87f0a70871e6230b8a895794f2d533",
+      "bytes": 2439
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-6E53C4ECCCBCBC22.json",
+      "sha256": "0f0a951d3e9b3765d9d66751e35bb58c5315a772bafb3c4e8f2aa9138152dd81",
+      "bytes": 2531
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-70C10B8905F1EDB5.json",
+      "sha256": "0b13d11c8919eea682dc9c35cd4c2d19ae16c251c06c7c192dc83ce85dd27cc8",
+      "bytes": 2097
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-71D61012505FA65E.json",
+      "sha256": "70ce5b35ac8e6690c1dc256b4d236fe156eda13fa6cfb847a0545076e2bd5a1f",
+      "bytes": 2198
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-72B5D842201AF1EC.json",
+      "sha256": "dc280bebf701b95482bd8e37aecfda50aa58221b0797a1ae785baeaaf6440bbf",
+      "bytes": 2478
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-72FFFDF8F13F46B8.json",
+      "sha256": "0bccb6f1be3bb4ad139d709086773f5e234c41edbfc11cf15d8e0cca4f0f44b2",
+      "bytes": 2457
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-7480A685E82B667F.json",
+      "sha256": "2e0556a3f482069bdc38f4556b3191c8802cc37d4702574e4d1b0ababb9f8fb0",
+      "bytes": 2493
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-75BCB9B1D2FC6E23.json",
+      "sha256": "81787d63414c429aadc823ef21b381b2e35a82e090cee4d865ae67d8be90df69",
+      "bytes": 2088
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-76CE9325170D3825.json",
+      "sha256": "9342aa4c90119c942d79bc5566a5367a03396f58bdce0f78dd55da5b85e5f582",
+      "bytes": 2014
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-77001D2ACCA0CE37.json",
+      "sha256": "c5b31a5011e3a254f10406957fa1de3ce49a7a9141b1f4d2e500a2ea39d408f6",
+      "bytes": 2474
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-78B0BEA80A528DB3.json",
+      "sha256": "4e9d793b1dccc4d0695c16b85e4db68b26815f2320b4cb3b15f9489b53c62c94",
+      "bytes": 2045
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-7A65147E44A3C978.json",
+      "sha256": "d5e6858d7bf6486d451daedee1cee4bc4b40acd0ab7313629bfb4b62aa5c83f6",
+      "bytes": 2073
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-7BA91124F38F84C3.json",
+      "sha256": "c300c590352f9f8d3617d24a07d1e92d869b71d4515a7e25240599d95050672e",
+      "bytes": 2412
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-80E004DBD9A56D85.json",
+      "sha256": "2789205cfff2fa8305c6180b6016f4c471dd9a38da23b9e2a15f0265f6e55a64",
+      "bytes": 2466
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-814ADCB72DD33076.json",
+      "sha256": "403a62c5081413282be10cbb039eb2fce262097792ab6f43355fbc960316f65b",
+      "bytes": 2128
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-82DC323FA797FF0A.json",
+      "sha256": "1640f9afef0876cc926cc1cf40f2124b6c1c16b323608c7bfebe588fc56b6dca",
+      "bytes": 2112
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8330E2A632160768.json",
+      "sha256": "9a6499d24a1d6d8701f89b47545cb4f43c064b0507589b22e453e04ef60a4987",
+      "bytes": 2228
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8469E557FCFF406C.json",
+      "sha256": "725408085444c47d8a2c5d80313f5888e6795f2aa1abdb44854fff957bc8fdff",
+      "bytes": 1980
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-849CAB8340BCDDEA.json",
+      "sha256": "37b312a88cf6a31329300f3dd4c5cb6e393016cdc49a7432768fd2984cf200c9",
+      "bytes": 2469
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-84B2C63B203E82A8.json",
+      "sha256": "4e2fc3d4604c0fbee9cf89178514dd820c712ccff0a99f068b16866306ea7f8d",
+      "bytes": 2046
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8698902E49C77D94.json",
+      "sha256": "74ba7951421b6c4da891a9ebb98eb5888a37ae83b315a2086ca7858649b3d527",
+      "bytes": 2321
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-87882AFDA843633B.json",
+      "sha256": "732f24b9eb8fa2a1d99b9c43eb468e4c17873cc58160621ea98505c1bf5283e0",
+      "bytes": 2532
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-88A0F96B1CC00578.json",
+      "sha256": "fa5d59e88d9f1a7018391b59ba8d92e4d29166fb0705e9091d095508e188f03e",
+      "bytes": 2196
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-88F64D9376E250FC.json",
+      "sha256": "64f38d83cee81d5a56167fd3b92f2eecb67b0803a0c3b5af0f1aca6fbfd83d57",
+      "bytes": 2556
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-898EFFBC10C6F2E3.json",
+      "sha256": "d9005671a33e8442df89b9d0aa5ef144ba4fd576afa9f89d47b4257203d5cc06",
+      "bytes": 2333
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-89D0EA1568098818.json",
+      "sha256": "6b306729ea801abded0aa85a21185a561fdf9fd06996f7cc9ae73c2ae7450edf",
+      "bytes": 3068
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8A6C0AE91E7C1DDF.json",
+      "sha256": "84c6c39a84f54df765869f534a147d2ae84f8d406e0e9c2abc0fce2b2016bd45",
+      "bytes": 2056
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8AACAC2B3E00E70A.json",
+      "sha256": "2f8d2e6eadb9afa58287b8c7dd080e07055aed05bdc61d2671d19c4844570426",
+      "bytes": 2079
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8D4F92BE3B260796.json",
+      "sha256": "800628c5a4e43c26f712e1e710de079c55d30ff83f661d8cfa7cdf3606a582f0",
+      "bytes": 2552
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8EDD4F36DB7A9C7D.json",
+      "sha256": "13e705c9f04dafdf2cd96b029a0aa3ad16cd3186912f7fe0e2eecd6899c04179",
+      "bytes": 2111
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-8F01E91F70D72629.json",
+      "sha256": "9e61744d655a08b95f3a559caaafeb138103664e93a454ca35b46ce7e2348740",
+      "bytes": 2323
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9548A9CE597E63D0.json",
+      "sha256": "a63d16d1963fee085c112f75d4c42a493f39cde266889238359b2bcff74bf145",
+      "bytes": 2199
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9A0C8266A8FE1DAB.json",
+      "sha256": "da1362173f8b9072129e105d0d484312f906ebbb2e6d1473417de4e1a77f9976",
+      "bytes": 2102
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9B30376E725FD70D.json",
+      "sha256": "cc038e06eb79dad036e6977c550f6c62b9f4c34ba5c9e970cf09f6c5e25895a1",
+      "bytes": 2794
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9CA8244FE9DB2763.json",
+      "sha256": "b1e851506a10dd440cda4fb70ffca416f6a1509f23c78ffb305a4f9a5744ff81",
+      "bytes": 1976
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9DCE8B95EC0C325A.json",
+      "sha256": "6e75309b8c225c385d515d99f6a90ba9119b890e45bc10eadedba6ccebb3796c",
+      "bytes": 2573
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9E7659CA405AA7C7.json",
+      "sha256": "cc7d117b3493dbcb5fd93f234f3e5a76a16f1f45bf25a6aa9be1131abd3fffed",
+      "bytes": 2003
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9EF2719BC96A8319.json",
+      "sha256": "d73807ca375faabf28f47a76b5d71488a8dd5b106cc2c08aefa1cdc0fb97b763",
+      "bytes": 2485
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-9F55030CFFEA07B0.json",
+      "sha256": "f14e285f561a0b0414533e77c801f8bba8557d4af105c3264f502dbc49baecbb",
+      "bytes": 2076
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-A17029D428569B3E.json",
+      "sha256": "faccd25e3e506c0618c554fd22308767a9356e5e26ae8afa437fceffff9b39f1",
+      "bytes": 2096
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-A99C0AD7ECD86657.json",
+      "sha256": "03c131d155110298fb9507ab1bb3bcb28e1c8da8bf16cc4ef49a133f9894a037",
+      "bytes": 2259
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-AACCDCE0B27E044F.json",
+      "sha256": "5ddf203c71a799dc4f604e8c092b95bf303dae8a39a75f3cb6fcdc587ef6ca62",
+      "bytes": 2085
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-ABB52EECF28A1556.json",
+      "sha256": "34de119a36ea9e61ff8f3e0e69d82dcb7ec4d5ac67b466f1076355eadfe300d9",
+      "bytes": 2057
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-AC807730E46FE690.json",
+      "sha256": "baaf9b095e648b8426ad0d0ebbe3d3cac7a493b6a17dca62769cc1526fed9820",
+      "bytes": 1971
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-AF458AC2BB5FB347.json",
+      "sha256": "06fbb869d4610dd41b5fdc97687c79c3fe2eaf326b3932b8890547472acca1ff",
+      "bytes": 2065
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-AFB34CE02AEAE759.json",
+      "sha256": "b59a37ddb95749a9edc96dbafcde288c3754de5b72520e2e651266a43a138a4b",
+      "bytes": 2588
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B19F60CBE32E3188.json",
+      "sha256": "41bc1133b1b0e86e8b5d5f1b2eb480eee448c203e4ed6d39cfabd81b5740d439",
+      "bytes": 1895
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B218492AACC28E8C.json",
+      "sha256": "f83b4bb4c8944eb8f40c0b2a474e0f62d35d77eb6ab146658afaa6603826420b",
+      "bytes": 1988
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B4BE2F3929578C28.json",
+      "sha256": "d707dcc82d7a93d2701b06ca7f4bc0b09d37c4cd3aabde005614b50ed60fa39a",
+      "bytes": 2559
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B582AAD04EEF7713.json",
+      "sha256": "9d6886eac8b3e5bf4999bff2611b7f10b926f03cc9ae4cf127b2cf6dd1296bce",
+      "bytes": 1966
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B5CF3B3D947D53BD.json",
+      "sha256": "ba86d9b63035cc400f149bcc79abc6ed2a8c2a4eb31ab00542ac9c5cbc47d43c",
+      "bytes": 2338
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B79F601BD9FC1AAF.json",
+      "sha256": "e61c99f7b86ce638ea0428147d7a7b270db2f03f70deabc2c6cdd79337849259",
+      "bytes": 2090
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-B9128E4763DEB2AA.json",
+      "sha256": "1341d541250ce927a991c3d1c4907c094816a45622b34abcbff5c44d6b73d188",
+      "bytes": 2580
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-BA2D2A0AF0594C31.json",
+      "sha256": "38a7a05a995535c2eccb235406564e30c05b496e24f7e74d028ebf93efebd56a",
+      "bytes": 2060
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-BAE7E4D46DCA6407.json",
+      "sha256": "273413b62509f779786734f69d8390f572dacde35bdf827e5a3f05b01a903687",
+      "bytes": 1966
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-BBB1261F6CF4609B.json",
+      "sha256": "6cc6d791424a90d9b458d03824c49e9bb1e50ea7beb1e8d333717f40a09f0339",
+      "bytes": 2111
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-BC57ACFC817C9264.json",
+      "sha256": "1775bea5d5525eeccbccf4c24df36843e907de3b4f466c53f93803c019907bf2",
+      "bytes": 2282
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C1375818AF001EB9.json",
+      "sha256": "0a06bb820e6367b73d452c49865c4e72a2a6a0bf45dbb256b2be3f4ffe2239de",
+      "bytes": 2395
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C1B27FD43D2675F8.json",
+      "sha256": "3e18a2da6b76fd55887be9db09afb778767e2ac16eda64ac40cdc08e04d60c0c",
+      "bytes": 2064
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C21C6A27681D8390.json",
+      "sha256": "d50b3572861506cae54b28ba9b5c10ec8dfb3362fdb6d22ede883a31ea47d776",
+      "bytes": 1959
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C28489AE4D339427.json",
+      "sha256": "557a20340b50544448314a30ffcb50256117ed18e91f52da29501476d234c334",
+      "bytes": 2496
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C47CF13DFDA2E0E8.json",
+      "sha256": "9cc84b6fd239d790c748f7f043d69ba99741498642318e3043bab364051f45c6",
+      "bytes": 1888
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-C84413B4864996AF.json",
+      "sha256": "30c292df193332f1f825ec62e4dce9b77b0e4540a571b8fbda776a726691d62f",
+      "bytes": 2432
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-CAACA92C3B71DAF0.json",
+      "sha256": "241acaef79acba997c77736ec9db7854c3d417aa78ed07ed1847dd7cc131a98f",
+      "bytes": 2350
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-CB0972AEB359CB34.json",
+      "sha256": "4701e7eefeb5a4c09b5fa8c972f04c8e97858ffa52d4b22d40a57fd772cc9ac9",
+      "bytes": 1993
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-CC09EE6DC03FED58.json",
+      "sha256": "8de6a924ebeb6fc42c3e52f4cdd57d61f8a1d2832c67c4631035a68e2b3c3c10",
+      "bytes": 2053
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-CCDC7B5D81C49735.json",
+      "sha256": "05fb9e6fb81c8c29eb106358a59af386d94b0df20354b3084a304a991ef255b2",
+      "bytes": 3359
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-D0FE92FDA04D3400.json",
+      "sha256": "9634ff18f2ef631f10c10e2493291045706550d1c1f56533202a326fb2c7dc31",
+      "bytes": 2459
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-D424FFE9512F6BF8.json",
+      "sha256": "ba311d83a22b221da90e45d8d8bfbb66f55dddd70721757bf034e1959ef7600c",
+      "bytes": 2564
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-D89F9D13B70C96FC.json",
+      "sha256": "cbd8839eb141c2ac498ea5ba401c1461d630b0a9aff1f0d85a716d49f958558d",
+      "bytes": 2473
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-DC526D11098789EF.json",
+      "sha256": "9ed36717547fed91804907968f1fe9bb5e48f7638ee43767ce63d64604b7cab6",
+      "bytes": 2476
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-DCC41FCA2C90A480.json",
+      "sha256": "739f344d88cc0e66b903ea92b905d0677be04418089a0679f75690a90939756c",
+      "bytes": 1973
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-DDA83861514E8635.json",
+      "sha256": "0440aeb4b3e22daa5a51651907b80677bdd8b78c14f72e56186d061e5efa962d",
+      "bytes": 2602
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-DF4EE6E5A31E382A.json",
+      "sha256": "d6fccccec9e0d488e723963bbb7ac53dab5c26b63320bb978f76f69c58af920f",
+      "bytes": 2159
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-E1C1E7050C2B9DA8.json",
+      "sha256": "e6f9b78f596d152d4f0c8653d4a82791db7c267c4f535c70659ba75b82496650",
+      "bytes": 2096
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-E4C70A9613C68270.json",
+      "sha256": "8f16c3dfea0517d14c96eea878b0b59856f6cfee0264fd1fc361b20e83123802",
+      "bytes": 1944
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-E8AECA6F8DB93AB6.json",
+      "sha256": "ccfd658f8b5aec6db5fb25b020f0aa7df7e6639ab35f5d497769a663e180bb0c",
+      "bytes": 2548
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-E96E95BE7596F9FB.json",
+      "sha256": "5265d5b481b941c8e9afa2975ac459875d7c9efadc1cae146df7aeec3d13938d",
+      "bytes": 2621
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-EB74263AF5668E88.json",
+      "sha256": "7fce6c6446c5c6f28fa1a6d1f54b256437ca7118792fe53dde044e5046b85c68",
+      "bytes": 2505
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-EBA4DBFB51FA40D8.json",
+      "sha256": "d3662dfa22f5b5ea49eb33a584dfc3e56cb93bec915740b58316b0a06160100a",
+      "bytes": 2432
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-ED6A4CE176987207.json",
+      "sha256": "d83ef2cc4b127506a03ebe06bba03d0ea764a74ee745b6451c316b1d6fcffa1c",
+      "bytes": 2466
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-EDA6DB0E11DC46E5.json",
+      "sha256": "e55f0206b3429e86cbfc760cd1dbc5d2fb6cbfba5703dd16b88358067c651275",
+      "bytes": 2034
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-F1DBBC1D0CB74461.json",
+      "sha256": "e6b5c3b73c342cf0a055ab7b6b660a9d557e5b7a5c5103bfd59e94451e7ce052",
+      "bytes": 2092
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-F804CEB7D08998C0.json",
+      "sha256": "031fc55ef658c7297fc6d77d4f69d1165f7d3d8ce187a54d86729e085d3d8c52",
+      "bytes": 2324
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-F993FBE4BBF8ACE2.json",
+      "sha256": "54605a4e6b62c2974c991f63b0584cf78e0b025dfb7cf7d810d4f4fb5e2658c0",
+      "bytes": 2193
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FA93C344C85AF460.json",
+      "sha256": "c17535c1900dbb52698bd97df9c5d45f511bec5dcec686684b28a4565782871e",
+      "bytes": 2142
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FA968B2D6AE5DDFA.json",
+      "sha256": "f4092f4ade981ce93a7bd09d336560378ac88df9378ff36ca17b31bce36f6a4a",
+      "bytes": 2463
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FB33A0FCCD229010.json",
+      "sha256": "666f63e2ce23b76941cbf83a8ac5ea123ea11b728f431f53ae5712cba2fbd00e",
+      "bytes": 1991
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FC8A05734544703E.json",
+      "sha256": "18517807329dd5474d05a1024e34a881f8ffece83ff0ce88add756afdd91707f",
+      "bytes": 2309
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FDEF1559FBD73B46.json",
+      "sha256": "4cdb0454db7b8351edee3bf706de1d0e589e94cb92ad5695f4b45d084ceef72e",
+      "bytes": 2038
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FDF60315392A2C35.json",
+      "sha256": "5f658b686bb96f6df726082f683d89ca4d9ecb5c7b365b3ce2ba290fca74692d",
+      "bytes": 2103
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FE52B8756F627004.json",
+      "sha256": "7bf738c4a35dca5909e3bd8a53b97b1c658350fe75210e475b8c44d6042f178d",
+      "bytes": 2150
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FE691D81EAA4E867.json",
+      "sha256": "cb2643e3fa2c078dfbbc2c22cc5c18acfa16f787c67a3e05c8e86f29d05c521c",
+      "bytes": 3048
+    },
+    {
+      "path": "research/living/inbox/candidates/FAR-LIT-FFAD7937D7B8B86A.json",
+      "sha256": "2b2a9d6fba2b65010c1a42b43c1c38f873059f500f05eed2c7c9ec618fcfd760",
+      "bytes": 2425
+    },
+    {
+      "path": "research/living/repository-state-v1.0.json",
+      "sha256": "495ff93c41ea3bbd14ba69de0c0492f46b2aed8d0af54d693dfa9313cd6a2334",
+      "bytes": 20602
+    },
+    {
+      "path": "research/living/repository-surfaces-v1.0.json",
+      "sha256": "5dc245f9c4fde2ddf8ec8220634848f9f107c72624e89b0d44d927ffe6a02732",
+      "bytes": 2226
+    },
+    {
+      "path": "research/living/review-dispositions-v1.0.json",
+      "sha256": "2d3a0335c8f6f1941fa9ca3d18e04df825453e227c921773cda7a25be3eb5817",
+      "bytes": 9385
+    },
+    {
+      "path": "research/registry/citation-links-v1.0.json",
+      "sha256": "04ddfc04679f2fa2e716d14c1a8130e139b981e92c15cfb7cb2106a05b3a0853",
+      "bytes": 8166
+    },
+    {
+      "path": "research/registry/epistemic-threats-v1.0.json",
+      "sha256": "7b01f6eea9cc4dfd51a5ccc64b22d018473111727d27cbb880028dc34c59e905",
+      "bytes": 7143
+    },
+    {
+      "path": "research/registry/opportunities-v1.0.json",
+      "sha256": "65dc1c36f47e5dbe6420b54d0f3e01ff59daff05f1ba6d1958a6390992bc77a2",
+      "bytes": 38732
+    },
+    {
+      "path": "research/registry/research-questions-v1.0.json",
+      "sha256": "0343925af6f4cb67a2075f6f8e1f23348d022cb0d080a8794fa3f3afcf790ced",
+      "bytes": 15260
+    },
+    {
+      "path": "schemas/far-research-corpus-v1.schema.json",
+      "sha256": "24a054238f562c1432d312186ba948d2b7f3a75daa26c2540601f67483dcb7da",
+      "bytes": 12329
+    },
+    {
+      "path": "schemas/far-reviewed-input-v1.schema.json",
+      "sha256": "7a123d2b0a1492a5706c4774a81125fb32811e09e1b8f1d6b3001d0693b0a5d2",
+      "bytes": 3058
+    },
+    {
+      "path": "theory/evaluation/far-core-assurance-v1.0.json",
+      "sha256": "1ed4157fb9cb7a5ce5f428a73e0fc2287b17499360708b063dc5b6fec9f98f60",
+      "bytes": 26153
+    },
+    {
+      "path": "theory/terminal/project-far-core-theory-v1.1.json",
+      "sha256": "e1e0ca8d563ad515a084f33f27a3f6c94feecd042d9081ee60ac97d27350bb78",
+      "bytes": 6630
+    },
+    {
+      "path": "theory/theorems/Project-FAR-Theory-Closure-v1.1.md",
+      "sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
+      "bytes": 11126
+    },
+    {
+      "path": "tools/reconcile_living_repo.py",
+      "sha256": "6bef66c4c81734c14baedba541f215c697b4fcbef32d3d39813bc496fd43bc04",
+      "bytes": 18061
+    },
+    {
+      "path": "tools/reconcile_research_corpus.py",
+      "sha256": "bd9b86982da25474267779701a6962747bdbcfc1e9b006973d86a0e3de39159e",
+      "bytes": 51007
+    }
+  ],
+  "manifest_records_sha256": "17e35f74415d535a6fa902a08fbda58111185ffaa3cde07fc95af91690716ead",
+  "synthesis_corpus_sha256": "4dcc5ddb34e2d17b189c24bce5cb766ec3404ac883804bf1465a5b9daf261d50",
+  "synthesis_inventory_sha256": "3b32a5bb835dabe5aa252e5013d7d107176887a63e7a3001936aaa8dae1aab56",
+  "synthesis_dynamic_dependencies_sha256": "d4472bb90d63f2fe342bed233b5085c9e8944cff2b4c223398eae0515d3dc8a6",
+  "artifact_status": "Research"
+}

@@ -15,3 +15,10 @@ Non-authoritative execution state saved 2026-11-08T07:40:27.379Z. This record gr
 - User twice instructed continue until completion; routine pending jobs are not a reason to abandon independent actionable work. Stop at verified completion or genuine unavailable/external authority blockers. No other PR merged yet.
 
 The manifest records observation times, exact heads, source-bound checks, blockers and ordered merge history. Recollect live state before decisions; this snapshot is non-atomic and not merge authorization.
+
+
+## Verified second merge and next lane (2026-11-08T08:14:05.306Z)
+
+#601 merged normally as main 9a1de93084d95675743f61a1fa9bec869e80d8a6, parents9021c021/cb901529, tested tree4431330d. Ordered verified merges:608,601. Current exclusive coordinator window is FIRST READY625 or623, prefer625if same batch, then verify/notify/pause. Root must not merge concurrently. Current heads625=2bd7a955069e034a352fdbe6bedecd25feb864d8,623=c50b16d129db010ba4a26d2bf6466ca01dd072eb; main=9a1de93084d95675743f61a1fa9bec869e80d8a6. Both normal refreshes preserved source blobs and passed narrow checks; full protected checks/review on new heads remain separate. All other normal heads await selected current-main integration;597 follows625. #617 owner signature absent,490permanent.
+
+Private aggregate of18pinned candidates passed597tests/zero skips plus canonical checks; no new cross-PR defect. See newly preserved evidence/input-manifest. Aggregate never pushed or used as a protected merge substitute. Shell restored and confirmedworking07:51; GitHub connector remained usable during interruption.

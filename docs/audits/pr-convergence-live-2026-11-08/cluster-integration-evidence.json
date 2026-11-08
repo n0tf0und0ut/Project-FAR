@@ -1,0 +1,284 @@
+{
+  "schema": "far-private-cluster-integration/1",
+  "scope": "Bounded missing cross-PR software integration evidence; no scientific experiment, acceptance, protected readiness or external independence claim",
+  "base_main": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+  "later_main_observed": "9a1de93084d95675743f61a1fa9bec869e80d8a6",
+  "later_main_relationship": "#601 cb901529 was already first integrated; same reviewed source bytes, pinned snapshot not silently rebased",
+  "pinned_heads": [
+    {
+      "pr": 626,
+      "head": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+      "branch": "docs/pr-convergence-snapshot-20261107",
+      "title": "docs(audit): publish Nov 7 PR convergence snapshot and verifier"
+    },
+    {
+      "pr": 625,
+      "head": "52d4def84901385edb487e65aa905da11e87816c",
+      "branch": "docs/council-navigation-20261107",
+      "title": "docs: add nontechnical FAR onboarding and governed task navigation"
+    },
+    {
+      "pr": 623,
+      "head": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+      "branch": "audit/checker-behavioral-provenance-20261106",
+      "title": "test(assurance): detect semantic false acceptance and correct cache provenance"
+    },
+    {
+      "pr": 622,
+      "head": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+      "branch": "research/tool-agent-fault-invariants-20261106",
+      "title": "test(agent): deterministic fault injection and evidence replay conformance"
+    },
+    {
+      "pr": 621,
+      "head": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+      "branch": "fix/commercial-strict-json-intake-20261105",
+      "title": "fix(commercial): fail closed on ambiguous JSON in Decision Integrity"
+    },
+    {
+      "pr": 620,
+      "head": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+      "branch": "research/numeric-metric-grounding-20261105",
+      "title": "research: ground numerical success claims in registered metric semantics"
+    },
+    {
+      "pr": 619,
+      "head": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+      "branch": "research/good-view-jepa-evidence-20261105",
+      "title": "research: test good-view JEPAs for evidence retrieval and preserve negative pilot"
+    },
+    {
+      "pr": 618,
+      "head": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+      "branch": "convergence/agent-reliability-evidence-20261103",
+      "title": "Research: verify agent reliability exposure and preserve bounded comparator evidence"
+    },
+    {
+      "pr": 616,
+      "head": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+      "branch": "product/semantic-augmentation-20261103",
+      "title": "Research: add model-directed source-bound semantic augmentation workspace"
+    },
+    {
+      "pr": 615,
+      "head": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+      "branch": "research/model-architecture-search-20261103",
+      "title": "research: architecture search with negative matched-capacity and external-data evidence"
+    },
+    {
+      "pr": 614,
+      "head": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+      "branch": "research/general-investigation-engine-20261103",
+      "title": "Research: execute and audit general investigation tools without controller substitution"
+    },
+    {
+      "pr": 611,
+      "head": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+      "branch": "research/weight-space-programming-20261103",
+      "title": "research: introduce falsifiable weight-space intervention audit"
+    },
+    {
+      "pr": 607,
+      "head": "a4e727f77e6222fb62b925e73df22b611b877dae",
+      "branch": "research/workflow-efficacy-local-qwen-20261102",
+      "title": "research: run credential-free local Qwen instruction-effect comparison"
+    },
+    {
+      "pr": 606,
+      "head": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+      "branch": "research/far-architecture-routing-pilot-20261102",
+      "title": "research: preregister and implement bounded FAR architecture-routing pilot"
+    },
+    {
+      "pr": 601,
+      "head": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+      "branch": "research/mechanistic-explanation-fidelity-v01",
+      "title": "Falsify bounded FAR-MECH mechanism and reliability claims; harden audits"
+    },
+    {
+      "pr": 600,
+      "head": "a198508355c43dee763ecce210e15f1fdee58e8c",
+      "branch": "codex/orthodox-worldview-profile-v01",
+      "title": "Implement prospective forecasting and blinded factual investigation for Orthodox FAR"
+    },
+    {
+      "pr": 599,
+      "head": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+      "branch": "codex/live-commercial-evaluation-20261027",
+      "title": "Record live commercial retrieval comparison and raw-text reliability limits"
+    },
+    {
+      "pr": 597,
+      "head": "e4beb48cb42461374cb5205d77488047d79a784e",
+      "branch": "research/epistemic-debugger-001",
+      "title": "Research: integrated bounded epistemic debugger and hostile source-to-report evaluation"
+    }
+  ],
+  "order": [
+    601,
+    614,
+    625,
+    623,
+    597,
+    616,
+    621,
+    622,
+    620,
+    619,
+    618,
+    615,
+    611,
+    607,
+    606,
+    600,
+    599,
+    626
+  ],
+  "aggregate_commit": "aacf54bdda8105a58a246af03c93a6c43a319bba",
+  "aggregate_tree": "436baabbe107c1493dc0400183db87e34b9f3676",
+  "private_only": true,
+  "pushed": false,
+  "PR_branches_modified": false,
+  "source_edits_beyond_reviewed_candidates": false,
+  "conflict_resolutions": [
+    {
+      "pr": 597,
+      "files": [
+        "docs/research/current-research-frontier.md",
+        "research/corpus/synthesis-v1.0.json",
+        "research/living/repository-state-v1.0.json"
+      ],
+      "cause": "Known divergent canonical input/state between625 and597",
+      "resolution": "Retained597 semantic inputs and recomputed allowed generated views using existing living/corpus generators;625 trigger/regression preserved. Result equals597 e4beb48 derived bytes; no manual generated edits."
+    }
+  ],
+  "interactions": {
+    "shared_module_interface": "616 app registers augmentation/semantic routers while621formats uses reviewed far_decision_integrity.strict_json; combined component tests passed",
+    "research_index": "620/618/614/606 additions auto-merged and all unique added lines preserved",
+    "README": "625 newcomer routes and597 unmodified scoped Research paragraph both preserved, existing W4/W6 README supplements match combined digest",
+    "frozen_replay": "599 verifier recovered19 registered historical runtime sources after597 current-code additions;20 portable packages and12 receipts verified without external calls"
+  },
+  "validation": {
+    "unit_component_tests": [
+      {
+        "scope": "far-demo combined616+621",
+        "count": 86,
+        "result": "PASS",
+        "skips": 0,
+        "browser_control": "Node v24.22.1 script regressions executed"
+      },
+      {
+        "scope": "decision-integrity621",
+        "count": 48,
+        "result": "PASS",
+        "skips": 0
+      },
+      {
+        "scope": "investigation-audit597 combined current runtime",
+        "count": 284,
+        "result": "PASS",
+        "skips": 0
+      },
+      {
+        "scope": "routing608+614, fault622, agent evidence618, checker623",
+        "count": 113,
+        "result": "PASS",
+        "skips": 0,
+        "negative_controls": "960 ownership,6144 prohibition,49152 group identity cases;8 source mutants false-accept contrasts retained"
+      },
+      {
+        "scope": "living/corpus625+597 merged inputs",
+        "count": 66,
+        "result": "PASS",
+        "skips": 0
+      }
+    ],
+    "total_tests": 597,
+    "other_executed": [
+      "W4 checker PASS",
+      "W6 recomputation PASS with human disagreement UNDERDETERMINED",
+      "Repeated actual living→corpus sequence PASS/stable",
+      "Internal links OK",
+      "Governance register integrity PASS",
+      "CI workflows OK",
+      "git diff --check PASS",
+      "599 retained-evidence portable replay PASS:19 historical sources,20packages,12receipts"
+    ],
+    "not_executed": [
+      "No new provider/model inference or experiment",
+      "No broad formal/theory re-audit",
+      "No unselected standalone research campaign reruns",
+      "No hosted aggregate checks or protected merge readiness claim"
+    ],
+    "warnings": [
+      "Optional dependency Starlette/httpx deprecation; negative PDF/replay diagnostics expected by passing tests"
+    ]
+  },
+  "preservation": {
+    "checked_unique_per_pr_changed_files": 403,
+    "mismatches": [],
+    "shared_files_excluded_for_explicit_integration": [
+      "CONTRIBUTING.md",
+      "README.md",
+      "commercial/far-demo/README.md",
+      "docs/ARCHITECTURE.md",
+      "docs/OVERVIEW.md",
+      "docs/README.md",
+      "docs/START_HERE.md",
+      "docs/maintenance/beginner-comprehension-check.md",
+      "docs/research/current-research-frontier.md",
+      "mechanization/README.md",
+      "research/README.md",
+      "research/corpus/synthesis-v1.0.json",
+      "research/living/repository-state-v1.0.json",
+      "research/results/pca-w4-domain-contracts/current-state-supplement.json",
+      "research/results/pca-w6-empirical-audit-utility/current-state-supplement.json"
+    ]
+  },
+  "new_reproducible_cross_PR_defects": [],
+  "ordering_dependencies": {
+    "required_known": [
+      [
+        625,
+        597
+      ],
+      [
+        608,
+        614
+      ]
+    ],
+    "new_required_ordering_found": [],
+    "616_621": "Either order has no shared source edit and combined interface tests pass; matching decision-integrity checkout required by621 documented packaging boundary"
+  },
+  "derived_files": [
+    {
+      "path": "README.md",
+      "sha256": "6af9fc8762db5da3f2548343f56059daf954ddca2ddbacb29f62d95473aee484",
+      "git_blob": "6edf6563f6902f97558358c0e394eb728b889880"
+    },
+    {
+      "path": "research/living/repository-state-v1.0.json",
+      "sha256": "495ff93c41ea3bbd14ba69de0c0492f46b2aed8d0af54d693dfa9313cd6a2334",
+      "git_blob": "5f058c2e527acad9c1bf917deac8fed712259c54"
+    },
+    {
+      "path": "research/corpus/synthesis-v1.0.json",
+      "sha256": "c1603efed8d71900137b674fee8a98719fbdb50949dc99a85492dc1ee0e8aab0",
+      "git_blob": "63a63cf84e1b44e3c60fe4eda70cc7fd0ddbc7a3"
+    },
+    {
+      "path": "docs/research/current-research-frontier.md",
+      "sha256": "e7cf5ff004dd077611737f468aefd8253105c58e32287160b63d029973ffa40b",
+      "git_blob": "931477db6f23c748ed4b15d0432c56acec24f2ea"
+    }
+  ],
+  "derived_input_manifest": {
+    "path": "docs/audits/pr-convergence-live-2026-11-08/cluster-derived-input-manifest.json",
+    "records": 213,
+    "records_sha256": "17e35f74415d535a6fa902a08fbda58111185ffaa3cde07fc95af91690716ead",
+    "limits": "Do not copy these outputs onto partial trees; validate registered input identities and rerun existing generators on each actual merge state."
+  },
+  "worktree_clean": true,
+  "artifact_status": "Research",
+  "publication_note": "Local log/dependency-file locations omitted. Recorded heads, test outcomes and content identities are unmodified. No protected merge authority follows."
+}
