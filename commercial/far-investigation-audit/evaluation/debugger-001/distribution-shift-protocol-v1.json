@@ -1,0 +1,16 @@
+{
+  "schema": "far-debugger-distribution-shift-protocol/1.0",
+  "status": "FROZEN_INTERNAL_EXPLORATORY",
+  "source_repository": "https://github.com/GU-CLASP/multifracas",
+  "source_commit": "580ed0a73bd125185648a7fb6cfcbc7339506851",
+  "source_path": "fracas_german.xml",
+  "source_sha256": "d6ba3a19cd02c2ad1545d4152467b654bf228fc2ae2969271614184f6b2de2dc",
+  "criterion": "Run complete heuristic source-to-report workflow on English text retained in the multilingual suite. Report parser coverage and abstention, package replay and runtime; no external semantic/factual gold is constructed. Do not tune grammar after outcomes.",
+  "reference_use": "Do not equate FraCaS inference labels with gold atom mappings. No NLI accuracy metric without a faithful formalization oracle.",
+  "external_origin": true,
+  "independent_scientific_review": false,
+  "prior_exposure": "Public dataset; analyst inspected metadata and first XML examples. No unseen claim.",
+  "raw_redistribution": "No raw dataset redistributed: source-repository license not found; source identity and hashes supplied for retrieval.",
+  "engine_registration": "registration-v2.json",
+  "inference_and_factual_accuracy": null
+}
