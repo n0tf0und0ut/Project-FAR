@@ -1,5 +1,6 @@
 """Replays of native length and model-budget failure cases."""
 import copy
+import json
 import unittest
 from unittest.mock import Mock
 
@@ -53,6 +54,82 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
             fetcher=fetch).run_agent(NativeFunctionFixtureModel(full_script()))
         self.assertTrue(audit(state)['valid'], audit(state))
         return state
+
+
+    def test_resealed_native_receipt_cannot_claim_redirect_or_compression(self):
+        original = self.native_source_state()
+        for defect in ('redirect', 'compression'):
+            with self.subTest(defect=defect):
+                state = copy.deepcopy(original)
+                touched = [0]
+
+                def rewrite(node):
+                    if isinstance(node, dict):
+                        if (node.get('status') in ('RETRIEVED', 'RECEIVED')
+                                and isinstance(node.get('request'), dict)
+                                and 'raw_base64' in node):
+                            if defect == 'redirect':
+                                node['response_url'] = 'https://unregistered.example/answer'
+                                if isinstance(node.get('transport'), dict):
+                                    node['transport']['response_url'] = node['response_url']
+                            else:
+                                node['content_encoding'] = 'gzip'
+                                if isinstance(node.get('transport'), dict):
+                                    node['transport']['response_headers']['Content-Encoding'] = 'gzip'
+                            touched[0] += 1
+                        for child in node.values():
+                            rewrite(child)
+                    elif isinstance(node, list):
+                        for child in node:
+                            rewrite(child)
+
+                rewrite(state)
+                self.assertGreater(touched[0], 0)
+                reseal(state)
+                result = audit(state)
+                self.assertFalse(result['valid'], result)
+                expected = 'response_url' if defect == 'redirect' else 'content_encoding'
+                self.assertTrue(any(expected in error for error in result['errors']), result)
+
+    def test_undispatched_recheck_checkpoint_failure_preserves_terminal_readiness(self):
+        actions = full_script()
+        actions.insert(7, {'tool': 'recheck', 'args': {}})
+        seen = [0]
+
+        def checkpoint(state):
+            event = state['events'][-1]
+            if event['kind'] == 'TOOL_PROPOSAL' and event['payload']['tool'] == 'recheck':
+                seen[0] += 1
+                if seen[0] == 2:
+                    raise OSError('second proposal persistence unavailable')
+
+        state = Investigation(
+            QUESTION, RetrievalPolicy(('example.org', 'independent.example.org')),
+            seeds=[URL_A, URL_B], fetcher=FixtureRetriever(), checkpoint=checkpoint,
+        ).run_agent(NativeFunctionFixtureModel(actions))
+        self.assertEqual(seen[0], 2)
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(state['http_calls'], 4)
+        self.assertEqual(len(state['rechecks']), 2)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_large_permitted_source_has_bounded_progressive_journal(self):
+        raw = b'x' * 1_500_000
+        client = Mock()
+        client.open.return_value = Response(raw, url=URL_A)
+        observations = []
+        result = retrieve(
+            URL_A, RetrievalPolicy(('example.org',), max_bytes=2_000_000, resolver=dns),
+            checkpoint=observations.append, opener=client)
+        self.assertEqual(result['status'], 'RETRIEVED')
+        self.assertEqual(result['observed_bytes'], len(raw))
+        self.assertGreaterEqual(len(observations), 2)
+        # The old per-chunk accumulated-body snapshots exceeded 64 MB
+        # for this legal response; geometric checkpoints stay far below it.
+        journal_bytes = len(json.dumps(observations))
+        self.assertLess(journal_bytes, 24_000_000)
+        self.assertEqual(observations[-1]['raw_base64'], result['raw_base64'])
 
     def test_native_framing_lists_must_match_headers_and_runtime_rules(self):
         def missing_length_list(transport):
