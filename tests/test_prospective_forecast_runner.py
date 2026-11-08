@@ -92,7 +92,18 @@ class ForecastRunnerTests(unittest.TestCase):
         self.assertTrue(all(x["probability"] == 0.5 for x in data["predictions"]))
         self.assertEqual(data["question_set_sha256"], digest(packet()))
         self.assertEqual(len({x["prompt_sha256"] for x in data["predictions"]}), 9)
-        self.assertNotIn("outcome", json.dumps(data))
+        self.assertEqual(data["question_set_snapshot"], packet())
+
+        def field_names(value):
+            if isinstance(value, dict):
+                return set(value).union(*(field_names(v) for v in value.values()))
+            if isinstance(value, list):
+                return set().union(*(field_names(v) for v in value))
+            return set()
+
+        # Retained resolution criteria can contain the word "outcome". The
+        # invariant excludes outcome fields, not ordinary question-source prose.
+        self.assertNotIn("outcome", field_names(data))
 
     def test_partial_round_is_explicitly_not_submittable(self):
         backend = lambda _: '{"probability": 0.5, "reasoning": "unknown"}'

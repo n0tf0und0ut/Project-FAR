@@ -10,7 +10,9 @@ from evaluation.worldview_truth_discovery_ablation import loads
 from pathlib import Path
 import sys
 
-from evaluation.prospective_forecast_runner import ARMS, SHARED, ProspectiveError, digest, verify_response_record
+from evaluation.prospective_forecast_runner import (
+    ARMS, SHARED, ProspectiveError, digest, verify_forecast_prompts, verify_response_record,
+)
 from evaluation.worldview_truth_discovery_ablation import (
     VERSION, AblationError, _time, _digest, score
 )
@@ -24,6 +26,10 @@ def join_resolutions(forecast, resolution, *, registered_at,
                      protocol_sha256, data_class="synthetic"):
     if forecast.get("status") != "PRE_SUBMISSION_REQUIRES_EXTERNAL_LOCK":
         raise AblationError("only complete on-time pre-submission runs are eligible")
+    try:
+        verify_forecast_prompts(forecast)
+    except ProspectiveError as exc:
+        raise AblationError(str(exc)) from exc
     if (not isinstance(forecast.get("predictions"), list) or
             len(forecast["predictions"]) != forecast.get("units_total", -1) * len(ARMS)):
         raise AblationError("incomplete forecast run")

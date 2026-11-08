@@ -13,12 +13,15 @@ from pathlib import Path
 import re
 import sys
 
-from evaluation.prospective_forecast_runner import ARMS, MARKET, SOURCES, ProspectiveError, verify_response_record
+from evaluation.prospective_forecast_runner import (
+    ARMS, MARKET, SOURCES, ProspectiveError, verify_forecast_prompts, verify_response_record,
+)
 
 
 def export_sets(run, *, organization, model_organization):
     if not isinstance(run, dict) or run.get("status") != "PRE_SUBMISSION_REQUIRES_EXTERNAL_LOCK":
         raise ProspectiveError("only complete on-time real runs may be exported")
+    verify_forecast_prompts(run)
     for name, value in (("organization", organization),
                         ("model_organization", model_organization)):
         if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,70}", value):

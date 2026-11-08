@@ -238,3 +238,48 @@ model, source, annotation or treatment provenance. Prompt construction, frozen
 protocols, fixture bytes and historical results are unchanged; no new model call
 or experiment was performed. Fresh substantive review and required protected
 checks must cover the corrective head.
+
+### Forecast attribution and export use the same prompt-binding gate
+
+**WORLD-FORECAST-PROMPT-001** — review comment
+[`4507161039`](https://github.com/n0tf0und0ut/Project-FAR/pull/600#discussion_r4507161039),
+thread `PRRT_kwDOTH_vCM61C4RW`, reviewed head
+`4cc2046fbe9b65e07a43281ae5868d88cb147f28`.
+Forecast resolution joining and ForecastBench export checked response bytes but
+never verified the retained question/prompt commitments. In a scripted two-unit
+run, swapping only `neutral`/`orthodox` labels changed Brier scores from
+`{neutral: 0.81, orthodox: 0.01, placebo: 0.81}` to the wrong treatment attribution;
+export also accepted the relabeled responses. The earlier factual-path repair
+did not cover this separate forecast path.
+
+Newly produced forecast records explicitly declare the additive integrity profile
+`FAR-WORLD-PROSP-PROMPT-BINDING/1` in `record_contract` and retain
+`question_set_snapshot`. The runner takes a detached canonical-JSON copy before
+the first backend call and binds the snapshot with the existing
+`question_set_sha256` semantics. This is an additive record-integrity correction,
+not a change to the three prompt arms, outcome rules or experimental protocol.
+Historical records without that profile and snapshot fail closed at current
+scoring/export; the software does not invent their missing source data or rewrite
+their bytes.
+
+One shared validator now checks the snapshot commitment, dataset/due metadata,
+declared counts, exact complete unit-by-arm coverage, per-unit question hashes
+and reconstructed per-arm prompt hashes before either consumer attributes
+responses. Both consumers retain the existing original-response replay checks.
+The six new regression methods produced **96 failed assertions and zero errors**
+before repair, including the original scorer/export arm swap, and pass afterward.
+Controls cover absent/malformed/changed snapshots, recomputed snapshot hashes
+that contradict retained units, every row's wrong prompt/unit/arm commitment,
+coverage/metadata edits, input mutation after collection starts, valid reordering
+and actual collection/export/resolution CLI execution. All **133** focused
+factual/worldview/forecast tests pass without skips. The earlier no-outcome test
+is corrected to inspect JSON field names recursively: retained resolution-criteria
+prose legitimately contains the word "outcome" and is not a resolved-outcome field.
+
+These checks establish local consistency under the current source-defined prompt
+profile only. Coherently rewriting the entire record is not authenticated external
+execution; independent source truth, prior registration, model identity and
+custody still require separate evidence. Frozen protocols, fixtures and results
+retain their original bytes. No model call or new scientific experiment was run.
+The final corrective head still requires independent substantive review and all
+protected checks.
