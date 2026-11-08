@@ -714,6 +714,56 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
         self.assertEqual(0, len(failures), f"{len(failures)}/{count} scalar-status scope failures: {failures[:8]}")
         print(f"SCALAR_STATUS_SCOPE: {count} exact-identity cases passed across {len(statuses)} declared status forms")
 
+    def test_following_pair_introducer_survives_no_comma_conjunction_cli(self):
+        for join in ("and", "but", "while", "whereas"):
+            for suffix in (", only if independently replicated", ", unless refuted", " remain unresolved"):
+                for prior_positive in (False, True):
+                    prior = "Novelty: established" if prior_positive else "Novelty: not established"
+                    phrase = prior + " " + join + " both priority: established and uniqueness: established" + suffix + "."
+                    with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                        root = Path(directory)
+                        _fixture(root, GOVERNANCE)
+                        _append_promotion(root, phrase)
+                        result = _run_checker(root, GOVERNANCE)
+                        unsupported = re.findall(r"unnegated assurance promotion: '([^']+)'", result.stdout, re.I)
+                        observed = {name for name in ("novelty", "priority", "uniqueness")
+                                    if any(re.search(r"\b" + name + r"\b", item, re.I) for item in unsupported)}
+                        expected = {"novelty"} if prior_positive else set()
+                        self.assertEqual(expected, observed, phrase + "\n" + result.stdout)
+                        self.assertEqual(not expected, result.returncode == 0, result.stdout)
+
+    def test_independent_claim_then_pair_scope_matrix(self):
+        spec = importlib.util.spec_from_file_location("following_pair_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        failures, count = [], 0
+        priors = (("Novelty: established", {"novelty"}),
+                  ("Novelty: not established", set()),
+                  ("Novelty: established, only if independently replicated", set()))
+        suffixes = (("", False), (", only if independently replicated", True),
+                    (", if p < 0.05", True), (", unless refuted", True),
+                    (" are not asserted", True), (" remain unresolved", True))
+        for join in ("and", "but", "while", "whereas"):
+            for comma in ("", ","):
+                for mark in ("", "**", "`"):
+                    for prior, prior_expected in priors:
+                        for verb in ("established", "proved", "proven", "demonstrated", "confirmed", "validated"):
+                            for x_positive, y_positive in ((True, True), (True, False), (False, True), (False, False)):
+                                x = mark + "priority" + mark + ": " + mark + (verb if x_positive else "not " + verb) + mark
+                                y = mark + "uniqueness" + mark + ": " + mark + (verb if y_positive else "not " + verb) + mark
+                                for suffix, qualified in suffixes:
+                                    phrase = prior + comma + " " + join + " both " + x + " and " + y + suffix + "."
+                                    expected = prior_expected | (set() if qualified else
+                                               ({"priority"} if x_positive else set()) | ({"uniqueness"} if y_positive else set()))
+                                    result = checker.promotion_clauses(phrase)
+                                    observed = {name for name in ("novelty", "priority", "uniqueness")
+                                                if any(re.search(r"\b" + name + r"\b", item, re.I) for item in result)}
+                                    count += 1
+                                    if observed != expected:
+                                        failures.append((phrase, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{count} independent-claim/pair failures: {failures[:8]}")
+        print(f"INDEPENDENT_THEN_PAIR: {count} exact-identity cases passed")
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:

@@ -153,7 +153,14 @@ def label_prefix(statement: str, start: int) -> str:
     if leading := following_claim_qualifier(statement[previous.end():start]):
         return leading[1]
     separator = statement.rfind(",", previous.end(), start)
-    tail = statement[separator + 1:start].rsplit("|", 1)[-1] if separator >= 0 else ""
+    if separator >= 0:
+        tail = statement[separator + 1:start].rsplit("|", 1)[-1]
+    else:
+        # An independent join can introduce the following "both" group even
+        # without a comma. Keep only its own tail, never the previous status.
+        context = statement[previous.end():start]
+        joins = list(CLAIM_COORDINATOR.finditer(context))
+        tail = context[joins[-1].end():].rsplit("|", 1)[-1] if joins else ""
     # A prior label's trailing qualifier cannot cross an independent
     # conjunction into this label. Leading conditions were retained above.
     return CLAUSE.split(tail)[-1]
