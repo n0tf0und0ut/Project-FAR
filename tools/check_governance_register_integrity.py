@@ -75,23 +75,31 @@ FORWARD_PROHIBITION = re.compile(
     re.I,
 )
 COORDINATION = re.compile(r"\s+and\s+", re.I)
-# A left-hand status can contain extra local negative atoms before the final
-# independent "and <right label>". Consume those atoms as part of the left
-# status, without distributing their negation to the right member.
-LEFT_COMPOUND_COORDINATION = re.compile(
-    rf"(?:\s+(?:and|nor)\s+(?:not|never)\s+(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open))+"
-    r"\s+and\s+", re.I,
-)
 BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
 # Status values are consumed separately from pair-level qualifiers. A local
 # "not established" in one member must never qualify the other member.
 # This finite prefix grammar shares NEGATION's cannot/n't semantics; arbitrary
 # adverbs and general English verb phrases are outside this scalar grammar.
 NEGATIVE_STATUS_PREFIX = r"(?:(?:not|never)\s+(?:yet\s+)?|cannot\s+be\s+|(?:isn't|aren't|wasn't|weren't)\s+)"
+# Consume the same complete scalar-status chain in either pair member.
+# The following label cannot be consumed as a status atom, so its final
+# "and" remains the pair separator rather than part of either local status.
+STATUS_ATOM = rf"(?:{NEGATIVE_STATUS_PREFIX})?(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open)\b"
 STATUS_VALUE = re.compile(
-    rf"\s*(?:{NEGATIVE_STATUS_PREFIX})?(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open)\b",
+    rf"\s*{STATUS_ATOM}(?:\s+(?:and|nor)\s+{STATUS_ATOM})*",
     re.I,
 )
+# Independent prose and explicit-pair predicates share this finite vocabulary.
+# Contracted forms retain NEGATION's existing n't semantics; they do not
+# introduce another set of negators or a general English verb parser.
+PREDICATE_HEAD = (
+    r"(?:isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|can't|couldn't|"
+    r"won't|wouldn't|shouldn't|mightn't|mustn't|shan't|"
+    r"is|are|was|were|remains?|has|have|had|can|cannot|could|will|would|"
+    r"should|may|might|must|shall)\b"
+)
+PROSE_SUBJECT = rf"(?:neither\s+)?{TOPIC.pattern}(?:\s+nor\s+{TOPIC.pattern})*"
+PROSE_ASSERTION = rf"{PROSE_SUBJECT}\s+{PREDICATE_HEAD}"
 INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
@@ -181,8 +189,7 @@ def label_prefix(statement: str, start: int) -> str:
         # borrow priority's negation. A true "If ...," condition has no
         # independent coordinated prose clause and remains within scope.
         separate_prose = re.search(
-            rf"{TOPIC.pattern}\s+(?:is|are|was|were|remains?|has|have|had|"
-            r"can|cannot|could|will|would|should|may|might|must|shall)\b"
+            rf"{PROSE_ASSERTION}"
             r"[^|]*?(?:,\s*|\s+)(?:and|but|while|whereas)\s*$",
             prefix, re.I)
         return "" if separate_prose else prefix
@@ -218,10 +225,7 @@ def label_suffix(statement: str, end: int) -> str:
     # negation to the preceding label: "Novelty: established, but priority is
     # not established" contains an unconditional novelty promotion.
     prose_join = re.search(
-        rf"\b(?:and|but|while|whereas)\s+{TOPIC.pattern}\s+"
-        r"(?:is|are|was|were|remains?|has|have|had|can|cannot|can't|"
-        r"could|couldn't|will|won't|would|wouldn't|should|shouldn't|"
-        r"may|might|must|shall)\b", after, re.I)
+        rf"\b(?:and|but|while|whereas)\s+{PROSE_ASSERTION}", after, re.I)
     if prose_join:
         after = after[:prose_join.start()]
     return after
@@ -243,8 +247,7 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
         if not left_value or not right_value:
             continue
         between = statement[left_value.end():right.start()]
-        if not (COORDINATION.fullmatch(between)
-                or LEFT_COMPOUND_COORDINATION.fullmatch(between)):
+        if not COORDINATION.fullmatch(between):
             continue
         prefix = label_prefix(statement, left.start())
         explicit_pair = BOTH_PREFIX.search(prefix)
@@ -270,9 +273,7 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
             # neither confirmed nor validated" as well as "are not".
             # Requiring a group-level verb/modality at the start still
             # excludes the right scalar member's local "and not confirmed".
-            plural_predicate = re.match(
-                r"^(?:are|were|have|had|remain|remains|can|cannot|could|"
-                r"must|may|should|would|will|shall)\b", suffix, re.I)
+            plural_predicate = re.match(PREDICATE_HEAD, suffix, re.I)
             if group_condition or (plural_predicate and NEGATION.search(suffix)):
                 context += " " + suffix
         if NEGATION.search(context):

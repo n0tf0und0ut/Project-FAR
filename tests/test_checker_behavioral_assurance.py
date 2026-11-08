@@ -511,6 +511,80 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_existing_status_and_predicate_vocabulary_composes_at_claim_boundaries(self):
+        # Each case stays within status atoms / negators already recognized
+        # by the checker. Their ownership must survive composition.
+        cases = (
+            ("Priority won't be established, but novelty: established.", {"novelty"}),
+            ("Novelty: established, but neither priority nor uniqueness is established.", {"novelty"}),
+            ("Both novelty: established and priority: established aren't confirmed.", set()),
+            ("Both novelty: established and priority: established weren't validated.", set()),
+            ("Both novelty: established and priority: established shouldn't be asserted.", set()),
+            ("If independently replicated, both novelty: not established and not yet confirmed and priority: established.", set()),
+            ("Do not assert both novelty: not established and cannot be confirmed and priority: established.", set()),
+            ("Both novelty: not established and cannot be confirmed and priority: established.", {"priority"}),
+        )
+        for phrase, expected in cases:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                unsupported = re.findall(r"unnegated assurance promotion: '([^']+)'", result.stdout, re.I)
+                observed = {name for name in ("novelty", "priority", "uniqueness")
+                            if any(re.search(r"\b" + name + r"\b", item, re.I) for item in unsupported)}
+                self.assertEqual(expected, observed, phrase + "\n" + result.stdout)
+                self.assertEqual(not expected, result.returncode == 0, result.stdout)
+
+    def test_status_chain_and_prose_ownership_composition_oracle(self):
+        # Independent finite templates: no production regex or status/predicate
+        # inventories are imported to decide expected topic identities.
+        spec = importlib.util.spec_from_file_location("ownership_composition_checker", ROOT / GOVERNANCE)
+        checker = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(checker)
+        negatives = ("not established", "not yet confirmed", "never yet proved",
+                     "cannot be demonstrated", "isn't validated", "aren't proven",
+                     "wasn't confirmed", "weren't established", "unresolved", "unknown",
+                     "refuted", "impossible", "open", "remains open", "excluded",
+                     "nonclaim", "prohibited")
+        plural = ("are not confirmed", "aren't confirmed", "were never validated",
+                  "weren't validated", "have not been demonstrated", "haven't been demonstrated",
+                  "cannot be confirmed", "can't be confirmed", "should not be asserted",
+                  "shouldn't be asserted", "are neither confirmed nor validated")
+        predicates = ("is not established", "isn't established", "remains unresolved",
+                      "will not be established", "won't be established", "shouldn't be confirmed")
+        cases = []
+        for left in negatives:
+            for right in negatives:
+                for coordinator in (" and ", " nor "):
+                    negative_chain = left + coordinator + right
+                    for left_positive, right_positive in ((True, True), (True, False), (False, True), (False, False)):
+                        x = "novelty: " + ("established" if left_positive else negative_chain)
+                        y = "priority: " + ("established" if right_positive else negative_chain)
+                        pair = "both " + x + " and " + y
+                        expected = ({"novelty"} if left_positive else set()) | ({"priority"} if right_positive else set())
+                        cases.extend(((pair + ".", expected),
+                                      ("If independently replicated, " + pair + ".", set()),
+                                      ("Do not assert " + pair + ".", set())))
+        for predicate in plural:
+            cases.extend((("Both novelty: established and priority: established " + predicate + ".", set()),
+                          ("Both novelty: established and priority: established " + predicate + ", but uniqueness: established.", {"uniqueness"})))
+        for join in ("and", "but", "while", "whereas"):
+            for predicate in predicates:
+                for subject in ("priority", "neither priority nor uniqueness"):
+                    prose = subject + " " + predicate
+                    cases.extend(((prose + ", " + join + " novelty: established.", {"novelty"}),
+                                  ("Novelty: established, " + join + " " + prose + ".", {"novelty"})))
+        failures = []
+        for phrase, expected in cases:
+            result = checker.promotion_clauses(phrase)
+            observed = {name for name in ("novelty", "priority", "uniqueness")
+                        if any(re.search(r"\b" + name + r"\b", item, re.I) for item in result)}
+            if observed != expected:
+                failures.append((phrase, sorted(expected), result))
+        self.assertEqual(0, len(failures), f"{len(failures)}/{len(cases)} ownership composition failures: {failures[:8]}")
+        print(f"STATUS_CHAIN_PROSE_OWNERSHIP: {len(cases)} exact-identity cases passed")
+
     def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
         for phrase in (
             "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
