@@ -11,7 +11,7 @@ import subprocess
 import sys
 import os
 import fcntl
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 from types import SimpleNamespace
 
 from tools.far_investigation_campaign import (
@@ -231,13 +231,13 @@ class CampaignTests(unittest.TestCase):
                  "archive total uncompressed bytes exceed bound"),
             ):
                 with self.subTest(marker=marker):
-                    archive = Mock()
+                    archive = MagicMock()
                     archive.infolist.return_value = [
                         SimpleNamespace(filename=f"member-{i}.json", file_size=size)
                         for i, size in enumerate(sizes)
                     ]
-                    archive.__enter__ = Mock(return_value=archive)
-                    archive.__exit__ = Mock(return_value=False)
+                    archive.__enter__.return_value = archive
+                    archive.__exit__.return_value = False
                     with patch("tools.far_investigation_campaign.zipfile.ZipFile", return_value=archive):
                         result = audit_directory(root)
                     self.assertFalse(result["valid"])
