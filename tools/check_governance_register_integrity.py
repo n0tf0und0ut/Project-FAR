@@ -66,7 +66,8 @@ CONDITION_PREFIX = r"(?:only\s+if|if|unless)"
 CONDITION_CELL = re.compile(rf"^{CONDITION_PREFIX}\b", re.I)
 # A leading condition may expressly govern a coordinated pair of statuses.
 # Comma-separated independent assertions and separate table cells remain local.
-SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:both\b\s*)?$", re.I)
+# The finite conditional grammar permits an explicit consequent introducer.
+SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:(?:only\s+)?then\b\s*)?(?:both\b\s*)?$", re.I)
 CLAIM_COORDINATOR = re.compile(r"\b(?:and|but|while|whereas)\b\s*", re.I)
 FORWARD_PROHIBITION = re.compile(
     r"(?:do\s+not\s+(?:assert|claim)|never\s+(?:assert|claim)"
