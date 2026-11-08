@@ -1,0 +1,60 @@
+{
+  "format_version": "FAR-MECH-DIGITS-RESULT/0.1",
+  "status": "TRAINED_MODEL_REPLAYED_LOCALLY_NOT_INDEPENDENTLY_VALIDATED",
+  "data_class": "real_trained_neural_model",
+  "dataset": "sklearn.datasets.load_digits",
+  "dataset_sha256": "a627aed550b0b29bf76a981bc1ecbab5ef775aac454c94154f20ec9f61a04c83",
+  "checkpoint_sha256": "79bbe2c2808c93011cb8af35f33c7fa3b751fd35d34c09b9e9262273f950b8ad",
+  "source_sha256": "cd8a38ebe88ea3b1e6f8be9564bcb1bca6887754cc22e06babd2cfea7d680c70",
+  "model_architecture": "PyTorch MLP 64-24-10, trained 60 Adam epochs on human handwritten digits",
+  "seed": 1729,
+  "n_train": 1257,
+  "n_test": 540,
+  "test_accuracy": 0.9629629629629629,
+  "intervention": "fc1.relu.4",
+  "explanation": "single-pixel affine ReLU trained only on train split, pixel index 42",
+  "measured_n": 32,
+  "splits": {
+    "heldout": {
+      "n": 16,
+      "activation_mae": 0.6033775,
+      "mean_kl": 0.00740252970159011,
+      "baseline_kl": 0.018114323947540867,
+      "cases_worse_than_baseline": 1
+    },
+    "adversarial": {
+      "n": 8,
+      "activation_mae": 1.841576875,
+      "mean_kl": 0.07456973451398566,
+      "baseline_kl": 0.029845206295082145,
+      "cases_worse_than_baseline": 8,
+      "selection": "top 8 worst KL deltas in a distinct 154-sample test candidate pool, selection-biased"
+    },
+    "control": {
+      "n": 8,
+      "activation_mae": 0,
+      "mean_kl": 0,
+      "baseline_kl": 0.017084153175192615,
+      "cases_worse_than_baseline": 0
+    }
+  },
+  "replay": {
+    "method": "checkpoint reconstruct + real PyTorch forward hook patch on fc1 pre-ReLU",
+    "cases_replayed": 32,
+    "probability_tolerance": 0.000002,
+    "independent_code_path": true,
+    "independent_data_origin_verification": false,
+    "local_replay_tests": 4,
+    "local_replay_passed": 4
+  },
+  "assurance": "REAL_TRAINED_MODEL_INTERVENTIONS_WITH_SELF_REPLAY_NOT_SCIENTIFIC_INTERPRETABILITY_BENCHMARK",
+  "limitations": [
+    "digit classifier not LLM",
+    "single hidden ReLU unit not general neural circuit",
+    "single-pixel proxy is not a semantic neuron explanation",
+    "adversarial cohort selected on observed KL score",
+    "checkpoint and full traces retained as separately supplied conversation artifacts",
+    "no independent third party replication",
+    "not an objective accuracy improvement of FAR over competing interpretability systems"
+  ]
+}
