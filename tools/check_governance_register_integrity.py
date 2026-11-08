@@ -111,20 +111,21 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     """
     boundaries = list(CLAIM_COORDINATOR.finditer(context))
     if boundaries:
-        # "but only if ..." is the preceding status's own trailing
-        # qualification. An independently comma-introduced "and if ...," may
-        # instead lead the following status, even when its condition contains
-        # internal conjunctions. Preserve that narrow, explicit boundary.
-        # Do NOT select the rightmost "and if" generally: "but if C and if
-        # D, Y" is one compound leading condition for Y, and splitting at
-        # its inner "and if" would falsely qualify the preceding claim.
-        separated_next = re.search(
-            rf",\s*but\s+only\s+if\b[^|]*?,\s*(and)\s+{CONDITION_PREFIX}\b[^|]*,\s*$",
-            context, re.I)
-        if separated_next:
-            qualifier = context[separated_next.end(1):].strip()
+        # Explicit comma-separated coordinators can introduce the next
+        # status's own compound condition. Select its FIRST independent
+        # boundary, not an internal repeated "and if": "but if C, and if D,
+        # Y" governs Y as a unit. A "but only if C" segment instead
+        # qualifies the preceding status; a later ", and if D, Y" begins
+        # the next claim. These rules require punctuation and do not infer
+        # arbitrary natural-language scope across cells or sentences.
+        for candidate in re.finditer(
+                rf",\s*(but|and|while|whereas)\s+({CONDITION_PREFIX})\b", context, re.I):
+            if (candidate.group(1).lower() == "but"
+                    and candidate.group(2).lower().startswith("only")):
+                continue
+            qualifier = context[candidate.end(1):].strip()
             if SHARED_CONDITION.fullmatch(qualifier):
-                return separated_next.start(1), qualifier
+                return candidate.start(1), qualifier
         last = boundaries[-1]
         last_tail = context[last.end():].strip()
         chain_start = len(boundaries) - 1
