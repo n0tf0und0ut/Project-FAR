@@ -11,9 +11,13 @@ import subprocess
 import sys
 import os
 import fcntl
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from types import SimpleNamespace
 
-from tools.far_investigation_campaign import audit_directory, metrics, summarize, run
+from tools.far_investigation_campaign import (
+    MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES, MAX_TRANSCRIPT_MEMBER_BYTES,
+    audit_directory, metrics, summarize, run,
+)
 
 
 class CampaignTests(unittest.TestCase):
@@ -145,6 +149,99 @@ class CampaignTests(unittest.TestCase):
             self.assertFalse(audit_directory(root)['valid'])
             (root / 'source.json').unlink()
             self.assertFalse(audit_directory(root)['valid'])
+
+    def test_large_bounded_two_source_campaign_remains_archive_replayable(self):
+        # A real native-response-shaped deterministic investigation, not a
+        # model benchmark: two independent ~1.9 MB sources are each below
+        # the ordinary 2 MB policy ceiling but previously made a >64 MB
+        # complete transcript that campaign audit refused before replay.
+        from tools.far_investigation_engine import Investigation
+        from tools.far_investigation_retrieval import RetrievalPolicy, retrieve
+        from tests.test_far_investigation_engine import BODY_A, BODY_B, QUESTION, URL_A, URL_B
+        from tests.test_far_investigation_retrieval import Response, dns
+
+        bodies = {
+            url: (prefix.encode() + b"\n" + b"x" * (1_900_000 - len(prefix.encode()) - 1))
+            for url, prefix in ((URL_A, BODY_A), (URL_B, BODY_B))
+        }
+
+        def fetch(url, policy, checkpoint):
+            client = Mock()
+            response = Response(bodies[url], url=url)
+            response.headers["Content-Length"] = str(len(bodies[url]))
+            client.open.return_value = response
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        hosts = tuple(sorted(("example.org", "independent.example.org", "api.crossref.org", "en.wikipedia.org")))
+        state = Investigation(
+            QUESTION, RetrievalPolicy(hosts, resolver=dns),
+            seeds=[URL_A, URL_B], mode="deterministic", fetcher=fetch,
+        ).run_workflow()
+        self.assertEqual("BOUNDED_PIPELINE_COMPLETED", state["status"])
+        self.assertTrue(metrics(state)["integrity_valid"])
+        transcript = json.dumps(state, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        self.assertGreater(len(transcript), 64_000_000)
+        self.assertLess(len(transcript), MAX_TRANSCRIPT_MEMBER_BYTES)
+        selection = {"tasks": [{"id": "large", "question": QUESTION, "source_hints": [URL_A, URL_B]}]}
+        selection_bytes = json.dumps(selection, sort_keys=True).encode()
+        row = {"task_id": "large", "mode": "deterministic",
+               "transcript": "large-deterministic.json",
+               "transcript_sha256": hashlib.sha256(transcript).hexdigest(), "metrics": metrics(state)}
+        campaign = {
+            "schema": "far-investigation-campaign/0.1", "status": "EXECUTED",
+            "selection": selection, "selection_sha256": hashlib.sha256(selection_bytes).hexdigest(),
+            "budget": state["policy"]["budget"], "policy_hosts": list(hosts),
+            "git_head": "a" * 40, "source_hashes": {}, "rows": [row],
+            "summary": summarize([row]), "model_sha256": None,
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "selection.json").write_bytes(selection_bytes)
+            archive_path = root / "run.zip"
+            with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("campaign.json", json.dumps(campaign))
+                archive.writestr(row["transcript"], transcript)
+            entry = {
+                "path": "run.zip", "sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
+                "audit_transcripts": True, "selection_path": "selection.json",
+                "modes": ["deterministic"], "source_commit": "a" * 40, "source_hashes": {},
+            }
+            (root / "evidence-manifest.json").write_text(json.dumps({"files": [entry]}))
+            result = audit_directory(root)
+            self.assertTrue(result["valid"], result["errors"])
+            self.assertEqual(1, result["audited_transcripts"])
+
+    def test_campaign_archive_bombs_remain_bounded(self):
+        # Admission rejects an oversized declared member before reading it
+        # and rejects excessive total declared sizes independently.
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = {"tasks": [{"id": "case", "question": "question",
+                                    "source_hints": ["https://example.org/one"]}]}
+            (root / "selection.json").write_text(json.dumps(selection))
+            (root / "run.zip").write_bytes(b"test placeholder ZIP supplied by mock")
+            entry = {"path": "run.zip",
+                     "sha256": hashlib.sha256((root / "run.zip").read_bytes()).hexdigest(),
+                     "audit_transcripts": True, "selection_path": "selection.json",
+                     "modes": ["deterministic"]}
+            (root / "evidence-manifest.json").write_text(json.dumps({"files": [entry]}))
+            for sizes, marker in (
+                ([MAX_TRANSCRIPT_MEMBER_BYTES + 1], "archive member exceeds bound"),
+                ([MAX_TRANSCRIPT_MEMBER_BYTES] * 3,
+                 "archive total uncompressed bytes exceed bound"),
+            ):
+                with self.subTest(marker=marker):
+                    archive = Mock()
+                    archive.infolist.return_value = [
+                        SimpleNamespace(filename=f"member-{i}.json", file_size=size)
+                        for i, size in enumerate(sizes)
+                    ]
+                    archive.__enter__ = Mock(return_value=archive)
+                    archive.__exit__ = Mock(return_value=False)
+                    with patch("tools.far_investigation_campaign.zipfile.ZipFile", return_value=archive):
+                        result = audit_directory(root)
+                    self.assertFalse(result["valid"])
+                    self.assertTrue(any(marker in e for e in result["errors"]), result)
 
     def test_archive_cannot_hide_missing_campaign_transcript(self):
         with tempfile.TemporaryDirectory() as temporary:
