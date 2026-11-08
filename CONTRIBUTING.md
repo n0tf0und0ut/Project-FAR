@@ -4,7 +4,7 @@
 
 Thank you for your interest in contributing to Project FAR.
 
-Project FAR is a research project developing a rigorous, minimal, and universal framework for representing, analyzing, and comparing structured, explicit, and auditable reasoning.
+Project FAR is a contract-relative research and software project for representing, analyzing, and comparing structured, explicit, auditable reasoning under declared contracts. It does not claim a universal minimal reasoning representation.
 
 Contributions should strengthen the framework while preserving its logical consistency, minimality, and formal rigor.
 
@@ -16,11 +16,13 @@ Before proposing changes, contributors should become familiar with the project.
 
 Recommended reading order:
 
-1. `README.md`
-2. `docs/ROADMAP.md`
-3. `theory/definitions/definitions.md`
-4. The README for the relevant directory
-5. `docs/DECISION_LOG.md` (for architectural changes)
+1. [Repository introduction](README.md) and [overview](docs/OVERVIEW.md).
+2. [Current project status](docs/project-status.md) and [canonical map](docs/CANONICAL_MAP.md).
+3. [Documentation index](docs/README.md) and the README for the affected domain.
+4. [Research execution charter](docs/governance/research-execution-charter.md) and [PR review convergence policy](docs/governance/pr-review-convergence.md) before changes.
+5. [Decision log](docs/DECISION_LOG.md) for architecture and [limitations register](docs/governance/limitations-register.md) for scientific claims.
+
+Automated contributors should follow their applicable runtime instructions: [Codex](AGENTS.md) or [Claude](CLAUDE.md). Those instructions do not override canonical governance.
 
 ---
 
@@ -57,15 +59,7 @@ All contributions should follow these principles.
 
 # Canonical Definitions
 
-All formal terminology is defined exclusively in:
-
-```text
-theory/definitions/definitions.md
-```
-
-Do not redefine technical terms elsewhere.
-
-If a new concept is required, add it to the canonical definitions before using it throughout the repository.
+Use [canonical terminology](docs/glossary/canonical-terminology.md) for names, meanings, ownership, and epistemic class. Consult [formal definitions](theory/definitions/definitions.md) for the corresponding formal treatment. Other documents should link to the canonical source rather than redefine a term. New concepts and changes in authority require the applicable governed process.
 
 ---
 
@@ -96,4 +90,17 @@ Examples include:
 - Theorems
 - Proofs
 
-The goal
+The goal is to preserve the meaning, premises, scope, provenance, and stated limitations of each claim. Do not promote an illustrative example, passing test, or research artifact into accepted theory without the governed acceptance process.
+
+## Verify a contribution
+
+From the repository root, use the existing checkers appropriate to the changed files:
+
+```bash
+make docs-check
+make health-fast
+```
+
+For a narrow documentation update, [repository health checks](docs/maintenance/repository-health-checks.md) explain the link, Markdown, orphan-document, and broader checks. Investigate failing checks; do not suppress them to make a PR pass.
+
+Submit a task-scoped pull request with the reason for the change, affected canonical sources, validation evidence, and any unresolved limitations. Follow [PR review convergence](docs/governance/pr-review-convergence.md); independent review and protected-main merge authorization remain separate obligations.

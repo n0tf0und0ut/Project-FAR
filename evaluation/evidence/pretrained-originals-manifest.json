@@ -1,0 +1,42 @@
+{
+  "executions": [
+    {
+      "archive": "pretrained-original-13050862275.zip",
+      "archive_sha256": "4751401927162f4b511672bb982917d41b92af0b7241328476663a0fc6cee407",
+      "artifact_id": 13050862275,
+      "head_sha": "164807e04a4eff805b2befa1cda365498d881570",
+      "kind": "original_binary_projection",
+      "members": {
+        "far_mech_pretrained_result.json": "e2e3a7beca2b434e9ebe6bbb6ccea22d46b5a57299b490be84936bb164477c89",
+        "far_mech_pretrained_trace.json": "e35615ef9cdbc73f60c9f81ca081607e68e7f80f74a1b2b614c1a0a893022d0c"
+      },
+      "workflow_run_id": 41223025391
+    },
+    {
+      "archive": "pretrained-original-13051320299.zip",
+      "archive_sha256": "ee8a60502f6735f71d07018fb16f4c0e3c4f5608844247514da594a7d8291281",
+      "artifact_id": 13051320299,
+      "head_sha": "0e91dc202e33caa1fc5ce582ed1654890b396edb",
+      "kind": "original_full_vocabulary",
+      "members": {
+        "far_mech_pretrained_result.json": "2486737cf3cc4c24b890ff3c13f15d7c8164cb455ccae04cc665dcbef8992682",
+        "far_mech_pretrained_trace.json": "45c94257672bb9051922526769dcf690e8b9714799d51c2a7fa2192b0fdd9392"
+      },
+      "workflow_run_id": 41223761759
+    },
+    {
+      "archive": "pretrained-original-13052923193.zip",
+      "archive_sha256": "16aa1a0aa2f5443ec247f7097c7843c4b8e5f4f0c7ea1a170172965ce747fac5",
+      "artifact_id": 13052923193,
+      "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+      "kind": "completed_measurements_failed_replay",
+      "members": {
+        "far_mech_pretrained_result.json": "0f5e86012ae195245f6ae8b473624bb4dd768b8b3e17c44fcbf8a43bd5605e8f",
+        "far_mech_pretrained_trace.json": "678a481d2bf9cb7bbffa31e881d9fdf7d33346e9e6995ce5dc11fe7002d6ae37"
+      },
+      "workflow_run_id": 41229617588
+    }
+  ],
+  "schema": "far-mech-preserved-executions/0.1",
+  "status": "Research"
+}
