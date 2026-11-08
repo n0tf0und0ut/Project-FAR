@@ -318,6 +318,71 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_condition_introducers_have_consistent_local_and_shared_scope(self):
+        for condition in (
+            "If independently replicated",
+            "Only if independently replicated",
+            "Unless a prior example is found",
+        ):
+            for phrase in (
+                condition + ", both novelty: established and priority: established.",
+                "Novelty: not established, but " + condition.lower() + ", priority: established.",
+                "Novelty: not established, and " + condition.lower() + ", priority: established.",
+                "Novelty: established, but " + condition.lower() + ".",
+                "Novelty: not established, but " + condition.lower() + ", both priority: established and external validation: established.",
+                condition + ", both novelty: not established and priority: established.",
+                condition + ", both novelty: unresolved and priority: established.",
+            ):
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_following_claim_conditions_never_qualify_previous_promotion(self):
+        for condition in (
+            "if independently replicated",
+            "only if independently replicated",
+            "unless a prior example is found",
+        ):
+            for conjunction in ("but", "and", "whereas", "while"):
+                phrase = "Novelty: established, " + conjunction + " " + condition + ", priority: not established."
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                    self.assertIn("unnegated assurance promotion", result.stdout)
+
+    def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
+        for phrase in (
+            "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
+            "Only if p < .05, both novelty: established and priority: established.",
+            "Unless error exceeds 1.25 percent, both novelty: established and priority: confirmed.",
+            "| External validation | established | only if p < 0.05 |",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+        for phrase in (
+            "If p < 0.05, novelty: established. Priority: established.",
+            "If p < .05, novelty: established; Priority: established.",
+            "Only if p < 0.05, both novelty: established and priority: established, uniqueness: proved.",
+            "Novelty: not established. Priority: established.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:

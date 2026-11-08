@@ -55,14 +55,22 @@ LABEL_PROMOTION = re.compile(
 # "If replicated, novelty: established" and "Novelty: established, only if".
 # Do not split there. Separate semicolons/sentences and explicit conjunctions,
 # then scope each label to its own adjacent status statement below.
-LABEL_STATEMENT = re.compile(r"[;.]")
+LABEL_STATEMENT = re.compile(r";|\.(?!\d)")
 # Only an explicit condition column qualifies the preceding status. A
 # neighboring non-condition cell must never hide an unsupported promotion.
-CONDITION_CELL = re.compile(r"^(?:only\s+if|if|unless)\b", re.I)
+CONDITION_PREFIX = r"(?:only\s+if|if|unless)"
+CONDITION_CELL = re.compile(rf"^{CONDITION_PREFIX}\b", re.I)
 # A leading condition may expressly govern a coordinated pair of statuses.
 # Comma-separated independent assertions and separate table cells remain local.
-SHARED_CONDITION = re.compile(r"^\s*(?:[-+*]\s+)?(?:if|unless)\b[^|]+,\s*(?:both\s+)?$", re.I)
-COORDINATION = re.compile(r"\s+and\s+", re.I)
+SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:both\b\s*)?$", re.I)
+# In "X, but if C, Y", the coordinator introduces Y's condition. This
+# context belongs to Y, never to the suffix of X. Use the same introducers
+# for shared, local, and table conditions rather than separate vocabularies.
+FOLLOWING_CLAIM_CONDITION = re.compile(
+    rf"(?:^|,|\s)\s*(?:and|but|while|whereas)\s+({CONDITION_PREFIX}\b[^|]*?)\s*,?\s*$",
+    re.I,
+)
+COORDINATION = re.compile(r"\s*[^,;|]+?\s+and\s+", re.I)
 INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
@@ -78,6 +86,18 @@ def register_rows(text: str) -> list[tuple[str, list[str]]]:
         if match:
             rows.append((match.group(1), [cell.strip() for cell in match.group(2).split("|")]))
     return rows
+
+
+def label_prefix(statement: str, start: int) -> str:
+    """Return only the local pre-label context, retaining its own condition."""
+    earlier = list(LABEL_MARKER.finditer(statement[:start]))
+    if not earlier:
+        return statement[:start].rsplit("|", 1)[-1]
+    previous = earlier[-1]
+    if leading := FOLLOWING_CLAIM_CONDITION.search(statement[previous.end():start]):
+        return leading.group(1)
+    separator = statement.rfind(",", previous.end(), start)
+    return statement[separator + 1:start].rsplit("|", 1)[-1] if separator >= 0 else ""
 
 
 def promotion_clauses(text: str) -> list[str]:
@@ -97,33 +117,25 @@ def promotion_clauses(text: str) -> list[str]:
                 # Bound context to the nearest cell edges: a different pair's
                 # "not established" must not suppress this pair's promotion.
                 # Retain any leading prohibition and trailing condition.
-                before = statement[:match.start()].rsplit("|", 1)[-1]
-                # If another status label precedes this one, its conditions
-                # and negations are independent. Bound preceding context to
-                # the last comma after that preceding label (or to empty
-                # context for adjacent labels without a comma).
+                before = label_prefix(statement, match.start())
                 earlier = list(LABEL_MARKER.finditer(statement[:match.start()]))
                 if earlier:
-                    separator = statement.rfind(",", earlier[-1].end(), match.start())
-                    before = (
-                        statement[separator + 1:match.start()].rsplit("|", 1)[-1]
-                        if separator >= 0 else ""
-                    )
                     # Do not discard the condition in "If ..., both X and Y".
-                    # Only the second explicitly coordinated status shares it;
-                    # an unrelated third status cannot inherit this context.
-                    first = LABEL_PROMOTION.match(statement, earlier[0].start())
-                    prefix = statement[:earlier[0].start()]
+                    # The pair may follow another independent claim. Recover
+                    # the preceding label's own prefix, never the whole line's
+                    # condition, so unrelated third statuses cannot inherit it.
+                    prefix = label_prefix(statement, earlier[-1].start())
                     if (
-                        len(earlier) == 1 and first
-                        and SHARED_CONDITION.fullmatch(prefix)
-                        and COORDINATION.fullmatch(statement[first.end():match.start()])
+                        SHARED_CONDITION.fullmatch(prefix)
+                        and COORDINATION.fullmatch(statement[earlier[-1].end():match.start()])
                     ):
                         before = prefix
                 after = statement[match.end():]
                 later = LABEL_MARKER.search(after)
                 if later:
                     after = after[:later.start()]
+                    if following := FOLLOWING_CLAIM_CONDITION.search(after):
+                        after = after[:following.start()]
                 # The next Markdown table cell may expressly state a
                 # condition: "| Novelty | established | only if ... |".
                 # Keep only that one condition cell, never an arbitrary
