@@ -1,0 +1,178 @@
+{
+  "format_version": "FAR-MECH/0.1",
+  "status": "Research",
+  "id": "real-digits-three-case-extract-20261030",
+  "data_class": "submitted_experiment",
+  "registered_at": "2026-10-30T23:39:41.864861+00:00",
+  "model": {
+    "artifact_sha256": "79bbe2c2808c93011cb8af35f33c7fa3b751fd35d34c09b9e9262273f950b8ad",
+    "component_id": "fc1.relu.4",
+    "intervention_type": "single_component_activation_replacement",
+    "reference_population_sha256": "ee5b020695965c5dbd5d7604f438bdd29f6bd046c854754911c5bc8b837f3bb8",
+    "execution_contract": {
+      "deterministic": true,
+      "same_nonintervened_state": true,
+      "exact_output_distributions": true
+    }
+  },
+  "explanation": {
+    "id": "single-pixel-affine-relu",
+    "description": "Three source-recorded measurements extracted from the real trained PyTorch model experiment; proxy ReLU(pixel[42]*alpha + beta). Adversarial case is selection-biased.",
+    "hypothesis_source_ids": [
+      "real-run-note"
+    ]
+  },
+  "sources": [
+    {
+      "id": "real-run-note",
+      "text": "Submitted real PyTorch intervention traces from the 2026-10-30 sklearn handwritten-digits experiment. This submitted note and hashes do not independently authenticate the checkpoint, experimental execution, or dataset origin.",
+      "sha256": "569b042f65bca51d791f96557330167c154ed41003dd828c07fef2eda1d04164"
+    }
+  ],
+  "cases": [
+    {
+      "id": "digits-1172",
+      "split": "heldout",
+      "input_sha256": "c95adc2e2e1210506a2c65dab7090b1ee140ccb2acf83775a556a9edbd0439ce",
+      "measured_at": "2026-10-30T23:39:42.372087+00:00",
+      "source_ids": [
+        "real-run-note"
+      ],
+      "observed_activation": "2.873469",
+      "explained_activation": "3.221228",
+      "baseline_activation": "2.199955",
+      "original_probs": [
+        "0.006116",
+        "0.001242",
+        "0.001240",
+        "0.027635",
+        "0.000702",
+        "0.941657",
+        "0.007273",
+        "0.001204",
+        "0.005560",
+        "0.007371"
+      ],
+      "replacement_probs": [
+        "0.005671",
+        "0.001237",
+        "0.001193",
+        "0.030773",
+        "0.000688",
+        "0.938929",
+        "0.006856",
+        "0.001285",
+        "0.005071",
+        "0.008297"
+      ],
+      "baseline_probs": [
+        "0.007078",
+        "0.001252",
+        "0.001340",
+        "0.022416",
+        "0.000732",
+        "0.945443",
+        "0.008148",
+        "0.001070",
+        "0.006650",
+        "0.005871"
+      ]
+    },
+    {
+      "id": "digits-1635",
+      "split": "adversarial",
+      "input_sha256": "66aeac6fe350562db7ed2272d133f9d0d6b1347fd074104a92c138f4763a7a02",
+      "measured_at": "2026-10-30T23:39:42.409887+00:00",
+      "source_ids": [
+        "real-run-note"
+      ],
+      "observed_activation": "4.456313",
+      "explained_activation": "1.582093",
+      "baseline_activation": "2.199955",
+      "original_probs": [
+        "0.011603",
+        "0.011551",
+        "0.041897",
+        "0.048483",
+        "0.005100",
+        "0.012624",
+        "0.000748",
+        "0.626160",
+        "0.046768",
+        "0.195066"
+      ],
+      "replacement_probs": [
+        "0.038366",
+        "0.020716",
+        "0.124234",
+        "0.033983",
+        "0.014773",
+        "0.021915",
+        "0.001222",
+        "0.440991",
+        "0.185204",
+        "0.118596"
+      ],
+      "baseline_probs": [
+        "0.030801",
+        "0.018995",
+        "0.102363",
+        "0.038185",
+        "0.012156",
+        "0.020240",
+        "0.001097",
+        "0.495318",
+        "0.143385",
+        "0.137460"
+      ]
+    },
+    {
+      "id": "digits-1067",
+      "split": "control",
+      "input_sha256": "3db7033fbfb170e5dde7a2481b1050897d079e497a86735672deb67be228cbbb",
+      "measured_at": "2026-10-30T23:39:42.482760+00:00",
+      "source_ids": [
+        "real-run-note"
+      ],
+      "observed_activation": "1.888490",
+      "explained_activation": "1.888490",
+      "baseline_activation": "2.199955",
+      "original_probs": [
+        "0.008644",
+        "0.030888",
+        "0.042949",
+        "0.021211",
+        "0.019443",
+        "0.033617",
+        "0.020081",
+        "0.008671",
+        "0.742529",
+        "0.071967"
+      ],
+      "replacement_probs": [
+        "0.008644",
+        "0.030888",
+        "0.042949",
+        "0.021211",
+        "0.019443",
+        "0.033617",
+        "0.020081",
+        "0.008671",
+        "0.742529",
+        "0.071967"
+      ],
+      "baseline_probs": [
+        "0.008537",
+        "0.032582",
+        "0.042994",
+        "0.024773",
+        "0.019386",
+        "0.035597",
+        "0.020154",
+        "0.010067",
+        "0.720377",
+        "0.085533"
+      ]
+    }
+  ]
+}

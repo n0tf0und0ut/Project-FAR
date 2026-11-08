@@ -18,6 +18,7 @@ on:
     branches:
       - main
     paths:
+      - 'README.md'
       - '.github/workflows/living-research.yml'
       - 'tools/run_living_research.py'
       - 'tools/reconcile_living_repo.py'
