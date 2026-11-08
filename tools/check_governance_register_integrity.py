@@ -59,6 +59,10 @@ LABEL_STATEMENT = re.compile(r"[;.]")
 # Only an explicit condition column qualifies the preceding status. A
 # neighboring non-condition cell must never hide an unsupported promotion.
 CONDITION_CELL = re.compile(r"^(?:only\s+if|if|unless)\b", re.I)
+# A leading condition may expressly govern a coordinated pair of statuses.
+# Comma-separated independent assertions and separate table cells remain local.
+SHARED_CONDITION = re.compile(r"^\s*(?:if|unless)\b[^|]+,\s*(?:both\s+)?$", re.I)
+COORDINATION = re.compile(r"\s+and\s+", re.I)
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
     re.I,
@@ -99,6 +103,17 @@ def promotion_clauses(text: str) -> list[str]:
                         statement[separator + 1:match.start()].rsplit("|", 1)[-1]
                         if separator >= 0 else ""
                     )
+                    # Do not discard the condition in "If ..., both X and Y".
+                    # Only the second explicitly coordinated status shares it;
+                    # an unrelated third status cannot inherit this context.
+                    first = LABEL_PROMOTION.match(statement, earlier[0].start())
+                    prefix = statement[:earlier[0].start()]
+                    if (
+                        len(earlier) == 1 and first
+                        and SHARED_CONDITION.fullmatch(prefix)
+                        and COORDINATION.fullmatch(statement[first.end():match.start()])
+                    ):
+                        before = prefix
                 after = statement[match.end():]
                 later = LABEL_MARKER.search(after)
                 if later:
@@ -109,9 +124,13 @@ def promotion_clauses(text: str) -> list[str]:
                 # adjacent cell or the next independently labeled status.
                 if "|" in after:
                     first, next_cell, *_ = (after.split("|") + [""])[:3]
+                    # Inline emphasis/code delimiters must not change whether
+                    # the next cell states an explicit condition. Normalize
+                    # that cell only; never borrow arbitrary neighboring text.
+                    next_cell = next_cell.strip().strip("*_`").strip()
                     after = first + (
                         " " + next_cell
-                        if CONDITION_CELL.match(next_cell.strip()) else ""
+                        if CONDITION_CELL.match(next_cell) else ""
                     )
                 if NEGATION.search(before + match.group(0) + after):
                     continue

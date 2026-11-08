@@ -236,6 +236,66 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_explicit_shared_condition_qualifies_both_coordinated_statuses(self):
+        for phrase in (
+            "If independently replicated, both novelty: established and priority: established.",
+            "If independently replicated, novelty: established and priority: established.",
+            "If independently replicated and externally reviewed, both novelty: established and priority: confirmed.",
+            "Unless a prior example is found, both novelty: established and priority: demonstrated.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_shared_condition_does_not_qualify_independent_statuses(self):
+        for phrase in (
+            "Both novelty: established and priority: established.",
+            "If independently replicated, both novelty: established, priority: established.",
+            "If independently replicated, both novelty: established and priority: established; uniqueness: proved.",
+            "If independently replicated, both novelty: established and priority: established, uniqueness: proved.",
+            "If independently replicated, both novelty: established and priority: established and uniqueness: proved.",
+            "| If independently replicated, both novelty: established | and priority: established |",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
+    def test_condition_cell_emphasis_preserves_qualification(self):
+        for condition in (
+            "**only if independently replicated**",
+            "*if independently replicated*",
+            "__unless a prior example is found__",
+            "`only if independently replicated`",
+        ):
+            phrase = "| Assurance | Status | Condition |\n|---|---|---|\n| Novelty | established | " + condition + " |"
+            with self.subTest(condition=condition), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
+    def test_formatted_condition_cells_do_not_hide_neighboring_promotions(self):
+        for phrase in (
+            "| Novelty | established | **not confirmed** |",
+            "| Novelty | established | **only if independently replicated** | Priority | confirmed |",
+            "| Novelty | established | **Priority: not confirmed** |",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:
