@@ -11,11 +11,13 @@ import subprocess
 import sys
 import os
 import fcntl
+import io
+from contextlib import redirect_stdout
 from unittest.mock import MagicMock, Mock, patch
 from types import SimpleNamespace
 
 from tools.far_investigation_campaign import (
-    MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES, MAX_TRANSCRIPT_MEMBER_BYTES,
+    MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES, MAX_CAMPAIGN_INDEX_BYTES, MAX_TRANSCRIPT_MEMBER_BYTES,
     audit_directory, metrics, summarize, run,
 )
 
@@ -137,6 +139,156 @@ class CampaignTests(unittest.TestCase):
         self.assertIsNone(result['agent']['semantic_successes'])
         self.assertEqual(result['agent']['superiority'], 'NOT_ESTABLISHED')
         self.assertEqual(result['deterministic']['attempted'], 0)
+
+
+    def test_4507227583_large_nonascii_selection_cannot_publish_oversized_index(self):
+        from tools.far_investigation_engine import audit_transcript
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [
+                {'id': f'case{i:02d}', 'question': '\U0001f600' * 30000, 'source_hints': []}
+                for i in range(23)
+            ]}))
+            output = root / 'output'
+            with redirect_stdout(io.StringIO()), self.assertRaisesRegex(ValueError, 'campaign index'):
+                run(selection, output, modes=('deterministic',))
+            index = output / 'campaign.json'
+            self.assertLessEqual(index.stat().st_size, MAX_CAMPAIGN_INDEX_BYTES)
+            self.assertNotEqual(json.loads(index.read_text())['status'], 'EXECUTED')
+            transcripts = [p for p in output.glob('*.json') if p.name != 'campaign.json']
+            self.assertGreater(len(transcripts), 0)
+            self.assertTrue(all(audit_transcript(json.loads(p.read_text()))['valid']
+                                for p in transcripts))
+
+    def test_campaign_index_overflow_at_each_write_preserves_last_bounded_bytes(self):
+        from tools import far_investigation_campaign as campaign
+        original = campaign.persist
+        for stage in ('initial', 'per_case', 'final'):
+            with self.subTest(stage=stage), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                selection = root / 'selection.json'
+                selection.write_text(json.dumps({'tasks': [
+                    {'id': 'case', 'question': 'bounded question', 'source_hints': []}
+                ]}))
+                output = root / 'output'
+                retained = []
+
+                def persist_and_tighten(path, value):
+                    original(path, value)
+                    if path.name == 'campaign.json':
+                        retained.append(path.read_bytes())
+                        if ((stage == 'per_case' and not value['rows'])
+                                or (stage == 'final' and value['rows'] and value['status'] == 'RUNNING')):
+                            campaign.MAX_CAMPAIGN_INDEX_BYTES = path.stat().st_size
+
+                limit = 1 if stage == 'initial' else MAX_CAMPAIGN_INDEX_BYTES
+                with patch.object(campaign, 'MAX_CAMPAIGN_INDEX_BYTES', limit), \
+                        patch.object(campaign, 'persist', side_effect=persist_and_tighten), \
+                        redirect_stdout(io.StringIO()):
+                    with self.assertRaisesRegex(ValueError, 'campaign index'):
+                        run(selection, output, modes=('deterministic',))
+                    path = output / 'campaign.json'
+                    if retained:
+                        self.assertEqual(path.read_bytes(), retained[-1])
+                        self.assertNotEqual(json.loads(path.read_text())['status'], 'EXECUTED')
+                        self.assertLessEqual(path.stat().st_size, campaign.MAX_CAMPAIGN_INDEX_BYTES)
+                    else:
+                        self.assertFalse(path.exists())
+                    self.assertFalse(path.with_suffix('.json.tmp').exists())
+
+    def test_final_campaign_write_accounts_for_proposed_index_in_total_budget(self):
+        from tools import far_investigation_campaign as campaign
+        original = campaign.persist
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [
+                {'id': 'case', 'question': 'bounded question', 'source_hints': []}
+            ]}))
+            output = root / 'output'
+            retained = []
+
+            def persist_and_tighten(path, value):
+                original(path, value)
+                if path.name == 'campaign.json':
+                    retained.append(path.read_bytes())
+                    if value['rows'] and value['status'] == 'RUNNING':
+                        campaign.MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES = sum(
+                            p.stat().st_size for p in output.glob('*.json'))
+
+            with patch.object(campaign, 'MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES',
+                              MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES), \
+                    patch.object(campaign, 'persist', side_effect=persist_and_tighten), \
+                    redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(ValueError, 'total uncompressed archive budget'):
+                    run(selection, output, modes=('deterministic',))
+                self.assertEqual((output / 'campaign.json').read_bytes(), retained[-1])
+                self.assertNotEqual(json.loads(retained[-1])['status'], 'EXECUTED')
+
+    def test_exact_index_and_total_boundaries_accept_valid_nonascii_recording(self):
+        from tools import far_investigation_campaign as campaign
+        from tools import far_investigation_engine as engine
+        original = campaign.persist
+        recorded = []
+
+        def capture(path, value):
+            original(path, value)
+            if path.name == 'campaign.json':
+                recorded.append(path.read_bytes())
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [
+                {'id': 'case', 'question': 'Question ' + '\U0001f600' * 100, 'source_hints': []}
+            ]}))
+            with patch.object(campaign, 'now', return_value='2026-11-08T00:00:00Z'), \
+                    patch.object(engine, 'now', return_value='2026-11-08T00:00:00Z'), \
+                    patch.object(engine.time, 'monotonic', return_value=1.0), \
+                    redirect_stdout(io.StringIO()):
+                with patch.object(campaign, 'persist', side_effect=capture):
+                    run(selection, root / 'reference', modes=('deterministic',))
+                index_limit = max(len(raw) for raw in recorded)
+                total_limit = sum(p.stat().st_size for p in (root / 'reference').glob('*.json'))
+                with patch.object(campaign, 'MAX_CAMPAIGN_INDEX_BYTES', index_limit), \
+                        patch.object(campaign, 'MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES', total_limit):
+                    result = run(selection, root / 'bounded', modes=('deterministic',))
+                self.assertEqual(result['status'], 'EXECUTED')
+                self.assertEqual((root / 'bounded' / 'campaign.json').stat().st_size, index_limit)
+                self.assertEqual(sum(p.stat().st_size for p in (root / 'bounded').glob('*.json')),
+                                 total_limit)
+
+    def test_initial_index_budget_counts_actual_escaped_unicode_bytes(self):
+        from tools import far_investigation_campaign as campaign
+        original = campaign.persist
+        recorded = []
+
+        def capture(path, value):
+            original(path, value)
+            if path.name == 'campaign.json':
+                recorded.append((copy.deepcopy(value), path.read_bytes()))
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [
+                {'id': 'case', 'question': '\U0001f600' * 100, 'source_hints': []}
+            ]}))
+            with patch.object(campaign, 'persist', side_effect=capture), redirect_stdout(io.StringIO()):
+                run(selection, root / 'reference', modes=('deterministic',))
+            value, raw = recorded[0]
+            unicode_bytes = (json.dumps(value, indent=2, sort_keys=True,
+                                        ensure_ascii=False, allow_nan=False) + '\n').encode('utf-8')
+            limit = (len(raw) + len(unicode_bytes)) // 2
+            self.assertLess(len(unicode_bytes), limit)
+            self.assertLess(limit, len(raw))
+            with patch.object(campaign, 'MAX_CAMPAIGN_INDEX_BYTES', limit), \
+                    redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(ValueError, 'campaign index'):
+                    run(selection, root / 'bounded', modes=('deterministic',))
+            self.assertFalse((root / 'bounded' / 'campaign.json').exists())
+
 
     def test_missing_and_mutated_evidence_bytes_fail_closed(self):
         with tempfile.TemporaryDirectory() as temporary:
