@@ -3,7 +3,7 @@
   "repository": "n0tf0und0ut/Project-FAR",
   "authoritative": false,
   "status": "IN_PROGRESS",
-  "observed_at": "2026-11-08T18:58:47.614Z",
+  "observed_at": "2026-11-08T19:18:26.511Z",
   "historical_baseline": {
     "pr": 626,
     "manifest_path": "docs/audits/pr-convergence-snapshot-2026-11-07/project_far_current_head_convergence.json",
@@ -15,8 +15,8 @@
     "pr_review_policy_blob": "b0a20b96e2f04634ad61fbdb5d71534a46771949"
   },
   "main": {
-    "sha": "63137c90656977d83f0ff0befc5fd390c59ddf5b",
-    "tree": "00bc9846c17b0bd496a0f78171ee66912e55a691"
+    "sha": "8bc33a405f85618c4abd8bcc74ef875cb07b7e5b",
+    "tree": "5e63b883ef11ed625bc568479df560bb6cafcd46"
   },
   "merges": [
     {
@@ -43,30 +43,32 @@
       ],
       "verified_at": "2026-11-08T18:45:15.334Z",
       "attribution": "normal protected GitHub merge executed in this session"
+    },
+    {
+      "pr": 618,
+      "head_sha": "645e1991fcff487c7a8eabbd3785914760466aff",
+      "merge_sha": "8bc33a405f85618c4abd8bcc74ef875cb07b7e5b",
+      "verified_main_sha": "8bc33a405f85618c4abd8bcc74ef875cb07b7e5b",
+      "tree": "5e63b883ef11ed625bc568479df560bb6cafcd46",
+      "parents": [
+        "63137c90656977d83f0ff0befc5fd390c59ddf5b",
+        "645e1991fcff487c7a8eabbd3785914760466aff"
+      ],
+      "verified_at": "2026-11-08T19:10:49.412Z",
+      "attribution": "normal protected GitHub merge executed in this session"
     }
   ],
   "pull_requests": [
     {
       "pr": 623,
-      "head_sha": "4430ff278a55fbcdba872f7fc9f7864c34fd241d",
+      "head_sha": "2d3a125225837e50fef1219ccf7d1c20c678aa2c",
       "branch": "audit/checker-behavioral-provenance-20261106",
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Published regression-only head; hosted red verification then prepared correction required"
+        "Current main integrated; clean-source regressions; independent exact-head review and protected checks pending"
       ],
-      "next_action": "Verify hosted red, publish source repair, verify green/review"
-    },
-    {
-      "pr": 618,
-      "head_sha": "645e1991fcff487c7a8eabbd3785914760466aff",
-      "branch": "convergence/agent-reliability-evidence-20261103",
-      "draft": false,
-      "verdict": "REPAIRABLE",
-      "blockers": [
-        "Clean independent review; exact-head assurance and owner App checks pending"
-      ],
-      "next_action": "Merge normally once READY"
+      "next_action": "Verify review/checks; merge once READY"
     },
     {
       "pr": 617,
@@ -75,9 +77,9 @@
       "draft": true,
       "verdict": "EXTERNAL BLOCK",
       "blockers": [
-        "Two owner-signed protected repin payloads absent"
+        "Two required owner signatures absent"
       ],
-      "next_action": "Owner signs exact prepared payloads; no signature fabrication"
+      "next_action": "Owner signs prepared immutable payloads"
     },
     {
       "pr": 616,
@@ -86,9 +88,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 615,
@@ -97,9 +99,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 614,
@@ -108,9 +110,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Hosted corrective suite green; log inspection and exact-head independent review pending"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 611,
@@ -119,9 +121,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 607,
@@ -130,9 +132,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 606,
@@ -141,9 +143,9 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 599,
@@ -152,20 +154,20 @@
       "draft": false,
       "verdict": "REPAIRABLE",
       "blockers": [
-        "Current protected main integration and resulting exact-head gates required"
+        "Refresh current main in serialized lane, independent exact-head review and protected checks"
       ],
-      "next_action": "Complete current-main integration and exact-head verification"
+      "next_action": "Publish source-preserving normal refresh only after predecessor main verified"
     },
     {
       "pr": 490,
-      "head_sha": "48337960f52d0c45744a3aac2344702bdf913439",
+      "head_sha": "ab06e6c1a9b154c6e19482420c56d2ad265536a9",
       "branch": "automation/living-research-inbox",
       "draft": true,
       "verdict": "DO NOT MERGE",
       "blockers": [
-        "Permanent anchor; explicit prohibition on merge"
+        "Explicit permanent-anchor merge prohibition"
       ],
-      "next_action": "Preserve open draft anchor"
+      "next_action": "Preserve open draft"
     }
   ],
   "validation": {
@@ -204,16 +206,24 @@
       "first_correction_job": 128821554436,
       "first_correction_result": "284 tests;0 assertions;1 verified test-oracle FileNotFoundError;5 optional skips",
       "final_job": 128827040708,
-      "status": "hosted job green; full-log evidence inspection pending"
+      "status": "Hosted 284 tests green; original finding resolved with red/green proof; one exact-head independent review requested",
+      "green_job": 128827040708,
+      "green_result": "284 tests;279 pass;5 optional skips;0 failures/errors;43.206 seconds",
+      "review_request_comment": 6725722820
     },
     "623": {
-      "head": "4430ff278a55fbcdba872f7fc9f7864c34fd241d",
-      "status": "regression-only candidate; awaiting authentic hosted red then prepared source correction",
-      "new_findings": [
+      "head": "c02e09f37eeb0b25f3eaa8b78701807a6c71df3b",
+      "tree": "60ce786124c9a5f126b5334f955dcfbea4b6b147",
+      "source_blob": "6c05f458c055c8cd33099ac1173fa42252ee1728",
+      "test_blob": "ec0e58659476dfa4d6f5fa097161e7c41bd5f043",
+      "red_job": 128827049483,
+      "red_result": "3183 tests;8 assertion failures;25 skips;oracle642/5256;0 import/helper errors",
+      "red_checkout": "synthetic merge cfa3f63a of regression443 into main63137",
+      "status": "published root-cause correction integrated main63137; hosted green pending",
+      "findings": [
         4507289718,
         4507289720
-      ],
-      "prepared_source_commit": "319a0d054e3ee664d05dac52b5b2d946549db95e"
+      ]
     }
   },
   "limits": [
@@ -221,5 +231,190 @@
     "No frozen evidence modified",
     "No general agent reliability, causal advantage, or commercial efficacy established",
     "Only normal protected merges authorized; never #490, force-push, auto-merge, or governance bypass"
+  ],
+  "operations": [
+    {
+      "pr": 614,
+      "kind": "eligible_review_job_refresh",
+      "job_id": 128790503971,
+      "result": "success",
+      "new_job_id": 128799181836
+    },
+    {
+      "kind": "normal_main_integration_and_review_request",
+      "pr": 618,
+      "old_head": "a8562da3be53213a109ec65f6e6664a9dde6db62",
+      "new_head": "e989c1de490d056e3f94c1de4fabde1d6103b7b4",
+      "tree": "79e01ce2edb087f56e82250be00fdf4b9551620a",
+      "base": "5103a68d9b080cfe9ccb10945be769ea1d7fdba9",
+      "review_request": 6724676488
+    },
+    {
+      "kind": "normal_main_integration_and_review_request",
+      "pr": 614,
+      "old_head": "825e7d4b95def108283520991e38a7301198b51e",
+      "new_head": "f797f5042839d87558a46f8424091cb9e4c29dfb",
+      "tree": "02648ac7b1ffa151a71c73b47531107bd616801d",
+      "base": "5103a68d9b080cfe9ccb10945be769ea1d7fdba9",
+      "review_request": 6724698231
+    },
+    {
+      "kind": "normal_main_integration_and_review_request",
+      "pr": 600,
+      "old_head": "431ad5196900f960b85dc179f57d6111c72abc85",
+      "new_head": "3500adc6e4cc578e503e99b8fd3ee78ab812024e",
+      "tree": "46d5041960dee4c4425d4ef9fead70449951a2fe",
+      "base": "5103a68d9b080cfe9ccb10945be769ea1d7fdba9",
+      "review_request": 6724706147
+    },
+    {
+      "pr": 600,
+      "kind": "root_cause_repair",
+      "source_commit": "79da06af4026f33ed75cc0ddeeae3e30243f0114",
+      "head": "4cc2046fbe9b65e07a43281ae5868d88cb147f28",
+      "tree": "b35c050457391be0fb0de64f16cd4305233b0805",
+      "ledger": "WORLD-FACT-PROMPT-001",
+      "review_comment": 4507123882,
+      "thread": "PRRT_kwDOTH_vCM61CysV",
+      "red_assertion_failures": 64,
+      "red_runner_errors": 0,
+      "focused_tests_passed": 127,
+      "post_main_integration_factual_tests_passed": 14,
+      "frozen_bytes_preserved": true
+    },
+    {
+      "pr": 600,
+      "kind": "shared_forecast_attribution_repair",
+      "head": "d2a03e980293a9913009e0b452c6aeb391a079ec",
+      "tree": "00bc9846c17b0bd496a0f78171ee66912e55a691",
+      "parent": "4cc2046fbe9b65e07a43281ae5868d88cb147f28",
+      "ledger": "WORLD-FORECAST-PROMPT-001",
+      "finding": 4507161039,
+      "red_assertion_failures": 96,
+      "red_runner_errors": 0,
+      "focused_tests_passed": 133,
+      "frozen_bytes_preserved": true
+    },
+    {
+      "pr": 614,
+      "kind": "verified_existing_archive_root_fix_plus_ledger_and_main",
+      "head": "4655961dddafefdd685c55c296d24b5c89a7fe74",
+      "tree": "6e7056e0e9bf78e3ff25448732203a51caac929a",
+      "source_fix": "e9387ab524219008a1fbce65f1a4b1bf7b718c28",
+      "test_commit": "361c6a93e08caee19190bd83103a5b0c0b8398a3",
+      "fixture_fix": "d90ed1041090f36674b0a7478724b15a3afd1b48",
+      "ledger_commit": "836d4cead1eaff73bff97f7ef0103f64932a7342",
+      "ledger": "ENG-CAMPAIGN-RECORDING-BOUNDS",
+      "targeted_tests": 2,
+      "seconds": 4.364,
+      "finding": 4507127065
+    },
+    {
+      "pr": 623,
+      "kind": "shared_status_predicate_grammar_repair",
+      "base": "ea834906b3880c144d51f300268993bffccf52fc",
+      "recovered_commit": "0b743f07066f2ca62e0731c31f43c5cd7058cb1c",
+      "repair_tree": "11d6f7e76b4389accf62bb0a79f88545aadbff43",
+      "head": "62d9d36829c5b0dd731bd364f4638b32d234d17f",
+      "tree": "d2c72dd45150fcc3353685e7a49e91ee4096769f",
+      "red_cli_failures": 7,
+      "red_composition_mismatches": 1148,
+      "composition_cases": 7054,
+      "focused_tests": 60,
+      "changed_checker_mutations": "5/5",
+      "exact_blob_identity_verified": true,
+      "main_integration": "path-disjoint"
+    },
+    {
+      "pr": 614,
+      "kind": "hosted_red_regression_publication",
+      "head": "663655bcaba541769140f5cd53422b62e41b7bb7",
+      "tree": "ef024521e8a673c9ae1be6b6c9bdc5d6fc645507",
+      "production_source_unchanged": true,
+      "original_repro": {
+        "questions": 23,
+        "astral_chars_each": 30000,
+        "index_bytes": 8319009,
+        "total_json_bytes": 16665314,
+        "integrity_valid_transcripts": 23,
+        "archive_replays": 0
+      },
+      "reason": "local executor unavailable; use existing governed investigation-runtime workflow"
+    },
+    {
+      "pr": 614,
+      "kind": "campaign_index_persistence_repair",
+      "head": "e59afac49ec40c44e339730e38f43ced157ce518",
+      "tree": "5633a9839507ea79a9b6e56ccb73e09413ba8f36",
+      "red_head": "663655bcaba541769140f5cd53422b62e41b7bb7",
+      "red_job": 128820379233,
+      "red_tests": 284,
+      "red_failures": 6,
+      "red_errors": 0,
+      "red_skips": 5,
+      "unchanged_test_blob": "b311bac89c49cbc598d265b84e764f81946068ba",
+      "corrective_validation": "pending_hosted",
+      "local_runtime": "unavailable"
+    },
+    {
+      "pr": 600,
+      "kind": "cancelled_review_event_gate_refresh",
+      "old_job": 128813507147,
+      "new_success_job": 128823887034,
+      "workflow_event": "pull_request_review",
+      "source_unchanged": true,
+      "normal_merge_succeeded": true
+    },
+    {
+      "at": "2026-11-08T18:57:18.227Z",
+      "pr": 618,
+      "action": "rerun prematurely evaluated metadata-only native job",
+      "job": 128827489822,
+      "reviewed_head": "645e1991fcff487c7a8eabbd3785914760466aff",
+      "review_receipt": 6725642577
+    },
+    {
+      "at": "2026-11-08T19:05:00.699Z",
+      "pr": 614,
+      "action": "Rerun native metadata observation after clean independent exact-head review",
+      "head": "e08e33734cc5154700682d231fed7c0aa4d93eff",
+      "job": 128829753055
+    },
+    {
+      "pr": 618,
+      "at": "2026-11-08T19:10:15.194Z",
+      "verdict": "READY",
+      "head_sha": "645e1991fcff487c7a8eabbd3785914760466aff",
+      "main_sha": "63137c90656977d83f0ff0befc5fd390c59ddf5b",
+      "reason": "Clean exact-head independent review, zero unresolved threads, source-preserving integration and exact-head protected checks/assurance green"
+    },
+    {
+      "pr": 623,
+      "at": "2026-11-08T19:11:30.830Z",
+      "action": "Read full corrected-source hosted logs",
+      "candidate": "c02e09f37eeb0b25f3eaa8b78701807a6c71df3b",
+      "tree": "60ce786124c9a5f126b5334f955dcfbea4b6b147",
+      "test_job": 128830223921,
+      "tests": 3183,
+      "optional_skips": 25,
+      "failures": 0,
+      "errors": 0,
+      "oracle_cases": 5256,
+      "mutation_job": 128830223410,
+      "changed_checker_mutants_detected": 5,
+      "changed_checker_mutants_total": 5,
+      "total_mutants_detected": 102,
+      "total_mutants": 102,
+      "scope": "Hosted synthetic merge 678539e4bb8c429da00d1398148d83aa809fc833 has exactly the candidate tree"
+    },
+    {
+      "pr": 623,
+      "action": "Normal source-preserving refresh on current main and one independent exact-head review request",
+      "at": "2026-11-08T19:17:38.414Z",
+      "head": "2d3a125225837e50fef1219ccf7d1c20c678aa2c",
+      "tree": "ab0e89bb252912be88708ca156136b4dca8f9962",
+      "main": "8bc33a405f85618c4abd8bcc74ef875cb07b7e5b",
+      "review_comment": 6725918850
+    }
   ]
 }
