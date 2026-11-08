@@ -301,10 +301,16 @@ def compile_proposal(proposal: dict, sources: dict[str, str], *, investigation_i
     # Preserve a commitment to the *complete* recorded proposal, including
     # provenance/method/model labels that do not influence the inferred claims.
     # This binds provider disclosure to the audit identity, not provider truth.
-    return {"schema": "far-investigation-audit/0.1", "investigation_id": investigation_id,
+    result = {"schema": "far-investigation-audit/0.1", "investigation_id": investigation_id,
             "proposal_sha256": digest(canonical(proposal)),
             "as_of": captured_at, "atoms": atoms, "sources": records,
             "claims": claim_records, "evidence": evidences, "interpretations": readings,
             "unknowns": list(dict.fromkeys([*texts,
                 "Claims, citations and argument readings are machine-proposed or user-supplied and have no independently verified semantic mapping.",
                 "Search recall, source independence and world-truth status are not established."]))}
+    if "debugger_contract" in proposal:
+        from debugger import CONTRACT
+        if proposal["debugger_contract"] != CONTRACT:
+            raise InvalidBundle("unknown debugger contract")
+        result["debugger_contract"] = CONTRACT
+    return result

@@ -26,3 +26,7 @@ hand-edit a generated view.
 Validation fails on duplicate identifiers, schema violations, unknown references, prohibited
 ideas assigned an active priority, stale generated output, or a registry that attempts to
 claim theory authority.
+# Downstream Research application inventory
+
+The [Epistemic Debugger campaign](../../commercial/far-investigation-audit/evaluation/debugger-001/README.md) registers its frozen internal cases, exact runtime registrations, public prior-art identities, exploratory outcomes, limitations and missing comparator arms in its canonical application directory. This navigation entry grants no Accepted claim, independence, external assurance or automatic corpus promotion.
+

@@ -1,0 +1,24 @@
+{
+  "schema_version": "far-decision-package/0.1",
+  "decision_id": "demo-clear-001",
+  "decision_type": "synthetic-approval-check",
+  "policy_version": "demo-1",
+  "decision_root": "recommendation",
+  "proposed_action": {
+    "action": "review"
+  },
+  "nodes": [
+    {
+      "node_id": "recommendation",
+      "kind": "decision",
+      "statement": "The disclosed package meets its declared structural checks."
+    }
+  ],
+  "dependencies": [],
+  "authorization_requirements": [],
+  "unknowns": [],
+  "trace_completeness": 1,
+  "metadata": {
+    "demo_only": true
+  }
+}

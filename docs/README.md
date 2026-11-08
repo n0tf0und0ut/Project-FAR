@@ -2,28 +2,46 @@
 
 Project-level documentation lives here. This directory provides orientation, governance, status, audit evidence, and navigation. Current canonical theory lives in `../theory/`; foundations live in `../foundations/`; exploratory work lives in `../research/` and is non-canonical unless separately promoted.
 
+## Find what you need
+
+Paths for different readers: **Newcomer** — [FAR in five minutes](START_HERE.md); **Builder** — [mechanization guide](../mechanization/README.md); **Researcher** — [current status](project-status.md) and [governing theory](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md). These are routes to existing authority, not competing definitions.
+
+| Your task | Start here | Boundary |
+|---|---|---|
+| Understand FAR without science or coding | [Five-minute explanation and receipt example](START_HERE.md), then [overview](OVERVIEW.md) | The receipt is invented and illustrates a principle, not a software result. |
+| Find the current governing theory | [Project status](project-status.md), then [core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) | Historical v1.0 remains preserved, not current theory authority. |
+| Find code and run tests | [Mechanization guide](../mechanization/README.md), [contributor guide](../CONTRIBUTING.md), and [repository health checks](maintenance/repository-health-checks.md) | Verification applies only to the encoded test/contract scope. |
+| Trace a research result to evidence | [W1–W6 matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md), [research index](../research/README.md), and [limitations](governance/limitations-register.md) | Research records and generated views cannot promote claims. |
+| Determine where a concept belongs | [Canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md) | The map identifies authority; the domain registry controls repository placement. |
+| Locate a specific file | [Generated repository index](planning/repository-index.md) | A file index is a discovery aid, not a status or acceptance decision. |
+| Check whether newcomers understand | [Plain-language comprehension and navigation procedure](maintenance/beginner-comprehension-check.md) | Reader observations are not formal proof or a claim of completed usability research. |
+
+For the full repository entry point use the [root README](../README.md). For a documentation change, prefer improving an existing route over creating another competing index.
+
 ## Current authority and status
 
-- `CANONICAL_MAP.md` — canonical location map for major concepts and the controlling navigation surface for authority.
-- `project-status.md` — current project-level governance and milestone status.
-- `governance/central-research-program.md` — terminal central-research answer and evidence discipline.
-- `../theory/theorems/Project-FAR-Theory-Closure-v1.1.md` — current corrected Project FAR Core Theory v1.1.
-- `../theory/theorems/Project-FAR-Theory-Closure-v1.0.md` — immutable historical v1.0 base; preserved for provenance and superseded as current authority.
-- `governance/w1-w6-claim-evidence-matrix-v1.0.md` — canonical W1–W6 claims, evidence, scopes, and prohibited promotions.
-- `governance/external-falsification-and-replication-program-v1.0.md` — separate post-W1–W6 External Falsification and Replication program; its external work is not established by internal repository validation.
-- `governance/limitations-register.md` — current limitations.
-- `governance/unresolved-questions-register.md` — unresolved questions.
+- [Canonical map](CANONICAL_MAP.md) — canonical location map for major concepts and the controlling navigation surface for authority.
+- [Project status](project-status.md) — current project-level governance and milestone status.
+- [Central research program](governance/central-research-program.md) — terminal central-research answer and evidence discipline.
+- [Core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) — current corrected Project FAR Core Theory v1.1.
+- [Historical core theory v1.0](../theory/theorems/Project-FAR-Theory-Closure-v1.0.md) — immutable historical base; preserved for provenance and superseded as current authority.
+- [W1–W6 claim/evidence matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md) — canonical W1–W6 claims, evidence, scopes, and prohibited promotions.
+- [External falsification and replication program](governance/external-falsification-and-replication-program-v1.0.md) — separate post-W1–W6 program; external work is not established by internal repository validation.
+- [Limitations register](governance/limitations-register.md) — current limitations.
+- [Unresolved questions register](governance/unresolved-questions-register.md) — unresolved questions.
 
 ## Core documentation
 
 - [`maintenance/agent-workflow-orchestration.md`](maintenance/agent-workflow-orchestration.md) — operational planning, subagent use, correction learning, task tracking, and verification guidance for repository assistants; not FAR authority.
 
-- `ARCHITECTURE.md` — repository architecture and structural decisions.
+- [Architecture](ARCHITECTURE.md) — repository architecture and structural decisions.
 - [`architecture/far-subagent-execution.md`](architecture/far-subagent-execution.md) — provisional provider-neutral subagent execution architecture; no claim-promotion authority.
 - `ROADMAP.md` — gated future work.
 - `CHANGELOG.md` — chronological change history.
 - `DECISION_LOG.md` — canonical project decision log.
-- `OVERVIEW.md` — project overview.
+- [Five-minute explanation](START_HERE.md) — first-time, nontechnical learning route; illustrative and non-authoritative.
+- [Beginner comprehension check](maintenance/beginner-comprehension-check.md) — practical human-reader usability procedure, not research evidence.
+- [Overview](OVERVIEW.md) — project overview.
 - [`planning/repository-index.md`](planning/repository-index.md) — generated repository-wide artifact navigation; an index, not an authority source.
 - `STYLE_GUIDE.md` — documentation style standards.
 - `SEMANTIC_AUDIT.md` — repository-wide semantic consistency audit and dependency graph.
@@ -32,12 +50,12 @@ Project-level documentation lives here. This directory provides orientation, gov
 
 ## Related entry points
 
-- `../README.md` — repository-level command center.
-- `../foundations/README.md` — foundations index.
-- `../theory/README.md` — theory index.
-- `../frameworks/` — FAR-family framework material.
-- `../methodology/README.md` — supporting proof, validation, falsification, and comparison methodology.
-- `../research/README.md` — non-canonical exploratory research index.
+- [Repository entry point](../README.md) — repository-level command center.
+- [Foundations](../foundations/README.md) — foundations index.
+- [Shared theory](../theory/README.md) — theory index.
+- [Frameworks](../frameworks/README.md) — FAR-family framework material.
+- [Methodology](../methodology/README.md) — supporting proof, validation, falsification, and comparison methodology.
+- [Research](../research/README.md) — non-canonical exploratory research index.
 - [Central Research Program](governance/central-research-program.md) — terminal core answer and standards for post-closure assurance/application.
 
 ## Repository Certification navigation
