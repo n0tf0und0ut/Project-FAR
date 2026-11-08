@@ -196,7 +196,7 @@
           "detail": "Current-head assurance pending."
         }
       ],
-      "next_action": "Complete protected gates and fresh readiness verification; coordinator may merge first READY #625/#623, then pause and refresh affected candidates.",
+      "next_action": "Exclusive coordinator verifies all current protected gates and exact-head review, merges normally when READY, verifies main and pauses.",
       "required_checks": [
         {
           "context": "merge-authority",
@@ -269,8 +269,14 @@
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
       "observed_at": "2026-11-08T08:14:04.352Z",
-      "verdict": "EXTERNAL BLOCK",
+      "verdict": "REPAIRABLE",
       "blockers": [
+        {
+          "id": "CBH_STATUS_LEXICON",
+          "class": "repairable",
+          "source": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#discussion_r4505527565",
+          "detail": "Actual CLI falsely rejects priority in a shared conditional when first status is 'remains open'; NEGATION and STATUS_VALUE phrase recognition differ."
+        },
         {
           "id": "REQUIRED_CHECK",
           "class": "external",
@@ -300,7 +306,7 @@
           "detail": "Current-head independent review pending."
         }
       ],
-      "next_action": "Complete protected gates and fresh readiness verification; coordinator may merge first READY #625/#623, then pause and refresh affected candidates.",
+      "next_action": "Repair status-lexicon consistency with CLI regression and independent bounded status matrix; publish one stabilized exact head, obtain independent review and protected checks.",
       "required_checks": [
         {
           "context": "merge-authority",
@@ -355,7 +361,13 @@
         "summary_updated_at": "2026-11-08T08:13:16Z",
         "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6713050709"
       },
-      "unresolved_threads": [],
+      "unresolved_threads": [
+        {
+          "id": "PRRT_kwDOTH_vCM60_CTX",
+          "comment_id": 4505527565,
+          "resolved": false
+        }
+      ],
       "active_changes_requested": [],
       "historical_baseline_head_sha": "3a62632658a12938caac75f5d6921a7b9dadd425",
       "scientific_boundary": "Bounded controlled-language regression behavior; no arbitrary prose semantic completeness.",
@@ -923,7 +935,17 @@
       "collection_errors": [],
       "current_main_sha": "9a1de93084d95675743f61a1fa9bec869e80d8a6",
       "contains_current_main": false,
-      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
+      "latest_dedicated_app_decision": {
+        "check_run_id": 128670047429,
+        "app_id": 5073230,
+        "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+        "base_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+        "conclusion": "failure",
+        "completed_at": "2026-11-08T07:59:24Z",
+        "reason": "Exactly one signed authorization required; found zero.",
+        "refreshed_at": "2026-11-08T08:18:33.325Z"
+      }
     },
     {
       "pr": 616,
@@ -1798,8 +1820,8 @@
   ],
   "counts": {
     "READY": 0,
-    "REPAIRABLE": 15,
-    "EXTERNAL BLOCK": 3,
+    "REPAIRABLE": 16,
+    "EXTERNAL BLOCK": 2,
     "DO NOT MERGE": 1
   },
   "limits": [
@@ -1808,7 +1830,7 @@
     "Original frozen research data and ten-file historical #626 bundle were not rewritten.",
     "This is an in-progress checkpoint. Current GitHub state may have advanced during publication."
   ],
-  "saved_at": "2026-11-08T08:14:05.306Z",
+  "saved_at": "2026-11-08T08:18:33.325Z",
   "execution_environment": {
     "shell_available": true,
     "restoration_observed_at": "2026-11-08T07:51:37Z",
@@ -1818,13 +1840,11 @@
   },
   "coordination": {
     "exclusive_merge_worker": "/root/review_convergence",
-    "authorized_first_ready_candidates": [
-      625,
-      623
+    "eligible_prs": [
+      625
     ],
-    "prefer_if_same_batch": 625,
-    "merge_limit_before_pause": 1,
-    "root_must_not_merge_concurrently": true
+    "after_one_merge": "Verify PR/main/parents/tree and protection, notify, pause; root refreshes affected verdicts.",
+    "repair_worker_623": "/root/repair_623"
   },
   "owner_signature_request": {
     "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",

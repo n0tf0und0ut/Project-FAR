@@ -2,23 +2,18 @@
 
 Status: Research. Execution state: work in progress.
 
-Non-authoritative execution state saved 2026-11-08T07:40:27.379Z. This record grants no merge or research authority. Follow current root AGENTS.md and current user authorization.
+Non-authoritative execution state saved 2026-11-08T08:18:33.325Z; this record grants no merge or scientific authority. Follow complete current root AGENTS.md and current user authorization.
 
-- Verified merged: #608 as main 9021c0218fe89232777c4b36c5e0128d107e79b3; normal protected merge, PR/main/parents/tree read back.
-- Current exclusive merge worker: /root/review_convergence; at most the FIRST READY of #601/#614/#625/#623, then verify/notify/pause. Root must not merge concurrently.
-- Priority heads: #601 cb90152988b4c115199ee0efd78769963ac6b7b4; #614 1d2655694280e420acd8d94cd6c65fd8034d5f47; #625 52d4def84901385edb487e65aa905da11e87816c; #623 519bf31fdbe766e4e7eedd4a5327d420314bfb3f. These contain main 9021. Other normal heads await current-main integration; #597 must follow #625.
-- #623's final review is authenticated clean on 519bf31, summary6713050709 at07:20:15Z, zero unresolved threads. Internal independent oracle85,760/85,760 cases; author46 tests; no arbitrary-English guarantee.
-- All implementation findings known at this checkpoint are fixed. #625/#597 dynamic-view defect reproduced and fixed; README trigger blind spot repaired in existing workflow/regression. #626 originals preserved with additive errata/navigation.
-- Local runtime unavailable since07:34; do not claim new local execution. GitHub connector and hosted checks remain usable. Existing scratch files may be inaccessible, not proven deleted. Continue through verified GitHub mechanisms where sufficient.
-- #490 remains permanent draft NEVER MERGE/CLOSE. #617 needs genuine owner signature; no matching provided signature found in narrow Library search. Never forge/bypass/force/auto-merge.
-- A user-facing checkpoint predates the runtime interruption. This branch preserves repository evidence and continuation state.
-- User twice instructed continue until completion; routine pending jobs are not a reason to abandon independent actionable work. Stop at verified completion or genuine unavailable/external authority blockers. No other PR merged yet.
+- Verified ordered normal protected merges: #608 → 9021c0218fe89232777c4b36c5e0128d107e79b3; #601 → current main 9a1de93084d95675743f61a1fa9bec869e80d8a6. PR state, main, parents, tested trees and source-bound protections read back.
+- Exclusive coordinator /root/review_convergence may merge #625 ONLY when genuinely READY, verify and notify, then PAUSE. Root must not merge concurrently. Current #625 head 2bd7a955069e034a352fdbe6bedecd25feb864d8 has clean independent review; protected integration checks remain separate.
+- #623 head c50b16d129db010ba4a26d2bf6466ca01dd072eb has NEW actual-CLI false-rejection finding4505527565: conditional pair with first status "remains open" loses shared qualifier because status lexicons differ. Original repair worker owns root correction; independent oracle worker enumerates accepted status phrases. No unchanged-head review reruns or merge.
+- Other ordinary candidates await selected current-main integration; #597 follows actual #625 merge and canonical living/corpus regeneration. Valid existing source evidence is reused; old-base integration gates do not authorize new trees.
+- Bounded private aggregate of18 pinned candidate heads passed597 tests, zero skips and canonical/replay checks; full report and213-record input manifest are preserved here. It was never pushed as product code or substituted for exact-head protected validation. New #623 finding occurred afterward and is explicitly outside that earlier pinned audit.
+- #626 original ten archival files preserved; separate errata correct review-source SHA and false-rejection direction, additive audit locator fixes navigation.
+- #617 remains draft4651fa065b1847901871d3903b9ebcdc57e787aa. Dedicated App5073230 check128670047429 at07:59:24Z failed on the exact workflow transition because zero valid owner signatures were supplied. Canonical payload remains valid until2026-11-17T18:25:29Z. No signature may be manufactured or gate bypassed.
+- #490 permanent rolling draft: NEVER merge or close; automation may advance its head.
+- Runtime restored07:51. Continue current work; no further environment blocker observed.
+- No force pushes, auto-merge, protection bypass, fabricated reviews/signatures or frozen-evidence edits. User authorized normal protected merges without reconfirmation.
+- Stop only at verified completion or genuine external/unavailable authority blockers; routine running jobs do not end the task.
 
-The manifest records observation times, exact heads, source-bound checks, blockers and ordered merge history. Recollect live state before decisions; this snapshot is non-atomic and not merge authorization.
-
-
-## Verified second merge and next lane (2026-11-08T08:14:05.306Z)
-
-#601 merged normally as main 9a1de93084d95675743f61a1fa9bec869e80d8a6, parents9021c021/cb901529, tested tree4431330d. Ordered verified merges:608,601. Current exclusive coordinator window is FIRST READY625 or623, prefer625if same batch, then verify/notify/pause. Root must not merge concurrently. Current heads625=2bd7a955069e034a352fdbe6bedecd25feb864d8,623=c50b16d129db010ba4a26d2bf6466ca01dd072eb; main=9a1de93084d95675743f61a1fa9bec869e80d8a6. Both normal refreshes preserved source blobs and passed narrow checks; full protected checks/review on new heads remain separate. All other normal heads await selected current-main integration;597 follows625. #617 owner signature absent,490permanent.
-
-Private aggregate of18pinned candidates passed597tests/zero skips plus canonical checks; no new cross-PR defect. See newly preserved evidence/input-manifest. Aggregate never pushed or used as a protected merge substitute. Shell restored and confirmedworking07:51; GitHub connector remained usable during interruption.
+Manifest observations are non-atomic and not merge authorization. Read live main/heads/gates before decisions.
