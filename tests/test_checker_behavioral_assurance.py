@@ -358,6 +358,42 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                     self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                     self.assertIn("unnegated assurance promotion", result.stdout)
 
+
+    def test_compound_following_leading_condition_preserves_prior_trailing_condition(self):
+        # End-to-end CLI counterexample from the exact-head review. The
+        # following claim's condition has an internal conjunction; the prior
+        # claim's separate qualification must not be stolen or erased.
+        permitted = (
+            "Novelty: established, but only if independently replicated, and if externally reviewed and approved, priority: established.",
+            "Novelty: established, unless prior evidence refutes it, and if externally reviewed and approved, priority: confirmed.",
+            "Novelty: established, but only if independently replicated, and only if externally reviewed and approved, priority: established.",
+        )
+        for phrase in permitted:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\\n" + result.stdout)
+
+        forbidden = (
+            # The second claim's condition cannot license an unqualified first.
+            "Novelty: established, and if externally reviewed and approved, priority: established.",
+            # The qualifier must not leak past a separate third assertion.
+            "Novelty: established, but only if independently replicated, and if externally reviewed and approved, priority: established; uniqueness: proved.",
+            # An ordinary conjunction without an explicit new condition cannot
+            # certify priority independently.
+            "Novelty: established, but only if independently replicated, and externally reviewed and approved, priority: established.",
+        )
+        for phrase in forbidden:
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
     def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
         for phrase in (
             "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
