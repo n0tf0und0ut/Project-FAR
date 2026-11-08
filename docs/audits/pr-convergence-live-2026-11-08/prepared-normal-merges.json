@@ -1,190 +1,113 @@
 {
   "schema": "far-prepared-normal-merge-plans/1",
   "status": "Research",
-  "scope": "Local computed merge trees, not published PR heads or protected merge authorization",
-  "base_main": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+  "scope": "Locally computed, not published and not protected merge authorization",
+  "base_main": "275252bfa72b37b5ef99b305b52d34e0543ac494",
   "plans": [
-    {
-      "pr": 626,
-      "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-      "branch": "docs/pr-convergence-snapshot-20261107",
-      "computed_tree_sha": "861a0102838cd466cb16d4b6d2cd9eea3d95f6e8",
-      "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 12,
-      "source_unique_mismatches": [],
-      "conflicts": false
-    },
     {
       "pr": 622,
       "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
-      "branch": "research/tool-agent-fault-invariants-20261106",
-      "computed_tree_sha": "8941452c8487e54049b91191ab29903aab9f3774",
+      "computed_tree_sha": "73d806879e7b89d92383cf9882c2401d561c5eb8",
+      "unique_pr_files_preserved": 4,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 4,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 621,
       "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
-      "branch": "fix/commercial-strict-json-intake-20261105",
-      "computed_tree_sha": "ba940813686ce60e4163bca04006f302df5d2f18",
+      "computed_tree_sha": "a3738f36ba3b4c09c50e2e3da85df83d384517e7",
+      "unique_pr_files_preserved": 13,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 13,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 620,
       "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
-      "branch": "research/numeric-metric-grounding-20261105",
-      "computed_tree_sha": "ed2f1277e54fccfe65ad40d979efc530bb63b554",
+      "computed_tree_sha": "de2dfc17719985f11afdc04e4ebbff11461b1643",
+      "unique_pr_files_preserved": 17,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 17,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 619,
       "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
-      "branch": "research/good-view-jepa-evidence-20261105",
-      "computed_tree_sha": "0795a5132b254a6622c854e8aa62f9a07af63588",
+      "computed_tree_sha": "20c1b38a03a2cf73b5f210b3cb8b902dac68932b",
+      "unique_pr_files_preserved": 8,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 8,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 618,
       "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
-      "branch": "convergence/agent-reliability-evidence-20261103",
-      "computed_tree_sha": "6ac8f400688da0309f6ae67931f583d697419f80",
+      "computed_tree_sha": "fea9b5342ba778debc521cbefb392aed810fbe5f",
+      "unique_pr_files_preserved": 12,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 12,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 616,
       "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
-      "branch": "product/semantic-augmentation-20261103",
-      "computed_tree_sha": "4ffbd22c1cfe72d2d13897698c7de078c140b8e0",
+      "computed_tree_sha": "de5e7ce222e2be744157a409e5ac73f7b0277de9",
+      "unique_pr_files_preserved": 13,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 13,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 615,
       "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
-      "branch": "research/model-architecture-search-20261103",
-      "computed_tree_sha": "1d759fc93eaee0b23346ef54163634d39a870c8c",
+      "computed_tree_sha": "d42af8e1feebcaa81cbf93e325c9d9c4ecf6f309",
+      "unique_pr_files_preserved": 28,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 28,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 614,
       "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
-      "branch": "research/general-investigation-engine-20261103",
-      "computed_tree_sha": "2a72b4e3dfd0206dd805a25609525a3888817742",
+      "computed_tree_sha": "1ee28f730e97d5d9890723030d8ef206574648bc",
+      "unique_pr_files_preserved": 38,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 54,
-      "merge_base": "9021c0218fe89232777c4b36c5e0128d107e79b3",
-      "source_unique_files_checked": 38,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 611,
       "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
-      "branch": "research/weight-space-programming-20261103",
-      "computed_tree_sha": "92c01cc8023c9dc722031837e31f9d63018ec8ab",
+      "computed_tree_sha": "31a68574fffde2fab98f9f1e50d9da0c84818419",
+      "unique_pr_files_preserved": 5,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 5,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 607,
       "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
-      "branch": "research/workflow-efficacy-local-qwen-20261102",
-      "computed_tree_sha": "de97fbdebffdfa4476eadee66262190a51da0dd6",
+      "computed_tree_sha": "5e325c2930b311b6b463df3e91b32d8d19fb13e1",
+      "unique_pr_files_preserved": 14,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 14,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 606,
       "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
-      "branch": "research/far-architecture-routing-pilot-20261102",
-      "computed_tree_sha": "0ddbc4f0ec01cf13be0cf849d0e9a87fa2605637",
+      "computed_tree_sha": "cca2c5fbea71abab7020b6e252ba360c76c3aa4b",
+      "unique_pr_files_preserved": 15,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 15,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 600,
       "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
-      "branch": "codex/orthodox-worldview-profile-v01",
-      "computed_tree_sha": "374a52b7af225d8eca12ad9da37c51e6ff7326de",
+      "computed_tree_sha": "5c5b7c6bd2ece0a5ad82aa122519c29cde8ef3ac",
+      "unique_pr_files_preserved": 37,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 37,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     },
     {
       "pr": 599,
       "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
-      "branch": "codex/live-commercial-evaluation-20261027",
-      "computed_tree_sha": "dcf866e7be10a22ce49ab69ab0e8c9855eb3aa1d",
+      "computed_tree_sha": "5bedd1e4cade1385c380e7a4da2de6381cd4cf6f",
+      "unique_pr_files_preserved": 37,
       "conflict_free": true,
-      "published": false,
-      "changed_by_main_file_count": 73,
-      "merge_base": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "source_unique_files_checked": 37,
-      "source_unique_mismatches": [],
-      "conflicts": false
+      "published": false
     }
-  ]
+  ],
+  "total_unique_files_preserved": 241
 }

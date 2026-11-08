@@ -4,8 +4,8 @@
   "authoritative": false,
   "status": "Research",
   "snapshot": {
-    "started_at": "2026-11-08T09:09:55.304Z",
-    "ended_at": "2026-11-08T09:09:55.304Z",
+    "started_at": "2026-11-08T10:20:17Z",
+    "ended_at": "2026-11-08T10:21:55.603Z",
     "atomic": false,
     "main_stable_during_collection": true
   },
@@ -17,7 +17,7 @@
     "source": "docs/audits/pr-convergence-snapshot-2026-11-07/project_far_current_head_convergence.json"
   },
   "main": {
-    "sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+    "sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
     "required_check_bindings": [
       {
         "context": "merge-authority",
@@ -69,6 +69,31 @@
         "2bd7a955069e034a352fdbe6bedecd25feb864d8"
       ],
       "tree_sha": "320cd8c1cee391f0aa0d81f957ca632621e05dff"
+    },
+    {
+      "pr": 597,
+      "head_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
+      "merge_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "verified_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "verified_at": "2026-11-08T09:39:00.422Z",
+      "parents": [
+        "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+        "af2cd9af7de3eb70044686f493e38cf98fe1d3e6"
+      ],
+      "tree_sha": "c179e7ef432e61a9d068fba552d55214e76a26d6",
+      "required_assurance_jobs": [
+        128683345101,
+        128685602159
+      ],
+      "native_review_job": 128684821626,
+      "review_summary_comment": 6446273256,
+      "nonrequired_download_failure": {
+        "job_id": 128685596883,
+        "context": "lean-t003",
+        "actual_conclusion": "failure",
+        "cause": "HTTP504 before compilation",
+        "equivalent_compilation_verified_in_both_required_assurance_jobs": true
+      }
     }
   ],
   "merge_attempts": [
@@ -86,137 +111,31 @@
       "pr": 626,
       "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/626",
       "title": "docs(audit): publish Nov 7 PR convergence snapshot and verifier",
-      "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+      "head_sha": "2ea50b075d3800508b0083486de62bf472297338",
       "branch": "docs/pr-convergence-snapshot-20261107",
       "draft": false,
-      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
-      "verdict": "REPAIRABLE",
-      "blockers": [
-        {
-          "id": "CURRENT_MAIN_INTEGRATION",
-          "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
-        }
-      ],
-      "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
-      "required_checks": [
-        {
-          "context": "merge-authority",
-          "required_app_id": 15368,
-          "observed": {
-            "id": 128659612049,
-            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-            "status": "in_progress",
-            "conclusion": null,
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456008265/job/128659612049",
-            "completed_at": null,
-            "summary": null
-          }
-        },
-        {
-          "context": "protected-repin-gate",
-          "required_app_id": 5073230,
-          "observed": {
-            "id": 128660113663,
-            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-            "status": "completed",
-            "conclusion": "success",
-            "app_id": 5073230,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660113663",
-            "completed_at": "2026-11-08T07:10:31Z",
-            "summary": "Evaluated head bf94b91849b77273bae8ea7cd7802de68b9ef979 of #626 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
-          }
-        },
-        {
-          "context": "pr-review-convergence-observation",
-          "required_app_id": 15368,
-          "observed": {
-            "id": 128655141113,
-            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-            "status": "completed",
-            "conclusion": "success",
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456037564/job/128655141113",
-            "completed_at": "2026-11-08T06:51:39Z",
-            "summary": null
-          }
-        }
-      ],
-      "exact_head_assurance": [
-        {
-          "id": 128655123741,
-          "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-          "status": "completed",
-          "conclusion": "success",
-          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456008323/job/128655123741"
-        }
-      ],
-      "review": {
-        "commit_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
-        "has_any_findings": false,
-        "has_unresolved_findings": false,
-        "status": "completed",
-        "trusted_identity": true,
-        "summary_comment_id": 6718097193,
-        "summary_updated_at": "2026-11-08T06:47:10Z",
-        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/626#issuecomment-6718097193"
-      },
-      "unresolved_threads": [],
-      "active_changes_requested": [],
-      "historical_baseline_head_sha": null,
-      "scientific_boundary": null,
-      "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
-      "contains_current_main": false,
-      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
-    },
-    {
-      "pr": 623,
-      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623",
-      "title": "test(assurance): detect semantic false acceptance and correct cache provenance",
-      "head_sha": "47f74eac3816867e0078e350bd33e8068535ac8e",
-      "branch": "audit/checker-behavioral-provenance-20261106",
-      "draft": false,
-      "observed_base_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_base_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "EXTERNAL BLOCK",
       "blockers": [
         {
-          "id": "HOSTED_FAILURE",
-          "class": "external",
-          "detail": "merge-authority:failure"
-        },
-        {
-          "id": "REQUIRED_APP_PENDING",
+          "id": "CURRENT_HEAD_GATES",
           "class": "external",
           "detail": "protected-repin-gate:missing"
-        },
-        {
-          "id": "HOSTED_PENDING",
-          "class": "external",
-          "detail": "exact-head-assurance:in_progress"
-        },
-        {
-          "id": "HOSTED_FAILURE",
-          "class": "external",
-          "detail": "far-core-v11:failure"
         }
       ],
-      "next_action": "Verify current-head failed job diagnostics; retry only on changed external-service evidence, then merge normally when every gate and exact-head integration qualifies.",
+      "next_action": "Await the required dedicated App decision; then fresh exact-tree preflight and normal protected merge immediately.",
       "required_checks": [
         {
           "context": "merge-authority",
           "required_app_id": 15368,
           "observed": {
-            "id": 128684814467,
-            "head_sha": "47f74eac3816867e0078e350bd33e8068535ac8e",
+            "id": 128692925500,
+            "head_sha": "2ea50b075d3800508b0083486de62bf472297338",
             "status": "completed",
-            "conclusion": "failure",
+            "conclusion": "success",
             "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42465592965/job/128684814467",
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42468276737/job/128692925500",
             "summary": null
           }
         },
@@ -229,30 +148,139 @@
           "context": "pr-review-convergence-observation",
           "required_app_id": 15368,
           "observed": {
-            "id": 128685135877,
-            "head_sha": "47f74eac3816867e0078e350bd33e8068535ac8e",
+            "id": 128695677754,
+            "head_sha": "2ea50b075d3800508b0083486de62bf472297338",
             "status": "completed",
             "conclusion": "success",
             "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42465592974/job/128685135877",
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42468276753/job/128695677754",
             "summary": null
           }
         }
       ],
-      "exact_head_assurance": {
-        "id": 128684242384,
-        "head_sha": "47f74eac3816867e0078e350bd33e8068535ac8e",
-        "status": "in_progress",
-        "conclusion": null
-      },
+      "exact_head_assurance": [
+        {
+          "id": 128693266944,
+          "head_sha": "2ea50b075d3800508b0083486de62bf472297338",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42468276836/job/128693266944"
+        }
+      ],
       "review": {
-        "commit_sha": "47f74eac3816867e0078e350bd33e8068535ac8e",
+        "commit_sha": "2ea50b075d3800508b0083486de62bf472297338",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6718097193,
+        "summary_updated_at": "2026-11-08T09:43:34Z"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": null,
+      "scientific_boundary": null,
+      "collection_errors": [],
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "contains_current_main": true,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "checks_observed_at": "2026-11-08T10:20:17.391Z",
+      "check_evidence_scope": "Current published head; observation times explicit. Pending/failed results are not success."
+    },
+    {
+      "pr": 623,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623",
+      "title": "test(assurance): detect semantic false acceptance and correct cache provenance",
+      "head_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
+      "branch": "audit/checker-behavioral-provenance-20261106",
+      "draft": false,
+      "observed_base_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "observed_at": "2026-11-08T10:20:17.393Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "merge-authority:failure"
+        },
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "protected-repin-gate:missing"
+        },
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "exact-head-assurance:failure"
+        },
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "pca-w5:failure"
+        },
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "far-core-v11:failure"
+        },
+        {
+          "id": "CURRENT_HEAD_GATES",
+          "class": "external",
+          "detail": "lean-t003:failure"
+        }
+      ],
+      "next_action": "Source repair and exact-head independent review are clean. Re-run substantiated external download failures only when warranted; refresh after next main advance, then qualify protected gates.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128699184478,
+            "head_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
+            "status": "completed",
+            "conclusion": "failure",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42469760875/job/128699184478",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": null
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128699197059,
+            "head_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42469761013/job/128699197059",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128699189429,
+          "head_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42469761199/job/128699189429"
+        }
+      ],
+      "review": {
+        "commit_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
         "has_any_findings": false,
         "has_unresolved_findings": false,
         "status": "completed",
         "trusted_identity": true,
         "summary_comment_id": 6713050709,
-        "summary_updated_at": "2026-11-08T09:07:01Z"
+        "summary_updated_at": "2026-11-08T10:06:46Z"
       },
       "unresolved_threads": [],
       "active_changes_requested": [],
@@ -275,9 +303,11 @@
           "CBH-012"
         ]
       },
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": true,
-      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
+      "checks_observed_at": "2026-11-08T10:21:18.117Z",
+      "check_evidence_scope": "Current published head; observation times explicit. Pending/failed results are not success."
     },
     {
       "pr": 622,
@@ -287,13 +317,13 @@
       "branch": "research/tool-agent-fault-invariants-20261106",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -365,10 +395,11 @@
       "historical_baseline_head_sha": "61d0493116184e48606ac1360746e5c99d5b49da",
       "scientific_boundary": "Synthetic fault-injection/forgery demonstration does not attest real model reliability or origin.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 621,
@@ -378,13 +409,13 @@
       "branch": "fix/commercial-strict-json-intake-20261105",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -456,10 +487,11 @@
       "historical_baseline_head_sha": "03e19ac40424636c47e9370d1fb72f85d51246e9",
       "scientific_boundary": "Old success evidence cannot attest newer strict parsing source; rerun exact head.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 620,
@@ -469,13 +501,13 @@
       "branch": "research/numeric-metric-grounding-20261105",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -547,10 +579,11 @@
       "historical_baseline_head_sha": "8f7af32b4d8f9c9557cbf2adba18d12568a4a865",
       "scientific_boundary": "Registered primary gate failed: wrong numeric releases 0 in both arms despite 12/16 vs 8/16 secondary correct numbers.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 619,
@@ -560,13 +593,13 @@
       "branch": "research/good-view-jepa-evidence-20261105",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -638,10 +671,11 @@
       "historical_baseline_head_sha": "1f173c990c695ff5bd0244a9cc3015073a06a89f",
       "scientific_boundary": "Synthetic good-view result does not establish external image/text retrieval benefit.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 618,
@@ -651,13 +685,13 @@
       "branch": "convergence/agent-reliability-evidence-20261103",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -729,99 +763,93 @@
       "historical_baseline_head_sha": "9f3bdd0a7dcf9890e87006cda2812a547c24e42e",
       "scientific_boundary": "Agent general reliability, causal uplift and customer economics unestablished.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 617,
       "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617",
-      "title": "fix(ci): pin Python patch version for signed cross-runner cache",
-      "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+      "title": "fix(ci): pin cache runtime and bound checksum-pinned Lean downloads",
+      "head_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
       "branch": "fix/signed-cache-python-version-20261103",
       "draft": true,
-      "observed_base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_base_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "EXTERNAL BLOCK",
       "blockers": [
         {
-          "id": "OWNER_SIGNATURE_REQUIRED",
+          "id": "OWNER_SIGNATURES_REQUIRED",
           "class": "external",
-          "detail": "Valid owner signature for the protected workflow transition has not been supplied."
+          "detail": "Two exact protected workflow transitions require genuine owner signatures; zero appended. Both trusted advisory and weakening evaluations fail closed for those unsigned transitions."
+        },
+        {
+          "id": "HOSTED_CURRENT_HEAD_VALIDATION",
+          "class": "external",
+          "detail": "Independent review is completed clean on3071cb8; fresh hosted canonical/health results remain separate from the previous unchanged-source HTTP fixture pass."
         }
       ],
-      "next_action": "Owner signs the prepared exact transition; then append verified consumption, refresh and obtain new-head review/gates.",
+      "next_action": "Owner inspects live App transitions and signs the two linked canonical files. Verify signatures with trusted bundle helper; append exactly two valid entries; refresh source/head review and all required checks before normal merge.",
       "required_checks": [
         {
           "context": "merge-authority",
           "required_app_id": 15368,
           "observed": {
-            "id": 128556427771,
-            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+            "id": 128701120403,
+            "head_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
             "status": "completed",
             "conclusion": "failure",
             "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940652/job/128556427771",
-            "completed_at": "2026-11-07T23:07:35Z",
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42470853067/job/128701120403",
             "summary": null
           }
         },
         {
           "context": "protected-repin-gate",
           "required_app_id": 5073230,
-          "observed": {
-            "id": 128563280294,
-            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
-            "status": "completed",
-            "conclusion": "failure",
-            "app_id": 5073230,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563280294",
-            "completed_at": "2026-11-07T23:31:56Z",
-            "summary": "Evaluated head 4651fa065b1847901871d3903b9ebcdc57e787aa of #617 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none.\n\nProtected transitions in this head. An authorization must name exactly these values (repository_id 1283452680, target_pr 617):\n- path: .github/workflows/validator-assurance.yml\n  old_sha256: 2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a\n  new_sha256: 26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9\n\n- .github/workflows/validator-assurance.yml: protected artifact .github/workflows/validator-assurance.yml transition 2a2633bc53ef->26df5e427d2d requires exactly one valid signed authorization appended to validation/protected-repin-consumptions.json (found 0); a candidate may not authorize its own protected-artifact repin"
-          }
+          "observed": null
         },
         {
           "context": "pr-review-convergence-observation",
           "required_app_id": 15368,
           "observed": {
-            "id": 128549019584,
-            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+            "id": 128701010801,
+            "head_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
             "status": "completed",
             "conclusion": "success",
             "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940617/job/128549019584",
-            "completed_at": "2026-11-07T22:57:57Z",
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42470853108/job/128701010801",
             "summary": null
           }
         }
       ],
       "exact_head_assurance": [
         {
-          "id": 128549019531,
-          "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+          "id": 128701010770,
+          "head_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
           "status": "completed",
           "conclusion": "failure",
-          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940635/job/128549019531"
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42470853135/job/128701010770"
         }
       ],
       "review": {
-        "commit_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+        "commit_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
         "has_any_findings": false,
         "has_unresolved_findings": false,
         "status": "completed",
         "trusted_identity": true,
         "summary_comment_id": 6612214385,
-        "summary_updated_at": "2026-11-06T16:48:32Z",
-        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617#issuecomment-6612214385"
+        "summary_updated_at": "2026-11-08T10:20:10Z"
       },
       "unresolved_threads": [],
       "active_changes_requested": [],
       "historical_baseline_head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
       "scientific_boundary": "Owner signature absent for protected verifier/cache transition; preserve draft until governed authorization.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
-      "contains_current_main": false,
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+      "contains_current_main": true,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
       "latest_dedicated_app_decision": {
         "check_run_id": 128670047429,
@@ -832,7 +860,14 @@
         "completed_at": "2026-11-08T07:59:24Z",
         "reason": "Exactly one signed authorization required; found zero.",
         "refreshed_at": "2026-11-08T08:18:33.325Z"
-      }
+      },
+      "owner_signature_request_ids": [
+        "2a164cb6520a93877bbb48cdc7fb2fa4",
+        "f03bbd75c2e4d75ed81507c6f2161407"
+      ],
+      "previous_request_superseded": true,
+      "checks_observed_at": "2026-11-08T10:21:16.658Z",
+      "check_evidence_scope": "Current published head; observation times explicit. Pending/failed results are not success."
     },
     {
       "pr": 616,
@@ -842,13 +877,13 @@
       "branch": "product/semantic-augmentation-20261103",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -920,10 +955,11 @@
       "historical_baseline_head_sha": "8261c05a85784b40de0e4d0148fd3920670ac25e",
       "scientific_boundary": "One local model generated malformed output: FAR HTTP 502, not end-to-end semantic success.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 615,
@@ -933,13 +969,13 @@
       "branch": "research/model-architecture-search-20261103",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1011,10 +1047,11 @@
       "historical_baseline_head_sha": "b360aab81ad14e0289d87f4acd67d84d20ae0116",
       "scientific_boundary": "Preserved negative architecture search does not show superiority or generalization.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 614,
@@ -1024,13 +1061,13 @@
       "branch": "research/general-investigation-engine-20261103",
       "draft": false,
       "observed_base_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1093,10 +1130,11 @@
       "historical_baseline_head_sha": "d91d86893c1be9a15eae6d63dc178bcfc8471a6f",
       "scientific_boundary": "Frozen agent 0/8 vs deterministic/declarative 7/8; external ODR comparison blocked by missing authenticated adapter/source evidence.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 611,
@@ -1106,13 +1144,13 @@
       "branch": "research/weight-space-programming-20261103",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1184,10 +1222,11 @@
       "historical_baseline_head_sha": "d217afa409fd58798b32d8d2afbf06151b40e6d7",
       "scientific_boundary": "Weight-space capability is experimental, not demonstrated reliable self-improvement.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 607,
@@ -1197,13 +1236,13 @@
       "branch": "research/workflow-efficacy-local-qwen-20261102",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1275,10 +1314,11 @@
       "historical_baseline_head_sha": "c934d21ff5e598403caa27e0c436f4e23737bfaf",
       "scientific_boundary": "Local Qwen study cannot substitute for general reliability; merged #605 remains 11/30 vs 10/30.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 606,
@@ -1288,13 +1328,13 @@
       "branch": "research/far-architecture-routing-pilot-20261102",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1366,10 +1406,11 @@
       "historical_baseline_head_sha": "130c69035624c133954d96f5b6a5d063e2e82d97",
       "scientific_boundary": "Observed model routing 9/12 vs 12/12 deterministic and declarative controls; no routing advantage.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 600,
@@ -1379,13 +1420,13 @@
       "branch": "codex/orthodox-worldview-profile-v01",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1457,10 +1498,11 @@
       "historical_baseline_head_sha": "a8079e4e6d4b3f5caccab969756c910ab3b91d5b",
       "scientific_boundary": "No worldview truth, forecasting advantage or factual decision benefit established.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
+      "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 599,
@@ -1470,13 +1512,13 @@
       "branch": "codex/live-commercial-evaluation-20261027",
       "draft": false,
       "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "REPAIRABLE",
       "blockers": [
         {
           "id": "CURRENT_MAIN_INTEGRATION",
           "class": "repairable",
-          "detail": "Strict protection requires current-main integration; a conflict-free normal merge tree has been prepared locally, with all unique PR files preserved. Publish in dependency-safe sequence after the selected lane can advance."
+          "detail": "Conflict-free normal merge tree prepared against main275252bf; reviewed PR-specific files preserved. Strict current-main integration and exact-head gates must qualify the selected next publication."
         }
       ],
       "next_action": "Use the prepared normal current-main merge, preserve reviewed source, and obtain exact-head protected checks/review after the next verified base advance.",
@@ -1548,115 +1590,21 @@
       "historical_baseline_head_sha": "7b5b6febf1f2b7725c2b4d2523ebab225c5ab223",
       "scientific_boundary": "Retrieval comparison is bounded; no independent customer-effectiveness inference.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
       "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
-      "checks_scope": "Historical observations retained; these do not authorize current-main integration."
-    },
-    {
-      "pr": 597,
-      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597",
-      "title": "Research: integrated bounded epistemic debugger and hostile source-to-report evaluation",
-      "head_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
-      "branch": "research/epistemic-debugger-001",
-      "draft": false,
-      "observed_base_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
-      "observed_at": "2026-11-08T09:09:55.304Z",
-      "verdict": "EXTERNAL BLOCK",
-      "blockers": [
-        {
-          "id": "HOSTED_PENDING",
-          "class": "external",
-          "detail": "merge-authority:in_progress"
-        },
-        {
-          "id": "REQUIRED_APP_PENDING",
-          "class": "external",
-          "detail": "protected-repin-gate:missing"
-        },
-        {
-          "id": "HOSTED_FAILURE",
-          "class": "external",
-          "detail": "exact-head-assurance:failure"
-        },
-        {
-          "id": "HOSTED_FAILURE",
-          "class": "external",
-          "detail": "lean-t003:failure"
-        }
-      ],
-      "next_action": "Verify current-head failed job diagnostics; retry only on changed external-service evidence, then merge normally when every gate and exact-head integration qualifies.",
-      "required_checks": [
-        {
-          "context": "merge-authority",
-          "required_app_id": 15368,
-          "observed": {
-            "id": 128683345101,
-            "head_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
-            "status": "in_progress",
-            "conclusion": null,
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42465267390/job/128683345101",
-            "summary": null
-          }
-        },
-        {
-          "context": "protected-repin-gate",
-          "required_app_id": 5073230,
-          "observed": null
-        },
-        {
-          "context": "pr-review-convergence-observation",
-          "required_app_id": 15368,
-          "observed": {
-            "id": 128684821626,
-            "head_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
-            "status": "completed",
-            "conclusion": "success",
-            "app_id": 15368,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42465267411/job/128684821626",
-            "summary": null
-          }
-        }
-      ],
-      "exact_head_assurance": {
-        "id": 128684807594,
-        "head_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
-        "status": "completed",
-        "conclusion": "failure"
-      },
-      "review": {
-        "commit_sha": "af2cd9af7de3eb70044686f493e38cf98fe1d3e6",
-        "has_any_findings": false,
-        "has_unresolved_findings": false,
-        "status": "completed",
-        "trusted_identity": true,
-        "summary_comment_id": 6446273256,
-        "summary_updated_at": "2026-11-08T09:02:39Z"
-      },
-      "unresolved_threads": [],
-      "active_changes_requested": [],
-      "historical_baseline_head_sha": "94603603fd6c863cf3895496af64cf2f003db480",
-      "scientific_boundary": "Authored-case software verification is not independent causal or commercial effectiveness.",
-      "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
-      "contains_current_main": true,
-      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
       "checks_scope": "Historical observations retained; these do not authorize current-main integration.",
-      "dependency_625": {
-        "state": "MERGED",
-        "merge_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab"
-      }
+      "check_evidence_scope": "Reused source-bound unchanged-head evidence; not authorization for new-main integration. Fresh final preflight required."
     },
     {
       "pr": 490,
       "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/490",
       "title": "Research: permanent rolling living-repository inbox — DO NOT MERGE",
-      "head_sha": "db8665923bb6fb3afd405eccb32eaad3771e234d",
+      "head_sha": "b5444aabda4f2aed1e4b51766951b623a026a3db",
       "branch": "automation/living-research-inbox",
       "draft": true,
-      "observed_base_sha": "9a1de93084d95675743f61a1fa9bec869e80d8a6",
-      "observed_at": "2026-11-08T09:09:55.304Z",
+      "observed_base_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "observed_at": "2026-11-08T10:20:17.393Z",
       "verdict": "DO NOT MERGE",
       "blockers": [
         {
@@ -1666,47 +1614,53 @@
         }
       ],
       "next_action": "Leave open and draft.",
-      "required_checks": [
-        {
-          "context": "merge-authority",
-          "required_app_id": 15368,
-          "observed": null
-        },
-        {
-          "context": "protected-repin-gate",
-          "required_app_id": 5073230,
-          "observed": {
-            "id": 128660175689,
-            "head_sha": "7a4ebda9d80a8256d6ee3e617a37f1b985476fba",
-            "status": "completed",
-            "conclusion": "success",
-            "app_id": 5073230,
-            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660175689",
-            "completed_at": "2026-11-08T07:10:48Z",
-            "summary": "Evaluated head 7a4ebda9d80a8256d6ee3e617a37f1b985476fba of #490 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
-          }
-        },
-        {
-          "context": "pr-review-convergence-observation",
-          "required_app_id": 15368,
-          "observed": null
-        }
-      ],
+      "required_checks": [],
       "exact_head_assurance": [],
       "review": null,
-      "unresolved_threads": [],
-      "active_changes_requested": [],
+      "unresolved_threads": null,
+      "active_changes_requested": null,
       "historical_baseline_head_sha": "495cc99f9c8a189968a9835a591550215726fa0d",
       "scientific_boundary": "Living research ingestion cannot promote canonical scientific claims; never merge rolling anchor.",
       "collection_errors": [],
-      "current_main_sha": "afce309e4fe182e40d3ddb4ec096ccdb805821ab",
+      "current_main_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
       "contains_current_main": false,
-      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible.",
+      "historical_check_evidence": {
+        "required_checks": [
+          {
+            "context": "merge-authority",
+            "required_app_id": 15368,
+            "observed": null
+          },
+          {
+            "context": "protected-repin-gate",
+            "required_app_id": 5073230,
+            "observed": {
+              "id": 128660175689,
+              "head_sha": "7a4ebda9d80a8256d6ee3e617a37f1b985476fba",
+              "status": "completed",
+              "conclusion": "success",
+              "app_id": 5073230,
+              "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660175689",
+              "completed_at": "2026-11-08T07:10:48Z",
+              "summary": "Evaluated head 7a4ebda9d80a8256d6ee3e617a37f1b985476fba of #490 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+            }
+          },
+          {
+            "context": "pr-review-convergence-observation",
+            "required_app_id": 15368,
+            "observed": null
+          }
+        ],
+        "exact_head_assurance": [],
+        "review": null
+      },
+      "check_evidence_scope": "Not collected on latest rolling draft head: permanent DO NOT MERGE restriction is unconditional."
     }
   ],
   "counts": {
     "READY": 0,
-    "REPAIRABLE": 14,
+    "REPAIRABLE": 13,
     "EXTERNAL BLOCK": 3,
     "DO NOT MERGE": 1
   },
@@ -1716,7 +1670,7 @@
     "Original frozen research data and ten-file historical #626 bundle were not rewritten.",
     "This is an in-progress checkpoint. Current GitHub state may have advanced during publication."
   ],
-  "saved_at": "2026-11-08T09:10:49.427Z",
+  "saved_at": "2026-11-08T10:23:06.217Z",
   "execution_environment": {
     "shell_available": true,
     "restoration_observed_at": "2026-11-08T07:51:37Z",
@@ -1728,28 +1682,41 @@
     "exclusive_merge_owner": "root",
     "agents_active": false,
     "selected_prs": [
-      597,
-      623
+      623,
+      626
     ],
-    "policy": "Merge first genuinely READY through normal protection, verify main and refresh affected readiness; do not repeat bulk CI for stale bases."
+    "policy": "Normal protected merges one at a time; verify new main, then refresh affected readiness and selected next heads."
   },
   "owner_signature_request": {
-    "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
-    "domain": "far-protected-repin-authorization",
-    "expires_at": "2026-11-17T18:25:29Z",
-    "id": "b0513911ac9912e3a9e3ec414ee30b03",
-    "issued_at": "2026-11-03T18:25:29Z",
-    "new_sha256": "26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9",
-    "old_sha256": "2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a",
-    "path": ".github/workflows/validator-assurance.yml",
-    "reason": "Pin signed-cache producer, consumer, and merge-authority to Python 3.12.16 so exact-runtime cache bindings match across hosted runners; retain all signature and protected checks.",
+    "status": "UNSIGNED",
+    "target_pr": 617,
+    "base_sha": "275252bfa72b37b5ef99b305b52d34e0543ac494",
     "repository": "n0tf0und0ut/Project-FAR",
     "repository_id": 1283452680,
-    "schema": "far-repin-authorization/3",
-    "target_pr": 617,
-    "source_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/4651fa065b1847901871d3903b9ebcdc57e787aa/validation/repin-requests/PR-617-signed-cache-python.json",
-    "blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
-    "signature_observed": false
+    "expires_at": "2026-11-22T09:59:30Z",
+    "signature_count_required": 2,
+    "signatures_appended": 0,
+    "original_731_byte_request_preserved_but_superseded": true,
+    "files": [
+      {
+        "path": "validation/repin-requests/PR-617-cache-and-transport-v2.json",
+        "sha256": "f51eac66aff6f91be4bf7abd2da9c3dc6071de5b072494d68639767104a3a9fd",
+        "bytes": 730,
+        "id": "2a164cb6520a93877bbb48cdc7fb2fa4",
+        "protected_path": ".github/workflows/validator-assurance.yml",
+        "old_sha256": "2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a",
+        "new_sha256": "3e0853c5c136949e2c1172ac5b2c20e7f47df322226ba113023e395c9595fc1a"
+      },
+      {
+        "path": "validation/repin-requests/PR-617-lean-transport-v1.json",
+        "sha256": "159faa0cc494e8ecfcbd2a1f6cc434d3b1a087180eac20312067d3cf3981b807",
+        "bytes": 728,
+        "id": "f03bbd75c2e4d75ed81507c6f2161407",
+        "protected_path": ".github/workflows/lean.yml",
+        "old_sha256": "de92995661e0696ffc1be708dbabb14836b4856ca6e0229af1dd724ed6396af3",
+        "new_sha256": "89c30038e67c445b4dd31fdb569713d1d2c288ef8102f2c27c3a3d9afa596e52"
+      }
+    ]
   },
   "work_completed": [
     {
@@ -1802,23 +1769,49 @@
       128684814467
     ],
     "counterevidence": "Other exact-head jobs successfully downloaded the same pinned release; service behavior is intermittent.",
-    "no_workflow_or_checksum_bypass": true,
-    "second_targeted_retry": {
-      "successful_download_job": 128684808266,
-      "failed_jobs": [
-        128684811815,
-        128684807594,
-        128684817919,
-        128684814467
-      ],
-      "reason": "Same pinned download succeeded in fresh sibling job after initial failures; targeted retry justified by intermittent service evidence.",
-      "at": "2026-11-08T09:10:07.227Z"
-    }
+    "no_workflow_or_checksum_bypass": true
   },
   "prepared_refresh_evidence": {
     "path": "prepared-normal-merges.json",
-    "pr_count": 14,
-    "unique_files_preserved": 253,
-    "published": false
+    "base_main": "275252bfa72b37b5ef99b305b52d34e0543ac494",
+    "pr_count": 13,
+    "unique_files_preserved": 241,
+    "published": false,
+    "correction": "Previous 14-plan baseafce total was253, not293; earlier checkpoint prose overstated the sum. The machine count computed by reduction was253."
+  },
+  "current_lane_refresh": {
+    "623": {
+      "head_sha": "bf02643a013b73586d6a26614663b36be5704ce3",
+      "tree_sha": "1b1cd5910fe1e55434c1b0ddda934b71118db1b9",
+      "source_finding": 4505765880,
+      "source_reviewed_head": "a357eb3782ba08d149577a4165886c371b673e12",
+      "red_actual_CLI_subcases": 24,
+      "red_matrix_failures": 1440,
+      "matrix_cases": 10368,
+      "green_targeted_tests": 45,
+      "retained_status_cases": 4752,
+      "retained_ownership_cases": 56256,
+      "semantic_mutant_contrasts": 8,
+      "registered_rule_deletions_detected": "5/5",
+      "exact_head_review": "authenticated completed clean; no unresolved findings",
+      "review_request_comment": 6720135831
+    },
+    "626": {
+      "head_sha": "2ea50b075d3800508b0083486de62bf472297338",
+      "tree_sha": "5d513ed1576f63921ebc115148b8bdf75205c322",
+      "incoming_paths_match_main": 181,
+      "archive_locator_files_unchanged": 12,
+      "source_files_unchanged_from": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+      "internal_links": "PASS",
+      "PR_scoped_diff_check": "PASS",
+      "review_request_comment": 6719939022
+    }
+  },
+  "optional_failed_job_equivalence": {
+    "job_id": 128685596883,
+    "context": "lean-t003",
+    "actual_conclusion": "failure",
+    "cause": "HTTP504 before compilation",
+    "equivalent_compilation_verified_in_both_required_assurance_jobs": true
   }
 }
