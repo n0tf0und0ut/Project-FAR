@@ -1,0 +1,225 @@
+{
+  "schema": "far-pr-convergence-execution/1",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "authoritative": false,
+  "status": "IN_PROGRESS",
+  "observed_at": "2026-11-08T18:58:47.614Z",
+  "historical_baseline": {
+    "pr": 626,
+    "manifest_path": "docs/audits/pr-convergence-snapshot-2026-11-07/project_far_current_head_convergence.json",
+    "original_main": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+    "errata_applied": true
+  },
+  "authority": {
+    "AGENTS_blob": "7d2ddee5150ab907818e43f43d8c4398f7570f34",
+    "pr_review_policy_blob": "b0a20b96e2f04634ad61fbdb5d71534a46771949"
+  },
+  "main": {
+    "sha": "63137c90656977d83f0ff0befc5fd390c59ddf5b",
+    "tree": "00bc9846c17b0bd496a0f78171ee66912e55a691"
+  },
+  "merges": [
+    {
+      "pr": 620,
+      "head_sha": "c1250d72d35f2805c897b79353705c9ce3e20527",
+      "merge_sha": "9fa208c668932849682e9f1df991a68bfd6e9fe9",
+      "verified_main_sha": "9fa208c668932849682e9f1df991a68bfd6e9fe9",
+      "tree": "3083e9f101110a9c6924148afe03d7af32bc0d9a",
+      "parents": [
+        "5103a68d9b080cfe9ccb10945be769ea1d7fdba9"
+      ],
+      "verified_at": "2026-11-08T17:41:08.276Z",
+      "attribution": "PR already reported merged immediately before our idempotent normal merge API call; concurrent completion possible"
+    },
+    {
+      "pr": 600,
+      "head_sha": "d2a03e980293a9913009e0b452c6aeb391a079ec",
+      "merge_sha": "63137c90656977d83f0ff0befc5fd390c59ddf5b",
+      "verified_main_sha": "63137c90656977d83f0ff0befc5fd390c59ddf5b",
+      "tree": "00bc9846c17b0bd496a0f78171ee66912e55a691",
+      "parents": [
+        "9fa208c668932849682e9f1df991a68bfd6e9fe9",
+        "d2a03e980293a9913009e0b452c6aeb391a079ec"
+      ],
+      "verified_at": "2026-11-08T18:45:15.334Z",
+      "attribution": "normal protected GitHub merge executed in this session"
+    }
+  ],
+  "pull_requests": [
+    {
+      "pr": 623,
+      "head_sha": "4430ff278a55fbcdba872f7fc9f7864c34fd241d",
+      "branch": "audit/checker-behavioral-provenance-20261106",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Published regression-only head; hosted red verification then prepared correction required"
+      ],
+      "next_action": "Verify hosted red, publish source repair, verify green/review"
+    },
+    {
+      "pr": 618,
+      "head_sha": "645e1991fcff487c7a8eabbd3785914760466aff",
+      "branch": "convergence/agent-reliability-evidence-20261103",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Clean independent review; exact-head assurance and owner App checks pending"
+      ],
+      "next_action": "Merge normally once READY"
+    },
+    {
+      "pr": 617,
+      "head_sha": "3071cb8faa1cc58288b1f2e5339efcf8ce4d541e",
+      "branch": "fix/signed-cache-python-version-20261103",
+      "draft": true,
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        "Two owner-signed protected repin payloads absent"
+      ],
+      "next_action": "Owner signs exact prepared payloads; no signature fabrication"
+    },
+    {
+      "pr": 616,
+      "head_sha": "d3bcea5ad67fc210b1e828623dca97c5d892593f",
+      "branch": "product/semantic-augmentation-20261103",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 615,
+      "head_sha": "ea8776b02c34148cbd1fff3f04cfd1ac51831e7d",
+      "branch": "research/model-architecture-search-20261103",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 614,
+      "head_sha": "e08e33734cc5154700682d231fed7c0aa4d93eff",
+      "branch": "research/general-investigation-engine-20261103",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Hosted corrective suite green; log inspection and exact-head independent review pending"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 611,
+      "head_sha": "3395a8cebd9d39487f33dc23ffd3062ff6ef6842",
+      "branch": "research/weight-space-programming-20261103",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 607,
+      "head_sha": "9a44a9bd8f2c291fa7d988f8b2ce500bf5898661",
+      "branch": "research/workflow-efficacy-local-qwen-20261102",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 606,
+      "head_sha": "774e7a4c6b57b3cacdb9150fae1e1f89ef48d4ca",
+      "branch": "research/far-architecture-routing-pilot-20261102",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 599,
+      "head_sha": "807415afd76f5c23d2c6218e6dd08c93ae60bbd6",
+      "branch": "codex/live-commercial-evaluation-20261027",
+      "draft": false,
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        "Current protected main integration and resulting exact-head gates required"
+      ],
+      "next_action": "Complete current-main integration and exact-head verification"
+    },
+    {
+      "pr": 490,
+      "head_sha": "48337960f52d0c45744a3aac2344702bdf913439",
+      "branch": "automation/living-research-inbox",
+      "draft": true,
+      "verdict": "DO NOT MERGE",
+      "blockers": [
+        "Permanent anchor; explicit prohibition on merge"
+      ],
+      "next_action": "Preserve open draft anchor"
+    }
+  ],
+  "validation": {
+    "combined_preflight": {
+      "tree": "5b3ca369383b8dfb87b693a9f0115273b6043fe2",
+      "local_commit": "3a1d0239f893f1ea8eb70c411f921f549dac435f",
+      "tests_run": 3503,
+      "skipped": 38,
+      "initial_errors": 1,
+      "initial_failures": 0,
+      "environment_correction": "Hydrated 19 historical Git source blobs omitted by partial clone; isolated failed replay test then passed",
+      "remaining_failures": 0,
+      "health": {
+        "passed": 136,
+        "warnings": 0,
+        "failures": 0
+      },
+      "published": false,
+      "scope": "Combined unpublished preflight is source/integration evidence, not final-head hosted certification or merge authorization"
+    },
+    "updated_combined_preflight": {
+      "tree": "34ebac903ef3e8ee0241f6dbaa09529cb0ebe3ea",
+      "local_commit": "038782e596b64a41ef62cb03c9eb56e24e959ac7",
+      "all_nine_integrations_conflict_free": true,
+      "actual_governance_cli": "PASS",
+      "scope": "Includes prior factual repair,614d90 and623fdf; does not certify newer forecast/grammar/index repairs"
+    }
+  },
+  "pending_repairs": {
+    "614": {
+      "head": "e08e33734cc5154700682d231fed7c0aa4d93eff",
+      "source_blob": "90431288e2572b562246af12361b53ad11a4965c",
+      "test_blob": "5312ec44111d6555308870f6a364be82d73946ce",
+      "red_job": 128820379233,
+      "red_result": "284 tests;6 assertions;0 errors;5 optional skips",
+      "first_correction_job": 128821554436,
+      "first_correction_result": "284 tests;0 assertions;1 verified test-oracle FileNotFoundError;5 optional skips",
+      "final_job": 128827040708,
+      "status": "hosted job green; full-log evidence inspection pending"
+    },
+    "623": {
+      "head": "4430ff278a55fbcdba872f7fc9f7864c34fd241d",
+      "status": "regression-only candidate; awaiting authentic hosted red then prepared source correction",
+      "new_findings": [
+        4507289718,
+        4507289720
+      ],
+      "prepared_source_commit": "319a0d054e3ee664d05dac52b5b2d946549db95e"
+    }
+  },
+  "limits": [
+    "Non-authoritative operational checkpoint",
+    "No frozen evidence modified",
+    "No general agent reliability, causal advantage, or commercial efficacy established",
+    "Only normal protected merges authorized; never #490, force-push, auto-merge, or governance bypass"
+  ]
+}
