@@ -384,6 +384,12 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             # An ordinary conjunction without an explicit new condition cannot
             # certify priority independently.
             "Novelty: established, but only if independently replicated, and externally reviewed and approved, priority: established.",
+            # Repeated 'if' introducers without a new independent comma
+            # belong to one following condition, not the preceding claim.
+            "Novelty: established, but if externally reviewed and if independently replicated, priority: established.",
+            "Novelty: established, but if externally reviewed, and if independently replicated, priority: established.",
+            # The same boundary must not condition an earlier unqualified pair.
+            "Both novelty: established and priority: established, but if externally reviewed and if independently replicated, uniqueness: established.",
         )
         for phrase in forbidden:
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
