@@ -111,6 +111,17 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     """
     boundaries = list(CLAIM_COORDINATOR.finditer(context))
     if boundaries:
+        # A later claim can have a compound leading condition containing
+        # additional coordinators ("and if reviewed and approved, Y"). The
+        # final coordinator is then internal to the condition, while choosing
+        # the *first* qualified coordinator steals the preceding claim's own
+        # trailing condition. Choose the rightmost complete leading condition
+        # before applying the existing non-condition/prohibition fallback.
+        leading = [(boundary.start(), context[boundary.end():].strip())
+                   for boundary in boundaries
+                   if SHARED_CONDITION.fullmatch(context[boundary.end():].strip())]
+        if leading:
+            return leading[-1]
         last = boundaries[-1]
         last_tail = context[last.end():].strip()
         chain_start = len(boundaries) - 1
