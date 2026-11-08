@@ -1,0 +1,1938 @@
+{
+  "schema": "far-pr-convergence-live/1",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "authoritative": false,
+  "status": "WORK_IN_PROGRESS",
+  "snapshot": {
+    "started_at": "2026-11-08T07:27:12.902Z",
+    "ended_at": "2026-11-08T07:27:15.483Z",
+    "atomic": false,
+    "main_stable_during_collection": true
+  },
+  "historical_baseline": {
+    "pr": 626,
+    "archive_head_sha": "b13dd85c6bc6f93cac280f8440760d746afe6f6f",
+    "manifest_blob_sha": "3a3ab811f7ad21bb92c40de70fcfb2e502a10a03",
+    "errata_head_sha": "a6c62b4ff4aaaac9b6ad01eb88d49817e02d1bdd",
+    "source": "docs/audits/pr-convergence-snapshot-2026-11-07/project_far_current_head_convergence.json"
+  },
+  "main": {
+    "sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+    "required_check_bindings": [
+      {
+        "context": "merge-authority",
+        "app_id": 15368
+      },
+      {
+        "context": "protected-repin-gate",
+        "app_id": 5073230
+      },
+      {
+        "context": "pr-review-convergence-observation",
+        "app_id": 15368
+      }
+    ]
+  },
+  "merged_prs_in_order": [
+    {
+      "pr": 608,
+      "head_sha": "b846a88df467524773643c00a5149109fb3fae1a",
+      "merge_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "verified_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "verified_at": "2026-11-08T07:13:46.528Z",
+      "parents": [
+        "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+        "b846a88df467524773643c00a5149109fb3fae1a"
+      ],
+      "tree_sha": "a3d3d66518b2bea39e00b4dc900318900c2e6295"
+    }
+  ],
+  "merge_attempts": [
+    {
+      "pr": 625,
+      "expected_head_sha": "fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7",
+      "merged": false,
+      "http_status": 405,
+      "message": "3 of 3 required status checks are expected.",
+      "observation": "Visible required checks passed; PR mergeable_state was behind. Exact internal GitHub evaluator cause not exposed. Candidate refreshed through normal merge commit; protected settings unchanged."
+    }
+  ],
+  "pull_requests": [
+    {
+      "pr": 626,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/626",
+      "title": "docs(audit): publish Nov 7 PR convergence snapshot and verifier",
+      "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+      "branch": "docs/pr-convergence-snapshot-20261107",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128659612049,
+            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456008265/job/128659612049",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660113663,
+            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660113663",
+            "completed_at": "2026-11-08T07:10:31Z",
+            "summary": "Evaluated head bf94b91849b77273bae8ea7cd7802de68b9ef979 of #626 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655141113,
+            "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456037564/job/128655141113",
+            "completed_at": "2026-11-08T06:51:39Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128655123741,
+          "head_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456008323/job/128655123741"
+        }
+      ],
+      "review": {
+        "commit_sha": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6718097193,
+        "summary_updated_at": "2026-11-08T06:47:10Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/626#issuecomment-6718097193"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": null,
+      "scientific_boundary": null,
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 625,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/625",
+      "title": "docs: add nontechnical FAR onboarding and governed task navigation",
+      "head_sha": "52d4def84901385edb487e65aa905da11e87816c",
+      "branch": "docs/council-navigation-20261107",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "merge-authority",
+          "detail": "in_progress/null"
+        },
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "protected-repin-gate",
+          "detail": "Required source App has not published a decision on this head."
+        },
+        {
+          "id": "EXACT_HEAD_ASSURANCE",
+          "class": "external",
+          "detail": "Current-head assurance is queued/running."
+        }
+      ],
+      "next_action": "Complete protected jobs and final live readiness verification; exclusive coordinator may merge first READY #601/#614, then refresh affected verdicts.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128663531706,
+            "head_sha": "52d4def84901385edb487e65aa905da11e87816c",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458140074/job/128663531706",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": null
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128661515001,
+            "head_sha": "52d4def84901385edb487e65aa905da11e87816c",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458165497/job/128661515001",
+            "completed_at": "2026-11-08T07:25:24Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128661497414,
+          "head_sha": "52d4def84901385edb487e65aa905da11e87816c",
+          "status": "in_progress",
+          "conclusion": null,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458140144/job/128661497414"
+        }
+      ],
+      "review": {
+        "commit_sha": "52d4def84901385edb487e65aa905da11e87816c",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6713872509,
+        "summary_updated_at": "2026-11-08T07:22:19Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/625#issuecomment-6713872509"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7",
+      "scientific_boundary": "No uncoached external-reader comprehension pilot executed; do not claim usability validation.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": true,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 623,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623",
+      "title": "test(assurance): detect semantic false acceptance and correct cache provenance",
+      "head_sha": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+      "branch": "audit/checker-behavioral-provenance-20261106",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "merge-authority",
+          "detail": "in_progress/null"
+        },
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "protected-repin-gate",
+          "detail": "Required source App has not published a decision on this head."
+        },
+        {
+          "id": "EXACT_HEAD_ASSURANCE",
+          "class": "external",
+          "detail": "Current-head assurance is queued/running."
+        }
+      ],
+      "next_action": "Complete protected jobs and final live readiness verification; exclusive coordinator may merge first READY #601/#614, then refresh affected verdicts.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128663369963,
+            "head_sha": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458081792/job/128663369963",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": null
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128662648791,
+            "head_sha": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458548178/job/128662648791",
+            "completed_at": "2026-11-08T07:26:50Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128661264287,
+          "head_sha": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+          "status": "in_progress",
+          "conclusion": null,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458081835/job/128661264287"
+        }
+      ],
+      "review": {
+        "commit_sha": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6713050709,
+        "summary_updated_at": "2026-11-08T07:20:15Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6713050709"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "3a62632658a12938caac75f5d6921a7b9dadd425",
+      "scientific_boundary": "Bounded controlled-language regression behavior; no arbitrary prose semantic completeness.",
+      "collection_errors": [],
+      "correction_evidence": {
+        "head_sha": "1ecf13131a3b7c9d2706581b53b7e4b9edc2afff",
+        "tree_sha": "6d893eccec5d691b5dbcb97a92ab47cc85810687",
+        "targeted_tests_passed": 34,
+        "behavioral_mutant_contrasts_passed": 8,
+        "changed_checker_registered_deletions_detected": "5/5",
+        "reproduced_red_cases": 22,
+        "original_review_threads_resolved": true,
+        "ledger_ids": [
+          "CBH-008",
+          "CBH-009",
+          "CBH-010",
+          "CBH-011",
+          "CBH-012"
+        ]
+      },
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": true,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 622,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/622",
+      "title": "test(agent): deterministic fault injection and evidence replay conformance",
+      "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+      "branch": "research/tool-agent-fault-invariants-20261106",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655646799,
+            "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453823028/job/128655646799",
+            "completed_at": "2026-11-08T07:23:34Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660123354,
+            "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660123354",
+            "completed_at": "2026-11-08T07:10:33Z",
+            "summary": "Evaluated head af95bf381038ccfc5b29bdd68f2812f98a5ca67d of #622 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648475545,
+            "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453823057/job/128648475545",
+            "completed_at": "2026-11-08T06:42:56Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648475506,
+          "head_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453823054/job/128648475506"
+        }
+      ],
+      "review": {
+        "commit_sha": "af95bf381038ccfc5b29bdd68f2812f98a5ca67d",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6686766151,
+        "summary_updated_at": "2026-11-08T06:15:40Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/622#issuecomment-6686766151"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "61d0493116184e48606ac1360746e5c99d5b49da",
+      "scientific_boundary": "Synthetic fault-injection/forgery demonstration does not attest real model reliability or origin.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 621,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621",
+      "title": "fix(commercial): fail closed on ambiguous JSON in Decision Integrity",
+      "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+      "branch": "fix/commercial-strict-json-intake-20261105",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655518723,
+            "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819843/job/128655518723",
+            "completed_at": "2026-11-08T07:16:22Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660126379,
+            "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660126379",
+            "completed_at": "2026-11-08T07:10:34Z",
+            "summary": "Evaluated head b1288c06d8b4feac6709674dd00f5c6bc689b63d of #621 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648466743,
+            "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819874/job/128648466743",
+            "completed_at": "2026-11-08T06:40:23Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648466814,
+          "head_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819888/job/128648466814"
+        }
+      ],
+      "review": {
+        "commit_sha": "b1288c06d8b4feac6709674dd00f5c6bc689b63d",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6673150735,
+        "summary_updated_at": "2026-11-08T06:16:50Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621#issuecomment-6673150735"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "03e19ac40424636c47e9370d1fb72f85d51246e9",
+      "scientific_boundary": "Old success evidence cannot attest newer strict parsing source; rerun exact head.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 620,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/620",
+      "title": "research: ground numerical success claims in registered metric semantics",
+      "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+      "branch": "research/numeric-metric-grounding-20261105",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655476877,
+            "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819295/job/128655476877",
+            "completed_at": "2026-11-08T07:13:34Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660129623,
+            "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660129623",
+            "completed_at": "2026-11-08T07:10:35Z",
+            "summary": "Evaluated head 9f6f5956c69e66fd43ee37f45950f5aa89d4ab03 of #620 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648464397,
+            "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819252/job/128648464397",
+            "completed_at": "2026-11-08T06:30:46Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648464126,
+          "head_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453819194/job/128648464126"
+        }
+      ],
+      "review": {
+        "commit_sha": "9f6f5956c69e66fd43ee37f45950f5aa89d4ab03",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6687892854,
+        "summary_updated_at": "2026-11-08T06:16:14Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/620#issuecomment-6687892854"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "8f7af32b4d8f9c9557cbf2adba18d12568a4a865",
+      "scientific_boundary": "Registered primary gate failed: wrong numeric releases 0 in both arms despite 12/16 vs 8/16 secondary correct numbers.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 619,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/619",
+      "title": "research: test good-view JEPAs for evidence retrieval and preserve negative pilot",
+      "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+      "branch": "research/good-view-jepa-evidence-20261105",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655777957,
+            "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453815420/job/128655777957",
+            "completed_at": "2026-11-08T07:15:16Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660133262,
+            "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660133262",
+            "completed_at": "2026-11-08T07:10:36Z",
+            "summary": "Evaluated head 611b6fc0844d82027ce03a4147ad5b9fa138d865 of #619 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648451882,
+            "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453815355/job/128648451882",
+            "completed_at": "2026-11-08T06:21:42Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648452222,
+          "head_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453815426/job/128648452222"
+        }
+      ],
+      "review": {
+        "commit_sha": "611b6fc0844d82027ce03a4147ad5b9fa138d865",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6687896846,
+        "summary_updated_at": "2026-11-08T06:15:39Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/619#issuecomment-6687896846"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "1f173c990c695ff5bd0244a9cc3015073a06a89f",
+      "scientific_boundary": "Synthetic good-view result does not establish external image/text retrieval benefit.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 618,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/618",
+      "title": "Research: verify agent reliability exposure and preserve bounded comparator evidence",
+      "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+      "branch": "convergence/agent-reliability-evidence-20261103",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655715848,
+            "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453813447/job/128655715848",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660136811,
+            "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660136811",
+            "completed_at": "2026-11-08T07:10:37Z",
+            "summary": "Evaluated head 7bc881d3078319d7c050bc9a29aa4d84f3113fa2 of #618 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648445227,
+            "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453813231/job/128648445227",
+            "completed_at": "2026-11-08T06:21:54Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648445134,
+          "head_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453813201/job/128648445134"
+        }
+      ],
+      "review": {
+        "commit_sha": "7bc881d3078319d7c050bc9a29aa4d84f3113fa2",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6612631290,
+        "summary_updated_at": "2026-11-08T06:15:35Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/618#issuecomment-6612631290"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "9f3bdd0a7dcf9890e87006cda2812a547c24e42e",
+      "scientific_boundary": "Agent general reliability, causal uplift and customer economics unestablished.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 617,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617",
+      "title": "fix(ci): pin Python patch version for signed cross-runner cache",
+      "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+      "branch": "fix/signed-cache-python-version-20261103",
+      "draft": true,
+      "observed_base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "OWNER_SIGNATURE_REQUIRED",
+          "class": "external",
+          "detail": "Valid owner signature absent for protected validator-assurance.yml transition; prepared request expires 2026-11-17T18:25:29Z."
+        }
+      ],
+      "next_action": "Owner signs the prepared exact transition; then append verified consumption, refresh and obtain new-head review/gates.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128556427771,
+            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+            "status": "completed",
+            "conclusion": "failure",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940652/job/128556427771",
+            "completed_at": "2026-11-07T23:07:35Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128563280294,
+            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+            "status": "completed",
+            "conclusion": "failure",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563280294",
+            "completed_at": "2026-11-07T23:31:56Z",
+            "summary": "Evaluated head 4651fa065b1847901871d3903b9ebcdc57e787aa of #617 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none.\n\nProtected transitions in this head. An authorization must name exactly these values (repository_id 1283452680, target_pr 617):\n- path: .github/workflows/validator-assurance.yml\n  old_sha256: 2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a\n  new_sha256: 26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9\n\n- .github/workflows/validator-assurance.yml: protected artifact .github/workflows/validator-assurance.yml transition 2a2633bc53ef->26df5e427d2d requires exactly one valid signed authorization appended to validation/protected-repin-consumptions.json (found 0); a candidate may not authorize its own protected-artifact repin"
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128549019584,
+            "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940617/job/128549019584",
+            "completed_at": "2026-11-07T22:57:57Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128549019531,
+          "head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42420940635/job/128549019531"
+        }
+      ],
+      "review": {
+        "commit_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6612214385,
+        "summary_updated_at": "2026-11-06T16:48:32Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617#issuecomment-6612214385"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+      "scientific_boundary": "Owner signature absent for protected verifier/cache transition; preserve draft until governed authorization.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 616,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/616",
+      "title": "Research: add model-directed source-bound semantic augmentation workspace",
+      "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+      "branch": "product/semantic-augmentation-20261103",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655148980,
+            "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453810825/job/128655148980",
+            "completed_at": "2026-11-08T07:20:23Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660141071,
+            "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660141071",
+            "completed_at": "2026-11-08T07:10:38Z",
+            "summary": "Evaluated head 63388c798f56af788c450011a8a8ec9e8155a7ff of #616 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648438492,
+            "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453810940/job/128648438492",
+            "completed_at": "2026-11-08T06:30:30Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648438261,
+          "head_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453810899/job/128648438261"
+        }
+      ],
+      "review": {
+        "commit_sha": "63388c798f56af788c450011a8a8ec9e8155a7ff",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6611963267,
+        "summary_updated_at": "2026-11-08T06:15:49Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/616#issuecomment-6611963267"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "8261c05a85784b40de0e4d0148fd3920670ac25e",
+      "scientific_boundary": "One local model generated malformed output: FAR HTTP 502, not end-to-end semantic success.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 615,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/615",
+      "title": "research: architecture search with negative matched-capacity and external-data evidence",
+      "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+      "branch": "research/model-architecture-search-20261103",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655415889,
+            "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453808956/job/128655415889",
+            "completed_at": "2026-11-08T07:22:58Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660144212,
+            "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660144212",
+            "completed_at": "2026-11-08T07:10:39Z",
+            "summary": "Evaluated head fa1f1785f8682d51ae8f33ad3a9124c3b34d6447 of #615 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648432648,
+            "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453808941/job/128648432648",
+            "completed_at": "2026-11-08T06:18:17Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648432608,
+          "head_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453808940/job/128648432608"
+        }
+      ],
+      "review": {
+        "commit_sha": "fa1f1785f8682d51ae8f33ad3a9124c3b34d6447",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6609504790,
+        "summary_updated_at": "2026-11-08T06:15:52Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/615#issuecomment-6609504790"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "b360aab81ad14e0289d87f4acd67d84d20ae0116",
+      "scientific_boundary": "Preserved negative architecture search does not show superiority or generalization.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 614,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/614",
+      "title": "Research: execute and audit general investigation tools without controller substitution",
+      "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+      "branch": "research/general-investigation-engine-20261103",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "merge-authority",
+          "detail": "in_progress/null"
+        },
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "protected-repin-gate",
+          "detail": "Required source App has not published a decision on this head."
+        },
+        {
+          "id": "EXACT_HEAD_ASSURANCE",
+          "class": "external",
+          "detail": "Current-head assurance is queued/running."
+        }
+      ],
+      "next_action": "Complete protected jobs and final live readiness verification; exclusive coordinator may merge first READY #601/#614, then refresh affected verdicts.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128663552987,
+            "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458165765/job/128663552987",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": null
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128661515310,
+            "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458165680/job/128661515310",
+            "completed_at": "2026-11-08T07:23:51Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128661515534,
+          "head_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+          "status": "in_progress",
+          "conclusion": null,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458165707/job/128661515534"
+        }
+      ],
+      "review": {
+        "commit_sha": "1d2655694280e420acd8d94cd6c65fd8034d5f47",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6612894369,
+        "summary_updated_at": "2026-11-08T07:20:15Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/614#issuecomment-6612894369"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "d91d86893c1be9a15eae6d63dc178bcfc8471a6f",
+      "scientific_boundary": "Frozen agent 0/8 vs deterministic/declarative 7/8; external ODR comparison blocked by missing authenticated adapter/source evidence.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": true,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 611,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/611",
+      "title": "research: introduce falsifiable weight-space intervention audit",
+      "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+      "branch": "research/weight-space-programming-20261103",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655377646,
+            "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+            "status": "in_progress",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453803877/job/128655377646",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660150501,
+            "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660150501",
+            "completed_at": "2026-11-08T07:10:41Z",
+            "summary": "Evaluated head 9b2c95e31e5b8a1cc29ee0b593131e108809131f of #611 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648416765,
+            "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453803837/job/128648416765",
+            "completed_at": "2026-11-08T06:29:17Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648416568,
+          "head_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453803815/job/128648416568"
+        }
+      ],
+      "review": {
+        "commit_sha": "9b2c95e31e5b8a1cc29ee0b593131e108809131f",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6612351467,
+        "summary_updated_at": "2026-11-08T06:15:20Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/611#issuecomment-6612351467"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "d217afa409fd58798b32d8d2afbf06151b40e6d7",
+      "scientific_boundary": "Weight-space capability is experimental, not demonstrated reliable self-improvement.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 607,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/607",
+      "title": "research: run credential-free local Qwen instruction-effect comparison",
+      "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+      "branch": "research/workflow-efficacy-local-qwen-20261102",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655164967,
+            "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453799351/job/128655164967",
+            "completed_at": "2026-11-08T07:22:03Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660157277,
+            "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660157277",
+            "completed_at": "2026-11-08T07:10:43Z",
+            "summary": "Evaluated head a4e727f77e6222fb62b925e73df22b611b877dae of #607 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128649453461,
+            "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453799270/job/128649453461",
+            "completed_at": "2026-11-08T06:45:44Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648402560,
+          "head_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453799279/job/128648402560"
+        }
+      ],
+      "review": {
+        "commit_sha": "a4e727f77e6222fb62b925e73df22b611b877dae",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6589021842,
+        "summary_updated_at": "2026-11-08T06:15:40Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/607#issuecomment-6589021842"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "c934d21ff5e598403caa27e0c436f4e23737bfaf",
+      "scientific_boundary": "Local Qwen study cannot substitute for general reliability; merged #605 remains 11/30 vs 10/30.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 606,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/606",
+      "title": "research: preregister and implement bounded FAR architecture-routing pilot",
+      "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+      "branch": "research/far-architecture-routing-pilot-20261102",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655744331,
+            "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453797505/job/128655744331",
+            "completed_at": "2026-11-08T07:20:14Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660159981,
+            "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660159981",
+            "completed_at": "2026-11-08T07:10:44Z",
+            "summary": "Evaluated head 1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc of #606 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128651057685,
+            "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453797539/job/128651057685",
+            "completed_at": "2026-11-08T06:45:47Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648396455,
+          "head_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453797430/job/128648396455"
+        }
+      ],
+      "review": {
+        "commit_sha": "1dfb2b64924e80142e0bcf6d88f1d3a9599d15fc",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6584455676,
+        "summary_updated_at": "2026-11-08T06:23:13Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/606#issuecomment-6584455676"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "130c69035624c133954d96f5b6a5d063e2e82d97",
+      "scientific_boundary": "Observed model routing 9/12 vs 12/12 deterministic and declarative controls; no routing advantage.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 601,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/601",
+      "title": "Falsify bounded FAR-MECH mechanism and reliability claims; harden audits",
+      "head_sha": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+      "branch": "research/mechanistic-explanation-fidelity-v01",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "EXTERNAL BLOCK",
+      "blockers": [
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "merge-authority",
+          "detail": "queued/null"
+        },
+        {
+          "id": "REQUIRED_CHECK",
+          "class": "external",
+          "context": "protected-repin-gate",
+          "detail": "Required source App has not published a decision on this head."
+        },
+        {
+          "id": "EXACT_HEAD_ASSURANCE",
+          "class": "external",
+          "detail": "Current-head assurance is queued/running."
+        }
+      ],
+      "next_action": "Complete protected jobs and final live readiness verification; exclusive coordinator may merge first READY #601/#614, then refresh affected verdicts.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128663561400,
+            "head_sha": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+            "status": "queued",
+            "conclusion": null,
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458164551/job/128663561400",
+            "completed_at": null,
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": null
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128661511663,
+            "head_sha": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458164486/job/128661511663",
+            "completed_at": "2026-11-08T07:21:58Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128661511833,
+          "head_sha": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+          "status": "in_progress",
+          "conclusion": null,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42458164493/job/128661511833"
+        }
+      ],
+      "review": {
+        "commit_sha": "cb90152988b4c115199ee0efd78769963ac6b7b4",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6535625808,
+        "summary_updated_at": "2026-11-08T07:19:31Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/601#issuecomment-6535625808"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "eb58ea4dcc5e5d590c55002d17e047d4cf74b907",
+      "scientific_boundary": "Original bounded mechanistic findings do not establish general causal explanations or agent reliability.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": true,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 600,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/600",
+      "title": "Implement prospective forecasting and blinded factual investigation for Orthodox FAR",
+      "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+      "branch": "codex/orthodox-worldview-profile-v01",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655185209,
+            "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453793051/job/128655185209",
+            "completed_at": "2026-11-08T07:15:43Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660166553,
+            "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660166553",
+            "completed_at": "2026-11-08T07:10:45Z",
+            "summary": "Evaluated head a198508355c43dee763ecce210e15f1fdee58e8c of #600 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128649450357,
+            "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453793054/job/128649450357",
+            "completed_at": "2026-11-08T06:45:26Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648382973,
+          "head_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453793032/job/128648382973"
+        }
+      ],
+      "review": {
+        "commit_sha": "a198508355c43dee763ecce210e15f1fdee58e8c",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6504085083,
+        "summary_updated_at": "2026-11-08T06:15:25Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/600#issuecomment-6504085083"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "a8079e4e6d4b3f5caccab969756c910ab3b91d5b",
+      "scientific_boundary": "No worldview truth, forecasting advantage or factual decision benefit established.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 599,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/599",
+      "title": "Record live commercial retrieval comparison and raw-text reliability limits",
+      "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+      "branch": "codex/live-commercial-evaluation-20261027",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        }
+      ],
+      "next_action": "Refresh in dependency-safe order against then-current main; reuse valid source evidence, validate changes, obtain final-head review and protected checks.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128654382910,
+            "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453782166/job/128654382910",
+            "completed_at": "2026-11-08T07:17:25Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660169679,
+            "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660169679",
+            "completed_at": "2026-11-08T07:10:46Z",
+            "summary": "Evaluated head ca2030c4659bdbe34d78737f7fb061a2243894d0 of #599 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128648349978,
+            "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453782188/job/128648349978",
+            "completed_at": "2026-11-08T06:15:40Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128648350192,
+          "head_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42453782160/job/128648350192"
+        }
+      ],
+      "review": {
+        "commit_sha": "ca2030c4659bdbe34d78737f7fb061a2243894d0",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6612212165,
+        "summary_updated_at": "2026-11-08T06:15:05Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/599#issuecomment-6612212165"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "7b5b6febf1f2b7725c2b4d2523ebab225c5ab223",
+      "scientific_boundary": "Retrieval comparison is bounded; no independent customer-effectiveness inference.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 597,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597",
+      "title": "Research: integrated bounded epistemic debugger and hostile source-to-report evaluation",
+      "head_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+      "branch": "research/epistemic-debugger-001",
+      "draft": false,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "REPAIRABLE",
+      "blockers": [
+        {
+          "id": "CURRENT_MAIN_INTEGRATION",
+          "class": "repairable",
+          "detail": "Current main is not an ancestor of this candidate; refresh normally and validate current integration before protected merging."
+        },
+        {
+          "id": "DEPENDENCY_625",
+          "class": "dependency",
+          "detail": "Merge #625 first, then reconcile its workflow and combined generated views."
+        }
+      ],
+      "next_action": "Wait for #625 merge, then normal current-main integration and targeted validation/review.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128658598147,
+            "head_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456004501/job/128658598147",
+            "completed_at": "2026-11-08T07:25:54Z",
+            "summary": null
+          }
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660172600,
+            "head_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660172600",
+            "completed_at": "2026-11-08T07:10:47Z",
+            "summary": "Evaluated head e4beb48cb42461374cb5205d77488047d79a784e of #597 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": {
+            "id": 128655052686,
+            "head_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 15368,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456004535/job/128655052686",
+            "completed_at": "2026-11-08T06:50:17Z",
+            "summary": null
+          }
+        }
+      ],
+      "exact_head_assurance": [
+        {
+          "id": 128655070035,
+          "head_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42456004641/job/128655070035"
+        }
+      ],
+      "review": {
+        "commit_sha": "e4beb48cb42461374cb5205d77488047d79a784e",
+        "has_any_findings": false,
+        "has_unresolved_findings": false,
+        "status": "completed",
+        "trusted_identity": true,
+        "summary_comment_id": 6446273256,
+        "summary_updated_at": "2026-11-08T06:47:08Z",
+        "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#issuecomment-6446273256"
+      },
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "94603603fd6c863cf3895496af64cf2f003db480",
+      "scientific_boundary": "Authored-case software verification is not independent causal or commercial effectiveness.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    },
+    {
+      "pr": 490,
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/490",
+      "title": "Research: permanent rolling living-repository inbox — DO NOT MERGE",
+      "head_sha": "7a4ebda9d80a8256d6ee3e617a37f1b985476fba",
+      "branch": "automation/living-research-inbox",
+      "draft": true,
+      "observed_base_sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "observed_at": "2026-11-08T07:27:13.660Z",
+      "verdict": "DO NOT MERGE",
+      "blockers": [
+        {
+          "id": "PERMANENT_INBOX",
+          "class": "intentional_governance",
+          "detail": "Permanent rolling draft; never merge or close."
+        }
+      ],
+      "next_action": "Leave open and draft.",
+      "required_checks": [
+        {
+          "context": "merge-authority",
+          "required_app_id": 15368,
+          "observed": null
+        },
+        {
+          "context": "protected-repin-gate",
+          "required_app_id": 5073230,
+          "observed": {
+            "id": 128660175689,
+            "head_sha": "7a4ebda9d80a8256d6ee3e617a37f1b985476fba",
+            "status": "completed",
+            "conclusion": "success",
+            "app_id": 5073230,
+            "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128660175689",
+            "completed_at": "2026-11-08T07:10:48Z",
+            "summary": "Evaluated head 7a4ebda9d80a8256d6ee3e617a37f1b985476fba of #490 against main eff47bc4fc9e272e87d71ecfc8d559cd1176753e.\nEvaluator: deployment e7224180cdda26a96396a6415a971ebe7e85fdf4.\nAuthorizations used: none."
+          }
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "required_app_id": 15368,
+          "observed": null
+        }
+      ],
+      "exact_head_assurance": [],
+      "review": null,
+      "unresolved_threads": [],
+      "active_changes_requested": [],
+      "historical_baseline_head_sha": "495cc99f9c8a189968a9835a591550215726fa0d",
+      "scientific_boundary": "Living research ingestion cannot promote canonical scientific claims; never merge rolling anchor.",
+      "collection_errors": [],
+      "current_main_sha": "9021c0218fe89232777c4b36c5e0128d107e79b3",
+      "contains_current_main": false,
+      "thread_state_source": "Latest worker/API inventory; unchanged-source state reused where not merge-eligible."
+    }
+  ],
+  "counts": {
+    "READY": 0,
+    "REPAIRABLE": 14,
+    "EXTERNAL BLOCK": 5,
+    "DO NOT MERGE": 1
+  },
+  "limits": [
+    "Dated non-atomic observation, not a merge authorization or scientific certification.",
+    "A required check success alone is not substantive correctness.",
+    "Original frozen research data and ten-file historical #626 bundle were not rewritten.",
+    "This is an in-progress checkpoint. Current GitHub state may have advanced during publication."
+  ],
+  "saved_at": "2026-11-08T07:40:27.379Z",
+  "execution_environment": {
+    "state": "unavailable",
+    "observed_at": "2026-11-08T07:34:17Z",
+    "source": "Runtime status and confirmed exec_command failure",
+    "local_execution_claims_after_unavailability": false,
+    "continuation_mode": "GitHub connector and genuine hosted checks"
+  },
+  "coordination": {
+    "exclusive_merge_worker": "/root/review_convergence",
+    "authorized_first_ready_candidates": [
+      601,
+      614,
+      625,
+      623
+    ],
+    "merge_limit_before_pause": 1,
+    "root_must_not_merge_concurrently": true,
+    "after_merge": "Verify PR/main/parents/tree/protection, notify root immediately, then pause to refresh affected candidates."
+  },
+  "owner_signature_request": {
+    "base_sha": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+    "domain": "far-protected-repin-authorization",
+    "expires_at": "2026-11-17T18:25:29Z",
+    "id": "b0513911ac9912e3a9e3ec414ee30b03",
+    "issued_at": "2026-11-03T18:25:29Z",
+    "new_sha256": "26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9",
+    "old_sha256": "2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a",
+    "path": ".github/workflows/validator-assurance.yml",
+    "reason": "Pin signed-cache producer, consumer, and merge-authority to Python 3.12.16 so exact-runtime cache bindings match across hosted runners; retain all signature and protected checks.",
+    "repository": "n0tf0und0ut/Project-FAR",
+    "repository_id": 1283452680,
+    "schema": "far-repin-authorization/3",
+    "target_pr": 617,
+    "source_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/4651fa065b1847901871d3903b9ebcdc57e787aa/validation/repin-requests/PR-617-signed-cache-python.json",
+    "blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
+    "signature_observed": false,
+    "library_named_signature_search": "No matching signature found; only this task's manifest was returned."
+  },
+  "work_completed": [
+    {
+      "pr": 625,
+      "head": "52d4def84901385edb487e65aa905da11e87816c",
+      "fix": "README CI path coverage plus canonical living/corpus regeneration",
+      "evidence": "66 tests and before/after missing-input regression; stable canonical sequence; 5 post-refresh checks. Source-fix blobs unchanged."
+    },
+    {
+      "pr": 597,
+      "head": "e4beb48cb42461374cb5205d77488047d79a784e",
+      "fix": "Combined README and W4/W6 living digests plus dependent generated views",
+      "evidence": "34 W4/W6 tests and recomputation; 66 living/corpus tests; actual workflow sequence; docs/links."
+    },
+    {
+      "pr": 623,
+      "head": "519bf31fdbe766e4e7eedd4a5327d420314bfb3f",
+      "fix": "Qualifier ownership and independent status-composition oracle",
+      "evidence": "46 targeted tests; 56,256 author cases; separate internal 85,760-case oracle; 5/5 changed-checker mutations; 17 post-refresh integration checks. Clean exact-head automated review, 0/15 unresolved threads.",
+      "limits": "Finite grammar assurance, not arbitrary-English completeness."
+    },
+    {
+      "pr": 626,
+      "head": "bf94b91849b77273bae8ea7cd7802de68b9ef979",
+      "fix": "Separate archival errata and reachable publication locator",
+      "evidence": "Original 10 files preserved; 15 archival tests, 9 checksums; docs/links/orphans; clean review."
+    }
+  ]
+}
