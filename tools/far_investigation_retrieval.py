@@ -165,6 +165,7 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
     """
     receipt = _envelope(url)
     started = time.monotonic()
+    next_progress_bytes = 65536
 
     def save():
         receipt["elapsed_seconds"] = time.monotonic() - started
@@ -184,6 +185,7 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
         else:
             client = opener if opener is not None else urllib.request.build_opener(_NoRedirect())
         def capture(transport):
+            nonlocal next_progress_bytes
             receipt["http_status"] = transport["http_status"]
             headers = {k.lower(): v for k, v in transport["response_headers"].items()}
             receipt["content_type"] = headers.get("content-type", "")
@@ -194,7 +196,18 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
                            observed_bytes=transport["response_bytes_retained"],
                            truncated=transport["response_bytes_retained"] > policy.max_bytes,
                            retrieved_at=_now(), status="RECEIVED")
-            save()
+            # The reader reports an accumulated body after each bounded read.
+            # Keep progressive checkpoints at geometric thresholds, plus every
+            # terminal/failure snapshot. This bounds journal growth for a large
+            # permitted source while preserving exact interrupted prefixes.
+            size = receipt["observed_bytes"]
+            terminal = (transport.get("response_complete") is True
+                        or transport.get("transport_error") is not None
+                        or transport.get("framing_error") is not None)
+            if size >= next_progress_bytes or terminal:
+                while size >= next_progress_bytes:
+                    next_progress_bytes *= 2
+                save()
 
         try:
             # Preserve the established max_bytes+1 failure-prefix contract while
