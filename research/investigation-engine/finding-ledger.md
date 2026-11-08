@@ -509,3 +509,55 @@ The archive regressions were added in [`361c6a93e08caee19190bd83103a5b0c0b8398a3
 - `test_campaign_archive_bombs_remain_bounded`: separately rejects a member above the new per-transcript ceiling and cumulative declared uncompressed sizes above the total ceiling before replay.
 
 This bounded engineering verification runs no model inference and establishes no general agent reliability, source truth, semantic correctness or efficacy advantage. Frozen campaign evidence, registrations, source bindings and negative results are unchanged. The exact integrated candidate, substantive review, thread disposition and required protected checks must be recorded in PR #614 before merge readiness.
+
+## November 8 campaign index and final recording-budget parity
+
+**ENG-CAMPAIGN-INDEX-BOUNDS** — [review comment 4507227583](https://github.com/n0tf0und0ut/Project-FAR/pull/614#discussion_r4507227583),
+thread `PRRT_kwDOTH_vCM61DCpj`, reviewed head
+`4655961dddafefdd685c55c296d24b5c89a7fe74`. This completes the same
+execution/archive recording-budget invariant as
+**ENG-CAMPAIGN-RECORDING-BOUNDS** above. The earlier correction bounded transcript
+members and archive admission but did not apply the separate 8,000,000-byte index
+ceiling to the four campaign-index writes. Its aggregate execution check also
+used the previous index's size rather than preflighting the proposed replacement,
+leaving per-case growth and final completion metadata outside that check.
+
+The original counterexample was independently reproduced before the managed
+runtime became unavailable: 23 valid 30,000-character astral-Unicode questions
+with empty source hints produced 23 integrity-valid failed-investigation
+transcripts. Execution returned `EXECUTED`, while the unchanged archived output
+failed admission with `archive member exceeds bound` before any transcript replay.
+This run's index measured **8,319,009 bytes** and all recorded JSON **16,665,314
+bytes**. These are this control's measurements; exact metadata-dependent byte
+counts need not equal the reviewer's 8,316,155 / 16,659,912-byte observation.
+
+The correction routes every initial, server-startup, per-case and final index
+write through one preflight helper. It measures the actual indented,
+ASCII-escaped JSON serialization plus final newline, requires the proposed index
+to fit the existing index ceiling, and requires all other recorded JSON bytes
+plus the proposed replacement to fit the existing cumulative ceiling. The old
+index is excluded from that sum because the existing atomic persistence function
+replaces it. Both declared ceilings and archive-admission rules remain unchanged.
+
+A rejected write raises rather than returning an executed campaign, leaves the
+last bounded index untouched, and retains all raw transcript checkpoints.
+A failure index is written only when its proposed bytes also fit; otherwise the
+last durable index remains an explicitly unfinished prefix. No selection, raw
+receipt, transcript or index is truncated to satisfy admission.
+
+Five regression methods cover the original 23-question counterexample,
+initial/per-case/final overflow and last-bounded-byte preservation, the final
+proposed-index cumulative check, exact positive index/total boundaries, and
+ASCII-escaped astral-Unicode byte accounting. The original real native-shaped
+two-source transcript larger than 64 MB and the member/cumulative ZIP-bomb
+admission controls remain unchanged. The new tests and corrective source were
+prepared through repository APIs during the runtime outage; **no new local test
+pass is claimed**. Their hosted regression-only and corrective-head results,
+exact source identities and substantive review must be recorded separately in
+PR #614 before any readiness claim.
+
+These are bounded recording and replay controls, not authenticated external
+execution, source truth, semantic correctness, general investigation reliability
+or FAR superiority. Frozen campaign evidence, original source-hash bindings,
+registrations, protocols, selections, results and negative findings retain their
+bytes. No model inference or new scientific experiment was performed.

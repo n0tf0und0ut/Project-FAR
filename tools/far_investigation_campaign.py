@@ -277,6 +277,27 @@ def audit_directory(directory):
             'scope': 'Declared byte integrity and native replay only; semantic correctness is separate.'}
 
 
+
+def persist_campaign_index(output, campaign):
+    """Preflight the proposed index and cumulative JSON bytes before replacement.
+
+    Match persist's indented, ASCII-escaped JSON plus final newline. Exclude the
+    previous index from the sum because this write replaces it atomically.
+    A rejected write leaves that last bounded index and raw transcripts intact.
+    """
+    output = Path(output)
+    index = output / 'campaign.json'
+    proposed = (json.dumps(campaign, indent=2, sort_keys=True, allow_nan=False)
+                + '\n').encode('utf-8')
+    if len(proposed) > MAX_CAMPAIGN_INDEX_BYTES:
+        raise ValueError('campaign index exceeds bounded archive member budget')
+    other_bytes = sum(path.stat().st_size for path in output.glob('*.json')
+                      if path != index)
+    if other_bytes + len(proposed) > MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES:
+        raise ValueError('campaign index and transcripts exceed total uncompressed archive budget')
+    persist(index, campaign)
+
+
 def run(selection, output, *, model_path=None, server_path=None, modes=('deterministic', 'declarative', 'agent'),
         budget=Budget(max_steps=24, max_seconds=420), dns_mode='preflight'):
     output = Path(output)
@@ -300,7 +321,7 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
                 'rows': [], 'nonclaims': ['No external/I2 independence', 'No source-truth certification',
                     'No general autonomy or superiority', 'No evidence-closure promotion'],
                 'workflow_comparator_identity': 'Deterministic and declarative lanes share the same algorithm and tools; different execution representation only.'}
-    persist(output / 'campaign.json', campaign)
+    persist_campaign_index(output, campaign)
     server = None
     log = None
     try:
@@ -326,7 +347,7 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
                 '--seed', '271828', '--jinja', '--no-webui']
             log = (output / 'model-server.log').open('w')
             server = subprocess.Popen(command, stdout=log, stderr=log)
-            persist(output / 'campaign.json', campaign)
+            persist_campaign_index(output, campaign)
             for _ in range(120):
                 if server.poll() is not None:
                     raise RuntimeError('local server exited during startup')
@@ -361,7 +382,7 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
                        'transcript_sha256': file_sha(path), 'metrics': metrics(state)}
                 campaign['rows'].append(row)
                 campaign['summary'] = summarize(campaign['rows'])
-                persist(output / 'campaign.json', campaign)
+                persist_campaign_index(output, campaign)
                 print(json.dumps({'task': task['id'], 'mode': mode, **row['metrics']}), flush=True)
         campaign['status'] = 'EXECUTED'
     except (ValueError, RuntimeError, OSError) as exc:
@@ -380,7 +401,7 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
             log.close()
         campaign['finished_at'] = now()
         campaign['summary'] = summarize(campaign['rows'])
-        persist(output / 'campaign.json', campaign)
+        persist_campaign_index(output, campaign)
     return campaign
 
 
