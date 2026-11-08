@@ -111,17 +111,20 @@ def following_claim_qualifier(context: str) -> tuple[int, str] | None:
     """
     boundaries = list(CLAIM_COORDINATOR.finditer(context))
     if boundaries:
-        # A later claim can have a compound leading condition containing
-        # additional coordinators ("and if reviewed and approved, Y"). The
-        # final coordinator is then internal to the condition, while choosing
-        # the *first* qualified coordinator steals the preceding claim's own
-        # trailing condition. Choose the rightmost complete leading condition
-        # before applying the existing non-condition/prohibition fallback.
-        leading = [(boundary.start(), context[boundary.end():].strip())
-                   for boundary in boundaries
-                   if SHARED_CONDITION.fullmatch(context[boundary.end():].strip())]
-        if leading:
-            return leading[-1]
+        # "but only if ..." is the preceding status's own trailing
+        # qualification. An independently comma-introduced "and if ...," may
+        # instead lead the following status, even when its condition contains
+        # internal conjunctions. Preserve that narrow, explicit boundary.
+        # Do NOT select the rightmost "and if" generally: "but if C and if
+        # D, Y" is one compound leading condition for Y, and splitting at
+        # its inner "and if" would falsely qualify the preceding claim.
+        separated_next = re.search(
+            rf",\s*but\s+only\s+if\b[^|]*?,\s*(and)\s+{CONDITION_PREFIX}\b[^|]*,\s*$",
+            context, re.I)
+        if separated_next:
+            qualifier = context[separated_next.end(1):].strip()
+            if SHARED_CONDITION.fullmatch(qualifier):
+                return separated_next.start(1), qualifier
         last = boundaries[-1]
         last_tail = context[last.end():].strip()
         chain_start = len(boundaries) - 1
