@@ -457,6 +457,34 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_following_negated_claim_never_qualifies_unconditional_pair(self):
+        for qualifier in ("not", "do not assert", "never claim", "no basis to claim", "without asserting"):
+            for conjunction in ("and", "but", "while", "whereas"):
+                phrase = "Both novelty: established and priority: established, " + conjunction + " " + qualifier + " uniqueness: established."
+                with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    _fixture(root, GOVERNANCE)
+                    _append_promotion(root, phrase)
+                    result = _run_checker(root, GOVERNANCE)
+                    self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                    self.assertIn("unnegated assurance promotion: 'novelty: established'", result.stdout)
+                    self.assertIn("unnegated assurance promotion: 'priority: established'", result.stdout)
+
+    def test_local_prohibitions_after_no_comma_conjunction_remain_local(self):
+        for qualifier in ("do not assert", "do not claim", "never claim", "no basis to claim", "without asserting"):
+            for conjunction in ("and", "but", "while", "whereas"):
+                for claim in (
+                    "priority: established.",
+                    "both priority: established and uniqueness: established.",
+                ):
+                    phrase = "Novelty: not established " + conjunction + " " + qualifier + " " + claim
+                    with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                        root = Path(directory)
+                        _fixture(root, GOVERNANCE)
+                        _append_promotion(root, phrase)
+                        result = _run_checker(root, GOVERNANCE)
+                        self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
     def test_nonfirst_missing_and_duplicate_claims_are_rejected(self):
         for change in (_remove_claim, _duplicate_claim):
             with self.subTest(change=change.__name__), tempfile.TemporaryDirectory() as directory:

@@ -63,13 +63,7 @@ CONDITION_CELL = re.compile(rf"^{CONDITION_PREFIX}\b", re.I)
 # A leading condition may expressly govern a coordinated pair of statuses.
 # Comma-separated independent assertions and separate table cells remain local.
 SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:both\b\s*)?$", re.I)
-# In "X, but if C, Y", the coordinator introduces Y's condition. This
-# context belongs to Y, never to the suffix of X. Use the same introducers
-# for shared, local, and table conditions rather than separate vocabularies.
-FOLLOWING_CLAIM_CONDITION = re.compile(
-    rf"(?:^|,|\s)\s*(?:and|but|while|whereas)\s+({CONDITION_PREFIX}\b[^|]*?)\s*,?\s*$",
-    re.I,
-)
+CLAIM_COORDINATOR = re.compile(r"\b(?:and|but|while|whereas)\b\s*", re.I)
 COORDINATION = re.compile(r"\s+and\s+", re.I)
 BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
 # Status values are consumed separately from pair-level qualifiers. A local
@@ -95,14 +89,28 @@ def register_rows(text: str) -> list[tuple[str, list[str]]]:
     return rows
 
 
+def following_claim_qualifier(context: str) -> tuple[int, str] | None:
+    """Find a following claim's own qualifier after an independent join.
+
+    Use the existing qualifier vocabulary for both conditions and prohibitions;
+    "but if C, Y" and "but do not assert Y" have the same ownership boundary.
+    "|" always ends this context, so another table cell cannot supply it.
+    """
+    for boundary in CLAIM_COORDINATOR.finditer(context):
+        qualifier = context[boundary.end():].strip(" ,")
+        if "|" not in qualifier and NEGATION.search(qualifier):
+            return boundary.start(), qualifier
+    return None
+
+
 def label_prefix(statement: str, start: int) -> str:
     """Return only the local pre-label context, retaining its own condition."""
     earlier = list(LABEL_MARKER.finditer(statement[:start]))
     if not earlier:
         return statement[:start].rsplit("|", 1)[-1]
     previous = earlier[-1]
-    if leading := FOLLOWING_CLAIM_CONDITION.search(statement[previous.end():start]):
-        return leading.group(1)
+    if leading := following_claim_qualifier(statement[previous.end():start]):
+        return leading[1]
     separator = statement.rfind(",", previous.end(), start)
     tail = statement[separator + 1:start].rsplit("|", 1)[-1] if separator >= 0 else ""
     # A prior label's trailing qualifier cannot cross an independent
@@ -115,8 +123,8 @@ def label_suffix(statement: str, end: int) -> str:
     after = statement[end:]
     if later := LABEL_MARKER.search(after):
         after = after[:later.start()]
-        if following := FOLLOWING_CLAIM_CONDITION.search(after):
-            after = after[:following.start()]
+        if following := following_claim_qualifier(after):
+            after = after[:following[0]]
     if "|" in after:
         first, next_cell, *_ = (after.split("|") + [""])[:3]
         next_cell = next_cell.strip()
