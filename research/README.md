@@ -34,3 +34,5 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 ## Preservation rule
 
 Research records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.
+
+- [Repository convergence and bounded comparator execution](repository-convergence/2026-11-03/README.md) — Research-only initial inventory, executed local SDK comparison and unresolved human/customer gates.
