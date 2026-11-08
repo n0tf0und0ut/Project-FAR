@@ -62,6 +62,11 @@ The Lean file proves the abstract assurance model. The Python model checker exha
 
 ### Merge authority and merge queue
 
+The [bounded pinned-Lean transport correction](../audits/pinned-lean-transport-2026-11-08.md)
+records the HTTP 504 regression, retry and timeout bounds, unchanged archive pin,
+hosted fault-fixture requirement and unsigned owner authorization for PR #617.
+It grants no protected merge authority.
+
 The `Validator Assurance` workflow runs on pull requests, pushes to `main`, workflow dispatch, and the GitHub `merge_group` event. The `merge-authority` job issues a signed certificate bound to the exact checked commit and Git tree and requires all five assurance evidence artifacts.
 
 `tools/configure_validation_protection.py` applied strict branch protection requiring the `merge-authority` status check, an up-to-date branch, pull requests, conversation resolution, and no force pushes or branch deletion. It is superseded: it would now drop the App-bound `protected-repin-gate` required check. It makes no change and exits non-zero, because a locked file cannot be removed through the repin gate. The owner changes protection by hand, following `docs/governance/protected-repin-procedure.md`. `tools/check_validation_protection.py --gate-app-id <App ID>` independently reads the GitHub control plane. It fails unless every required setting matches, including both required checks bound to their Apps: `merge-authority` to GitHub Actions and `protected-repin-gate` to the owner's App. A successful read-back is the evidence of live enforcement.

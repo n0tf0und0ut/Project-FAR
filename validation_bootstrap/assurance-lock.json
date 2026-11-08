@@ -2,11 +2,11 @@
   "files": {
     ".github/workflows/canonical-branch-protection.yml": "ab481ba83f7126058ec3306b4448e16479df50b9d02031fcdde32c80c7be3a0a",
     ".github/workflows/configure-validation-protection.yml": "31b93c343445911d6674349df94f79a96ec57e0452d76d577098fd5c486c9fc2",
-    ".github/workflows/lean.yml": "de92995661e0696ffc1be708dbabb14836b4856ca6e0229af1dd724ed6396af3",
+    ".github/workflows/lean.yml": "89c30038e67c445b4dd31fdb569713d1d2c288ef8102f2c27c3a3d9afa596e52",
     ".github/workflows/repo-health.yml": "e8430fb10a98a4f0eff0e76bdf594a030952eb276e0a2b2a4a79267ece9c77d2",
     ".github/workflows/specification-export.yml": "2aa19214981ed97c418a375063879cbe20494f215032f7afe5f7d5cd45968b0d",
     ".github/workflows/unified-validation.yml": "028b412e5ac0add23888303707edef7e3570a26df16650d0b60b409fb6501014",
-    ".github/workflows/validator-assurance.yml": "26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9",
+    ".github/workflows/validator-assurance.yml": "3e0853c5c136949e2c1172ac5b2c20e7f47df322226ba113023e395c9595fc1a",
     "far_validation/__init__.py": "0e41bc4e1c6859d89daff20a913185b500e14db0f71e6707d3064510eb7c0cbf",
     "far_validation/__main__.py": "0cc78d06ee9221ab165d0f2ff804b5180cad62c72b9fcb448c0e4b875314b36e",
     "far_validation/assured_engine.py": "3daddc9bd13af064f27f624e731c65d483b57c4936c0e27d7b1dcc83a537666d",
