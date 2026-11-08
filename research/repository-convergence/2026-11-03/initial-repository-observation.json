@@ -1,0 +1,4374 @@
+{
+  "schema": "far-repository-convergence-observation/0.1",
+  "status": "Research",
+  "scope": "Initial immutable API observation, not a readiness or software-correctness verdict",
+  "protected_main": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+  "main_tree": "63fb3e147de2531f70b123aa677e5e85b2f31c34",
+  "main_reported_protection": {
+    "enabled": true,
+    "required_status_checks": {
+      "enforcement_level": "everyone",
+      "contexts": [
+        "merge-authority",
+        "protected-repin-gate",
+        "pr-review-convergence-observation"
+      ],
+      "checks": [
+        {
+          "context": "merge-authority",
+          "app_id": 15368
+        },
+        {
+          "context": "protected-repin-gate",
+          "app_id": 5073230
+        },
+        {
+          "context": "pr-review-convergence-observation",
+          "app_id": 15368
+        }
+      ]
+    }
+  },
+  "full_protection_read": "GitHub integration403 for both authorized read connections; no settings changed",
+  "open_pr_count": 14,
+  "pull_requests": [
+    {
+      "number": 490,
+      "title": "Research: permanent rolling living-repository inbox \u2014 DO NOT MERGE",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/490",
+      "head": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+      "branch": "automation/living-research-inbox",
+      "base_ref": "main",
+      "base_at_snapshot": "81a84bbf48325a6c8b732872cd7ce9977f2d2f5a",
+      "draft": true,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126111032983,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126111032983",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126102213352,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "neutral",
+          "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126102213352",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 121947466579,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40430731753/job/121947466579",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 121947465175,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "c2178063902e14ee1f5b6b595f24105d61607bb9",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40430731753/job/121947465175",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 597,
+      "title": "Research: integrated bounded epistemic debugger and hostile source-to-report evaluation",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597",
+      "head": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+      "branch": "research/epistemic-debugger-001",
+      "base_ref": "main",
+      "base_at_snapshot": "9f17433abb55f6359524845e84fe420d70d7b195",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126111025395,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126111025395",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126102190520,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126102190520",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122335128994,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322930/job/122335128994",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122331246547,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40544456126/job/122331246547",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122331243380,
+          "name": "review-evidence (597)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40544456126/job/122331243380",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122331191283,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40544456126/job/122331191283",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122331177603,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40544452581/job/122331177603",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122328070171,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543323053/job/122328070171",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327804293,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543323053/job/122327804293",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327691103,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322930/job/122327691103",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327652286,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543323053/job/122327652286",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327651379,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543323053/job/122327651379",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327197757,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543323059/job/122327197757",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194921,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322445/job/122327194921",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194790,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322445/job/122327194790",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194638,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322445/job/122327194638",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194578,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322727/job/122327194578",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194380,
+          "name": "validate",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322666/job/122327194380",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327194239,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322613/job/122327194239",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327193873,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322600/job/122327193873",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327193862,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322914/job/122327193862",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327193759,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322622/job/122327193759",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327193055,
+          "name": "test (3.11)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322646/job/122327193055",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327192933,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322518/job/122327192933",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327192857,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322543/job/122327192857",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122327192565,
+          "name": "test (3.13)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5667383fff19af0a370b24d6ba2940dc3543c1fb",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40543322646/job/122327192565",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 599,
+      "title": "Record live commercial retrieval comparison and raw-text reliability limits",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/599",
+      "head": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+      "branch": "codex/live-commercial-evaluation-20261027",
+      "base_ref": "main",
+      "base_at_snapshot": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+      "draft": true,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126111017153,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126111017153",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126102174397,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "neutral",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126102174397",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122366584821,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340301/job/122366584821",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352429384,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340491/job/122352429384",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352270736,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340491/job/122352270736",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352096356,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550339886/job/122352096356",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352093034,
+          "name": "review-evidence (599)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550339886/job/122352093034",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352034312,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340301/job/122352034312",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352033205,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340491/job/122352033205",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352033120,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340491/job/122352033120",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352032861,
+          "name": "test (3.13)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340625/job/122352032861",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352032859,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340562/job/122352032859",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352032347,
+          "name": "test (3.11)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340625/job/122352032347",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352032072,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340394/job/122352032072",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352032008,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340467/job/122352032008",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031978,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340515/job/122352031978",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031846,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340515/job/122352031846",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031791,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340515/job/122352031791",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031696,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340443/job/122352031696",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031523,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550339886/job/122352031523",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031471,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340396/job/122352031471",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352031076,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340314/job/122352031076",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352030893,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340351/job/122352030893",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352030699,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340325/job/122352030699",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 122352030169,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ec98ff87a65f49a9700cc708473f9f56bfcf74f4",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/40550340258/job/122352030169",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 600,
+      "title": "Implement prospective forecasting and blinded factual investigation for Orthodox FAR",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/600",
+      "head": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+      "branch": "codex/orthodox-worldview-profile-v01",
+      "base_ref": "main",
+      "base_at_snapshot": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126111009784,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126111009784",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126102014047,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126102014047",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124627337403,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591060/job/124627337403",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124623454465,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229820026/job/124623454465",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124623453100,
+          "name": "review-evidence (600)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229820026/job/124623453100",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124621799015,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591270/job/124621799015",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124621521678,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229820026/job/124621521678",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124621520211,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229819722/job/124621520211",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124621211821,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591270/job/124621211821",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620824997,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591270/job/124620824997",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620824881,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591270/job/124620824881",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620823805,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591060/job/124620823805",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821772,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591284/job/124620821772",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821677,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591161/job/124620821677",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821401,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591130/job/124620821401",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821249,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591176/job/124620821249",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821225,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591166/job/124620821225",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821198,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591124/job/124620821198",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821193,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591158/job/124620821193",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821120,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591128/job/124620821120",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821101,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591129/job/124620821101",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821071,
+          "name": "validate-pinned-archive",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591105/job/124620821071",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620821030,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591049/job/124620821030",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620820941,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591049/job/124620820941",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620820779,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "b901fa3f229ac78e6a47d56bee013c7dcf5f572b",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229591049/job/124620820779",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 601,
+      "title": "Falsify bounded FAR-MECH mechanism and reliability claims; harden audits",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/601",
+      "head": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+      "branch": "research/mechanistic-explanation-fidelity-v01",
+      "base_ref": "main",
+      "base_at_snapshot": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126111001897,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126111001897",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126101946534,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126101946534",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124626787721,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617346/job/124626787721",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124623435562,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229777961/job/124623435562",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124623434489,
+          "name": "review-evidence (601)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229777961/job/124623434489",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124622321499,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41230092730/job/124622321499",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124622320294,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41230091936/job/124622320294",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124622319803,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617262/job/124622319803",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124621503438,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617262/job/124621503438",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620919308,
+          "name": "pinned-open-weight-experiment",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617588/job/124620919308",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620917962,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617346/job/124620917962",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620917088,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617262/job/124620917088",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620916720,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617262/job/124620916720",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914978,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617385/job/124620914978",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914738,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617335/job/124620914738",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914541,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617325/job/124620914541",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914488,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617324/job/124620914488",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914439,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617341/job/124620914439",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914277,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617267/job/124620914277",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914172,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617264/job/124620914172",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914170,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617260/job/124620914170",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914076,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617264/job/124620914076",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620914075,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617278/job/124620914075",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620913976,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617321/job/124620913976",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 124620913865,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "bac0fe554247b1e71c18848f838adb1524ebea9e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41229617264/job/124620913865",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 606,
+      "title": "research: preregister and implement bounded FAR architecture-routing pilot",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/606",
+      "head": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+      "branch": "research/far-architecture-routing-pilot-20261102",
+      "base_ref": "main",
+      "base_at_snapshot": "4e71c7de4457001fd35a65f9b4804d60aac1c4f2",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110993957,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110993957",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126101760923,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126101760923",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125489945545,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468971/job/125489945545",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125481286373,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468379/job/125481286373",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125481122393,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468379/job/125481122393",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480857542,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468379/job/125480857542",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480857013,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468379/job/125480857013",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480630449,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468971/job/125480630449",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480396289,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504522168/job/125480396289",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480394394,
+          "name": "review-evidence (606)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504522168/job/125480394394",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480284911,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504522168/job/125480284911",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480274972,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504519971/job/125480274972",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480094054,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468851/job/125480094054",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093829,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468872/job/125480093829",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093558,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468752/job/125480093558",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093293,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468620/job/125480093293",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093104,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468665/job/125480093104",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093086,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468388/job/125480093086",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093085,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468635/job/125480093085",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480093065,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468499/job/125480093065",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480092990,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468620/job/125480092990",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480092967,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468620/job/125480092967",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480092234,
+          "name": "three-arm-offline-cpu",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468399/job/125480092234",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125480091860,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9d691caaebbe3b17f598c4711d37d337bbea933a",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41504468382/job/125480091860",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 607,
+      "title": "research: run credential-free local Qwen instruction-effect comparison",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/607",
+      "head": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+      "branch": "research/workflow-efficacy-local-qwen-20261102",
+      "base_ref": "main",
+      "base_at_snapshot": "c9a8bde563d1fd784f8c7100bb4bedddf7d14580",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110986260,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110986260",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126101326293,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126101326293",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125587744027,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174282/job/125587744027",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125580259787,
+          "name": "paired-model-observations",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174343/job/125580259787",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125580256745,
+          "name": "analyze-complete-study",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174343/job/125580256745",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125577136535,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174325/job/125577136535",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125577007070,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174325/job/125577007070",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125576565035,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532167675/job/125576565035",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125576562869,
+          "name": "review-evidence (607)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532167675/job/125576562869",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574919526,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174325/job/125574919526",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574918990,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174325/job/125574918990",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574901685,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174282/job/125574901685",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574897542,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174444/job/125574897542",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574897400,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174444/job/125574897400",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574897045,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174444/job/125574897045",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574895300,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174298/job/125574895300",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574895152,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174380/job/125574895152",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574895098,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174392/job/125574895098",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574895061,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174374/job/125574895061",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894979,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174304/job/125574894979",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894800,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174256/job/125574894800",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894609,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174269/job/125574894609",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894590,
+          "name": "local-smoke",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174343/job/125574894590",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894457,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174236/job/125574894457",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574894456,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532174295/job/125574894456",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125574874874,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "5623d5c282cafaf4689dc304c6d6b16811083fc8",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41532167675/job/125574874874",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 608,
+      "title": "research: enforce explicit FAR verifier routing; isolate ambiguous agent selection",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/608",
+      "head": "272a203d338877110f232b1c034dd04e8648ee3f",
+      "branch": "research/explicit-dispatch-uncertain-routing-20261102",
+      "base_ref": "main",
+      "base_at_snapshot": "c9a8bde563d1fd784f8c7100bb4bedddf7d14580",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110978779,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110978779",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126101108312,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126101108312",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125609906465,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524921/job/125609906465",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125605914821,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539819941/job/125605914821",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125605913486,
+          "name": "review-evidence (608)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539819941/job/125605913486",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125602294892,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524982/job/125602294892",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125601944247,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539819593/job/125601944247",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125601534070,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524982/job/125601534070",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125601274934,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539955444/job/125601274934",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599835993,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524982/job/125599835993",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599835851,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524982/job/125599835851",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599833553,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524921/job/125599833553",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599830975,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524990/job/125599830975",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599830208,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524978/job/125599830208",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599830036,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524978/job/125599830036",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829937,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524878/job/125599829937",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829896,
+          "name": "ambiguous-action-offline-cpu",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524960/job/125599829896",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829868,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539525089/job/125599829868",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829736,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524978/job/125599829736",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829552,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524911/job/125599829552",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829389,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524967/job/125599829389",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829340,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524909/job/125599829340",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599829208,
+          "name": "real-evidence-real-verifier",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524874/job/125599829208",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599828707,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524912/job/125599828707",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125599828544,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "272a203d338877110f232b1c034dd04e8648ee3f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41539524949/job/125599828544",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 611,
+      "title": "research: introduce falsifiable weight-space intervention audit",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/611",
+      "head": "764e7ac6572e39bcb24fc7a373040780193cc514",
+      "branch": "research/weight-space-programming-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "a3f5825ee74af723d660a55e6708ef96e305b156",
+      "draft": true,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110971331,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110971331",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126100633320,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "neutral",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126100633320",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125895679710,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756596/job/125895679710",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125886167157,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756603/job/125886167157",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125886052530,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756603/job/125886052530",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885971135,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756994/job/125885971135",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885969990,
+          "name": "review-evidence (611)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756994/job/125885969990",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885925523,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756994/job/125885925523",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885924702,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626757140/job/125885924702",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885923982,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756976/job/125885923982",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885923826,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756926/job/125885923826",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885923614,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756864/job/125885923614",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885923084,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756723/job/125885923084",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922909,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756723/job/125885922909",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922841,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756813/job/125885922841",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922758,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756728/job/125885922758",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922693,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756723/job/125885922693",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922643,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756664/job/125885922643",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922607,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756596/job/125885922607",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885922499,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756603/job/125885922499",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885921896,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756478/job/125885921896",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885921894,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756603/job/125885921894",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125885921677,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "764e7ac6572e39bcb24fc7a373040780193cc514",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41626756543/job/125885921677",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 612,
+      "title": "docs: require current AGENTS.md startup across Chat, Work and Codex",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/612",
+      "head": "666f215eec4e0f56f561a49296a29030f873032e",
+      "branch": "docs/cross-mode-agents-startup-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "a3f5825ee74af723d660a55e6708ef96e305b156",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110963821,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110963821",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126100692554,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126100692554",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125897088415,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027194/job/125897088415",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125892113311,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628544995/job/125892113311",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125892111412,
+          "name": "review-evidence (612)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628544995/job/125892111412",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125891948476,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628544995/job/125891948476",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125891943515,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628544187/job/125891943515",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125891181875,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027624/job/125891181875",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125891047333,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027624/job/125891047333",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890673650,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027624/job/125890673650",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890673282,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027624/job/125890673282",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890465655,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027194/job/125890465655",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890240491,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027712/job/125890240491",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890240344,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027528/job/125890240344",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890240190,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027528/job/125890240190",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239963,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027552/job/125890239963",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239902,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027528/job/125890239902",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239571,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027500/job/125890239571",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239342,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027387/job/125890239342",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239245,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027481/job/125890239245",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890239229,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027453/job/125890239229",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890238913,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027355/job/125890238913",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 125890238762,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "666f215eec4e0f56f561a49296a29030f873032e",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41628027255/job/125890238762",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 614,
+      "title": "Research: execute and audit general investigation tools without controller substitution",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/614",
+      "head": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+      "branch": "research/general-investigation-engine-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "9bde2cb02163d358640f805208aa51de2a998425",
+      "draft": true,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110954697,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110954697",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126100556698,
+          "name": "pr-review-convergence-scheduled-observation",
+          "status": "completed",
+          "conclusion": "neutral",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126100556698",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126060314908,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017699/job/126060314908",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126044034854,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018389/job/126044034854",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126043883160,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672089603/job/126043883160",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126043879852,
+          "name": "review-evidence (614)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672089603/job/126043879852",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126043298402,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018389/job/126043298402",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042842098,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672089603/job/126042842098",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042834241,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672088232/job/126042834241",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042598504,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018389/job/126042598504",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042598264,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018389/job/126042598264",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042595749,
+          "name": "ambiguous-action-offline-cpu",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018137/job/126042595749",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042595529,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018099/job/126042595529",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042595523,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018117/job/126042595523",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042595199,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018099/job/126042595199",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042595083,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017935/job/126042595083",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042594923,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017875/job/126042594923",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042594899,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672018099/job/126042594899",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042594686,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017719/job/126042594686",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042594032,
+          "name": "real-evidence-real-verifier",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017859/job/126042594032",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042593742,
+          "name": "investigation-runtime",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017621/job/126042593742",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042593739,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017634/job/126042593739",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042593340,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017699/job/126042593340",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042593010,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017485/job/126042593010",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042592958,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017662/job/126042592958",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042592758,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672017488/job/126042592758",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126042563962,
+          "name": "frozen-investigations",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "7ffb943386d4cc6450417ba472f45ab55b2b6823",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41672008583/job/126042563962",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 615,
+      "title": "research: architecture search with negative matched-capacity and external-data evidence",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/615",
+      "head": "ffc7916430d91f5e132838764b87a1e1f0502210",
+      "branch": "research/model-architecture-search-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "9bde2cb02163d358640f805208aa51de2a998425",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110946002,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110946002",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126109440315,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674521/job/126109440315",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126104527589,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41689614606/job/126104527589",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126104525136,
+          "name": "review-evidence (615)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41689614606/job/126104525136",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126104444960,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41689614606/job/126104444960",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126104441742,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41689614507/job/126104441742",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126102545043,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126102545043",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126102020116,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126102020116",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101142157,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126101142157",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101141637,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126101141637",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101136443,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674521/job/126101136443",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101135456,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674797/job/126101135456",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101135275,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674797/job/126101135275",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134913,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674797/job/126101134913",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134576,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674897/job/126101134576",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134488,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674843/job/126101134488",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134222,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674692/job/126101134222",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134042,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674580/job/126101134042",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101134006,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674726/job/126101134006",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101133637,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674491/job/126101133637",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101133220,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674522/job/126101133220",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126101132964,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "ffc7916430d91f5e132838764b87a1e1f0502210",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674506/job/126101132964",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 616,
+      "title": "Research: add model-directed source-bound semantic augmentation workspace",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/616",
+      "head": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+      "branch": "product/semantic-augmentation-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "draft": false,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126116107849,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41692974120/job/126116107849",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126116107348,
+          "name": "review-evidence (616)",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41692974120/job/126116107348",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126116042477,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41692973851/job/126116042477",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126116034574,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41692973268/job/126116034574",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110938154,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110938154",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126110350801,
+          "name": "merge-authority",
+          "status": "in_progress",
+          "conclusion": null,
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119184/job/126110350801",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110008244,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119184/job/126110008244",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109667613,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119184/job/126109667613",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109667123,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119184/job/126109667123",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109665875,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119225/job/126109665875",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109665854,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119225/job/126109665854",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109665498,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119225/job/126109665498",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109665462,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119447/job/126109665462",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109665136,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119218/job/126109665136",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109664921,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119199/job/126109664921",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109664514,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119240/job/126109664514",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109664290,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119114/job/126109664290",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109664218,
+          "name": "test",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119100/job/126109664218",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109664211,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119158/job/126109664211",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109663798,
+          "name": "exact-head-assurance",
+          "status": "in_progress",
+          "conclusion": null,
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119037/job/126109663798",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109663703,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119108/job/126109663703",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126109663212,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "fcf6860ea24e04252d4f7124ce00c6a6391cfa8f",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691119011/job/126109663212",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    },
+    {
+      "number": 617,
+      "title": "fix(ci): pin Python patch version for signed cross-runner cache",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617",
+      "head": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+      "branch": "fix/signed-cache-python-version-20261103",
+      "base_ref": "main",
+      "base_at_snapshot": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "draft": true,
+      "auto_merge": null,
+      "checks": [
+        {
+          "id": 126110930417,
+          "name": "protected-repin-gate",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/126110930417",
+          "app": {
+            "id": 5073230,
+            "slug": "far-protected-repin-gate",
+            "name": "far-protected-repin-gate"
+          }
+        },
+        {
+          "id": 126110601292,
+          "name": "signed-cache-consumer",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219192/job/126110601292",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110598802,
+          "name": "merge-authority",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219192/job/126110598802",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110382598,
+          "name": "review-convergence",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219155/job/126110382598",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110379888,
+          "name": "review-evidence (617)",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219155/job/126110379888",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110130834,
+          "name": "publish-dispatched-assurance",
+          "status": "completed",
+          "conclusion": "skipped",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219239/job/126110130834",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110004573,
+          "name": "discover",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219155/job/126110004573",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110002413,
+          "name": "full-shadow",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219386/job/126110002413",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110002274,
+          "name": "python311-compatibility",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219386/job/126110002274",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110002005,
+          "name": "health",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219315/job/126110002005",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001680,
+          "name": "pca-w6",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219422/job/126110001680",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001609,
+          "name": "bootstrap-and-fast",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219386/job/126110001609",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001601,
+          "name": "validate-formal-artifacts",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219210/job/126110001601",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001575,
+          "name": "exact-head-assurance",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219239/job/126110001575",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001515,
+          "name": "pca-w5",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219347/job/126110001515",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001475,
+          "name": "assurance-hash-audit",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219192/job/126110001475",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001432,
+          "name": "pr-review-convergence-observation",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219307/job/126110001432",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110001276,
+          "name": "signed-cache-producer",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219192/job/126110001276",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110000937,
+          "name": "repo-health",
+          "status": "completed",
+          "conclusion": "failure",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219120/job/126110000937",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110000871,
+          "name": "far-core-v11",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219253/job/126110000871",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110000821,
+          "name": "verify-specification-export",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219348/job/126110000821",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        },
+        {
+          "id": 126110000774,
+          "name": "lean-t003",
+          "status": "completed",
+          "conclusion": "success",
+          "head_sha": "9c1e0a4faf59131622847fea7cdebbf84b7d67b0",
+          "html_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41691219211/job/126110000774",
+          "app": {
+            "id": 15368,
+            "slug": "github-actions",
+            "name": "GitHub Actions"
+          }
+        }
+      ]
+    }
+  ],
+  "source_files": [
+    "convergence-initial.json",
+    "convergence-checks-initial.json"
+  ],
+  "restrictions": {
+    "merge_pull_requests": false,
+    "enable_auto_merge": false,
+    "write_protected_main": false
+  }
+}
