@@ -400,6 +400,49 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_compound_negative_second_status_does_not_qualify_both_members(self):
+        # A second member's compound negative status is NOT a shared pair
+        # qualification. Codex review thread PRRT_kwDOTH_vCM61Cixr.
+        for phrase in (
+            "Both novelty: established and priority: not established and not confirmed.",
+            "Both novelty: established and priority: not established and not replicated.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
+    def test_independent_prose_status_cannot_condition_prior_structured_status(self):
+        # Independent prose clauses cannot donate their negation to a prior
+        # structured, unconditional claim. Thread PRRT_kwDOTH_vCM61Cixv.
+        for phrase in (
+            "Novelty: established, but priority is not established.",
+            "Novelty: established and priority is not confirmed.",
+            "Novelty: established, whereas priority remains unresolved.",
+            "Novelty: established, while priority is not established.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
+                self.assertIn("unnegated assurance promotion", result.stdout)
+
+        for phrase in (
+            "Novelty: established, but only if priority is not established.",
+            "Both novelty: established and priority: established are not asserted.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
     def test_numeric_punctuation_preserves_conditions_but_not_sentence_scope(self):
         for phrase in (
             "If the external replication meets the preregistered p < 0.05 threshold, external validation: established.",
