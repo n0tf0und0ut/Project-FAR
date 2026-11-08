@@ -243,12 +243,15 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
             # established", or "have not been demonstrated".  A right-hand
             # scalar extension such as "and not confirmed" is NOT plural and
             # remains local to Y.
-            group_predicate = re.match(
-                r"^(?:(?:are|were)\s+(?:not|never|unresolved)\b"
-                r"|(?:have|had)\s+(?:not|never)\b"
-                r"|remains?\s+(?:not|never|unresolved|open)\b)",
-                suffix, re.I)
-            if group_condition or group_predicate:
+            # Reuse the recognized NEGATION vocabulary rather than a
+            # partial list of its words: plural predicates can say "are
+            # neither confirmed nor validated" as well as "are not".
+            # Requiring a group-level verb/modality at the start still
+            # excludes the right scalar member's local "and not confirmed".
+            plural_predicate = re.match(
+                r"^(?:are|were|have|had|remain|remains|can|cannot|could|"
+                r"must|may|should|would|will|shall)\b", suffix, re.I)
+            if group_condition or (plural_predicate and NEGATION.search(suffix)):
                 context += " " + suffix
         if NEGATION.search(context):
             shared[left.start()] = context
