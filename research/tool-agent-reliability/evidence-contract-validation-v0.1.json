@@ -1,0 +1,77 @@
+{
+  "audit_source_sha256": "9013f71fabb2052d8dfce6f7d5ea5491628b8d2fb18d7f894ad4e08166c02d38",
+  "cohorts": [
+    {
+      "cohort_id": "tool-agent-v03-scored",
+      "profile_canonical_sha256": "d6c684a8e3f1d8eac63509fafec2091f42cc433a581224bd87cef59d8590d7f7",
+      "summary": {
+        "complete": true,
+        "distinct_action_observation_trajectories": 25,
+        "eligible_exposures": 72,
+        "failure_fraction": {
+          "denominator": 1,
+          "numerator": 0
+        },
+        "far_causal_benefit": "NOT_TESTED",
+        "general_agent_reliability": "NOT_ESTABLISHED",
+        "independent_behavioral_samples": "NOT_ESTABLISHED",
+        "missing_slots": [],
+        "observed_runs": 72,
+        "outcomes": {
+          "abstention": 0,
+          "failure": 0,
+          "partial_success": 0,
+          "success": 72,
+          "unknown": 0
+        },
+        "rate_scope": "Conditional declared-slot fraction; evidence replay must establish the registered exposure.",
+        "success_fraction": {
+          "denominator": 1,
+          "numerator": 1
+        }
+      }
+    },
+    {
+      "cohort_id": "tool-agent-v02-preflight",
+      "profile_canonical_sha256": "8ce909052088a47caa2d28bafe5978e1afd969020b09582cab15481efa87ca26",
+      "summary": {
+        "complete": true,
+        "distinct_action_observation_trajectories": 3,
+        "eligible_exposures": 3,
+        "failure_fraction": {
+          "denominator": 3,
+          "numerator": 1
+        },
+        "far_causal_benefit": "NOT_TESTED",
+        "general_agent_reliability": "NOT_ESTABLISHED",
+        "independent_behavioral_samples": "NOT_ESTABLISHED",
+        "missing_slots": [],
+        "observed_runs": 3,
+        "outcomes": {
+          "abstention": 0,
+          "failure": 1,
+          "partial_success": 0,
+          "success": 2,
+          "unknown": 0
+        },
+        "rate_scope": "Conditional declared-slot fraction; evidence replay must establish the registered exposure.",
+        "success_fraction": {
+          "denominator": 3,
+          "numerator": 2
+        }
+      }
+    }
+  ],
+  "frozen_artifacts_modified": false,
+  "limitations": [
+    "Authored virtual-file tasks; no deployment-distribution or general reliability claim.",
+    "No FAR/no-FAR causal contrast; no commercial or human-outcome measurement.",
+    "Repeated trajectories are not independent behavioral samples.",
+    "Replay checks retained requests, responses, tools and grades; it is not trusted execution attestation.",
+    "Ground truth and adjudication are Project-FAR-authored and not externally independent.",
+    "Unobserved diagnosis, severity, human effort, infrastructure cost and billing remain unknown."
+  ],
+  "observation_kind": "post-execution historical evidence replay; zero new model calls",
+  "schema": "far-agent-evidence-audit/0.1",
+  "status": "Research"
+}

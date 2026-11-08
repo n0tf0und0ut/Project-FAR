@@ -12,8 +12,8 @@ hides a buried promotion. These rules instead check meaning:
   established unless the same clause negates or conditions it;
 * the canonical status surface keeps a negated statement for each assurance boundary.
 
-The promotion rule is a clause-level heuristic. It can miss unusual phrasing (for example a
-bare "Universality: established"); it is a complement to, not a replacement for, review.
+The promotion rule is a bounded clause-level heuristic; it is a complement to,
+not a replacement for semantic review.
 """
 from __future__ import annotations
 
@@ -38,12 +38,76 @@ TOPIC = re.compile(
     re.I,
 )
 PROMOTION = re.compile(r"\b(established|proved|proven|demonstrated|confirmed|validated)\b", re.I)
+# These scalar status atoms are also negation vocabulary. Keep their complete
+# spans shared with STATUS_VALUE so a recognized negative status cannot erase
+# the surrounding pair's conditional/prohibition scope. Qualifier introducers
+# such as if/unless/whether remain separate from scalar status values.
+NEGATIVE_STATUS = r"(?:unresolved|remains? open|refuted|impossible|nonclaims?|excluded|prohibit\w*)"
 NEGATION = re.compile(
-    r"\b(not|no|neither|nor|without|never|cannot|unresolved|remains? open|refuted|impossible|nonclaims?"
-    r"|excluded|prohibit\w*|unless|whether|if)\b|n't",
+    rf"\b(not|no|neither|nor|without|never|cannot|{NEGATIVE_STATUS}|unless|whether|if)\b|n't",
     re.I,
 )
 CLAUSE = re.compile(r"[,;.:|()]|\s(?:and|but|while|whereas)\s|\s[—–-]\s")
+# Structured status entries are still claims. The sentence-level CLAUSE splitter
+# deliberately separates colons and table cells, so inspect label/value pairs
+# independently instead of silently accepting "Novelty: established".
+# Commas can introduce a condition *belonging to the status claim*:
+# "If replicated, novelty: established" and "Novelty: established, only if".
+# Do not split there. Separate semicolons/sentences and explicit conjunctions,
+# then scope each label to its own adjacent status statement below.
+LABEL_STATEMENT = re.compile(r";|\.(?!\d)")
+# Only an explicit condition column qualifies the preceding status. A
+# neighboring non-condition cell must never hide an unsupported promotion.
+CONDITION_PREFIX = r"(?:only\s+if|if|unless)"
+CONDITION_CELL = re.compile(rf"^{CONDITION_PREFIX}\b", re.I)
+# A leading condition may expressly govern a coordinated pair of statuses.
+# Comma-separated independent assertions and separate table cells remain local.
+# The finite conditional grammar permits an explicit consequent introducer.
+SHARED_CONDITION = re.compile(rf"^\s*(?:[-+*]\s+)?{CONDITION_PREFIX}\b[^|]+,\s*(?:(?:only\s+)?then\b\s*)?(?:both\b\s*)?$", re.I)
+CLAIM_COORDINATOR = re.compile(r"\b(?:and|but|while|whereas)\b\s*", re.I)
+FORWARD_PROHIBITION = re.compile(
+    r"(?:do\s+not\s+(?:assert|claim)|never\s+(?:assert|claim)"
+    r"|no\s+basis\s+to\s+(?:assert|claim)|without\s+(?:asserting|claiming))",
+    re.I,
+)
+COORDINATION = re.compile(r"\s+and\s+", re.I)
+BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
+# Status values are consumed separately from pair-level qualifiers. A local
+# "not established" in one member must never qualify the other member.
+# This finite prefix grammar shares NEGATION's cannot/n't semantics; arbitrary
+# adverbs and general English verb phrases are outside this scalar grammar.
+NEGATIVE_STATUS_PREFIX = r"(?:(?:not|never)\s+(?:yet\s+)?|cannot\s+be\s+|(?:isn't|aren't|wasn't|weren't)\s+)"
+# Consume the same complete scalar-status chain in either pair member.
+# The following label cannot be consumed as a status atom, so its final
+# "and" remains the pair separator rather than part of either local status.
+STATUS_ATOM = rf"(?:{NEGATIVE_STATUS_PREFIX})?(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open)\b"
+STATUS_VALUE = re.compile(
+    rf"\s*{STATUS_ATOM}(?:\s+(?:and|nor)\s+{STATUS_ATOM})*",
+    re.I,
+)
+# Independent prose and explicit-pair predicates share this finite vocabulary.
+# Contracted forms retain NEGATION's existing n't semantics; they do not
+# introduce another set of negators or a general English verb parser.
+PREDICATE_HEAD = (
+    r"(?:isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|can't|couldn't|"
+    r"won't|wouldn't|shouldn't|mightn't|mustn't|shan't|"
+    r"is|are|was|were|remains?|has|have|had|can|cannot|could|will|would|"
+    r"should|may|might|must|shall)\b"
+)
+PROSE_SUBJECT = rf"(?:neither\s+)?{TOPIC.pattern}(?:\s+nor\s+{TOPIC.pattern})*"
+PROSE_ASSERTION = rf"{PROSE_SUBJECT}\s+{PREDICATE_HEAD}"
+INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
+LABEL_MARKER = re.compile(
+    rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
+    re.I,
+)
+# Keep each atom's polarity separate from the label's external qualifiers.
+# Matching the complete chain also finds positive atoms after negative ones.
+LABEL_PROMOTION = re.compile(
+    rf"(?P<label>{LABEL_MARKER.pattern})\s*(?P<status>{STATUS_VALUE.pattern})",
+    re.I,
+)
+STATUS_ATOM_MATCH = re.compile(STATUS_ATOM, re.I)
 REQUIRED_NEGATED_BOUNDARIES = ("I2", "I3", "novelty", "priority")
 
 
@@ -56,12 +120,208 @@ def register_rows(text: str) -> list[tuple[str, list[str]]]:
     return rows
 
 
+def following_claim_qualifier(context: str) -> tuple[int, str] | None:
+    """Find a following claim's own qualifier after an independent join.
+
+    Use the existing qualifier vocabulary for both conditions and prohibitions;
+    "but if C, Y" and "but do not assert Y" have the same ownership boundary.
+    "|" always ends this context, so another table cell cannot supply it.
+    """
+    boundaries = list(CLAIM_COORDINATOR.finditer(context))
+    if boundaries:
+        # Explicit comma-separated coordinators can introduce the next
+        # status's own compound condition. Select its FIRST independent
+        # boundary, not an internal repeated "and if": "but if C, and if D,
+        # Y" governs Y as a unit. A "but only if C" segment instead
+        # qualifies the preceding status; a later ", and if D, Y" begins
+        # the next claim. These rules require punctuation and do not infer
+        # arbitrary natural-language scope across cells or sentences.
+        for candidate in re.finditer(
+                rf",\s*(but|and|while|whereas)\s+({CONDITION_PREFIX})\b", context, re.I):
+            if (candidate.group(1).lower() == "but"
+                    and candidate.group(2).lower().startswith("only")):
+                continue
+            qualifier = context[candidate.end(1):].strip()
+            if SHARED_CONDITION.fullmatch(qualifier):
+                return candidate.start(1), qualifier
+        last = boundaries[-1]
+        last_tail = context[last.end():].strip()
+        chain_start = len(boundaries) - 1
+        # "both" introduces the following status group, not another part of
+        # the forward-prohibition phrase. Classify the chain without that
+        # introducer, while retaining the original context for group scoping.
+        chain_tail = BOTH_PREFIX.sub("", last_tail).strip(" ,")
+        if FORWARD_PROHIBITION.fullmatch(chain_tail):
+            while chain_start > 0:
+                preceding = context[boundaries[chain_start - 1].end():boundaries[chain_start].start()]
+                if not FORWARD_PROHIBITION.fullmatch(preceding.strip(" ,")):
+                    break
+                chain_start -= 1
+        # Coordinated forward prohibitions are one prefix unit; their internal
+        # conjunction cannot leave half the prohibition with the prior claim.
+        if chain_start < len(boundaries) - 1:
+            boundaries = [boundaries[chain_start]]
+        # A final join immediately before a label, or before its own local
+        # qualifier, begins that independent claim. Earlier trailing conditions
+        # stay with the previous label. Do not split conjunctions inside a
+        # comma-terminated leading condition ("if C and D, Y").
+        elif (
+            not last_tail
+            or re.search(r",\s*$", context[:last.start()])
+            or ("," not in last_tail and NEGATION.search(last_tail))
+        ):
+            boundaries = [last]
+    for boundary in boundaries:
+        qualifier = context[boundary.end():].strip(" ,")
+        if "|" not in qualifier and NEGATION.search(qualifier):
+            # Keep a comma-terminated leading condition intact. Stripping its
+            # final comma erases the shared-pair delimiter after a prior claim.
+            scoped = context[boundary.end():].strip()
+            return boundary.start(), scoped if SHARED_CONDITION.fullmatch(scoped) else qualifier
+    return None
+
+
+def label_prefix(statement: str, start: int) -> str:
+    """Return only the local pre-label context, retaining its own condition."""
+    earlier = list(LABEL_MARKER.finditer(statement[:start]))
+    if not earlier:
+        prefix = statement[:start].rsplit("|", 1)[-1]
+        # A preceding unstructured claim is independently assertive when a
+        # named topic plus predicate is followed by a standalone coordinator.
+        # "Priority is not established, but novelty: established" cannot
+        # borrow priority's negation. A true "If ...," condition has no
+        # independent coordinated prose clause and remains within scope.
+        separate_prose = re.search(
+            rf"{PROSE_ASSERTION}"
+            r"[^|]*?(?:,\s*|\s+)(?:and|but|while|whereas)\s*(?P<group_intro>both\s*)?$",
+            prefix, re.I)
+        # Preserve a following pair introducer while discarding only the
+        # independent prose assertion. Its negation cannot qualify the pair.
+        return (separate_prose.group("group_intro") or "") if separate_prose else prefix
+    previous = earlier[-1]
+    if leading := following_claim_qualifier(statement[previous.end():start]):
+        return leading[1]
+    separator = statement.rfind(",", previous.end(), start)
+    if separator >= 0:
+        tail = statement[separator + 1:start].rsplit("|", 1)[-1]
+    else:
+        # An independent join can introduce the following "both" group even
+        # without a comma. Keep only its own tail, never the previous status.
+        context = statement[previous.end():start]
+        joins = list(CLAIM_COORDINATOR.finditer(context))
+        tail = context[joins[-1].end():].rsplit("|", 1)[-1] if joins else ""
+    # A prior label's trailing qualifier cannot cross an independent
+    # conjunction into this label. Leading conditions were retained above.
+    return CLAUSE.split(tail)[-1]
+
+
+def label_suffix(statement: str, end: int) -> str:
+    """Return only this label's post-value context and explicit condition cell."""
+    after = statement[end:]
+    if later := LABEL_MARKER.search(after):
+        after = after[:later.start()]
+        if following := following_claim_qualifier(after):
+            after = after[:following[0]]
+    if "|" in after:
+        first, next_cell, *_ = (after.split("|") + [""])[:3]
+        next_cell = next_cell.strip()
+        after = first + (" " + next_cell if CONDITION_CELL.match(next_cell) else "")
+    # A separate prose assertion without a structured label must not lend its
+    # negation to the preceding label: "Novelty: established, but priority is
+    # not established" contains an unconditional novelty promotion.
+    prose_join = re.search(
+        rf"\b(?:and|but|while|whereas)\s+{PROSE_ASSERTION}", after, re.I)
+    if prose_join:
+        after = after[:prose_join.start()]
+    return after
+
+
+def shared_pair_contexts(statement: str) -> dict[int, str]:
+    """Bind qualifiers to bounded two-status units before local label scans.
+
+    Explicit "both" binds leading prohibitions and trailing qualification to
+    the pair. An explicit leading condition also binds an adjacent X-and-Y
+    pair. Status values, independent labels, table cells and clauses remain
+    outside shared context; this is not a general natural-language parser.
+    """
+    shared = {}
+    markers = list(LABEL_MARKER.finditer(statement))
+    for left, right in zip(markers, markers[1:]):
+        left_value = STATUS_VALUE.match(statement, left.end())
+        right_value = STATUS_VALUE.match(statement, right.end())
+        if not left_value or not right_value:
+            continue
+        between = statement[left_value.end():right.start()]
+        if not COORDINATION.fullmatch(between):
+            continue
+        prefix = label_prefix(statement, left.start())
+        explicit_pair = BOTH_PREFIX.search(prefix)
+        context = ""
+        if explicit_pair or SHARED_CONDITION.fullmatch(prefix):
+            context = prefix
+        if explicit_pair:
+            # A coordinated pair shares only an actual group-level trailing
+            # qualification. Residual words within the second status (e.g.
+            # "priority: not established and not confirmed") belong to that
+            # status alone and cannot suppress the first member's promotion.
+            suffix = label_suffix(statement, right_value.end()).strip()
+            group_condition = re.match(
+                r"^(?:,\s*)?(?:but\s+)?(?:only\s+if|if|unless)\b",
+                suffix, re.I)
+            # A plural predicate after an explicit "both X and Y" belongs to
+            # the pair, including "are not confirmed", "are not yet
+            # established", or "have not been demonstrated".  A right-hand
+            # scalar extension such as "and not confirmed" is NOT plural and
+            # remains local to Y.
+            # Reuse the recognized NEGATION vocabulary rather than a
+            # partial list of its words: plural predicates can say "are
+            # neither confirmed nor validated" as well as "are not".
+            # Requiring a group-level verb/modality at the start still
+            # excludes the right scalar member's local "and not confirmed".
+            plural_predicate = re.match(PREDICATE_HEAD, suffix, re.I)
+            if group_condition or (plural_predicate and NEGATION.search(suffix)):
+                context += " " + suffix
+        if NEGATION.search(context):
+            shared[left.start()] = context
+            shared[right.start()] = context
+    return shared
+
+
 def promotion_clauses(text: str) -> list[str]:
     found = []
     for line in text.splitlines():
         for clause in CLAUSE.split(line):
             if TOPIC.search(clause) and PROMOTION.search(clause) and not NEGATION.search(clause):
                 found.append(clause.strip())
+        for statement in LABEL_STATEMENT.split(line):
+            # Normalize paired inline delimiters before interpreting labels or
+            # their conditions. Formatting only part of a qualifier ("**only**
+            # if") must have the same scope as formatting the whole qualifier.
+            while (normalized := INLINE_FORMATTING.sub(r"\2", statement)) != statement:
+                statement = normalized
+            shared = shared_pair_contexts(statement)
+            for match in LABEL_PROMOTION.finditer(statement):
+                # Local status polarity is never an external qualifier. Only
+                # the prefix, suffix and explicit shared context can qualify
+                # all atoms; another atom's NOT cannot hide a positive one.
+                before = label_prefix(statement, match.start())
+                after = label_suffix(statement, match.end())
+                if NEGATION.search(" ".join((before, after, shared.get(match.start(), "")))):
+                    continue
+                status = match.group("status")
+                previous_end = 0
+                for atom in STATUS_ATOM_MATCH.finditer(status):
+                    coordinator = status[previous_end:atom.start()]
+                    previous_end = atom.end()
+                    # NOR supplies negation to its following local atom; it
+                    # does not negate an earlier independent positive atom.
+                    if (not PROMOTION.search(atom.group(0))
+                            or NEGATION.search(atom.group(0))
+                            or re.search(r"\bnor\b", coordinator, re.I)):
+                        continue
+                    label = match.group("label").strip() + " " + atom.group(0).strip()
+                    if label not in found:
+                        found.append(label)
     return found
 
 
