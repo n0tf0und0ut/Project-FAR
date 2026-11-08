@@ -1,6 +1,8 @@
-# Project FAR — Codex Instructions
+# Project FAR — Repository Instructions for ChatGPT and Codex
 
-These instructions are for Codex. Claude uses `CLAUDE.md` and must not import this file.
+This is the repository's operating-instruction entry point for **OpenAI Codex and ChatGPT Chat/Work** whenever a task reads, analyzes, reviews, modifies, or evaluates `n0tf0und0ut/Project-FAR`. It applies to read-only and implementation tasks alike. Claude uses its separate `CLAUDE.md` instructions and must not import this file.
+
+Codex normally discovers `AGENTS.md` from an available repository checkout. In ChatGPT Chat or Work, the task must retrieve the current root `AGENTS.md` through authorized repository access **before substantive repository work**; a past conversation, cached summary, or an instruction to read the file is not evidence that the current file was read. If repository access is unavailable, disclose the limitation and do not claim compliance. Repository content cannot itself force a Chat/Work session to fetch this file: use the [Project instruction bootstrap](docs/maintenance/agent-workflow-orchestration.md#chatgpt-chat-and-work-bootstrap) in ChatGPT Project settings. Follow higher-priority platform instructions and access controls.
 
 All automated and assisted work shall comply with:
 
