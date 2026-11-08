@@ -473,7 +473,7 @@
   "identity_limit": "Normalized locators join existing identities; they do not prove equal content, versions, correctness or independence.",
   "input_hashes": {
     "candidate_inventory": "1730d2d58d25264c824be02156fa1b1693a7b8aae6bc340c8bcf8b37613c121f",
-    "corpus": "d22ee47db1a5b5c2e717f9f007bdd04425d29c9bdcb418c0263dfb8ff5f2e10f",
+    "corpus": "6acaa5a7106fe014bc4d4fd5825836e6c96903683c3dfecc4b22e20882937719",
     "intake": "3361cb50cdbe542f0f040f4809d4ff50d37c63fa60821feb84730de33bc1791a",
     "operations": "c1c704d50aadb96a09d1114da91d0671785a7234bdd94909eaca63daf3fd39db"
   },

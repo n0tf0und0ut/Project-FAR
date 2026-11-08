@@ -1,0 +1,26 @@
+test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) ...
+  test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) (variant=0) ... FAIL
+  test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) (variant=1) ... FAIL
+
+======================================================================
+FAIL: test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) (variant=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr601/tests/test_mechanistic_pretrained_validator.py", line 109, in test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity
+    with self.subTest(variant=index), self.assertRaisesRegex(ValueError,"duplicate JSON key"):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity (tests.test_mechanistic_pretrained_validator.ResultVerifierMutationTests.test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity) (variant=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/fbfdd5e653c7/pr601/tests/test_mechanistic_pretrained_validator.py", line 109, in test_ambiguous_raw_report_cannot_choose_its_assurance_or_model_identity
+    with self.subTest(variant=index), self.assertRaisesRegex(ValueError,"duplicate JSON key"):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.033s
+
+FAILED (failures=2)
