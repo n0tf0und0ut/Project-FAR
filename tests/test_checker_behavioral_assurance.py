@@ -415,6 +415,24 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode, phrase + "\n" + result.stdout)
                 self.assertIn("unnegated assurance promotion", result.stdout)
 
+    def test_plural_pair_negated_predicates_remain_shared(self):
+        # A plural negative predicate following two coordinated promotions
+        # qualifies both; it differs from a second member's scalar "and not".
+        # Codex finding PRRT_kwDOTH_vCM61CpPj.
+        for phrase in (
+            "Both novelty: established and priority: established are not confirmed.",
+            "Both novelty: established and priority: established are not yet established.",
+            "Both novelty: established and priority: established have not been demonstrated.",
+            "Both novelty: established and priority: established were never validated.",
+            "Both novelty: established and priority: established remain unresolved.",
+        ):
+            with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _fixture(root, GOVERNANCE)
+                _append_promotion(root, phrase)
+                result = _run_checker(root, GOVERNANCE)
+                self.assertEqual(0, result.returncode, phrase + "\n" + result.stdout)
+
     def test_independent_prose_status_cannot_condition_prior_structured_status(self):
         # Independent prose clauses cannot donate their negation to a prior
         # structured, unconditional claim. Thread PRRT_kwDOTH_vCM61Cixv.
