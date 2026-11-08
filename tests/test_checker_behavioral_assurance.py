@@ -171,6 +171,9 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "**Novelty:** established",
             "| **External validation** | confirmed |",
             "| **Priority** | **proved** |",
+            "_Novelty_: _established_",
+            "__Priority__: __confirmed__",
+            "`Novelty`: `established`",
         )
         for phrase in examples:
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
@@ -242,6 +245,10 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "If independently replicated, novelty: established and priority: established.",
             "If independently replicated and externally reviewed, both novelty: established and priority: confirmed.",
             "Unless a prior example is found, both novelty: established and priority: demonstrated.",
+            "**If** independently replicated, **both** **novelty:** **established** and _priority_: _established_.",
+            "`Unless` a prior example is found, both __novelty__: __established__ and *priority*: *demonstrated*.",
+            "- If independently replicated, both novelty: established and priority: established.",
+            "* **If** independently replicated, both novelty: established and priority: established.",
         ):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
@@ -258,6 +265,8 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "If independently replicated, both novelty: established and priority: established, uniqueness: proved.",
             "If independently replicated, both novelty: established and priority: established and uniqueness: proved.",
             "| If independently replicated, both novelty: established | and priority: established |",
+            "**If** independently replicated, **both** novelty: established and priority: established, __uniqueness__: __proved__.",
+            "If independently replicated, **both** novelty: established, __priority__: __established__.",
         ):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
@@ -273,6 +282,16 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "*if independently replicated*",
             "__unless a prior example is found__",
             "`only if independently replicated`",
+            "**only** if independently replicated",
+            "*only* if independently replicated",
+            "__only__ if independently replicated",
+            "**_only_ if** independently replicated",
+            "_only_ if independently replicated",
+            "`only` if independently replicated",
+            "*only if* independently replicated",
+            "_only if_ independently replicated",
+            "__only if__ independently replicated",
+            "`only if` independently replicated",
         ):
             phrase = "| Assurance | Status | Condition |\n|---|---|---|\n| Novelty | established | " + condition + " |"
             with self.subTest(condition=condition), tempfile.TemporaryDirectory() as directory:
@@ -287,6 +306,9 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "| Novelty | established | **not confirmed** |",
             "| Novelty | established | **only if independently replicated** | Priority | confirmed |",
             "| Novelty | established | **Priority: not confirmed** |",
+            "| __Novelty__ | __established__ | **only** if independently replicated | `Priority` | `confirmed` |",
+            "| Novelty | established | *only* | if independently replicated |",
+            "| Novelty | established | **only if independently replicated |",
         ):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)

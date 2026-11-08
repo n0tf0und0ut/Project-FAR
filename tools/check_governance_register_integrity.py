@@ -61,8 +61,9 @@ LABEL_STATEMENT = re.compile(r"[;.]")
 CONDITION_CELL = re.compile(r"^(?:only\s+if|if|unless)\b", re.I)
 # A leading condition may expressly govern a coordinated pair of statuses.
 # Comma-separated independent assertions and separate table cells remain local.
-SHARED_CONDITION = re.compile(r"^\s*(?:if|unless)\b[^|]+,\s*(?:both\s+)?$", re.I)
+SHARED_CONDITION = re.compile(r"^\s*(?:[-+*]\s+)?(?:if|unless)\b[^|]+,\s*(?:both\s+)?$", re.I)
 COORDINATION = re.compile(r"\s+and\s+", re.I)
+INLINE_FORMATTING = re.compile(r"(\*\*|__|\*|_|`)(.+?)\1")
 LABEL_MARKER = re.compile(
     rf"{TOPIC.pattern}(?:\*\*|\*)?\s*(?::|\||[—–-])",
     re.I,
@@ -86,6 +87,11 @@ def promotion_clauses(text: str) -> list[str]:
             if TOPIC.search(clause) and PROMOTION.search(clause) and not NEGATION.search(clause):
                 found.append(clause.strip())
         for statement in LABEL_STATEMENT.split(line):
+            # Normalize paired inline delimiters before interpreting labels or
+            # their conditions. Formatting only part of a qualifier ("**only**
+            # if") must have the same scope as formatting the whole qualifier.
+            while (normalized := INLINE_FORMATTING.sub(r"\2", statement)) != statement:
+                statement = normalized
             for match in LABEL_PROMOTION.finditer(statement):
                 # A Markdown row can contain several label/value pairs.
                 # Bound context to the nearest cell edges: a different pair's
@@ -124,10 +130,7 @@ def promotion_clauses(text: str) -> list[str]:
                 # adjacent cell or the next independently labeled status.
                 if "|" in after:
                     first, next_cell, *_ = (after.split("|") + [""])[:3]
-                    # Inline emphasis/code delimiters must not change whether
-                    # the next cell states an explicit condition. Normalize
-                    # that cell only; never borrow arbitrary neighboring text.
-                    next_cell = next_cell.strip().strip("*_`").strip()
+                    next_cell = next_cell.strip()
                     after = first + (
                         " " + next_cell
                         if CONDITION_CELL.match(next_cell) else ""
