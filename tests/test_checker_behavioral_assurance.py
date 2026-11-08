@@ -425,6 +425,9 @@ class BehavioralCheckerAssuranceTests(unittest.TestCase):
             "Both novelty: established and priority: established have not been demonstrated.",
             "Both novelty: established and priority: established were never validated.",
             "Both novelty: established and priority: established remain unresolved.",
+            "Both novelty: established and priority: established are neither confirmed nor validated.",
+            "Both novelty: established and priority: established cannot be confirmed.",
+            "Both novelty: established and priority: established should not be treated as proved.",
         ):
             with self.subTest(phrase=phrase), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
