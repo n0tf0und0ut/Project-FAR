@@ -196,6 +196,14 @@ def label_suffix(statement: str, end: int) -> str:
         first, next_cell, *_ = (after.split("|") + [""])[:3]
         next_cell = next_cell.strip()
         after = first + (" " + next_cell if CONDITION_CELL.match(next_cell) else "")
+    # A separate prose assertion without a structured label must not lend its
+    # negation to the preceding label: "Novelty: established, but priority is
+    # not established" contains an unconditional novelty promotion.
+    prose_join = re.search(
+        rf"\b(?:and|but|while|whereas)\s+{TOPIC.pattern}\s+"
+        r"(?:is|are|was|were|remains?|has|have|cannot)\b", after, re.I)
+    if prose_join:
+        after = after[:prose_join.start()]
     return after
 
 
@@ -222,7 +230,19 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
         if explicit_pair or SHARED_CONDITION.fullmatch(prefix):
             context = prefix
         if explicit_pair:
-            context += " " + label_suffix(statement, right_value.end())
+            # A coordinated pair shares only an actual group-level trailing
+            # qualification. Residual words within the second status (e.g.
+            # "priority: not established and not confirmed") belong to that
+            # status alone and cannot suppress the first member's promotion.
+            suffix = label_suffix(statement, right_value.end()).strip()
+            group_condition = re.match(
+                r"^(?:,\s*)?(?:but\s+)?(?:only\s+if|if|unless)\b",
+                suffix, re.I)
+            group_predicate = re.match(
+                r"^(?:are\s+not\s+(?:asserted|established)"
+                r"|remain\s+(?:unresolved|open))\b", suffix, re.I)
+            if group_condition or group_predicate:
+                context += " " + suffix
         if NEGATION.search(context):
             shared[left.start()] = context
             shared[right.start()] = context
