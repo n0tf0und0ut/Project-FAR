@@ -1,0 +1,34 @@
+name: FAR Uncertain Routing Frozen Evidence Validation
+on:
+  pull_request:
+    paths:
+      - 'tools/far_routing_dispatch.py'
+      - 'tools/far_uncertain_routing_pilot.py'
+      - 'tests/test_far_routing_dispatch.py'
+      - 'tests/test_far_uncertain_routing_pilot.py'
+      - 'research/uncertain-routing/**'
+      - '.github/workflows/far-uncertain-routing-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  ambiguous-action-offline-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR head without credential persistence
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Prepare Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Check unit tests and frozen source contracts
+        run: |
+          python -m pip install "PyYAML>=6.0,<7" "jsonschema>=4.22,<5"
+          python -m unittest tests.test_far_routing_dispatch tests.test_far_uncertain_routing_pilot -v
+          python tools/far_routing_dispatch.py conformance/far-ir-2.0/valid-factorization.json --mode deterministic > "$RUNNER_TEMP/explicit-routing.json"
+          python tools/far_uncertain_routing_pilot.py validate > "$RUNNER_TEMP/uncertain-protocol.json"
+      # Original live workflow is archived; completed frozen trials are not rerun
+      # on maintenance pushes. Register any successor separately with new outputs.
