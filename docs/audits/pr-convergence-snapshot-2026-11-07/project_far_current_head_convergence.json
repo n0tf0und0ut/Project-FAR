@@ -1,0 +1,2527 @@
+{
+  "constructed_at_utc": "2026-11-07T23:40:37.418675+00:00",
+  "counts": {
+    "all_three_required_checks_green": 0,
+    "blocked_ordinary_prs": 19,
+    "current_head_automated_clean_review": 1,
+    "literal_pr_body_github_urls": 68,
+    "open_prs": 20,
+    "open_threads": 2,
+    "ordinary_candidate_bodies_not_pinning_live_sha": 18,
+    "ordinary_merge_candidates": 19,
+    "perpetual_inbox": 1,
+    "review_convergence_failures": 17
+  },
+  "evidence_collected_date": "2026-11-07",
+  "governance": {
+    "AGENTS.md_blob_sha": "7d2ddee5150ab907818e43f43d8c4398f7570f34",
+    "authority_rule": "No merge without signed protected gates, exact-head independent review, finding closure, source-bound verification and authorization.",
+    "pr-review-convergence.md_blob_sha": "b0a20b96e2f04634ad61fbdb5d71534a46771949"
+  },
+  "limitations": [
+    "Snapshot builder consumes connector-derived observations; this file cannot auto-refresh. Companion verifier checks internal mechanical consistency, not live freshness.",
+    "Every PR evidence object contains one principal verified evidence artifact; all literal GitHub URLs in PR bodies are enumerated but historical run/job URLs are not individually independently re-fetched or cryptographically authenticated.",
+    "Exact-head check publication is not proof of scientific or software correctness; currently in-progress jobs may subsequently complete.",
+    "GraphQL review threads and current Codex comment state were queried, but review-evidence collector behavior must be rerun on updated state before protected merge.",
+    "Overlapping path sets indicate integration risk, not verified textual conflicts. Dependencies are explicitly confirmed where noted.",
+    "The GitHub protection endpoint returned HTTP 403, but branch metadata supplied explicit required contexts and GitHub App IDs.",
+    "No repository branches, PRs, signatures, protections, frozen data or protected main were mutated while collecting this snapshot."
+  ],
+  "main": {
+    "protected": true,
+    "protection_endpoint": "403 Resource not accessible by integration; branch response supplied check source IDs",
+    "required_checks": [
+      {
+        "app_id": 15368,
+        "name": "merge-authority"
+      },
+      {
+        "app_id": 5073230,
+        "name": "protected-repin-gate"
+      },
+      {
+        "app_id": 15368,
+        "name": "pr-review-convergence-observation"
+      }
+    ],
+    "rulesets_observed": [],
+    "sha": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+    "source": "GitHub REST refs/heads/main and branches/main"
+  },
+  "pull_requests": [
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        },
+        {
+          "class": "empirical_claim",
+          "reason": "no actual uncoached human reader pilot; prohibits comprehension effectiveness claim, not the documentation PR itself"
+        }
+      ],
+      "body_candidate_matches_live": true,
+      "body_declared_candidate_sha": "fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "f77cf4b71c12b066649c1676230be456c65f555e",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7/docs/maintenance/beginner-comprehension-check.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "docs/maintenance/beginner-comprehension-check.md"
+      },
+      "github_pr_base_sha_at_observation": "8683ff11d36d6e0264e02aea71138a46bc0f40e3",
+      "integration_risks_with_prs": [
+        597
+      ],
+      "live_head_sha": "fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7",
+      "merge_authorized": false,
+      "pr": 625,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42422391193/job/128553408474",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42423510337",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "live_head_bound_success_observed",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": true,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42423770020",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/issues/597#issuecomment-6714352771",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128560572614",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128560572614,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563256456",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563256456",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563256456,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128559957936",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128559957936,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": true,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "fbb7a5be0bc1185d868a09cb51bfaddcb1b24cd7",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6713872509,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/625#issuecomment-6713872509",
+        "total_threads": 0,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "No uncoached external-reader comprehension pilot executed; do not claim usability validation.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Nontechnical onboarding and governed navigation",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/625"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "ababafde8888b897cdf5312c0fd40385b974a6b3",
+      "dependencies": [
+        {
+          "confidence": "explicit_PR_body",
+          "pr": 625,
+          "rule": "apply #625 first; then reconcile README and W4/W6 digest supplements and review the combined head",
+          "type": "ordered_integration"
+        }
+      ],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "43c8f8b082d0803daebe5daea524c90b877f7ee6",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/94603603fd6c863cf3895496af64cf2f003db480/commercial/far-investigation-audit/REVIEW_LEDGER_597.md",
+        "historical_byte_identity": "changed",
+        "historical_ref_blob_sha": "3a63b9833c94f71af97e2a89ce5e61e16934d63b",
+        "historical_ref_commit": "3a72aea5e9cc1f089648d7820a8939fc8fedeed5",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/3a72aea5e9cc1f089648d7820a8939fc8fedeed5/commercial/far-investigation-audit/REVIEW_LEDGER_597.md",
+        "path": "commercial/far-investigation-audit/REVIEW_LEDGER_597.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        625,
+        599
+      ],
+      "live_head_sha": "94603603fd6c863cf3895496af64cf2f003db480",
+      "merge_authorized": false,
+      "pr": 597,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/3a72aea5e9cc1f089648d7820a8939fc8fedeed5/commercial/far-investigation-audit/REVIEW_LEDGER_597.md",
+          "verified_http_exists": true
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260642825",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260642826",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260642756",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "check_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128041678372",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597#issuecomment-6446273256",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42414405376/job/128531430741",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260642756/job/128053754156",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260642826/job/128039365739",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128555020265",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128555020265,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563321361",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563321361",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563321361,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548508503",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548508503,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "ababafde8888b897cdf5312c0fd40385b974a6b3",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6446273256,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/597#issuecomment-6446273256",
+        "total_threads": 15,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Authored-case software verification is not independent causal or commercial effectiveness.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Bounded epistemic debugger and hostile source evaluation",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/597"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "intentional_governance",
+          "reason": "permanent draft and NEVER_MERGE_THIS_ANCHOR; snapshot promotion must use separate PR"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": null,
+      "dependencies": [],
+      "disposition": "KEEP_OPEN_DRAFT_NEVER_MERGE",
+      "draft": true,
+      "evidence_reference": {
+        "exact_head_blob_sha": "42203bd35466d59192bee95d884b391130b106fe",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/495cc99f9c8a189968a9835a591550215726fa0d/research/living/inbox/.rolling-pr-anchor.json",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "research/living/inbox/.rolling-pr-anchor.json"
+      },
+      "github_pr_base_sha_at_observation": "8683ff11d36d6e0264e02aea71138a46bc0f40e3",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "495cc99f9c8a189968a9835a591550215726fa0d",
+      "merge_authorized": false,
+      "pr": 490,
+      "pr_body_github_urls": [],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": null,
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": null,
+          "job_or_check_id": null,
+          "observed_conclusion": null,
+          "observed_status": "not_observed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563324798",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563324798",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563324798,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": null,
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": null,
+          "job_or_check_id": null,
+          "observed_conclusion": null,
+          "observed_status": "not_observed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": false,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": null,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": null,
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": null,
+        "summary_url": null,
+        "total_threads": 0,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Living research ingestion cannot promote canonical scientific claims; never merge rolling anchor.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Permanent noncanonical living-research inbox",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/490"
+    },
+    {
+      "authorization_document": {
+        "at_live_head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+        "expires_at_utc": "2026-11-17T18:25:29Z",
+        "git_blob_sha": "9949fd00f3d1710f1fc92ddcda9f32bd83b38408",
+        "path": "validation/repin-requests/PR-617-signed-cache-python.json",
+        "signature_count_observed_valid": 0,
+        "target_pr": 617,
+        "transition_path": ".github/workflows/validator-assurance.yml",
+        "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/4651fa065b1847901871d3903b9ebcdc57e787aa/validation/repin-requests/PR-617-signed-cache-python.json"
+      },
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "draft",
+          "reason": "draft PR not eligible for normal protected merge"
+        },
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: failure"
+        },
+        {
+          "class": "required_gate",
+          "reason": "protected-repin-gate: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        },
+        {
+          "class": "owner_signature",
+          "reason": "zero valid owner signatures on protected transition request; dedicated App refuses authorization"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": true,
+      "evidence_reference": {
+        "exact_head_blob_sha": "066ffc3804bfbb3ab7e2df8a92e8a4bf0621450e",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/4651fa065b1847901871d3903b9ebcdc57e787aa/docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "066ffc3804bfbb3ab7e2df8a92e8a4bf0621450e",
+        "historical_ref_commit": "f3447d5f86a40da75785b91486ceaa55ceab381b",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+        "path": "docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "4651fa065b1847901871d3903b9ebcdc57e787aa",
+      "merge_authorized": false,
+      "pr": 617,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/f3447d5f86a40da75785b91486ceaa55ceab381b/docs/audits/signed-cache-python-patch-mismatch-2026-11-03.md",
+          "verified_http_exists": true
+        },
+        {
+          "identity_scope": "historical_commit_file_unverified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/89f72221ad6d4fcf3e13c0f42e62adceb7fcb091/validation/repin-requests/PR-617-signed-cache-python.json",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128556427771",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128556427771,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563280294",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563280294",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563280294,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128549019584",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128549019584,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "89f72221ad6d4fcf3e13c0f42e62adceb7fcb091",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6612214385,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/617#issuecomment-6612214385",
+        "total_threads": 0,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Owner signature absent for protected verifier/cache transition; preserve draft until governed authorization.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Pinned Python patch for signed cache",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/617"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "22af7f59a5137caf337c25dbc35cb66a4c68db16",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "686c45d674f0ead4bc07b8fd74a2a31f5fecd419",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/03e19ac40424636c47e9370d1fb72f85d51246e9/commercial/far-decision-integrity/PILOT_VALIDATION.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "commercial/far-decision-integrity/PILOT_VALIDATION.md"
+      },
+      "github_pr_base_sha_at_observation": "8683ff11d36d6e0264e02aea71138a46bc0f40e3",
+      "integration_risks_with_prs": [
+        616
+      ],
+      "live_head_sha": "03e19ac40424636c47e9370d1fb72f85d51246e9",
+      "merge_authorized": false,
+      "pr": 621,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42414344206",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42414344134",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42415463479",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42415463464",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416104473",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416166985",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416272047",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416420154/job/128536226344",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "check_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128536185092",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416272018",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416272044",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416940242",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42416964261",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128559878533",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128559878533,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563266793",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563266793",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563266793,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548869690",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548869690,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "22af7f59a5137caf337c25dbc35cb66a4c68db16",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6673150735,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/621#issuecomment-6673150735",
+        "total_threads": 8,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Old success evidence cannot attest newer strict parsing source; rerun exact head.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Strict JSON in Decision Integrity",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/621"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "substantive_findings",
+          "reason": "2 open current review threads"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "87cec59af8f07b94737ddcb1c3b88dc0851141a4",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "0f37b534060eb79fc87365584bcc197f50cf97c3",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/3a62632658a12938caac75f5d6921a7b9dadd425/docs/architecture/validator-assurance-hardening.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "docs/architecture/validator-assurance-hardening.md"
+      },
+      "github_pr_base_sha_at_observation": "8683ff11d36d6e0264e02aea71138a46bc0f40e3",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "3a62632658a12938caac75f5d6921a7b9dadd425",
+      "merge_authorized": false,
+      "pr": 623,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254195680",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254895954",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6690201824",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#issuecomment-6690164862",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "commit",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/commit/6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42254896773",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068100",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068053",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067966",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260068055",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42260067865",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42415099613",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42415099487",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42415099511",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128557127557",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128557127557,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563260409",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563260409",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563260409,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548759605",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548759605,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": true,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "87cec59af8f07b94737ddcb1c3b88dc0851141a4",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6713050709,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/623#issuecomment-6713050709",
+        "total_threads": 5,
+        "unresolved_threads": [
+          {
+            "comment_id": "PRRC_kwDOTH_vCM8AAAABDHM_ag",
+            "file": "tools/check_governance_register_integrity.py",
+            "finding": "Shared leading condition discarded across coordinated status claims",
+            "invariant": "Condition scope must survive conjunction/coordinate parsing",
+            "line": 100,
+            "outdated": false,
+            "source_comment_head_sha": "3a62632658a12938caac75f5d6921a7b9dadd425",
+            "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#discussion_r4503846762",
+            "state": "open",
+            "thread_id": "PRRT_kwDOTH_vCM607BpC"
+          },
+          {
+            "comment_id": "PRRC_kwDOTH_vCM8AAAABDHM_bQ",
+            "file": "tools/check_governance_register_integrity.py",
+            "finding": "Markdown emphasis prevents recognition of table condition cells",
+            "invariant": "Condition cells must be normalized without enabling false acceptance",
+            "line": 114,
+            "outdated": false,
+            "source_comment_head_sha": "3a62632658a12938caac75f5d6921a7b9dadd425",
+            "source_url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623#discussion_r4503846765",
+            "state": "open",
+            "thread_id": "PRRT_kwDOTH_vCM607BpE"
+          }
+        ]
+      },
+      "scientific_boundary": "Two actionable semantic false-acceptance counterexamples remain open on current implementation.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Checker behavior and cache provenance",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/623"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "a75d6b1fa2450645ef082854a810d731b4bb1262",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "d128b4f209e6224050b76fc0885cfba46955b521",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/eb58ea4dcc5e5d590c55002d17e047d4cf74b907/docs/research/far-mech-convergence-20261103.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "d128b4f209e6224050b76fc0885cfba46955b521",
+        "historical_ref_commit": "a75d6b1fa2450645ef082854a810d731b4bb1262",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/a75d6b1fa2450645ef082854a810d731b4bb1262/docs/research/far-mech-convergence-20261103.md",
+        "path": "docs/research/far-mech-convergence-20261103.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "eb58ea4dcc5e5d590c55002d17e047d4cf74b907",
+      "merge_authorized": false,
+      "pr": 601,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/a75d6b1fa2450645ef082854a810d731b4bb1262/docs/research/far-mech-convergence-20261103.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128558679093",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128558679093,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563310086",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563310086",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563310086,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548456055",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548456055,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "71cd19f348a659e43d03ce96d0640b87ac1a2135",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6535625808,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/601#issuecomment-6535625808",
+        "total_threads": 13,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Original bounded mechanistic findings do not establish general causal explanations or agent reliability.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "FAR-MECH falsification and audit hardening",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/601"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "5e521f93f29d3b9dcf84334a3c2ef4262e4683e0",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "3dbc5808db3689eb070f7dab081874300e2c3ae7",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/7b5b6febf1f2b7725c2b4d2523ebab225c5ab223/commercial/far-investigation-audit/evaluation/live-001/README.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "commercial/far-investigation-audit/evaluation/live-001/README.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        597
+      ],
+      "live_head_sha": "7b5b6febf1f2b7725c2b4d2523ebab225c5ab223",
+      "merge_authorized": false,
+      "pr": 599,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246606754/job/127990361298",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128556979491",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128556979491,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563317762",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563317762",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563317762,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548438298",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548438298,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "abf71a30a5906cdd7270cb155d98f0df1cc4b522",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6612212165,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/599#issuecomment-6612212165",
+        "total_threads": 1,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Retrieval comparison is bounded; no independent customer-effectiveness inference.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Live commercial retrieval comparison",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/599"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "dd00a19507a617ab6e067c25b845ac08106d6431",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/130c69035624c133954d96f5b6a5d063e2e82d97/research/architecture-routing/finding-ledger.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "af87488c4c30f4f9ccf331796ad25cf20ad94106",
+        "historical_ref_commit": "dd00a19507a617ab6e067c25b845ac08106d6431",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/dd00a19507a617ab6e067c25b845ac08106d6431/research/architecture-routing/finding-ledger.md",
+        "path": "research/architecture-routing/finding-ledger.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        608,
+        614
+      ],
+      "live_head_sha": "130c69035624c133954d96f5b6a5d063e2e82d97",
+      "merge_authorized": false,
+      "pr": 606,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/dd00a19507a617ab6e067c25b845ac08106d6431/research/architecture-routing/finding-ledger.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128557424121",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128557424121,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563306138",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563306138",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563306138,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548427839",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548427839,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "cec9386fd6d511090250c12150ef314ffbf8a7ea",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6584455676,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/606#issuecomment-6584455676",
+        "total_threads": 6,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Observed model routing 9/12 vs 12/12 deterministic and declarative controls; no routing advantage.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Bounded architecture-routing pilot",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/606"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "ee6219337074e58b8dda26fc09764caffb31e29a",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/a8079e4e6d4b3f5caccab969756c910ab3b91d5b/docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "7d5763e4c11eb20949b0f56323affe4cea80a1eb",
+        "historical_ref_commit": "ee6219337074e58b8dda26fc09764caffb31e29a",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/ee6219337074e58b8dda26fc09764caffb31e29a/docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+        "path": "docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "a8079e4e6d4b3f5caccab969756c910ab3b91d5b",
+      "merge_authorized": false,
+      "pr": 600,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/ee6219337074e58b8dda26fc09764caffb31e29a/docs/research/orthodox-forecast-factual-experiment-execution-v0.1.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128555071352",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128555071352,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563313939",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563313939",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563313939,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548413639",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548413639,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "58ef77dac335cf2dc8da0062cbbb3c90c6038fa1",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6504085083,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/600#issuecomment-6504085083",
+        "total_threads": 3,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "No worldview truth, forecasting advantage or factual decision benefit established.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Prospective forecasting and factual investigation",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/600"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "e959c755bff26a6994df8ddc4ac05e272778a0c0",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/c934d21ff5e598403caa27e0c436f4e23737bfaf/research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "defe7c8de9d7ee4ec8329e43d90615aab6f7b903",
+        "historical_ref_commit": "e959c755bff26a6994df8ddc4ac05e272778a0c0",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/e959c755bff26a6994df8ddc4ac05e272778a0c0/research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+        "path": "research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "c934d21ff5e598403caa27e0c436f4e23737bfaf",
+      "merge_authorized": false,
+      "pr": 607,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41727268815/job/126235238730",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/e959c755bff26a6994df8ddc4ac05e272778a0c0/research/workflow-efficacy/LOCAL-QWEN-VALIDATION-V0.2.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128554066166",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128554066166,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563301906",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563301906",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563301906,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548327145",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548327145,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "df3b55a70780562937303f5c855c3dba125e83fc",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6589021842,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/607#issuecomment-6589021842",
+        "total_threads": 3,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Local Qwen study cannot substitute for general reliability; merged #605 remains 11/30 vs 10/30.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Local Qwen instruction-effect comparison",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/607"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "0e8364466db56ed3580a248827cedf1e8991f740",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/d217afa409fd58798b32d8d2afbf06151b40e6d7/research/weight_space_programming/README.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "487dc9dc00126c3b08708ee6c0f5786fa5849060",
+        "historical_ref_commit": "0e8364466db56ed3580a248827cedf1e8991f740",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0e8364466db56ed3580a248827cedf1e8991f740/research/weight_space_programming/README.md",
+        "path": "research/weight_space_programming/README.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "d217afa409fd58798b32d8d2afbf06151b40e6d7",
+      "merge_authorized": false,
+      "pr": 611,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0e8364466db56ed3580a248827cedf1e8991f740/research/weight_space_programming/README.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128553922359",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128553922359,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563294819",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563294819",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563294819,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548313604",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548313604,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "e48f6dc29302bb0848a5632b49c726d2128a327d",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6612351467,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/611#issuecomment-6612351467",
+        "total_threads": 3,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Weight-space capability is experimental, not demonstrated reliable self-improvement.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Weight-space intervention audit",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/611"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+      "dependencies": [
+        {
+          "confidence": "explicit_PR_body",
+          "pr": 617,
+          "rule": "protected-cache runtime repair needed only if signed-cache path blocks this candidate",
+          "type": "conditional"
+        }
+      ],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "061a3ea2fb5cb95dbbcd566694552c7e00b1cd5f",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/054a7e691cb83237eef308b9455855bbc102a67c/research/uncertain-routing/finding-ledger.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "061a3ea2fb5cb95dbbcd566694552c7e00b1cd5f",
+        "historical_ref_commit": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/6f59f8a539717940ac2a27cc26a8cc204eec7b1f/research/uncertain-routing/finding-ledger.md",
+        "path": "research/uncertain-routing/finding-ledger.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        614
+      ],
+      "live_head_sha": "054a7e691cb83237eef308b9455855bbc102a67c",
+      "merge_authorized": false,
+      "pr": 608,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/6f59f8a539717940ac2a27cc26a8cc204eec7b1f/research/uncertain-routing/finding-ledger.md",
+          "verified_http_exists": true
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/608#discussion_r4494361655",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128554207897",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128554207897,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563298284",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563298284",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563298284,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548296617",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548296617,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "6f59f8a539717940ac2a27cc26a8cc204eec7b1f",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6589148775,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/608#issuecomment-6589148775",
+        "total_threads": 8,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "No adaptive routing benefit established; #614 depends on this implementation.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Explicit verifier routing and uncertain selection",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/608"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        },
+        {
+          "class": "external_experiment",
+          "reason": "registered ODR comparison still lacks original authenticated adapter/source and competitor evidence; separate from PR merge"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+      "dependencies": [
+        {
+          "confidence": "explicit_PR_body",
+          "pr": 608,
+          "rule": "integrate #608 first",
+          "type": "predecessor_integration"
+        },
+        {
+          "confidence": "explicit_PR_body",
+          "pr": 617,
+          "rule": "repair signed-cache runtime if its protected checks block this branch",
+          "type": "conditional"
+        }
+      ],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "c32448d272a59c3d51b3beee0dff40b3189d284f",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/d91d86893c1be9a15eae6d63dc178bcfc8471a6f/research/investigation-engine/finding-ledger.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "c32448d272a59c3d51b3beee0dff40b3189d284f",
+        "historical_ref_commit": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9/research/investigation-engine/finding-ledger.md",
+        "path": "research/investigation-engine/finding-ledger.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        608
+      ],
+      "live_head_sha": "d91d86893c1be9a15eae6d63dc178bcfc8471a6f",
+      "merge_authorized": false,
+      "pr": 614,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9/research/investigation-engine/finding-ledger.md",
+          "verified_http_exists": true
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42246514987/job/128001115478",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128556774232",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128556774232,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563290898",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563290898",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563290898,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548278000",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548278000,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "0d26eca3e2fde19c4b0613f80c4cd02d1986a0f9",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6612894369,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/614#issuecomment-6612894369",
+        "total_threads": 24,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Frozen agent 0/8 vs deterministic/declarative 7/8; external ODR comparison blocked by missing authenticated adapter/source evidence.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "General investigation engine",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/614"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": null,
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "0fabeca599665d07e92e0515a0c463bc7f3bd977",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/1f173c990c695ff5bd0244a9cc3015073a06a89f/research/good-view-jepa/README.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "research/good-view-jepa/README.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "1f173c990c695ff5bd0244a9cc3015073a06a89f",
+      "merge_authorized": false,
+      "pr": 619,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242559173/job/127976304759",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "pr_or_issue_comment",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/619#issuecomment-6687896846",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242558765/job/127976335024",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42242558848/job/127976529599",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42243492741/job/127979580691",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128554651001",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128554651001,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563273608",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563273608",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563273608,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548197499",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548197499,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "d888fc27ab248c4b8d32f8124d241b8de7e88ce6",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6687896846,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/619#issuecomment-6687896846",
+        "total_threads": 2,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Synthetic good-view result does not establish external image/text retrieval benefit.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Good-view JEPA retrieval pilot",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/619"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "merge-authority: in_progress"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "87315d1402205a2bf1c56fd880f49532ebb27860",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/b360aab81ad14e0289d87f4acd67d84d20ae0116/research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "60df8b1910177fe52be7274890ef5a0c9b1f2fdd",
+        "historical_ref_commit": "87315d1402205a2bf1c56fd880f49532ebb27860",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/87315d1402205a2bf1c56fd880f49532ebb27860/research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+        "path": "research/model-architecture-search/CONVERGENCE-2026-11-03.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "b360aab81ad14e0289d87f4acd67d84d20ae0116",
+      "merge_authorized": false,
+      "pr": 615,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/87315d1402205a2bf1c56fd880f49532ebb27860/research/model-architecture-search/CONVERGENCE-2026-11-03.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128557578261",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128557578261,
+          "observed_conclusion": null,
+          "observed_status": "in_progress",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563287695",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563287695",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563287695,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548179633",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548179633,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "db0c95f6568d873e4e4e96aab8c247af5a03d79b",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6609504790,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/615#issuecomment-6609504790",
+        "total_threads": 2,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Preserved negative architecture search does not show superiority or generalization.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Architecture search and negative experiments",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/615"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "8ab8c9d13d696a3e970937d58c83bb490edf357b",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/9f3bdd0a7dcf9890e87006cda2812a547c24e42e/research/repository-convergence/2026-11-03/README.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "3f0a2e1f8ca9b88e0ee03556af1517a1d71f8e14",
+        "historical_ref_commit": "8ab8c9d13d696a3e970937d58c83bb490edf357b",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ab8c9d13d696a3e970937d58c83bb490edf357b/research/repository-convergence/2026-11-03/README.md",
+        "path": "research/repository-convergence/2026-11-03/README.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        606,
+        608,
+        614
+      ],
+      "live_head_sha": "9f3bdd0a7dcf9890e87006cda2812a547c24e42e",
+      "merge_authorized": false,
+      "pr": 618,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ab8c9d13d696a3e970937d58c83bb490edf357b/research/repository-convergence/2026-11-03/README.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128553881648",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128553881648,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563276731",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563276731",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563276731,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548168815",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548168815,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "354811a6f7d1732371c3730af28bc1bee996223a",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6612631290,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/618#issuecomment-6612631290",
+        "total_threads": 1,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Agent general reliability, causal uplift and customer economics unestablished.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Agent reliability exposure evidence",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/618"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "01632e92a975a8a51af9287cb9d86db93db6fcc7",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8261c05a85784b40de0e4d0148fd3920670ac25e/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "d28c31a84f8d04d00f17b55d12b49611b88fbb3b",
+        "historical_ref_commit": "01632e92a975a8a51af9287cb9d86db93db6fcc7",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/01632e92a975a8a51af9287cb9d86db93db6fcc7/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+        "path": "commercial/far-demo/evaluation/semantic-live-smoke-20261103.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        621
+      ],
+      "live_head_sha": "8261c05a85784b40de0e4d0148fd3920670ac25e",
+      "merge_authorized": false,
+      "pr": 616,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/01632e92a975a8a51af9287cb9d86db93db6fcc7/commercial/far-demo/evaluation/semantic-live-smoke-20261103.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128554625096",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128554625096,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563284124",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563284124",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563284124,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548155914",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548155914,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "a12f711d2f5130034eada4896a3d28c731a1fe76",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6611963267,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/616#issuecomment-6611963267",
+        "total_threads": 8,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "One local model generated malformed output: FAR HTTP 502, not end-to-end semantic success.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Model-directed semantic augmentation workspace",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/616"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "8ca6d68fe202e3569f1ad90c1e10e546ff1508c9",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8f7af32b4d8f9c9557cbf2adba18d12568a4a865/research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+        "historical_byte_identity": "unchanged",
+        "historical_ref_blob_sha": "0a1cc10a540c187b71c1503d0fc1832b419c34b5",
+        "historical_ref_commit": "8ca6d68fe202e3569f1ad90c1e10e546ff1508c9",
+        "historical_ref_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ca6d68fe202e3569f1ad90c1e10e546ff1508c9/research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+        "path": "research/numeric-grounding/RESULTS-LIVE-V0.1.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [
+        606,
+        608,
+        614
+      ],
+      "live_head_sha": "8f7af32b4d8f9c9557cbf2adba18d12568a4a865",
+      "merge_authorized": false,
+      "pr": 620,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42090379885/artifacts/13445236161",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "historical_commit_file_verified",
+          "kind": "git_blob",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/blob/8ca6d68fe202e3569f1ad90c1e10e546ff1508c9/research/numeric-grounding/RESULTS-LIVE-V0.1.md",
+          "verified_http_exists": true
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128550365561",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128550365561,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563270302",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563270302",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563270302,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548056921",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548056921,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "769ab788275b4455619f228ee0d21a96edd78ce1",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6687892854,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/620#issuecomment-6687892854",
+        "total_threads": 5,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Registered primary gate failed: wrong numeric releases 0 in both arms despite 12/16 vs 8/16 secondary correct numbers.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Numeric grounding and primary-gate failure",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/620"
+    },
+    {
+      "base_is_current_main": false,
+      "blockers": [
+        {
+          "class": "stale_candidate_identity",
+          "reason": "body does not pin actual live head SHA; previous claims cannot certify this head"
+        },
+        {
+          "class": "review_coverage",
+          "reason": "no authenticated completed clean Codex review on exact current SHA (or non-author human approval)"
+        },
+        {
+          "class": "required_gate",
+          "reason": "pr-review-convergence-observation: failure"
+        },
+        {
+          "class": "protected_merge_authorization",
+          "reason": "no user authorization to merge, auto-merge or modify protected main"
+        }
+      ],
+      "body_candidate_matches_live": false,
+      "body_declared_candidate_sha": "0762cfca954d50ec6d41de9c176c94eb0311026f",
+      "dependencies": [],
+      "disposition": "BLOCKED_NO_MERGE",
+      "draft": false,
+      "evidence_reference": {
+        "exact_head_blob_sha": "f9ff1227afe6a5499a3997ca0f12673e7a85ade5",
+        "exact_head_file_verified": true,
+        "exact_head_url": "https://github.com/n0tf0und0ut/Project-FAR/blob/61d0493116184e48606ac1360746e5c99d5b49da/research/tool-agent-reliability/FAULT-CAMPAIGN-V0.1.md",
+        "historical_byte_identity": "not_compared",
+        "historical_ref_blob_sha": null,
+        "historical_ref_commit": null,
+        "historical_ref_url": null,
+        "path": "research/tool-agent-reliability/FAULT-CAMPAIGN-V0.1.md"
+      },
+      "github_pr_base_sha_at_observation": "c7456b469f9dfe88b92d0fc7a211e5c9ed64de61",
+      "integration_risks_with_prs": [],
+      "live_head_sha": "61d0493116184e48606ac1360746e5c99d5b49da",
+      "merge_authorized": false,
+      "pr": 622,
+      "pr_body_github_urls": [
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42230689638",
+          "verified_http_exists": false
+        },
+        {
+          "identity_scope": "unverified_or_historical",
+          "kind": "github_actions_run",
+          "test_result_reused_for_live_head": false,
+          "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42230839947",
+          "verified_http_exists": false
+        }
+      ],
+      "protected_main_sha_at_observation": "eff47bc4fc9e272e87d71ecfc8d559cd1176753e",
+      "required_checks": [
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548999577",
+          "check_url": null,
+          "context": "merge-authority",
+          "current_head_bound": true,
+          "job_or_check_id": 128548999577,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128563263699",
+          "check_url": "https://github.com/n0tf0und0ut/Project-FAR/runs/128563263699",
+          "context": "protected-repin-gate",
+          "current_head_bound": true,
+          "job_or_check_id": 128563263699,
+          "observed_conclusion": "success",
+          "observed_status": "completed",
+          "required_app_id": 5073230
+        },
+        {
+          "check_api_url": "https://api.github.com/repos/n0tf0und0ut/Project-FAR/check-runs/128548035456",
+          "check_url": null,
+          "context": "pr-review-convergence-observation",
+          "current_head_bound": true,
+          "job_or_check_id": 128548035456,
+          "observed_conclusion": "failure",
+          "observed_status": "completed",
+          "required_app_id": 15368
+        }
+      ],
+      "reviews": {
+        "completed": true,
+        "exact_head_coverage": false,
+        "has_unresolved_findings": false,
+        "human_approvals": 0,
+        "human_changes_requested": 0,
+        "reviewed_sha": "52ef171bcf0a7e43ddf6351242b873b012b5c0e3",
+        "source": "authenticated_GitHub_issue_comment_machine_summary",
+        "summary_comment_id": 6686766151,
+        "summary_url": "https://github.com/n0tf0und0ut/Project-FAR/issues/622#issuecomment-6686766151",
+        "total_threads": 0,
+        "unresolved_threads": []
+      },
+      "scientific_boundary": "Synthetic fault-injection/forgery demonstration does not attest real model reliability or origin.",
+      "state": "open",
+      "target_branch": "main",
+      "title": "Synthetic agent fault/replay campaign",
+      "url": "https://github.com/n0tf0und0ut/Project-FAR/pull/622"
+    }
+  ],
+  "repo": "n0tf0und0ut/Project-FAR",
+  "schema": "far-pr-current-head-convergence-snapshot/1.0",
+  "snapshot_note": "Non-atomic sequential GitHub connector reads 2026-11-07 UTC, approximately 22:38–23:40. State may change between requests; no atomicity or head lease is claimed. Check conclusions are observations at retrieval time; rerun before acting."
+}

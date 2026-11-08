@@ -7,3 +7,4 @@ cryptography>=42,<48
 openai>=1.60,<3
 
 sympy>=1.14,<2  # optional independently implemented finite logic test oracle
+hypothesis>=6.150,<7  # generated semantic contrast and abstention properties

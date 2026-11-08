@@ -1,0 +1,23 @@
+{
+  "scope": "Three specific in-process fault injections; not exhaustive mutation adequacy",
+  "controls": [
+    {
+      "mutation": "collapse some to all",
+      "killed": true,
+      "observed": "SUPPORTED_IN_GRAMMAR"
+    },
+    {
+      "mutation": "accept every semantic mapping",
+      "killed": true,
+      "failures": 1,
+      "errors": 0
+    },
+    {
+      "mutation": "erase correction propagation",
+      "killed": true,
+      "failures": 1,
+      "errors": 0
+    }
+  ],
+  "reproduction_driver_sha256": "0e0b3c1ebe6ec1554af2ec3c41323d90bdfbbbd8ba17198067c92131eba1b36e"
+}
