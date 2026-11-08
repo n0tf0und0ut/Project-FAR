@@ -46,6 +46,14 @@ local unit tests do not require socket capability. It does not weaken the
 canonical deny-network policy. Hosted evidence and independent review must be
 recorded against the final PR head; this preparation record claims neither.
 
+The first published successor exposed a stale W5 current-state digest for the
+changed verification workflow. The existing provenance and independent manifest
+tests rejected it. Only the existing tooling entry's current digest and reason
+are advanced; its executed digest and the frozen campaign manifest, inputs,
+outputs and results remain unchanged. The W5 checker and provenance tests must
+pass on that corrected successor. The protected workflow bytes and both unsigned
+owner payloads below are unchanged by this metadata correction.
+
 ## Owner authorization remains required
 
 Two files are protected: the validator workflow and the standalone Lean

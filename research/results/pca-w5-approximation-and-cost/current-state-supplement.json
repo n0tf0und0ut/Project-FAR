@@ -16,9 +16,9 @@
     {
       "path": ".github/workflows/pca-w5.yml",
       "executed_sha256": "f371f9c6466a07d1964806248b7ab3ada14fece1f4469c4d71c4b2925dfb467b",
-      "current_sha256": "297cefdd2c62e165d518efe68361b763463caa61240e6bcaade158fe6e08318d",
+      "current_sha256": "58c71d9b421b8196017acc603d7406b90027bc79bca9ff6dd50211e5adf0cbb1",
       "class": "verification_tooling",
-      "reason": "Replaced the unpinned curl-to-sh install of elan-init.sh from the mutable elan master branch with a download pinned to elan commit 0e36a07b9bbcc5381fa6250df109f9a4f94d7bac and a SHA-256 check before execution (supply-chain hardening from the 2026-09-23 repository red-team audit). The installer bytes are identical to those CI executed before the change; the Lean toolchain, compiled artifact, W5 computation, and recorded result are unchanged. It now installs the SHA-256-bound Lean 4.19.0 release archive instead of running the elan installer, which resolved the latest elan release and fetched the toolchain by tag, and fails the compile on a `declaration uses 'sorry'` warning (PR #538). The compiled artifact, W5 computation, and recorded result are unchanged."
+      "reason": "Replaced the unpinned curl-to-sh install of elan-init.sh from the mutable elan master branch with a download pinned to elan commit 0e36a07b9bbcc5381fa6250df109f9a4f94d7bac and a SHA-256 check before execution (supply-chain hardening from the 2026-09-23 repository red-team audit). The installer bytes are identical to those CI executed before the change; the Lean toolchain, compiled artifact, W5 computation, and recorded result are unchanged. It now installs the SHA-256-bound Lean 4.19.0 release archive instead of running the elan installer, which resolved the latest elan release and fetched the toolchain by tag, and fails the compile on a `declaration uses 'sorry'` warning (PR #538). The compiled artifact, W5 computation, and recorded result are unchanged. Bounded retries and connection/per-attempt timeouts now tolerate transient transport failure for that same pinned release; exhaustion and digest mismatch remain failures. The release, toolchain, compiled artifact, W5 computation and recorded result remain unchanged (PR #617 transport correction, 2026-11-08)."
     },
     {
       "path": "docs/specification/far-ir-2.1-approximation-cost.md",
