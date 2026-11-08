@@ -75,6 +75,13 @@ FORWARD_PROHIBITION = re.compile(
     re.I,
 )
 COORDINATION = re.compile(r"\s+and\s+", re.I)
+# A left-hand status can contain extra local negative atoms before the final
+# independent "and <right label>". Consume those atoms as part of the left
+# status, without distributing their negation to the right member.
+LEFT_COMPOUND_COORDINATION = re.compile(
+    rf"(?:\s+(?:and|nor)\s+(?:not|never)\s+(?:{PROMOTION.pattern}|{NEGATIVE_STATUS}|unknown|open))+"
+    r"\s+and\s+", re.I,
+)
 BOTH_PREFIX = re.compile(r"\bboth\s*$", re.I)
 # Status values are consumed separately from pair-level qualifiers. A local
 # "not established" in one member must never qualify the other member.
@@ -167,7 +174,18 @@ def label_prefix(statement: str, start: int) -> str:
     """Return only the local pre-label context, retaining its own condition."""
     earlier = list(LABEL_MARKER.finditer(statement[:start]))
     if not earlier:
-        return statement[:start].rsplit("|", 1)[-1]
+        prefix = statement[:start].rsplit("|", 1)[-1]
+        # A preceding unstructured claim is independently assertive when a
+        # named topic plus predicate is followed by a standalone coordinator.
+        # "Priority is not established, but novelty: established" cannot
+        # borrow priority's negation. A true "If ...," condition has no
+        # independent coordinated prose clause and remains within scope.
+        separate_prose = re.search(
+            rf"{TOPIC.pattern}\s+(?:is|are|was|were|remains?|has|have|had|"
+            r"can|cannot|could|will|would|should|may|might|must|shall)\b"
+            r"[^|]*?(?:,\s*|\s+)(?:and|but|while|whereas)\s*$",
+            prefix, re.I)
+        return "" if separate_prose else prefix
     previous = earlier[-1]
     if leading := following_claim_qualifier(statement[previous.end():start]):
         return leading[1]
@@ -201,7 +219,9 @@ def label_suffix(statement: str, end: int) -> str:
     # not established" contains an unconditional novelty promotion.
     prose_join = re.search(
         rf"\b(?:and|but|while|whereas)\s+{TOPIC.pattern}\s+"
-        r"(?:is|are|was|were|remains?|has|have|cannot)\b", after, re.I)
+        r"(?:is|are|was|were|remains?|has|have|had|can|cannot|can't|"
+        r"could|couldn't|will|won't|would|wouldn't|should|shouldn't|"
+        r"may|might|must|shall)\b", after, re.I)
     if prose_join:
         after = after[:prose_join.start()]
     return after
@@ -222,7 +242,9 @@ def shared_pair_contexts(statement: str) -> dict[int, str]:
         right_value = STATUS_VALUE.match(statement, right.end())
         if not left_value or not right_value:
             continue
-        if not COORDINATION.fullmatch(statement[left_value.end():right.start()]):
+        between = statement[left_value.end():right.start()]
+        if not (COORDINATION.fullmatch(between)
+                or LEFT_COMPOUND_COORDINATION.fullmatch(between)):
             continue
         prefix = label_prefix(statement, left.start())
         explicit_pair = BOTH_PREFIX.search(prefix)
