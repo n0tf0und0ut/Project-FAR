@@ -159,3 +159,22 @@ recomputation pass. This is documentation-integrity and bounded replay evidence;
 it introduces no new scientific result or empirical advantage claim. Final-head
 hosted gates, substantive independent review and the #625 merge dependency remain
 separate obligations.
+
+### DOC-CROSS-597-625-DERIVED — downstream inventory invalidation
+
+Hosted `validate` job `128648838021` on `48358a5f069bbd764cc4f57225961b0594cfa7d9`
+passed 66 living/corpus tests, then failed `stale generated output:
+research/corpus/synthesis-v1.0.json`. The exact command sequence reproduces the
+failure: `reconcile_living_repo.py` first updates its canonical-entry README hash
+from the predecessor value to the combined document; that declared mutable
+repository-state dependency invalidates corpus inventory/synthesis identities.
+A direct corpus check before living reconciliation misses this integration order.
+
+The existing living reconciler was run to a stable state, then the existing
+`reconcile_research_corpus.py --write` regenerated the derived synthesis and
+frontier. Only the living README surface hash and five synthesis identity/input
+fields changed; corpus semantic inputs, observations, conclusions, frontier
+content, scientific statuses and all frozen evidence remain unchanged. The exact
+66-test hosted validation subset passes locally; the same two-stage command
+sequence then passes and produces stable output. Independent exact-head review
+and hosted protected gates remain required after this successor correction.
