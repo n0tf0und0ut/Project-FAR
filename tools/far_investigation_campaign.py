@@ -31,6 +31,17 @@ from tools.far_investigation_usage import model_usage_report
 
 MODEL_SHA256 = '9c9f56a391a3abbd5b89d0245bf6106081bcc3173119d4229235dd9d23253f94'
 RUNNER_SHA256 = 'ae1311cdc0f67bd78e01e7b20bc5ed403814a621c290dd0ee29b8c67c0feece0'
+# A bounded native source can appear in several retained HTTP observations,
+# original receipts and terminal rechecks. The historical 64 MB per-member
+# limit fits one source but not two legal near-ceiling sources (~75.6 MB).
+# Derive a conservative finite admission ceiling from the default 16-call
+# campaign budget (at most eight retrieval/recheck pairs). Campaigns that
+# exceed this separate recording budget fail during execution; audit never
+# silently certifies archives larger than the execution contract.
+MAX_TRANSCRIPT_MEMBER_BYTES = 64_000_000 * max(1, Budget().max_http_calls // 2)
+MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES = 2 * MAX_TRANSCRIPT_MEMBER_BYTES
+MAX_CAMPAIGN_INDEX_BYTES = 8_000_000
+
 IMPLEMENTATION = ('tools/far_investigation_engine.py', 'tools/far_investigation_retrieval.py',
                   'tools/far_investigation_audit.py',
                   'tools/far_investigation_usage.py',
@@ -203,8 +214,14 @@ def audit_directory(directory):
                 members = archive.infolist()
                 if len({i.filename for i in members}) != len(members):
                     raise ValueError('duplicate archive member')
-                if any(i.file_size > 64_000_000 for i in members):
+                # Bound both a single decoded transcript and the cumulative
+                # uncompressed archive. ZIP compression is not a trusted
+                # substitute for these limits; the index gets a smaller bound.
+                if any(i.file_size > (MAX_CAMPAIGN_INDEX_BYTES if i.filename == 'campaign.json'
+                                      else MAX_TRANSCRIPT_MEMBER_BYTES) for i in members):
                     raise ValueError('archive member exceeds bound')
+                if sum(i.file_size for i in members) > MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES:
+                    raise ValueError('archive total uncompressed bytes exceed bound')
                 campaign = _parse(archive.read('campaign.json').decode())
                 if (campaign['schema'] != 'far-investigation-campaign/0.1'
                         or campaign['status'] != 'EXECUTED'
@@ -329,11 +346,17 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
         for task in tasks:
             for mode in modes:
                 path = output / (task['id'] + '-' + mode + '.json')
+                def retain_bounded(state):
+                    persist(path, state)
+                    if path.stat().st_size > MAX_TRANSCRIPT_MEMBER_BYTES:
+                        raise ValueError('transcript exceeds bounded campaign archive member budget')
                 runtime = Investigation(task['question'], policy, seeds=task['source_hints'], mode=mode,
-                                       budget=budget, checkpoint=lambda s: persist(path, s))
+                                       budget=budget, checkpoint=retain_bounded)
                 state = runtime.run_agent(LocalModel(identity_check=lambda: _server_identity(
                     server, command, executable_identity, model_identity))) if mode == 'agent' else runtime.run_workflow()
-                persist(path, state)
+                retain_bounded(state)
+                if sum(p.stat().st_size for p in output.glob('*.json')) > MAX_ARCHIVE_TOTAL_UNCOMPRESSED_BYTES:
+                    raise ValueError('campaign transcripts exceed total uncompressed archive budget')
                 row = {'task_id': task['id'], 'mode': mode, 'transcript': path.name,
                        'transcript_sha256': file_sha(path), 'metrics': metrics(state)}
                 campaign['rows'].append(row)
