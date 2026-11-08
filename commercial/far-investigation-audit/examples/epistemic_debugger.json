@@ -1,0 +1,46 @@
+{
+  "investigation_id": "semantic-quantifier-debugger",
+  "captured_at": "2026-10-27T12:00:00Z",
+  "debugger": true,
+  "source": {
+    "kind": "text",
+    "text": "Some reviewed deployments were safe. All reviewed deployments were safe.",
+    "origin_id": "hypothetical-demonstration"
+  },
+  "proposal_mode": "supplied",
+  "proposal": {
+    "atoms": {
+      "P": "Some reviewed deployments were safe."
+    },
+    "claims": [
+      {
+        "id": "some",
+        "quote": "Some reviewed deployments were safe.",
+        "formula": {
+          "atom": "P"
+        }
+      },
+      {
+        "id": "all",
+        "quote": "All reviewed deployments were safe.",
+        "formula": {
+          "atom": "P"
+        }
+      }
+    ],
+    "arguments": [
+      {
+        "id": "collapsed",
+        "premises": [
+          "some"
+        ],
+        "conclusion": "all",
+        "interpretation": "Intentionally wrong shared atom; proof passes but meaning must fail."
+      }
+    ],
+    "evidence": [],
+    "unknowns": [
+      "No real deployment safety claim is established by this hypothetical example."
+    ]
+  }
+}

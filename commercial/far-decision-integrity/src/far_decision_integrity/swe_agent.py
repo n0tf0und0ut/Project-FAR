@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .external_trace import ExternalEvent, ExternalTrace, ProvenanceKind, SourceLocation
+from .strict_json import loads_strict
 
 
 OBSERVATION_TYPES = frozenset({"observation", "tool-output", "tool_output", "tool-result", "tool_result"})
@@ -13,8 +14,8 @@ OBSERVATION_TYPES = frozenset({"observation", "tool-output", "tool_output", "too
 def load_swe_agent_trace(path: str | Path, *, trace_id: str | None = None) -> ExternalTrace:
     source = Path(path)
     try:
-        payload = json.loads(source.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        payload = loads_strict(source.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
         raise ValueError(f"unable to load SWE-agent trajectory: {exc}") from exc
 
     records = _records(payload)
