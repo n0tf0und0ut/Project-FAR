@@ -225,6 +225,97 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                                  'domain-defined interval')
                 self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_native_model_transport_is_bound_to_local_post_even_on_failure(self):
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+        response = {'model': 'CONTROLLED_FIXTURE', 'usage': {'total_tokens': 10},
+                    'choices': [{'message': None}]}
+        native = envelope(response)
+        native['transport'].update(
+            request_url='http://127.0.0.1:8085/v1/chat/completions',
+            request_method='POST',
+            response_url='http://127.0.0.1:8085/v1/chat/completions')
+        raw = base64.b64decode(native['response_base64'])
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   return_value=(raw, native['transport'])):
+            original = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(original['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for method, url in (
+                ('GET', 'http://127.0.0.1:8085/v1/chat/completions'),
+                ('POST', 'https://remote.example/chat')):
+            state = copy.deepcopy(original)
+            touched = [0]
+            def rewrite(node):
+                if isinstance(node, dict):
+                    if (isinstance(node.get('transport'), dict)
+                            and 'request_url' in node['transport']):
+                        t = node['transport']
+                        t['request_method'] = method
+                        t['request_url'] = url
+                        t['response_url'] = url
+                        touched[0] += 1
+                    for child in node.values():
+                        rewrite(child)
+                elif isinstance(node, list):
+                    for child in node:
+                        rewrite(child)
+            rewrite(state)
+            self.assertGreater(touched[0], 0)
+            reseal(state)
+            with self.subTest(method=method, url=url):
+                self.assert_rejected(state, 'model_calls[0].transport')
+
+    def test_rejected_extra_model_argument_named_request_sha256_is_source_data(self):
+        # The invalid model tool argument must be rejected by dispatch rather
+        # than misinterpreted as a journal request checksum.
+        choices = [action('retrieve', url=URL_A, request_sha256='not-a-hash'),
+                   *full_script()]
+        state = self.runtime().run_agent(NativeFunctionFixtureModel(choices))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_native_failed_retrieve_receipt_requires_its_http_reservation(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+        attempts = {}
+        def fetch(url, policy, checkpoint):
+            count = attempts.get(url, 0)
+            attempts[url] = count + 1
+            client = unittest.mock.Mock()
+            status = 500 if url == URL_A and count == 0 else 200
+            client.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(),
+                status=status, url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        state = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            seeds=[URL_A, URL_B], fetcher=fetch).run_agent(
+                NativeFunctionFixtureModel([action('retrieve', url=URL_A), *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(state['http_calls'], 5)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        forged = copy.deepcopy(state)
+        events = forged['events']
+        rejected_index = next(i for i, e in enumerate(events)
+            if e['kind'] == 'TOOL_REJECTED' and
+            isinstance(e['payload'].get('receipt'), dict) and
+            e['payload']['receipt'].get('schema') == 'far-source-receipt/0.1')
+        prior = [i for i, e in enumerate(events[:rejected_index])
+                 if e['kind'] in ('HTTP_REQUEST', 'HTTP_OBSERVATION')]
+        self.assertEqual(len(prior), 2)
+        forged['events'] = [e for i, e in enumerate(events) if i not in prior]
+        forged['http_calls'] -= 1
+        for i, e in enumerate(forged['events'], 1):
+            e['sequence'] = i
+            if e['kind'] in ('HTTP_REQUEST', 'SEARCH_REQUEST'):
+                e['payload']['call'] -= 1
+        reseal(forged)
+        self.assert_rejected(forged, 'failed_retrieve.reservation')
+
     def test_resealed_new_transport_timestamps_cannot_move_backwards(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import retrieve
