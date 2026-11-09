@@ -606,10 +606,15 @@ def audit(state) -> dict:
                     # response_url. If a URL was observed it must still be
                     # the attested local listener; a completed response must
                     # not omit it.
-                    if ('response_url' in transport or
-                            transport.get('http_status') is not None):
+                    # Historical frozen model envelopes did not always
+                    # retain a response_url; absence is not evidence of a
+                    # redirect, and must remain UNKNOWN rather than invented.
+                    # Current native reader receipts do record it. Whenever
+                    # a response URL is retained it must match the attested
+                    # listener, including all failed/interrupted attempts.
+                    if 'response_url' in transport:
                         equal('model_calls[' + str(attempt) + '].transport.response_url',
-                              transport.get('response_url'), endpoint)
+                              transport['response_url'], endpoint)
                 if observed and observed != {model_usage_tokens(call)}:
                     fail('model_calls[' + str(attempt) + '].usage', 'validated usage changed or disappeared within one attempt')
         source_available_at = {}
