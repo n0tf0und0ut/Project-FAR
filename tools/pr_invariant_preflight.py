@@ -46,7 +46,8 @@ def _date(value: str) -> datetime:
 def is_implementation_path(path: str) -> bool:
     if type(path) is not str or path.startswith('/') or '..' in Path(path).parts:
         return False
-    if path in SPECIAL_FILES or path.startswith('.github/workflows/') or path.startswith('.github/actions/'):
+    if (path in SPECIAL_FILES or Path(path).name in SPECIAL_FILES
+            or path.startswith('.github/workflows/') or path.startswith('.github/actions/')):
         return True
     if path.startswith('schemas/') and Path(path).suffix in SOFTWARE_CONFIG:
         return True
@@ -60,7 +61,12 @@ def is_implementation_path(path: str) -> bool:
 
 
 def parse_contract(body: object) -> dict:
-    if type(body) is not str or body.count(START) != 1 or body.count(END) != 1:
+    if type(body) is not str:
+        raise ValueError('PR description must be text')
+    # GitHub API/UI clients can submit CRLF even when the visible text is
+    # identical. Normalize only line endings, never strip or repair JSON.
+    body = body.replace('\r\n', '\n')
+    if body.count(START) != 1 or body.count(END) != 1:
         raise ValueError('exactly one FAR-INVARIANTS-V1 block required in PR description')
     fragment = body.split(START, 1)[1].split(END, 1)[0]
     if '<!-- FAR-INVARIANTS-V1' in fragment or 'FAR-INVARIANTS-END' in fragment:

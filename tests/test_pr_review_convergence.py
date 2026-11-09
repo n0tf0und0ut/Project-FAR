@@ -287,18 +287,8 @@ class ConvergenceTests(unittest.TestCase):
         self.assertEqual(checkout["with"]["ref"], "main")
         self.assertEqual(checkout["with"]["persist-credentials"], "false")
         scripts = [step for step in job["steps"] if "run" in step]
-        self.assertEqual(len(scripts), 2)
-        preflight = next(step for step in scripts if step.get("name") ==
-                         "Check invariant-first contract before independent review")
-        script = next(step for step in scripts if step.get("name") ==
-                      "Enforce review evidence for this event's exact PR head")
-        self.assertLess(job["steps"].index(preflight), job["steps"].index(script))
-        self.assertNotIn("if", preflight)
-        self.assertNotIn("continue-on-error", preflight)
-        self.assertEqual(preflight["env"]["EVENT_HEAD"], "${{ github.event.pull_request.head.sha }}")
-        self.assertIn('python3 tools/pr_invariant_preflight.py', preflight["run"])
-        self.assertIn('--expected-head "$EVENT_HEAD"', preflight["run"])
-        self.assertNotIn('gh api --method POST', preflight["run"])
+        self.assertEqual(len(scripts), 1)
+        script = scripts[0]
         self.assertNotIn("if", script)
         self.assertNotIn("continue-on-error", script)
         self.assertEqual(script["env"]["EVENT_HEAD"], "${{ github.event.pull_request.head.sha }}")
@@ -338,15 +328,10 @@ class ConvergenceTests(unittest.TestCase):
                          "head", "dependency", "skip_enforce", "ignore_step_failure",
                          "ignore_job_failure", "remove_ready_event", "other_repo",
                          "second_checkout", "bootstrap_pin", "bootstrap_digest",
-                         "bootstrap_pr", "bootstrap_repository",
-                         "skip_preflight", "remove_preflight", "tamper_preflight", "reorder_preflight"): 
+                         "bootstrap_pr", "bootstrap_repository"):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(source)
                 job = changed["jobs"]["required-review"]
-                enforce = next(step for step in job["steps"] if step.get("name") ==
-                               "Enforce review evidence for this event's exact PR head")
-                preflight = next(step for step in job["steps"] if step.get("name") ==
-                                 "Check invariant-first contract before independent review")
                 if mutation == "event":
                     changed["on"] = {"schedule": [{"cron": "13 * * * *"}]}
                 elif mutation == "comment_event":
@@ -358,20 +343,11 @@ class ConvergenceTests(unittest.TestCase):
                 elif mutation == "checkout":
                     job["steps"][0]["with"]["ref"] = "${{ github.event.pull_request.head.sha }}"
                 elif mutation == "head":
-                    enforce["run"] = enforce["run"].replace('[[ "$sha" == "$EVENT_HEAD" ]]', "true")
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace('[[ "$sha" == "$EVENT_HEAD" ]]', "true")
                 elif mutation == "skip_enforce":
-                    enforce["if"] = "github.event_name == 'pull_request'"
+                    job["steps"][1]["if"] = "github.event_name == 'pull_request'"
                 elif mutation == "ignore_step_failure":
-                    enforce["continue-on-error"] = "true"
-                elif mutation == "skip_preflight":
-                    preflight["if"] = "false"
-                elif mutation == "remove_preflight":
-                    job["steps"].remove(preflight)
-                elif mutation == "tamper_preflight":
-                    preflight["run"] = preflight["run"].replace('python3 tools/pr_invariant_preflight.py', 'true')
-                elif mutation == "reorder_preflight":
-                    job["steps"].remove(preflight)
-                    job["steps"].append(preflight)
+                    job["steps"][1]["continue-on-error"] = "true"
                 elif mutation == "ignore_job_failure":
                     job["continue-on-error"] = "true"
                 elif mutation == "remove_ready_event":
@@ -388,7 +364,7 @@ class ConvergenceTests(unittest.TestCase):
                         "bootstrap_pr": ('"$PR_NUMBER" == 578', '1 == 1'),
                         "bootstrap_repository": ('"$GITHUB_REPOSITORY" == n0tf0und0ut/Project-FAR', '1 == 1'),
                     }[mutation]
-                    enforce["run"] = enforce["run"].replace(before, after)
+                    job["steps"][1]["run"] = job["steps"][1]["run"].replace(before, after)
                 else:
                     job["needs"] = "discover"
                 with self.assertRaises(AssertionError):

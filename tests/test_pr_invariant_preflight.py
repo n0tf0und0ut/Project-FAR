@@ -112,15 +112,15 @@ class PreflightContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'head or base moved'):
                 check.check_live('owner/repo', 800, HEAD, 'fake-token')
 
-    def test_required_context_preserves_trusted_checkout_and_no_skip(self):
+    def test_stage_preserves_existing_required_workflow_until_protected_activation(self):
+        # The new collector must land on main before any required job that
+        # checks out protected main attempts to invoke it.
         workflow = (Path(__file__).resolve().parents[1] / '.github/workflows/required-pr-review-convergence.yml').read_text()
         self.assertIn('name: pr-review-convergence-observation', workflow)
         self.assertIn('ref: main', workflow)
         self.assertIn('persist-credentials: false', workflow)
-        self.assertLess(workflow.index('Check invariant-first contract before independent review'),
-                        workflow.index("Enforce review evidence for this event's exact PR head"))
-        self.assertIn('python3 tools/pr_invariant_preflight.py', workflow)
-        self.assertIn('pr-invariant-preflight.json', workflow)
+        self.assertIn("Enforce review evidence for this event's exact PR head", workflow)
+        self.assertNotIn('python3 tools/pr_invariant_preflight.py', workflow)
 
     def test_valid_contract_is_only_structural_not_correctness(self):
         output = verify()
@@ -131,6 +131,15 @@ class PreflightContractTests(unittest.TestCase):
         self.assertFalse(output['software_correctness_verified'])
         self.assertFalse(output['independent_review_verified'])
         self.assertFalse(output['required_protected_checks_verified'])
+
+    def test_crlf_contract_is_semantically_identical(self):
+        body = pr()['body'].replace('\n', '\r\n')
+        self.assertTrue(verify(pr(body=body))['valid'])
+
+    def test_nested_package_manifests_trigger_implementation_preflight(self):
+        for path in ('commercial/far-decision-integrity/pyproject.toml',
+                     'commercial/far-demo/Dockerfile', 'nested/package/requirements.txt'):
+            self.assertTrue(check.is_implementation_path(path), path)
 
     def test_cutover_respects_existing_open_prs(self):
         self.assertEqual('historical-pr', verify(pr(created='2026-11-09T23:59:59Z', body=''))['mode'])
