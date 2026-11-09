@@ -114,6 +114,46 @@ class CampaignTests(unittest.TestCase):
             self.assertEqual(record['rows'], [])
             self.assertNotIn('server_process_identity', record)
 
+    def test_local_campaign_health_never_uses_inherited_http_proxy(self):
+        # Readiness is not evidence of the pinned child if it arrives from an
+        # environment-configured proxy. Verify the exact launcher opener.
+        from tools import far_investigation_campaign as campaign
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [{
+                'id': 'probe', 'question': 'probe local model ownership',
+                'source_hints': ['https://example.org/a']}]}))
+            model = root / 'model.gguf'
+            server = root / 'runner'
+            model.write_bytes(b'fixture model identity only')
+            server.write_bytes(b'fixture runner identity only')
+            fake_server = Mock()
+            fake_server.poll.return_value = None
+            fake_health = Mock()
+            fake_health.open.side_effect = RuntimeError('direct health probe reached')
+            with (patch.object(campaign, 'MODEL_SHA256', campaign.file_sha(model)),
+                  patch.object(campaign.socket, 'socket'),
+                  patch.object(campaign, '_file_identity', return_value=(1, 2, 3, 4)),
+                  patch.object(campaign.subprocess, 'Popen', return_value=fake_server),
+                  patch.object(campaign.urllib.request, 'getproxies',
+                               return_value={'http': 'http://127.0.0.1:8888'}),
+                  patch.object(campaign.urllib.request, 'build_opener',
+                               return_value=fake_health) as built):
+                with self.assertRaisesRegex(RuntimeError, 'direct health probe reached'):
+                    run(selection, root / 'output', model_path=model, server_path=server,
+                        modes=('agent',))
+            fake_server.terminate.assert_called_once()
+            fake_health.open.assert_called_once_with(
+                'http://127.0.0.1:8085/health', timeout=1)
+            handler = built.call_args.args[0]
+            self.assertIsInstance(handler, __import__('urllib.request',
+                fromlist=['ProxyHandler']).ProxyHandler)
+            self.assertEqual(handler.proxies, {})
+            record = json.loads((root / 'output' / 'campaign.json').read_text())
+            self.assertEqual(record['status'], 'FAILED_OR_INCOMPLETE')
+            self.assertEqual(record['rows'], [])
+
     def test_empty_counterexample_valuation_counts_as_a_native_witness(self):
         from tools.far_investigation_engine import Investigation, RetrievalPolicy
         from tests.test_far_investigation_engine import FixtureRetriever, ScriptedFixtureModel, full_script
