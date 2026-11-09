@@ -92,6 +92,18 @@ Examples include:
 
 The goal is to preserve the meaning, premises, scope, provenance, and stated limitations of each claim. Do not promote an illustrative example, passing test, or research artifact into accepted theory without the governed acceptance process.
 
+## Practical task routes
+
+| Your change | Start with | Verify against |
+|---|---|---|
+| Documentation or reader navigation | [Documentation index](docs/README.md) and [documentation style guide](docs/STYLE_GUIDE.md) | Existing canonical destinations; [documentation health checks](docs/maintenance/repository-health-checks.md). |
+| Explicit-contract verifier or fixture | [Mechanization guide](mechanization/README.md) and the versioned contract specification | Registered conformance tests, exact inputs and version-specific semantics. |
+| Formal theory, terminology, or proof | [Theory index](theory/README.md), [current core](theory/theorems/Project-FAR-Theory-Closure-v1.1.md), and [claim ledger](theory/terminal/project-far-core-theory-v1.1.json) | The stated premises, proof obligations, assurance ledger, and governed promotion process. |
+| Research experiment or replication | [Research index](research/README.md) and the study-specific protocol | Existing preregistration/freeze requirements; preserve failures, raw results, and nonclaims. |
+| Architecture or runtime behavior | [Architecture guide](docs/ARCHITECTURE.md) and [domain registry](docs/architecture/repository-domain-registry.md) | Relevant executable tests, current authority, and PR review convergence. |
+
+The [six reader routes](docs/README.md#find-what-you-need) are a task-oriented way to locate existing sources. They do not grant scientific, operational, or protected-merge authority.
+
 ## Verify a contribution
 
 From the repository root, use the existing checkers appropriate to the changed files:
