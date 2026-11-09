@@ -573,7 +573,12 @@ class RetainedCampaignReplayTests(unittest.TestCase):
         self.assertTrue(metrics(state)['integrity_valid'])
         state['seeds']=['https://unregistered.example.org/answer']
         reseal(state)
-        self.assertTrue(metrics(state)['integrity_valid'])
+        # Native model requests now bind the registered question/seeds/policy.
+        # The forged agent record is rejected by transcript audit before the
+        # campaign registration independently rejects its source exposure.
+        self.assertFalse(metrics(state)['integrity_valid'])
+        from tools.far_investigation_audit import audit
+        self.assertTrue(any('request.prompt.seeds' in error for error in audit(state)['errors']))
         changed=json.dumps(state,sort_keys=True).encode()
         campaign=copy.deepcopy(self.campaign)
         entry_row=next(row for row in campaign['rows'] if row['transcript']==name)
