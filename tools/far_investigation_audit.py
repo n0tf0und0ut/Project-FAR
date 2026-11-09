@@ -11,6 +11,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 from datetime import datetime
 from urllib.parse import urlsplit
 
@@ -21,6 +22,46 @@ from tools.far_investigation_retrieval import (
 from tools.far_investigation_verifiers import verify
 from tools.far_routing_dispatch import _parse, route_text
 from tools.far_investigation_usage import model_usage_report, model_usage_tokens
+
+
+def fixed_workflow_proposals(state):
+    """Independently reconstruct the only proposals run_workflow can emit.
+
+    Final-state source projections are already checked against chronological
+    retrieval producers by audit(). Failed workflows may stop after any prefix,
+    but cannot select another operation or resume after a rejected proposal.
+    """
+    proposals = [{'tool': 'retrieve', 'args': {'url': url}} for url in state['seeds']]
+    if not state['projections']:
+        return proposals
+    words = set(re.findall(r'[a-z]{4,}', state['question'].lower()))
+    for ident in sorted(state['projections'], key=lambda key: int(key.removeprefix('src.'))):
+        text = state['projections'][ident]['text']
+        passages = [text[i:i+1200] for i in range(0, len(text), 1000)]
+        if not passages:
+            return proposals  # The real workflow raises before this extraction.
+        quote = max(passages, key=lambda passage: sum(w in passage.lower() for w in words))
+        proposals.append({'tool': 'extract', 'args': {'source_id': ident, 'quote': quote,
+            'relation': 'context',
+            'claim': 'Relevant lexical passage; semantic support not mechanically established.'}})
+    ids = ['ev.' + str(i) for i in range(1, len(state['projections']) + 1)]
+    proposals.append({'tool': 'compare', 'args': {'evidence_ids': ids,
+        'alternatives': ['Source assertions may disagree, share an origin, or address different estimands.']}})
+    proposals.append({'tool': 'discover', 'args': {'claims': [{
+        'statement': state['question'], 'type': 'ambiguous', 'interpretations': [{
+            'statement': 'Bounded source evidence for exact input; semantic adjudication unresolved.',
+            'evidence_ids': ids,
+            'plan': {'kind': 'evidence_assessment', 'evidence_ids': ids, 'claim_type': 'ambiguous'}}]}],
+        'missing_evidence': ['Independent semantic adjudication, exact estimand and all material alternative meanings.']}})
+    proposals.extend(({'tool': 'recheck', 'args': {}}, {'tool': 'freeze', 'args': {}}))
+    intake = state.get('intake')
+    if type(intake) is dict and intake.get('freeze', {}).get('status') == 'FROZEN':
+        for candidate in intake['discovery']['contract_candidates']:
+            proposals.append({'tool': 'verify', 'args': {'candidate_id': candidate['id']}})
+        proposals.append({'tool': 'finish', 'args': {
+            'notes': 'Bounded retrieval completed; source truth and claim entailment unresolved.',
+            'evidence_ids': ids, 'next_evidence': ['Independent substantive review.']}})
+    return proposals
 
 
 def audit(state) -> dict:
@@ -444,6 +485,30 @@ def audit(state) -> dict:
             fail('budget', 'tool/HTTP reservation limit exceeded')
         if state['mode'] != 'agent' and (model_proposals or state['model_calls']):
             fail('mode', 'workflow contains model decisions')
+        if state['mode'] != 'agent':
+            expected_kind = ('DETERMINISTIC_PLAN' if state['mode'] == 'deterministic'
+                             else 'DECLARATIVE_PLAN')
+            plans = [event for event in events
+                     if event['kind'] in ('DETERMINISTIC_PLAN', 'DECLARATIVE_PLAN')]
+            expected_plan = [{'tool': 'retrieve', 'args': {'url': url}} for url in state['seeds']]
+            if (len(plans) != 1 or len(events) < 2
+                    or events[1]['kind'] != expected_kind):
+                fail('workflow.plan', 'fixed baseline requires one initial mode-matched plan')
+            elif sha256_json(plans[0]['payload']) != sha256_json(expected_plan):
+                fail('workflow.plan', 'baseline seed-retrieval plan differs from runtime')
+            expected_workflow = guarded('workflow.proposals',
+                lambda: fixed_workflow_proposals(state))
+            if expected_workflow is not None:
+                if len(actual_proposals) > len(expected_workflow):
+                    fail('workflow.proposals', 'baseline emitted operations beyond its fixed algorithm')
+                for offset, actual in enumerate(actual_proposals[:len(expected_workflow)]):
+                    equal('workflow.proposals[' + str(offset) + ']', actual,
+                          expected_workflow[offset])
+                if (state['status'] == 'BOUNDED_PIPELINE_COMPLETED'
+                        and len(actual_proposals) != len(expected_workflow)):
+                    fail('workflow.completion', 'completed baseline omitted a required fixed operation')
+            if any(kind != 'TOOL_RESULT' for _, _, kind, _ in tool_attempts[:-1]):
+                fail('workflow.failure', 'baseline continued after a rejected operation')
         if state['mode'] == 'agent':
             calls = state['model_calls']
             if len(calls) not in (len(model_proposals), len(model_proposals) + 1):
