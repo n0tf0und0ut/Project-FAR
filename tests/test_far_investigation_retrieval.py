@@ -170,7 +170,7 @@ class RetrievalTests(unittest.TestCase):
         # iterative projection-depth validator can inspect the parsed object.
         raw = b"[" * 12000 + b"0" + b"]" * 12000
         record = self.get(raw, "application/json")
-        with self.assertRaisesRegex(ToolError, "source parse failed: RecursionError") as caught:
+        with self.assertRaisesRegex(ToolError, "source parse failed: ValueError") as caught:
             parse_receipt(record)
         self.assertEqual(base64.b64decode(caught.exception.receipt["raw_base64"]), raw)
         self.assertEqual(caught.exception.receipt["sha256"], record["sha256"])

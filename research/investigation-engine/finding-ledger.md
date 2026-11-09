@@ -630,14 +630,15 @@ receipt retained, no parsed projection, and auditable failed final seal.
 Final source/test validation and independent exact-head review are required
 before any merge; this is an engineering bound, not scientific efficacy.
 
-**ENG-SOURCE-PARSER-STACK-20261109 (related independent boundary):** Beyond
-the 700-level JSON projection counterexample, a source with approximately
-12,000 nested arrays can cause the strict JSON decoder itself to raise
-`RecursionError` before the iterative depth guard receives any object.
-This failure also must preserve raw receipt bytes and produce an ordinary
-rejected tool attempt rather than escape the investigation's finalization.
-The shared parser now maps this interpreter-limit exception to its existing
-`ToolError` path, with `test_json_decoder_stack_limit_preserves_raw_source_receipt`
-checking full original source bytes/hash and the explicit error class.
-Original source or frozen campaign records are unchanged; independent
-exact-head review and hosted regression checks remain required.
+**ENG-SOURCE-PARSER-STACK-20261109 (verified pre-existing protection):**
+Inspection of `mechanization/far_mechanization/_intake_v1_core.py` shows
+that `_strict_json_loads` already catches `RecursionError` and raises a
+bounded `ValueError` before `parse_receipt` processes the parsed result.
+The earlier hypothesis of an uncaught parser-recursion defect was
+**disproven**; no production exception-handler change is needed.
+The retained `test_json_decoder_stack_limit_preserves_raw_source_receipt`
+exercises approximately 12,000 nested arrays through the existing native
+retrieval and source parser and confirms a `ToolError` caused by the
+pre-existing `ValueError` conversion, with original raw bytes and hash intact.
+This is regression coverage, not a correction to production behavior.
+No frozen evidence or scientific result is changed.
