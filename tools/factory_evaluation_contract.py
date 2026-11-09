@@ -104,7 +104,7 @@ def validate(record: object) -> dict:
         "design", "target_distinct_tasks", "source", "included_classes", "exclusions",
         "allocation", "tasks_frozen",
     }, "sampling")
-    if s["design"] != "prospective-paired-pilot":
+    if s["design"] != "prospective-randomized-parallel-pilot":
         raise ContractError("invalid pilot design")
     if type(s["target_distinct_tasks"]) is not int or not 2 <= s["target_distinct_tasks"] <= 40:
         raise ContractError("invalid task target")
@@ -115,13 +115,13 @@ def validate(record: object) -> dict:
     _string_list(s["exclusions"], "sampling.exclusions")
     _bool(s["tasks_frozen"], "sampling.tasks_frozen", False)
     c = _shape(doc["controls"], {
-        "same_starting_commit", "same_task_specification", "same_test_oracles",
+        "task_base_sha_pinned_before_allocation", "task_specifications_frozen_before_allocation", "test_oracles_frozen_before_allocation",
         "same_model_version_when_possible", "same_runner_hardware_when_possible",
         "parallel_or_counterbalanced_order", "max_wall_minutes_per_arm_task",
         "max_paid_provider_usd_per_arm_task", "max_agent_attempts_per_arm_task",
         "human_intervention_definition", "deviation_policy",
     }, "controls")
-    for key in ("same_starting_commit", "same_task_specification", "same_test_oracles",
+    for key in ("task_base_sha_pinned_before_allocation", "task_specifications_frozen_before_allocation", "test_oracles_frozen_before_allocation",
                 "same_model_version_when_possible", "same_runner_hardware_when_possible",
                 "parallel_or_counterbalanced_order"):
         _bool(c[key], f"controls.{key}", True)
