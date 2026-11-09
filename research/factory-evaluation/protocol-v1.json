@@ -1,0 +1,64 @@
+{
+  "schema": "far-factory-self-evaluation/1",
+  "study_id": "FAR-FACTORY-SELF-EVAL-001",
+  "status": "Research-preregistered-not-executed",
+  "reference_repo": "n0tf0und0ut/Project-FAR",
+  "registration_base_sha": "05b8adf3dac9493d229b682f0a620e0a14925a8e",
+  "question": "Does adding a governed software factory improve independently verified engineering delivery compared with the existing human-directed agent-assisted workflow under matched conditions?",
+  "arms": [
+    {"id": "control", "description": "Existing human-directed, agent-assisted workflow with the same protected PR requirements"},
+    {"id": "factory", "description": "Candidate software-factory workflow with identical external verification and protected PR requirements"}
+  ],
+  "sampling": {
+    "design": "prospective-paired-pilot",
+    "target_distinct_tasks": 8,
+    "source": "First eight eligible non-sensitive independently reviewed maintenance or defect-repair work orders admitted after this protocol is protected on main; register the actual task IDs and eligibility decisions before any arm executes",
+    "included_classes": ["defect-repair", "maintenance"],
+    "exclusions": ["requires secrets or paid services", "frozen research evidence mutation", "protected-branch bypass", "task whose acceptance oracle was supplied or modified by a contestant after allocation"],
+    "allocation": "Each selected task is attempted in both isolated arms from the same exact base SHA; determine first arm by low bit of SHA-256(study_id + ':' + task_id); do not remove timed-out, blocked or failed attempts",
+    "tasks_frozen": false
+  },
+  "controls": {
+    "same_starting_commit": true,
+    "same_task_specification": true,
+    "same_test_oracles": true,
+    "same_model_version_when_possible": true,
+    "same_runner_hardware_when_possible": true,
+    "parallel_or_counterbalanced_order": true,
+    "max_wall_minutes_per_arm_task": 90,
+    "max_paid_provider_usd_per_arm_task": 0,
+    "max_agent_attempts_per_arm_task": 3,
+    "human_intervention_definition": "Any action by a human that changes task strategy, edits code, resolves an execution blocker, repairs evidence or manually advances an otherwise automated stage; initial task registration is excluded",
+    "deviation_policy": "Record actual variations before interpretation; materially unmatched versions, resources, or oracles make causal comparison INCOMPARABLE"
+  },
+  "primary_metric": {
+    "id": "verified_protected_delivery_rate",
+    "numerator": "Eligible arm-task attempts with an independently confirmed correct change, exact-head substantive review, required checks, authorized protected merge and observed main ancestry within the budget",
+    "denominator": "All eligible allocated arm-task attempts, including timeout, non-start, blocked, failed and abandoned attempts",
+    "measurement_unit": "verified deliveries per eligible allocated attempt"
+  },
+  "secondary_metrics": ["wall_minutes", "provider_usd", "human_interventions", "attempts", "regressions_detected", "escaped_regressions", "evidence_completeness", "recovery_after_interruption"],
+  "verification": {
+    "independent_from_candidate_worker": true,
+    "required_check_contexts": ["merge-authority", "protected-repin-gate", "pr-review-convergence-observation"],
+    "required_receipt_fields": ["study_id", "protocol_sha256", "task_id", "arm_id", "task_base_sha", "candidate_sha", "executor_identity", "model_version", "runner_identity", "task_oracle_digest", "started_at", "ended_at", "raw_log_digest", "cost_usd", "human_interventions", "outcome", "check_run_ids", "review_reference", "merge_sha", "observed_main_sha"],
+    "unknown_or_missing_is_not_success": true,
+    "worker_declarations_are_untrusted": true,
+    "frozen_task_oracle_required": true
+  },
+  "decision": {
+    "study_type": "diagnostic-pilot-not-confirmatory",
+    "superiority_claim_allowed": false,
+    "major_security_or_provenance_failure": "STOP_AND_REPORT",
+    "missing_or_incomparable_evidence": "UNKNOWN_OR_INCOMPARABLE",
+    "success_condition": "Report complete paired results and limitations without promoting a causal or general-reliability claim",
+    "followup": "Preregister confirmatory sample-size and statistical decision rule based on pilot uncertainty before subsequent testing"
+  },
+  "limitations": [
+    "No factory control plane or coding worker is independently proven operational by this protocol.",
+    "Eight paired tasks constitute a diagnostic pilot, not a powered superiority experiment.",
+    "Task IDs, credentials, actual runner parity, outcomes, provider cost and hosted provenance are not yet established.",
+    "An unmerged candidate protocol is not frozen authoritative evidence; freeze at the protected-main commit before trial allocation.",
+    "Passing a static validation tool does not authenticate source evidence or establish scientific acceptance."
+  ]
+}
