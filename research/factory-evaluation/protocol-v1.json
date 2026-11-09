@@ -10,18 +10,18 @@
     {"id": "factory", "description": "Candidate software-factory workflow with identical external verification and protected PR requirements"}
   ],
   "sampling": {
-    "design": "prospective-paired-pilot",
+    "design": "prospective-randomized-parallel-pilot",
     "target_distinct_tasks": 8,
-    "source": "First eight eligible non-sensitive independently reviewed maintenance or defect-repair work orders admitted after this protocol is protected on main; register the actual task IDs and eligibility decisions before any arm executes",
+    "source": "First eight eligible non-sensitive independently reviewed maintenance or defect-repair work orders admitted after this protocol is protected on main; independently lock actual task IDs, exact task base SHAs and oracle digests before arm allocation",
     "included_classes": ["defect-repair", "maintenance"],
     "exclusions": ["requires secrets or paid services", "frozen research evidence mutation", "protected-branch bypass", "task whose acceptance oracle was supplied or modified by a contestant after allocation"],
-    "allocation": "Each selected task is attempted in both isolated arms from the same exact base SHA; determine first arm by low bit of SHA-256(study_id + ':' + task_id); do not remove timed-out, blocked or failed attempts",
+    "allocation": "After locking all eight task identities and eligibility reasons, an independent evaluator obtains and records an unpredictable random seed; sort tasks by SHA-256(seed + ':' + task_id), assign the first four to control and the other four to factory, and execute each task only once in its assigned arm against the actual protected repository. Preserve main-SHA drift, non-starts, timeouts and failures; never replace or swap tasks after allocation",
     "tasks_frozen": false
   },
   "controls": {
-    "same_starting_commit": true,
-    "same_task_specification": true,
-    "same_test_oracles": true,
+    "task_base_sha_pinned_before_allocation": true,
+    "task_specifications_frozen_before_allocation": true,
+    "test_oracles_frozen_before_allocation": true,
     "same_model_version_when_possible": true,
     "same_runner_hardware_when_possible": true,
     "parallel_or_counterbalanced_order": true,
@@ -34,7 +34,7 @@
   "primary_metric": {
     "id": "verified_protected_delivery_rate",
     "numerator": "Eligible arm-task attempts with an independently confirmed correct change, exact-head substantive review, required checks, authorized protected merge and observed main ancestry within the budget",
-    "denominator": "All eligible allocated arm-task attempts, including timeout, non-start, blocked, failed and abandoned attempts",
+    "denominator": "All eligible tasks assigned to that arm before execution, including timeout, non-start, blocked, failed and abandoned tasks",
     "measurement_unit": "verified deliveries per eligible allocated attempt"
   },
   "secondary_metrics": ["wall_minutes", "provider_usd", "human_interventions", "attempts", "regressions_detected", "escaped_regressions", "evidence_completeness", "recovery_after_interruption"],
@@ -51,12 +51,12 @@
     "superiority_claim_allowed": false,
     "major_security_or_provenance_failure": "STOP_AND_REPORT",
     "missing_or_incomparable_evidence": "UNKNOWN_OR_INCOMPARABLE",
-    "success_condition": "Report complete paired results and limitations without promoting a causal or general-reliability claim",
+    "success_condition": "Report all randomized parallel-arm outcomes, task-class balance, protected-main drift and limitations without promoting a causal or general-reliability claim",
     "followup": "Preregister confirmatory sample-size and statistical decision rule based on pilot uncertainty before subsequent testing"
   },
   "limitations": [
     "No factory control plane or coding worker is independently proven operational by this protocol.",
-    "Eight paired tasks constitute a diagnostic pilot, not a powered superiority experiment.",
+    "Eight separately assigned tasks (four per arm) constitute a diagnostic pilot, not a powered superiority experiment; task-difficulty imbalance remains a material limitation.",
     "Task IDs, credentials, actual runner parity, outcomes, provider cost and hosted provenance are not yet established.",
     "An unmerged candidate protocol is not frozen authoritative evidence; freeze at the protected-main commit before trial allocation.",
     "Passing a static validation tool does not authenticate source evidence or establish scientific acceptance."
