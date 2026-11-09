@@ -208,7 +208,10 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 # Native read(n) may consume a buffered prefix and then raise
                 # while waiting for the remaining n bytes. read1(n) returns the
                 # available non-chunked bytes before another blocking syscall.
-                incremental = isinstance(native, http.client.HTTPResponse)
+                # Native chunked decoding must use read(), which enforces the
+                # same strict framing/partial-prefix behavior as before. Its
+                # framing observer now checks the absolute model deadline.
+                incremental = isinstance(native, http.client.HTTPResponse) and not native.chunked
                 reader = native.read1 if incremental else response.read
                 if chunk_size is None and not incremental:
                     enforce_deadline()

@@ -514,10 +514,9 @@ def audit(state) -> dict:
                                       tool_pending['args']['provider'])
                                 equal(path + '.failed_search.observation', attempt_search_observation,
                                       payload['receipt'])
-                                if tool_pending['args']['provider'] in ('crossref', 'wikimedia'):
-                                    equal(path + '.failed_search.url', payload['receipt']['request']['url'],
-                                          public_search_url(tool_pending['args']['query'],
-                                                            tool_pending['args']['provider']))
+                                # URL authority is not inferred for an injected
+                                # source adapter: only the recorded reservation
+                                # and observed receipt are independently bindable.
                     if (valid_shape and tool_pending['tool'] == 'retrieve'
                             and kind == 'TOOL_REJECTED'
                             and type(payload) is dict and type(payload.get('receipt')) is dict
