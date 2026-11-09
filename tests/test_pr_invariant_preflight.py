@@ -70,6 +70,58 @@ def verify(p=None, files=None, content=None):
 
 
 class PreflightContractTests(unittest.TestCase):
+    def test_removed_and_renamed_sources_require_coverage(self):
+        for changed in ([{'filename': 'tools/reader.py', 'status': 'removed'}],
+                        [{'filename': 'tools/auditor.py', 'previous_filename': 'tools/reader.py', 'status': 'renamed'}]):
+            p = pr()
+            p['changed_files'] = len(changed)
+            x = verify(p, changed)
+            self.assertFalse(x['valid'])
+            self.assertIn('implementation paths', ' '.join(x['errors']))
+
+    def test_same_negative_or_positive_control_cannot_be_reused(self):
+        for change in ('duplicate_negative', 'duplicate_positive'):
+            data = contract()
+            row = data['invariants'][0]
+            if change == 'duplicate_negative':
+                row['failure_modes'][1]['test'] = row['failure_modes'][0]['test']
+            else:
+                row['positive_control'] = row['integration_control']
+            x = verify(pr(check.START + json.dumps(data) + check.END))
+            self.assertFalse(x['valid'], change)
+            self.assertIn('distinct', ' '.join(x['errors']))
+
+    def test_nested_test_directory_is_valid_reference(self):
+        self.assertEqual(('commercial/feature/tests/test_case.py', 'test_edge'),
+                         check._valid_test_ref('commercial/feature/tests/test_case.py::test_edge'))
+
+    def test_moving_base_fails_even_with_identical_head(self):
+        p = pr()
+        moved = pr()
+        moved['base']['sha'] = 'c' * 40
+        replies = iter([p, moved])
+        def fake_api(url, token):
+            if url.endswith('/pulls/800'):
+                return next(replies)
+            if '/contents/tests/' in url:
+                source = TESTS[url.split('/contents/', 1)[1].split('?', 1)[0]].encode()
+                return {'encoding': 'base64', 'content': __import__('base64').b64encode(source).decode(), 'size': len(source)}
+            raise AssertionError(url)
+        with patch.object(check, 'api', side_effect=fake_api), \
+             patch.object(check, 'paginate', return_value=FILES):
+            with self.assertRaisesRegex(ValueError, 'head or base moved'):
+                check.check_live('owner/repo', 800, HEAD, 'fake-token')
+
+    def test_required_context_preserves_trusted_checkout_and_no_skip(self):
+        workflow = (Path(__file__).resolve().parents[1] / '.github/workflows/required-pr-review-convergence.yml').read_text()
+        self.assertIn('name: pr-review-convergence-observation', workflow)
+        self.assertIn('ref: main', workflow)
+        self.assertIn('persist-credentials: false', workflow)
+        self.assertLess(workflow.index('Check invariant-first contract before independent review'),
+                        workflow.index("Enforce review evidence for this event's exact PR head"))
+        self.assertIn('python3 tools/pr_invariant_preflight.py', workflow)
+        self.assertIn('pr-invariant-preflight.json', workflow)
+
     def test_valid_contract_is_only_structural_not_correctness(self):
         output = verify()
         self.assertTrue(output['valid'], output)

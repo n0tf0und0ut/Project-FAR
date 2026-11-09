@@ -21,7 +21,11 @@ PINNED_COLLECTOR = ROOT / "tests/fixtures/pr-review-collector-dc4924a.py.txt"
 
 def enforcement_script():
     workflow = yaml.load(WORKFLOW.read_text(), Loader=yaml.BaseLoader)
-    return workflow["jobs"]["required-review"]["steps"][1]["run"]
+    steps = workflow["jobs"]["required-review"]["steps"]
+    matched = [step for step in steps if step.get("name") == "Enforce review evidence for this event's exact PR head"]
+    if len(matched) != 1:
+        raise AssertionError("missing or duplicate native review enforcement step")
+    return matched[0]["run"]
 
 
 STUBS = r'''

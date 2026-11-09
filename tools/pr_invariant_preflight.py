@@ -28,7 +28,7 @@ CUTOVER = '2026-11-10T00:00:00Z'
 START = '<!-- FAR-INVARIANTS-V1\n'
 END = '\nFAR-INVARIANTS-END -->'
 IDENTIFIER = re.compile(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){1,8}\Z')
-TEST_REFERENCE = re.compile(r'(?P<path>(?:tests/|[^/]+/tests/)[A-Za-z0-9_./-]+\.(?:py|rs|go|js|ts))::(?P<name>test_[A-Za-z0-9_]+)\Z')
+TEST_REFERENCE = re.compile(r'(?P<path>(?:tests/|(?:[A-Za-z0-9_.-]+/)+tests/)[A-Za-z0-9_./-]+\.(?:py|rs|go|js|ts|lean))::(?P<name>test_[A-Za-z0-9_]+)\Z')
 CODE_SUFFIXES = {'.py', '.rs', '.go', '.js', '.jsx', '.ts', '.tsx', '.sh', '.c', '.cc', '.cpp', '.h', '.java', '.rb', '.jl', '.lean', '.sql'}
 SPECIAL_FILES = {'AGENTS.md', 'CLAUDE.md', 'pyproject.toml', 'Cargo.toml', 'Cargo.lock', 'go.mod', 'go.sum', 'Dockerfile', 'Makefile', 'requirements.txt', '.github/pull_request_template.md'}
 SOFTWARE_CONFIG = {'.json', '.yml', '.yaml', '.toml'}
@@ -125,7 +125,9 @@ def evaluate(pr: dict, changed_files: list[dict], read_file, *, cutoff: str = CU
         raise ValueError('incomplete changed-file inventory')
     if type(pr.get('changed_files')) is not int or len(changed_files) != pr['changed_files']:
         raise ValueError('changed-file inventory count mismatch; cannot silently omit paths')
-    paths = sorted({f['filename'] for f in changed_files if f.get('status') != 'removed'})
+    paths = sorted({p for f in changed_files for p in
+                    (f['filename'], f.get('previous_filename') if f.get('status') == 'renamed' else None)
+                    if p is not None})
     affected = {p for p in paths if is_implementation_path(p)}
     result = {'schema': 'far-pr-invariant-preflight/1', 'pr': pr['number'], 'head_sha': head,
               'base_sha': pr['base'].get('sha'), 'implementation_paths': sorted(affected),
@@ -182,6 +184,7 @@ def evaluate(pr: dict, changed_files: list[dict], read_file, *, cutoff: str = CU
             problems.append(tag + ': at least two distinct counterexample modes required')
         else:
             seen_modes = set()
+            negative_tests = []
             for j, item in enumerate(modes):
                 if type(item) is not dict or set(item) != {'case', 'test'} or not _text(item.get('case') if type(item) is dict else None, 20):
                     problems.append(f'{tag}.failure_modes[{j}]: case description and test required')
@@ -189,7 +192,14 @@ def evaluate(pr: dict, changed_files: list[dict], read_file, *, cutoff: str = CU
                 if item['case'] in seen_modes:
                     problems.append(tag + ': duplicate failure case')
                 seen_modes.add(item['case'])
+                negative_tests.append(item['test'])
                 tested.add(item['test'])
+            if len(set(negative_tests)) != len(negative_tests):
+                problems.append(tag + ': failure cases must have distinct tests')
+            if (row['positive_control'] == row['integration_control']
+                    or row['positive_control'] in negative_tests
+                    or row['integration_control'] in negative_tests):
+                problems.append(tag + ': positive, negative, and integration controls must be distinct')
         tested.add(row['positive_control'])
         tested.add(row['integration_control'])
         result['contracts_checked'] += 1
@@ -226,13 +236,21 @@ def check_live(repo: str, number: int, expected_head: str, token: str) -> dict:
     pr = api(f'{base}/pulls/{number}', token)
     if pr['head']['sha'] != expected_head:
         raise ValueError('PR moved before preflight')
+    if pr.get('state') != 'open' or pr.get('base', {}).get('ref') != 'main':
+        raise ValueError('PR is not open against protected main')
+    original_base = pr['base'].get('sha')
+    def still_pinned():
+        current = api(f'{base}/pulls/{number}', token)
+        if (current['head']['sha'] != expected_head
+                or current.get('base', {}).get('sha') != original_base
+                or current.get('base', {}).get('ref') != 'main'):
+            raise ValueError('PR head or base moved during preflight')
     # Existing PRs and drafts must not depend on a new file-list API or the
     # contract introduced after their creation. Still recheck their head.
     phase = 'historical-pr' if _date(pr.get('created_at')) < _date(CUTOVER) else (
         'draft-deferred' if pr.get('draft') is True else None)
     if phase:
-        if api(f'{base}/pulls/{number}', token)['head']['sha'] != expected_head:
-            raise ValueError('PR moved during preflight')
+        still_pinned()
         return {'schema': 'far-pr-invariant-preflight/1', 'pr': number,
                 'head_sha': expected_head, 'base_sha': pr.get('base', {}).get('sha'),
                 'implementation_paths': [], 'contracts_checked': 0,
@@ -250,8 +268,7 @@ def check_live(repo: str, number: int, expected_head: str, token: str) -> dict:
         return base64.b64decode(response['content'], validate=False).decode('utf-8')
 
     result = evaluate(pr, changed_files, read_file)
-    if api(f'{base}/pulls/{number}', token)['head']['sha'] != expected_head:
-        raise ValueError('PR moved during preflight')
+    still_pinned()
     return result
 
 
