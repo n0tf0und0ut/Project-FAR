@@ -326,9 +326,16 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
             if e['kind'] == 'TOOL_REJECTED' and
             isinstance(e['payload'].get('receipt'), dict) and
             e['payload']['receipt'].get('schema') == 'far-source-receipt/0.1')
-        prior = [i for i, e in enumerate(events[:rejected_index])
-                 if e['kind'] in ('HTTP_REQUEST', 'HTTP_OBSERVATION')]
-        self.assertEqual(len(prior), 2)
+        # A bounded native reader emits progressive HTTP_OBSERVATION
+        # checkpoints. Remove its one reservation and *all* corresponding
+        # progressive/final observations, not just a single observation.
+        start = max(i for i, e in enumerate(events[:rejected_index])
+                    if e['kind'] == 'TOOL_PROPOSAL')
+        prior = [i for i in range(start, rejected_index)
+                 if events[i]['kind'] in ('HTTP_REQUEST', 'HTTP_OBSERVATION')]
+        self.assertEqual(sum(events[i]['kind'] == 'HTTP_REQUEST' for i in prior), 1)
+        self.assertGreaterEqual(
+            sum(events[i]['kind'] == 'HTTP_OBSERVATION' for i in prior), 1)
         forged['events'] = [e for i, e in enumerate(events) if i not in prior]
         forged['http_calls'] -= 1
         for i, e in enumerate(forged['events'], 1):
