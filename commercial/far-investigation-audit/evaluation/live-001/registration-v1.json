@@ -1,0 +1,33 @@
+{
+  "base_commit": "38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab",
+  "files": {
+    "commercial/far-investigation-audit/acquire.py": "a20e009306f7f1db4a958bbe2627f1775523c86ca94a08b21cd2c8a5b85a078b",
+    "commercial/far-investigation-audit/bounded_io.py": "7f5de60d3bc02e2ea4f3b8e1b0d34039a61e636766fba3df01f025daee89426e",
+    "commercial/far-investigation-audit/capture.py": "5f908bba0e639f169432b04455d6af607af0f9616952077163d3343cf2d9a47a",
+    "commercial/far-investigation-audit/cli.py": "2af0f136dc52d4adb71fd2a26ac3814b462cac0d5b5cd54cef82cd656098076e",
+    "commercial/far-investigation-audit/diagnostics.py": "5ecc0bfbbd95130702df8c05368e08ece1c224ef204f961c7b5b36976a676f8d",
+    "commercial/far-investigation-audit/discovery.py": "54b56fd66f51dfa7ebedcff01f21df61514787908cfda9f9aaa4e68b464e7b78",
+    "commercial/far-investigation-audit/engine.py": "f51ca95b677586ae4a8063254c6b818da93777616ed937bcc02bfe084f26f0f0",
+    "commercial/far-investigation-audit/evaluate.py": "a1324712eb622813d5c90ad24c5996f8d07239239aa7dbb59ba6787dac6ece4d",
+    "commercial/far-investigation-audit/evaluation/live-001/cases-v1.json": "2f83c53fbd31416863857387442fe18af1303f5d6d9a65a81fb52dd56b3a1e4d",
+    "commercial/far-investigation-audit/evaluation/live-001/crossref-reference-metadata-v1.json": "6fd0294928a6818c52fecd201159c9a03683bffb8041a4e6ec6eaa01291b4cd1",
+    "commercial/far-investigation-audit/evaluation/live-001/protocol-v1.json": "d784bf4da12d91ab3a740132e2671f40b42d7aaeff0a998b990f9128ca638290",
+    "commercial/far-investigation-audit/field_validation.py": "b61c6542934440c791d7d023b9d00ad99d54e520ba9ff9c1b69cd73a9ae324b8",
+    "commercial/far-investigation-audit/full_cli.py": "c591d10a43b6d9845b8c9e3c541b810c6ea5f82d9ef5b761eb90db390cff4ec5",
+    "commercial/far-investigation-audit/independent_check.py": "0e4acbf63e43a431187a89ea9158a409436bd8880162ff02098764058089d051",
+    "commercial/far-investigation-audit/local_media.py": "b73a45f7a12131e47b2d8d33b23693ec7089c909c5896c8c753247615a669a44",
+    "commercial/far-investigation-audit/presentation.py": "37b0f84a328485064800aff236ac5c62cbb76143e77884216b802ac915554d70",
+    "commercial/far-investigation-audit/proposals.py": "777429c3395b2bfeafc206edae4ab93aa2f2ae7afdff4007f6dd6bdd932ca6ac",
+    "commercial/far-investigation-audit/review.py": "d94d2887a0a0df6a9ba871819080f246c6a38b4813072148ea434f7f455c256a",
+    "commercial/far-investigation-audit/structured.py": "a1d89de211d933524a0f0d6568f7e6492cbd3d28a3d586e63e830b0a7fec7814",
+    "commercial/far-investigation-audit/verify.py": "1e8032224ef4f98d2304d6276020886ff6bb1ce86f77107beb2815f4ae1d2b78",
+    "commercial/far-investigation-audit/webapp.py": "a91c26e99510454a8bc389e110456bff05151d5e471dafa84d636d1baed19dd7",
+    "commercial/far-investigation-audit/workflow.py": "7a19d240c48177d033cb8c61cd0282570de7d46e2fceb82a40a1e1b1cca78b33",
+    "tests/test_live_commercial_evaluation.py": "5d4dbafe6c3e09a2cad9bac8a08cfe8c292f0aa2cd408fff4cf38fa30c44e669",
+    "tools/run_live_commercial_evaluation.py": "594537c7ed7b8bb8b0d969cb7842ae361e7fcd822d8507a3c58951193e279657"
+  },
+  "frozen_at": "2026-10-27T17:09:54.510662+00:00",
+  "independent": false,
+  "schema": "far-live-registration/1",
+  "status": "FROZEN_INTERNAL_EXPLORATORY"
+}

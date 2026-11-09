@@ -1,0 +1,100 @@
+# Signed cross-runner cache Python mismatch
+
+Status: Research operational defect record; no scientific claim promotion.
+
+Root cause `SC-PY-001`: `far_validation/engine.py` includes the exact
+`platform.python_version()` in each cache key, while the three assurance jobs
+requested floating `3.12`. Different hosted runner caches can resolve different
+patch releases. Keeping exact runtime binding is correct; floating job selection
+violated the prerequisite for transferring the cache.
+
+On PR #615 head `ffc7916430d91f5e132838764b87a1e1f0502210`,
+[producer job 126101141637](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126101141637)
+selected CPython **3.12.15**, while
+[consumer job 126102020116](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/41688674632/job/126102020116)
+selected **3.12.16**. Artifact transport digest validation succeeded; the consumer
+then emitted `signed cross-runner cache misses: ['bootstrap.manifest']`.
+This reproduces the same failure mechanism reported in #616, with patch order reversed.
+
+Correction: select exact `3.12.16` for producer, consumer and merge-authority.
+The assurance lock is updated to the actual workflow SHA-256,
+`26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9`;
+the old protected pin was
+`2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a`.
+No cache key, signature validation, check or oracle is weakened.
+
+`tests/test_signed_cache_runtime_binding.py` checks that the three jobs select
+one exact patch release. Its executed signed-cache experiment uses the unchanged
+engine and a temporary check: a simulated 3.12.15 producer followed by 3.12.16
+misses; a second 3.12.16 consumer hits and verifies its signature. This is a local
+regression test, not a successful hosted run of the new workflow.
+
+## Authorization preparation
+
+Unsigned canonical payload:
+[`PR-617-signed-cache-python.json`](../../validation/repin-requests/PR-617-signed-cache-python.json).
+Prepared by the current canonical `repin_signature.py prepare` helper against
+protected main `c7456b469f9dfe88b92d0fc7a211e5c9ed64de61`. It binds the current
+repository name `n0tf0und0ut/Project-FAR`, immutable repository ID 1283452680,
+PR #617 and the exact workflow transition. The procedure's historical
+`notfoundout` spelling is not substituted for current repository identity.
+
+Only the owner may sign these exact bytes with the pinned FAR repin key after
+comparing the current App-authored transition. A signature remains absent; the
+consumption ledger is unchanged. Preparation does not authorize the change.
+After signature return, use `repin_signature.py bundle` to verify and append;
+required hosted and independent final-head review gates remain separate.
+
+No merge or auto-merge is authorized in this convergence assignment.
+
+## Canonical exact-head runtime correction (2026-11-06)
+
+`SC-PY-002`: the queue integration's canonical workflow comparison failed on
+`802beb09ec4d7eca1ed946cb8031b39bc1d1fe13`. Reproducing that head in isolation
+failed `test_exact_head_lane_cannot_omit_or_change_canonical_assurance_steps`
+at its structural step comparison: canonical merge-authority selected
+`3.12.16`, but the exact-head lane still selected floating `3.12`. The initial
+three-job runtime regression omitted this fourth execution of the canonical
+assurance program. This was a source defect, separate from the missing owner
+signature; successful cache transport could not establish canonical parity.
+
+The correction pins exact-head assurance to the same `3.12.16` and extends the
+runtime regression to all four assurance lanes. Before correction the expanded
+test rejects the exact-head lane's floating version; afterward all 19 focused
+runtime-binding, exact-head-workflow, bootstrap-definition and assurance tests
+pass. The original structural equality test is unchanged. Independent bootstrap
+verification reports 32 checks, 5 protected checks and 51 assurance files.
+
+The candidate validator workflow, its assurance-lock pin and the existing
+unsigned authorization payload have not changed: the old/new transition remains
+`2a2633bc53efa9188e8b62700d74b5fc3c8415f652974022044aa50d4f20f39a` →
+`26df5e427d2d8865589fc51f621e4bce2917babdcb800db8c9d6aa3f588ad7f9`.
+These values were recomputed from protected-main and candidate bytes. The
+exact-head workflow is not a path in the comparison base's assurance lock;
+aligning its runtime adds no protected transition. Preparing a new payload for
+an unchanged transition would not supply the absent owner signature. The owner
+must still compare this one exact transition against the dedicated App's current
+summary and sign the linked canonical payload before expiry. No consumption
+entry, signer, evaluator, protected check, frozen observation or test obligation
+was removed or weakened. Final-head hosted checks, independent review and the
+coordinator's repeated combined integration verification remain required.
+
+## Canonical payload integrity and newline hygiene (2026-11-06)
+
+`SC-PY-003`: `check_final_newline.py` rejected the unsigned payload on
+`c1122e74989ac787b39fa6ab00d24f9c2ea000f1` because its own identity was not
+recorded. The [protected-repin procedure](../governance/protected-repin-procedure.md)
+requires canonical authorization bytes with **no trailing newline**. Adding a
+newline would invalidate canonical parsing and any signature over those bytes.
+
+The prepared payload is exactly **731 bytes**, SHA-256
+`9be942dbdd931446601680821d3b91c8a371bf8af030c38717fefa3078569722`.
+This records the precise file the owner inspects and signs, and activates the
+newline checker's existing digest-bound integrity exemption. No new path
+exception or checker behavior is introduced. The payload still parses with the
+canonical authorization parser; its bytes, validity window and transition are
+unchanged. The existing newline regressions cover digest binding and protection
+of unterminated files. The actual checker fails before this identity record and
+passes afterward; its `--fix` run repairs zero files and preserves the payload's
+digest. These hygiene results do not supply the absent owner signature or
+authorize any protected transition.

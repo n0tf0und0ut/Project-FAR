@@ -461,3 +461,58 @@ concurrency admission control or production readiness.
 ## Internal adversarial and comparator execution
 
 The [FAR-INTERNAL-EVAL-001 report](evaluation/internal-001/README.md) records a separately registered, project-controlled exploratory campaign: source-to-report failure controls, identical-formula SymPy comparison, actual Noesis minimal CLI execution, portable replay and actual retained-history treatment. The first harness failure and procedural corrections remain preserved with their registrations and outputs. These results expose semantic and factual coverage limits; they do not execute the frozen benchmark, establish commercial advantage or supply external verification. Research operations share the [single disposition view](../../research/scheduled-task-reconciliation/operations-v1.json).
+
+The [live commercial access and retrieval comparison](evaluation/live-001/README.md) preserves actual Consensus and SciSpace calls, rate-limit failures and an unchanged-input sequential successor. Twenty default FAR raw-text packages replay, while their claims and inference candidates remain unestablished or unformalized. Hosted RoastMyPost and Fact Engineering document analysis require sign-in. Customer value, general reasoning reliability and commercial superiority remain unestablished.
+
+November 6 replay correction (`LIVE-VERIFY-001`, reviewed source
+`ca4d639c1225bee99c40aa9eb74223adb41e62f2`): the post-execution verifier formerly
+accepted a supplied copy whose manifest omitted a corrupted record or rebound
+changed protocol bytes. It now pins the preserved final manifest identity before
+reading their inventories. Two adversarial regressions failed before correction;
+nine scorer/verifier tests and all twelve receipt scores plus twenty archived
+package replays pass afterward. The prospectively frozen scorer, its tests and
+all recorded evidence retain their bytes. Manifest identity remains distinct
+from provider authenticity, external replication and real-world accuracy.
+
+`LIVE-VERIFY-002` closes the dependency interaction with the epistemic-debugger
+PR #597: source evolution and new implementation files formerly made the
+historical checker reject its inventory (`freeze inventory changed`). The
+post-execution verifier now uses the manifest-bound original registration and
+its exact source inventory, recovers changed source bytes from registered Git
+baseline `38e6c8e8b3b1f0a7c75795c9eac8c1c6189cf7ab`, and checks every source
+SHA-256 before writing an isolated temporary replay runtime. New candidate files
+are excluded; missing/mismatched historical blobs fail closed. The original
+frozen checker and evidence remain untouched. A private temporary Git-clone
+regression changes the candidate entrypoint to raise and adds an invalid new
+module; all twenty historical packages still replay through nineteen verified
+original source files. An adversarial mismatched recovered blob is rejected.
+These controls provide historical reproducibility, not current-code efficacy.
+
+`LIVE-VERIFY-003` (review comment `4494323858`, thread
+`PRRT_kwDOTH_vCM60ku9r`) prevents downgrade to the incomplete v1 inventory.
+Deleting v2 and fabricating the final verification-evidence file previously
+passed; the regression failed before correction. Complete campaign verification
+now requires the pinned v2 manifest, which covers the retained v1 inventory and
+the post-execution verification evidence. All twelve scorer/verifier tests and
+twenty archived package replays pass. No legacy evidence is rewritten.
+
+`LIVE-VERIFY-004` removes a read-after-verification race: verified manifest,
+registration, receipt and archive bytes are retained for parsing/replay rather
+than reopening mutable supplied files. A deterministic file-replacement test
+failed before correction with `JSONDecodeError`; it now replays the verified
+snapshot and rejects the replaced bytes on a subsequent verification. All
+thirteen scorer/verifier tests pass. This is byte custody for the recorded
+snapshot, not a guarantee that a concurrently writable directory remains intact.
+
+`LIVE-VERIFY-005` corrects test-fixture isolation. Exact-head assurance job
+`127990361298` (run `42246606754`) observed source `.git/worktrees` and
+`.git/packed-refs.lock` writes even though test assertions passed: the temporary
+candidate shared the checkout's Git metadata. The fixture now uses a complete
+private local clone with independent metadata and object files, retaining the
+registered historical objects and all original source-drift/tamper controls.
+The Git-common-directory isolation regression failed before correction because
+source and fixture resolved to the same directory; it passes afterward. All
+fourteen scorer/verifier tests and twelve receipt scores/twenty package replays
+pass locally. Local syscall tracing was attempted but ptrace is unavailable;
+final hosted tracing remains a separate check. No runtime trace allowance,
+protected policy, frozen source or recorded evidence was changed.
