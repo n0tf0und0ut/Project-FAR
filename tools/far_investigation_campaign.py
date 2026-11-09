@@ -348,11 +348,14 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
             log = (output / 'model-server.log').open('w')
             server = subprocess.Popen(command, stdout=log, stderr=log)
             persist_campaign_index(output, campaign)
+            # Health must probe the same direct loopback transport as LocalModel;
+            # inherited HTTP_PROXY may otherwise forge readiness responses.
+            direct_health = urllib.request.build_opener(urllib.request.ProxyHandler({}))
             for _ in range(120):
                 if server.poll() is not None:
                     raise RuntimeError('local server exited during startup')
                 try:
-                    with urllib.request.urlopen('http://127.0.0.1:8085/health', timeout=1) as response:
+                    with direct_health.open('http://127.0.0.1:8085/health', timeout=1) as response:
                         if response.status == 200:
                             campaign['server_process_identity'] = _server_identity(
                                 server, command, executable_identity, model_identity)
