@@ -15,7 +15,7 @@ Six routes lead to existing sources. Pick the question you are trying to answer;
 | **Explore formal theory** | [Theory index by question](../theory/README.md) | [Core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) and its assurance/formalization ledgers. |
 | **Build or contribute** | [Contribution guide](../CONTRIBUTING.md) | [Mechanization guide](../mechanization/README.md), [architecture](ARCHITECTURE.md), and [repository health checks](maintenance/repository-health-checks.md). |
 
-For **authority or ownership**, use the [canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md). For **an exact filename**, use the [generated repository index](planning/repository-index.md), which is a locator rather than an authority source. To check whether a beginner can navigate these routes, use the [reader-comprehension procedure](maintenance/beginner-comprehension-check.md).
+For **authority or ownership**, use the [canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md). For **an exact filename**, use the [generated repository index](planning/repository-index.md), which is a locator rather than an authority source. To check whether a beginner can navigate these routes, use the [reader-comprehension procedure](maintenance/beginner-comprehension-check.md). For **live PR and issue triage**, use the [read-only repository workboard](maintenance/repository-workboard.md), an advisory inventory rather than a merge gate or scientific status source.
 
 ### Follow an example through to evidence
 
