@@ -179,6 +179,32 @@ class PreflightContractTests(unittest.TestCase):
         p['changed_files'] = len(files)
         self.assertFalse(verify(p, files)['valid'])
 
+    def test_extensionless_entrypoints_and_deployment_manifests_are_implementation(self):
+        for path in ('far', 'lean-toolchain',
+                     'commercial/far-demo/render.yaml',
+                     'commercial/far-demo/Procfile',
+                     'apps/web/railway.json',
+                     'commercial/far-demo/.env.example',
+                     'services/web/deployment/config.ini',
+                     'infra/terraform/main.tf',
+                     'packages/web/package.json'):
+            with self.subTest(path=path):
+                self.assertTrue(check.is_implementation_path(path), path)
+
+    def test_single_file_entrypoint_or_deployment_change_requires_contract(self):
+        for path in ('far', 'commercial/far-demo/render.yaml',
+                     'commercial/far-demo/.env.example',
+                     'infra/terraform/main.tf'):
+            with self.subTest(path=path):
+                files = [{'filename': path, 'status': 'modified'}]
+                p = pr(body='')
+                p['changed_files'] = len(files)
+                output = verify(p, files)
+                self.assertFalse(output['valid'], output)
+                self.assertEqual(output['mode'], 'enforce')
+                self.assertEqual(output['implementation_paths'], [path])
+                self.assertIn('FAR-INVARIANTS-V1', ' '.join(output['errors']))
+
     def test_executable_templates_and_runtime_assets_are_implementation(self):
         for path in ('commercial/far-demo/src/far_demo/augmentation.html',
                      'commercial/far-demo/templates/base.jinja2',

@@ -31,7 +31,17 @@ IDENTIFIER = re.compile(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){1,8}\Z')
 TEST_REFERENCE = re.compile(r'(?P<path>(?:tests/|(?:[A-Za-z0-9_.-]+/)+tests/)[A-Za-z0-9_./-]+\.(?:py|rs|go|js|ts|lean))::(?P<name>test_[A-Za-z0-9_]+)\Z')
 CODE_SUFFIXES = {'.py', '.pyi', '.rs', '.go', '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.sh', '.bash', '.c', '.cc', '.cpp', '.h', '.java', '.rb', '.jl', '.lean', '.sql', '.ipynb'}
 SPECIAL_FILES = {'AGENTS.md', 'CLAUDE.md', 'pyproject.toml', 'Cargo.toml', 'Cargo.lock', 'go.mod', 'go.sum', 'Dockerfile', 'Makefile', 'requirements.txt', '.github/pull_request_template.md'}
-SOFTWARE_CONFIG = {'.json', '.yml', '.yaml', '.toml'}
+SOFTWARE_CONFIG = {'.json', '.yml', '.yaml', '.toml', '.ini', '.cfg'}
+DEPLOYMENT_FILES = {
+    'render.yaml', 'railway.json', 'vercel.json', 'netlify.toml',
+    'fly.toml', 'Procfile', 'serverless.yml', 'docker-compose.yml',
+    'compose.yaml', 'compose.yml', 'package.json', 'package-lock.json',
+    'pnpm-lock.yaml', 'yarn.lock', 'Pipfile', 'Pipfile.lock',
+    'Gemfile', 'Gemfile.lock',
+}
+DEPLOYMENT_DIRS = {'deploy', 'deployment', 'infrastructure', 'infra', '.platform'}
+PACKAGE_ROOTS = {'commercial', 'packages', 'apps', 'services'}
+INFRA_SUFFIXES = {'.tf', '.tfvars', '.nix', '.dockerfile'}
 # Runtime templates and browser resources contain executable semantics even
 # without a Python/JS source extension. Treat them as implementation, not prose.
 RUNTIME_ASSET_SUFFIXES = {'.html', '.htm', '.css', '.scss', '.sass', '.less',
@@ -60,7 +70,22 @@ def is_implementation_path(path: str) -> bool:
     # Application source and served resources can be executable HTML, browser
     # styles, templates, schemas and configuration; extension-only matching
     # incorrectly grandfathered template-only runtime PRs as "documentation".
-    if suffix in RUNTIME_ASSET_SUFFIXES:
+    if suffix in RUNTIME_ASSET_SUFFIXES | INFRA_SUFFIXES:
+        return True
+    # Executable root entrypoints and toolchain selectors may lack extensions.
+    # GitHub file metadata has no executable-bit guarantee: conservatively
+    # classify every non-hidden, extensionless root file as runtime-sensitive.
+    if len(parts) == 1 and not suffix and not path.startswith('.'):
+        return True
+    if (Path(path).name in DEPLOYMENT_FILES
+            or Path(path).name.startswith('.env')):
+        return True
+    # Package root manifests and deployment-directory configs control runtime
+    # behavior even when their extensions also occur in research records.
+    if (len(parts) == 3 and parts[0] in PACKAGE_ROOTS and suffix in SOFTWARE_CONFIG):
+        return True
+    if (any(p in DEPLOYMENT_DIRS for p in parts[:-1])
+            and suffix in SOFTWARE_CONFIG):
         return True
     if any(p in RUNTIME_RESOURCE_DIRS for p in parts[:-1]) and suffix in SOFTWARE_CONFIG:
         return True
