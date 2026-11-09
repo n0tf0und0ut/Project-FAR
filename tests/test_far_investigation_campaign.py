@@ -136,6 +136,7 @@ class CampaignTests(unittest.TestCase):
                   patch.object(campaign.socket, 'socket'),
                   patch.object(campaign, '_file_identity', return_value=(1, 2, 3, 4)),
                   patch.object(campaign.subprocess, 'Popen', return_value=fake_server),
+                  patch.object(campaign.subprocess, 'check_output', return_value='0' * 40),
                   patch.object(campaign.urllib.request, 'getproxies',
                                return_value={'http': 'http://127.0.0.1:8888'}),
                   patch.object(campaign.urllib.request, 'build_opener',
