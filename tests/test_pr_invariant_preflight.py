@@ -149,7 +149,7 @@ class PreflightContractTests(unittest.TestCase):
         self.assertIn('python3 tools/pr_invariant_preflight.py', step)
         self.assertIn('--expected-head "$EVENT_HEAD"', step)
         self.assertIn('--output "$RUNNER_TEMP/pr-invariant-preflight.json"', step)
-        self.assertNotRegex(step, r'(?m)^\\s*if:')
+        self.assertNotRegex(step, r'(?m)^\s*if:')
         self.assertNotIn('continue-on-error', step)
         self.assertIn('${{ runner.temp }}/pr-invariant-preflight.json', workflow)
 
