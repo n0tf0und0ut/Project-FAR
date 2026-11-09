@@ -369,6 +369,8 @@ class LocalModel:
                 checkpoint(copy.deepcopy(envelope))
             parsed = _parse(raw.decode())
             message = parsed['choices'][0]['message']
+            if type(message) is not dict:
+                raise ValueError('model message must be a JSON object')
             tokens = parsed['usage']['total_tokens']
             if type(tokens) is not int or tokens < 1:
                 raise EngineError('model telemetry invalid')
