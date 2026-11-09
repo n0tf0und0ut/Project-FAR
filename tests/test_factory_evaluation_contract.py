@@ -72,6 +72,45 @@ class FactoryEvaluationContractTests(unittest.TestCase):
         self.doc["sampling"]["target_distinct_tasks"] = True
         self.reject(self.doc, "task target")
 
+    def test_allocation_reference_fixed_vector_and_full_schedule(self):
+        seed = "0123456789abcdef" * 4
+        ids = [f"task-{i:02d}" for i in range(1, 9)]
+        rows = contract.allocation_schedule(seed, ids)
+        self.assertEqual(rows, [
+            {"slot": 1, "arm": "control", "task_id": "task-06"},
+            {"slot": 2, "arm": "factory", "task_id": "task-07"},
+            {"slot": 3, "arm": "control", "task_id": "task-02"},
+            {"slot": 4, "arm": "factory", "task_id": "task-08"},
+            {"slot": 5, "arm": "control", "task_id": "task-04"},
+            {"slot": 6, "arm": "factory", "task_id": "task-05"},
+            {"slot": 7, "arm": "control", "task_id": "task-03"},
+            {"slot": 8, "arm": "factory", "task_id": "task-01"},
+        ])
+        self.assertEqual(rows, contract.allocation_schedule(seed, list(reversed(ids))))
+
+    def test_rejects_wrong_allocation_algorithm(self):
+        self.doc["sampling"]["allocation_algorithm"] = "sha256-utf8-no-delimiter"
+        self.reject(self.doc, "allocation algorithm")
+
+    def test_rejects_wrong_execution_order_algorithm(self):
+        self.doc["controls"]["execution_order_algorithm"] = "unbalanced"
+        self.reject(self.doc, "execution order algorithm")
+
+    def test_allocation_rejects_duplicate_tasks_and_ambiguous_ids(self):
+        seed = "0123456789abcdef" * 4
+        ids = [f"task-{i:02d}" for i in range(1, 9)]
+        with self.assertRaisesRegex(contract.ContractError, "duplicate task ID"):
+            contract.allocation_schedule(seed, ids[:-1] + ids[:1])
+        with self.assertRaisesRegex(contract.ContractError, "canonical task ID"):
+            contract.allocation_schedule(seed, ids[:-1] + ["task:08"])
+        with self.assertRaisesRegex(contract.ContractError, "seed must"):
+            contract.allocation_schedule("example-seed", ids)
+
+    def test_documentation_reuses_registered_allocation_delimiter(self):
+        text = (ROOT / "docs/maintenance/factory-self-evaluation.md").read_text()
+        self.assertIn("SHA-256(UTF-8(seed + ':' + task_id))", text)
+        self.assertIn("SHA-256(UTF-8(seed + ':start'))", text)
+
     def test_requires_independent_execution_manifest_before_tasks(self):
         self.doc["execution_manifest"]["required_before_task_execution"] = False
         self.reject(self.doc, "required_before_task_execution")
