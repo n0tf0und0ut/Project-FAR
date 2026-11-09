@@ -4,19 +4,31 @@ Project-level documentation lives here. This directory provides orientation, gov
 
 ## Find what you need
 
-Paths for different readers: **Newcomer** — [FAR in five minutes](START_HERE.md); **Builder** — [mechanization guide](../mechanization/README.md); **Researcher** — [current status](project-status.md) and [governing theory](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md). These are routes to existing authority, not competing definitions.
+Six routes lead to existing sources. Pick the question you are trying to answer; the linked documents retain their own status, scope, and authority.
 
-| Your task | Start here | Boundary |
+| Reader goal | Start here | Follow through |
 |---|---|---|
-| Understand FAR without science or coding | [Five-minute explanation and receipt example](START_HERE.md), then [overview](OVERVIEW.md) | The receipt is invented and illustrates a principle, not a software result. |
-| Find the current governing theory | [Project status](project-status.md), then [core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) | Historical v1.0 remains preserved, not current theory authority. |
-| Find code and run tests | [Mechanization guide](../mechanization/README.md), [contributor guide](../CONTRIBUTING.md), and [repository health checks](maintenance/repository-health-checks.md) | Verification applies only to the encoded test/contract scope. |
-| Trace a research result to evidence | [W1–W6 matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md), [research index](../research/README.md), and [limitations](governance/limitations-register.md) | Research records and generated views cannot promote claims. |
-| Determine where a concept belongs | [Canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md) | The map identifies authority; the domain registry controls repository placement. |
-| Locate a specific file | [Generated repository index](planning/repository-index.md) | A file index is a discovery aid, not a status or acceptance decision. |
-| Check whether newcomers understand | [Plain-language comprehension and navigation procedure](maintenance/beginner-comprehension-check.md) | Reader observations are not formal proof or a claim of completed usability research. |
+| **Understand FAR** | [Five-minute introduction](START_HERE.md) | [Plain-language overview](OVERVIEW.md); the example explains an idea, not experimental validation. |
+| **Discover research** | [Research index by question](../research/README.md) | Open each study's protocol, recorded outcome, and reproduction instructions; Research placement grants no acceptance. |
+| **Reproduce an experiment or check** | [Mechanization guide](../mechanization/README.md) | Follow a registered fixture or a study-specific README; record input, source version, execution, outcome, and limits. |
+| **Assess results and evidence** | [Canonical project status](project-status.md) | [W1–W6 claim/evidence matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md) and [limitations register](governance/limitations-register.md). |
+| **Explore formal theory** | [Theory index by question](../theory/README.md) | [Core theory v1.1](../theory/theorems/Project-FAR-Theory-Closure-v1.1.md) and its assurance/formalization ledgers. |
+| **Build or contribute** | [Contribution guide](../CONTRIBUTING.md) | [Mechanization guide](../mechanization/README.md), [architecture](ARCHITECTURE.md), and [repository health checks](maintenance/repository-health-checks.md). |
 
-For the full repository entry point use the [root README](../README.md). For a documentation change, prefer improving an existing route over creating another competing index.
+For **authority or ownership**, use the [canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md). For **an exact filename**, use the [generated repository index](planning/repository-index.md), which is a locator rather than an authority source. To check whether a beginner can navigate these routes, use the [reader-comprehension procedure](maintenance/beginner-comprehension-check.md).
+
+### Follow an example through to evidence
+
+A short route through a concrete verifier case:
+
+1. Read the [receipt illustration and finite software example](START_HERE.md#see-an-actual-far-software-check); distinguish the fictional explanation from the registered case.
+2. Inspect the [collision record](../conformance/far-ir-2.0/valid-collision.json) and the [current conformance manifest](../conformance/far-ir-2.0-current/manifest.json).
+3. Use the [bounded contract-check instructions](../mechanization/README.md#run-a-bounded-contract-check) and inspect the [strict conformance tests](../tests/test_far_contract_v2_strict.py).
+4. Interpret the observed result under the [W3 status](governance/pca-w3-contract-schema-status-v1.0.md) and [current project limits](project-status.md). A passing software check establishes neither source truth nor external effectiveness.
+
+For a **negative empirical result**, go directly to the [workflow-efficacy pilot](../research/workflow-efficacy/KEYLESS-PILOT-RESULTS-V0.4.md), then follow its frozen protocol and verification references. Do not conflate that experiment with the separate, unexecuted historical-PR workflow study.
+
+The root [README command center](../README.md) remains the repository entry point. This page and the research/theory indexes are navigation only; they do not duplicate or promote canonical scientific claims.
 
 ## Current authority and status
 
