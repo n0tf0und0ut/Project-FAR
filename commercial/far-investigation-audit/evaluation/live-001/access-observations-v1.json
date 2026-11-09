@@ -1,0 +1,36 @@
+{
+  "schema": "far-live-access-observations/1",
+  "status": "Research",
+  "recorded_at": "2026-10-27T17:17:17.029040+00:00",
+  "observed_during": "This execution session; browser/page/API observations, not vendor performance experiments.",
+  "products": [
+    {
+      "product": "RoastMyPost",
+      "url": "https://www.roastmypost.org/tools/fallacy-extractor/try",
+      "state": "AUTHENTICATION_REQUIRED",
+      "observed_text": "Authentication Required; You need to be logged in to use this tool.",
+      "document_analysis_executed": false,
+      "score": null
+    },
+    {
+      "product": "Fact Engineering",
+      "url": "https://fact.engineering/",
+      "authentication_origin": "https://auth.fact.engineering",
+      "state": "SIGN_IN_REQUIRED",
+      "visible_methods": [
+        "email",
+        "Google"
+      ],
+      "document_analysis_executed": false,
+      "score": null
+    },
+    {
+      "product": "Minerval",
+      "url": "https://api.claimgraph.io/",
+      "state": "ROOT_GET_HTTP_403",
+      "claim_search_executed": false,
+      "limit": "Root GET failure does not identify authenticated/public endpoint availability, classify bot detection, or score product performance.",
+      "score": null
+    }
+  ]
+}

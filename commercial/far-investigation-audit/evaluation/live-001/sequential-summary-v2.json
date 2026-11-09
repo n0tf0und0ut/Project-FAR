@@ -1,0 +1,68 @@
+{
+  "customer_value_established": false,
+  "general_reasoning_reliability_established": false,
+  "original_run_preserved": true,
+  "registration_sha256": "5d15fc8a8f61f1256d4933cb78627a4815c3c1b9104e12f988e206df911ad296",
+  "rows": [
+    {
+      "case_id": "Q01",
+      "elapsed_ms": 4398,
+      "human_effort_seconds": null,
+      "payload_sha256": "40a32674aa309cc76ac073ee81debdaa40c87e90770bf0f254948ade611d1952",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "0568237049e58d19263bda7cfff81ae61f64447737432a45c71861307880dc94",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": false
+    },
+    {
+      "case_id": "Q02",
+      "elapsed_ms": 3420,
+      "human_effort_seconds": null,
+      "payload_sha256": "2e645a96a8b96fc7e962b9dd09695d686e60cdec88cab88fdbd7646bd175a4da",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "6c23b802dc87b6b790b7bac469c865a5d2bd10f7fbb34bbd95c7d67e73030c5b",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": true
+    },
+    {
+      "case_id": "Q03",
+      "elapsed_ms": 1703,
+      "human_effort_seconds": null,
+      "payload_sha256": "232a48726c65610d0ba206336aeec7fbae4750ac43e8e662035ca61187afabff",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "a743cc9c624dd172a2009926296cbfdae6b62efb8a6c87f27a82d7df7846ee21",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": true
+    },
+    {
+      "case_id": "Q04",
+      "elapsed_ms": 3812,
+      "human_effort_seconds": null,
+      "payload_sha256": "88144919b62b486340632620e8f8ba21aee92799f6e7348038baceb91396cdab",
+      "per_call_dollar_cost": null,
+      "provider": "consensus",
+      "receipt_sha256": "f50903e46018d4baada52c7fefe032ae63d3d0123d9982eab1c3bd2563ced716",
+      "returned_rank": null,
+      "scientific_support_verified": false,
+      "status": "RESPONSE_RECORDED",
+      "target_doi_present": false,
+      "target_title_present": false
+    }
+  ],
+  "same_cases": true,
+  "same_scorer": true,
+  "schema": "far-live-sequential-summary/1",
+  "status": "Research"
+}
