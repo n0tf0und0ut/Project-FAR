@@ -79,6 +79,13 @@ For PR descriptions, describe the final implemented problem and behavior for a r
 
 Search and inspect before changing. Prefer existing mechanisms, conventions, validators, authoritative sources, and specialized capabilities over new abstractions or replacements.
 
+Map the complete change boundary before editing: trace relevant entry points, inputs, persistent state, outputs, callers, tests, fixtures, configuration, schemas, exports, and generated dependents. Check edge cases, trust boundaries, possible data loss, and expected load. A small diff is incomplete if a downstream consumer breaks.
+
+Choose the first sufficient implementation: omit unnecessary work; reuse repository code or tooling; use standard-library or native-platform functionality; reuse an installed dependency; only then write the smallest clear new code. Preserve public contracts, security, data integrity, provenance, and required verification even when they require more code.
+
+For code reviews, prioritize concrete correctness failures, security or data loss, realistic scaling failures, missing defect-detecting regressions, material performance costs, and then avoidable complexity. Verify a reachable failure case and consequence for each finding; distinguish required repairs from optional simplification.
+
+
 When searching local repository content, prefer fast repository-native search such as `rg`/`rg --files` when available. Use the next best mechanism without ceremony when it is not available.
 
 Batch independent reads, searches, and other read-only operations when the runtime supports parallel execution. Keep dependent edits, approvals, mutations, waits, and adaptive follow-ups sequential. Inspect every result that materially affects the conclusion.
