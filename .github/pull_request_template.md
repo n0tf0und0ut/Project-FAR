@@ -156,7 +156,7 @@ See docs/governance/pr-review-convergence.md. Metadata convergence does not prov
 
 ## Invariant-first pre-review contract (new implementation PRs)
 
-PRs created at or after **2026-11-10 00:00 UTC** that change implementation must carry a machine-readable contract. Replace every example with real changed paths and existing exact-head test symbols. See `docs/maintenance/pr-invariant-preflight.md`. Once separately activated via protected main, the native required review gate enforces structural traceability, **not software correctness**.
+PRs created at or after **2026-11-10 00:00 UTC** that change implementation, test code/fixtures, or validation manifests must carry a machine-readable contract. Replace every example with real changed paths and existing exact-head test symbols. See `docs/maintenance/pr-invariant-preflight.md`. Once separately activated via protected main, the native required review gate enforces structural traceability, **not software correctness**.
 
 <!-- FAR-INVARIANTS-V1
 {

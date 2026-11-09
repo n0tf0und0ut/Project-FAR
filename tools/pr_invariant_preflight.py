@@ -29,7 +29,7 @@ START = '<!-- FAR-INVARIANTS-V1\n'
 END = '\nFAR-INVARIANTS-END -->'
 IDENTIFIER = re.compile(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){1,8}\Z')
 TEST_REFERENCE = re.compile(r'(?P<path>(?:tests/|(?:[A-Za-z0-9_.-]+/)+tests/)[A-Za-z0-9_./-]+\.(?:py|rs|go|js|ts|lean))::(?P<name>test_[A-Za-z0-9_]+)\Z')
-CODE_SUFFIXES = {'.py', '.rs', '.go', '.js', '.jsx', '.ts', '.tsx', '.sh', '.c', '.cc', '.cpp', '.h', '.java', '.rb', '.jl', '.lean', '.sql'}
+CODE_SUFFIXES = {'.py', '.pyi', '.rs', '.go', '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.sh', '.bash', '.c', '.cc', '.cpp', '.h', '.java', '.rb', '.jl', '.lean', '.sql', '.ipynb'}
 SPECIAL_FILES = {'AGENTS.md', 'CLAUDE.md', 'pyproject.toml', 'Cargo.toml', 'Cargo.lock', 'go.mod', 'go.sum', 'Dockerfile', 'Makefile', 'requirements.txt', '.github/pull_request_template.md'}
 SOFTWARE_CONFIG = {'.json', '.yml', '.yaml', '.toml'}
 
@@ -51,10 +51,14 @@ def is_implementation_path(path: str) -> bool:
         return True
     if path.startswith('schemas/') and Path(path).suffix in SOFTWARE_CONFIG:
         return True
+    if (path.startswith('validation/') or path.startswith('config/')) and Path(path).suffix in SOFTWARE_CONFIG:
+        return True
     if path.startswith('docs/governance/') and path.endswith('pr-review-convergence.md'):
         return True
+    # Changing a test or fixture changes the verification oracle itself.
     if path.startswith('tests/') or '/tests/' in path:
-        return False
+        return (Path(path).suffix in CODE_SUFFIXES | SOFTWARE_CONFIG
+                or '/fixtures/' in path)
     if path.endswith('.lock') or Path(path).name.startswith('requirements-') and path.endswith('.txt'):
         return True
     return Path(path).suffix in CODE_SUFFIXES
@@ -198,16 +202,23 @@ def evaluate(pr: dict, changed_files: list[dict], read_file, *, cutoff: str = CU
                 if item['case'] in seen_modes:
                     problems.append(tag + ': duplicate failure case')
                 seen_modes.add(item['case'])
-                negative_tests.append(item['test'])
-                tested.add(item['test'])
+                if type(item['test']) is not str:
+                    problems.append(f'{tag}.failure_modes[{j}]: test reference must be text')
+                else:
+                    negative_tests.append(item['test'])
+                    tested.add(item['test'])
             if len(set(negative_tests)) != len(negative_tests):
                 problems.append(tag + ': failure cases must have distinct tests')
             if (row['positive_control'] == row['integration_control']
                     or row['positive_control'] in negative_tests
                     or row['integration_control'] in negative_tests):
                 problems.append(tag + ': positive, negative, and integration controls must be distinct')
-        tested.add(row['positive_control'])
-        tested.add(row['integration_control'])
+        for role in ('positive_control', 'integration_control'):
+            reference = row[role]
+            if type(reference) is not str:
+                problems.append(tag + ': ' + role + ' must be a test reference')
+            else:
+                tested.add(reference)
         result['contracts_checked'] += 1
     if covered != affected:
         problems.append('changed implementation paths missing invariant coverage: ' + ', '.join(sorted(affected - covered)))

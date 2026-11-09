@@ -136,6 +136,20 @@ class PreflightContractTests(unittest.TestCase):
         body = pr()['body'].replace('\n', '\r\n')
         self.assertTrue(verify(pr(body=body))['valid'])
 
+    def test_test_only_change_cannot_claim_documentation_only(self):
+        files = [{'filename': 'tests/test_reader.py', 'status': 'modified'}]
+        p = pr(body='')
+        p['changed_files'] = len(files)
+        result = verify(p, files)
+        self.assertFalse(result['valid'])
+        self.assertIn('FAR-INVARIANTS-V1', ' '.join(result['errors']))
+
+    def test_validation_manifest_requires_invariants(self):
+        files = [{'filename': 'validation/manifest.json', 'status': 'modified'}]
+        p = pr(body='')
+        p['changed_files'] = len(files)
+        self.assertFalse(verify(p, files)['valid'])
+
     def test_nested_package_manifests_trigger_implementation_preflight(self):
         for path in ('commercial/far-decision-integrity/pyproject.toml',
                      'commercial/far-demo/Dockerfile', 'nested/package/requirements.txt'):
@@ -228,9 +242,11 @@ class PreflightContractTests(unittest.TestCase):
         for name in ('tools/a.py', 'mechanization/a.lean', '.github/workflows/ci.yml',
                      'schemas/a.json', 'AGENTS.md', 'requirements-dev.txt'):
             self.assertTrue(check.is_implementation_path(name), name)
-        for name in ('docs/README.md', 'tests/test_a.py', 'research/snapshot.json',
-                     'docs/notes.md'):
+        for name in ('docs/README.md', 'research/snapshot.json', 'docs/notes.md'):
             self.assertFalse(check.is_implementation_path(name), name)
+        for name in ('tests/test_a.py', 'tests/fixtures/expected.txt',
+                     'validation/manifest.json', 'config/runtime.yaml'):
+            self.assertTrue(check.is_implementation_path(name), name)
 
     def test_no_untrusted_python_execution(self):
         # A test file is scanned as text; no user Python is imported or executed.
