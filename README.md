@@ -17,7 +17,6 @@ Choose a route based on your task:
 - **Run or modify the software:** [Contributor entry point](CONTRIBUTING.md), [mechanization guide](mechanization/README.md), and [validation commands](#validation).
 - **Check a scientific claim:** [Current project status](docs/project-status.md), [W1–W6 claim/evidence matrix](docs/governance/w1-w6-claim-evidence-matrix-v1.0.md), and [limitations](docs/governance/limitations-register.md).
 - **Locate the authoritative source or a file:** [Canonical map](docs/CANONICAL_MAP.md), [documentation index](docs/README.md), and [generated file index](docs/planning/repository-index.md). The generated index is a locator, not an authority source.
-- **Manage current GitHub work:** [Live repository workboard](docs/maintenance/repository-workboard.md) (`make workboard`) lists open PR and issue metadata without asserting merge readiness or changing scientific authority.
 
 The core's accepted claims are contract-relative and scoped. Formalization, software conformance, or a passing test does not establish general-purpose agent performance, external scientific validation, or commercial effectiveness. See [project status](docs/project-status.md) for current boundaries.
 
