@@ -113,15 +113,24 @@ class PreflightContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'head or base moved'):
                 check.check_live('owner/repo', 800, HEAD, 'fake-token')
 
-    def test_stage_preserves_existing_required_workflow_until_protected_activation(self):
-        # The new collector must land on main before any required job that
-        # checks out protected main attempts to invoke it.
+    def test_staged_or_activated_required_gate_preserves_trusted_boundary(self):
+        # Staging must not invoke code absent from protected main. Subsequent
+        # protected activation adds a trusted preflight before review enforcement.
+        # This test must remain valid in both states, without permitting partial
+        # activation or a candidate checkout.
         workflow = (Path(__file__).resolve().parents[1] / '.github/workflows/required-pr-review-convergence.yml').read_text()
         self.assertIn('name: pr-review-convergence-observation', workflow)
         self.assertIn('ref: main', workflow)
         self.assertIn('persist-credentials: false', workflow)
-        self.assertIn("Enforce review evidence for this event's exact PR head", workflow)
-        self.assertNotIn('python3 tools/pr_invariant_preflight.py', workflow)
+        marker = "Enforce review evidence for this event's exact PR head"
+        self.assertIn(marker, workflow)
+        if 'Check invariant-first contract before independent review' in workflow:
+            self.assertIn('python3 tools/pr_invariant_preflight.py', workflow)
+            self.assertIn('pr-invariant-preflight.json', workflow)
+            self.assertLess(workflow.index('Check invariant-first contract before independent review'),
+                            workflow.index(marker))
+        else:
+            self.assertNotIn('python3 tools/pr_invariant_preflight.py', workflow)
 
     def test_valid_contract_is_only_structural_not_correctness(self):
         output = verify()
