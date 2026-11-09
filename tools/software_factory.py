@@ -173,8 +173,9 @@ class Factory:
               max_attempts: int = 3) -> dict | None:
         if not isinstance(worker, str) or not IDENT.fullmatch(worker) or ttl < 1 or ttl > 86400 or max_attempts < 1:
             raise FactoryError("invalid worker or lease duration")
-        moment = time.time() if now is None else now
         def apply():
+            # Read clock only after BEGIN IMMEDIATE has acquired the writer lock.
+            moment = time.time() if now is None else now
             row = self.db.execute("SELECT * FROM orders WHERE id=?", (order_id,)).fetchone()
             if not row:
                 raise FactoryError("unknown order")
@@ -210,10 +211,11 @@ class Factory:
         return self._tx(apply)
 
     def record(self, order_id: str, task_id: str, token: str, evidence: dict, now: float | None = None) -> dict:
-        moment = time.time() if now is None else now
         if not isinstance(evidence, dict):
             raise FactoryError("evidence must be a JSON object")
         def apply():
+            # Read clock only after BEGIN IMMEDIATE has acquired the writer lock.
+            moment = time.time() if now is None else now
             t = self.db.execute("SELECT * FROM tasks WHERE order_id=? AND id=?", (order_id, task_id)).fetchone()
             if not t or t["state"] != "running" or not secrets.compare_digest(str(t["token"]), str(token)):
                 raise FactoryError("invalid or stale work lease")
@@ -285,10 +287,13 @@ class Factory:
                 lookup = fetch_json
             root = "https://api.github.com/repos/" + repo
             pr = lookup(f"{root}/pulls/{build['pr_number']}")
+            # GitHub repository identity names are case-insensitive. A spelling
+            # difference alone must not invalidate a verified canonical origin.
+            observed_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
             if (pr.get("state") != "closed" or pr.get("merged") is not True
                     or not pr.get("merged_at") or (pr.get("head") or {}).get("sha") != build["head_sha"]
                     or (pr.get("base") or {}).get("ref") != "main"
-                    or ((pr.get("base") or {}).get("repo") or {}).get("full_name") != repo):
+                    or type(observed_repo) is not str or observed_repo.casefold() != repo.casefold()):
                 raise FactoryError("GitHub PR not merged on intended main from recorded exact head")
             merge_sha = pr.get("merge_commit_sha")
             if not isinstance(merge_sha, str) or not SHA.fullmatch(merge_sha):
@@ -312,10 +317,11 @@ class Factory:
 
     def fail(self, order_id: str, task_id: str, token: str, reason: str, now: float | None = None,
              max_attempts: int = 3) -> dict:
-        moment = time.time() if now is None else now
         if not reason.strip() or max_attempts < 1:
             raise FactoryError("failure reason and retry bound required")
         def apply():
+            # Read clock only after BEGIN IMMEDIATE has acquired the writer lock.
+            moment = time.time() if now is None else now
             t = self.db.execute("SELECT * FROM tasks WHERE order_id=? AND id=?", (order_id, task_id)).fetchone()
             if not t or t["state"] != "running" or not secrets.compare_digest(str(t["token"]), str(token)):
                 raise FactoryError("invalid or stale work lease")

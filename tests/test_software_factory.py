@@ -140,6 +140,77 @@ class TestFactory(unittest.TestCase):
         self.assertIsNone(self.f.claim("pilot", "builder", now=300, ttl=1))
         self.assertEqual(self.f.snapshot("pilot")["tasks"][0]["state"], "failed")
 
+
+    def test_record_rechecks_lease_expiry_after_waiting_for_sqlite_writer(self):
+        import threading
+        import time
+
+        claim = self.f.claim("pilot", "builder", ttl=1)
+        started = threading.Event()
+        ready = threading.Event()
+        errors = []
+        def worker():
+            connection = Factory(Path(self.tmp.name) / "factory.sqlite")
+            ready.set()
+            started.wait(timeout=5)
+            try:
+                connection.record("pilot", "alpha", claim["token"],
+                                  {"head_sha": B, "pr_number": 123, "branch": "task"})
+            except FactoryError as exc:
+                errors.append(str(exc))
+            finally:
+                connection.db.close()
+        thread = threading.Thread(target=worker)
+        thread.start()
+        self.assertTrue(ready.wait(timeout=5))
+        self.f.db.execute("BEGIN IMMEDIATE")
+        try:
+            started.set()
+            # Old code captures the timestamp outside the transaction and
+            # incorrectly accepts the expired lease once BEGIN IMMEDIATE unblocks.
+            time.sleep(max(0.0, claim["expires_at"] - time.time() + 0.3))
+        finally:
+            self.f.db.execute("ROLLBACK")
+        thread.join(timeout=6)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(errors, ["lease expired"])
+        self.assertEqual(self.f.snapshot("pilot")["tasks"][0]["state"], "running")
+
+    def test_reconcile_accepts_repository_case_only_but_rejects_other_repository(self):
+        example = order()
+        example["id"] = "mixedcase"
+        example["repository"] = "N0TF0UND0UT/project-far"
+        self.f.submit(example)
+        claim = self.f.claim("mixedcase", "builder", now=100)
+        self.f.record("mixedcase", "alpha", claim["token"],
+                      {"head_sha": B, "pr_number": 123, "branch": "topic"}, now=101)
+        claim = self.f.claim("mixedcase", "tester", now=102)
+        self.f.record("mixedcase", "alpha", claim["token"],
+                      {"head_sha": B, "checks": ["unit"], "result": "passed"}, now=103)
+        claim = self.f.claim("mixedcase", "review", now=104)
+        self.f.record("mixedcase", "alpha", claim["token"],
+                      {"head_sha": B, "reviewer": "independent",
+                       "review_url": "https://github.com/x/y/pull/123",
+                       "result": "clean", "unresolved": 0}, now=105)
+        observed_name = ["different/Project-FAR"]
+        def github(url):
+            if url.endswith("/pulls/123"):
+                return {"state": "closed", "merged": True,
+                        "merged_at": "2026-11-09T00:00:00Z",
+                        "head": {"sha": B},
+                        "base": {"ref": "main", "repo": {"full_name": observed_name[0]}},
+                        "merge_commit_sha": A}
+            if url.endswith("/branches/main"):
+                return {"commit": {"sha": A}}
+            if url.endswith(f"/compare/{A}...{A}"):
+                return {"status": "identical"}
+            raise AssertionError(url)
+        with self.assertRaisesRegex(FactoryError, "intended main"):
+            self.f.reconcile_delivery("mixedcase", "alpha", github)
+        self.assertEqual(self.f.snapshot("mixedcase")["tasks"][0]["state"], "awaiting_protected_merge")
+        observed_name[0] = "n0tf0und0ut/Project-FAR"
+        self.assertEqual(self.f.reconcile_delivery("mixedcase", "alpha", github)["state"], "delivered")
+
     def test_bad_evidence_atomic(self):
         c = self.f.claim("pilot", "builder", now=0)
         before = self.f.snapshot("pilot")

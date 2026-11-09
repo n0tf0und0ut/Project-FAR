@@ -39,3 +39,9 @@ Those missing parts are *not* implied by passing unit tests. Production autonomy
 ## Security and adversarial controls
 
 The program validates input schemas, rejects unknown fields, uses SQLite transactions and unique task identifiers, fails closed on invalid dependency graphs, enforces exact SHA bindings, prevents claimed self-review, rejects expired or stale leases, and bounds retries. It does **not** authenticate GitHub identities or check the truth of worker-submitted evidence. Its database is operator-controlled mutable state, not cryptographically frozen research evidence.
+
+## Lease and repository identity review corrections
+
+Lease expiration is evaluated after SQLite acquires the `BEGIN IMMEDIATE` writer lock for claim, record, and failure transitions. An expired worker cannot submit evidence merely because its request arrived before a contended database write. Tests exercise the lock-wait boundary with a second connection and validate failure without committing stage evidence.
+
+GitHub's canonical owner/repository full name is compared case-insensitively with the registered work order name when observing protected merge delivery. A different repository continues to fail closed. This is an identity-string comparison correction, not authentication of worker-reported review evidence or a replacement for protected GitHub checks.
