@@ -153,3 +153,32 @@ Describe whether this PR is:
 **Disposition:** draft / review required / metadata converged / substantive review completed / external blocker / merge authorized.
 
 See docs/governance/pr-review-convergence.md. Metadata convergence does not prove code correctness.
+
+## Invariant-first pre-review contract (new implementation PRs)
+
+PRs created at or after **2026-11-10 00:00 UTC** that change implementation must carry a machine-readable contract. Replace every example with real changed paths and existing exact-head test symbols. See `docs/maintenance/pr-invariant-preflight.md`. The native required review gate enforces structural traceability, **not software correctness**.
+
+<!-- FAR-INVARIANTS-V1
+{
+  "version": 1,
+  "scope": "Describe the precise execution or trust boundary affected",
+  "limitations": ["State which correctness or external properties remain unverified"],
+  "invariants": [
+    {
+      "id": "EXAMPLE-BOUNDARY-01",
+      "statement": "Define one end-to-end condition that must hold for every allowed execution",
+      "boundary": "Name producer, consumer, and trust crossing explicitly",
+      "changed_paths": ["tools/replace_with_real_changed_path.py"],
+      "failure_modes": [
+        {"case": "Describe an observed or plausible failing boundary scenario", "test": "tests/test_replace.py::test_rejects_invalid"},
+        {"case": "Describe a distinct adjacent failure mode including cancellation", "test": "tests/test_replace.py::test_rejects_cancelled"}
+      ],
+      "positive_control": "tests/test_replace.py::test_accepts_valid",
+      "integration_control": "tests/test_integration.py::test_end_to_end",
+      "assurance_limit": "Document the specific assurances these tests do not establish"
+    }
+  ]
+}
+FAR-INVARIANTS-END -->
+
+**Before independent review:** reproduce original failures, demonstrate defect-detecting regressions, test neighboring failure paths, run end-to-end integration, then stabilize the exact head. Request one substantive review after those steps and reconcile every new finding by root cause. A failed oracle/fixture does not count as evidence of production correctness.

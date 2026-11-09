@@ -34,6 +34,21 @@ jobs:
           ref: main
           persist-credentials: false
           fetch-depth: 1
+      - name: Check invariant-first contract before independent review
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EVENT_HEAD" =~ ^[a-f0-9]{40}$ ]]
+          python3 tools/pr_invariant_preflight.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --pr "$PR_NUMBER" \
+            --expected-head "$EVENT_HEAD" \
+            --output "$RUNNER_TEMP/pr-invariant-preflight.json"
       - name: Enforce review evidence for this event's exact PR head
         shell: bash
         env:
@@ -70,6 +85,8 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: pr-review-required-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/pr-review-required.json
+          path: |
+            ${{ runner.temp }}/pr-invariant-preflight.json
+            ${{ runner.temp }}/pr-review-required.json
           if-no-files-found: warn
           retention-days: 30

@@ -1,0 +1,34 @@
+name: PR Invariant Preflight Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-invariant-preflight-contract.yml'
+      - '.github/workflows/required-pr-review-convergence.yml'
+      - '.github/pull_request_template.md'
+      - 'tools/pr_invariant_preflight.py'
+      - 'tests/test_pr_invariant_preflight.py'
+      - 'docs/governance/pr-review-convergence.md'
+      - 'docs/maintenance/pr-invariant-preflight.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-invariant-preflight-contract.yml'
+      - '.github/workflows/required-pr-review-convergence.yml'
+      - 'tools/pr_invariant_preflight.py'
+      - 'tests/test_pr_invariant_preflight.py'
+permissions:
+  contents: read
+jobs:
+  preflight-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Execute fail-closed preflight counterexamples
+        run: |
+          python3 -m py_compile tools/pr_invariant_preflight.py
+          python3 -m unittest tests.test_pr_invariant_preflight -v
