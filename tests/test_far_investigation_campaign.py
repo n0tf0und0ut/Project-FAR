@@ -510,7 +510,13 @@ class RetainedCampaignReplayTests(unittest.TestCase):
 
     def test_transcript_sources_must_match_registered_task_hints(self):
         from tests.test_far_investigation_audit import reseal
-        name='H201-deterministic.json'
+        # Fixed baseline seed order is now independently checked by audit;
+        # use an agent transcript to isolate campaign-level exposure checks.
+        baseline=json.loads(self.files['H201-deterministic.json'])
+        baseline['seeds']=['https://unregistered.example.org/answer']
+        reseal(baseline)
+        self.assertFalse(metrics(baseline)['integrity_valid'])
+        name='H201-agent.json'
         state=json.loads(self.files[name])
         self.assertTrue(metrics(state)['integrity_valid'])
         state['seeds']=['https://unregistered.example.org/answer']
