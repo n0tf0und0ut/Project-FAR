@@ -117,10 +117,10 @@ class WorkboardTests(unittest.TestCase):
         doc["issues"][0]["title"] = "<img src=x> *bold* [link](https://example.invalid/issue)"
         doc["issues"][0]["labels"] = ["<img src=x>", "[click](https://example.invalid/label)", "*bold*"]
         output = workboard.markdown(doc)
-        self.assertIn(r"safe\]\(https://example.invalid/phishing\)", output)
-        self.assertIn(r"\!\[remote\]\(https://example.invalid/pixel\)", output)
+        self.assertIn(r"safe\]\(https://example\.invalid/phishing\)", output)
+        self.assertIn(r"\!\[remote\]\(https://example\.invalid/pixel\)", output)
         self.assertIn("&lt;img src=x&gt;", output)
-        self.assertIn(r"\[click\]\(https://example.invalid/label\)", output)
+        self.assertIn(r"\[click\]\(https://example\.invalid/label\)", output)
         self.assertIn(r"\*bold\*", output)
         self.assertNotIn("](https://example.invalid/", output)
         self.assertNotIn("![remote]", output)
