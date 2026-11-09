@@ -86,6 +86,36 @@ def validate_order(data: object) -> dict:
     return data
 
 
+def parse_order_text(raw: str) -> dict:
+    """Parse one unambiguous RFC 8259 JSON work order before hashing or storage.
+
+    json.loads normally accepts duplicate object members and NaN/Infinity tokens;
+    both would make the claimed input provenance ambiguous or nonstandard.
+    Reject them at the raw intake boundary, including nested object members.
+    The in-memory submit API continues to accept already validated Python dicts.
+    """
+    if not isinstance(raw, str):
+        raise FactoryError("work order source must be UTF-8 text")
+
+    def unique_members(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise FactoryError(f"duplicate JSON object key: {key!r}")
+            result[key] = value
+        return result
+
+    def reject_constant(value):
+        raise FactoryError(f"non-finite JSON token is prohibited: {value}")
+
+    try:
+        parsed = json.loads(raw, object_pairs_hook=unique_members,
+                            parse_constant=reject_constant)
+    except json.JSONDecodeError as exc:
+        raise FactoryError(f"malformed JSON: {exc.msg}") from exc
+    return validate_order(parsed)
+
+
 class Factory:
     def __init__(self, path: str | Path):
         self.db = sqlite3.connect(path, timeout=30, isolation_level=None)
@@ -316,7 +346,7 @@ def main(argv=None):
     try:
         store = Factory(args.db)
         if args.action == "submit":
-            value = store.submit(json.loads(Path(args.order_file).read_text()))
+            value = store.submit(parse_order_text(Path(args.order_file).read_text(encoding="utf-8")))
         elif args.action == "status":
             value = store.snapshot(args.order_id)
         elif args.action == "claim":
