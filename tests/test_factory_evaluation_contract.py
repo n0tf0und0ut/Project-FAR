@@ -72,6 +72,34 @@ class FactoryEvaluationContractTests(unittest.TestCase):
         self.doc["sampling"]["target_distinct_tasks"] = True
         self.reject(self.doc, "task target")
 
+    def test_requires_independent_execution_manifest_before_tasks(self):
+        self.doc["execution_manifest"]["required_before_task_execution"] = False
+        self.reject(self.doc, "required_before_task_execution")
+
+    def test_requires_both_implementation_revisions(self):
+        self.doc["execution_manifest"]["required_fields"].remove("control_implementation_revision")
+        self.reject(self.doc, "incomplete execution manifest")
+
+    def test_rejects_unregistered_midtrial_implementation_changes(self):
+        self.doc["execution_manifest"]["change_policy"] = "controllers can change whenever"
+        self.reject(self.doc, "implementation freeze")
+
+    def test_rejects_dropping_tampered_allocated_task(self):
+        self.doc["sampling"]["post_allocation_violation_policy"] = "Remove altered tasks from eligibility"
+        self.reject(self.doc, "denominator")
+
+    def test_requires_balanced_interleaved_schedule(self):
+        self.doc["controls"]["balanced_interleaved_schedule"] = "Run all control then all factory"
+        self.reject(self.doc, "unbalanced")
+
+    def test_requires_cross_arm_isolation(self):
+        self.doc["controls"]["cross_arm_knowledge_isolation"] = False
+        self.reject(self.doc, "cross_arm_knowledge_isolation")
+
+    def test_requires_cross_arm_exposure_policy(self):
+        self.doc["controls"]["cross_arm_exposure_policy"] = "Share control findings with factory"
+        self.reject(self.doc, "information-isolation")
+
     def test_rejects_unbounded_execution(self):
         self.doc["controls"]["max_wall_minutes_per_arm_task"] = 0
         self.reject(self.doc, "wall time")
