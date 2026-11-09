@@ -153,11 +153,6 @@ plan:
 dashboard:
 	python tools/self_advancement_plan.py
 
-# Read-only live GitHub PR/issue inventory; separate from the historical planner.
-.PHONY: workboard
-workboard:
-	python tools/repository_workboard.py
-
 release-readiness:
 	python tools/release_readiness_report.py
 
