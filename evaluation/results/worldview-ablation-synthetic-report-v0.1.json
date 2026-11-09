@@ -1,0 +1,21 @@
+{
+  "version": "FAR-WORLD-EVAL/0.1",
+  "study_id": "SYNTHETIC-WORLDVIEW-EQUIVALENCE-001",
+  "n": 8,
+  "data_class": "synthetic",
+  "brier": {
+    "neutral": "0.0625",
+    "orthodox": "0.0625",
+    "placebo": "0.0625"
+  },
+  "orthodox_minus_comparator_brier": {
+    "orthodox_minus_neutral": "0.0000",
+    "orthodox_minus_placebo": "0.0000"
+  },
+  "changed_forecast_counts": {
+    "orthodox_vs_neutral": 0,
+    "orthodox_vs_placebo": 0
+  },
+  "status": "SYNTHETIC_TEST_ONLY",
+  "assurance": "MODEL_COMPARISON_ONLY_NOT_THEOLOGICAL_OR_CAUSAL_PROOF"
+}

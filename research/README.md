@@ -14,9 +14,11 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 
 ## Major areas
 
+- [`architecture-routing/README.md`](architecture-routing/README.md) — completed bounded three-arm routing study: deterministic/declarative 12/12 each, small-model 9/12; no general reasoning or causal advantage claim.
 - `axiomatization/` — exploratory axiomatization work.
 - `bibliography/` and `literature/` — research-source records.
 - `comparisons/` — exploratory comparative work.
+- [`numeric-grounding/README.md`](numeric-grounding/README.md) — replay-bound numerical metric guard and separately preregistered limited live-model comparison; no external truth, general reliability, or production promotion.
 - [`workflow-efficacy/README.md`](workflow-efficacy/README.md) — completed exploratory one-shot repair pilot: control 11/30, FAR 10/30, no demonstrated improvement; distinct from general agent reliability.
 - [`weight-space/README.md`](weight-space/README.md) — experimental checkpoint edits, MIT source/tensor reconstruction, matched simpler baselines and bounded output reliability; no production promotion.
 - [`tool-agent-reliability/README.md`](tool-agent-reliability/README.md) — separately registered multistep agent-only capability preflight and conditional repeated authored-simulation evaluation; no general reliability or FAR causal claim.
@@ -32,3 +34,5 @@ Use [`../docs/CANONICAL_MAP.md`](../docs/CANONICAL_MAP.md) to locate current can
 ## Preservation rule
 
 Research records may preserve superseded, failed, incomplete, or contradictory work for provenance. Their presence is evidence of research history, not evidence that their claims are accepted or current. Current status and authority must be read from the canonical map and applicable governance/status registers.
+
+- [Repository convergence and bounded comparator execution](repository-convergence/2026-11-03/README.md) — Research-only initial inventory, executed local SDK comparison and unresolved human/customer gates.

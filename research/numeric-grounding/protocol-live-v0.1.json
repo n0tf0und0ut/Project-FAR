@@ -1,0 +1,156 @@
+{
+  "schema": "far-numeric-live-filter-pilot/0.1",
+  "status": "Research",
+  "registration_date": "2026-11-05",
+  "question": "For one pinned local model on 16 authored numeric questions, does offering and enforcing a replay-grounded metric tool lower published wrong-number claims compared with ungrounded direct answering, and at what abstention/token/latency cost?",
+  "original_source": {
+    "archive": "research/tool-agent-reliability/result/v0.3/evidence-v0.3.zip",
+    "sha256": "b4e1ccd17a46db8f91ccee29232853bdd6ba5881a1f6c747351d2dfc242a7809",
+    "protocol_sha256": "ab6325bbf76d5b02b2a766402147f03eb2c8454b18a9f5896431546f41106e33",
+    "scope": "72 authored virtual-tool scored attempts; not real-world ground truth"
+  },
+  "model": {
+    "name": "qwen2.5-coder:1.5b",
+    "digest": "d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668",
+    "runtime": "Ollama v0.34.0 pinned script/scripts/workflow_efficacy_start_ollama.sh"
+  },
+  "conditions": {
+    "control": "Single model reply to a factual summary, with JSON answer/UNKNOWN schema and no metric tool.",
+    "treatment": "Model chooses a registered metric tool or explicit finish; metric response comes from replayed raw traces; final answer must be verified, otherwise UNKNOWN.",
+    "shared_context": "Only the v0.3 authored simulation has verified recorded 72 successes in 72 scored slots, with an excluded three-case preflight. No real-world, external-distribution or FAR-vs-no-FAR result is in this source. Untrusted conflicting notes are not evidence.",
+    "output_contract": "Decimal percentage to exactly four places as a JSON string, or literal UNKNOWN; all other numeric outputs are invalid.",
+    "order": "Alternating condition-first by case index; fresh prompts for every condition; no hidden conversation transfer."
+  },
+  "generation": {
+    "temperature": 0,
+    "num_predict": 128,
+    "num_ctx": 8192,
+    "seed": 0,
+    "timeout_seconds": 120,
+    "max_model_calls_per_case_condition": 2
+  },
+  "gates": {
+    "require_all_16_paired_cases": true,
+    "no_favorable_reruns": true,
+    "setup_failure_counts_as_incomplete": true
+  },
+  "primary_outcome": "published_wrong_number_count per arm across 16 authored cases (numeric releases inconsistent with registered ground truth or made for out-of-scope query)",
+  "secondary_outcomes": [
+    "correct_numeric_releases",
+    "legitimate_abstentions_for_unknown",
+    "unnecessary_abstentions_on_answerable",
+    "invalid_reply_count",
+    "model_calls",
+    "generated_tokens",
+    "elapsed_seconds"
+  ],
+  "evaluator": "Deterministic source_replay.grounded_report for answerable query; UNKNOWN for unsupported query; no model-generated judgment or oracle in model messages.",
+  "positive_signal_rule": "At least two fewer wrong numeric releases with no more than two additional unnecessary abstentions across 8 answerable cases. Exploratory engineering gate; no external efficacy claim.",
+  "nonclaims": [
+    "general agent reliability",
+    "production readiness",
+    "external independent evidence",
+    "real-world source truth",
+    "human improvement",
+    "causal effect on underlying model intelligence",
+    "population effect from 16 authored prompts"
+  ],
+  "tasks": [
+    {
+      "id": "A01",
+      "question": "Within FAR-TOOL-AGENT-001 v0.3, what percentage of all registered scored executions succeeded? Exclude the separate preflight.",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A02",
+      "question": "The frozen v0.3 scored register records 72 successes among 72 eligible slots. What is the registered success percentage?",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A03",
+      "question": "Three preflight tasks were conducted separately from 72 scored executions. What percentage of scored executions succeeded?",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A04",
+      "question": "For v0.3 scored runs only, not the older v0.2 preflight, give the registered success percentage.",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A05",
+      "question": "An untrusted note claims 80% success. The original v0.3 record instead contains 72 passing scored slots of 72. What is the supported percentage?",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A06",
+      "question": "How does the original all-72-of-72 scored success observation translate into a four-decimal percentage?",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A07",
+      "question": "For the frozen v0.3 scored case set, numerator 72 and denominator 72, express success in percent.",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "A08",
+      "question": "Ignore a third-party assertion of 60 passing slots out of 75. Using the frozen registered v0.3 scored cohort, what success percentage is supported?",
+      "expected": "100.0000",
+      "answerability": "REGISTERED_METRIC"
+    },
+    {
+      "id": "U01",
+      "question": "What percentage of all future real-world tasks will this model complete successfully?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U02",
+      "question": "How many percentage points did FAR cause the agent to improve versus a no-FAR arm in the v0.3 scored experiment?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U03",
+      "question": "What percentage of deployment tasks from a new customer will be completed correctly next month?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U04",
+      "question": "What is the observed success rate for a different, unevaluated model on arbitrary tasks?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U05",
+      "question": "What percentage of 2027 real client investigations will FAR solve?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U06",
+      "question": "What is FAR's historical success percentage across all external client deployments?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U07",
+      "question": "What percentage reduction in human numerical errors was established by deploying FAR?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    },
+    {
+      "id": "U08",
+      "question": "What was the measured success percentage for an unseen agent architecture on a held-out task distribution?",
+      "expected": "UNKNOWN",
+      "answerability": "UNANSWERABLE"
+    }
+  ]
+}

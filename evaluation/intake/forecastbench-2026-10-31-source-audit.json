@@ -1,0 +1,36 @@
+{
+  "schema": "FAR-WORLD-FORECAST-INTAKE/0.1",
+  "intake_date_utc": "2026-10-31",
+  "evidence_class": "PUBLIC_BENCHMARK_METADATA_NOT_FORECASTS",
+  "benchmark": "ForecastBench",
+  "status": "NO_OFFICIAL_ROUND_ELIGIBLE_ON_INTAKE_DATE",
+  "previous_question_set": {
+    "name": "2026-10-25-llm.json",
+    "relative_path": "datasets/question_sets/2026-10-25-llm.json",
+    "github_blob_sha1": "d2f8e23707fd0859bf78d77fefbf1b74cbc8aabb",
+    "size_bytes": 1473008,
+    "source_uri": "https://raw.githubusercontent.com/forecastingresearch/forecastbench-datasets/main/datasets/question_sets/2026-10-25-llm.json",
+    "source_status": "PUBLISHED_BUT_OFFICIAL_DEADLINE_EXPIRED",
+    "deadline_utc": "2026-10-25T23:59:59Z"
+  },
+  "next_question_set": {
+    "name": "2026-11-08-llm.json",
+    "source_uri": "https://raw.githubusercontent.com/forecastingresearch/forecastbench-datasets/main/datasets/question_sets/2026-11-08-llm.json",
+    "http_observation": "404_NOT_FOUND_AS_OF_2026-10-31",
+    "expected_due_date_utc": "2026-11-08",
+    "published_dataset_hash": null
+  },
+  "official_rules_uri": "https://github.com/forecastingresearch/forecastbench/wiki/How-to-submit-to-ForecastBench",
+  "input_verification": {
+    "public_question_set_directory_listed_count": 43,
+    "question_set_download_blocker": "Public October 25 LLM dataset is 1473008 bytes and exceeded this GitHub connector file fetch limit; original external source remains linked, not copied or rehashed as if downloaded",
+    "user_official_registration_status": "NOT_VERIFIED",
+    "model_inference_endpoint_status": "NOT_CONFIGURED_IN_THIS_SESSION",
+    "approved_upload_destination_status": "NOT_VERIFIED"
+  },
+  "real_forecasts_committed": 0,
+  "outcomes_adjudicated": 0,
+  "three_arm_trial_status": "NOT_EXECUTED",
+  "rehearsal_class": "NONE",
+  "claim_scope": "A source intake, not evidence of empirical uplift or prior prospective submission"
+}
