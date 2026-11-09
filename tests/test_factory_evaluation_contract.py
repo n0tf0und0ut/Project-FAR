@@ -48,9 +48,21 @@ class FactoryEvaluationContractTests(unittest.TestCase):
         self.doc["arms"][1]["id"] = "control"
         self.reject(self.doc, "arms must be")
 
-    def test_rejects_unpaired_task_design(self):
+    def test_rejects_unrandomized_task_design(self):
         self.doc["sampling"]["design"] = "factory-only"
         self.reject(self.doc, "pilot design")
+
+    def test_rejects_paired_design_that_confounds_protected_delivery(self):
+        self.doc["sampling"]["design"] = "prospective-paired-pilot"
+        self.reject(self.doc, "pilot design")
+
+    def test_requires_per_task_base_pin_before_allocation(self):
+        self.doc["controls"]["task_base_sha_pinned_before_allocation"] = False
+        self.reject(self.doc, "task_base_sha_pinned_before_allocation")
+
+    def test_requires_oracles_frozen_before_allocation(self):
+        self.doc["controls"]["test_oracles_frozen_before_allocation"] = False
+        self.reject(self.doc, "test_oracles_frozen_before_allocation")
 
     def test_requires_task_selection_not_posthoc_freeze(self):
         self.doc["sampling"]["tasks_frozen"] = True
