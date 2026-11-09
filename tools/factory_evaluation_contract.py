@@ -79,7 +79,7 @@ def validate(record: object) -> dict:
     doc = _shape(record, {
         "schema", "study_id", "status", "reference_repo", "registration_base_sha",
         "question", "arms", "sampling", "controls", "primary_metric",
-        "secondary_metrics", "verification", "decision", "limitations",
+        "secondary_metrics", "verification", "decision", "limitations", "execution_manifest",
     }, "protocol")
     if doc["schema"] != KIND:
         raise ContractError("unknown schema")
@@ -102,7 +102,7 @@ def validate(record: object) -> dict:
         raise ContractError("arms must be control and factory")
     s = _shape(doc["sampling"], {
         "design", "target_distinct_tasks", "source", "included_classes", "exclusions",
-        "allocation", "tasks_frozen",
+        "allocation", "tasks_frozen", "post_allocation_violation_policy",
     }, "sampling")
     if s["design"] != "prospective-randomized-parallel-pilot":
         raise ContractError("invalid pilot design")
@@ -114,17 +114,24 @@ def validate(record: object) -> dict:
         raise ContractError("invalid eligible classes")
     _string_list(s["exclusions"], "sampling.exclusions")
     _bool(s["tasks_frozen"], "sampling.tasks_frozen", False)
+    if s["post_allocation_violation_policy"] != "Retain every allocated task in its original arm and denominator even if the contestant tampers with tests or oracles; record FAILURE or UNKNOWN and stop affected execution for a safety/provenance violation; never admit a replacement":
+        raise ContractError("post-allocation outcomes must remain in the denominator")
     c = _shape(doc["controls"], {
         "task_base_sha_pinned_before_allocation", "task_specifications_frozen_before_allocation", "test_oracles_frozen_before_allocation",
         "same_model_version_when_possible", "same_runner_hardware_when_possible",
-        "parallel_or_counterbalanced_order", "max_wall_minutes_per_arm_task",
+        "balanced_interleaved_schedule", "cross_arm_knowledge_isolation",
+        "cross_arm_exposure_policy", "max_wall_minutes_per_arm_task",
         "max_paid_provider_usd_per_arm_task", "max_agent_attempts_per_arm_task",
         "human_intervention_definition", "deviation_policy",
     }, "controls")
     for key in ("task_base_sha_pinned_before_allocation", "task_specifications_frozen_before_allocation", "test_oracles_frozen_before_allocation",
                 "same_model_version_when_possible", "same_runner_hardware_when_possible",
-                "parallel_or_counterbalanced_order"):
+                "cross_arm_knowledge_isolation"):
         _bool(c[key], f"controls.{key}", True)
+    if "strictly alternate" not in _text(c["balanced_interleaved_schedule"], "controls.balanced_interleaved_schedule"):
+        raise ContractError("unbalanced task scheduling")
+    if "forbid sharing" not in _text(c["cross_arm_exposure_policy"], "controls.cross_arm_exposure_policy"):
+        raise ContractError("missing cross-arm information-isolation policy")
     if type(c["max_wall_minutes_per_arm_task"]) is not int or not 1 <= c["max_wall_minutes_per_arm_task"] <= 1440:
         raise ContractError("invalid wall time budget")
     if type(c["max_paid_provider_usd_per_arm_task"]) not in (int, float) or c["max_paid_provider_usd_per_arm_task"] != 0:
@@ -133,6 +140,16 @@ def validate(record: object) -> dict:
         raise ContractError("invalid attempt limit")
     _text(c["human_intervention_definition"], "controls.human_intervention_definition")
     _text(c["deviation_policy"], "controls.deviation_policy")
+    e = _shape(doc["execution_manifest"], {
+        "required_before_task_execution", "independent_review_required", "required_fields", "change_policy",
+    }, "execution_manifest")
+    _bool(e["required_before_task_execution"], "execution_manifest.required_before_task_execution", True)
+    _bool(e["independent_review_required"], "execution_manifest.independent_review_required", True)
+    required = {"study_id", "protocol_sha256", "cohort_manifest_sha256", "control_implementation_revision", "factory_implementation_revision", "control_configuration_digest", "factory_configuration_digest", "provider_model_versions", "prompts_and_tools_digest", "runner_image_digest", "allowed_adaptations", "approved_midtrial_change_policy", "independent_reviewer", "immutable_registration_reference"}
+    if set(_string_list(e["required_fields"], "execution_manifest.required_fields")) != required:
+        raise ContractError("incomplete execution manifest requirements")
+    if "no unregistered" not in _text(e["change_policy"], "execution_manifest.change_policy"):
+        raise ContractError("missing implementation freeze policy")
     p = _shape(doc["primary_metric"], {"id", "numerator", "denominator", "measurement_unit"}, "primary_metric")
     if p["id"] != "verified_protected_delivery_rate":
         raise ContractError("primary metric must be verified protected delivery")
