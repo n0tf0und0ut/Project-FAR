@@ -14,6 +14,7 @@ Paths for different readers: **Newcomer** — [FAR in five minutes](START_HERE.m
 | Trace a research result to evidence | [W1–W6 matrix](governance/w1-w6-claim-evidence-matrix-v1.0.md), [research index](../research/README.md), and [limitations](governance/limitations-register.md) | Research records and generated views cannot promote claims. |
 | Determine where a concept belongs | [Canonical map](CANONICAL_MAP.md) and [domain registry](architecture/repository-domain-registry.md) | The map identifies authority; the domain registry controls repository placement. |
 | Locate a specific file | [Generated repository index](planning/repository-index.md) | A file index is a discovery aid, not a status or acceptance decision. |
+| Triage live PRs and issues | [Read-only repository workboard](maintenance/repository-workboard.md) | An operational inventory, not a merge gate or scientific status source. |
 | Check whether newcomers understand | [Plain-language comprehension and navigation procedure](maintenance/beginner-comprehension-check.md) | Reader observations are not formal proof or a claim of completed usability research. |
 
 For the full repository entry point use the [root README](../README.md). For a documentation change, prefer improving an existing route over creating another competing index.
