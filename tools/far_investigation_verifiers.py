@@ -16,7 +16,7 @@ from fractions import Fraction
 from typing import Any
 
 from mechanization.far_mechanization.intake_v1 import _strict_json_loads
-from tools.far_investigation_retrieval import parse_receipt, receipt_bytes
+from tools.far_investigation_retrieval import _enforce_bounded_document_depth, parse_receipt, receipt_bytes
 
 MAX_EXPRESSION = 1024
 MAX_AST_NODES = 96
@@ -214,6 +214,7 @@ def _json_projection(plan: dict, question: str, sources: dict) -> Any:
     receipt, _ = _source(plan["source_id"], sources)
     try:
         document = _strict_json_loads(receipt_bytes(receipt).decode("utf-8"))
+        _enforce_bounded_document_depth(document)
     except (ValueError, UnicodeError, KeyError, TypeError) as exc:
         raise ValueError("source is not strict UTF-8 JSON") from exc
     return _pointer(document, plan["pointer"])
