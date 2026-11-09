@@ -266,6 +266,28 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
             with self.subTest(method=method, url=url):
                 self.assert_rejected(state, 'model_calls[0].transport')
 
+    def test_model_pre_response_transport_failure_has_no_invented_response_url(self):
+        from tools.far_investigation_engine import LocalModel
+        from tools.far_uncertain_routing_pilot import ResponseTransportError
+        endpoint = 'http://127.0.0.1:8085/v1/chat/completions'
+        transport = {
+            'request_url': endpoint, 'request_method': 'POST', 'http_status': None,
+            'response_complete': False, 'response_truncated': False,
+            'response_hash_scope': 'retained_prefix',
+            'raw_response_base64': '',
+            'response_sha256': hashlib.sha256(b'').hexdigest(),
+            'response_bytes_retained': 0, 'transport_error': 'URLError',
+            'requested_at': '2026-11-09T18:00:00Z',
+            'received_at': '2026-11-09T18:00:01Z',
+            'timing_scope': 'request_start_to_body_read_or_transport_failure'
+        }
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=ResponseTransportError('network unavailable', transport)):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(state['http_calls'], 0)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
     def test_rejected_extra_model_argument_named_request_sha256_is_source_data(self):
         # The invalid model tool argument must be rejected by dispatch rather
         # than misinterpreted as a journal request checksum.
