@@ -630,6 +630,51 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(handlers[0].proxies, {})
         self.assertEqual(checkpoints[-1]['error']['class'], 'ValueError')
 
+    def test_local_model_redirect_cannot_escape_attested_listener(self):
+        import threading
+        import urllib.error
+        import urllib.request
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        from tools.far_investigation_engine import local_model_opener
+        from tools.far_investigation_campaign import local_model_opener as health_opener
+
+        self.assertIs(local_model_opener, health_opener)
+        decoy_hits = []
+        class Decoy(BaseHTTPRequestHandler):
+            def do_GET(self):
+                decoy_hits.append(self.path)
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'forged model response')
+            def log_message(self, *args):
+                pass
+        with ThreadingHTTPServer(('127.0.0.1', 0), Decoy) as decoy:
+            class Redirect(BaseHTTPRequestHandler):
+                def do_POST(self):
+                    self.send_response(302)
+                    self.send_header(
+                        'Location', 'http://127.0.0.1:' + str(decoy.server_port) + '/forged')
+                    self.end_headers()
+                def log_message(self, *args):
+                    pass
+            with ThreadingHTTPServer(('127.0.0.1', 0), Redirect) as source:
+                threads = [threading.Thread(target=server.serve_forever, daemon=True)
+                           for server in (decoy, source)]
+                for thread in threads:
+                    thread.start()
+                try:
+                    url = 'http://127.0.0.1:' + str(source.server_port) + '/v1/chat/completions'
+                    request = urllib.request.Request(url, data=b'{}', method='POST')
+                    with self.assertRaises(urllib.error.HTTPError) as caught:
+                        local_model_opener().open(request, timeout=3)
+                    self.assertEqual(caught.exception.code, 302)
+                    self.assertEqual(decoy_hits, [])
+                finally:
+                    source.shutdown()
+                    decoy.shutdown()
+                    for thread in threads:
+                        thread.join(timeout=3)
+
     def test_local_model_endpoint_cannot_be_redirected_to_arbitrary_service(self):
         for endpoint in ("http://localhost:8085/v1/chat/completions", "https://example.org/v1/chat/completions",
                          "http://169.254.169.254/latest/meta-data", "http://127.0.0.1:8086/v1/chat/completions"):

@@ -31,7 +31,7 @@ from mechanization.far_mechanization.intake_v1 import (
 from tools.far_autonomous_investigation import now, pointer_leaves
 from tools.far_investigation_retrieval import (
     RetrievalPolicy, ToolError, bind_quote, parse_receipt, public_search,
-    receipt_bytes, retrieve,
+    receipt_bytes, retrieve, _NoRedirect,
 )
 from tools.far_investigation_verifiers import validate_plan, verify
 from tools.far_routing_dispatch import _parse, route_text
@@ -321,6 +321,11 @@ def build_report(s, args):
               'scope': 'Bounded native checks and procedural intake conformance; no universal semantic truth or external independence.'}
 
 
+def local_model_opener():
+    """Use direct loopback transport without inherited proxies or redirects."""
+    return urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
+
+
 class LocalModel:
     """Explicit operator-local endpoint. No redirect, remote endpoint or credential.
 
@@ -358,7 +363,7 @@ class LocalModel:
                 # urllib's default opener inherits HTTP_PROXY and can route
                 # loopback requests to an unrelated producer. This explicit
                 # no-proxy opener binds the request to the local listener.
-                direct = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+                direct = local_model_opener()
                 raw, transport = read_bounded_response(
                     request, timeout=self.timeout, max_bytes=1_000_000, opener=direct)
             except ResponseTransportError as exc:

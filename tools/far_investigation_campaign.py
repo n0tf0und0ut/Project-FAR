@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 
 from tools.far_investigation_engine import (
     Budget, Investigation, LocalModel, RetrievalPolicy, audit_transcript, now, persist,
+    local_model_opener,
 )
 from tools.far_routing_dispatch import _parse
 from tools.far_investigation_usage import model_usage_report
@@ -350,7 +351,7 @@ def run(selection, output, *, model_path=None, server_path=None, modes=('determi
             persist_campaign_index(output, campaign)
             # Health must probe the same direct loopback transport as LocalModel;
             # inherited HTTP_PROXY may otherwise forge readiness responses.
-            direct_health = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+            direct_health = local_model_opener()
             for _ in range(120):
                 if server.poll() is not None:
                     raise RuntimeError('local server exited during startup')
