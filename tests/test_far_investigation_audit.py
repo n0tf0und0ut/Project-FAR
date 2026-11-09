@@ -323,7 +323,7 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
             client = unittest.mock.Mock()
             client.open.return_value = Response(
                 b'{"message":{"items":[]}}', status=500 if count[0] == 2 else 200,
-                url=public_search_url(query, provider))
+                kind='application/json', url=public_search_url(query, provider))
             with patch('tools.far_investigation_retrieval.urllib.request.build_opener',
                        return_value=client):
                 return public_search(query, provider, policy, checkpoint=checkpoint)
