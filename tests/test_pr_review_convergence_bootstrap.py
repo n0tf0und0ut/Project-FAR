@@ -118,7 +118,7 @@ python3() {
      "$4" == --pr && "$5" == "$PR_NUMBER" &&
      "$6" == --expected-head && "$7" == "$EVENT_HEAD" &&
      "$8" == --output && "$9" == "$RUNNER_TEMP/pr-invariant-preflight.json" ]] || return 35
-  printf '%s\\n' "$1" >> "$MOCK_CALLS"
+  printf '%s\n' "$1" >> "$MOCK_CALLS"
   return "$MOCK_PREFLIGHT_EXIT"
 }
 """
@@ -127,7 +127,7 @@ python3() {
                     calls.unlink(missing_ok=True)
                     env["MOCK_PREFLIGHT_EXIT"] = str(exit_code)
                     env["EVENT_HEAD"] = event_head
-                    result = subprocess.run(["bash", "-c", stub + "\\n" + preflight_script()],
+                    result = subprocess.run(["bash", "-c", stub + "\n" + preflight_script()],
                                             env=env, text=True, capture_output=True, timeout=10)
                     self.assertEqual(result.returncode == 0, exit_code == 0 and event_head == HEAD)
                     expected = ["tools/pr_invariant_preflight.py"] if event_head == HEAD else []
