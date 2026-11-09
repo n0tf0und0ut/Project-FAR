@@ -19,9 +19,21 @@ DIGEST = "778404e527824a170041a5bd8e9ae67421291246a8eff19682b53af4f58909fc"
 PINNED_COLLECTOR = ROOT / "tests/fixtures/pr-review-collector-dc4924a.py.txt"
 
 
-def enforcement_script():
+def workflow_script(name):
     workflow = yaml.load(WORKFLOW.read_text(), Loader=yaml.BaseLoader)
-    return workflow["jobs"]["required-review"]["steps"][1]["run"]
+    matches = [step["run"] for step in workflow["jobs"]["required-review"]["steps"]
+               if step.get("name") == name and "run" in step]
+    if len(matches) != 1:
+        raise ValueError("expected exactly one workflow run step: " + name)
+    return matches[0]
+
+
+def enforcement_script():
+    return workflow_script("Enforce review evidence for this event's exact PR head")
+
+
+def preflight_script():
+    return workflow_script("Check invariant-first contract before independent review")
 
 
 STUBS = r'''
@@ -91,6 +103,35 @@ class BootstrapTests(unittest.TestCase):
                                     env=env, text=True, capture_output=True, timeout=10)
             calls = (root / "calls").read_text().splitlines() if (root / "calls").exists() else []
             return result, calls
+
+    def test_preflight_shell_invocation_preserves_failure_and_head_checks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            calls = Path(directory) / "calls"
+            env = dict(os.environ, GITHUB_REPOSITORY="n0tf0und0ut/Project-FAR",
+                       PR_NUMBER="634", EVENT_HEAD=HEAD,
+                       RUNNER_TEMP=directory, GH_TOKEN="synthetic",
+                       MOCK_CALLS=str(calls), MOCK_PREFLIGHT_EXIT="0")
+            stub = r"""
+python3() {
+  [[ "$#" -eq 9 && "$1" == tools/pr_invariant_preflight.py &&
+     "$2" == --repository && "$3" == "$GITHUB_REPOSITORY" &&
+     "$4" == --pr && "$5" == "$PR_NUMBER" &&
+     "$6" == --expected-head && "$7" == "$EVENT_HEAD" &&
+     "$8" == --output && "$9" == "$RUNNER_TEMP/pr-invariant-preflight.json" ]] || return 35
+  printf '%s\\n' "$1" >> "$MOCK_CALLS"
+  return "$MOCK_PREFLIGHT_EXIT"
+}
+"""
+            for exit_code, event_head in ((0, HEAD), (17, HEAD), (0, "bad-head")):
+                with self.subTest(exit_code=exit_code, event_head=event_head):
+                    calls.unlink(missing_ok=True)
+                    env["MOCK_PREFLIGHT_EXIT"] = str(exit_code)
+                    env["EVENT_HEAD"] = event_head
+                    result = subprocess.run(["bash", "-c", stub + "\\n" + preflight_script()],
+                                            env=env, text=True, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode == 0, exit_code == 0 and event_head == HEAD)
+                    expected = ["tools/pr_invariant_preflight.py"] if event_head == HEAD else []
+                    self.assertEqual(calls.read_text().splitlines() if calls.exists() else [], expected)
 
     def test_pin_digest_matches_the_exact_collector(self):
         self.assertEqual(hashlib.sha256(PINNED_COLLECTOR.read_bytes()).hexdigest(),
