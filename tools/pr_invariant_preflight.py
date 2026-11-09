@@ -47,7 +47,16 @@ INFRA_SUFFIXES = {'.tf', '.tfvars', '.nix', '.dockerfile'}
 RUNTIME_ASSET_SUFFIXES = {'.html', '.htm', '.css', '.scss', '.sass', '.less',
                           '.vue', '.svelte', '.astro', '.j2', '.jinja',
                           '.jinja2', '.njk', '.hbs', '.ejs', '.svg', '.wasm'}
-RUNTIME_RESOURCE_DIRS = {'src', 'templates', 'static', 'public', 'frontend', 'client', 'ui'}
+RUNTIME_RESOURCE_DIRS = {'src', 'templates', 'static', 'public', 'frontend',
+                         'client', 'ui', 'bin', 'scripts', 'tools', 'server'}
+# Treat unrecognized extensions in application packages as implementation by
+# default. Only demonstrably passive prose/assets and separately governed
+# evidence archives are excluded. This prevents a growing extension allowlist
+# from hiding each newly introduced executable or config type.
+PASSIVE_ASSET_SUFFIXES = {'.md', '.rst', '.txt', '.png', '.jpg', '.jpeg',
+                          '.gif', '.webp', '.ico', '.woff', '.woff2',
+                          '.ttf', '.otf', '.pdf'}
+EVIDENCE_DIRS = {'evaluation', 'external-validation', 'research', 'archive', 'docs'}
 
 
 def _date(value: str) -> datetime:
@@ -63,13 +72,25 @@ def is_implementation_path(path: str) -> bool:
     if type(path) is not str or path.startswith('/') or '..' in Path(path).parts:
         return False
     if (path in SPECIAL_FILES or Path(path).name in SPECIAL_FILES
-            or path.startswith('.github/workflows/') or path.startswith('.github/actions/')):
+            or path.startswith('.github/')):
         return True
     parts = Path(path).parts
     suffix = Path(path).suffix.lower()
     # Application source and served resources can be executable HTML, browser
     # styles, templates, schemas and configuration; extension-only matching
     # incorrectly grandfathered template-only runtime PRs as "documentation".
+    # Source/resource directories are executable by role; an arbitrary new
+    # language or template suffix must not bypass preflight.
+    if any(p in RUNTIME_RESOURCE_DIRS for p in parts[:-1]):
+        return True
+    # Package-root files outside explicitly archived evidence are considered
+    # implementation unless their type is passive prose or an image/font.
+    if (parts[0] in PACKAGE_ROOTS and len(parts) >= 3
+            and not any(p in EVIDENCE_DIRS for p in parts[2:-1])
+            and suffix not in PASSIVE_ASSET_SUFFIXES):
+        return True
+    if len(parts) == 1 and suffix in SOFTWARE_CONFIG:
+        return True
     if suffix in RUNTIME_ASSET_SUFFIXES | INFRA_SUFFIXES:
         return True
     # Executable root entrypoints and toolchain selectors may lack extensions.

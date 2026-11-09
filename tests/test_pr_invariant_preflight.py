@@ -179,6 +179,28 @@ class PreflightContractTests(unittest.TestCase):
         p['changed_files'] = len(files)
         self.assertFalse(verify(p, files)['valid'])
 
+    def test_unknown_extension_in_runtime_package_cannot_bypass_preflight(self):
+        for path in ('commercial/new-engine/agent.unknownlang',
+                     'commercial/new-engine/templates/prompt.liquid',
+                     'apps/dashboard/main.php',
+                     'packages/new-ui/component.astro',
+                     'frontend/scripts/bootstrap',
+                     '.github/dependabot.yml',
+                     'tox.ini'):
+            with self.subTest(path=path):
+                self.assertTrue(check.is_implementation_path(path), path)
+                files = [{'filename': path, 'status': 'modified'}]
+                p = pr(body='')
+                p['changed_files'] = len(files)
+                self.assertFalse(verify(p, files)['valid'])
+
+    def test_passive_package_documentation_stays_documentation_only(self):
+        for path in ('commercial/new-engine/README.md',
+                     'commercial/new-engine/docs/architecture.md',
+                     'docs/start-here.md'):
+            with self.subTest(path=path):
+                self.assertFalse(check.is_implementation_path(path), path)
+
     def test_extensionless_entrypoints_and_deployment_manifests_are_implementation(self):
         for path in ('far', 'lean-toolchain',
                      'commercial/far-demo/render.yaml',
