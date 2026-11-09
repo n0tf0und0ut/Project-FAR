@@ -629,3 +629,15 @@ with a bounded local HTTP transport: exactly one rejected attempt, raw
 receipt retained, no parsed projection, and auditable failed final seal.
 Final source/test validation and independent exact-head review are required
 before any merge; this is an engineering bound, not scientific efficacy.
+
+**ENG-SOURCE-PARSER-STACK-20261109 (related independent boundary):** Beyond
+the 700-level JSON projection counterexample, a source with approximately
+12,000 nested arrays can cause the strict JSON decoder itself to raise
+`RecursionError` before the iterative depth guard receives any object.
+This failure also must preserve raw receipt bytes and produce an ordinary
+rejected tool attempt rather than escape the investigation's finalization.
+The shared parser now maps this interpreter-limit exception to its existing
+`ToolError` path, with `test_json_decoder_stack_limit_preserves_raw_source_receipt`
+checking full original source bytes/hash and the explicit error class.
+Original source or frozen campaign records are unchanged; independent
+exact-head review and hosted regression checks remain required.

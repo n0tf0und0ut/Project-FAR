@@ -318,7 +318,7 @@ def parse_receipt(receipt: dict) -> dict:
             raise ValueError("unsupported content type")
         result["projection_sha256"] = _sha(result["text"].encode("utf-8"))
         return result
-    except (ValueError, KeyError, TypeError, UnicodeError) as exc:
+    except (ValueError, KeyError, TypeError, UnicodeError, RecursionError) as exc:
         if isinstance(exc, ToolError):
             raise
         raise ToolError("source parse failed: " + type(exc).__name__, receipt) from exc

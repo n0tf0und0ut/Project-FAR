@@ -165,6 +165,15 @@ class RetrievalTests(unittest.TestCase):
         self.assertEqual(checkpoints[-1]["status"], "RETRIEVED")
         self.assertEqual(parse_receipt(self.get(b"[" * 64 + b"0" + b"]" * 64,
                                                 "application/json"))["format"], "json")
+    def test_json_decoder_stack_limit_preserves_raw_source_receipt(self):
+        # A strict parser can hit its own recursion ceiling before the separate
+        # iterative projection-depth validator can inspect the parsed object.
+        raw = b"[" * 12000 + b"0" + b"]" * 12000
+        record = self.get(raw, "application/json")
+        with self.assertRaisesRegex(ToolError, "source parse failed: RecursionError") as caught:
+            parse_receipt(record)
+        self.assertEqual(base64.b64decode(caught.exception.receipt["raw_base64"]), raw)
+        self.assertEqual(caught.exception.receipt["sha256"], record["sha256"])
     def test_http_failure_retains_error_body(self):
         transport = Mock()
         transport.open.side_effect = urllib.error.HTTPError(
