@@ -64,6 +64,42 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                 self.assertEqual(outcome['reconstructed_counters']['http_reservations'], 4)
                 self.assertIn('no external authenticity', outcome['assurance'])
 
+    def test_baseline_mode_cannot_claim_agent_selected_verification_plans(self):
+        agent = self.runtime().run_agent(NativeFunctionFixtureModel(full_script()))
+        self.assertEqual(agent['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertTrue(audit(agent)['valid'], audit(agent))
+        for mode in ('deterministic', 'declarative'):
+            with self.subTest(mode=mode):
+                forged = copy.deepcopy(agent)
+                forged['mode'] = mode
+                forged['model_calls'] = []
+                forged['model_tokens'] = 0
+                forged['events'] = [e for e in forged['events']
+                    if e['kind'] not in ('MODEL_OBSERVATION', 'MODEL_PROPOSAL')]
+                forged['events'].insert(1, {
+                    'sequence': 2, 'at': forged['events'][0]['at'],
+                    'kind': 'DETERMINISTIC_PLAN' if mode == 'deterministic' else 'DECLARATIVE_PLAN',
+                    'payload': [action('retrieve', url=URL_A), action('retrieve', url=URL_B)],
+                    'previous_sha256': None, 'sha256': None})
+                for index, event in enumerate(forged['events'], 1):
+                    event['sequence'] = index
+                reseal(forged)
+                self.assert_rejected(forged, 'workflow.proposals')
+
+    def test_baseline_plan_and_failed_fixed_prefix_are_enforced(self):
+        for mode in ('deterministic', 'declarative'):
+            with self.subTest(mode=mode):
+                state = self.complete(mode)
+                self.assertTrue(audit(state)['valid'], audit(state))
+                forged = copy.deepcopy(state)
+                plan = next(e for e in forged['events'] if e['kind'].endswith('_PLAN'))
+                plan['payload'][0]['args']['url'] = URL_B
+                reseal(forged)
+                self.assert_rejected(forged, 'workflow.plan')
+                limited = self.runtime(mode=mode, budget=Budget(max_steps=1)).run_workflow()
+                self.assertEqual(limited['status'], 'FAILED_OR_INCOMPLETE')
+                self.assertTrue(audit(limited)['valid'], audit(limited))
+
     def test_resealed_new_transport_timestamps_cannot_move_backwards(self):
         state=self.complete()
         state['transport_timing_test']={
