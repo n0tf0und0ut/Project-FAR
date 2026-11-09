@@ -452,7 +452,10 @@ class Investigation:
             raise EngineError('HTTP call budget exhausted')
         self.state['http_calls'] += 1
         self.event('HTTP_REQUEST', {'url': url, 'call': self.state['http_calls']})
-        return self.fetcher(url, self.policy, checkpoint=lambda r: self.event('HTTP_OBSERVATION', r))
+        kwargs = {'checkpoint': lambda r: self.event('HTTP_OBSERVATION', r)}
+        if self.fetcher is retrieve:
+            kwargs['deadline_monotonic'] = self.started + self.budget.max_seconds
+        return self.fetcher(url, self.policy, **kwargs)
 
     def _mutable(self):
         if self.state['intake'] and self.state['intake']['freeze']['status'] == 'FROZEN':
@@ -547,8 +550,10 @@ class Investigation:
                 raise EngineError('HTTP call budget exhausted')
             s['http_calls'] += 1
             self.event('SEARCH_REQUEST', {'query': args['query'], 'provider': args['provider'], 'call': s['http_calls']})
-            result = self.searcher(args['query'], args['provider'], self.policy,
-                                   checkpoint=lambda r: self.event('SEARCH_OBSERVATION', r))
+            kwargs = {'checkpoint': lambda r: self.event('SEARCH_OBSERVATION', r)}
+            if self.searcher is public_search:
+                kwargs['deadline_monotonic'] = self.started + self.budget.max_seconds
+            result = self.searcher(args['query'], args['provider'], self.policy, **kwargs)
             s['searches'].append(result)
             self._invalidate()
             return {k: v for k, v in result.items() if k != 'receipt'}
@@ -613,8 +618,10 @@ class Investigation:
                     raise EngineError('HTTP call budget exhausted')
                 s['http_calls'] += 1
                 self.event('SEARCH_REQUEST', {'query': search['query'], 'provider': search['provider'], 'call': s['http_calls'], 'recheck_index': index})
-                result = self.searcher(search['query'], search['provider'], self.policy,
-                                       checkpoint=lambda r: self.event('SEARCH_RECHECK_OBSERVATION', r))
+                kwargs = {'checkpoint': lambda r: self.event('SEARCH_RECHECK_OBSERVATION', r)}
+                if self.searcher is public_search:
+                    kwargs['deadline_monotonic'] = self.started + self.budget.max_seconds
+                result = self.searcher(search['query'], search['provider'], self.policy, **kwargs)
                 if result['hits'] != search['hits']:
                     raise EngineError('search hits changed; bounded saturation unavailable')
                 self.event('SEARCH_RECHECK', {'index': index, 'result': result})

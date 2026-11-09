@@ -62,6 +62,70 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+class _DeadlineHeaderReader:
+    """Bound individual status/header reads to a monotonic request deadline.
+
+    urllib's idle socket timeout is not a whole-header deadline when a peer
+    trickles bytes. This wrapper checks every returned header byte without
+    altering the native HTTP parser or the transport's destination policy.
+    """
+    def __init__(self, stream, deadline):
+        self.stream, self.deadline = stream, deadline
+
+    def check(self):
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('absolute HTTP header deadline exceeded')
+        sock = getattr(getattr(self.stream, 'raw', self.stream), '_sock', None)
+        if sock is not None:
+            sock.settimeout(max(.001, remaining))
+
+    def readline(self, limit=-1):
+        data = bytearray()
+        while not data.endswith(b'\n') and (limit < 0 or len(data) < limit):
+            self.check()
+            part = self.stream.readline(1)
+            self.check()
+            if not part:
+                break
+            data.extend(part)
+        return bytes(data)
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+
+def _install_deadline_header_handlers(opener, deadline):
+    """Attach per-request whole-header bounds without changing proxy/redirect guards."""
+    if deadline is None or not isinstance(opener, urllib.request.OpenerDirector):
+        return
+
+    class DeadlineResponse(http.client.HTTPResponse):
+        def _read_status(self):
+            if not isinstance(self.fp, _DeadlineHeaderReader):
+                self.fp = _DeadlineHeaderReader(self.fp, deadline)
+            return super()._read_status()
+
+    class DeadlineHTTPConnection(http.client.HTTPConnection):
+        response_class = DeadlineResponse
+
+    class DeadlineHTTPSConnection(http.client.HTTPSConnection):
+        response_class = DeadlineResponse
+
+    class DeadlineHTTPHandler(urllib.request.HTTPHandler):
+        handler_order = 450  # Before urllib's default transport handler (500).
+        def http_open(self, request):
+            return self.do_open(DeadlineHTTPConnection, request)
+
+    class DeadlineHTTPSHandler(urllib.request.HTTPSHandler):
+        handler_order = 450
+        def https_open(self, request):
+            return self.do_open(DeadlineHTTPSConnection, request, context=self._context)
+
+    opener.add_handler(DeadlineHTTPHandler())
+    opener.add_handler(DeadlineHTTPSHandler())
+
+
 class _ChunkFramingObserver:
     """Observe native HTTPResponse framing without replacing its body decoder.
 
@@ -100,13 +164,16 @@ class _ChunkFramingObserver:
             while received < amount:
                 self._check_deadline()
                 part = reader(amount - received)
-                self._check_deadline()
                 if not part:
+                    self._check_deadline()
                     break
+                # This chunk was observed before the deadline check can reject
+                # its completion; retain it in the failure receipt.
                 self.prefix.extend(part[:max(0, self.limit - len(self.prefix))])
                 self.remaining -= len(part)
                 chunks.append(part)
                 received += len(part)
+                self._check_deadline()
             if self.remaining == 0:
                 self.phase = "separator"
             return b"".join(chunks)
@@ -129,10 +196,11 @@ class _ChunkFramingObserver:
         while not data.endswith(b"\n"):
             self._check_deadline()
             part = self.stream.readline(1)
-            self._check_deadline()
             if not part:
+                self._check_deadline()
                 break
             data.extend(part)
+            self._check_deadline()
             self.framing_bytes += len(part)
             if ((limit >= 0 and len(data) > limit)
                     or self.framing_bytes > self.limit + 65536):
@@ -192,6 +260,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
     try:
         try:
             client = opener if opener is not None else urllib.request.build_opener(NoRedirect())
+            _install_deadline_header_handlers(client, deadline_monotonic)
             enforce_deadline()
             remaining = (deadline_monotonic - time.monotonic()) if deadline_monotonic is not None else timeout
             response = client.open(request, timeout=max(.001, min(timeout, remaining)))
@@ -244,11 +313,14 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                     while len(raw) <= max_bytes:
                         enforce_deadline()
                         chunk = reader(min(chunk_size or 65536, max_bytes + 1 - len(raw)))
-                        enforce_deadline()
                         if not chunk:
+                            enforce_deadline()
                             break
                         raw += chunk
                         retain(raw)
+                        # A body chunk returned after deadline remains observed
+                        # evidence, even when the response cannot be accepted.
+                        enforce_deadline()
                 enforce_deadline()
                 complete = len(raw) <= max_bytes
             except http.client.IncompleteRead as exc:

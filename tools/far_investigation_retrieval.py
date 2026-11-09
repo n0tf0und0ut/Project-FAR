@@ -155,7 +155,7 @@ def _envelope(url: str) -> dict:
 
 
 def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None = None,
-             opener: Any = None) -> dict:
+             opener: Any = None, deadline_monotonic: float | None = None) -> dict:
     """Perform one GET; persist received bytes before content parsing or rejection.
 
     A response larger than max_bytes retains the observed max_bytes+1 prefix.
@@ -215,7 +215,8 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
             # same bounded reader used by the model and historical source tools.
             raw, transport = read_bounded_response(
                 req, timeout=policy.timeout, max_bytes=policy.max_bytes + 1,
-                opener=client, checkpoint=capture, chunk_size=65536)
+                opener=client, checkpoint=capture, chunk_size=65536,
+                deadline_monotonic=deadline_monotonic)
         except ResponseTransportError as exc:
             capture(exc.envelope)
             receipt["transport"] = exc.envelope
@@ -375,7 +376,8 @@ def search(query: str, policy: RetrievalPolicy, *, provider: Callable | None = N
     return {"query": query, "receipt": receipt, "hits": checked, "status": "SEARCH_COMPLETED"}
 
 
-def public_search(query: str, provider: str, policy: RetrievalPolicy, *, checkpoint: Callable | None = None) -> dict:
+def public_search(query: str, provider: str, policy: RetrievalPolicy, *,
+                  checkpoint: Callable | None = None, deadline_monotonic: float | None = None) -> dict:
     """Execute a fixed public no-key metadata search, preserving its response.
 
     Crossref uses its documented works endpoint (message.items[].URL/title).
@@ -388,7 +390,8 @@ def public_search(query: str, provider: str, policy: RetrievalPolicy, *, checkpo
     and https://www.mediawiki.org/wiki/API:Search .
     """
     url = public_search_url(query, provider)
-    receipt = retrieve(url, policy, checkpoint=checkpoint)
+    receipt = retrieve(url, policy, checkpoint=checkpoint,
+                       deadline_monotonic=deadline_monotonic)
     return project_public_search(query, provider, receipt)
 
 

@@ -75,7 +75,7 @@ def audit(state) -> dict:
     # Imported lazily: the runtime exposes this auditor through a lazy wrapper.
     from tools.far_investigation_engine import (
         build_discovery, build_inspection, build_report, validate_dispatch, validate_proposal,
-        select_native_candidate,
+        select_native_candidate, SYSTEM, function_schema,
     )
     errors = []
     counters = {}
@@ -185,9 +185,32 @@ def audit(state) -> dict:
                     if timestamp(node['received_at']) < timestamp(node['requested_at']):
                         raise ValueError('transport completion predates request')
                 guarded(path + '.transport_time', check_transport_time)
-            if (node.get('schema') == 'far-source-receipt/0.1'
+            receipt_event = re.fullmatch(r'state\.events\[(\d+)\]\.payload(\.receipt|\.result\.receipt)?', path)
+            receipt_event_kind = (state['events'][int(receipt_event.group(1))]['kind']
+                                  if receipt_event is not None else None)
+            owned_receipt = (
+                re.fullmatch(r'state\.sources\.src\.\d+', path) is not None
+                or re.fullmatch(r'state\.searches\[\d+\]\.receipt', path) is not None
+                or re.fullmatch(r'state\.rechecks\[\d+\]\.receipt', path) is not None
+                or receipt_event is not None and (
+                    receipt_event.group(2) is None and receipt_event_kind in (
+                        'HTTP_OBSERVATION', 'SEARCH_OBSERVATION', 'SEARCH_RECHECK_OBSERVATION')
+                    or receipt_event.group(2) == '.receipt' and receipt_event_kind in (
+                        'TOOL_REJECTED', 'SOURCE_RECHECK')
+                    or receipt_event.group(2) == '.result.receipt' and receipt_event_kind == 'SEARCH_RECHECK'))
+            if (owned_receipt and node.get('schema') == 'far-source-receipt/0.1'
                     and {'raw_base64', 'sha256', 'observed_bytes'} <= node.keys()):
                 guarded(path + '.receipt', lambda: receipt_bytes(node))
+                if type(node.get('transport')) is dict:
+                    # A failed transport still owns the actual observed bytes.
+                    # Record-level self-hashing alone cannot justify replacing
+                    # its retained prefix while leaving transport unchanged.
+                    equal(path + '.transport.retained_body', node['raw_base64'],
+                          node['transport'].get('raw_response_base64'))
+                    equal(path + '.transport.retained_hash', node['sha256'],
+                          node['transport'].get('response_sha256'))
+                    equal(path + '.transport.retained_length', node['observed_bytes'],
+                          node['transport'].get('response_bytes_retained'))
                 if node.get('status') == 'RETRIEVED':
                     if node.get('http_status') != 200 or node.get('truncated') or not node['observed_bytes']:
                         fail(path, 'successful receipt has failed/empty/truncated transport')
@@ -663,6 +686,16 @@ def audit(state) -> dict:
                 model_attempt_envelopes.append(latest_model_observation or {'status': 'STARTED'})
                 model_attempt_usage.append(observed_attempt_usage)
             equal('model_calls.attempt_order', calls, model_attempt_envelopes)
+            # The first MODEL_OBSERVATION of each model attempt precedes its
+            # model proposal and all associated tool side effects. Later
+            # checkpoints in the same attempt do not create a new prompt.
+            prompt_boundaries, awaiting_proposal = [], False
+            for event_index, event in enumerate(events):
+                if event['kind'] == 'MODEL_OBSERVATION' and not awaiting_proposal:
+                    prompt_boundaries.append(event_index)
+                    awaiting_proposal = True
+                elif event['kind'] in ('MODEL_PROPOSAL', 'FAILURE'):
+                    awaiting_proposal = False
             for attempt, (call, observed) in enumerate(zip(calls, model_attempt_usage)):
                 # The accepted local-model reader cannot emit a response from
                 # another URL or method. Bind its retained native transport,
@@ -671,6 +704,37 @@ def audit(state) -> dict:
                         and type(call.get('request')) is dict
                         and type(call.get('transport')) is dict):
                     transport = call['transport']
+                    request = call['request']
+                    prefix = 'model_calls[' + str(attempt) + '].request'
+                    def validate_model_request():
+                        messages = request['messages']
+                        if type(messages) is not list or len(messages) != 2:
+                            raise ValueError('native model requires two protocol messages')
+                        equal(prefix + '.system', messages[0],
+                              {'role': 'system', 'content': SYSTEM})
+                        if type(messages[1]) is not dict or messages[1].get('role') != 'user':
+                            raise ValueError('native model requires the investigation user prompt')
+                        prompt = _parse(messages[1]['content'])
+                        if type(prompt) is not dict:
+                            raise ValueError('invalid structured investigation prompt')
+                        for field in ('question', 'seeds', 'policy'):
+                            equal(prefix + '.prompt.' + field, prompt.get(field), state[field])
+                        if attempt < len(prompt_boundaries):
+                            earlier = events[:prompt_boundaries[attempt]]
+                            equal(prefix + '.prompt.previous_proposals', prompt.get('previous_proposals'),
+                                  [e['payload'] for e in earlier if e['kind'] == 'TOOL_PROPOSAL'][-10:])
+                            equal(prefix + '.prompt.last_observations', prompt.get('last_observations'),
+                                  [e for e in earlier if e['kind'] in ('TOOL_RESULT', 'TOOL_REJECTED')][-3:])
+                        enabled = prompt.get('tools')
+                        if type(enabled) is not list or any(type(t) is not str for t in enabled):
+                            raise ValueError('invalid native tool-list shape')
+                        equal(prefix + '.tools', request.get('tools'),
+                              [function_schema(t) for t in enabled])
+                        expected = {'temperature': 0, 'stream': False, 'max_tokens': 1800,
+                                    'tool_choice': 'auto', 'parallel_tool_calls': False}
+                        for k, v in expected.items():
+                            equal(prefix + '.' + k, request.get(k), v)
+                    guarded(prefix, validate_model_request)
                     endpoint = 'http://127.0.0.1:8085/v1/chat/completions'
                     equal('model_calls[' + str(attempt) + '].transport.request_url',
                           transport.get('request_url'), endpoint)

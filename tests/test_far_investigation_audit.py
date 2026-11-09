@@ -405,6 +405,80 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         reseal(forged)
         self.assert_rejected(forged, 'failed_search.reservation')
 
+    def test_untrusted_receipt_shaped_invalid_argument_remains_an_auditable_rejection(self):
+        extra = {'schema': 'far-source-receipt/0.1', 'raw_base64': 'not-base64',
+                 'sha256': 'not-a-digest', 'observed_bytes': 0}
+        state = self.runtime().run_agent(NativeFunctionFixtureModel([
+            action('retrieve', url=URL_A, extra=extra), *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_native_failed_receipt_cannot_rewrite_its_observed_body(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+        attempts = {}
+        def fetch(url, policy, checkpoint):
+            count = attempts.get(url, 0)
+            attempts[url] = count + 1
+            transport = unittest.mock.Mock()
+            status = 500 if url == URL_A and count == 0 else 200
+            transport.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(), status=status, url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=transport)
+        state = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            seeds=[URL_A, URL_B], fetcher=fetch).run_agent(
+                NativeFunctionFixtureModel([action('retrieve', url=URL_A), *full_script()]))
+        self.assertTrue(audit(state)['valid'], audit(state))
+        changed = copy.deepcopy(state)
+        rejected = next(e for e in changed['events']
+            if e['kind'] == 'TOOL_REJECTED'
+            and type(e['payload'].get('receipt')) is dict
+            and e['payload']['receipt'].get('transport'))
+        bad = b'sealed substituted evidence'
+        receipt = rejected['payload']['receipt']
+        receipt['raw_base64'] = base64.b64encode(bad).decode()
+        receipt['sha256'] = hashlib.sha256(bad).hexdigest()
+        receipt['observed_bytes'] = len(bad)
+        reseal(changed)
+        self.assert_rejected(changed, 'transport.retained_body')
+
+    def test_native_model_request_cannot_change_the_recorded_question(self):
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+        response = {'model': 'native-controlled-fixture',
+                    'usage': {'total_tokens': 11}, 'choices': [{'message': {
+                        'tool_calls': [{'function': {
+                            'name': 'retrieve',
+                            'arguments': json.dumps({'url': URL_A})}}]}}]}
+        retained = envelope(response)
+        raw = base64.b64decode(retained['response_base64'])
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   return_value=(raw, retained['transport'])):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertTrue(audit(state)['valid'], audit(state))
+        forged = copy.deepcopy(state)
+        pending = [forged]
+        edited = 0
+        while pending:
+            node = pending.pop()
+            if type(node) is dict:
+                request = node.get('request')
+                if type(request) is dict and type(request.get('messages')) is list:
+                    prompt = json.loads(request['messages'][1]['content'])
+                    prompt['question'] = 'Different question, same evidence'
+                    request['messages'][1]['content'] = json.dumps(prompt)
+                    node['request_sha256'] = hashlib.sha256(json.dumps(
+                        request, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+                    edited += 1
+                pending.extend(node.values())
+            elif type(node) is list:
+                pending.extend(node)
+        self.assertGreater(edited, 1)
+        reseal(forged)
+        self.assert_rejected(forged, 'request.prompt.question')
+
     def test_native_failed_retrieve_receipt_requires_its_http_reservation(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import retrieve

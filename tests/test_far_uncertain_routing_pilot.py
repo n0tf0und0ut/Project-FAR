@@ -68,6 +68,83 @@ def native_stalling_response(body=b'retained prefix', headers=b'Content-Length: 
 
 
 class NativeFramingTests(unittest.TestCase):
+    def test_http_header_trickle_is_bounded_by_whole_request_deadline(self):
+        import socket
+        import threading
+        import time
+        from unittest.mock import patch
+        import urllib.request
+
+        workers = []
+        def connect(connection):
+            client, server = socket.socketpair()
+            connection.sock = client
+            def respond():
+                with server:
+                    request = server.recv(65536)
+                    self.assertIn(b'GET', request)
+                    for byte in b'HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok':
+                        try:
+                            server.send(bytes([byte]))
+                        except OSError:
+                            break
+                        time.sleep(.025)
+            worker = threading.Thread(target=respond, daemon=True)
+            worker.start()
+            workers.append(worker)
+        start = time.monotonic()
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        with patch.object(http.client.HTTPConnection, 'connect', connect):
+            with self.assertRaises(study.ResponseTransportError) as failed:
+                study.read_bounded_response(
+                    urllib.request.Request('http://127.0.0.1:18085/'),
+                    timeout=1, max_bytes=100, opener=opener,
+                    deadline_monotonic=start + .1)
+        for worker in workers:
+            worker.join(timeout=2)
+        self.assertLess(time.monotonic() - start, 1.4)
+        self.assertFalse(failed.exception.envelope['response_complete'])
+        self.assertEqual(failed.exception.envelope['transport_error'], 'TimeoutError')
+
+    def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
+        import time
+        from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader
+        class SlowHeader:
+            def readline(self, *_):
+                time.sleep(.025)
+                return b'H'
+        start = time.monotonic()
+        with self.assertRaises(TimeoutError):
+            _DeadlineHeaderReader(SlowHeader(), start + .09).readline()
+        self.assertLess(time.monotonic() - start, .3)
+
+    def test_deadline_failure_retains_the_last_observed_body_chunk(self):
+        import time
+        from unittest.mock import Mock
+        class SlowBody(io.BytesIO):
+            status = 200
+            headers = {}
+            url = 'https://example.org/slow'
+            def __init__(self):
+                super().__init__(b'ab')
+                self.calls = 0
+            def read(self, size=-1):
+                self.calls += 1
+                time.sleep(.025 if self.calls == 1 else .11)
+                return super().read(min(size, 1))
+        transport = Mock()
+        transport.open.return_value = SlowBody()
+        request = __import__('urllib.request', fromlist=['Request']).Request(
+            'https://example.org/slow')
+        with self.assertRaises(study.ResponseTransportError) as caught:
+            study.read_bounded_response(request, opener=transport,
+                timeout=1, max_bytes=20, chunk_size=1,
+                deadline_monotonic=time.monotonic() + .07)
+        record = caught.exception.envelope
+        self.assertEqual(base64.b64decode(record['raw_response_base64']), b'ab')
+        self.assertFalse(record['response_complete'])
+        self.assertEqual(record['response_hash_scope'], 'retained_prefix')
+
     def read(self, body, headers, limit=10000):
         response = native_http_response(body, headers)
         with patch("urllib.request.OpenerDirector.open", return_value=response):

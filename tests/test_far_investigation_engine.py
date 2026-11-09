@@ -550,6 +550,32 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(state['events'][-1]['kind'], 'FINAL_STATE_SEAL')
         self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
 
+    def test_native_source_and_search_receive_the_wall_clock_deadline(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools import far_investigation_retrieval as retrieval
+        from unittest.mock import Mock
+        policy = RetrievalPolicy(('example.org', 'api.crossref.org'), resolver=dns)
+        transport = Mock()
+        transport.open.return_value = Response(
+            b'{"message":{"items":[]}}', kind='application/json',
+            url='https://example.org/first')
+        observed = []
+        real_reader = retrieval.read_bounded_response
+        def bounded_reader(*args, **kwargs):
+            observed.append(kwargs.get('deadline_monotonic'))
+            return real_reader(*args, **kwargs)
+        with (patch('tools.far_investigation_retrieval.urllib.request.build_opener',
+                    return_value=transport),
+              patch('tools.far_investigation_retrieval.read_bounded_response',
+                    side_effect=bounded_reader)):
+            runtime = Investigation('Test a bound', policy,
+                seeds=[URL_A], mode='deterministic',
+                budget=Budget(max_steps=1, max_seconds=1))
+            runtime.run_workflow()
+        self.assertEqual(len(observed), 1)
+        self.assertIsInstance(observed[0], float)
+        self.assertAlmostEqual(observed[0], runtime.started + runtime.budget.max_seconds)
+
     def test_local_model_trickle_is_interrupted_at_execution_deadline(self):
         from tools.far_uncertain_routing_pilot import read_bounded_response, ResponseTransportError
         class Trickle(io.BytesIO):
@@ -676,49 +702,52 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertEqual(checkpoints[-1]['error']['class'], 'ValueError')
 
     def test_local_model_redirect_cannot_escape_attested_listener(self):
+        # Exercise the real urllib redirect decision with two fully independent
+        # HTTPConnection responses, transported through local AF_UNIX socketpairs.
+        # No AF_INET connect syscall escapes the canonical deny-network trace.
+        import socket
         import threading
         import urllib.error
         import urllib.request
-        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
         from tools.far_investigation_engine import local_model_opener
         from tools.far_investigation_campaign import local_model_opener as health_opener
 
         self.assertIs(local_model_opener, health_opener)
-        decoy_hits = []
-        class Decoy(BaseHTTPRequestHandler):
-            def do_GET(self):
-                decoy_hits.append(self.path)
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(b'forged model response')
-            def log_message(self, *args):
-                pass
-        with ThreadingHTTPServer(('127.0.0.1', 0), Decoy) as decoy:
-            class Redirect(BaseHTTPRequestHandler):
-                def do_POST(self):
-                    self.send_response(302)
-                    self.send_header(
-                        'Location', 'http://127.0.0.1:' + str(decoy.server_port) + '/forged')
-                    self.end_headers()
-                def log_message(self, *args):
-                    pass
-            with ThreadingHTTPServer(('127.0.0.1', 0), Redirect) as source:
-                threads = [threading.Thread(target=server.serve_forever, daemon=True)
-                           for server in (decoy, source)]
-                for thread in threads:
-                    thread.start()
-                try:
-                    url = 'http://127.0.0.1:' + str(source.server_port) + '/v1/chat/completions'
-                    request = urllib.request.Request(url, data=b'{}', method='POST')
-                    with self.assertRaises(urllib.error.HTTPError) as caught:
-                        local_model_opener().open(request, timeout=3)
-                    self.assertEqual(caught.exception.code, 302)
-                    self.assertEqual(decoy_hits, [])
-                finally:
-                    source.shutdown()
-                    decoy.shutdown()
-                    for thread in threads:
-                        thread.join(timeout=3)
+        source_port, decoy_port = 18085, 18086
+        calls, workers = [], []
+        def connect(connection):
+            client, server = socket.socketpair()
+            connection.sock = client
+            def respond():
+                with server:
+                    message = server.recv(65536)
+                    calls.append((connection.port, message.split(b' ', 2)[:2]))
+                    if connection.port == source_port:
+                        body = (b'HTTP/1.1 302 Found\r\nContent-Length: 0\r\n'
+                            + f'Location: http://127.0.0.1:{decoy_port}/forged\r\n'.encode()
+                            + b'\r\n')
+                    else:
+                        body = b'HTTP/1.1 200 OK\r\nContent-Length: 6\r\n\r\nforged'
+                    server.sendall(body)
+            worker = threading.Thread(target=respond, daemon=True)
+            worker.start()
+            workers.append(worker)
+        url = f'http://127.0.0.1:{source_port}/v1/chat/completions'
+        request = urllib.request.Request(url, data=b'{}', method='POST')
+        with patch.object(http.client.HTTPConnection, 'connect', connect):
+            with self.assertRaises(urllib.error.HTTPError) as caught:
+                local_model_opener().open(request, timeout=3)
+            self.assertEqual(caught.exception.code, 302)
+            self.assertEqual([port for port, _ in calls], [source_port])
+            # Positive control: standard urllib follows the identical in-memory
+            # redirect and reaches the second endpoint.
+            with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(
+                    request, timeout=3) as response:
+                self.assertEqual(response.read(), b'forged')
+        for worker in workers:
+            worker.join(timeout=3)
+        self.assertEqual([port for port, _ in calls],
+                         [source_port, source_port, decoy_port])
 
     def test_local_model_endpoint_cannot_be_redirected_to_arbitrary_service(self):
         for endpoint in ("http://localhost:8085/v1/chat/completions", "https://example.org/v1/chat/completions",
