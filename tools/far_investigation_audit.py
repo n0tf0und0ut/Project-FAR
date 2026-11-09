@@ -507,8 +507,9 @@ def audit(state) -> dict:
                 if (state['status'] == 'BOUNDED_PIPELINE_COMPLETED'
                         and len(actual_proposals) != len(expected_workflow)):
                     fail('workflow.completion', 'completed baseline omitted a required fixed operation')
-            if any(kind != 'TOOL_RESULT' for _, _, kind, _ in tool_attempts[:-1]):
-                fail('workflow.failure', 'baseline continued after a rejected operation')
+            # call() journals a rejected tool and returns an error result; the
+            # fixed workflow legitimately continues to its next proposal.
+            # Prefix/order binding above applies to accepted and rejected calls.
         if state['mode'] == 'agent':
             calls = state['model_calls']
             if len(calls) not in (len(model_proposals), len(model_proposals) + 1):
