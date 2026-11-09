@@ -590,3 +590,19 @@ index. The separate explicit per-case/final last-bounded-byte controls remain
 unchanged. Campaign source blob
 `90431288e2572b562246af12361b53ad11a4965c` is unchanged. The corrected-oracle
 hosted run and final-head review remain pending; no new pass is claimed here.
+
+## November 9, 2026 — new current-head review corrections
+
+Reviewed exact head `b4824bcbb55648ada848a3e6503b08d295b93a00` after
+ordinary integration of protected main `302f16d939dd96395d096fb82328f326c999f2de`.
+These findings concern production runtime guards, not new scientific results.
+
+| Finding | Counterexample and violated invariant | Scoped correction and regression |
+| --- | --- | --- |
+| **ENG-RECHECK-DEADLINE-20261109** — `PRRT_kwDOTH_vCM61S-JV`, Codex thread at `tools/far_investigation_engine.py:580–585` | A one-second wall-clock budget can expire during the first of three registered search rechecks; the old loop still dispatched the other two searches because it only inspected the HTTP count. Every network reservation must recheck the actual deadline. | Call the existing `self.limits()` before single-search and each recheck-search reservation. `test_recheck_searches_stop_before_later_reservations_after_deadline` advances a controlled monotonic clock during the first recheck; rejects subsequent network calls and clears readiness. |
+| **ENG-MODEL-ARGS-DEPTH-20261109** — `PRRT_kwDOTH_vCM61S-Ja`, Codex thread at `tools/far_investigation_engine.py:714` | A complete, bounded 1,551-byte model response with 700 nested JSON arrays can parse successfully but crash recursively during `MODEL_PROPOSAL` journaling, leaving the investigation unsealed. Untrusted arguments must not bypass failed-attempt recording. | Apply an iterative depth limit before LocalModel returns or agent journals a proposal. Normal `EngineError` handling retains the raw model envelope and final failure seal; `test_deep_model_arguments_fail_with_final_seal_and_raw_evidence` uses an actual parsed nested JSON response. |
+
+These changes are intended to preserve existing failed observations, bounded
+research claims, frozen registrations and prior finding dispositions. The
+new source and tests have not yet been certified by hosted exact-head CI
+or the required independent review; those remain separate merge prerequisites.

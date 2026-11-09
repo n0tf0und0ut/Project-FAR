@@ -119,6 +119,18 @@ class CheckpointPersistenceError(RuntimeError):
     """A committed in-memory tool outcome cannot be durably checkpointed."""
 
 
+def check_model_proposal_nesting(proposal, *, max_depth=64):
+    """Reject deep model JSON before any recursive deepcopy or journal operation."""
+    pending = [(proposal, 0)]
+    while pending:
+        item, depth = pending.pop()
+        if depth > max_depth:
+            raise EngineError('model proposal exceeds maximum JSON nesting')
+        if type(item) is dict:
+            pending.extend((value, depth + 1) for value in item.values())
+        elif type(item) in (list, tuple):
+            pending.extend((value, depth + 1) for value in item)
+
 def validate_proposal(proposal):
     """Authoritative accepted-call shape; rejected proposals need not satisfy it."""
     if type(proposal) is not dict or set(proposal) != {'tool', 'args'}:
@@ -368,6 +380,7 @@ class LocalModel:
                 proposal = {'tool': function['name'], 'args': _parse(function['arguments'])}
             else:
                 proposal = _parse(message['content'])
+            check_model_proposal_nesting(proposal)
             return proposal, {'tokens': tokens, 'model': parsed.get('model'), 'envelope': envelope}
         except (ValueError, RuntimeError, OSError, KeyError, IndexError, TypeError) as exc:
             envelope['error'] = {'class': type(exc).__name__, 'reason': str(exc)}
@@ -512,6 +525,7 @@ class Investigation:
             self._mutable()
             if set(args) != {'query', 'provider'}:
                 raise EngineError('search needs query and provider')
+            self.limits()  # Match the source _network reservation boundary.
             if s['http_calls'] >= self.budget.max_http_calls:
                 raise EngineError('HTTP call budget exhausted')
             s['http_calls'] += 1
@@ -577,6 +591,7 @@ class Investigation:
                 s['rechecks'].append(record)
             for index, search in enumerate(s['searches']):
                 # Reexecute exact registered search and require same bounded hits.
+                self.limits()  # Every recheck is an independent network reservation.
                 if s['http_calls'] >= self.budget.max_http_calls:
                     raise EngineError('HTTP call budget exhausted')
                 s['http_calls'] += 1
@@ -711,6 +726,7 @@ class Investigation:
                     self.state['model_tokens'] += meta['tokens']
                 elif observed_tokens != meta['tokens']:
                     raise EngineError('model metadata differs from observed usage')
+                check_model_proposal_nesting(proposal)
                 self.event('MODEL_PROPOSAL', {'proposal': proposal, 'metadata': meta})
                 self.call(proposal)
                 if self.state['status'] == 'BOUNDED_PIPELINE_COMPLETED':

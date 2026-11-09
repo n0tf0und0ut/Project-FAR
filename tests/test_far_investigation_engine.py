@@ -286,6 +286,34 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertIn("error", runtime.call(action("freeze")))
         self.assertEqual(runtime.state["intake"]["freeze"]["status"], "DRAFT")
 
+    def test_recheck_searches_stop_before_later_reservations_after_deadline(self):
+        clock = [0.0]
+        calls = []
+        def searcher(query, provider, policy, checkpoint=None):
+            calls.append(query)
+            row = receipt("https://api.crossref.org/works?query=fixture",
+                          '{"items":[]}', "application/json")
+            if checkpoint:
+                checkpoint(row)
+            if len(calls) == 4:
+                clock[0] = 2.0  # The first recheck consumes the remaining deadline.
+            return {"query": query, "provider": provider, "receipt": row,
+                    "hits": [], "status": "SEARCH_COMPLETED"}
+        with patch("tools.far_investigation_engine.time.monotonic", side_effect=lambda: clock[0]):
+            runtime = self.runtime(budget=Budget(max_seconds=1))
+            runtime.searcher = searcher
+            for proposal in prefix():
+                self.assertNotIn("error", runtime.call(proposal))
+            for query in ("support", "opposition", "counterexample"):
+                self.assertNotIn("error", runtime.call(action("search", query=query, provider="crossref")))
+            self.assertNotIn("error", runtime.call(action("discover", **discovery())))
+            result = runtime.call(action("recheck"))
+        self.assertIn("wall-clock budget exhausted", result["error"]["reason"])
+        self.assertEqual(calls, ["support", "opposition", "counterexample", "support"])
+        self.assertEqual(runtime.state["http_calls"], 8)  # 2 source + 3 search + 2 source recheck + 1 search recheck
+        self.assertNotIn("recheck_completed_at", runtime.state)
+        self.assertEqual(runtime.state["rejected_calls"], 1)
+        self.assertEqual(sum(e["kind"] == "TOOL_REJECTED" for e in runtime.state["events"]), 1)
     def test_search_after_source_retrieval_has_chronologically_valid_discovery(self):
         runtime = self.prepare()
         def searcher(query, provider, policy, checkpoint=None):
@@ -481,6 +509,26 @@ class InvestigationIntegrationTests(unittest.TestCase):
                     if limit == 9:
                         self.assertIsNone(state["report"])
 
+    def test_deep_model_arguments_fail_with_final_seal_and_raw_evidence(self):
+        from tests.test_far_investigation_usage import envelope
+        deep = "[" * 700 + "0" + "]" * 700
+        response = {"model": "CONTROLLED_FIXTURE", "usage": {"total_tokens": 123},
+                    "choices": [{"message": {"tool_calls": [{"function": {
+                        "name": "retrieve", "arguments": '{"url":' + deep + "}"}
+                    }]}}]}
+        observed = envelope(response)
+        raw = base64.b64decode(observed["response_base64"])
+        with patch("tools.far_investigation_engine.read_bounded_response",
+                   return_value=(raw, observed["transport"])):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(state["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(state["model_tokens"], 123)
+        self.assertEqual(state["http_calls"], 0)
+        self.assertEqual(base64.b64decode(state["model_calls"][0]["response_base64"]), raw)
+        self.assertEqual(state["model_calls"][0]["error"]["class"], "EngineError")
+        self.assertNotIn("MODEL_PROPOSAL", [event["kind"] for event in state["events"]])
+        self.assertEqual(state["events"][-1]["kind"], "FINAL_STATE_SEAL")
+        self.assertTrue(audit_transcript(state)["valid"], audit_transcript(state))
     def test_local_model_malformed_telemetry_preserves_received_response(self):
         checkpoints = []
         raw = b'{"choices":[{"message":{"content":"{}"}}]}'
