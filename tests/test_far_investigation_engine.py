@@ -626,8 +626,10 @@ class InvestigationIntegrationTests(unittest.TestCase):
         opener = reader.call_args.kwargs['opener']
         handlers = [h for h in opener.handlers
                     if isinstance(h, __import__('urllib.request', fromlist=['ProxyHandler']).ProxyHandler)]
-        self.assertEqual(len(handlers), 1)
-        self.assertEqual(handlers[0].proxies, {})
+        # urllib does not install an empty ProxyHandler into opener.handlers.
+        # Zero handlers proves there is no inherited HTTP_PROXY route; a
+        # default opener would contain a nonempty ProxyHandler here.
+        self.assertEqual(handlers, [])
         self.assertEqual(checkpoints[-1]['error']['class'], 'ValueError')
 
     def test_local_model_redirect_cannot_escape_attested_listener(self):
