@@ -1,6 +1,6 @@
 # Live Repository Workboard
 
-Status: **advisory operations tool; no governance or claim-promotion authority**.
+Status: **Provisional**. Authority: advisory operations only; no governance or claim-promotion authority.
 
 Project FAR maintains separate authoritative sources for project state, scientific findings, repository architecture, and protected merges. This workboard provides a short, current view of **open GitHub pull requests and issues** without copying those authorities or maintaining a manually edited PR-status register.
 
