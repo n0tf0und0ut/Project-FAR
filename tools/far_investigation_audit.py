@@ -265,7 +265,11 @@ def audit(state) -> dict:
                                 fail(path, 'truncated response marked complete')
                             if node.get('response_truncated') and node.get('response_hash_scope') == 'complete_body':
                                 fail(path, 'prefix hash represented as full-body hash')
-            if 'request_sha256' in node:
+            if ('request_sha256' in node and (
+                    path.startswith('state.model_calls[') and path.count('.') == 1
+                    or path.startswith('state.events[') and path.endswith('.payload')
+                        and 'request' in node and 'response_base64' in node
+                    or path.endswith('.metadata.envelope'))):
                 raw = guarded(path + '.request', lambda: json.dumps(
                     node['request'], sort_keys=True, separators=(',', ':'), allow_nan=False).encode())
                 if raw is not None:
@@ -481,6 +485,21 @@ def audit(state) -> dict:
                                               attempt_network_started, attempt_committed_rechecks)
                     if valid_shape and tool_pending['tool'] == 'search':
                         search_transports[index] = (attempt_search_request, attempt_search_observation)
+                    if (valid_shape and tool_pending['tool'] == 'retrieve'
+                            and kind == 'TOOL_REJECTED'
+                            and type(payload) is dict and type(payload.get('receipt')) is dict
+                            and payload['receipt'].get('schema') == 'far-source-receipt/0.1'):
+                        # A failed native retrieval still consumed the reserved HTTP
+                        # attempt. Its retained terminal receipt must match that
+                        # exact request-bound observation, not just the hash seal.
+                        if attempt_http is None or attempt_observation is None:
+                            fail(path + '.failed_retrieve.reservation',
+                                 'retained failed receipt lacks HTTP reservation and observation')
+                        else:
+                            equal(path + '.failed_retrieve.url', attempt_http['url'],
+                                  tool_pending['args']['url'])
+                            equal(path + '.failed_retrieve.observation',
+                                  attempt_observation, payload['receipt'])
                 if (valid_shape and tool_pending['tool'] == 'retrieve'
                         and attempt_http is not None and attempt_observation is not None):
                     retrieval_transports.append((index, tool_pending['args'].get('url'),
@@ -571,6 +590,20 @@ def audit(state) -> dict:
                 model_attempt_usage.append(observed_attempt_usage)
             equal('model_calls.attempt_order', calls, model_attempt_envelopes)
             for attempt, (call, observed) in enumerate(zip(calls, model_attempt_usage)):
+                # The accepted local-model reader cannot emit a response from
+                # another URL or method. Bind its retained native transport,
+                # including malformed final responses with no tool proposal.
+                if (type(call) is dict and not call.get('fixture')
+                        and type(call.get('request')) is dict
+                        and type(call.get('transport')) is dict):
+                    transport = call['transport']
+                    endpoint = 'http://127.0.0.1:8085/v1/chat/completions'
+                    equal('model_calls[' + str(attempt) + '].transport.request_url',
+                          transport.get('request_url'), endpoint)
+                    equal('model_calls[' + str(attempt) + '].transport.request_method',
+                          transport.get('request_method'), 'POST')
+                    equal('model_calls[' + str(attempt) + '].transport.response_url',
+                          transport.get('response_url'), endpoint)
                 if observed and observed != {model_usage_tokens(call)}:
                     fail('model_calls[' + str(attempt) + '].usage', 'validated usage changed or disappeared within one attempt')
         source_available_at = {}
