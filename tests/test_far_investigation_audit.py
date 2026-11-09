@@ -226,12 +226,126 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                 self.assertTrue(audit(state)['valid'], audit(state))
 
     def test_resealed_new_transport_timestamps_cannot_move_backwards(self):
-        state=self.complete()
-        state['transport_timing_test']={
-            'timing_scope':'request_start_to_body_read_or_transport_failure',
-            'requested_at':'2026-11-03T01:00:01Z','received_at':'2026-11-03T01:00:00Z'}
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+        state = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            mode='deterministic', seeds=[URL_A, URL_B], fetcher=fetch).run_workflow()
+        self.assertTrue(audit(state)['valid'], audit(state))
+        altered = [0]
+        def rewrite(node):
+            if isinstance(node, dict):
+                if (node.get('schema') == 'far-source-receipt/0.1'
+                        and isinstance(node.get('transport'), dict)):
+                    node['transport']['timing_scope'] = 'request_start_to_body_read_or_transport_failure'
+                    node['transport']['requested_at'] = '2026-11-03T01:00:01Z'
+                    node['transport']['received_at'] = '2026-11-03T01:00:00Z'
+                    altered[0] += 1
+                for child in node.values():
+                    rewrite(child)
+            elif isinstance(node, list):
+                for child in node:
+                    rewrite(child)
+        rewrite(state)
+        self.assertGreater(altered[0], 0)
         reseal(state)
-        self.assert_rejected(state,'transport_time')
+        self.assert_rejected(state, 'transport_time')
+
+    def test_native_source_transport_cannot_claim_post_instead_of_get(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        state = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            mode='deterministic', seeds=[URL_A, URL_B], fetcher=fetch).run_workflow()
+        self.assertTrue(audit(state)['valid'], audit(state))
+        changed = [0]
+        def mutate(node):
+            if isinstance(node, dict):
+                if (node.get('schema') == 'far-source-receipt/0.1'
+                        and isinstance(node.get('transport'), dict)):
+                    node['transport']['request_method'] = 'POST'
+                    changed[0] += 1
+                for child in node.values():
+                    mutate(child)
+            elif isinstance(node, list):
+                for child in node:
+                    mutate(child)
+        mutate(state)
+        self.assertGreater(changed[0], 0)
+        reseal(state)
+        self.assert_rejected(state, 'request_method')
+
+    def test_verifier_observed_json_objects_do_not_become_transport_metadata(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        raw = json.dumps({'statement': '2 + 2 = 4',
+            'value': {'timing_scope': 'domain-specific interval',
+                      'requested_at': 'not a transport timestamp',
+                      'raw_response_base64': 'not-a-transport-envelope',
+                      'request_sha256': 'not-a-hash'}}).encode()
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            body = raw if url == URL_A else BODY_B.encode()
+            kind = 'application/json' if url == URL_A else 'text/plain'
+            client.open.return_value = Response(body, kind=kind, url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        claims = [{'statement': 'Declared source value equals 4',
+            'type': 'quantitative', 'interpretations': [{
+                'statement': 'The pointed value should be exactly 4',
+                'evidence_ids': ['ev.1'],
+                'plan': {'kind': 'source_json', 'source_id': 'src.1',
+                    'pointer': '/value', 'operator': 'eq',
+                    'expected': 4, 'expected_quote': '4'}}]}]
+        state = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            seeds=[URL_A, URL_B], fetcher=fetch).run_agent(
+                NativeFunctionFixtureModel(full_script(claims)))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['evaluations'][0]['outcome'], 'REFUTED')
+        self.assertEqual(state['evaluations'][0]['result']['projection']['observed']['timing_scope'],
+                         'domain-specific interval')
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_model_attempts_still_consume_agent_step_budget(self):
+        from tests.test_far_investigation_usage import envelope
+        from tools.far_investigation_engine import LocalModel
+
+        response1 = {'model': 'CONTROLLED_FIXTURE',
+            'usage': {'total_tokens': 10}, 'choices': [{
+                'message': {'tool_calls': [{'function': {
+                    'name': 'inspect', 'arguments': '{"source_id":"absent"}'}}]}}]}
+        response2 = {'model': 'CONTROLLED_FIXTURE',
+            'usage': {'total_tokens': 11}, 'choices': [{'message': None}]}
+        values = [envelope(response1), envelope(response2)]
+        pairs = [(base64.b64decode(v['response_base64']), v['transport']) for v in values]
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=pairs) as reader:
+            state = self.runtime(budget=Budget(max_steps=2)).run_agent(LocalModel())
+        self.assertEqual(reader.call_count, 2)
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(len(state['model_calls']), 2)
+        self.assertEqual(state['model_tokens'], 21)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+        forged = copy.deepcopy(state)
+        forged['policy']['budget']['max_steps'] = 1
+        forged['events'][0]['payload']['policy']['budget']['max_steps'] = 1
+        reseal(forged)
+        self.assert_rejected(forged, 'budget.model_attempts')
 
     def test_resealed_orphan_source_is_rejected_even_without_intake(self):
         runtime = self.runtime(budget=Budget(max_steps=1))
