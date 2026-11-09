@@ -60,6 +60,11 @@ Two formal layers are included:
 
 The Lean file proves the abstract assurance model. The Python model checker exhaustively checks `far_validation.formal_model.simulate`, a separate Python abstraction of the scheduler; it does not import or execute `ValidationEngine.run`, so agreement between that abstraction and the executable engine is not checked by either layer. This package does not claim a machine-checked refinement proof connecting the Python implementation to the Lean model or to that abstraction.
 
+The [bounded pinned-Lean transport correction](../audits/pinned-lean-transport-2026-11-08.md)
+records observed HTTP 504 failures, bounded retry and timeout rules, and retained SHA-256 pins.
+Its owner-signed repin requests and dedicated gate observation are scoped to the reviewed exact head;
+neither replaces independent review nor the current protected merge requirements.
+
 ### Merge authority and merge queue
 
 The `Validator Assurance` workflow runs on pull requests, pushes to `main`, workflow dispatch, and the GitHub `merge_group` event. The `merge-authority` job issues a signed certificate bound to the exact checked commit and Git tree and requires all five assurance evidence artifacts.
