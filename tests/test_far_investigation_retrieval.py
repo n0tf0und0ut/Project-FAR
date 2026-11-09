@@ -151,6 +151,20 @@ class RetrievalTests(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaises(ToolError):
                 parse_receipt(self.get(raw, "application/json"))
 
+    def test_deep_json_document_fails_after_preserving_native_http_bytes(self):
+        raw = b"[" * 700 + b"0" + b"]" * 700
+        transport = Mock()
+        transport.open.return_value = Response(raw, kind="application/json")
+        checkpoints = []
+        record = retrieve("https://example.org/a", self.policy, opener=transport,
+                          checkpoint=checkpoints.append)
+        with self.assertRaisesRegex(ToolError, "source parse failed: ValueError") as failure:
+            parse_receipt(record)
+        self.assertEqual(base64.b64decode(failure.exception.receipt["raw_base64"]), raw)
+        self.assertEqual(checkpoints[-1]["raw_base64"], record["raw_base64"])
+        self.assertEqual(checkpoints[-1]["status"], "RETRIEVED")
+        self.assertEqual(parse_receipt(self.get(b"[" * 64 + b"0" + b"]" * 64,
+                                                "application/json"))["format"], "json")
     def test_http_failure_retains_error_body(self):
         transport = Mock()
         transport.open.side_effect = urllib.error.HTTPError(

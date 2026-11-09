@@ -606,3 +606,26 @@ These changes are intended to preserve existing failed observations, bounded
 research claims, frozen registrations and prior finding dispositions. The
 new source and tests have not yet been certified by hosted exact-head CI
 or the required independent review; those remain separate merge prerequisites.
+
+## November 9, 2026 — source projection recursion boundary
+
+**ENG-SOURCE-DEPTH-20261109** — Codex thread `PRRT_kwDOTH_vCM61Tfip`,
+review of exact head `c870d362526beed16a691b91ad319844cfa0cd63`,
+found a distinct input-to-checkpoint recursion failure: a completed
+application/json source only 1,401 bytes long with 700 nested arrays
+was successfully parsed, but its deeply nested `document` was retained
+in runtime state and could make `copy.deepcopy` raise `RecursionError`
+during checkpointing, leaving no failed final seal. The model-argument
+nesting guard does not cover independently retrieved source content.
+
+**Correction:** the shared source parser rejects JSON document nesting
+over 64 via iterative stack traversal immediately after strict parsing
+and before exposing/storing the projection; the retained native HTTP
+receipt remains untouched. `test_deep_json_document_fails_after_preserving_native_http_bytes`
+checks a native HTTP response, exact receipt retention, and an accepted
+64-level positive control. `test_deep_native_json_source_rejected_with_raw_receipt_and_final_seal`
+checks a real retrieval invocation through the full investigation engine
+with a bounded local HTTP transport: exactly one rejected attempt, raw
+receipt retained, no parsed projection, and auditable failed final seal.
+Final source/test validation and independent exact-head review are required
+before any merge; this is an engineering bound, not scientific efficacy.

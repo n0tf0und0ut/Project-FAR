@@ -279,6 +279,19 @@ def receipt_bytes(receipt: dict) -> bytes:
     return raw
 
 
+def _enforce_bounded_document_depth(document, *, max_depth=64):
+    """Reject deeply nested source JSON before recursive state checkpoints."""
+    pending = [(document, 0)]
+    while pending:
+        node, depth = pending.pop()
+        if depth > max_depth:
+            raise ValueError('source JSON nesting limit exceeded')
+        if type(node) is dict:
+            pending.extend((child, depth + 1) for child in node.values())
+        elif type(node) is list:
+            pending.extend((child, depth + 1) for child in node)
+
+
 def parse_receipt(receipt: dict) -> dict:
     """Extract data only. An extraction failure keeps the original raw receipt."""
     try:
@@ -290,7 +303,9 @@ def parse_receipt(receipt: dict) -> dict:
         result = {"source_sha256": receipt["sha256"], "dependency_host": urlsplit(receipt["request"]["url"]).hostname,
                   "links": [], "text": text, "format": "text", "authority": "UNTRUSTED_SOURCE_DATA"}
         if content_type == "application/json" or content_type.endswith("+json"):
-            result["document"] = _strict_json_loads(text)
+            document = _strict_json_loads(text)
+            _enforce_bounded_document_depth(document)
+            result["document"] = document
             result["format"] = "json"
         elif content_type in ("text/html", "application/xhtml+xml"):
             parser = _VisibleHTML()

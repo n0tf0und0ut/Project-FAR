@@ -393,6 +393,26 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertFalse(state["projections"])
         self.assertIsNone(state["intake"])
 
+    def test_deep_native_json_source_rejected_with_raw_receipt_and_final_seal(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+        raw = b"[" * 700 + b"0" + b"]" * 700
+        transport = unittest.mock.Mock()
+        transport.open.return_value = Response(raw, kind="application/json", url=URL_A)
+        def native_fetch(url, policy, checkpoint=None):
+            return retrieve(url, policy, opener=transport, checkpoint=checkpoint)
+        policy = RetrievalPolicy(("example.org",), resolver=dns)
+        runtime = Investigation(QUESTION, policy, fetcher=native_fetch,
+                                budget=Budget(max_steps=1), checkpoint=self.checkpoints.append)
+        state = runtime.run_agent(ScriptedFixtureModel([action("retrieve", url=URL_A)]))
+        self.assertEqual(state["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(state["http_calls"], 1)
+        self.assertEqual(state["rejected_calls"], 1)
+        self.assertEqual(base64.b64decode(state["sources"]["src.1"]["raw_base64"]), raw)
+        self.assertEqual(state["projections"], {})
+        self.assertEqual(state["events"][-1]["kind"], "FINAL_STATE_SEAL")
+        self.assertTrue(any(e["kind"] == "TOOL_REJECTED" for e in state["events"]))
+        self.assertTrue(audit_transcript(state)["valid"], audit_transcript(state))
     def test_model_failure_preserves_its_raw_envelope(self):
         runtime = self.runtime()
         def broken_model(prompt, checkpoint):
