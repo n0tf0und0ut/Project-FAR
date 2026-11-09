@@ -602,8 +602,14 @@ def audit(state) -> dict:
                           transport.get('request_url'), endpoint)
                     equal('model_calls[' + str(attempt) + '].transport.request_method',
                           transport.get('request_method'), 'POST')
-                    equal('model_calls[' + str(attempt) + '].transport.response_url',
-                          transport.get('response_url'), endpoint)
+                    # Before any HTTP response a transport failure has no
+                    # response_url. If a URL was observed it must still be
+                    # the attested local listener; a completed response must
+                    # not omit it.
+                    if ('response_url' in transport or
+                            transport.get('http_status') is not None):
+                        equal('model_calls[' + str(attempt) + '].transport.response_url',
+                              transport.get('response_url'), endpoint)
                 if observed and observed != {model_usage_tokens(call)}:
                     fail('model_calls[' + str(attempt) + '].usage', 'validated usage changed or disappeared within one attempt')
         source_available_at = {}
