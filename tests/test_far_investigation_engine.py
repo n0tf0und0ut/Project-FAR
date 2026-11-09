@@ -613,6 +613,23 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertFalse(retained["response_complete"])
         self.assertEqual(retained["response_hash_scope"], "retained_prefix")
 
+    def test_local_model_ignores_inherited_http_proxy(self):
+        # Loopback URL alone does not exclude urllib's environment proxy.
+        raw = b'{"choices":[{"message":null}],"usage":{"total_tokens":1}}'
+        checkpoints = []
+        with (patch('tools.far_investigation_engine.urllib.request.getproxies',
+                    return_value={'http': 'http://127.0.0.1:8888'}),
+              patch('tools.far_investigation_engine.read_bounded_response',
+                    return_value=(raw, {})) as reader):
+            with self.assertRaises(EngineError):
+                LocalModel()('fixture', checkpoints.append)
+        opener = reader.call_args.kwargs['opener']
+        handlers = [h for h in opener.handlers
+                    if isinstance(h, __import__('urllib.request', fromlist=['ProxyHandler']).ProxyHandler)]
+        self.assertEqual(len(handlers), 1)
+        self.assertEqual(handlers[0].proxies, {})
+        self.assertEqual(checkpoints[-1]['error']['class'], 'ValueError')
+
     def test_local_model_endpoint_cannot_be_redirected_to_arbitrary_service(self):
         for endpoint in ("http://localhost:8085/v1/chat/completions", "https://example.org/v1/chat/completions",
                          "http://169.254.169.254/latest/meta-data", "http://127.0.0.1:8086/v1/chat/completions"):
