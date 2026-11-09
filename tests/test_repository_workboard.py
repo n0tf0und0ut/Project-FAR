@@ -34,24 +34,31 @@ def issue(n, is_pr=False):
 
 
 class StubAPI:
-    def __init__(self, change_head=False, many=False):
+    def __init__(self, change_head=False, many=False, duplicate=False, change_default=False):
         self.paths = []
         self.change_head = change_head
         self.many = many
+        self.duplicate = duplicate
+        self.change_default = change_default
         self.branch_reads = 0
+        self.meta_reads = 0
 
     def get(self, path):
         self.paths.append(path)
-        if path == "/repos/n0tf0und0ut/Project-FAR":
-            return {"default_branch": "main"}
+        if path.lower() == "/repos/n0tf0und0ut/project-far":
+            self.meta_reads += 1
+            return {
+                "default_branch": "develop" if self.change_default and self.meta_reads > 1 else "main",
+                "full_name": workboard.DEFAULT_REPO,
+            }
         if path.endswith("/branches/main"):
             self.branch_reads += 1
             return {"commit": {"sha": ("c" * 40) if self.change_head and self.branch_reads > 1 else SHA}}
         if "/pulls?" in path:
             if self.many:
                 if "&page=1" in path:
-                    return [pr(i) for i in range(100)]
-                return [pr(490, True)]
+                    return [pr(i) for i in range(1, 101)]
+                return [pr(100, True)] if self.duplicate else [pr(490, True)]
             return [pr(490, True), pr(615)]
         if "/issues?" in path:
             return [issue(513), issue(615, True)]
@@ -83,6 +90,40 @@ class WorkboardTests(unittest.TestCase):
         with self.assertRaisesRegex(workboard.WorkboardError, "advanced"):
             workboard.collect(StubAPI(change_head=True))
 
+    def test_duplicate_identity_between_pages_fails_closed(self):
+        with self.assertRaisesRegex(workboard.WorkboardError, "Duplicate item #100"):
+            workboard.collect(StubAPI(many=True, duplicate=True))
+
+    def test_invalid_page_item_identity_fails_closed(self):
+        class Invalid:
+            def get(self, path):
+                return [{"number": True}]
+        with self.assertRaisesRegex(workboard.WorkboardError, "Invalid item number"):
+            workboard.pages(Invalid(), "/repos/x/y/pulls")
+
+    def test_default_branch_switch_without_sha_drift_fails_closed(self):
+        with self.assertRaisesRegex(workboard.WorkboardError, "Default branch or repository identity changed"):
+            workboard.collect(StubAPI(change_default=True))
+
+    def test_case_insensitive_far_identity_preserves_inbox_exclusion(self):
+        doc = workboard.collect(StubAPI(), repo="n0tf0und0ut/project-far")
+        self.assertEqual(doc["repo"], workboard.DEFAULT_REPO)
+        self.assertEqual(doc["counts"]["permanent_inbox_prs"], 1)
+        self.assertEqual(doc["prs"][-1]["state"], "PERMANENT INBOX — DO NOT MERGE")
+
+    def test_untrusted_markdown_metadata_is_inert(self):
+        doc = workboard.collect(StubAPI())
+        doc["prs"][0]["title"] = "safe](https://example.invalid/phishing) ![remote](https://example.invalid/pixel) [rest"
+        doc["issues"][0]["title"] = "<img src=x> *bold* [link](https://example.invalid/issue)"
+        doc["issues"][0]["labels"] = ["<img src=x>", "[click](https://example.invalid/label)", "*bold*"]
+        output = workboard.markdown(doc)
+        self.assertIn(r"safe\]\(https://example.invalid/phishing\)", output)
+        self.assertIn(r"\!\[remote\]\(https://example.invalid/pixel\)", output)
+        self.assertIn("&lt;img src=x&gt;", output)
+        self.assertIn(r"\[click\]\(https://example.invalid/label\)", output)
+        self.assertIn(r"\*bold\*", output)
+        self.assertNotIn("](https://example.invalid/", output)
+        self.assertNotIn("![remote]", output)
     def test_wrong_repo_does_not_inherit_far_inbox_policy(self):
         other = workboard._pr(pr(490, True), "someone/else")
         self.assertEqual(other["state"], "DRAFT")

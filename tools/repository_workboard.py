@@ -7,6 +7,7 @@ by this script is a protected-branch merge decision or scientific status claim.
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import sys
@@ -50,6 +51,7 @@ class GitHubAPI:
 def pages(api, path: str) -> list[dict]:
     """Exhaust paginated REST results instead of silently truncating at 100."""
     results = []
+    seen_numbers: set[int] = set()
     page = 1
     while True:
         data = api.get(f"{path}?state=open&per_page={PAGE_SIZE}&page={page}")
@@ -57,6 +59,13 @@ def pages(api, path: str) -> list[dict]:
             raise WorkboardError(f"Expected a list from {path} page {page}")
         if any(not isinstance(item, dict) for item in data):
             raise WorkboardError(f"Malformed item from {path} page {page}")
+        for item in data:
+            number = item.get("number")
+            if type(number) is not int or number <= 0:
+                raise WorkboardError(f"Invalid item number from {path} page {page}")
+            if number in seen_numbers:
+                raise WorkboardError(f"Duplicate item #{number} across pages for {path}; rerun")
+            seen_numbers.add(number)
         results.extend(data)
         if len(data) < PAGE_SIZE:
             return results
@@ -83,7 +92,7 @@ def _assignees(item: dict) -> list[str]:
 
 def _pr(row: dict, repo: str) -> dict:
     number = row["number"]
-    protected_inbox = repo == DEFAULT_REPO and number == 490
+    protected_inbox = repo.casefold() == DEFAULT_REPO.casefold() and number == 490
     state = "PERMANENT INBOX — DO NOT MERGE" if protected_inbox else ("DRAFT" if row.get("draft") else "OPEN")
     return {
         "number": number,
@@ -117,21 +126,30 @@ def collect(api, repo: str = DEFAULT_REPO, now: datetime | None = None) -> dict:
     meta = api.get(root)
     if not isinstance(meta, dict) or not isinstance(meta.get("default_branch"), str):
         raise WorkboardError("Cannot determine default branch")
+    canonical_repo = meta.get("full_name")
+    if (not isinstance(canonical_repo, str) or canonical_repo.count("/") != 1
+            or canonical_repo.casefold() != repo.casefold()):
+        raise WorkboardError("Cannot establish canonical repository identity")
     branch = meta["default_branch"]
     before = _head_sha(api, root, branch)
     pulls = pages(api, root + "/pulls")
     issues = [row for row in pages(api, root + "/issues") if "pull_request" not in row]
+    after_meta = api.get(root)
+    if (not isinstance(after_meta, dict)
+            or after_meta.get("default_branch") != branch
+            or after_meta.get("full_name") != canonical_repo):
+        raise WorkboardError("Default branch or repository identity changed during retrieval")
     after = _head_sha(api, root, branch)
     if before != after:
         raise WorkboardError("Default branch advanced during retrieval; rerun for coherent snapshot")
-    prs = sorted((_pr(row, repo) for row in pulls), key=lambda x: x["number"], reverse=True)
+    prs = sorted((_pr(row, canonical_repo) for row in pulls), key=lambda x: x["number"], reverse=True)
     tasks = sorted((_issue(row) for row in issues), key=lambda x: x["number"], reverse=True)
     actionable = sum(row["state"] != "PERMANENT INBOX — DO NOT MERGE" for row in prs)
     timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc).isoformat()
     return {
         "schema": "far-repository-workboard/1",
         "authority": "ADVISORY_ONLY",
-        "repo": repo,
+        "repo": canonical_repo,
         "fetched_at_utc": timestamp,
         "default_branch": branch,
         "default_branch_sha": before,
@@ -150,7 +168,10 @@ def collect(api, repo: str = DEFAULT_REPO, now: datetime | None = None) -> dict:
 
 
 def _cell(value: str) -> str:
-    return str(value).replace("|", "\\|").replace("\n", " ").replace("\r", " ")
+    """Render untrusted API metadata as literal Markdown table text."""
+    escaped = html.escape(str(value).replace("\r", " ").replace("\n", " "), quote=True)
+    specials = "\\`*_{}[]()#+-.!|~"
+    return "".join("\\" + char if char in specials else char for char in escaped)
 
 
 def markdown(snapshot: dict) -> str:
