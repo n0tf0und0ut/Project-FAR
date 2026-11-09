@@ -146,6 +146,25 @@ class PreflightContractTests(unittest.TestCase):
         body = pr()['body'].replace('\n', '\r\n')
         self.assertTrue(verify(pr(body=body))['valid'])
 
+    def test_reversed_delimiters_fail_closed(self):
+        body = check.END + '\\n' + check.START + json.dumps(contract())
+        x = verify(pr(body=body))
+        self.assertFalse(x['valid'])
+        self.assertIn('closing delimiter', ' '.join(x['errors']))
+
+    def test_conformance_only_change_cannot_claim_documentation_only(self):
+        for path in ('conformance/far-ir-2.0-current/manifest.json',
+                     'conformance/far-ir-2.0/invalid-factorization.json',
+                     'conformance/far-ir-1.0/invalid/unknown-extension.far'):
+            with self.subTest(path=path):
+                files = [{'filename': path, 'status': 'modified'}]
+                p = pr(body='')
+                p['changed_files'] = len(files)
+                result = verify(p, files)
+                self.assertFalse(result['valid'])
+                self.assertIn(path, result['implementation_paths'])
+                self.assertEqual(result['mode'], 'enforce')
+
     def test_test_only_change_cannot_claim_documentation_only(self):
         files = [{'filename': 'tests/test_reader.py', 'status': 'modified'}]
         p = pr(body='')
@@ -255,7 +274,9 @@ class PreflightContractTests(unittest.TestCase):
         for name in ('docs/README.md', 'research/snapshot.json', 'docs/notes.md'):
             self.assertFalse(check.is_implementation_path(name), name)
         for name in ('tests/test_a.py', 'tests/fixtures/expected.txt',
-                     'validation/manifest.json', 'config/runtime.yaml'):
+                     'validation/manifest.json', 'config/runtime.yaml',
+                     'conformance/far-ir-2.0/manifest.json',
+                     'conformance/far-ir-1.0/invalid/unknown-extension.far'):
             self.assertTrue(check.is_implementation_path(name), name)
 
     def test_no_untrusted_python_execution(self):

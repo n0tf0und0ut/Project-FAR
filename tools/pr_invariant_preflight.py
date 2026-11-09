@@ -51,6 +51,10 @@ def is_implementation_path(path: str) -> bool:
         return True
     if path.startswith('schemas/') and Path(path).suffix in SOFTWARE_CONFIG:
         return True
+    # Canonical conformance fixtures and expected oracles decide validation
+    # success/failure; they are executable evidence, not passive documents.
+    if path.startswith('conformance/') and Path(path).suffix.lower() in SOFTWARE_CONFIG | {'.far'}:
+        return True
     if (path.startswith('validation/') or path.startswith('config/')) and Path(path).suffix in SOFTWARE_CONFIG:
         return True
     if path.startswith('docs/governance/') and path.endswith('pr-review-convergence.md'):
@@ -72,7 +76,11 @@ def parse_contract(body: object) -> dict:
     body = body.replace('\r\n', '\n')
     if body.count(START) != 1 or body.count(END) != 1:
         raise ValueError('exactly one FAR-INVARIANTS-V1 block required in PR description')
-    fragment = body.split(START, 1)[1].split(END, 1)[0]
+    opening_end = body.index(START) + len(START)
+    closing_start = body.index(END)
+    if closing_start < opening_end:
+        raise ValueError('invariant contract closing delimiter must follow opening delimiter')
+    fragment = body[opening_end:closing_start]
     if '<!-- FAR-INVARIANTS-V1' in fragment or 'FAR-INVARIANTS-END' in fragment:
         raise ValueError('nested or ambiguous invariant block')
 
