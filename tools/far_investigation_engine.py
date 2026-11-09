@@ -355,7 +355,12 @@ class LocalModel:
             request = urllib.request.Request(self.endpoint, data=raw_request,
                                             headers={'Content-Type': 'application/json'}, method='POST')
             try:
-                raw, transport = read_bounded_response(request, timeout=self.timeout, max_bytes=1_000_000)
+                # urllib's default opener inherits HTTP_PROXY and can route
+                # loopback requests to an unrelated producer. This explicit
+                # no-proxy opener binds the request to the local listener.
+                direct = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+                raw, transport = read_bounded_response(
+                    request, timeout=self.timeout, max_bytes=1_000_000, opener=direct)
             except ResponseTransportError as exc:
                 envelope.update(transport=exc.envelope, response_base64=exc.envelope['raw_response_base64'],
                                 response_sha256=exc.envelope['response_sha256'])
