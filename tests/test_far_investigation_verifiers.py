@@ -101,6 +101,21 @@ class NativeVerifierTests(unittest.TestCase):
         result = verify(plan, "Does count equal 1?", sources, {})
         self.assertEqual(result["outcome"], "REFUTED")
 
+    def test_plain_text_json_reparse_is_depth_bounded_before_observation(self):
+        # Plain-text retrieval bypasses parse_receipt's JSON projection guard;
+        # the verifier must apply that same limit before retaining observations.
+        plan = {"kind": "source_json", "source_id": "s", "pointer": "",
+                "operator": "eq", "expected": 4, "expected_quote": "4"}
+        question = "Does the original source value equal 4?"
+        shallow = receipt(b'{"value":4}', "text/plain")
+        self.assertEqual(verify({**plan, "pointer": "/value"}, question,
+                                {"s": shallow}, {})["outcome"], "PROVED")
+        for depth in (70, 700):
+            with self.subTest(depth=depth):
+                raw = b'[' * depth + b'0' + b']' * depth
+                with self.assertRaises(ValueError):
+                    verify(plan, question, {"s": receipt(raw, "text/plain")}, {})
+
     def test_json_expected_cannot_be_invented(self):
         plan = {"kind": "source_json", "source_id": "s", "pointer": "/count", "operator": "eq",
                 "expected": "invention", "expected_quote": "known"}
