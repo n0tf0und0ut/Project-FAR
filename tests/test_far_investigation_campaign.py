@@ -182,6 +182,17 @@ class CampaignTests(unittest.TestCase):
         self.assertEqual(result['deterministic']['attempted'], 0)
 
 
+    def test_duplicate_modes_rejected_before_any_attempt_can_overwrite_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            selection = root / 'selection.json'
+            selection.write_text(json.dumps({'tasks': [
+                {'id': 'one', 'question': 'A bounded fixture', 'source_hints': []}]}))
+            output = root / 'campaign'
+            with self.assertRaisesRegex(ValueError, 'unique campaign modes'):
+                run(selection, output, modes=('deterministic', 'deterministic'))
+            self.assertFalse(output.exists())
+
     def test_4507227583_large_nonascii_selection_cannot_publish_oversized_index(self):
         from tools.far_investigation_engine import audit_transcript
         with tempfile.TemporaryDirectory() as temporary:

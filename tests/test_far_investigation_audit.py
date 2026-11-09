@@ -298,6 +298,55 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(state['rejected_calls'], 1)
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_rejected_model_response_named_argument_is_not_an_envelope(self):
+        # A rejected tool argument is untrusted action data, not a model response.
+        state = self.runtime().run_agent(NativeFunctionFixtureModel([
+            action('retrieve', url=URL_A, response_base64='not-base64'), *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_native_search_receipt_requires_its_own_reservation(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import public_search, public_search_url
+        def searcher(query, provider, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                b'{"message":{"items":[]}}', status=500,
+                url=public_search_url(query, provider))
+            with patch('tools.far_investigation_retrieval.urllib.request.build_opener',
+                       return_value=client):
+                return public_search(query, provider, policy, checkpoint=checkpoint)
+        policy = RetrievalPolicy(('example.org', 'independent.example.org', 'api.crossref.org'),
+                                 resolver=dns)
+        state = Investigation(QUESTION, policy, seeds=[URL_A, URL_B],
+                              fetcher=FixtureRetriever(), searcher=searcher).run_agent(
+            NativeFunctionFixtureModel([
+                action('search', query='claim', provider='crossref'), *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['http_calls'], 5)
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        forged = copy.deepcopy(state)
+        events = forged['events']
+        rejected = next(i for i, e in enumerate(events)
+            if e['kind'] == 'TOOL_REJECTED'
+            and type(e['payload'].get('receipt')) is dict
+            and e['payload']['receipt'].get('schema') == 'far-source-receipt/0.1')
+        start = max(i for i, e in enumerate(events[:rejected])
+                    if e['kind'] == 'TOOL_PROPOSAL')
+        missing = [i for i in range(start, rejected)
+                   if events[i]['kind'] in ('SEARCH_REQUEST', 'SEARCH_OBSERVATION')]
+        self.assertEqual(sum(events[i]['kind'] == 'SEARCH_REQUEST' for i in missing), 1)
+        forged['events'] = [e for i, e in enumerate(events) if i not in missing]
+        forged['http_calls'] -= 1
+        for i, event in enumerate(forged['events'], 1):
+            event['sequence'] = i
+            if event['kind'] in ('HTTP_REQUEST', 'SEARCH_REQUEST'):
+                event['payload']['call'] -= 1
+        reseal(forged)
+        self.assert_rejected(forged, 'failed_search.reservation')
+
     def test_native_failed_retrieve_receipt_requires_its_http_reservation(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import retrieve

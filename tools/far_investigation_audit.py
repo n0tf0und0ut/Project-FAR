@@ -249,8 +249,22 @@ def audit(state) -> dict:
                                   node['transport'].get('response_url', node['request']['url']))
                             equal(path + '.transport.http_status', node.get('http_status'),
                                   node['transport'].get('http_status'))
+            # Only recorded transport/model envelopes own response-body metadata.
+            # Rejected tool arguments, evidence JSON, and arbitrary model data do not.
+            event_match = re.fullmatch(r'state\.events\[(\d+)\]\.payload(\.metadata\.envelope)?', path)
+            event_kind = (state['events'][int(event_match.group(1))]['kind']
+                          if event_match is not None else None)
+            model_envelope = (
+                re.fullmatch(r'state\.model_calls\[\d+\]', path) is not None
+                or event_kind == 'MODEL_OBSERVATION' and event_match.group(2) is None
+                or event_kind == 'MODEL_PROPOSAL' and event_match.group(2) is not None)
+            transport_envelope = (
+                re.fullmatch(r'state\.model_calls\[\d+\]\.transport', path) is not None
+                or re.fullmatch(r'state\.events\[\d+\]\.payload\.transport', path) is not None
+                or re.fullmatch(r'state\.events\[\d+\]\.payload\.metadata\.envelope\.transport', path) is not None
+                or re.fullmatch(r'state\.sources\.src\.\d+\.transport', path) is not None)
             for raw_key in ('response_base64', 'raw_response_base64'):
-                if raw_key in node:
+                if raw_key in node and (model_envelope or transport_envelope):
                     encoded, declared = node[raw_key], node.get('response_sha256')
                     if encoded is None:
                         if declared is not None:
@@ -485,6 +499,25 @@ def audit(state) -> dict:
                                               attempt_network_started, attempt_committed_rechecks)
                     if valid_shape and tool_pending['tool'] == 'search':
                         search_transports[index] = (attempt_search_request, attempt_search_observation)
+                        if (kind == 'TOOL_REJECTED' and type(payload) is dict
+                                and type(payload.get('receipt')) is dict
+                                and payload['receipt'].get('schema') == 'far-source-receipt/0.1'):
+                            # A failed native search still consumed its own HTTP
+                            # reservation; a resealed transcript cannot erase it.
+                            if attempt_search_request is None or attempt_search_observation is None:
+                                fail(path + '.failed_search.reservation',
+                                     'retained failed receipt lacks search reservation and observation')
+                            else:
+                                equal(path + '.failed_search.query', attempt_search_request.get('query'),
+                                      tool_pending['args']['query'])
+                                equal(path + '.failed_search.provider', attempt_search_request.get('provider'),
+                                      tool_pending['args']['provider'])
+                                equal(path + '.failed_search.observation', attempt_search_observation,
+                                      payload['receipt'])
+                                if tool_pending['args']['provider'] in ('crossref', 'wikimedia'):
+                                    equal(path + '.failed_search.url', payload['receipt']['request']['url'],
+                                          public_search_url(tool_pending['args']['query'],
+                                                            tool_pending['args']['provider']))
                     if (valid_shape and tool_pending['tool'] == 'retrieve'
                             and kind == 'TOOL_REJECTED'
                             and type(payload) is dict and type(payload.get('receipt')) is dict

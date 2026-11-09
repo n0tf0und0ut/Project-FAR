@@ -301,6 +301,10 @@ def persist_campaign_index(output, campaign):
 
 def run(selection, output, *, model_path=None, server_path=None, modes=('deterministic', 'declarative', 'agent'),
         budget=Budget(max_steps=24, max_seconds=420), dns_mode='preflight'):
+    if (type(modes) not in (tuple, list) or not modes
+            or any(type(mode) is not str or mode not in ('agent', 'deterministic', 'declarative') for mode in modes)
+            or len(set(modes)) != len(modes)):
+        raise ValueError('nonempty unique campaign modes required')
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     selection_bytes = Path(selection).read_bytes()

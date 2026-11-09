@@ -69,8 +69,9 @@ class _ChunkFramingObserver:
     bytes without validating CRLF. Preserve bounded decoded prefix while checking
     those framing obligations around the same native buffered stream.
     """
-    def __init__(self, stream, limit):
+    def __init__(self, stream, limit, deadline_monotonic=None):
         self.stream, self.limit = stream, limit
+        self.deadline_monotonic = deadline_monotonic
         self.phase, self.remaining = "size", 0
         self.prefix, self.framing_bytes = bytearray(), 0
 
@@ -85,7 +86,11 @@ class _ChunkFramingObserver:
             chunks, received = [], 0
             reader = getattr(self.stream, "read1", self.stream.read)
             while received < amount:
+                if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+                    raise TimeoutError('absolute response deadline exceeded')
                 part = reader(amount - received)
+                if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+                    raise TimeoutError('absolute response deadline exceeded')
                 if not part:
                     break
                 self.prefix.extend(part[:max(0, self.limit - len(self.prefix))])
@@ -95,6 +100,8 @@ class _ChunkFramingObserver:
             if self.remaining == 0:
                 self.phase = "separator"
             return b"".join(chunks)
+        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+            raise TimeoutError('absolute response deadline exceeded')
         data = self.stream.read(amount)
         if self.phase == "separator":
             self.framing_bytes += len(data)
@@ -104,6 +111,8 @@ class _ChunkFramingObserver:
         return data
 
     def readline(self, limit=-1):
+        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+            raise TimeoutError('absolute response deadline exceeded')
         data = self.stream.readline(limit)
         self.framing_bytes += len(data)
         if (not data.endswith(b"\r\n") or self.framing_bytes > self.limit + 65536
@@ -122,7 +131,8 @@ class _ChunkFramingObserver:
 
 def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                           max_bytes: int, opener=None, checkpoint=None,
-                          chunk_size: int | None = None) -> tuple[bytes, dict]:
+                          chunk_size: int | None = None,
+                          deadline_monotonic: float | None = None) -> tuple[bytes, dict]:
     """Refuse redirects and retain bounded failures before rejecting the response.
 
     response_sha256 always hashes precisely the retained bytes. On truncation it
@@ -143,6 +153,10 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
     }
     response, observer, raw = None, None, b""
 
+    def enforce_deadline():
+        if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+            raise TimeoutError('absolute response deadline exceeded')
+
     def retain(data, complete=False):
         retained = data[:max_bytes]
         envelope.update(raw_response_base64=base64.b64encode(retained).decode("ascii"),
@@ -155,7 +169,10 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
     try:
         try:
             client = opener if opener is not None else urllib.request.build_opener(NoRedirect())
-            response = client.open(request, timeout=timeout)
+            enforce_deadline()
+            remaining = (deadline_monotonic - time.monotonic()) if deadline_monotonic is not None else timeout
+            response = client.open(request, timeout=max(.001, min(timeout, remaining)))
+            enforce_deadline()
         except urllib.error.HTTPError as exc:
             # HTTPError is also a readable response, including for refused redirects.
             response = exc
@@ -183,7 +200,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 if len(encodings) != 1 or str(encodings[0]).strip().lower() != "chunked" or lengths:
                     framing_error = "UnsupportedOrAmbiguousTransferFraming"
                 elif isinstance(native, http.client.HTTPResponse) and native.chunked and native.fp is not None:
-                    observer = _ChunkFramingObserver(native.fp, max_bytes + 1)
+                    observer = _ChunkFramingObserver(native.fp, max_bytes + 1, deadline_monotonic)
                     native.fp = observer
                 else:
                     framing_error = "UnverifiedChunkFraming"
@@ -191,17 +208,22 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 # Native read(n) may consume a buffered prefix and then raise
                 # while waiting for the remaining n bytes. read1(n) returns the
                 # available non-chunked bytes before another blocking syscall.
-                incremental = isinstance(native, http.client.HTTPResponse) and not native.chunked
+                incremental = isinstance(native, http.client.HTTPResponse)
                 reader = native.read1 if incremental else response.read
                 if chunk_size is None and not incremental:
+                    enforce_deadline()
                     raw = response.read(max_bytes + 1)
+                    enforce_deadline()
                 else:
                     while len(raw) <= max_bytes:
+                        enforce_deadline()
                         chunk = reader(min(chunk_size or 65536, max_bytes + 1 - len(raw)))
+                        enforce_deadline()
                         if not chunk:
                             break
                         raw += chunk
                         retain(raw)
+                enforce_deadline()
                 complete = len(raw) <= max_bytes
             except http.client.IncompleteRead as exc:
                 raw, complete = bytes(observer.prefix) if observer else raw + exc.partial, False

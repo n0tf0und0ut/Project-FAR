@@ -338,6 +338,7 @@ class LocalModel:
         self.endpoint, self.model = endpoint, model
         self.identity_check = identity_check
         self.timeout = 90.0
+        self.deadline_monotonic = None
 
     def __call__(self, prompt, checkpoint):
         try:
@@ -365,7 +366,8 @@ class LocalModel:
                 # no-proxy opener binds the request to the local listener.
                 direct = local_model_opener()
                 raw, transport = read_bounded_response(
-                    request, timeout=self.timeout, max_bytes=1_000_000, opener=direct)
+                    request, timeout=self.timeout, max_bytes=1_000_000, opener=direct,
+                    chunk_size=65536, deadline_monotonic=self.deadline_monotonic)
             except ResponseTransportError as exc:
                 envelope.update(transport=exc.envelope, response_base64=exc.envelope['raw_response_base64'],
                                 response_sha256=exc.envelope['response_sha256'])
@@ -393,7 +395,10 @@ class LocalModel:
             else:
                 proposal = _parse(message['content'])
             check_model_proposal_nesting(proposal)
-            return proposal, {'tokens': tokens, 'model': parsed.get('model'), 'envelope': envelope}
+            model_id = parsed.get('model')
+            if model_id is not None and (type(model_id) is not str or len(model_id) > 512):
+                raise ValueError('model identifier must be bounded text')
+            return proposal, {'tokens': tokens, 'model': model_id, 'envelope': envelope}
         except (ValueError, RuntimeError, OSError, KeyError, IndexError, TypeError) as exc:
             envelope['error'] = {'class': type(exc).__name__, 'reason': str(exc)}
             checkpoint(copy.deepcopy(envelope))
@@ -728,7 +733,8 @@ class Investigation:
                             observed_tokens = tokens
                     self.event('MODEL_OBSERVATION', envelope)
                 if isinstance(model, LocalModel):
-                    model.timeout = max(.01, min(90., self.budget.max_seconds - (time.monotonic() - self.started)))
+                    model.deadline_monotonic = self.started + self.budget.max_seconds
+                    model.timeout = max(.01, min(90., model.deadline_monotonic - time.monotonic()))
                 proposal, meta = model(self.prompt(), capture)
                 if type(meta['tokens']) is not int or meta['tokens'] < 1:
                     raise EngineError('model telemetry invalid')
@@ -739,6 +745,7 @@ class Investigation:
                 elif observed_tokens != meta['tokens']:
                     raise EngineError('model metadata differs from observed usage')
                 check_model_proposal_nesting(proposal)
+                check_model_proposal_nesting(meta)
                 self.event('MODEL_PROPOSAL', {'proposal': proposal, 'metadata': meta})
                 self.call(proposal)
                 if self.state['status'] == 'BOUNDED_PIPELINE_COMPLETED':

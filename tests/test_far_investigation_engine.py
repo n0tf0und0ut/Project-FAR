@@ -11,6 +11,7 @@ import hashlib
 import http.client
 import io
 import json
+import time
 import unittest
 from unittest.mock import patch
 
@@ -528,6 +529,48 @@ class InvestigationIntegrationTests(unittest.TestCase):
                     self.assertTrue(audit_transcript(state)["valid"])
                     if limit == 9:
                         self.assertIsNone(state["report"])
+
+    def test_deep_model_identifier_retains_raw_evidence_and_final_seal(self):
+        from tests.test_far_investigation_usage import envelope
+        nested = 'local'
+        for _ in range(700):
+            nested = [nested]
+        response = {'model': nested, 'usage': {'total_tokens': 10},
+                    'choices': [{'message': {'tool_calls': [{'function': {
+                        'name': 'retrieve', 'arguments': json.dumps({'url': URL_A})}}]}}]}
+        observed = envelope(response)
+        raw = base64.b64decode(observed['response_base64'])
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   return_value=(raw, observed['transport'])):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(state['http_calls'], 0)
+        self.assertEqual(base64.b64decode(state['model_calls'][0]['response_base64']), raw)
+        self.assertIn('error', state['model_calls'][0])
+        self.assertEqual(state['events'][-1]['kind'], 'FINAL_STATE_SEAL')
+        self.assertTrue(audit_transcript(state)['valid'], audit_transcript(state))
+
+    def test_local_model_trickle_is_interrupted_at_execution_deadline(self):
+        from tools.far_uncertain_routing_pilot import read_bounded_response, ResponseTransportError
+        class Trickle(io.BytesIO):
+            status = 200
+            headers = {}
+            url = 'http://127.0.0.1:8085/v1/chat/completions'
+            def read(self, size=-1):
+                time.sleep(.025)
+                return super().read(min(size, 8))
+        transport = unittest.mock.Mock()
+        transport.open.return_value = Trickle(b'{"usage":{"total_tokens":1},"choices":[{"message":{"content":"{}"}}]}')
+        import urllib.request
+        request = urllib.request.Request('http://127.0.0.1:8085/v1/chat/completions', data=b'{}')
+        start = time.monotonic()
+        with self.assertRaises(ResponseTransportError) as failed:
+            read_bounded_response(request, timeout=.1, max_bytes=1000, opener=transport,
+                                  chunk_size=8, deadline_monotonic=start + .1)
+        self.assertLess(time.monotonic() - start, .35)
+        self.assertEqual(failed.exception.envelope['transport_error'], 'TimeoutError')
+        self.assertFalse(failed.exception.envelope['response_complete'])
+        self.assertTrue(base64.b64decode(failed.exception.envelope['raw_response_base64']))
 
     def test_deep_model_arguments_fail_with_final_seal_and_raw_evidence(self):
         from tests.test_far_investigation_usage import envelope
