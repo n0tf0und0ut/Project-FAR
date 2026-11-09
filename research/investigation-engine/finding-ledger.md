@@ -704,3 +704,24 @@ Independent Codex review of `30abb51b617311fb3cfaf23619934a4625ea338f` identifie
 The original frozen 24-transcript archive and all registered negative results are untouched. These changes are engineering integrity claims only; no independent semantic correctness, agent reliability advantage, external replication, or customer effectiveness has been established.
 
 **Hosted correction check (before merge):** Source/test head `2d1239c0d194c39713d36d729069da2538471cfa` ran `FAR Investigation Engine` job `129427363485` and failed with 15 regression failures and 2 errors. Independent log inspection localized 16 native chunked-framing failures/errors to switching chunked `HTTPResponse.read` to `read1`, which changed validated framing and observed-prefix capture, and one failed-search fixture rejection to unnecessarily requiring a native Crossref URL from an injected operator adapter. The next source correction restores chunked `read()` and retains deadline instrumentation in the chunk-frame observer; it binds failed searches to their own recorded request and observation without inventing a native adapter identity. No clean follow-up run is claimed until separately observed.
+
+## November 9, 2026 — independent review of integrated native execution head
+
+The independent Codex review submitted at 2026-11-09T21:02:38Z against
+`7dc06f60c52926722891eefc069d524033b209e2` identified three distinct
+P2 counterexamples. They are engineering-invariant corrections, not new
+inference experiments or scientific result promotions.
+
+| Root cause / source | Counterexample and violated invariant | Repair and defect-detecting control |
+| --- | --- | --- |
+| **ENG-CHUNK-FRAMING-DEADLINE-20261109** — `PRRT_kwDOTH_vCM61cUuY`, comment `4517941054` | A chunk extension or trailer line trickled byte-by-byte allowed buffered `readline()` to exceed the absolute model deadline; the body deadline guard did not run during framing. | `_ChunkFramingObserver.readline` consumes bounded framing bytes incrementally, checking remaining absolute time before and after each operation and limiting the socket's blocking timeout. `test_trickled_chunk_size_and_trailer_deadline_is_checked_per_byte` covers both stages; existing native good/failed-chunk controls remain applicable. |
+| **ENG-TRANSPORT-TIMESTAMP-SCOPE-20261109** — `PRRT_kwDOTH_vCM61cUug`, comment `4517941067` | Invalid model action `retrieve(..., transport={'timing_scope':'domain interval'})` was correctly rejected in runtime but its untrusted argument was audited as native HTTP metadata. | Timestamp checks now admit enumerated real transport-envelope locations only. `test_rejected_transport_named_model_argument_is_not_http_metadata` preserves accepted native/fixture traces; `test_resealed_new_transport_timestamps_cannot_move_backwards` remains the negative control for actual recorded transports. |
+| **ENG-FAILED-RECHECK-RESERVATION-20261109** — `PRRT_kwDOTH_vCM61cUuo`, comment `4517941079` | A recheck's failed native search (HTTP 500) retained its receipt while a resealer could remove the producing `SEARCH_REQUEST` and `SEARCH_RECHECK_OBSERVATION`, reducing the apparent HTTP budget from nine to eight. | Failed recheck source/search receipts must consume and match their exact pending reservation and final observation, including original registered search identity. `test_failed_search_recheck_receipt_requires_exact_reservation` requires a real bounded-reader failed search followed by successful retry, then rejects the forged missing-reservation trace. |
+
+The candidate must pass hosted targeted and canonical tests, independent
+substantive exact-head review, and all required native/App protected checks
+before a protected merge. No frozen transcript, experiment registration,
+source hash, result, or negative outcome is rewritten. Native engineering
+conformance does not establish general agent autonomy, semantic truth,
+external scientific independence, causal performance advantage, or
+commercial effectiveness.

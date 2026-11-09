@@ -78,6 +78,18 @@ class _ChunkFramingObserver:
     def __getattr__(self, name):
         return getattr(self.stream, name)
 
+    def _check_deadline(self):
+        if self.deadline_monotonic is None:
+            return
+        remaining = self.deadline_monotonic - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('absolute response deadline exceeded')
+        # HTTPResponse normally wraps a BufferedReader over socket.SocketIO.
+        # Bound each blocking framing read by the remaining whole-request time.
+        sock = getattr(getattr(self.stream, 'raw', self.stream), '_sock', None)
+        if sock is not None:
+            sock.settimeout(max(.001, remaining))
+
     def read(self, amount=-1):
         if self.phase == "body" and amount >= 0:
             # Native _safe_read expects the requested chunk body size, but a
@@ -86,11 +98,9 @@ class _ChunkFramingObserver:
             chunks, received = [], 0
             reader = getattr(self.stream, "read1", self.stream.read)
             while received < amount:
-                if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
-                    raise TimeoutError('absolute response deadline exceeded')
+                self._check_deadline()
                 part = reader(amount - received)
-                if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
-                    raise TimeoutError('absolute response deadline exceeded')
+                self._check_deadline()
                 if not part:
                     break
                 self.prefix.extend(part[:max(0, self.limit - len(self.prefix))])
@@ -100,9 +110,9 @@ class _ChunkFramingObserver:
             if self.remaining == 0:
                 self.phase = "separator"
             return b"".join(chunks)
-        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
-            raise TimeoutError('absolute response deadline exceeded')
+        self._check_deadline()
         data = self.stream.read(amount)
+        self._check_deadline()
         if self.phase == "separator":
             self.framing_bytes += len(data)
             if data != b"\r\n":
@@ -111,11 +121,24 @@ class _ChunkFramingObserver:
         return data
 
     def readline(self, limit=-1):
-        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
-            raise TimeoutError('absolute response deadline exceeded')
-        data = self.stream.readline(limit)
-        self.framing_bytes += len(data)
-        if (not data.endswith(b"\r\n") or self.framing_bytes > self.limit + 65536
+        # stdlib readline() is allowed to block while a peer trickles a single
+        # chunk-size/extension or trailer line. A one-time deadline check
+        # would allow arbitrary overrun. Read bounded framing bytes one at a
+        # time, checking both before and after each blocking operation.
+        data = bytearray()
+        while not data.endswith(b"\n"):
+            self._check_deadline()
+            part = self.stream.readline(1)
+            self._check_deadline()
+            if not part:
+                break
+            data.extend(part)
+            self.framing_bytes += len(part)
+            if ((limit >= 0 and len(data) > limit)
+                    or self.framing_bytes > self.limit + 65536):
+                raise http.client.IncompleteRead(bytes(self.prefix))
+        data = bytes(data)
+        if (not data.endswith(b"\r\n")
                 or self.phase not in ("size", "trailers")):
             raise http.client.IncompleteRead(bytes(self.prefix))
         if self.phase == "size":

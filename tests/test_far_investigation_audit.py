@@ -306,6 +306,64 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(state['rejected_calls'], 1)
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_rejected_transport_named_model_argument_is_not_http_metadata(self):
+        state = self.runtime().run_agent(NativeFunctionFixtureModel([
+            action('retrieve', url=URL_A, transport={'timing_scope': 'domain interval'}),
+            *full_script()]))
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_search_recheck_receipt_requires_exact_reservation(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import public_search, public_search_url
+        count = [0]
+        def searcher(query, provider, policy, checkpoint):
+            count[0] += 1
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                b'{"message":{"items":[]}}', status=500 if count[0] == 2 else 200,
+                url=public_search_url(query, provider))
+            with patch('tools.far_investigation_retrieval.urllib.request.build_opener',
+                       return_value=client):
+                return public_search(query, provider, policy, checkpoint=checkpoint)
+        script = full_script()
+        policy = RetrievalPolicy(('example.org', 'independent.example.org', 'api.crossref.org'),
+                                 resolver=dns)
+        state = Investigation(QUESTION, policy, seeds=[URL_A, URL_B],
+            fetcher=FixtureRetriever(), searcher=searcher).run_agent(
+            NativeFunctionFixtureModel([action('search', query='claim', provider='crossref'),
+                *script[:7], action('recheck'), *script[7:]]))
+        self.assertEqual(count[0], 3)
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+        forged = copy.deepcopy(state)
+        events = forged['events']
+        rejected = next(i for i, e in enumerate(events)
+            if e['kind'] == 'TOOL_REJECTED' and
+            type(e['payload'].get('receipt')) is dict and
+            e['payload']['receipt'].get('schema') == 'far-source-receipt/0.1')
+        start = max(i for i in range(rejected) if
+            events[i]['kind'] == 'TOOL_PROPOSAL' and
+            events[i]['payload']['tool'] == 'recheck')
+        missing = [i for i in range(start, rejected)
+            if events[i]['kind'] in ('SEARCH_REQUEST', 'SEARCH_RECHECK_OBSERVATION')]
+        calls = [events[i]['payload']['call'] for i in missing
+            if events[i]['kind'] == 'SEARCH_REQUEST']
+        self.assertEqual(len(calls), 1)
+        removed_call = calls[0]
+        forged['events'] = [e for i, e in enumerate(events) if i not in missing]
+        forged['http_calls'] -= 1
+        forged['policy']['budget']['max_http_calls'] -= 1
+        forged['events'][0]['payload']['policy']['budget']['max_http_calls'] -= 1
+        for i, e in enumerate(forged['events'], 1):
+            e['sequence'] = i
+            if e['kind'] in ('HTTP_REQUEST', 'SEARCH_REQUEST') and e['payload']['call'] > removed_call:
+                e['payload']['call'] -= 1
+        reseal(forged)
+        self.assert_rejected(forged, 'failed_recheck.reservation')
+
     def test_failed_native_search_receipt_requires_its_own_reservation(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import public_search, public_search_url

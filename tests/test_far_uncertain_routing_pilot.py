@@ -186,6 +186,29 @@ class NativeFramingTests(unittest.TestCase):
                 self.assertEqual(envelope["framing_error"], "IncompleteChunkFraming")
                 self.assertEqual(envelope["response_hash_scope"], "retained_prefix")
 
+    def test_trickled_chunk_size_and_trailer_deadline_is_checked_per_byte(self):
+        # The prior one-shot readline() accepted a complete line after the
+        # absolute deadline. Simulate per-byte network progress with a clock.
+        for phase in ('size', 'trailers'):
+            with self.subTest(phase=phase):
+                clock = [0.0]
+                class Trickle:
+                    def __init__(self):
+                        self.body = io.BytesIO(b'3;slow=' + b'x' * 20 + b'\r\n'
+                            if phase == 'size' else b'X-Slow: ' + b'x' * 20 + b'\r\n')
+                    def readline(self, limit=-1):
+                        data = self.body.readline(limit)
+                        clock[0] += .025 * len(data)
+                        return data
+                observer = study._ChunkFramingObserver(
+                    Trickle(), limit=1024, deadline_monotonic=.1)
+                observer.phase = phase
+                with patch.object(study.time, 'monotonic', side_effect=lambda: clock[0]):
+                    with self.assertRaisesRegex(TimeoutError, 'absolute response deadline'):
+                        observer.readline()
+                self.assertLessEqual(clock[0], .125)
+                self.assertEqual(bytes(observer.prefix), b'')
+
     def test_ambiguous_duplicate_invalid_lengths_and_transfer_codings_rejected(self):
         for headers in (b"Content-Length: 3\r\nContent-Length: 3\r\n",
                         b"Content-Length: x\r\n", b"Content-Length: -3\r\n",

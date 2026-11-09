@@ -172,7 +172,13 @@ def audit(state) -> dict:
         if type(node) is dict:
             # Only HTTP transport envelopes have transport timestamp authority.
             # Arbitrary source/verifier objects may use the same field names.
-            if path.endswith('.transport') and 'timing_scope' in node:
+            transport_time_path = (
+                re.fullmatch(r'state\.model_calls\[\d+\]\.transport', path)
+                or re.fullmatch(r'state\.events\[\d+\]\.payload\.(?:transport|receipt\.transport|result\.receipt\.transport|metadata\.envelope\.transport)', path)
+                or re.fullmatch(r'state\.sources\.src\.\d+\.transport', path)
+                or re.fullmatch(r'state\.searches\[\d+\]\.receipt\.transport', path)
+                or re.fullmatch(r'state\.rechecks\[\d+\]\.receipt\.transport', path))
+            if transport_time_path is not None and 'timing_scope' in node:
                 def check_transport_time():
                     if node['timing_scope'] != 'request_start_to_body_read_or_transport_failure':
                         raise ValueError('unknown timing scope')
@@ -532,6 +538,42 @@ def audit(state) -> dict:
                                   tool_pending['args']['url'])
                             equal(path + '.failed_retrieve.observation',
                                   attempt_observation, payload['receipt'])
+                    if (valid_shape and tool_pending['tool'] == 'recheck'
+                            and kind == 'TOOL_REJECTED'
+                            and type(payload) is dict and type(payload.get('receipt')) is dict
+                            and payload['receipt'].get('schema') == 'far-source-receipt/0.1'):
+                        # Rechecks also perform real network reservations. A failed
+                        # source or search recheck must retain its producing HTTP
+                        # observation; otherwise its budget can be erased by resealing.
+                        if attempt_search_request is not None:
+                            if attempt_search_observation is None:
+                                fail(path + '.failed_recheck.reservation',
+                                     'failed search recheck has no request-bound observation')
+                            else:
+                                recheck_index = attempt_search_request.get('recheck_index')
+                                if (type(recheck_index) is not int
+                                        or not 0 <= recheck_index < len(state['searches'])):
+                                    fail(path + '.failed_recheck.reservation',
+                                         'failed search recheck has no registered search index')
+                                else:
+                                    registered = state['searches'][recheck_index]
+                                    for key in ('query', 'provider'):
+                                        equal(path + '.failed_recheck.' + key,
+                                              attempt_search_request.get(key), registered[key])
+                                equal(path + '.failed_recheck.observation',
+                                      attempt_search_observation, payload['receipt'])
+                        elif attempt_http is not None:
+                            if attempt_observation is None:
+                                fail(path + '.failed_recheck.reservation',
+                                     'failed source recheck has no request-bound observation')
+                            else:
+                                equal(path + '.failed_recheck.url', attempt_http['url'],
+                                      payload['receipt']['request']['url'])
+                                equal(path + '.failed_recheck.observation',
+                                      attempt_observation, payload['receipt'])
+                        else:
+                            fail(path + '.failed_recheck.reservation',
+                                 'retained failed recheck receipt lacks network reservation')
                 if (valid_shape and tool_pending['tool'] == 'retrieve'
                         and attempt_http is not None and attempt_observation is not None):
                     retrieval_transports.append((index, tool_pending['args'].get('url'),
