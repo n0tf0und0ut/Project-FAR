@@ -179,6 +179,31 @@ class PreflightContractTests(unittest.TestCase):
         p['changed_files'] = len(files)
         self.assertFalse(verify(p, files)['valid'])
 
+    def test_executable_templates_and_runtime_assets_are_implementation(self):
+        for path in ('commercial/far-demo/src/far_demo/augmentation.html',
+                     'commercial/far-demo/templates/base.jinja2',
+                     'commercial/far-demo/static/theme.css',
+                     'client/app/page.vue',
+                     'frontend/app/widget.svelte',
+                     'commercial/example/src/module/settings.json',
+                     'ui/assets/symbol.svg'):
+            with self.subTest(path=path):
+                self.assertTrue(check.is_implementation_path(path), path)
+
+    def test_template_only_change_cannot_bypass_invariant_contract(self):
+        for path in ('commercial/far-demo/src/far_demo/augmentation.html',
+                     'commercial/far-demo/templates/base.j2',
+                     'commercial/far-demo/static/theme.css'):
+            with self.subTest(path=path):
+                files = [{'filename': path, 'status': 'modified'}]
+                p = pr(body='')
+                p['changed_files'] = len(files)
+                result = verify(p, files)
+                self.assertFalse(result['valid'], result)
+                self.assertEqual(result['implementation_paths'], [path])
+                self.assertEqual(result['mode'], 'enforce')
+                self.assertIn('FAR-INVARIANTS-V1', ' '.join(result['errors']))
+
     def test_nested_package_manifests_trigger_implementation_preflight(self):
         for path in ('commercial/far-decision-integrity/pyproject.toml',
                      'commercial/far-demo/Dockerfile', 'nested/package/requirements.txt'):

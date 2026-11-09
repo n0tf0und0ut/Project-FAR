@@ -32,6 +32,12 @@ TEST_REFERENCE = re.compile(r'(?P<path>(?:tests/|(?:[A-Za-z0-9_.-]+/)+tests/)[A-
 CODE_SUFFIXES = {'.py', '.pyi', '.rs', '.go', '.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.sh', '.bash', '.c', '.cc', '.cpp', '.h', '.java', '.rb', '.jl', '.lean', '.sql', '.ipynb'}
 SPECIAL_FILES = {'AGENTS.md', 'CLAUDE.md', 'pyproject.toml', 'Cargo.toml', 'Cargo.lock', 'go.mod', 'go.sum', 'Dockerfile', 'Makefile', 'requirements.txt', '.github/pull_request_template.md'}
 SOFTWARE_CONFIG = {'.json', '.yml', '.yaml', '.toml'}
+# Runtime templates and browser resources contain executable semantics even
+# without a Python/JS source extension. Treat them as implementation, not prose.
+RUNTIME_ASSET_SUFFIXES = {'.html', '.htm', '.css', '.scss', '.sass', '.less',
+                          '.vue', '.svelte', '.astro', '.j2', '.jinja',
+                          '.jinja2', '.njk', '.hbs', '.ejs', '.svg', '.wasm'}
+RUNTIME_RESOURCE_DIRS = {'src', 'templates', 'static', 'public', 'frontend', 'client', 'ui'}
 
 
 def _date(value: str) -> datetime:
@@ -48,6 +54,15 @@ def is_implementation_path(path: str) -> bool:
         return False
     if (path in SPECIAL_FILES or Path(path).name in SPECIAL_FILES
             or path.startswith('.github/workflows/') or path.startswith('.github/actions/')):
+        return True
+    parts = Path(path).parts
+    suffix = Path(path).suffix.lower()
+    # Application source and served resources can be executable HTML, browser
+    # styles, templates, schemas and configuration; extension-only matching
+    # incorrectly grandfathered template-only runtime PRs as "documentation".
+    if suffix in RUNTIME_ASSET_SUFFIXES:
+        return True
+    if any(p in RUNTIME_RESOURCE_DIRS for p in parts[:-1]) and suffix in SOFTWARE_CONFIG:
         return True
     if path.startswith('schemas/') and Path(path).suffix in SOFTWARE_CONFIG:
         return True
