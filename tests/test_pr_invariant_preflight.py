@@ -41,7 +41,8 @@ def contract():
                 'id': 'HTTP-EVIDENCE-01',
                 'statement': 'Every native HTTP retrieval preserves observed bytes and bounded execution.',
                 'boundary': 'Remote socket to bounded transport receipt and stored journal',
-                'changed_paths': ['tools/reader.py', 'tools/auditor.py'],
+                'changed_paths': ['tools/reader.py', 'tools/auditor.py',
+                                  'tests/test_reader.py', 'tests/test_end_to_end.py'],
                 'failure_modes': [
                     {'case': 'A trickle past the absolute deadline must be rejected.',
                      'test': 'tests/test_reader.py::test_trickle_deadline'},
