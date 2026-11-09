@@ -12,9 +12,13 @@ from far_decision_integrity.model import DecisionPackage, PackageValidationError
 from far_decision_integrity.report import report_payload
 
 from .formats import ACCEPT_ATTRIBUTE, parse_package_file
+from .augmentation import router as augmentation_router
+from .semantic import router as semantic_router
 
 MAX_BYTES = 10_000_000
 app = FastAPI(title="Project FAR Demo", version="0.8.0")
+app.include_router(augmentation_router)
+app.include_router(semantic_router)
 
 
 def _package(payload: dict[str, Any]) -> DecisionPackage:
