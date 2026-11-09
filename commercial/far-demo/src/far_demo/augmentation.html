@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAR | Reasoning Workspace</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1019;--panel:#151d2a;--panel2:#1a2534;--line:#344256;--muted:#aebdd0;--text:#f1f6ff;--accent:#9ccef6;--gold:#f1c985}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#1d3048,#0c1019 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif}header{max-width:1100px;margin:0 auto;padding:22px 24px;display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:1px solid var(--line)}header b{letter-spacing:.13em}header a{color:var(--accent)}main{max-width:1100px;margin:36px auto 80px;padding:0 24px}.eyebrow{color:var(--accent);font-weight:750;text-transform:uppercase;letter-spacing:.16em;font-size:12px}h1{font-size:clamp(30px,5vw,51px);letter-spacing:-.04em;line-height:1.13;margin:12px 0;max-width:740px}h2{font-size:23px;letter-spacing:-.02em;margin:0 0 7px}h3{font-size:16px;margin:0 0 8px}p{color:var(--muted)}.lede{font-size:17px;max-width:750px}.columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:30px}.panel{border:1px solid var(--line);border-radius:19px;padding:24px;background:var(--panel);min-width:0}.span{grid-column:1/-1}.sub{font-size:13px;color:var(--muted);margin:0 0 20px}.field{display:block;margin:15px 0;color:#dce8f5;font-weight:650;font-size:13px}textarea,input{display:block;width:100%;margin-top:7px;padding:12px 13px;border-radius:9px;background:#0c1420;color:var(--text);border:1px solid #465870;font:inherit;font-weight:400;resize:vertical;min-height:42px}textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:2px}textarea{min-height:70px}input[type=range]{padding:0;min-height:25px;accent-color:var(--accent)}.helper{font-weight:400;color:var(--muted);font-size:12px;margin:3px 0}.controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.btn{cursor:pointer;background:var(--accent);color:#0e1928;font-weight:760;padding:12px 17px;border:1px solid var(--accent);border-radius:9px;font:inherit}.btn.secondary{background:transparent;color:var(--accent)}.btn:disabled{opacity:.5;cursor:not-allowed}#audit[hidden],#revisionPane[hidden],#message[hidden],#history[hidden]{display:none!important}.modelPane{margin:20px 0;padding:18px;background:#111b2a;border:1px solid #49627d;border-radius:12px}.question{padding:15px;border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--panel2)}.question small{color:var(--gold)}.question p{color:var(--text);margin:5px 0}.question .helper{color:var(--muted)}.question textarea{min-height:70px}.flag{color:var(--gold);font-size:12px;letter-spacing:.04em}.boundary{background:#22291e;border:1px solid #5a6544;border-radius:10px;padding:12px 15px;color:#d3dbcf;font-size:13px}.historyItem{padding:12px 0;border-top:1px solid var(--line)}.historyItem strong{display:block}.historyItem p{margin:5px 0;white-space:pre-wrap;overflow-wrap:anywhere}.mono{font:12px/1.5 ui-monospace,monospace;overflow-wrap:anywhere;color:var(--muted)}.meta{display:flex;gap:9px;flex-wrap:wrap;margin:15px 0}.chip{border:1px solid var(--line);padding:5px 9px;border-radius:7px;font-size:12px}.right{align-items:flex-end}.confidence{display:flex;gap:12px;align-items:center}.confidence b{font-size:20px;min-width:60px}#message{white-space:pre-wrap;color:var(--gold);margin:15px 0}.muted{color:var(--muted)}a{color:var(--accent)}ul{padding-left:20px}li{padding:3px 0}@media(max-width:740px){header{padding:17px 18px}main{padding:0 16px}.columns{grid-template-columns:1fr}.panel{padding:18px}.span{grid-column:auto}}@media(prefers-reduced-motion:no-preference){button{transition:transform .12s}button:not(:disabled):active{transform:scale(.98)}}
+</style>
+</head>
+<body>
+<header><b>FAR / COGNITIVE LAB</b><nav><a href="/">Decision integrity demo</a></nav></header>
+<main>
+<div class="eyebrow">Research prototype · User-owned reasoning</div>
+<h1>Make your reasoning inspectable.</h1>
+<p class="lede">State a judgment, record what supports it, answer questions about missing information, and preserve how your conclusion changes. FAR examines the completeness of <em>your supplied record</em>; it does not independently determine whether your claim is true.</p>
+<div class="columns">
+<section class="panel" id="inputPanel" aria-label="Initial judgment">
+  <h2>1. Record your initial judgment</h2><p class="sub">Exact wording and initial confidence are preserved in the audit export.</p>
+  <form id="initialForm">
+    <label class="field">Claim or decision <textarea id="claim" required maxlength="3000" placeholder="Example: Our new onboarding process reduces customer cancellations."></textarea></label>
+    <label class="field">Your reasoning <textarea id="reasoning" maxlength="3000" placeholder="Why does the conclusion follow? Include the actual inference, not just the outcome."></textarea></label>
+    <label class="field">Initial confidence <div class="confidence"><input id="confidence" type="range" min="0" max="100" value="75"><b id="confidenceLabel">75%</b></div></label>
+    <label class="field">Supporting observations <textarea id="support" maxlength="20000" placeholder="One per line: Observation || source or method"></textarea><p class="helper">Source labels are recorded, not independently verified. Use || to separate an observation and its source.</p></label>
+    <label class="field">Challenging observations <textarea id="challenge" maxlength="20000" placeholder="One per line: Counterobservation || source or method"></textarea></label>
+    <label class="field">Required assumptions <textarea id="assumptions" maxlength="10000" placeholder="One assumption per line"></textarea></label>
+    <label class="field">Competing explanations <textarea id="alternatives" maxlength="10000" placeholder="One materially different explanation per line"></textarea></label>
+    <label class="field">Falsifier <textarea id="falsifier" maxlength="800" placeholder="What observation would make you substantially weaken or abandon this claim?"></textarea></label>
+    <div class="controls"><button class="btn" type="submit">Examine my reasoning</button><button class="btn secondary" type="button" id="clearButton">New session</button></div>
+  </form>
+</section>
+<section class="panel" aria-live="polite">
+  <h2>2. Examine the gaps</h2><p class="sub">Structural questions follow FAR-ELENCHUS purposes. Optional model-generated semantic hypotheses add meaning-sensitive critique, with exact input quotations and explicit uncertainty.</p>
+  <div id="empty">Complete the initial judgment to see traceable questions, followed by a revision record. <p><label class="btn secondary" for="importFile" style="cursor:pointer">Import saved session</label></p></div>
+  <div id="audit" hidden>
+    <div class="meta"><span class="chip">Evidence: user supplied</span><span class="chip">Interpretation: unknown</span><span class="chip" id="questionCount"></span></div>
+    <div id="questionList"></div>
+    <div class="modelPane" aria-label="Optional model semantic critique">
+      <h3>Model-driven semantic examination</h3>
+      <p class="helper">Runs a configured language model over your reasoning text and records source-anchored hypotheses. Your submission is sent to the configured model provider. The output is neither verified truth nor a FAR proof.</p>
+      <label class="field">Private model access token <input id="modelToken" type="password" autocomplete="off" placeholder="Provided by workspace operator" maxlength="250"></label>
+      <div class="controls"><button class="btn secondary" id="modelButton" type="button">Analyze meaning with model</button><span class="helper" id="modelStatus">Checking model service…</span></div>
+      <div id="modelFindings" aria-live="polite"></div>
+    </div>
+    <form id="revisionPane" hidden>
+      <h3>3. Record a revised judgment</h3>
+      <p class="helper">Answer at least one question above. Revising can mean retaining your conclusion with better stated limits.</p>
+      <label class="field">Revised conclusion <textarea id="revisedClaim" required maxlength="3000"></textarea></label>
+      <label class="field">Revised confidence <div class="confidence"><input id="revisedConfidence" type="range" min="0" max="100" value="75"><b id="revisedConfidenceLabel">75%</b></div></label>
+      <label class="field">Why did you retain or change your judgment? <textarea id="rationale" required maxlength="3000"></textarea></label>
+      <button class="btn" type="submit">Record revision</button>
+    </form>
+    <div id="history" hidden><h3>Audit trail</h3><div id="historyList"></div></div>
+    <div class="controls" style="margin-top:18px"><button class="btn secondary" id="exportButton" type="button">Export JSON</button><label class="btn secondary" for="importFile" style="cursor:pointer">Import JSON</label></div>
+    <p class="mono" id="digest"></p>
+  </div>
+  <p id="message" role="status" hidden></p><button class="btn secondary" id="retryRestore" type="button" hidden>Retry stored-session verification</button><button class="btn secondary" id="downloadStored" type="button" hidden>Download preserved data (unverified)</button><input type="file" accept="application/json,.json" id="importFile" style="position:absolute;left:-9999px" aria-label="Import previously exported reasoning session">
+</section>
+<section class="panel span" aria-label="Assurance limits">
+  <h3>What this instrument can and cannot establish</h3>
+  <div class="boundary">Structural prompts document omissions. Optional model-generated critiques interpret the meaning of supplied text but are unverified hypotheses. Neither lane proves source accuracy, formal validity, nor human learning. SHA-256 supports local integrity checks, not authentication. This prototype stores sessions in this browser and transmits input to the demo server for processing; infrastructure logs and browser storage may still expose sensitive text. Do not enter secrets.</div>
+  <p class="helper">This is an experimental application beside FAR's accepted contracts, not a conforming FAR-ELENCHUS session or a validated cognitive diagnosis. No external human-effectiveness study has been completed.</p>
+</section>
+</div>
+</main>
+<script>
+'use strict';
+const STORE='far-augmentation-prototype-v02';
+const MAX_REPORTS=20;
+// Aggregate bundles hold a session plus 20 individually bounded reports. The
+// server retains a 500 KB initial-input limit and an 8 MiB existing-history
+// request limit. This also allows JSON escaping/indentation headroom.
+const MAX_WORKSPACE_BYTES=8*1024*1024;
+const byId=id=>document.getElementById(id);
+let session=null;
+let reports=[];
+let modelPending=false;
+let workspaceEpoch=0;
+const setMessage=value=>{byId('message').textContent=value;byId('message').hidden=!value;};
+const textLines=id=>byId(id).value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+const evidenceLines=id=>textLines(id).map(line=>{const i=line.indexOf('||');return {statement:(i<0?line:line.slice(0,i)).trim(),source:(i<0?'':line.slice(i+2)).trim()};});
+const getInput=()=>({claim:byId('claim').value,reasoning:byId('reasoning').value,confidence:Number(byId('confidence').value),supporting_evidence:evidenceLines('support'),challenging_evidence:evidenceLines('challenge'),assumptions:textLines('assumptions'),alternatives:textLines('alternatives'),falsifier:byId('falsifier').value});
+const request=async(path,data,headers={})=>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json',...headers},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(typeof result.detail==='string'?result.detail:'Request failed');return result;};
+function node(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(className)n.className=className;return n;}
+function render(){const ready=!!session;byId('audit').hidden=!ready;byId('empty').hidden=ready;byId('revisionPane').hidden=!ready;byId('history').hidden=!ready||session.revisions.length===0;renderModel();if(!ready)return;
+  const questions=session.questions;byId('questionCount').textContent=questions.length+' question'+(questions.length===1?'':'s');
+  const current=session.revisions.at(-1);byId('revisedClaim').value=current?current.revised_claim:session.basis.claim;byId('revisedConfidence').value=current?current.confidence:session.basis.confidence;byId('revisedConfidenceLabel').textContent=byId('revisedConfidence').value+'%';
+  const list=byId('questionList');list.replaceChildren();
+  questions.forEach((q,i)=>{const panel=node('div',undefined,'question');panel.append(node('small',(i+1)+'. '+q.purpose),node('p',q.question),node('div',q.reason,'helper'));
+    const box=node('textarea');box.placeholder='Your answer, with limits or uncertainty';box.maxLength=2000;box.dataset.questionId=q.id;panel.append(box);list.append(panel);});
+  const h=byId('historyList');h.replaceChildren();let prior=session.basis.confidence;
+  session.revisions.forEach((event)=>{const card=node('div',undefined,'historyItem');card.append(node('strong','Revision '+event.index+' · '+event.confidence+'% (previous '+prior+'%)'),node('p',event.revised_claim),node('p','Why: '+event.rationale));
+    const a=node('details');a.append(node('summary','Question responses'));for(const [id,answer] of Object.entries(event.answers))a.append(node('p',id+': '+answer));card.append(a,node('div','Fingerprint: '+event.sha256,'mono'));h.append(card);prior=event.confidence;});
+  byId('digest').textContent='Session SHA-256: '+session.sha256;
+}
+const workspaceJSON=(s,r)=>JSON.stringify({schema:'far-augmentation-export/0.2',session:s,semantic_reports:r},null,2)+'\n';
+function boundedWorkspaceJSON(nextSession,nextReports){
+  const encoded=workspaceJSON(nextSession,nextReports);
+  if(new Blob([encoded]).size>MAX_WORKSPACE_BYTES)throw Error('Workspace exceeds the 8 MiB export/import limit. Export the current session before starting a new one.');
+  return encoded;
+}
+function saveWorkspace(nextSession,nextReports){
+  const encoded=boundedWorkspaceJSON(nextSession,nextReports);
+  // Validate size and complete storage before changing the live workspace. The
+  // exact stored encoding is also exported, so accepted states can round-trip.
+  localStorage.setItem(STORE,encoded);
+  session=nextSession;reports=nextReports;byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;
+}
+function renderModel(){const list=byId('modelFindings');list.replaceChildren();if(!session)return;
+  reports.forEach((report,i)=>{const wrap=node('div',undefined,'historyItem');wrap.append(node('strong','Semantic audit '+(i+1)+' · '+report.model+' · revision '+report.snapshot_revision_count),node('div','Interpretation: unverified model output · SHA-256 '+report.sha256,'mono'));
+    report.findings.forEach((f)=>{const panel=node('div',undefined,'question');panel.append(node('small',f.category),node('p',f.observation),node('p','Reasoning: '+f.inference));
+      f.anchors.forEach(a=>panel.append(node('div','Input '+a.path+': “'+a.quote+'”','helper')));
+      if(f.alternatives.length)panel.append(node('p','Alternatives: '+f.alternatives.join(' / ')));
+      panel.append(node('p','Test: '+f.test),node('p','Question: '+f.question));wrap.append(panel);});
+    report.open_questions.forEach(q=>wrap.append(node('p','Open question: '+q)));list.append(wrap);});}
+async function modelStatus(){try{const r=await fetch('/api/augment/model/status');if(!r.ok)throw Error('Status unavailable');const data=await r.json();byId('modelStatus').textContent=data.configured?'Provider configured: '+data.model:'Model unavailable: configure server provider';byId('modelButton').disabled=!data.configured;}catch(e){byId('modelStatus').textContent='Model provider status unavailable';byId('modelButton').disabled=true;}}
+byId('modelButton').addEventListener('click',async()=>{
+  if(!session||modelPending)return;
+  if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit. Export it before starting a new session.');return;}
+  const originSession=session,originReports=reports,epoch=workspaceEpoch;
+  const btn=byId('modelButton'),token=byId('modelToken').value;
+  modelPending=true;btn.disabled=true;
+  setMessage('Running model critique; source quotations will be validated.');
+  try{
+    const report=await request('/api/augment/semantic',{session:originSession},{'X-FAR-Augment-Token':token});
+    // Append-only revisions preserve the report collection; replacing or importing
+    // a session creates a new collection even when its original basis is equal.
+    if(epoch!==workspaceEpoch||!session||reports!==originReports||session.basis_sha256!==originSession.basis_sha256){setMessage('Discarded a model response for a replaced session.');return;}
+    if(reports.length>=MAX_REPORTS){setMessage('This session has reached its 20-report limit.');return;}
+    saveWorkspace(session,[...reports,report]);renderModel();
+    setMessage('Model-generated critique recorded. Treat all findings as hypotheses, not certified truth.');
+  }catch(e){setMessage(e.message);}finally{modelPending=false;btn.disabled=false;}
+});
+modelStatus();
+byId('confidence').addEventListener('input',()=>byId('confidenceLabel').textContent=byId('confidence').value+'%');
+byId('revisedConfidence').addEventListener('input',()=>byId('revisedConfidenceLabel').textContent=byId('revisedConfidence').value+'%');
+byId('initialForm').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');const epoch=++workspaceEpoch;try{const next=await request('/api/augment/start',getInput());if(epoch!==workspaceEpoch)return;saveWorkspace(next,[]);render();}catch(error){if(epoch===workspaceEpoch)setMessage(error.message);}});
+byId('revisionPane').addEventListener('submit',async(e)=>{e.preventDefault();setMessage('');if(!session)return;const origin=session,epoch=workspaceEpoch;const answers={};document.querySelectorAll('[data-question-id]').forEach(el=>{if(el.value.trim())answers[el.dataset.questionId]=el.value.trim();});try{const next=await request('/api/augment/revise',{session:origin,answers,revised_claim:byId('revisedClaim').value,confidence:Number(byId('revisedConfidence').value),rationale:byId('rationale').value});if(epoch!==workspaceEpoch||session!==origin)return;saveWorkspace(next,reports);render();setMessage('Revision recorded. It remains user-supplied and unverified.');}catch(error){if(epoch===workspaceEpoch&&session===origin)setMessage(error.message);}});
+byId('clearButton').addEventListener('click',()=>{workspaceEpoch++;localStorage.removeItem(STORE);session=null;reports=[];byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;byId('modelToken').value='';byId('initialForm').reset();byId('confidenceLabel').textContent='75%';setMessage('');render();});
+byId('exportButton').addEventListener('click',()=>{if(!session)return;const blob=new Blob([workspaceJSON(session,reports)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='far-reasoning-audit.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+byId('importFile').addEventListener('change',async(e)=>{const file=e.target.files[0];if(!file)return;const epoch=++workspaceEpoch;try{if(file.size>MAX_WORKSPACE_BYTES)throw Error('Session exceeds size limit');const imported=JSON.parse(await file.text());const next=(imported&&imported.schema==='far-augmentation-export/0.2')?imported:{session:imported,semantic_reports:[]};if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>MAX_REPORTS)throw Error('Invalid semantic report list');await request('/api/augment/verify',next.session);for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});if(epoch!==workspaceEpoch)return;saveWorkspace(next.session,next.semantic_reports);render();setMessage('Imported session passed structural integrity checks.');}catch(error){if(epoch===workspaceEpoch)setMessage('Import refused: '+error.message);}finally{e.target.value='';}});
+async function restoreSaved(){const epoch=++workspaceEpoch;byId('retryRestore').disabled=true;try{const saved=localStorage.getItem(STORE);if(saved){const parsed=JSON.parse(saved);const next=(parsed&&parsed.schema==='far-augmentation-export/0.2')?parsed:{session:parsed,semantic_reports:[]};await request('/api/augment/verify',next.session);if(!Array.isArray(next.semantic_reports)||next.semantic_reports.length>MAX_REPORTS)throw Error('Bad saved report list');for(const report of next.semantic_reports)await request('/api/augment/semantic/verify',{session:next.session,report});boundedWorkspaceJSON(next.session,next.semantic_reports);if(epoch!==workspaceEpoch)return;session=next.session;reports=next.semantic_reports;byId('retryRestore').hidden=true;byId('downloadStored').hidden=true;render();setMessage('Stored session passed structural integrity checks.');}}catch(error){if(epoch!==workspaceEpoch)return;session=null;reports=[];byId('retryRestore').hidden=false;byId('downloadStored').hidden=false;setMessage('Stored session could not be verified. Saved data is preserved; retry verification, download the unverified data, or choose New session to remove it. '+error.message);}finally{byId('retryRestore').disabled=false;}}
+byId('retryRestore').addEventListener('click',restoreSaved);
+byId('downloadStored').addEventListener('click',()=>{const saved=localStorage.getItem(STORE);if(!saved)return;const url=URL.createObjectURL(new Blob([saved],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='far-preserved-unverified-data.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+restoreSaved();
+</script>
+</body>
+</html>
