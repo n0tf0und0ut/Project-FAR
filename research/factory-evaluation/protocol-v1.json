@@ -14,7 +14,8 @@
     "target_distinct_tasks": 8,
     "source": "First eight eligible non-sensitive independently reviewed maintenance or defect-repair work orders admitted after this protocol is protected on main; independently lock actual task IDs, exact task base SHAs and oracle digests before arm allocation",
     "included_classes": ["defect-repair", "maintenance"],
-    "exclusions": ["requires secrets or paid services", "frozen research evidence mutation", "protected-branch bypass", "task whose acceptance oracle was supplied or modified by a contestant after allocation"],
+    "exclusions": ["requires secrets or paid services", "frozen research evidence mutation", "protected-branch bypass", "acceptance oracle supplied by a contestant before independent task admission"],
+    "post_allocation_violation_policy": "Retain every allocated task in its original arm and denominator even if the contestant tampers with tests or oracles; record FAILURE or UNKNOWN and stop affected execution for a safety/provenance violation; never admit a replacement",
     "allocation": "After locking all eight task identities and eligibility reasons, an independent evaluator obtains and records an unpredictable random seed; sort tasks by SHA-256(seed + ':' + task_id), assign the first four to control and the other four to factory, and execute each task only once in its assigned arm against the actual protected repository. Preserve main-SHA drift, non-starts, timeouts and failures; never replace or swap tasks after allocation",
     "tasks_frozen": false
   },
@@ -24,12 +25,20 @@
     "test_oracles_frozen_before_allocation": true,
     "same_model_version_when_possible": true,
     "same_runner_hardware_when_possible": true,
-    "parallel_or_counterbalanced_order": true,
+    "balanced_interleaved_schedule": "After balanced four/four allocation, order tasks within each arm by SHA-256(seed + task_id); strictly alternate control and factory task slots (four each), choosing the starting arm from the low bit of SHA-256(seed + 'start'); preserve main SHA and chronological order and mark material scheduling deviations INCOMPARABLE",
+    "cross_arm_knowledge_isolation": true,
+    "cross_arm_exposure_policy": "Use separate fresh worker context and task workspaces; forbid sharing diagnoses, patches, prompts, private memory, review findings or generated artifacts across arms until all allocated tasks have terminal outcomes; independently record exposure and treat contaminated comparisons as INCOMPARABLE without removing allocated tasks",
     "max_wall_minutes_per_arm_task": 90,
     "max_paid_provider_usd_per_arm_task": 0,
     "max_agent_attempts_per_arm_task": 3,
     "human_intervention_definition": "Any action by a human that changes task strategy, edits code, resolves an execution blocker, repairs evidence or manually advances an otherwise automated stage; initial task registration is excluded",
     "deviation_policy": "Record actual variations before interpretation; materially unmatched versions, resources, or oracles make causal comparison INCOMPARABLE"
+  },
+  "execution_manifest": {
+    "required_before_task_execution": true,
+    "independent_review_required": true,
+    "required_fields": ["study_id", "protocol_sha256", "cohort_manifest_sha256", "control_implementation_revision", "factory_implementation_revision", "control_configuration_digest", "factory_configuration_digest", "provider_model_versions", "prompts_and_tools_digest", "runner_image_digest", "allowed_adaptations", "approved_midtrial_change_policy", "independent_reviewer", "immutable_registration_reference"],
+    "change_policy": "Lock the independently reviewed complete implementation/configuration/agent prompt and tools manifest before executing the first task; no unregistered controller, model, prompt, tool, credential scope or adaptation changes mid-study; deviations require a new versioned cohort and retain old results"
   },
   "primary_metric": {
     "id": "verified_protected_delivery_rate",
