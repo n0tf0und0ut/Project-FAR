@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import copy
 import hashlib
+import ipaddress
 import json
 import math
 import re
@@ -28,8 +29,9 @@ def fixed_workflow_proposals(state):
     """Independently reconstruct the only proposals run_workflow can emit.
 
     Final-state source projections are already checked against chronological
-    retrieval producers by audit(). Failed workflows may stop after any prefix,
-    but cannot select another operation or resume after a rejected proposal.
+    retrieval producers by audit(). Failed workflows may stop after any prefix. The fixed controller can
+    continue after a rejected individual tool call; those attempts still
+    have to match the fixed ordered proposal sequence.
     """
     proposals = [{'tool': 'retrieve', 'args': {'url': url}} for url in state['seeds']]
     if not state['projections']:
@@ -44,7 +46,9 @@ def fixed_workflow_proposals(state):
         proposals.append({'tool': 'extract', 'args': {'source_id': ident, 'quote': quote,
             'relation': 'context',
             'claim': 'Relevant lexical passage; semantic support not mechanically established.'}})
-    ids = ['ev.' + str(i) for i in range(1, len(state['projections']) + 1)]
+    # Runtime collects the actually retained evidence, not one ID per source.
+    # Numeric allocation order survives canonical JSON object-key sorting.
+    ids = ['ev.' + str(i) for i in range(1, len(state['evidence']) + 1)]
     proposals.append({'tool': 'compare', 'args': {'evidence_ids': ids,
         'alternatives': ['Source assertions may disagree, share an origin, or address different estimands.']}})
     proposals.append({'tool': 'discover', 'args': {'claims': [{
@@ -55,7 +59,10 @@ def fixed_workflow_proposals(state):
         'missing_evidence': ['Independent semantic adjudication, exact estimand and all material alternative meanings.']}})
     proposals.extend(({'tool': 'recheck', 'args': {}}, {'tool': 'freeze', 'args': {}}))
     intake = state.get('intake')
-    if type(intake) is dict and intake.get('freeze', {}).get('status') == 'FROZEN':
+    # run_workflow() checks only that an intake exists here. A failed
+    # recheck/freeze can leave DRAFT: verify and finish are still proposed,
+    # then rejected by their own dispatch preconditions.
+    if type(intake) is dict:
         for candidate in intake['discovery']['contract_candidates']:
             proposals.append({'tool': 'verify', 'args': {'candidate_id': candidate['id']}})
         proposals.append({'tool': 'finish', 'args': {
@@ -183,6 +190,37 @@ def audit(state) -> dict:
                             or destination.port not in (None, 443) or destination.fragment
                             or node['request'].get('method') != 'GET'):
                         fail(path, 'successful receipt exceeds recorded read-only destination policy')
+                    # Recheck retained DNS preflight evidence without resolving
+                    # names again. This is self-signed consistency, not a
+                    # guarantee about the actual connection's DNS destination.
+                    if 'destination' in node or 'transport' in node:
+                        def check_destination():
+                            dest = node.get('destination')
+                            if type(dest) is not dict:
+                                raise ValueError('native source has no recorded destination')
+                            host = urlsplit(node['request']['url']).hostname
+                            mode = state['policy']['dns_mode']
+                            if dest.get('host') != host or dest.get('dns_mode') != mode:
+                                raise ValueError('destination policy does not match recorded request')
+                            timestamp(dest['validated_at'])
+                            if mode == 'preflight':
+                                addresses = dest.get('addresses')
+                                if (type(addresses) is not list or not addresses
+                                        or any(type(ip) is not str for ip in addresses)
+                                        or addresses != sorted(set(addresses))):
+                                    raise ValueError('invalid preflight address set')
+                                if any(not ipaddress.ip_address(ip).is_global for ip in addresses):
+                                    raise ValueError('preflight accepted a non-public address')
+                                if dest.get('transport_boundary') != (
+                                        'validated DNS preflight; environment proxy/TLS trust remains applicable'):
+                                    raise ValueError('preflight trust boundary differs from runtime')
+                            else:
+                                if (dest.get('addresses') is not None
+                                        or dest.get('public_ip_validation') != 'UNESTABLISHED'
+                                        or type(dest.get('proxy_host')) is not str
+                                        or not dest['proxy_host']):
+                                    raise ValueError('proxy destination invents resolved target')
+                        guarded(path + '.destination', check_destination)
                     # Old frozen receipts have no transport framing envelope;
                     # do not fabricate one or retroactively certify framing.
                     if 'transport' in node:
@@ -229,6 +267,10 @@ def audit(state) -> dict:
                 if raw is not None:
                     equal(path + '.request_sha256', hashlib.sha256(raw).hexdigest(), node['request_sha256'])
             for key, child in node.items():
+                # Source JSON is independently reconstructed by parse_receipt.
+                # Its arbitrary keys are data, not model/transport envelopes.
+                if key == 'document' and path.startswith('state.projections.src.'):
+                    continue
                 envelope_tree(child, path + '.' + str(key), depth + 1)
         elif type(node) is list:
             for index, child in enumerate(node):
