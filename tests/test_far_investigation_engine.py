@@ -549,6 +549,26 @@ class InvestigationIntegrationTests(unittest.TestCase):
         self.assertNotIn("MODEL_PROPOSAL", [event["kind"] for event in state["events"]])
         self.assertEqual(state["events"][-1]["kind"], "FINAL_STATE_SEAL")
         self.assertTrue(audit_transcript(state)["valid"], audit_transcript(state))
+    def test_null_model_message_is_auditable_sealed_failure(self):
+        from tests.test_far_investigation_usage import envelope
+        response = {"model": "CONTROLLED_FIXTURE", "usage": {"total_tokens": 10},
+                    "choices": [{"message": None}]}
+        observed = envelope(response)
+        raw = base64.b64decode(observed["response_base64"])
+        with patch("tools.far_investigation_engine.read_bounded_response",
+                   return_value=(raw, observed["transport"])):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(state["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(state["model_tokens"], 10)
+        self.assertEqual(state["http_calls"], 0)
+        self.assertEqual(base64.b64decode(state["model_calls"][0]["response_base64"]), raw)
+        self.assertEqual(state["model_calls"][0]["error"]["class"], "ValueError")
+        kinds = [event["kind"] for event in state["events"]]
+        self.assertIn("FAILURE", kinds)
+        self.assertNotIn("MODEL_PROPOSAL", kinds)
+        self.assertEqual(kinds[-1], "FINAL_STATE_SEAL")
+        self.assertTrue(audit_transcript(state)["valid"], audit_transcript(state))
+
     def test_local_model_malformed_telemetry_preserves_received_response(self):
         checkpoints = []
         raw = b'{"choices":[{"message":{"content":"{}"}}]}'
