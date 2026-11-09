@@ -15,7 +15,11 @@ def envelope(response, *, transport=True):
     encoded, digest = base64.b64encode(raw).decode(), hashlib.sha256(raw).hexdigest()
     result = {'response_base64': encoded, 'response_sha256': digest}
     if transport:
-        result['transport'] = {'http_status': 200, 'response_complete': True,
+        # Native-reader fixture: all accepted model responses originate from
+        # the fixed direct local POST endpoint; retain this request provenance.
+        endpoint = 'http://127.0.0.1:8085/v1/chat/completions'
+        result['transport'] = {'request_url': endpoint, 'request_method': 'POST',
+            'response_url': endpoint, 'http_status': 200, 'response_complete': True,
             'response_truncated': False, 'response_hash_scope': 'complete_body',
             'raw_response_base64': encoded, 'response_sha256': digest,
             'response_bytes_retained': len(raw), 'transport_error': None, 'framing_error': None}
