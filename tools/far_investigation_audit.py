@@ -145,6 +145,7 @@ def audit(state) -> dict:
                 fail(path + '.framing.transfer_encoding', 'unsupported or ambiguous transfer framing')
         if request_url is not None:
             equal(path + '.request_url', transport['request_url'], request_url)
+            equal(path + '.request_method', transport.get('request_method'), 'GET')
             # A successful native retrieval cannot redirect or return compressed
             # bytes: the real retrieval path rejects both after transport read.
             if transport.get('response_url', request_url) != request_url:
@@ -169,14 +170,17 @@ def audit(state) -> dict:
             fail(path, 'nesting exceeds audit bound')
             return
         if type(node) is dict:
-            if 'timing_scope' in node:
+            # Only HTTP transport envelopes have transport timestamp authority.
+            # Arbitrary source/verifier objects may use the same field names.
+            if path.endswith('.transport') and 'timing_scope' in node:
                 def check_transport_time():
                     if node['timing_scope'] != 'request_start_to_body_read_or_transport_failure':
                         raise ValueError('unknown timing scope')
                     if timestamp(node['received_at']) < timestamp(node['requested_at']):
                         raise ValueError('transport completion predates request')
                 guarded(path + '.transport_time', check_transport_time)
-            if {'raw_base64', 'sha256', 'observed_bytes'} <= node.keys():
+            if (node.get('schema') == 'far-source-receipt/0.1'
+                    and {'raw_base64', 'sha256', 'observed_bytes'} <= node.keys()):
                 guarded(path + '.receipt', lambda: receipt_bytes(node))
                 if node.get('status') == 'RETRIEVED':
                     if node.get('http_status') != 200 or node.get('truncated') or not node['observed_bytes']:
@@ -269,7 +273,9 @@ def audit(state) -> dict:
             for key, child in node.items():
                 # Source JSON is independently reconstructed by parse_receipt.
                 # Its arbitrary keys are data, not model/transport envelopes.
-                if key == 'document' and path.startswith('state.projections.src.'):
+                if (key == 'document' and path.startswith('state.projections.src.')
+                        or key == 'observed' and (
+                            path.endswith('.projection') or path.endswith('.counterexample'))):
                     continue
                 envelope_tree(child, path + '.' + str(key), depth + 1)
         elif type(node) is list:
@@ -554,6 +560,10 @@ def audit(state) -> dict:
             # Prefix/order binding above applies to accepted and rejected calls.
         if state['mode'] == 'agent':
             calls = state['model_calls']
+            # One run_agent iteration reserves a model attempt before parsing.
+            # A malformed final attempt still consumes one of max_steps.
+            if len(calls) > budget['max_steps']:
+                fail('budget.model_attempts', 'model attempts exceed agent iteration budget')
             if len(calls) not in (len(model_proposals), len(model_proposals) + 1):
                 fail('model_calls', 'attempt count differs from successful proposals and one possible failure')
             if len(calls) == len(model_proposals) + 1:
