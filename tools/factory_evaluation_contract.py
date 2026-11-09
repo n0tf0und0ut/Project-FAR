@@ -29,6 +29,40 @@ RECEIPT_FIELDS = {
     "review_reference", "merge_sha", "observed_main_sha",
 }
 CHECKS = {"merge-authority", "protected-repin-gate", "pr-review-convergence-observation"}
+ALLOCATION_ALGORITHM = "sha256-utf8-colon-sort-v1"
+SCHEDULE_ALGORITHM = "sha256-utf8-colon-start-interleave-v1"
+SEED = re.compile(r"^[0-9a-f]{64}$")
+TASK_ID = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
+
+
+def allocation_schedule(seed: str, task_ids: list[str]) -> list[dict[str, object]]:
+    """Pure reference assignment for a *pre-registered* cohort (not admission).
+
+    No seed or tasks are generated here. The independent evaluator must first
+    freeze eligibility and identities, then generate and retain a random seed.
+    The test vector is illustrative; this function is not a trusted witness.
+    """
+    if type(seed) is not str or SEED.fullmatch(seed) is None:
+        raise ContractError("seed must be exactly 64 lowercase hexadecimal characters")
+    if type(task_ids) is not list or len(task_ids) != 8:
+        raise ContractError("expected eight preregistered task IDs")
+    if any(type(t) is not str or TASK_ID.fullmatch(t) is None for t in task_ids):
+        raise ContractError("invalid canonical task ID")
+    if len(set(task_ids)) != len(task_ids):
+        raise ContractError("duplicate task ID")
+
+    def digest(text: str) -> bytes:
+        return hashlib.sha256(text.encode("utf-8")).digest()
+
+    ranked = sorted(task_ids, key=lambda task: (digest(seed + ":" + task), task))
+    tasks = {"control": ranked[:4], "factory": ranked[4:]}
+    first = "factory" if digest(seed + ":start")[-1] & 1 else "control"
+    second = "control" if first == "factory" else "factory"
+    rows: list[dict[str, object]] = []
+    for i in range(4):
+        for arm in (first, second):
+            rows.append({"slot": len(rows) + 1, "arm": arm, "task_id": tasks[arm][i]})
+    return rows
 
 
 class ContractError(ValueError):
@@ -102,7 +136,7 @@ def validate(record: object) -> dict:
         raise ContractError("arms must be control and factory")
     s = _shape(doc["sampling"], {
         "design", "target_distinct_tasks", "source", "included_classes", "exclusions",
-        "allocation", "tasks_frozen", "post_allocation_violation_policy",
+        "allocation", "allocation_algorithm", "tasks_frozen", "post_allocation_violation_policy",
     }, "sampling")
     if s["design"] != "prospective-randomized-parallel-pilot":
         raise ContractError("invalid pilot design")
@@ -110,6 +144,8 @@ def validate(record: object) -> dict:
         raise ContractError("invalid task target")
     _text(s["source"], "sampling.source")
     _text(s["allocation"], "sampling.allocation")
+    if s["allocation_algorithm"] != ALLOCATION_ALGORITHM:
+        raise ContractError("allocation algorithm must match executable reference")
     if set(_string_list(s["included_classes"], "included_classes")) != {"defect-repair", "maintenance"}:
         raise ContractError("invalid eligible classes")
     _string_list(s["exclusions"], "sampling.exclusions")
@@ -119,7 +155,7 @@ def validate(record: object) -> dict:
     c = _shape(doc["controls"], {
         "task_base_sha_pinned_before_allocation", "task_specifications_frozen_before_allocation", "test_oracles_frozen_before_allocation",
         "same_model_version_when_possible", "same_runner_hardware_when_possible",
-        "balanced_interleaved_schedule", "cross_arm_knowledge_isolation",
+        "balanced_interleaved_schedule", "execution_order_algorithm", "cross_arm_knowledge_isolation",
         "cross_arm_exposure_policy", "max_wall_minutes_per_arm_task",
         "max_paid_provider_usd_per_arm_task", "max_agent_attempts_per_arm_task",
         "human_intervention_definition", "deviation_policy",
@@ -128,6 +164,8 @@ def validate(record: object) -> dict:
                 "same_model_version_when_possible", "same_runner_hardware_when_possible",
                 "cross_arm_knowledge_isolation"):
         _bool(c[key], f"controls.{key}", True)
+    if c["execution_order_algorithm"] != SCHEDULE_ALGORITHM:
+        raise ContractError("execution order algorithm must match executable reference")
     if "strictly alternate" not in _text(c["balanced_interleaved_schedule"], "controls.balanced_interleaved_schedule"):
         raise ContractError("unbalanced task scheduling")
     if "forbid sharing" not in _text(c["cross_arm_exposure_policy"], "controls.cross_arm_exposure_policy"):
