@@ -1,0 +1,108 @@
+{
+  "schema": "far-architecture-routing/0.1",
+  "status": "RESEARCH_NOT_EXECUTED",
+  "source_commit": "4e71c7de4457001fd35a65f9b4804d60aac1c4f2",
+  "primary_question": "Does routing by an autonomous agent improve verification correctness or efficiency relative to deterministic or declarative routing for frozen FAR finite contracts?",
+  "arms": [
+    "deterministic",
+    "declarative",
+    "agent"
+  ],
+  "workflow": {
+    "far-ir/2.0": [
+      "verify_current"
+    ]
+  },
+  "verifier": "mechanization.far_mechanization.contract_v2_strict_v11.validate_contract",
+  "executions": {
+    "cases": 12,
+    "expected_cells": 36,
+    "model_runs": 0
+  },
+  "model_runner": "UNAVAILABLE",
+  "independent_oracle": "UNFROZEN",
+  "model_identity": "UNFROZEN",
+  "provider_cost_ceiling": "UNFROZEN",
+  "heldout_cases": "NONE",
+  "case_order": "SHA256(case ID with far-routing-v0.1 prefix); arm permutations repeated twice",
+  "nonclaims": [
+    "Not a causal architecture comparison",
+    "Not a model-backed trial",
+    "Not an independent human evaluation",
+    "No FAR Core change"
+  ],
+  "cases": [
+    {
+      "id": "A01",
+      "path": "conformance/far-ir-2.0/valid-factorization.json",
+      "blob_sha": "556907db40663894246ce1faeca9eb5084993d5f",
+      "expected": "PROVED"
+    },
+    {
+      "id": "A02",
+      "path": "conformance/far-ir-2.0/valid-collision.json",
+      "blob_sha": "250cfe24579fadf25b22fad1a1eb4191711fa805",
+      "expected": "REFUTED"
+    },
+    {
+      "id": "A03",
+      "path": "conformance/far-ir-2.0/valid-quotient.json",
+      "blob_sha": "96314627f830e7c806eb7c012ddebd3bfac68399",
+      "expected": "PROVED"
+    },
+    {
+      "id": "A04",
+      "path": "conformance/far-ir-2.0/invalid-factorization.json",
+      "blob_sha": "60712130d8f847a661981e5c5e499e72f85bcf77",
+      "expected": "INVALID"
+    },
+    {
+      "id": "A05",
+      "path": "research/results/pca-w4-domain-contracts/formal-logic-lossy.json",
+      "blob_sha": "7e2c4ed7be012160fc7d146c5c9e726a84c1a163",
+      "expected": "REFUTED"
+    },
+    {
+      "id": "A06",
+      "path": "research/results/pca-w4-domain-contracts/formal-logic-repaired.json",
+      "blob_sha": "f3539112a7b43bb9fa9dd494040c291d6c1d5269",
+      "expected": "PROVED"
+    },
+    {
+      "id": "A07",
+      "path": "research/results/pca-w4-domain-contracts/argumentation-lossy.json",
+      "blob_sha": "57dd050af59f7f972cacce643940f7e0722e0eb6",
+      "expected": "REFUTED"
+    },
+    {
+      "id": "A08",
+      "path": "research/results/pca-w4-domain-contracts/argumentation-repaired.json",
+      "blob_sha": "aace3de8a1a8741982cf3be34f1df2b5b0446349",
+      "expected": "PROVED"
+    },
+    {
+      "id": "A09",
+      "path": "research/results/pca-w4-domain-contracts/bayesian-causal-lossy.json",
+      "blob_sha": "435dfbb77c701c9af915421bfc0eb48940f8c935",
+      "expected": "REFUTED"
+    },
+    {
+      "id": "A10",
+      "path": "research/results/pca-w4-domain-contracts/bayesian-causal-repaired.json",
+      "blob_sha": "c58a1714c6dd67b30a6afbd8ed6f59bdac9a7445",
+      "expected": "PROVED"
+    },
+    {
+      "id": "A11",
+      "path": "research/results/pca-w4-domain-contracts/model-based-reasoning-lossy.json",
+      "blob_sha": "5dd924e540d32197c3b943492610329598dd1a78",
+      "expected": "REFUTED"
+    },
+    {
+      "id": "A12",
+      "path": "research/results/pca-w4-domain-contracts/model-based-reasoning-repaired.json",
+      "blob_sha": "4696d20faadd342f819b4bdbdb7edaee872349ae",
+      "expected": "PROVED"
+    }
+  ]
+}
