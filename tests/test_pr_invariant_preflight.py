@@ -71,8 +71,8 @@ def verify(p=None, files=None, content=None):
 
 class PreflightContractTests(unittest.TestCase):
     def test_removed_and_renamed_sources_require_coverage(self):
-        for changed in ([{'filename': 'tools/reader.py', 'status': 'removed'}],
-                        [{'filename': 'tools/auditor.py', 'previous_filename': 'tools/reader.py', 'status': 'renamed'}]):
+        for changed in ([{'filename': 'tools/removed.py', 'status': 'removed'}],
+                        [{'filename': 'tools/auditor.py', 'previous_filename': 'tools/legacy.py', 'status': 'renamed'}]):
             p = pr()
             p['changed_files'] = len(changed)
             x = verify(p, changed)
