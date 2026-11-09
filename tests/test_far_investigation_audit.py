@@ -100,6 +100,131 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                 self.assertEqual(limited['status'], 'FAILED_OR_INCOMPLETE')
                 self.assertTrue(audit(limited)['valid'], audit(limited))
 
+    def test_baseline_keeps_retained_extraction_ids_after_checkpoint_rejection(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        for mode in ('deterministic', 'declarative'):
+            rejected = [False]
+            def checkpoint(state):
+                event = state['events'][-1]
+                if (not rejected[0] and event['kind'] == 'TOOL_PROPOSAL'
+                        and event['payload']['tool'] == 'extract'):
+                    rejected[0] = True
+                    raise OSError('one controlled extract proposal checkpoint failure')
+
+            with self.subTest(mode=mode):
+                runtime = Investigation(QUESTION,
+                    RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+                    mode=mode, seeds=[URL_A, URL_B], fetcher=fetch, checkpoint=checkpoint)
+                state = runtime.run_workflow()
+                self.assertTrue(rejected[0])
+                self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+                self.assertEqual(state['rejected_calls'], 1)
+                self.assertEqual(list(state['evidence']), ['ev.1'])
+                self.assertEqual(state['comparisons'][0]['evidence_ids'], ['ev.1'])
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_changed_source_baseline_keeps_draft_verify_and_finish_attempts(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        for mode in ('deterministic', 'declarative'):
+            requested = {}
+            def fetch(url, policy, checkpoint):
+                count = requested.get(url, 0)
+                requested[url] = count + 1
+                body = BODY_A if url == URL_A else BODY_B
+                if url == URL_A and count:
+                    body += ' Source changed on the terminal recheck.'
+                client = unittest.mock.Mock()
+                client.open.return_value = Response(body.encode(), url=url)
+                return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+            with self.subTest(mode=mode):
+                state = Investigation(QUESTION,
+                    RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+                    mode=mode, seeds=[URL_A, URL_B], fetcher=fetch).run_workflow()
+                self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+                self.assertEqual(state['intake']['freeze']['status'], 'DRAFT')
+                proposals = [e['payload']['tool'] for e in state['events']
+                             if e['kind'] == 'TOOL_PROPOSAL']
+                self.assertIn('verify', proposals)
+                self.assertIn('finish', proposals)
+                self.assertGreaterEqual(state['rejected_calls'], 4)
+                self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_native_success_rejects_resealed_nonpublic_preflight_addresses(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            client.open.return_value = Response(
+                (BODY_A if url == URL_A else BODY_B).encode(), url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        original = Investigation(QUESTION,
+            RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+            mode='deterministic', seeds=[URL_A, URL_B], fetcher=fetch).run_workflow()
+        self.assertTrue(audit(original)['valid'], audit(original))
+        for field, value in (('addresses', ['127.0.0.1']),
+                             ('addresses', ['93.184.216.34', '169.254.169.254']),
+                             ('addresses', []), ('dns_mode', 'proxy'),
+                             ('host', 'unregistered.example.org')):
+            state = copy.deepcopy(original)
+            changed = [0]
+            def rewrite(node):
+                if isinstance(node, dict):
+                    if node.get('schema') == 'far-source-receipt/0.1' and 'destination' in node:
+                        node['destination'][field] = value
+                        changed[0] += 1
+                    for child in node.values():
+                        rewrite(child)
+                elif isinstance(node, list):
+                    for child in node:
+                        rewrite(child)
+            rewrite(state)
+            self.assertGreater(changed[0], 0)
+            reseal(state)
+            with self.subTest(field=field, value=value):
+                self.assert_rejected(state, 'destination')
+
+    def test_native_json_document_envelope_lookalikes_are_untrusted_data(self):
+        from tests.test_far_investigation_retrieval import Response, dns
+        from tools.far_investigation_retrieval import retrieve
+
+        body = json.dumps({'timing_scope': 'domain-defined interval',
+            'requested_at': 'not a transport timestamp',
+            'received_at': 'unrelated to any HTTP event',
+            'raw_base64': 'not base64', 'sha256': 'not a digest',
+            'observed_bytes': 7, 'request_sha256': 'not a request checksum',
+            'nested': {'timing_scope': 'geological epoch', 'assertion': BODY_A}})
+        def fetch(url, policy, checkpoint):
+            client = unittest.mock.Mock()
+            raw = body if url == URL_A else BODY_B
+            kind = 'application/json' if url == URL_A else 'text/plain'
+            client.open.return_value = Response(raw.encode(), kind=kind, url=url)
+            return retrieve(url, policy, checkpoint=checkpoint, opener=client)
+
+        for mode in ('agent', 'deterministic', 'declarative'):
+            with self.subTest(mode=mode):
+                runtime = Investigation(QUESTION,
+                    RetrievalPolicy(('example.org', 'independent.example.org'), resolver=dns),
+                    mode=mode, seeds=[URL_A, URL_B], fetcher=fetch)
+                state = (runtime.run_agent(NativeFunctionFixtureModel(full_script()))
+                         if mode == 'agent' else runtime.run_workflow())
+                self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+                self.assertEqual(state['projections']['src.1']['document']['timing_scope'],
+                                 'domain-defined interval')
+                self.assertTrue(audit(state)['valid'], audit(state))
+
     def test_resealed_new_transport_timestamps_cannot_move_backwards(self):
         state=self.complete()
         state['transport_timing_test']={
