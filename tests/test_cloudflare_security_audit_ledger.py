@@ -6,6 +6,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
+from types import SimpleNamespace
 
 from tools import cloudflare_security_audit_ledger as bridge
 
@@ -156,6 +158,21 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
         self.assertIn("visibleContent", json.dumps(source))
         self.assertNotIn("visibleContent", json.dumps(normalized))
         self.assertIn("required", json.dumps(normalized))
+
+    def test_untracked_dotgit_path_is_not_source_evidence(self):
+        self.findings = [sample("rejected")]
+        self.findings[0]["trace"][0]["file"] = ".git/config"
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "not tracked"):
+            bridge.build_report(self.run_dir, self.head)
+
+    def test_dirty_git_checkout_cannot_bind_source_claims_to_head(self):
+        with patch.object(
+            bridge.subprocess, "run",
+            return_value=SimpleNamespace(stdout=" M tools/something.py\n"),
+        ):
+            with self.assertRaisesRegex(bridge.HandoffError, "checkout is dirty"):
+                bridge.source_is_clean_and_tracked(ROOT)
 
     def test_duplicate_json_key_fails_closed(self):
         (self.run_dir / "findings.json").write_text(
