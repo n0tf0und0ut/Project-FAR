@@ -1070,3 +1070,241 @@ These are source-to-replay consistency properties, not proof of the external
 model's identity or scientific claim validity. The frozen negative results
 and research evidence are unmodified. Hosted exact-head tests and fresh
 independent exact-head review are separately required before protected merge.
+
+
+## Known review-failure-class coverage index (2026-11-10)
+
+This Research-status index classifies **every unique recorded root-cause ID** in the preceding ledger, including inherited historical fixes, into one primary testable failure class. The controls below are *representative existing regression methods* for each class, not one-to-one proofs for every root-cause ID. In particular, a method's existence is not a proof that it detects every member of its class. These are engineering-level controlled tests, not independent scientific replication, source truth, general agent reliability, or evidence that any future defect is impossible. Missing original Open Deep Research source binding remains BLOCKED_GOVERNANCE. Original frozen results remain unchanged.
+
+New root-cause IDs require corresponding class allocation and evidence-linked tests before claiming class-level coverage. Do not weaken or hide a failing check to satisfy this index. The class-index contract verifies inventory identity and named test presence only; behavioral adequacy requires actual negative and positive regression execution and exact-head independent review.
+
+<!-- BEGIN FAR-INVESTIGATION-FAILURE-CLASS-COVERAGE/1 -->
+```json
+{
+  "schema": "far-investigation-failure-class-coverage/1",
+  "scope": "Finding IDs in the PR #614 Research ledger, including inherited #608 historical findings",
+  "classes": [
+    {
+      "name": "execution_environment_and_identity",
+      "purpose": "Real child/process ownership, correct launcher identity, and raw-input fixture fidelity.",
+      "negative_controls": [
+        "tests.test_far_investigation_campaign.CampaignTests.test_occupied_model_endpoint_cannot_attest_an_executable_that_exits_43"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_campaign.CampaignTests.test_live_child_listener_command_and_mapped_model_are_bound_together",
+        "tests.test_far_routing_dispatch.KnownContractRoutingTests.test_crlf_file_and_stdin_preserve_raw_hash"
+      ],
+      "finding_ids": [
+        "ENG-CAMPAIGN-FIXTURE-LOCK",
+        "ENG-CANONICAL-PYTHON-LAUNCHER",
+        "ENG-SERVER-OWNERSHIP",
+        "HIST-608-CRLF",
+        "HIST-608-TEST-CRLF"
+      ]
+    },
+    {
+      "name": "native_verification_and_semantics",
+      "purpose": "Native verification rejects forged inputs and keeps bounded witnesses and fallible semantic interpretation separate.",
+      "negative_controls": [
+        "tests.test_far_investigation_verifiers.NativeVerifierTests.test_forged_binding_rejected"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_campaign.CampaignTests.test_empty_counterexample_valuation_counts_as_a_native_witness",
+        "tests.test_far_investigation_verifiers.NativeVerifierTests.test_exact_decimal_arithmetic_avoids_float_error"
+      ],
+      "finding_ids": [
+        "ENG-EMPTY-WITNESS",
+        "HIST-608-OPEN",
+        "RC608-VERIFIER-JOURNAL"
+      ]
+    },
+    {
+      "name": "model_protocol_and_admission",
+      "purpose": "Native model request/response shapes, provenance, routing, nesting, token telemetry, and action admission.",
+      "negative_controls": [
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_native_replay_rejects_over_nested_model_proposal",
+        "tests.test_far_investigation_engine.InvestigationIntegrationTests.test_local_model_redirect_cannot_escape_attested_listener"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_live_shaped_single_function_call_envelope_reconstructs_actual_arguments"
+      ],
+      "finding_ids": [
+        "ENG-FAILED-MODEL-TRANSPORT-BYTE-BINDING-20261110",
+        "ENG-FAILED-MODEL-USAGE",
+        "ENG-FUNCTION-TRANSPORT",
+        "ENG-LOCAL-MODEL-PROXY-20261109",
+        "ENG-LOCAL-MODEL-REDIRECT-20261109",
+        "ENG-MODEL-ARGS-DEPTH-20261109",
+        "ENG-MODEL-ATTEMPT-STEPS-20261109",
+        "ENG-MODEL-BODY-DEADLINE-20261109",
+        "ENG-MODEL-CHRONOLOGICAL-PROMPT-20261109",
+        "ENG-MODEL-ID-METADATA-DEPTH-20261109",
+        "ENG-MODEL-MESSAGE-SHAPE-20261109",
+        "ENG-MODEL-NATIVE-BYTE-CEILING-20261110",
+        "ENG-MODEL-QUESTION-ATTRIBUTION-20261109",
+        "ENG-NATIVE-MODEL-ID-REPLAY-20261110",
+        "ENG-REJECTED-ARGUMENT-ENVELOPE-20261109",
+        "HIST-608-MODEL-200",
+        "RC608-MODEL-REDIRECT"
+      ]
+    },
+    {
+      "name": "producer_attribution_and_offline_replay",
+      "purpose": "Recorded receipts, proposals, evidence, comparisons and native results derive from their actual producing attempts.",
+      "negative_controls": [
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_resealed_comparison_copies_are_reconstructed_from_the_proposal",
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_native_rejected_top_level_transport_does_not_become_http_evidence"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_postdiscovery_rejected_comparison_retry_retains_both_identical_rows",
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_valid_agent_and_both_workflows_reconstruct_without_network_or_model"
+      ],
+      "finding_ids": [
+        "ENG-ACCEPTED-CHECKPOINT-DURABILITY",
+        "ENG-COMPARISON-PROPOSAL",
+        "ENG-DISPATCH-PRECONDITIONS",
+        "ENG-EVENT-TRANSPORT-OWNER-20261110",
+        "ENG-EXTRACTION-PROPOSAL",
+        "ENG-FAILED-SEARCH-RESERVATION-20261109",
+        "ENG-FINISH-REPORT-PROPOSAL",
+        "ENG-NATIVE-OPERATION-PRODUCER",
+        "ENG-NATIVE-PARSER-METADATA",
+        "ENG-OBSERVED-SOURCE-ENVELOPE-20261109",
+        "ENG-OFFLINE-AUDIT",
+        "ENG-PLAIN-TEXT-JSON-DEPTH-20261109",
+        "ENG-PROPOSAL-CHECKPOINT-OUTCOME",
+        "ENG-RECEIPT-SCHEMA-COLLISION-20261109",
+        "ENG-REJECTED-NATIVE-EFFECTS",
+        "ENG-REPEATED-READ",
+        "ENG-RETRY-EFFECT-PRODUCER-20261110",
+        "ENG-SOURCE-ALLOCATION",
+        "ENG-SOURCE-DEPTH-20261109",
+        "ENG-SOURCE-PARSER-STACK-20261109",
+        "ENG-UNTRUSTED-JSON-ENVELOPE-COLLISION",
+        "ENG-UNTRUSTED-NESTED-REQUEST-CHECKSUM-20261110",
+        "HIST-608-SOURCE-200"
+      ]
+    },
+    {
+      "name": "http_transport_framing_and_timeouts",
+      "purpose": "Transport deadlines, framing, content-length, provenance of bounded byte prefixes, and source/model reader agreement.",
+      "negative_controls": [
+        "tests.test_far_uncertain_routing_pilot.NativeFramingTests.test_real_chunk_separator_trickle_uses_remaining_absolute_deadline",
+        "tests.test_far_investigation_retrieval.RetrievalTests.test_native_short_and_malformed_chunk_framing_cannot_support_evidence"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_retrieval.RetrievalTests.test_native_complete_length_and_chunks_are_accepted"
+      ],
+      "finding_ids": [
+        "ENG-BODY-PREFIX-DURABILITY-20261109",
+        "ENG-CHUNK-FRAMING-DEADLINE-20261109",
+        "ENG-CHUNK-SEPARATOR-DEADLINE-20261110",
+        "ENG-CONFIGURED-TRANSPORT-TIMEOUT-20261110",
+        "ENG-FAILED-TRANSPORT-BYTE-BINDING-20261109",
+        "ENG-HEADER-DEADLINE-20261109",
+        "ENG-NATIVE-FRAMING-BINDING",
+        "ENG-NONCHUNKED-BODY-ABSOLUTE-DEADLINE-20261109",
+        "ENG-SOURCE-BYTE-CEILING",
+        "ENG-SOURCE-DEADLINE-20261109",
+        "ENG-SOURCE-FRAMING",
+        "ENG-SOURCE-TRANSPORT-BINDING",
+        "ENG-TERMINAL-TRANSPORT-BINDING",
+        "ENG-TRANSPORT-TIME",
+        "ENG-TRANSPORT-TIMESTAMP-SCOPE-20261109",
+        "HTTP-FRAMING-01",
+        "RC608-HTTP-EVIDENCE"
+      ]
+    },
+    {
+      "name": "discovery_recheck_and_freeze",
+      "purpose": "Search/source chronology and terminal rechecks produce valid discovery and freeze only after observed completeness.",
+      "negative_controls": [
+        "tests.test_far_investigation_engine.InvestigationIntegrationTests.test_failed_second_search_recheck_cannot_reuse_old_saturation_timestamp",
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_undispatched_freeze_rejection_cannot_steal_retried_freeze"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_engine.InvestigationIntegrationTests.test_full_scripted_pipeline_executes_actual_injected_tools"
+      ],
+      "finding_ids": [
+        "ENG-DISCOVERY-PROPOSAL",
+        "ENG-FAILED-RECHECK-RESERVATION-20261109",
+        "ENG-FREEZE-PRODUCER-ATTRIBUTION-20261110",
+        "ENG-LATEST-RECHECK-COMPLETION",
+        "ENG-RECHECK-DEADLINE-20261109",
+        "ENG-RECHECK-ORIGINAL-PROJECTION",
+        "ENG-RECHECK-PREAPPEND-CHECKPOINT",
+        "ENG-SEARCH-CHRONOLOGY",
+        "ENG-STALE-RECHECK",
+        "ENG-TEMPORAL-SOURCE-REPLAY"
+      ]
+    },
+    {
+      "name": "resource_limits_and_terminal_state",
+      "purpose": "Token, step, HTTP, elapsed-time, and finalization budgets bind outcomes and forbid continuation after terminal exhaustion.",
+      "negative_controls": [
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_resealed_wall_clock_exhaustion_cannot_continue_to_completion",
+        "tests.test_far_investigation_engine.InvestigationIntegrationTests.test_completion_journal_cost_cannot_escape_the_final_budget_in_any_lane"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_engine.InvestigationIntegrationTests.test_full_scripted_pipeline_executes_actual_injected_tools"
+      ],
+      "finding_ids": [
+        "ENG-BUDGET-PARITY",
+        "ENG-DNS-TRANSPORT-BUDGET-INTEGRATION-20261110",
+        "ENG-FINISH-TRANSACTION",
+        "ENG-RESOURCE-SCALARS",
+        "ENG-TERMINAL-FAILURE-STATUS-20261110",
+        "ENG-TOKEN-DISPATCH-ELIGIBILITY"
+      ]
+    },
+    {
+      "name": "campaign_archive_and_comparator",
+      "purpose": "Frozen selection and campaign identity, archive integrity, honest scoring and missing-comparator evidence boundaries.",
+      "negative_controls": [
+        "tests.test_far_investigation_campaign.RetainedCampaignReplayTests.test_duplicate_zip_member_cannot_shadow_evidence",
+        "tests.test_far_investigation_odr_preparation.ODRPreparationBoundaryTests.test_missing_original_source_is_not_fabricated"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_campaign.RetainedCampaignReplayTests.test_original_exact_archive_replays_24_transcripts"
+      ],
+      "finding_ids": [
+        "ENG-BASELINE-ALGORITHM-BINDING-20261109",
+        "ENG-BASELINE-DRAFT-CONTINUATION",
+        "ENG-BASELINE-RETAINED-EVIDENCE",
+        "ENG-CAMPAIGN-CLAIMS",
+        "ENG-CAMPAIGN-EXPOSURE",
+        "ENG-CAMPAIGN-IDENTITY",
+        "ENG-CAMPAIGN-INDEX-BOUNDS",
+        "ENG-CAMPAIGN-RECORDING-BOUNDS",
+        "ENG-CAMPAIGN-SHADOW",
+        "ENG-COMPARATOR-SOURCE",
+        "ENG-DUPLICATE-CAMPAIGN-LANE-20261109",
+        "ENG-REGISTERED-SOURCE-EXPOSURE"
+      ]
+    },
+    {
+      "name": "network_policy_and_connection",
+      "purpose": "DNS/SSRF, proxy, redirect, TLS, socket ownership and connection-level boundedness.",
+      "negative_controls": [
+        "tests.test_far_investigation_retrieval.RetrievalTests.test_exact_policy_rejects_network_escape_before_open",
+        "tests.test_far_investigation_retrieval.RetrievalTests.test_connection_dns_deadline_also_bounds_explicit_proxy"
+      ],
+      "positive_controls": [
+        "tests.test_far_investigation_retrieval.RetrievalTests.test_native_connection_retries_ipv4_when_ipv6_socket_creation_fails"
+      ],
+      "finding_ids": [
+        "ENG-ADDRESS-FAMILY-SOCKET-CONSTRUCTION-20261110",
+        "ENG-CONNECTION-DNS-DEADLINE-20261110",
+        "ENG-DEADLINE-OPERATOR-TLS-20261110",
+        "ENG-DNS-PREFLIGHT-DEADLINE-20261110",
+        "ENG-OPENER-REQUEST-SCOPE-20261110",
+        "ENG-POST-CONNECT-TLS-DEADLINE-20261110",
+        "ENG-RECORDED-DNS-PREFLIGHT",
+        "ENG-RETAINED-REQUEST-METHOD-20261109",
+        "ENG-TLS-HOSTNAME-OVERRIDE-PY311-20261110"
+      ]
+    }
+  ]
+}
+```
+<!-- END FAR-INVESTIGATION-FAILURE-CLASS-COVERAGE/1 -->
