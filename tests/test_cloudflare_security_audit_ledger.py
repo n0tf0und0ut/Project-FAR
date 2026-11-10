@@ -231,13 +231,13 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             git("commit", "-qm", "frozen source")
             references = [{"trace": [{"file": "evidence.py", "line": 1}],
                            "evidence": []}]
-            bridge.inspect_source_references(references, repo)
+            bridge.inspect_source_references(references, repo, bridge.current_head(repo))
             git("update-index", "--skip-worktree", "evidence.py")
             target.write_text("original line\nforged line\n", encoding="utf-8")
             self.assertEqual(git("status", "--porcelain=v1"), b"")
             references[0]["trace"][0]["line"] = 2
-            with self.assertRaisesRegex(bridge.HandoffError, "do not match exact HEAD"):
-                bridge.inspect_source_references(references, repo)
+            with self.assertRaisesRegex(bridge.HandoffError, "do not match requested commit"):
+                bridge.inspect_source_references(references, repo, bridge.current_head(repo))
 
     def test_upstream_valid_unicode_snapshot_stays_within_original_byte_budget(self):
         # 900k CJK characters occupy 2.7 MiB as UTF-8, but 5.4 MiB if
@@ -319,13 +319,13 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             git("replace", frozen, replacement)
             git("read-tree", "--reset", "-u", "HEAD")
             self.assertEqual(
-                bridge.exact_committed_source(repo, "evidence.py"),
+                bridge.exact_committed_source(repo, "evidence.py", frozen),
                 b"original line\\n",
             )
             references = [{"trace": [{"file": "evidence.py", "line": 2}],
                            "evidence": []}]
-            with self.assertRaisesRegex(bridge.HandoffError, "dirty|do not match exact HEAD|does not exist"):
-                bridge.inspect_source_references(references, repo)
+            with self.assertRaisesRegex(bridge.HandoffError, "dirty|do not match requested commit|does not exist"):
+                bridge.inspect_source_references(references, repo, bridge.current_head(repo))
 
     def test_checkout_switch_cannot_substitute_evidence_for_requested_sha(self):
         # An unrelated process changes HEAD after validation began but before

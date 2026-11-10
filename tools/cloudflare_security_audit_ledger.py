@@ -138,9 +138,11 @@ def clean_source_path(relative: str, source_root: Path):
     return path
 
 
-def exact_committed_source(root: Path, relative: str) -> bytes:
-    """Bound evidence to Git's HEAD blob; do not trust Git status alone."""
-    spec = "HEAD:" + relative
+def exact_committed_source(root: Path, relative: str, expected_head: str) -> bytes:
+    """Read evidence from the immutable requested commit, never mutable HEAD."""
+    if not SHA.fullmatch(expected_head):
+        raise HandoffError("expected source commit must be a full SHA")
+    spec = expected_head + ":" + relative
     try:
         measured = subprocess.run(
             ["git", "--no-replace-objects", "cat-file", "-s", spec], cwd=root, capture_output=True,
@@ -159,7 +161,9 @@ def exact_committed_source(root: Path, relative: str) -> bytes:
     return contents
 
 
-def inspect_source_references(records: list, source_root: Path):
+def inspect_source_references(records: list, source_root: Path, expected_head: str):
+    if not SHA.fullmatch(expected_head):
+        raise HandoffError("expected source commit must be a full SHA")
     tracked = source_is_clean_and_tracked(source_root)
     verified: dict[str, bytes] = {}
     for item in records:
@@ -173,14 +177,14 @@ def inspect_source_references(records: list, source_root: Path):
                 if type(line) is not int or not 1 <= line <= 2_000_000:
                     raise HandoffError("invalid source evidence line")
                 if relative not in verified:
-                    committed = exact_committed_source(source_root, relative)
+                    committed = exact_committed_source(source_root, relative, expected_head)
                     if path.stat().st_size > MAX_SOURCE_BYTES:
                         raise HandoffError("source evidence file exceeds bounded validation")
                     with path.open("rb") as stream:
                         observed = stream.read(MAX_SOURCE_BYTES + 1)
                     if observed != committed:
                         raise HandoffError(
-                            "source evidence bytes do not match exact HEAD Git blob"
+                            "source evidence bytes do not match requested commit Git blob"
                         )
                     verified[relative] = committed
                 committed = verified[relative]
@@ -288,7 +292,7 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
         raise HandoffError("duplicate vulnerability fingerprints")
     if any(not FINGERPRINT.fullmatch(p) for p in fingerprints):
         raise HandoffError("invalid vulnerability fingerprint")
-    inspect_source_references(findings, source_root)
+    inspect_source_references(findings, source_root, expected_head)
 
     status = meta["run_status"]
     rows = [
