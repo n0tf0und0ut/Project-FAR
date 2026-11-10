@@ -4,6 +4,8 @@ import io
 import http.client
 import json
 import socket
+import threading
+import time
 import unittest
 import urllib.error
 from unittest.mock import Mock, patch
@@ -47,6 +49,52 @@ class RetrievalTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(ToolError):
                 retrieve(url, self.policy, opener=transport)
             transport.open.assert_not_called()
+
+    def test_dns_preflight_cannot_overrun_request_or_investigation_deadline(self):
+        """A stalled resolver must not block the campaign's calling thread."""
+        for deadline_kind in ('transport', 'investigation'):
+            started, release = threading.Event(), threading.Event()
+            calls = []
+
+            def blocked_dns(host, port, **kwargs):
+                calls.append((host, port))
+                started.set()
+                release.wait(timeout=1)
+                return dns(host, port, **kwargs)
+
+            transport = Mock()
+            policy = RetrievalPolicy(('example.org',), timeout=.06,
+                                     resolver=blocked_dns)
+            clock_start = time.monotonic()
+            absolute = (clock_start + .035 if deadline_kind == 'investigation'
+                        else None)
+            try:
+                with self.subTest(deadline_kind=deadline_kind), \
+                     patch('tools.far_investigation_retrieval.read_bounded_response') as reader, \
+                     self.assertRaises(ToolError) as failure:
+                    retrieve('https://example.org/a', policy,
+                             opener=transport, deadline_monotonic=absolute)
+                elapsed = time.monotonic() - clock_start
+                self.assertLess(elapsed, .18)
+                self.assertTrue(started.is_set())
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(failure.exception.receipt['status'], 'FAILED')
+                self.assertEqual(failure.exception.receipt['error']['class'], 'TimeoutError')
+                reader.assert_not_called()
+                transport.open.assert_not_called()
+            finally:
+                release.set()
+
+    def test_expired_dns_budget_never_calls_resolver(self):
+        resolver = Mock(side_effect=AssertionError('expired DNS must not be sent'))
+        policy = RetrievalPolicy(('example.org',), resolver=resolver)
+        client = Mock()
+        with self.assertRaises(ToolError) as failure:
+            retrieve('https://example.org/a', policy, opener=client,
+                     deadline_monotonic=time.monotonic() - 1)
+        resolver.assert_not_called()
+        client.open.assert_not_called()
+        self.assertEqual(failure.exception.receipt['error']['class'], 'TimeoutError')
 
     def test_mixed_dns_private_address_is_blocked(self):
         def mixed(host, port, **kwargs):
