@@ -956,3 +956,35 @@ connection-time DNS pools are separately bounded. This fix bounds time
 spent waiting on DNS without claiming DNS result authenticity, general
 network security, complete whole-process resource elimination, or real-world
 agent reliability. Prior closed review findings are not reopened by metadata.
+
+## November 10, 2026 — TLS handshake inherited stale TCP-connect timeout
+
+**ENG-POST-CONNECT-TLS-DEADLINE-20261110** — authenticated Codex review of
+`705ef4464f016e3f9d9bb4ef300c11fa0d5c669a`, thread
+`PRRT_kwDOTH_vCM61vE8u`, comment 4525980810 (P2).
+
+**Counterexample:** DNS resolution completes immediately, but TCP connection
+uses most of the budget before returning. The socket previously retained its
+pre-connect idle timeout. HTTPSConnection then began TLS negotiation using
+that stale timeout and could stall beyond the absolute request deadline before
+any header deadline reader ran. The reviewer measured approximately 193 ms
+against a 100 ms deadline using an 80 ms connect and a stalled TLS peer.
+This is independent of the corrected DNS preflight and connection-time
+resolver timeout failures.
+
+**Correction:** Immediately after a successful native TCP connection, compute
+the remaining monotonic request budget and apply it to the returned socket
+before urllib's TLS/CONNECT machinery takes ownership. If the budget is
+exhausted, close the socket and fail instead of performing a TLS handshake.
+No global monkeypatch, operator TLS-context override, proxy configuration,
+or frozen scientific evidence is changed.
+
+**New regression controls:**
+`test_native_connect_refreshes_tls_socket_budget_after_tcp` demonstrates
+that a delayed successful TCP connect lowers the timeout that TLS inherits;
+`test_native_connect_exhausted_budget_closes_before_tls` enforces closure
+and fail-closed behavior when connect consumes the entire budget. Existing
+HTTPS TLS-context/hostname, retry, native framing, DNS and source receipt
+regressions remain required. A clean exact-head hosted test and independent
+substantive review remain separate obligations; green checks alone do not
+promote scientific validity or authorize protected merge.

@@ -162,6 +162,44 @@ class RetrievalTests(unittest.TestCase):
         sock.connect.assert_called_once_with(('93.184.216.34', 443))
         self.assertLessEqual(sock.settimeout.call_args.args[0], .11)
 
+    def test_native_connect_refreshes_tls_socket_budget_after_tcp(self):
+        """A slow successful TCP connect must not hand TLS an old timeout."""
+        from tools.far_uncertain_routing_pilot import _deadline_native_connection
+        address = (socket.AF_INET, socket.SOCK_STREAM, 6, '',
+                   ('93.184.216.34', 443))
+        sock = Mock()
+        sock.connect.side_effect = lambda _addr: time.sleep(.07)
+        with patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                   return_value=[address]), \
+             patch('tools.far_uncertain_routing_pilot.socket.socket',
+                   return_value=sock):
+            result = _deadline_native_connection(
+                ('example.org', 443), .4, None, time.monotonic() + .4)
+        self.assertIs(result, sock)
+        timeouts = [call.args[0] for call in sock.settimeout.call_args_list]
+        self.assertEqual(len(timeouts), 2)
+        self.assertGreater(timeouts[0] - timeouts[1], .04)
+        self.assertGreater(timeouts[1], 0)
+        sock.close.assert_not_called()
+
+    def test_native_connect_exhausted_budget_closes_before_tls(self):
+        """Even a successful TCP connect must fail closed after the deadline."""
+        from tools.far_uncertain_routing_pilot import _deadline_native_connection
+        address = (socket.AF_INET, socket.SOCK_STREAM, 6, '',
+                   ('93.184.216.34', 443))
+        sock = Mock()
+        sock.connect.side_effect = lambda _addr: time.sleep(.07)
+        with patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                   return_value=[address]), \
+             patch('tools.far_uncertain_routing_pilot.socket.socket',
+                   return_value=sock), \
+             self.assertRaisesRegex(TimeoutError,
+                                    'connection deadline exhausted after TCP connect'):
+            _deadline_native_connection(
+                ('example.org', 443), .04, None, time.monotonic() + .04)
+        sock.close.assert_called_once_with()
+        self.assertEqual(sock.settimeout.call_count, 1)
+
     def test_expired_dns_budget_never_calls_resolver(self):
         resolver = Mock(side_effect=AssertionError('expired DNS must not be sent'))
         policy = RetrievalPolicy(('example.org',), resolver=resolver)

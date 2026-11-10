@@ -169,6 +169,14 @@ def _deadline_native_connection(address, timeout, source_address, deadline):
             if source_address:
                 sock.bind(source_address)
             sock.connect(sockaddr)
+            # A successful TCP connect can consume almost the entire request
+            # budget. HTTPSConnection immediately uses the returned socket for
+            # TLS negotiation, before header/body deadline adapters execute.
+            # Never hand TLS the stale pre-connect socket timeout.
+            remaining = end - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError('connection deadline exhausted after TCP connect')
+            sock.settimeout(remaining)
             return sock
         except OSError as exc:
             last_error = exc
