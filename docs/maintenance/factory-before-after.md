@@ -4,9 +4,9 @@
 
 ## Inputs and trust boundary
 
-`tools/factory_before_after.py` uses a trusted local Git repository, two exact full commit SHAs where baseline is ancestor of candidate, one already-frozen `tests/test_*.py` oracle with independently supplied exact SHA-256, and a bounded integer timeout. **The test file must exist with identical bytes at both commits.** The operator must freeze the oracle digest *before* seeing or changing candidate code; the tool cannot prove the operator did so. The fixture is not generated or chosen by the candidate worker.
+`tools/factory_before_after.py` uses a trusted local Git repository, two exact full commit SHAs where baseline is ancestor of candidate, one already-frozen *top-level* `tests/test_*.py` oracle (no nested path or duplicate discovered basename anywhere under `tests/`) with independently supplied exact SHA-256, and a bounded integer timeout. **The test file must exist with identical bytes at both commits.** The operator must freeze the oracle digest *before* seeing or changing candidate code; the tool cannot prove the operator did so. The fixture is not generated or chosen by the candidate worker.
 
-The runner creates separate, fresh detached Git worktrees, executes the same trusted Python unittest discovery command, preserves complete stdout and stderr files with SHA-256 and byte lengths, records test counts, exit status, monotonic duration, UTC timestamps and a small environment fingerprint, then removes the temporary worktrees. Output receipts and logs are stored outside the repository, and an existing output directory cannot be overwritten. A commit whose test oracles differ returns **INCOMPARABLE** without running tests; timeouts, zero-test passes, missing results and tracked-source modifications remain **UNKNOWN**.
+The runner creates separate, fresh detached Git worktrees, executes the same trusted Python unittest discovery command, streams stdout and stderr through trusted-owned anonymous pipes into sealed log files (up to 8 MiB per stream per run; overflow yields UNKNOWN) with SHA-256 and byte lengths, records test counts, exit status, monotonic duration, UTC timestamps and a small environment fingerprint, and terminates its POSIX process group and closes both inherited output pipes **before hashing**, then removes the temporary worktrees. Windows/non-POSIX execution is not supported by this bounded collector. Output receipts and logs are stored outside the repository, and an existing output directory cannot be overwritten. A commit whose test oracles differ returns **INCOMPARABLE** without running tests; timeouts, zero-test passes, missing results and tracked-source modifications remain **UNKNOWN**.
 
 The observation vocabulary is deliberately narrower than proof:
 
@@ -16,7 +16,7 @@ The observation vocabulary is deliberately narrower than proof:
 - `NO_OBSERVED_IMPROVEMENT`: both failed.
 - `INCOMPARABLE` or `UNKNOWN`: no sound basic process comparison.
 
-These indicate observed process behavior only. A baseline failure might arise from test infrastructure, not the intended defect. Tests from candidate code and their dependencies can be malicious. **Git worktrees, environment filtering, and no-shell process execution do not isolate network, host filesystem, existing credentials, other processes, or child processes.** Run only in an ephemeral, nonprivileged, network-restricted and credential-free external runner before trusting any unreviewed source. This repo's demonstration uses throwaway synthetic local repositories in read-only GitHub Actions, not a real untrusted PR execution.
+These indicate observed process behavior only. The runner accepts only a direct `tests/<pattern>` oracle and fails closed on ambiguous discovered basenames. Identical test-file bytes do **not** establish that imported helpers, fixtures, dependencies or test meaning are unchanged; the single-source digest is not a full semantic oracle freeze. A baseline failure might arise from test infrastructure, not the intended defect. Tests from candidate code and their dependencies can be malicious. **Git worktrees, environment filtering, and no-shell process execution do not isolate network, host filesystem, existing credentials, other processes, or child processes.** Run only in an ephemeral, nonprivileged, network-restricted and credential-free external runner before trusting any unreviewed source. This repo's demonstration uses throwaway synthetic local repositories in read-only GitHub Actions, not a real untrusted PR execution.
 
 ## Command example
 
@@ -45,7 +45,7 @@ python -m unittest discover -s tests -p test_factory_before_after.py -v
 python -m py_compile tools/factory_before_after.py
 ```
 
-The regression suite creates real temporary Git histories: failing baseline to fixed candidate, passing baseline to regressed candidate, source mutation, empty test discovery, incompatible frozen oracle, expired timeout, input/path traversal, duplicate output path, and worktree cleanup. All outcomes are synthetic engineering fixtures, **not** registered factory performance data.
+The regression suite creates real temporary Git histories: failing baseline to fixed candidate, passing baseline to regressed candidate, source mutation, empty test discovery, incompatible frozen oracle, expired timeout, nested/duplicate oracle rejection, symlinked output-directory alias, inherited background writer, bounded stdout overflow, input/path traversal, duplicate output path, and worktree cleanup. All outcomes are synthetic engineering fixtures, **not** registered factory performance data.
 
 ## Retrospective queue-repair smoke (real source, not a prospective trial)
 
