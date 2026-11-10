@@ -369,7 +369,7 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
                               side_effect=switch_after_validation):
                 with self.assertRaisesRegex(
                         bridge.HandoffError,
-                        "do not match exact|source line does not exist|checkout changed"):
+                        "do not match requested commit|source line does not exist|checkout changed"):
                     bridge.build_report(self.run_dir, frozen, source_root=repo)
             self.assertEqual(calls[0], 2)
             self.assertEqual(git("rev-parse", "HEAD").decode(), later)
