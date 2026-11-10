@@ -56,6 +56,111 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         if fragment:
             self.assertTrue(any(fragment in e for e in outcome['errors']), outcome)
 
+    def test_resealed_terminal_failure_cannot_be_scored_as_completion(self):
+        for mode in ('agent', 'deterministic'):
+            with self.subTest(mode=mode):
+                original = self.complete(mode)
+                self.assertTrue(audit(original)['valid'], audit(original))
+                forged = copy.deepcopy(original)
+                seal = forged['events'][-1]
+                forged['events'].insert(-1, {
+                    'sequence': 0, 'at': forged['events'][-2]['at'],
+                    'kind': 'FAILURE',
+                    'payload': {'class': 'EngineError',
+                                'reason': 'completion exceeded final execution budget'},
+                    'previous_sha256': None, 'sha256': None})
+                for n, event in enumerate(forged['events'], 1):
+                    event['sequence'] = n
+                reseal(forged)
+                self.assertEqual(forged['status'], 'BOUNDED_PIPELINE_COMPLETED')
+                self.assert_rejected(forged, 'failure.chronology')
+
+    def test_resealed_oversized_native_model_response_cannot_pass_replay(self):
+        from tools.far_investigation_engine import LocalModel, LOCAL_MODEL_RESPONSE_MAX_BYTES
+        from tests.test_far_investigation_usage import envelope
+
+        response = {'model': 'local', 'usage': {'total_tokens': 1},
+                    'choices': [{'message': {'tool_calls': [{'function': {
+                        'name': 'retrieve', 'arguments': json.dumps({'url': URL_A})}}]}}]}
+        raw = json.dumps(response).encode()
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   return_value=(raw, envelope(raw)['transport'])):
+            authentic = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertTrue(audit(authentic)['valid'], audit(authentic))
+
+        response['padding'] = 'x' * LOCAL_MODEL_RESPONSE_MAX_BYTES
+        oversized = json.dumps(response).encode()
+        self.assertGreater(len(oversized), LOCAL_MODEL_RESPONSE_MAX_BYTES)
+        encoded = base64.b64encode(oversized).decode()
+        digest = hashlib.sha256(oversized).hexdigest()
+        forged = copy.deepcopy(authentic)
+        envelopes = [forged['model_calls'][0]]
+        for event in forged['events']:
+            if event['kind'] == 'MODEL_OBSERVATION':
+                envelopes.append(event['payload'])
+            elif event['kind'] == 'MODEL_PROPOSAL':
+                envelopes.append(event['payload']['metadata']['envelope'])
+        modified = 0
+        for node in envelopes:
+            if type(node) is dict and type(node.get('transport')) is dict:
+                node['response_base64'], node['response_sha256'] = encoded, digest
+                node['transport'].update(raw_response_base64=encoded,
+                                         response_sha256=digest,
+                                         response_bytes_retained=len(oversized))
+                modified += 1
+        self.assertGreaterEqual(modified, 3)
+        reseal(forged)
+        self.assert_rejected(forged, '.transport.max_bytes')
+
+    def test_undispatched_freeze_rejection_cannot_steal_retried_freeze(self):
+        """An authentic native prompt after a pre-dispatch failure remains draft."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+
+        choices = full_script()
+        freeze_index = next(i for i, proposal in enumerate(choices)
+                            if proposal['tool'] == 'freeze')
+        choices.insert(freeze_index, action('freeze'))
+        proposals = iter(choices)
+        clock = [0.0]
+        failed_checkpoint = [False]
+
+        def checkpoint(state):
+            event = state['events'][-1]
+            if (not failed_checkpoint[0] and event['kind'] == 'TOOL_PROPOSAL'
+                    and event['payload']['tool'] == 'freeze'):
+                failed_checkpoint[0] = True
+                raise OSError('controlled pre-dispatch freeze checkpoint failure')
+
+        def native_response(*_args, **_kwargs):
+            proposal = next(proposals)
+            response = {'model': 'local', 'usage': {'total_tokens': 1},
+                'choices': [{'message': {'tool_calls': [{'function': {
+                    'name': proposal['tool'],
+                    'arguments': json.dumps(proposal['args'])}}]}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.time.monotonic',
+                   side_effect=lambda: clock[0]):
+            runtime = self.runtime(budget=Budget(max_seconds=.2), checkpoint=checkpoint)
+            dispatch = runtime._dispatch
+            def expire_second_freeze(tool, args):
+                result = dispatch(tool, args)
+                if tool == 'freeze':
+                    clock[0] = .3
+                return result
+            with patch.object(runtime, '_dispatch', side_effect=expire_second_freeze), patch(
+                    'tools.far_investigation_engine.read_bounded_response',
+                    side_effect=native_response):
+                state = runtime.run_agent(LocalModel())
+        self.assertTrue(failed_checkpoint[0])
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(state['intake']['freeze']['status'], 'FROZEN')
+        self.assertEqual(sum(e['kind'] == 'TOOL_REJECTED' for e in state['events']
+                             if e['kind'] == 'TOOL_REJECTED'), state['rejected_calls'])
+        self.assertTrue(audit(state)['valid'], audit(state))
+
     def test_valid_agent_and_both_workflows_reconstruct_without_network_or_model(self):
         for mode in ('agent', 'deterministic', 'declarative'):
             with self.subTest(mode=mode):
