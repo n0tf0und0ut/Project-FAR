@@ -92,6 +92,48 @@ class ReceiptContractTests(unittest.TestCase):
             with self.subTest(suffix=suffix), self.assertRaises(gate.EvidenceError):
                 evaluate([summary(), record])
 
+    def test_historical_authenticated_suffixes_do_not_veto_exact_head(self):
+        """Regress PR #614: stale bot prose cannot veto a current clean receipt."""
+        historical = [
+            ("f270539e6b", "Already looking forward to the next diff."),
+            ("e2de3fe676", "Delightful!"),
+            ("1d26556942", "Breezy!"),
+            ("e08e33734c", ":+1:"),
+            ("2a907a4112", "More of your lovely PRs please."),
+            ("4341afabb5", "You're on a roll."),
+        ]
+        old = []
+        for offset, (sha, suffix) in enumerate(historical, start=21):
+            item = receipt(sha=sha, ident=offset, moment="2026-10-20T00:00:00Z")
+            item["body"] = item["body"].replace("Keep them coming!", suffix)
+            old.append(item)
+        current = receipt()
+        current["body"] = current["body"].replace("Keep them coming!", "Swish!")
+        record = evaluate(old + [summary(), current])
+        self.assertTrue(record["review_metadata_converged"])
+        self.assertEqual(
+            record["trusted_codex_review_on_exact_head"]["receipt_source"]["comment_id"],
+            current["id"])
+        self.assertIsNone(record["trusted_codex_review_on_exact_head"]["unresolved"])
+
+    def test_ambiguous_old_receipt_attribution_is_not_discarded(self):
+        """Unclassifiable historic bot comments cannot be silently waived."""
+        old = receipt(sha="c" * 10, ident=23)
+        old["body"] = old["body"].replace("Keep them coming!", "Delightful!")
+        for altered in (
+            old["body"].replace("**Reviewed commit:**", "Reviewed commit:"),
+            old["body"] + "\n**Reviewed commit:** `" + PREFIX + "`",
+            old["body"] + "\n<!-- codex-review-receipt:v1 -->",
+        ):
+            with self.subTest(altered=altered[-80:]), self.assertRaises(gate.EvidenceError):
+                evaluate([summary(), dict(old, body=altered), receipt()])
+
+    def test_stale_unrecognized_receipt_cannot_substitute_for_current(self):
+        stale = receipt(sha="c" * 10, ident=24)
+        stale["body"] = stale["body"].replace("Keep them coming!", "Breezy!")
+        with self.assertRaises(gate.EvidenceError):
+            evaluate([summary(), stale])
+
     def test_unknown_or_contradictory_footer_content_never_qualifies(self):
         original = receipt()
         for body in (
