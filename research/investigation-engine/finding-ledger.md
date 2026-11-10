@@ -786,3 +786,30 @@ limit, and demands an interrupted receipt retaining exactly the decoded
 separator, chunk framing, deadline and frozen-archive controls must remain
 green; this is not yet a verified current-head result. No original
 campaign evidence or experiment outcomes have been modified.
+
+## November 10, 2026 — tenth independent review: configured transport timeout cap
+
+Independent Codex exact-head review of `c94bf3143d0b0db7bc12485792ffc40146ed13ee`
+reported **ENG-CONFIGURED-TRANSPORT-TIMEOUT-20261110**, thread
+`PRRT_kwDOTH_vCM61gGoG` (comment 4519577674). Although a monotonic
+investigation deadline now constrains HTTP header, nonchunked body,
+chunk body, chunk separator and chunk-line reads, the helper's socket
+refresh used the full **remaining investigation budget**, even when the
+transport policy had configured a shorter timeout. With a native response,
+a configured 50-ms timeout, and a 500-ms investigation deadline, a delayed
+body could arrive after 216 ms and be accepted, violating the configured
+per-operation timeout ceiling.
+
+Candidate root-cause correction: pass the configured transport timeout
+into the header and chunk-framing readers, and set the underlying socket
+timeout to `max(.001, min(configured_timeout, remaining_absolute_budget))`
+before each respective blocking syscall. Apply the same cap in the
+nonchunked `read1` path. Without an absolute deadline, the original
+configured socket timeout remains unchanged. A new AF_UNIX socketpair
+regression `test_native_socket_timeout_is_capped_by_policy_during_all_deadline_refreshes`
+covers header, nonchunked-body and chunk-separator interruptions with
+a short configured timeout and deliberately longer absolute deadline,
+asserting no delayed bytes are falsely accepted. Existing real-client
+framing, prefix and frozen-archive tests remain mandatory. This is
+transport-resource governance; it does not establish general autonomy,
+truth or performance advantage. No frozen records have been changed.

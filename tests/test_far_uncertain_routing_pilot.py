@@ -200,6 +200,66 @@ class NativeFramingTests(unittest.TestCase):
         self.assertFalse(failed.exception.envelope['response_complete'])
         self.assertLess(elapsed, .30)
 
+    def test_native_socket_timeout_is_capped_by_policy_during_all_deadline_refreshes(self):
+        """Absolute budget cannot silently extend the configured transport timeout."""
+        import socket
+        import threading
+        import time
+        import urllib.request
+
+        cases = {
+            'header': (
+                b'HTTP/1.1 200 OK\r\n',
+                b'Content-Length: 1\r\n\r\na', b''),
+            'nonchunked-body': (
+                b'HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\n',
+                b'a', b''),
+            'chunk-separator': (
+                b'HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n1\r\na',
+                b'\r\n0\r\n\r\n', b'a'),
+        }
+        for label, (immediate, delayed, prefix) in cases.items():
+            with self.subTest(phase=label):
+                workers = []
+                def connect(connection):
+                    client, server = socket.socketpair()
+                    connection.sock = client
+                    def respond():
+                        with server:
+                            try:
+                                request = server.recv(65536)
+                                self.assertIn(b'GET', request)
+                                server.sendall(immediate)
+                                time.sleep(.20)
+                                server.sendall(delayed)
+                            except OSError:
+                                pass
+
+                    worker = threading.Thread(target=respond, daemon=True)
+                    worker.start()
+                    workers.append(worker)
+
+                opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+                start = time.monotonic()
+                with patch.object(http.client.HTTPConnection, 'connect', connect):
+                    with self.assertRaises(study.ResponseTransportError) as failed:
+                        study.read_bounded_response(
+                            urllib.request.Request('http://127.0.0.1:18085/'),
+                            timeout=.05, max_bytes=100, opener=opener,
+                            deadline_monotonic=start + .50)
+                elapsed = time.monotonic() - start
+                for worker in workers:
+                    worker.join(timeout=1)
+                envelope = failed.exception.envelope
+                retained = base64.b64decode(envelope['raw_response_base64'])
+                self.assertEqual(retained, prefix)
+                self.assertEqual(envelope['response_sha256'], hashlib.sha256(prefix).hexdigest())
+                # urllib may wrap header-stage socket timeouts in URLError;
+                # body-stage failures normally expose bare TimeoutError.
+                self.assertIn(envelope['transport_error'], ('TimeoutError', 'URLError'))
+                self.assertFalse(envelope['response_complete'])
+                self.assertLess(elapsed, .16)
+
     def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
         import time
         from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader

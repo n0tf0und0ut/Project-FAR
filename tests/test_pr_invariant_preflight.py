@@ -5,6 +5,7 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
+from datetime import timedelta
 from unittest.mock import patch
 
 from tools import pr_invariant_preflight as check
@@ -57,7 +58,9 @@ def contract():
     }
 
 
-def pr(body=None, created='2026-11-10T10:00:00Z', draft=False):
+def pr(body=None, created=None, draft=False):
+    if created is None:
+        created = (check._date(check.CUTOVER) + timedelta(hours=1)).isoformat().replace('+00:00', 'Z')
     if body is None:
         body = check.START + json.dumps(contract()) + check.END
     return {'number': 800, 'state': 'open', 'created_at': created, 'draft': draft,
@@ -131,6 +134,24 @@ class PreflightContractTests(unittest.TestCase):
                             workflow.index(marker))
         else:
             self.assertNotIn('python3 tools/pr_invariant_preflight.py', workflow)
+
+    def test_activated_gate_fails_closed_and_preserves_preflight_evidence(self):
+        workflow = (Path(__file__).resolve().parents[1] / '.github/workflows/required-pr-review-convergence.yml').read_text()
+        first = '- name: Check invariant-first contract before independent review'
+        second = "- name: Enforce review evidence for this event's exact PR head"
+        self.assertEqual(workflow.count(first), 1)
+        self.assertLess(workflow.index(first), workflow.index(second))
+        step = workflow.split(first, 1)[1].split(second, 1)[0]
+        self.assertIn('set -euo pipefail', step)
+        self.assertIn('GH_TOKEN:', step)
+        self.assertIn('PR_NUMBER:', step)
+        self.assertIn('EVENT_HEAD:', step)
+        self.assertIn('python3 tools/pr_invariant_preflight.py', step)
+        self.assertIn('--expected-head "$EVENT_HEAD"', step)
+        self.assertIn('--output "$RUNNER_TEMP/pr-invariant-preflight.json"', step)
+        self.assertNotRegex(step, r'(?m)^\s*if:')
+        self.assertNotIn('continue-on-error', step)
+        self.assertIn('${{ runner.temp }}/pr-invariant-preflight.json', workflow)
 
     def test_valid_contract_is_only_structural_not_correctness(self):
         output = verify()
@@ -258,8 +279,11 @@ class PreflightContractTests(unittest.TestCase):
             self.assertTrue(check.is_implementation_path(path), path)
 
     def test_cutover_respects_existing_open_prs(self):
-        self.assertEqual('historical-pr', verify(pr(created='2026-11-09T23:59:59Z', body=''))['mode'])
-        self.assertFalse(verify(pr(created='2026-11-10T00:00:00Z', body=''))['valid'])
+        cutoff = check._date(check.CUTOVER)
+        before = (cutoff - timedelta(seconds=1)).isoformat().replace('+00:00', 'Z')
+        at = cutoff.isoformat().replace('+00:00', 'Z')
+        self.assertEqual('historical-pr', verify(pr(created=before, body=''))['mode'])
+        self.assertFalse(verify(pr(created=at, body=''))['valid'])
 
     def test_non_implementation_changes_do_not_gain_false_claim(self):
         files = [{'filename': 'docs/overview.md', 'status': 'modified'}]
