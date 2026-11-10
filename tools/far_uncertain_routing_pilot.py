@@ -139,7 +139,14 @@ def _install_deadline_header_handlers(opener, deadline, timeout=None):
     class DeadlineHTTPSHandler(urllib.request.HTTPSHandler):
         handler_order = 450
         def https_open(self, request):
-            return self.do_open(DeadlineHTTPSConnection, request, context=self._context)
+            connection_options = {'context': self._context}
+            # Python 3.11 retains HTTPSHandler(check_hostname=...) apart
+            # from SSLContext. Later Python removed the override. Pass it
+            # through only when the original runtime actually supports it.
+            hostname_override = getattr(self, '_check_hostname', None)
+            if hostname_override is not None:
+                connection_options['check_hostname'] = hostname_override
+            return self.do_open(DeadlineHTTPSConnection, request, **connection_options)
 
     # The deadline handler precedes the original transport. Reuse the TLS
     # context and hostname policy actually configured by the operator instead
@@ -148,6 +155,10 @@ def _install_deadline_header_handlers(opener, deadline, timeout=None):
                            if isinstance(handler, urllib.request.HTTPSHandler)), None)
     https_options = ({'context': original_https._context}
                      if original_https is not None else {})
+    if original_https is not None:
+        hostname_override = getattr(original_https, '_check_hostname', None)
+        if hostname_override is not None:
+            https_options['check_hostname'] = hostname_override
     opener.add_handler(DeadlineHTTPHandler())
     opener.add_handler(DeadlineHTTPSHandler(**https_options))
 
