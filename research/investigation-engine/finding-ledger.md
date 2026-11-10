@@ -917,3 +917,42 @@ external block is explicitly unresolved. Neither this ledger nor
 resolving a thread substitutes for a clean exact-head Codex review or
 the protected `review-convergence`, `merge-authority` and
 `protected-repin-gate` checks.
+
+## November 10, 2026 — connection-time DNS deadline bypass, exact-head review
+
+**ENG-CONNECTION-DNS-DEADLINE-20261110** — independent exact-head Codex review
+of `6783dfc8fca53d35da8b46874fabda391addecc2`, thread
+`PRRT_kwDOTH_vCM61uQRG`, comment 4525629209.
+
+**Observed counterexample:** A quick successful `validate_url` DNS preflight
+does not bound the separate DNS lookup in `HTTPSConnection.connect()`.
+The reviewer observed roughly 230 ms elapsed despite 50 ms configured
+transport and absolute budgets when the second lookup stalled for 220 ms.
+The existing socket idle timeout cannot stop synchronous `getaddrinfo`.
+
+**Root-cause correction:** Native deadline adapters now install an isolated
+`HTTPConnection._create_connection` / `HTTPSConnection._create_connection`
+callable per request. Its DNS lookup runs in a finite, capacity-limited daemon
+worker with a monotonic wait bounded by both the remaining request deadline
+and configured socket timeout. A timed-out lookup cannot start socket
+connections; only the caller connects resolved addresses, with each attempt
+bounded by the same remaining deadline. Numeric addresses avoid DNS.
+Native urllib still owns the configured proxy/redirect and TLS context,
+hostname/SNI, CONNECT tunnel and certificate decisions. No global resolver
+or transport monkeypatch is installed and the supplied opener is not mutated.
+
+**Regressions:** `test_native_connection_dns_cannot_outlive_successful_preflight`
+reproduces the previously unbounded second lookup after a valid preflight
+and requires a bounded failed receipt without opening a socket;
+`test_connection_dns_deadline_also_bounds_explicit_proxy` covers proxy-host
+resolution; `test_deadline_native_connection_uses_resolved_address_with_socket_timeout`
+is the timely positive connection factory. Existing frozen evidence,
+native socketpair/TLS/proxy tests, exact-head hosted validation and independent
+review remain separate requirements.
+
+**Limits:** Uncooperative resolver threads cannot be killed; they retain
+one of eight slots until actually terminating. The preflight and
+connection-time DNS pools are separately bounded. This fix bounds time
+spent waiting on DNS without claiming DNS result authenticity, general
+network security, complete whole-process resource elimination, or real-world
+agent reliability. Prior closed review findings are not reopened by metadata.

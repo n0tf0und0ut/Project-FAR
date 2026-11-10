@@ -85,6 +85,81 @@ class RetrievalTests(unittest.TestCase):
             finally:
                 release.set()
 
+
+    def test_native_connection_dns_cannot_outlive_successful_preflight(self):
+        """The HTTPS connect performs a second lookup; its timeout must be real."""
+        started, release = threading.Event(), threading.Event()
+        lookups = []
+        def blocked_connection_dns(host, port, *args, **kwargs):
+            lookups.append((host, port))
+            started.set()
+            release.wait(timeout=1)
+            return dns(host, port)
+        policy = RetrievalPolicy(('example.org',), timeout=.05, resolver=dns)
+        begun = time.monotonic()
+        try:
+            with patch('tools.far_investigation_retrieval.urllib.request.getproxies',
+                       return_value={}), \
+                 patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                       side_effect=blocked_connection_dns), \
+                 patch('tools.far_uncertain_routing_pilot.socket.socket') as open_socket, \
+                 self.assertRaises(ToolError) as caught:
+                retrieve('https://example.org/a', policy)
+            self.assertLess(time.monotonic() - begun, .20)
+            self.assertTrue(started.is_set())
+            self.assertEqual(lookups, [('example.org', 443)])
+            self.assertEqual(caught.exception.receipt['status'], 'FAILED')
+            self.assertEqual(caught.exception.receipt['transport']['transport_error'],
+                             'TimeoutError')
+            open_socket.assert_not_called()
+        finally:
+            release.set()
+
+    def test_connection_dns_deadline_also_bounds_explicit_proxy(self):
+        """Proxy DNS is operator-owned, but still cannot suspend the caller."""
+        started, release = threading.Event(), threading.Event()
+        def blocked_proxy_dns(host, port, *args, **kwargs):
+            self.assertEqual((host, port), ('proxy.internal', 8080))
+            started.set()
+            release.wait(timeout=1)
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '',
+                     ('192.0.2.10', port))]
+        policy = RetrievalPolicy(('example.org',), timeout=.05, dns_mode='proxy')
+        begun = time.monotonic()
+        try:
+            with patch('tools.far_investigation_retrieval.urllib.request.getproxies',
+                       return_value={'https': 'http://proxy.internal:8080'}), \
+                 patch('tools.far_investigation_retrieval.urllib.request.proxy_bypass',
+                       return_value=False), \
+                 patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                       side_effect=blocked_proxy_dns), \
+                 patch('tools.far_uncertain_routing_pilot.socket.socket') as open_socket, \
+                 self.assertRaises(ToolError) as caught:
+                retrieve('https://example.org/a', policy)
+            self.assertTrue(started.is_set())
+            self.assertLess(time.monotonic() - begun, .20)
+            self.assertEqual(caught.exception.receipt['status'], 'FAILED')
+            open_socket.assert_not_called()
+        finally:
+            release.set()
+
+    def test_deadline_native_connection_uses_resolved_address_with_socket_timeout(self):
+        """A timely resolution connects on the caller thread without TLS changes."""
+        from tools.far_uncertain_routing_pilot import _deadline_native_connection
+        sock = Mock()
+        addresses = [(socket.AF_INET, socket.SOCK_STREAM, 6, '',
+                      ('93.184.216.34', 443))]
+        with patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                   return_value=addresses), \
+             patch('tools.far_uncertain_routing_pilot.socket.socket',
+                   return_value=sock) as factory:
+            connected = _deadline_native_connection(
+                ('example.org', 443), .1, None, time.monotonic() + .2)
+        self.assertIs(connected, sock)
+        factory.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM, 6)
+        sock.connect.assert_called_once_with(('93.184.216.34', 443))
+        self.assertLessEqual(sock.settimeout.call_args.args[0], .11)
+
     def test_expired_dns_budget_never_calls_resolver(self):
         resolver = Mock(side_effect=AssertionError('expired DNS must not be sent'))
         policy = RetrievalPolicy(('example.org',), resolver=resolver)

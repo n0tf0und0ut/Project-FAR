@@ -10,6 +10,9 @@ import copy
 import base64
 import hashlib
 import http.client
+import ipaddress
+import socket
+import threading
 import json
 import os
 import statistics
@@ -96,6 +99,84 @@ class _DeadlineHeaderReader:
         return getattr(self.stream, name)
 
 
+
+# Connection-time DNS is separate from source preflight. Never run an
+# unbounded socket.getaddrinfo() on the campaign/caller thread while opening
+# native HTTP(S), including when the configured destination is a proxy.
+# Resolver threads retain their finite semaphore slots until they actually end.
+_CONNECTION_DNS_SLOTS = threading.BoundedSemaphore(8)
+
+
+def _deadline_native_connection(address, timeout, source_address, deadline):
+    """Native socket connect with a bounded DNS lookup and a single deadline.
+
+    This is a request-local HTTPConnection._create_connection adapter. The
+    native HTTP/HTTPS handler still controls proxies, CONNECT and TLS/SNI.
+    DNS cannot be cancelled mid-call, so timed-out resolver threads retain
+    their capacity slots; no socket is opened from such a worker.
+    """
+    end = deadline
+    if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT and timeout is not None:
+        end = min(end, time.monotonic() + timeout)
+    host, port = address
+    if end <= time.monotonic():
+        raise TimeoutError('connection deadline exhausted')
+    try:
+        literal = ipaddress.ip_address(host)
+    except ValueError:
+        literal = None
+    if literal is not None:
+        family = socket.AF_INET6 if literal.version == 6 else socket.AF_INET
+        sockaddr = (str(literal), port, 0, 0) if literal.version == 6 else (str(literal), port)
+        addresses = [(family, socket.SOCK_STREAM, 0, '', sockaddr)]
+    else:
+        remaining = end - time.monotonic()
+        if remaining <= 0 or not _CONNECTION_DNS_SLOTS.acquire(timeout=remaining):
+            raise TimeoutError('connection DNS deadline exhausted')
+        result = {}
+        finished = threading.Event()
+
+        def lookup():
+            try:
+                result['addresses'] = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
+            except BaseException as exc:
+                result['error'] = exc
+            finally:
+                _CONNECTION_DNS_SLOTS.release()
+                finished.set()
+
+        worker = threading.Thread(target=lookup, name='far-connection-dns', daemon=True)
+        try:
+            worker.start()
+        except BaseException:
+            _CONNECTION_DNS_SLOTS.release()
+            raise
+        if not finished.wait(max(0., end - time.monotonic())):
+            raise TimeoutError('connection DNS deadline exhausted')
+        if end <= time.monotonic():
+            raise TimeoutError('connection DNS deadline exhausted')
+        if 'error' in result:
+            raise result['error']
+        addresses = result['addresses']
+    last_error = None
+    for family, socktype, proto, _canon, sockaddr in addresses:
+        remaining = end - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError('connection deadline exhausted')
+        sock = socket.socket(family, socktype, proto)
+        try:
+            sock.settimeout(max(.001, remaining))
+            if source_address:
+                sock.bind(source_address)
+            sock.connect(sockaddr)
+            return sock
+        except OSError as exc:
+            last_error = exc
+            sock.close()
+    if last_error is not None:
+        raise last_error
+    raise OSError('connection DNS returned no usable address')
+
 def _isolated_deadline_opener(opener, deadline, timeout):
     """Preserve the caller's reusable opener; bind deadline handlers per call.
 
@@ -125,11 +206,22 @@ def _install_deadline_header_handlers(opener, deadline, timeout=None):
                 self.fp = _DeadlineHeaderReader(self.fp, deadline, timeout)
             return super()._read_status()
 
+    def bounded_connect(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, source_address=None):
+        return _deadline_native_connection(address, timeout, source_address, deadline)
+
     class DeadlineHTTPConnection(http.client.HTTPConnection):
         response_class = DeadlineResponse
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._create_connection = bounded_connect
+
     class DeadlineHTTPSConnection(http.client.HTTPSConnection):
         response_class = DeadlineResponse
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._create_connection = bounded_connect
 
     class DeadlineHTTPHandler(urllib.request.HTTPHandler):
         handler_order = 450  # Before urllib's default transport handler (500).
