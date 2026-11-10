@@ -136,7 +136,8 @@ RECEIPT = re.compile(
     r"(?:" + re.escape(RECEIPT_FOOTER) + r")?\s*\Z", re.DOTALL)
 
 
-def codex_receipts(issue_comments):
+def codex_receipts(issue_comments, expected_head):
+    """Ignore attributable stale receipt prose; verify current head strictly."""
     receipts = []
     for comment in issue_comments:
         if not isinstance(comment, dict):
@@ -148,9 +149,19 @@ def codex_receipts(issue_comments):
             raise EvidenceError("authenticated Codex comment has invalid body")
         if RECEIPT_MARKER not in body:
             continue
-        match = RECEIPT.fullmatch(body)
-        if (not match or body.count(RECEIPT_MARKER) != 1
+        if (body.count(RECEIPT_MARKER) != 1
                 or body.count("**Reviewed commit:**") != 1):
+            raise EvidenceError("ambiguous or unrecognized authenticated Codex receipt")
+        # A single authenticated, syntactically valid reviewed-commit marker
+        # establishes that an unfamiliar historical receipt is not evidence
+        # for this exact head. Do not loosen the current receipt grammar.
+        attribution = re.search(r"\*\*Reviewed commit:\*\* `([a-f0-9]{10,40})`", body)
+        if attribution is None:
+            raise EvidenceError("authenticated Codex receipt lacks a unique valid commit")
+        if not expected_head.startswith(attribution[1]):
+            continue
+        match = RECEIPT.fullmatch(body)
+        if not match:
             raise EvidenceError("ambiguous or unrecognized authenticated Codex receipt")
         cid, updated, moment = source_identity(comment)
         created = comment.get("created_at")
@@ -237,7 +248,7 @@ def codex_status(issue_comments, expected_head, commit_resolutions=None,
         # major issues. It does NOT turn unknown finding flags into false and
         # cannot clear a known unresolved result from another authenticated state.
         matching = []
-        for receipt in codex_receipts(issue_comments):
+        for receipt in codex_receipts(issue_comments, expected_head):
             prefix = receipt["commit_prefix"]
             if not expected_head.startswith(prefix):
                 continue
