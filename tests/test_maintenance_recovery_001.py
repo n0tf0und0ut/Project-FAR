@@ -66,6 +66,20 @@ class HistoricalReplayTests(unittest.TestCase):
             self.assertEqual(record["coding_agent_executions"], 0)
             self.assertEqual(record["blind_trial_status"], "NOT_EXECUTED_NO_ISOLATED_AGENT_RUNTIME")
 
+    def test_exact_historical_source_replay_from_git_checkout(self):
+        """Run the two actual pinned modules when complete Git history is present.
+
+        Repository Health uses an all-history checkout; standalone bundles do
+        not. Never silently count a synthetic fixture as this real replay.
+        """
+        root = Path(__file__).resolve().parents[1]
+        if not (root / ".git").exists():
+            self.skipTest("no Git checkout: source-exact replay not executed")
+        result = b.replay(root)
+        self.assertTrue(result["replay_passed"], result)
+        self.assertEqual(result["cases"], b.EXPECTED)
+        self.assertEqual(result["coding_agent_executions"], 0)
+
     def test_missing_history_and_invalid_identity_fail_closed(self):
         with tempfile.TemporaryDirectory() as td:
             with self.assertRaisesRegex(RuntimeError, "unavailable"):
