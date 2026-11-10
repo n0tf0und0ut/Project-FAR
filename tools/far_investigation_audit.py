@@ -76,6 +76,7 @@ def audit(state) -> dict:
     from tools.far_investigation_engine import (
         build_discovery, build_inspection, build_report, validate_dispatch, validate_proposal,
         select_native_candidate, SYSTEM, function_schema, LOCAL_MODEL_RESPONSE_MAX_BYTES,
+        check_model_proposal_nesting,
     )
     errors = []
     counters = {}
@@ -456,6 +457,10 @@ def audit(state) -> dict:
                         parsed_proposal = {'tool': function['name'], 'args': _parse(function['arguments'])}
                     else:
                         parsed_proposal = _parse(message['content'])
+                    # LocalModel rejects over-nested proposals before creating
+                    # MODEL_PROPOSAL, including proposals later rejected by tools.
+                    guarded(path + '.native_proposal_nesting',
+                            lambda: check_model_proposal_nesting(parsed_proposal))
                     equal(path + '.parsed_proposal', parsed_proposal, payload['proposal'])
                     equal(path + '.tokens', response['usage']['total_tokens'], count)
                     # The producing LocalModel rejects non-text or oversized
@@ -647,6 +652,16 @@ def audit(state) -> dict:
                         freeze_events.append((index, payload['result']))
                 elif kind == 'TOOL_REJECTED':
                     rejections += 1
+                    if (type(payload) is dict and payload.get('class') == 'EngineError'
+                            and payload.get('reason') == 'wall-clock budget exhausted'):
+                        # limits() runs before the next model/tool attempt. Once
+                        # monotonic time is exhausted, runtime can only record
+                        # terminal FAILURE and FINAL_STATE_SEAL, never continue.
+                        if (state['status'] != 'FAILED_OR_INCOMPLETE'
+                                or index != len(events) - 2
+                                or events[index]['kind'] != 'FAILURE'):
+                            fail('wall_clock_exhaustion.terminal',
+                                 'recorded time exhaustion cannot precede further execution or completion')
                 tool_pending = absent
         equal('START.kind', events[0]['kind'], 'START')
         equal('START.question_sha256', events[0]['payload']['question_sha256'], state['question_sha256'])
@@ -889,7 +904,6 @@ def audit(state) -> dict:
 
         successful_evidence_at = {result['evidence_id']: at for at, proposal, result in tool_results
                                   if proposal['tool'] == 'extract'}
-        successful_comparison_at = accepted_producers('compare', state['comparisons'], lambda row: row)
         successful_far_at = accepted_producers('verify_far', state['far_verifications'], lambda row: row['result'])
         successful_discovery_at = {}
         for at, proposal, result in tool_results:
@@ -1071,9 +1085,12 @@ def audit(state) -> dict:
                             if accepted:
                                 equal('compare.proposal', result, expected)
                             offset = len(produced_comparisons)
+                            # Compare rows have no unique ID. A post-dispatch
+                            # rejection may append an identical row *before* an
+                            # accepted retry; allocate each occurrence in actual
+                            # attempt order, not by reserving matches for success.
                             if accepted or (rejected_postdispatch and offset < len(state['comparisons'])
-                                            and state['comparisons'][offset] == expected
-                                            and successful_comparison_at.get(offset, index) == index):
+                                            and state['comparisons'][offset] == expected):
                                 produced_comparisons.append(expected)
             # These actual mutable effects invalidate the draft and its terminal
             # stability pass even when the later budget check rejects the call.
