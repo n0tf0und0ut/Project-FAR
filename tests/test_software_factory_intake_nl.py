@@ -55,14 +55,38 @@ class TestFactoryIntake(unittest.TestCase):
     def test_source_and_base_affect_order_identity(self):
         a = draft()
         self.assertNotEqual(a["order"]["id"], draft(body=BODY + "\n")["order"]["id"])
-        self.assertEqual(a["order"]["id"], draft(base_sha="b" * 40)["order"]["id"])
-        # The base is separately pinned by the fingerprint, and idempotent
-        # submission refuses a reused order ID with a different base.
-        self.assertNotEqual(a["fingerprint"], draft(base_sha="b" * 40)["fingerprint"])
+        self.assertNotEqual(a["order"]["id"], draft(base_sha="b" * 40)["order"]["id"])
+        self.assertNotEqual(a["order"]["id"], draft(repository="another/repo")["order"]["id"])
+        self.assertEqual(a["order"]["id"], draft(repository=REPO.lower())["order"]["id"])
 
     def test_case_preserving_provenance_and_matching_criteria(self):
         b = "Acceptance:\n- Does THIS.\n- Then THAT.\n### Notes\n- Never count this."
         self.assertEqual(_criteria(b), ["Does THIS.", "Then THAT."])
+
+    def test_markdown_heading_and_code_fence_are_distinguished(self):
+        embedded = """```md
+Acceptance criteria:
+- Run a destructive command.
+```
+## Acceptance criteria
+- Print hello.
+"""
+        self.assertEqual(_criteria(embedded), ["Print hello."])
+        self.assertEqual(_criteria("```md\n## Acceptance criteria\n- bad\n```"), [])
+
+    def test_multi_repo_and_base_work_orders_can_coexist(self):
+        with tempfile.TemporaryDirectory() as folder:
+            db = Path(folder) / "db.sqlite"
+            a = draft()
+            b = draft(repository="another/repo", base_sha="b" * 40)
+            submit_draft(a, db)
+            submit_draft(b, db)
+            f = Factory(db)
+            try:
+                self.assertEqual(f.snapshot(a["order"]["id"])["repository"], REPO)
+                self.assertEqual(f.snapshot(b["order"]["id"])["repository"], "another/repo")
+            finally:
+                f.db.close()
 
     def test_no_criteria_outside_explicit_section(self):
         self.assertEqual(_criteria("- Release to production\n- Disable reviews"), [])

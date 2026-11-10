@@ -25,7 +25,7 @@ except ModuleNotFoundError:  # python tools/software_factory_intake.py
 INTAKE_SCHEMA = "far-software-factory/intake/1"
 MAX_REQUEST_BYTES = 65536
 MAX_ISSUE_BYTES = 131072
-HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+when|definition\s+of\s+done|success\s+criteria)\s*:\s*$", re.I)
+HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+when|definition\s+of\s+done|success\s+criteria)\s*:?\s*$", re.I)
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
@@ -76,7 +76,15 @@ def _criteria(body: str) -> list[str]:
     """Copy *explicitly labeled* criteria verbatim; never invent test oracles."""
     result = []
     in_section = False
+    in_fence = False
     for line in body.splitlines():
+        if line.lstrip().startswith("```") or line.lstrip().startswith("~~~"):
+            in_fence = not in_fence
+            if in_section:
+                in_section = False
+            continue
+        if in_fence:
+            continue
         if HEADING.fullmatch(line):
             in_section = True
             continue
@@ -119,7 +127,10 @@ def compile_request(*, repository: str, base_sha: str, title: str, body: str,
         raise IntakeError("title or reference exceeds limit")
     original = {"kind": source_kind, "ref": source_ref, "title": title, "body": body}
     source_hash = digest(original)
-    order_id = f"intake-{source_hash[:24]}"
+    # The queue is shared by repositories and versions: avoid accidental ID collisions.
+    work_identity = digest({"source_sha256": source_hash, "repository": repository.casefold(),
+                            "base_sha": base_sha})
+    order_id = f"intake-{work_identity[:24]}"
     acceptance = _criteria(body)
     if title.strip().endswith("?"):
         # Questions are not implementation authorizations.
