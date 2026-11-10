@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import hashlib
+import importlib.machinery
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -120,6 +121,18 @@ def _oracle_digest(worktree: Path, path: str) -> str:
     # code whose bytes were never compared to the frozen oracle digest.
     if any((worktree / "tests").rglob("*.pyc")):
         raise RunnerError("precompiled test bytecode is forbidden")
+    # CPython resolves extension modules before .py sources for a matching
+    # import name. unittest discovery's filename filter alone does not
+    # constrain importlib to load the registered test source bytes.
+    # Reject any alternate native module that could shadow this oracle.
+    extensions = tuple(importlib.machinery.EXTENSION_SUFFIXES)
+    stem = current.stem
+    if any(
+        path.is_file()
+        and any(path.name == stem + suffix for suffix in extensions)
+        for path in (worktree / "tests").rglob("*")
+    ):
+        raise RunnerError("native extension can shadow frozen Python test oracle")
     return sha256_file(current)
 
 

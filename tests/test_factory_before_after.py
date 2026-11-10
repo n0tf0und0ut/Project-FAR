@@ -5,6 +5,7 @@ These tests use isolated synthetic repositories, not FAR's enrolled pilot tasks.
 from __future__ import annotations
 
 import hashlib
+import importlib.machinery
 import json
 import os
 import py_compile
@@ -228,6 +229,38 @@ class BeforeAfterTests(unittest.TestCase):
         receipt = json.loads((self.out / "receipt.json").read_text())
         self.assertEqual(receipt["verdict"], "UNKNOWN")
         self.assertIsNone(receipt["after"])
+
+
+    def test_native_extension_cannot_shadow_registered_test_source(self):
+        # Native extensions take precedence over matching .py source imports.
+        # A candidate must not supply a different test module body under the
+        # same import name while claiming the frozen oracle's source digest.
+        (self.repo / "demo.py").write_text("def execute():\n    return False\n")
+        baseline = self.commit("unchanged failing source before extension")
+        extension = self.repo / "tests" / (
+            "test_demo" + importlib.machinery.EXTENSION_SUFFIXES[-1]
+        )
+        extension.write_bytes(b"candidate-controlled extension placeholder")
+        candidate = self.commit("extension shadows source test module")
+        self.assertEqual(runner.sha256_file(self.test_file), self.oracle)
+        with self.assertRaisesRegex(runner.RunnerError, "native extension"):
+            self.measure(baseline, candidate, self.oracle)
+        receipt = json.loads((self.out / "receipt.json").read_text())
+        self.assertIsNone(receipt["before"])
+        self.assertIsNone(receipt["after"])
+        self.assertEqual(receipt["verdict"], "UNKNOWN")
+
+    def test_nested_native_oracle_alias_rejected_before_execution(self):
+        (self.repo / "demo.py").write_text("def execute():\n    return False\n")
+        baseline = self.commit("same frozen baseline")
+        hidden = self.repo / "tests/hidden"
+        hidden.mkdir()
+        (hidden / ("test_demo" + importlib.machinery.EXTENSION_SUFFIXES[-1])).write_bytes(
+            b"unregistered native test module"
+        )
+        candidate = self.commit("nested competing importable oracle")
+        with self.assertRaisesRegex(runner.RunnerError, "native extension"):
+            self.measure(baseline, candidate, self.oracle)
 
     def test_interpreter_uses_private_bytecode_cache(self):
         record = self.measure()
