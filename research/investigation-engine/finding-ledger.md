@@ -1078,6 +1078,14 @@ independent exact-head review are separately required before protected merge.
 
 **Correction:** commit `b3a67ac9e8e1df7f0052a8963f8ecd269d64e5b4` requires actual query/provider/receipt-observation binding and either an accepted producer or a demonstrated post-dispatch mutation, allocating duplicate retained rows in chronological attempt order. **Regressions:** `test_failed_postdispatch_search_retry_keeps_both_identical_retained_rows` in commit `8b2782b7f86e9a65b4a04bc14baaabc128291136` exercises the failed-checkpoint/accepted-retry path; the existing `test_identical_failed_search_observation_cannot_consume_a_later_retry` protects a failure *before* any row is retained. Both passed in the hosted exact-head Investigation Engine runtime step of run 42864359899 (351 tests, 5 optional skips); complete workflow, separate exact-head independent review and protected merge requirements remain outstanding. This preserves original frozen negative evidence.
 
+## November 10, 2026 — independent exact-head review: native admission, identical producers, and terminal exhaustion
+
+**ENG-NATIVE-PROPOSAL-DEPTH-REPLAY-20261110** — authenticated Codex P2, thread `PRRT_kwDOTH_vCM61zlfa`, reviewed `75f8fa18ef9c129755b4c38843cae9f43b61983a`. A fully resealed native model response can agree with every recorded proposal copy yet contain JSON nesting deeper than the producing LocalModel allows. Runtime rejects such a response before `MODEL_PROPOSAL`; the offline auditor had accepted it. Current replay invokes the same bounded native `check_model_proposal_nesting` before accepting the reconstructed proposal. `test_native_replay_rejects_over_nested_model_proposal` checks rejection of the impossible record while the unmodified native completion remains valid.
+
+**ENG-COMPARISON-DUPLICATE-PRODUCER-20261110** — authenticated Codex P2, thread `PRRT_kwDOTH_vCM61zlfk`, same reviewed head. A comparison may append a result before a `DISCOVERY_INVALIDATED` checkpoint raises `OSError`; an accepted retry can append an identical second result. Earlier accepted-first reservation credited the later retry with the first row and rejected an authentic completed transcript. Replay now allocates retained comparison rows in actual attempt order and still requires a proved post-dispatch mutation for rejected attempts. `test_postdiscovery_rejected_comparison_retry_retains_both_identical_rows` preserves this positive behavior; separately existing pre-dispatch/retry controls reject invented effects.
+
+**ENG-TERMINAL-WALL-CLOCK-REPLAY-20261110** — authenticated Codex P2, thread `PRRT_kwDOTH_vCM61zlfz`, same reviewed head. A resealed `TOOL_REJECTED` event claiming `EngineError: wall-clock budget exhausted` previously permitted later model actions and successful completion. The monotonic runtime cannot continue after this boundary. Replay requires the terminal failed status, immediate `FAILURE` and final seal instead. `test_resealed_wall_clock_exhaustion_cannot_continue_to_completion` rejects forged continuation; legitimate post-dispatch failed attempts remain auditable failures. These corrections preserve frozen original outcomes.
+
 ## Known review-failure-class coverage index (2026-11-10)
 
 This Research-status index classifies **every unique recorded root-cause ID** in the preceding ledger, including inherited historical fixes, into one primary testable failure class. The controls below are *representative existing regression methods* for each class, not one-to-one proofs for every root-cause ID. In particular, a method's existence is not a proof that it detects every member of its class. These are engineering-level controlled tests, not independent scientific replication, source truth, general agent reliability, or evidence that any future defect is impossible. Missing original Open Deep Research source binding remains BLOCKED_GOVERNANCE. Original frozen results remain unchanged.
@@ -1149,6 +1157,7 @@ New root-cause IDs require corresponding class allocation and evidence-linked te
         "ENG-MODEL-NATIVE-BYTE-CEILING-20261110",
         "ENG-MODEL-QUESTION-ATTRIBUTION-20261109",
         "ENG-NATIVE-MODEL-ID-REPLAY-20261110",
+        "ENG-NATIVE-PROPOSAL-DEPTH-REPLAY-20261110",
         "ENG-REJECTED-ARGUMENT-ENVELOPE-20261109",
         "HIST-608-MODEL-200",
         "RC608-MODEL-REDIRECT"
@@ -1169,6 +1178,7 @@ New root-cause IDs require corresponding class allocation and evidence-linked te
       ],
       "finding_ids": [
         "ENG-ACCEPTED-CHECKPOINT-DURABILITY",
+        "ENG-COMPARISON-DUPLICATE-PRODUCER-20261110",
         "ENG-COMPARISON-PROPOSAL",
         "ENG-DISPATCH-PRECONDITIONS",
         "ENG-EVENT-TRANSPORT-OWNER-20261110",
@@ -1263,6 +1273,7 @@ New root-cause IDs require corresponding class allocation and evidence-linked te
         "ENG-FINISH-TRANSACTION",
         "ENG-RESOURCE-SCALARS",
         "ENG-TERMINAL-FAILURE-STATUS-20261110",
+        "ENG-TERMINAL-WALL-CLOCK-REPLAY-20261110",
         "ENG-TOKEN-DISPATCH-ELIGIBILITY"
       ]
     },
