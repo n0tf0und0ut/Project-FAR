@@ -7,6 +7,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import py_compile
 from pathlib import Path
 import subprocess
 import sys
@@ -201,6 +202,39 @@ class BeforeAfterTests(unittest.TestCase):
         after = self.commit("change source with duplicate test basename")
         with self.assertRaisesRegex(runner.RunnerError, "ambiguous"):
             self.measure(before, after, self.oracle)
+
+    def test_unchecked_hash_pyc_cannot_substitute_frozen_oracle(self):
+        # This reproduces the Codex review's executable-oracle substitution:
+        # same registered test source bytes, but a checked-in unchecked-hash
+        # compiled cache contains a different (passing) test body.
+        (self.repo / "demo.py").write_text("def execute():\\n    return False\\n".replace("\\n", "\n"))
+        older = self.commit("baseline still fails")
+        source = self.test_file.read_text()
+        self.test_file.write_text(
+            "import unittest\\nclass Forged(unittest.TestCase):\\n"
+            "    def test_always_pass(self):\\n        self.assertTrue(True)\\n".replace("\\n", "\n")
+        )
+        cache = self.repo / "tests/__pycache__"
+        cache.mkdir(exist_ok=True)
+        pyc = cache / ("test_demo." + sys.implementation.cache_tag + ".pyc")
+        py_compile.compile(str(self.test_file), cfile=str(pyc), doraise=True,
+                           invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+        self.test_file.write_text(source)
+        self.assertEqual(runner.sha256_file(self.test_file), self.oracle)
+        newer = self.commit("candidate adds unregistered checked-in bytecode")
+        with self.assertRaisesRegex(runner.RunnerError, "precompiled test bytecode"):
+            self.measure(older, newer, self.oracle)
+        self.assertTrue((self.out / "receipt.json").is_file())
+        receipt = json.loads((self.out / "receipt.json").read_text())
+        self.assertEqual(receipt["verdict"], "UNKNOWN")
+        self.assertIsNone(receipt["after"])
+
+    def test_interpreter_uses_private_bytecode_cache(self):
+        record = self.measure()
+        self.assertIn("-X", record["before"]["command"])
+        args = record["before"]["command"]
+        self.assertTrue(any(value.startswith("pycache_prefix=") for value in args))
+        self.assertEqual(list(self.out.glob("far-pycache-*")), [])
 
     @unittest.skipUnless(os.name == "posix", "requires POSIX symlink support")
     def test_symlinked_parent_cannot_redirect_receipts_into_source(self):
