@@ -825,3 +825,32 @@ Independent Codex reviewed exact head `5228514155e66b6e9076e947c0129ca90cf69080`
 | **ENG-FAILED-MODEL-TRANSPORT-BYTE-BINDING-20261110** / `PRRT_kwDOTH_vCM61gS53`, comment 4519660034 | An actual malformed final model response had 10 tokens in its completed native transport, but self-consistently rewriting outer model response body/hash to `{}` and declared model tokens to zero passed audit despite contradictory transport bytes. Existing byte binding covered accepted `MODEL_PROPOSAL` only. | For every owned model envelope with native transport, including `MODEL_OBSERVATION` and failed final `model_calls[n]`, require outer response body, hash and retained byte count to equal that nested native transport. `test_failed_native_model_bytes_cannot_disagree_with_transport_after_reseal` executes malformed `message=null`, confirms the original failure is audit-valid with retained token usage, then rewrites every outer response copy and reseals; the audit must reject the mismatch. |
 
 The new external independent exact-head review, canonical/targeted hosted CI, protected merge authority, authenticated review-convergence metadata, and protected App gate remain separate release requirements. Internal consistency checks do not authenticate the model process, source truth or actual token billing.
+
+
+## November 10, 2026 — twelfth exact-head Codex review and corrective candidate
+
+Independent Codex reviewed PR #614's exact head `e9ca716951af1fe89677ae2adc69c01ec2b813fe`
+and opened four substantive P2 threads. This entry preserves the concrete
+counterexamples, candidate root-cause corrections, and regression obligations.
+It is not a certification of the new head, a new scientific experiment, or
+authorization to bypass protected checks.
+
+| Finding / review thread / comment | Independent counterexample | Correction and defect-detecting regression |
+| --- | --- | --- |
+| **ENG-DEADLINE-OPERATOR-TLS-20261110**, `PRRT_kwDOTH_vCM61nuuY`, 4522844715 | An operator-supplied `HTTPSHandler(context=operator_context)` is superseded by the deadline handler at priority 450, which constructs a default TLS context. Native HTTPS connection uses a different trust context when deadline enforcement is enabled. | Derive the request-local deadline HTTPS handler's `context` from the copied original operator HTTPS handler; retain hostname checking on that same configured SSLContext, without inventing a private `_check_hostname` attribute. `test_deadline_https_keeps_operator_ssl_context_and_opener_ownership` observes context identity through a native HTTPS connection over an AF_UNIX socketpair while checking the caller-owned handler list and parent links remain unchanged. |
+| **ENG-TERMINAL-FAILURE-STATUS-20261110**, `PRRT_kwDOTH_vCM61nuug`, 4522844730 | Insert a `FAILURE` event into an otherwise completed run immediately before `FINAL_STATE_SEAL`, renumber events, and recompute hashes. Offline audit previously accepted completed status even though the runtime always terminates after emitting `FAILURE`. | Require at most one `FAILURE`, immediately before the final seal, and only with `FAILED_OR_INCOMPLETE`; conversely require that a failed final status have its terminal failure evidence. `test_resealed_terminal_failure_cannot_be_scored_as_completion` mutates valid agent and deterministic transcripts; the genuine completed controls must remain valid. |
+| **ENG-MODEL-NATIVE-BYTE-CEILING-20261110**, `PRRT_kwDOTH_vCM61nuur`, 4522844744 | Rewriting all six owned copies of a native model response, padding beyond the reader's 1,000,000-byte limit, and resealing still certified a completed run. The native reader cannot accept that body. | Name the runtime's 1,000,000-byte finite `LOCAL_MODEL_RESPONSE_MAX_BYTES` once, use it in `LocalModel` and the offline native-transport auditor, and reject over-limit retained responses even after consistent hashes and lengths are forged. `test_resealed_oversized_native_model_response_cannot_pass_replay` retains genuine accepted native evidence as positive control before the mutation. |
+| **ENG-FREEZE-PRODUCER-ATTRIBUTION-20261110**, `PRRT_kwDOTH_vCM61nuux`, 4522844758 | A freeze proposal checkpoint fails before dispatch; a second freeze actually mutates intake to FROZEN but is post-dispatch rejected when the wall-clock deadline expires. A permissive fallback credited the earlier undispatched rejection, producing a false prompt reconstruction. | Attribute a retained freeze without `TOOL_RESULT` only to the matching post-dispatch budget-expiration rejection of `freeze`, never to a prior `OSError` proposal checkpoint rejection. `test_undispatched_freeze_rejection_cannot_steal_retried_freeze` exercises the two attempts with a native LocalModel-shaped request and verifies authentic audit success. |
+
+The first hosted corrective candidate `316f8fc0806e16e81f6f59a5bed7b65483408727`
+exposed an implementation defect in the TLS adapter, not a preserved
+research-evidence discrepancy: Python's standard `HTTPSHandler` does not
+provide an `_check_hostname` attribute. Frozen-evidence and uncertain-routing
+workflows failed with `AttributeError` from the added lookup. Candidate commit
+`5826eafcf40ded2231a037bed2c72edc3c3b5fcd` removes the unsupported
+attribute access and instead passes the preserved original SSLContext through
+stdlib's `context` parameter. The exact-head hosted rerun, independent review,
+review-convergence metadata and protected checks must be verified separately
+before any merge-ready verdict. No frozen evidence, prior negative outcome,
+research registration, accepted theory, or general agent performance claim
+was changed by these corrections.
