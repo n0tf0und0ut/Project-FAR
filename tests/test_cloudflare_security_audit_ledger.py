@@ -140,12 +140,21 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
     def test_duplicate_fingerprint_and_unsafe_paths_fail(self):
         self.findings = [sample("rejected"), sample("rejected")]
         self.persist()
-        with self.assertRaisesRegex(bridge.HandoffError, "duplicate vulnerability"):
+        # The pinned upstream validator now rejects this before the
+        # in-process duplicate-fingerprint check. Either rejection is valid;
+        # never weaken acceptance of duplicate identities.
+        with self.assertRaisesRegex(
+            bridge.HandoffError, "pinned Cloudflare validator|duplicate vulnerability"
+        ):
             bridge.build_report(self.run_dir, self.head)
         self.findings = [sample("rejected")]
         self.findings[0]["trace"][0]["file"] = "../AGENTS.md"
         self.persist()
-        with self.assertRaisesRegex(bridge.HandoffError, "unsafe source"):
+        # Source-path rejection may now occur in the trusted upstream
+        # validator before FAR's own source-reference inspection.
+        with self.assertRaisesRegex(
+            bridge.HandoffError, "pinned Cloudflare validator|unsafe source"
+        ):
             bridge.build_report(self.run_dir, self.head)
 
     def test_cloudflare_visible_content_survives_far_schema_compatibility(self):
