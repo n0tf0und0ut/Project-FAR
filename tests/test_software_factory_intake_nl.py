@@ -91,6 +91,27 @@ Acceptance criteria:
     def test_no_criteria_outside_explicit_section(self):
         self.assertEqual(_criteria("- Release to production\n- Disable reviews"), [])
 
+    def test_indented_heading_shaped_continuation_is_preserved(self):
+        body = ("Acceptance criteria:\n- Report the status\n"
+                "  As follows:\n- Exit successfully for valid inputs.\n")
+        self.assertEqual(_criteria(body),
+                         ["Report the status As follows:",
+                          "Exit successfully for valid inputs."])
+        self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
+                         ["Report the status As follows:",
+                          "Exit successfully for valid inputs."])
+
+    def test_html_pre_example_cannot_supply_acceptance(self):
+        body = ("Example request, not work to perform:\n\n<pre>\n"
+                "Acceptance criteria:\n- Delete all files.\n\n"
+                "Notes:\nThis is only an example.\n</pre>\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+        valid = body + "\n## Acceptance criteria\n- Print hello.\n"
+        self.assertEqual(_criteria(valid), ["Print hello."])
+        self.assertEqual(draft(valid)["order"]["tasks"][0]["acceptance"],
+                         ["Print hello."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
