@@ -1,0 +1,49 @@
+{
+  "schema": "far-factory-retrospective-evidence/1",
+  "status": "Research",
+  "study_context": "FAR-FACTORY-SELF-EVAL-001",
+  "observation_scope": "retrospective software-factory queue regression, not registered factory-vs-control pilot",
+  "collector": {
+    "workflow_run_id": 42799062260,
+    "artifact_id": 13754088960,
+    "collector_candidate_head": "64fd5a467cdfdb954e72ed66d35366f5398fd488",
+    "workflow_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42799062260",
+    "source_artifact_expires": "2026-11-17T10:29:10Z"
+  },
+  "source": {
+    "repository": "n0tf0und0ut/Project-FAR",
+    "before_commit": "e2648ea204d033756c8185fc3cea82ce9f26d125",
+    "after_commit": "6a7d5eb2864bb3440a34b0bcbdb041a452996d44",
+    "test_oracle_path": "tests/test_software_factory.py",
+    "test_oracle_sha256": "cc1d5e04edd20863ce9ebed97390d0436ac94bb2154e27510d4d4ba2fdb35c5b"
+  },
+  "archive": {
+    "path": "research/factory-evaluation/queue-lock-retrospective-20261110.zip",
+    "size_bytes": 3016,
+    "sha256": "db4ea051f37c2eb271974d9612ee212d1972d8eb849cf4f96621d61e816c98c7",
+    "git_blob_sha1": "d8890747d4e6af8d7b654398efbc56f5d2a2a123"
+  },
+  "observed": {
+    "before": {
+      "test_count": 14,
+      "exit_code": 1,
+      "status": "FAIL",
+      "errors": 1
+    },
+    "after": {
+      "test_count": 14,
+      "exit_code": 0,
+      "status": "PASS",
+      "errors": 0
+    },
+    "verdict": "OBSERVED_EXIT_STATUS_IMPROVEMENT",
+    "defect": "SQLite OperationalError database is locked in unrelated claim while GitHub observation held writer transaction"
+  },
+  "limitations": [
+    "This is a post hoc pair of historical factory component commits, not eight prospectively randomized factory-versus-control tasks.",
+    "Observed unit-test pass/fail and logs do not prove general autonomous software engineering reliability or commercial benefit.",
+    "The project retains the exact originally downloaded GitHub ZIP bytes without modifying the baseline or after logs; this Research archive becomes protected Git source only through normal review/merge.",
+    "The originating hosted workflow artifact expires; source authenticity relies on preserved GitHub run metadata, observed artifact digest and independent review of this Research copy.",
+    "The collector was a development-PR candidate at run time; output is not a signed independent scientific result."
+  ]
+}
