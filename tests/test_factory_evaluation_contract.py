@@ -111,6 +111,27 @@ class FactoryEvaluationContractTests(unittest.TestCase):
         self.assertIn("SHA-256(UTF-8(seed + ':' + task_id))", text)
         self.assertIn("SHA-256(UTF-8(seed + ':start'))", text)
 
+    def test_registered_algorithm_rejects_non_eight_task_cohorts(self):
+        for size in (2, 7, 9, 40):
+            with self.subTest(size=size):
+                self.doc["sampling"]["target_distinct_tasks"] = size
+                self.reject(self.doc, "task target")
+
+    def test_validator_and_allocator_agree_on_cohort_size(self):
+        seed = "0123456789abcdef" * 4
+        for size in (7, 8, 9):
+            with self.subTest(size=size):
+                cohort = [f"task-{i:02d}" for i in range(size)]
+                if size == 8:
+                    self.assertEqual(len(contract.allocation_schedule(seed, cohort)), size)
+                    self.doc["sampling"]["target_distinct_tasks"] = size
+                    contract.validate(self.doc)
+                else:
+                    with self.assertRaisesRegex(contract.ContractError, "eight"):
+                        contract.allocation_schedule(seed, cohort)
+                    self.doc["sampling"]["target_distinct_tasks"] = size
+                    self.reject(self.doc, "task target")
+
     def test_requires_independent_execution_manifest_before_tasks(self):
         self.doc["execution_manifest"]["required_before_task_execution"] = False
         self.reject(self.doc, "required_before_task_execution")
