@@ -91,6 +91,13 @@ place credentials in tracked files or PR comments.
 The PR validation job runs:
 `python -m unittest tests.test_external_ai_reviewers tests.test_workflow_token_permissions -v`
 
+The same unprivileged `pull_request` contract job also runs
+`python tools/advisory_jq_differential.py`, which extracts the actual
+source workflow fallback selector and tests it using real `jq` on
+exact-head, stale-head and cross-repository fixtures. Traced canonical
+validation retains its isolated jq shim and must not execute unregistered
+system tools; the separate real-jq step detects selector drift.
+
 After protected merge and credentials/App installation, use a new small
 main-targeting PR and verify separately that (a) CodeRabbit reports the
 current SHA, (b) OCR records the current SHA, generates an artifact with no

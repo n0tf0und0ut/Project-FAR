@@ -134,7 +134,9 @@ def field(path):
 if query.startswith("[.workflow_run.pull_requests[].number]"):
     values = sorted(set(item["number"] for item in data["workflow_run"]["pull_requests"]))
     answer = values[0] if len(values) == 1 else ""
-elif query.startswith("[.[][] | select("):
+elif query == ("[.[][] | select(.head.ref == $branch and "
+               ".head.repo.full_name == $repo and .head.sha == $source_sha) "
+               "| .number] | unique"):
     named = {}
     for idx, word in enumerate(args[:-2]):
         if word == "--arg":
@@ -229,6 +231,11 @@ jq() { "$PYTHON_INTERPRETER" -c "$PY_JQ_MODEL" "$@"; }
         self.assertEqual(run_step["with"]["head_sha"],
                          "\u0024{{ steps.context.outputs.head_sha }}")
         self.assertIn("workflow_run", _events(self.workflow))
+        contract_steps = self.workflow["jobs"]["contract"]["steps"]
+        self.assertTrue(any(
+            "python tools/advisory_jq_differential.py" in str(step.get("run", ""))
+            for step in contract_steps
+        ))
 
     def test_hygiene_recognizes_real_coderabbit_globs(self):
         result = subprocess.run(

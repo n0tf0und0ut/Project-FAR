@@ -48,6 +48,8 @@ jobs:
           python -m unittest \
             tests.test_external_ai_reviewers \
             tests.test_workflow_token_permissions -v
+      - name: Evaluate deployed fallback jq selector against counterexamples
+        run: python tools/advisory_jq_differential.py
 
   review:
     if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
