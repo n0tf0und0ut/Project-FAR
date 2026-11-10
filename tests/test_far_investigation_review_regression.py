@@ -264,7 +264,7 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
         self.assertTrue(payload.startswith('```json') and payload.endswith('```'), payload[:80])
         catalog = json.loads(payload[len('```json'):-len('```')].strip())
         self.assertEqual(catalog['schema'], 'far-investigation-failure-class-coverage/1')
-        ledger_ids = set(re.findall(r'\\b(?:ENG|RC608|HIST-608|HTTP-FRAMING)-[A-Z0-9-]+\\b', earlier))
+        ledger_ids = set(re.findall(r'\b(?:ENG|RC608|HIST-608|HTTP-FRAMING)-[A-Z0-9-]+\b', earlier))
         allocated = [finding for group in catalog['classes']
                      for finding in group['finding_ids']]
         self.assertEqual(len(allocated), len(set(allocated)), 'duplicate finding assignment')
