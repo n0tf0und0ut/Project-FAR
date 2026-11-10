@@ -327,6 +327,53 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             with self.assertRaisesRegex(bridge.HandoffError, "dirty|do not match exact HEAD|does not exist"):
                 bridge.inspect_source_references(references, repo)
 
+    def test_checkout_switch_cannot_substitute_evidence_for_requested_sha(self):
+        # An unrelated process changes HEAD after validation began but before
+        # source evidence is read. The requested commit must remain the oracle.
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "checkout"
+            repo.mkdir()
+            def git(*args):
+                return subprocess.run(
+                    ["git", *args], cwd=repo, capture_output=True, check=True,
+                ).stdout.strip()
+            git("init", "-q")
+            git("config", "user.name", "FAR race fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            evidence = repo / "evidence.py"
+            evidence.write_text("original line\n", encoding="utf-8")
+            git("add", "evidence.py")
+            git("commit", "-qm", "frozen evidence")
+            frozen = git("rev-parse", "HEAD").decode()
+            evidence.write_text("original line\nforged line\n", encoding="utf-8")
+            git("add", "evidence.py")
+            git("commit", "-qm", "later source")
+            later = git("rev-parse", "HEAD").decode()
+            git("checkout", "-q", frozen)
+
+            self.meta["source_ref"] = frozen
+            self.findings = [sample("rejected")]
+            for kind in ("trace", "evidence"):
+                self.findings[0][kind][0]["file"] = "evidence.py"
+                self.findings[0][kind][0]["line"] = 2
+            self.persist()
+            original_validate = bridge.validate_with_pinned_cloudflare
+            calls = [0]
+            def switch_after_validation(*args, **kwargs):
+                result = original_validate(*args, **kwargs)
+                calls[0] += 1
+                if calls[0] == 2:
+                    git("checkout", "-q", later)
+                return result
+            with patch.object(bridge, "validate_with_pinned_cloudflare",
+                              side_effect=switch_after_validation):
+                with self.assertRaisesRegex(
+                        bridge.HandoffError,
+                        "do not match exact|source line does not exist|checkout changed"):
+                    bridge.build_report(self.run_dir, frozen, source_root=repo)
+            self.assertEqual(calls[0], 2)
+            self.assertEqual(git("rev-parse", "HEAD").decode(), later)
+
     def test_output_must_be_outside_repository(self):
         process = subprocess.run(
             [
