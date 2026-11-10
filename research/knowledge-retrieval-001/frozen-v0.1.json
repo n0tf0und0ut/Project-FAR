@@ -1,0 +1,844 @@
+{
+  "format": "far-cross-investigation-retrieval-baseline/0.1",
+  "status": "Research - retrospective internal evaluation fixture",
+  "authority": "none; read-only derived fixture",
+  "snapshot": {
+    "main_commit": "efd855db687215368fe8f466e40d2e5cc7a7a863",
+    "synthesis_path": "research/corpus/synthesis-v1.0.json",
+    "synthesis_git_blob_sha1": "63a63cf84e1b44e3c60fe4eda70cc7fd0ddbc7a3",
+    "synthesis_input_sha256": "a529a77d4b28bd95cd76229fd0b5e73fdb9cbcf4331796a1847985708cb59be0",
+    "corpus_sha256": "4dcc5ddb34e2d17b189c24bce5cb766ec3404ac883804bf1465a5b9daf261d50",
+    "inventory_sha256": "3b32a5bb835dabe5aa252e5013d7d107176887a63e7a3001936aaa8dae1aab56",
+    "synthesis_format": "far-research-synthesis/1.2"
+  },
+  "task": "retrieve exact declared observation and conclusion record identifiers; no scientific inference or source-truth certification",
+  "frozen_before_scoring": true,
+  "cutoff": "2026-11-10",
+  "sources": [
+    {
+      "id": "SRC-CORE",
+      "path": "theory/theorems/Project-FAR-Theory-Closure-v1.1.md",
+      "sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-CALIBRATION",
+      "path": "docs/audits/far-core-epistemic-calibration-v1.0.md",
+      "sha256": "3e93cf7a653cb49135141646028b594166cd80391ab852e16bb695f4495760c6",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-W6",
+      "path": "docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md",
+      "sha256": "beec81427d14d2bd49250e15278d375d1bbca23a543fbac067c2d21ef46a101e",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-LIVING",
+      "path": "research/living/README.md",
+      "sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-LIVING-REVIEW",
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-29.md",
+      "sha256": "a93b37022dff5cee2839c6085c849e2e3b603fabea47e590a95f3548d2d008ca",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-SATURATION",
+      "path": "docs/architecture/saturation-baseline-v0.5.md",
+      "sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-ROOT-AUDIT",
+      "path": "docs/audits/root-of-trust-audit-2026-09.md",
+      "sha256": "2d477eabe765404a3fd59b5146aaa3b0992862e802aa02bb403ba9a140b3f8d4",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-COMPETITION",
+      "path": "docs/audits/ikd-w2-expanded-candidate-competition-audit.md",
+      "sha256": "559fb5bb7167e6bb9dd20e87503ca81c1ac9bd3d332cb6268996f3234fba8085",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-VOCAB",
+      "path": "docs/audits/usd-w2-alternative-vocabulary-competition-audit.md",
+      "sha256": "22f926c465b6c607ca302d07d9607ca5b800e066d697f9c0740ab951d41cc826",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-BENCHMARK",
+      "path": "research/comparisons/far-investigation-benchmark-v0.1.md",
+      "sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-EFR",
+      "path": "docs/governance/external-falsification-and-replication-program-v1.0.md",
+      "sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-EFR-COMP",
+      "path": "docs/governance/external-falsification-and-replication-comparator-amendment-v2.0.md",
+      "sha256": "a2a6cc08a4ac57274df66d37b7824560aaf18e481667cabeb33b541a6d7a1570",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-STATUS",
+      "path": "docs/project-status.md",
+      "sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-MERGED-REVIEWS",
+      "path": "docs/audits/merged-pr-review-classification/FINDINGS.md",
+      "sha256": "8018a33c02fff08800e609bd0868cfee5de912eec39c7109e5a5381c065ab066",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-SCHEDULED-TASK-HISTORY",
+      "path": null,
+      "sha256": null,
+      "evidence_usable": false,
+      "review_status": "DISCOVERY_LEAD"
+    },
+    {
+      "id": "SRC-SATURATION-OPEN-PR",
+      "path": "research/corpus/snapshots/pr-571-manifest-v1.0.json",
+      "sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-LIVING-PR490",
+      "path": "research/corpus/snapshots/pr-490-manifest-v1.0.json",
+      "sha256": "542e0418dd77d32aeea03e9c86407cccfa9545dd384562c3a46bbaf508538640",
+      "evidence_usable": false,
+      "review_status": "DISCOVERY_LEAD"
+    },
+    {
+      "id": "SRC-ASSURANCE",
+      "path": "theory/evaluation/far-core-assurance-v1.0.json",
+      "sha256": "1ed4157fb9cb7a5ce5f428a73e0fc2287b17499360708b063dc5b6fec9f98f60",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-LIVING-REVIEW-PRIOR",
+      "path": "docs/audits/living-core-claim-review-issue-513-2026-09-20.md",
+      "sha256": "1cd72a86e35cc46c9b0b50745af595eb8494aa6e1fa3ee683fbabcd37ccc3b7e",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-EFR-R2-V11",
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.1.md",
+      "sha256": "f2efbf02dbd8c430ef014519c9b4365eb723a152fb68636e2939b502429f4232",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-EFR-R2-V12",
+      "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.2.md",
+      "sha256": "799326e285553835039fc24892cd2152d2ed9e329bbe355f2ed9258bccf855f8",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    },
+    {
+      "id": "SRC-LIVING-REVIEWS",
+      "path": "research/living/review-dispositions-v1.0.json",
+      "sha256": "2d3a0335c8f6f1941fa9ca3d18e04df825453e227c921773cda7a25be3eb5817",
+      "evidence_usable": true,
+      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+    }
+  ],
+  "records": [
+    {
+      "id": "OBS-BENCHMARK-BENCHMARK",
+      "kind": "observation",
+      "text": "#518 preregisters a four-condition real-world benchmark with unsupported-inference and evidence-coverage gates but intentionally contains no execution result.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-BENCHMARK",
+      "source_sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
+      "proposition_id": "FND-BENCHMARK",
+      "uncertainty": "Prepared design; utility, superiority, and PMF remain open."
+    },
+    {
+      "id": "OBS-BENCHMARK-MOAT",
+      "kind": "observation",
+      "text": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+      "active": true,
+      "epistemic_class": "UNRESOLVED",
+      "relation": "UNRESOLVED",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-BENCHMARK",
+      "source_sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
+      "proposition_id": "FND-MOAT",
+      "uncertainty": "External commercial evidence absent."
+    },
+    {
+      "id": "OBS-CALIBRATION-LITERATURE",
+      "kind": "observation",
+      "text": "Current governed literature review found analogues and calibration context but no reproducible contradiction to FAR-CORE at reviewed scope.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-CALIBRATION",
+      "source_sha256": "3e93cf7a653cb49135141646028b594166cd80391ab852e16bb695f4495760c6",
+      "proposition_id": "FND-LITERATURE",
+      "uncertainty": "Metadata discovery is not exhaustive and no novelty conclusion follows."
+    },
+    {
+      "id": "OBS-COMPETITION-ALTERNATIVES",
+      "kind": "observation",
+      "text": "Alternative vocabularies and candidate decompositions can cover overlapping functions without establishing one global primitive basis.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-COMPETITION",
+      "source_sha256": "559fb5bb7167e6bb9dd20e87503ca81c1ac9bd3d332cb6268996f3234fba8085",
+      "proposition_id": "FND-ALTERNATIVES",
+      "uncertainty": "Internal bounded audits; terminology overlap is not architectural identity or difference."
+    },
+    {
+      "id": "OBS-CORE-ASSURANCE",
+      "kind": "observation",
+      "text": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+      "active": true,
+      "epistemic_class": "INFERENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-CORE",
+      "source_sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
+      "proposition_id": "FND-ASSURANCE",
+      "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim."
+    },
+    {
+      "id": "OBS-CORE-CONTRACT",
+      "kind": "observation",
+      "text": "Exact sufficiency is contract-relative; a nontrivial universal least-informative representation is impossible under the stated core scope.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-CORE",
+      "source_sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
+      "proposition_id": "FND-CONTRACT",
+      "uncertainty": "Accepted internal deductive result; novelty and external replication are absent."
+    },
+    {
+      "id": "OBS-EFR-COMP-COMPARATOR",
+      "kind": "observation",
+      "text": "The initial EFR human/utility comparison was confounded by answer access; comparator amendment v2 adds a generic checker arm and prohibits old tests.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-EFR-COMP",
+      "source_sha256": "a2a6cc08a4ac57274df66d37b7824560aaf18e481667cabeb33b541a6d7a1570",
+      "proposition_id": "FND-COMPARATOR",
+      "uncertainty": "Pre-execution design correction; no outcomes exist."
+    },
+    {
+      "id": "OBS-EFR-COMPARATOR",
+      "kind": "observation",
+      "text": "The initial EFR human/utility comparison was confounded by answer access; comparator amendment v2 adds a generic checker arm and prohibits old tests.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-EFR",
+      "source_sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
+      "proposition_id": "FND-COMPARATOR",
+      "uncertainty": "Pre-execution design correction; no outcomes exist."
+    },
+    {
+      "id": "OBS-EFR-MOAT",
+      "kind": "observation",
+      "text": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+      "active": true,
+      "epistemic_class": "UNRESOLVED",
+      "relation": "UNRESOLVED",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-EFR",
+      "source_sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
+      "proposition_id": "FND-MOAT",
+      "uncertainty": "External commercial evidence absent."
+    },
+    {
+      "id": "OBS-LIVING-ASSURANCE",
+      "kind": "observation",
+      "text": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+      "active": true,
+      "epistemic_class": "INFERENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-LIVING",
+      "source_sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
+      "proposition_id": "FND-ASSURANCE",
+      "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim."
+    },
+    {
+      "id": "OBS-LIVING-GOVERNANCE",
+      "kind": "observation",
+      "text": "The living path separates discovery, review, acceptance, promotion, and implementation, and treats inbox bytes as untrusted data.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-LIVING",
+      "source_sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
+      "proposition_id": "FND-GOVERNANCE",
+      "uncertainty": "Describes and tests repository controls; does not show scientific effectiveness."
+    },
+    {
+      "id": "OBS-LIVING-REVIEW-LITERATURE",
+      "kind": "observation",
+      "text": "Current governed literature review found analogues and calibration context but no reproducible contradiction to FAR-CORE at reviewed scope.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-LIVING-REVIEW",
+      "source_sha256": "a93b37022dff5cee2839c6085c849e2e3b603fabea47e590a95f3548d2d008ca",
+      "proposition_id": "FND-LITERATURE",
+      "uncertainty": "Metadata discovery is not exhaustive and no novelty conclusion follows."
+    },
+    {
+      "id": "OBS-MERGED-REVIEWS-REVIEW-HISTORY",
+      "kind": "observation",
+      "text": "Merged review history contains concrete defects and corrections, so current correctness cannot be inferred from merge status or repetition.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-MERGED-REVIEWS",
+      "source_sha256": "8018a33c02fff08800e609bd0868cfee5de912eec39c7109e5a5381c065ab066",
+      "proposition_id": "FND-REVIEW-HISTORY",
+      "uncertainty": "Review corpus is repository-internal and its records retain their individual dispositions."
+    },
+    {
+      "id": "OBS-PR571-SF001-CRV",
+      "kind": "observation",
+      "text": "The source separately measures answer availability in a frozen candidate pool, readout realization/selection, and critic-based validity evidence, and reports them as distinct quantities.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-CRV",
+      "uncertainty": "None. Frozen v0.5 already makes evaluation stage-specific, separately enumerates retrieval/high-recall coverage, evidence-support/contradiction accuracy, and adjudication accuracy, and prohibits collapsing distinct epistemic dimensions."
+    },
+    {
+      "id": "OBS-PR571-SF001-HS",
+      "kind": "observation",
+      "text": "The source reports omission/fabrication attacks against self-authored agent-harness records and an external append-only observation path that detects injected record tampering while a hash chain over the harness-owned record does not.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-HS",
+      "uncertainty": "None at the v0.5 architecture level. Self-report provenance, independent corroboration, and independence-limited sufficiency can already be represented and made contract-relevant through typed source/provenance/evidence requirements."
+    },
+    {
+      "id": "OBS-PR571-SF001-LEAN",
+      "kind": "observation",
+      "text": "The bounded sources establish a checked-kernel soundness defect, a point-release soundness fix, and a metaprogramming-reachable exploit path. They do not establish that FAR's pinned Lean 4.19.0 contains this defect. Applicability to FAR's pinned Lean 4.19.0 is unestablished and must remain explicit uncertainty.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-LEAN",
+      "uncertainty": "None at the v0.5 architecture level. v0.5 already records checker method/version, bounds downstream assurance by inherited uncertainty, applies validation discipline to FAR's own formal outputs, and requires assurance cases to expose unresolved defeaters and limitations with evidence/validation links. The correct campaign state is unknown applicability, not an inferred affected-version claim."
+    },
+    {
+      "id": "OBS-PR571-SF001-PRO",
+      "kind": "observation",
+      "text": "The source constructs controlled failure-attribution trajectories by replaying a successful prefix before injecting a failure, supporting a distinction between where failure becomes visible and the step whose correction changes the failed outcome.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-PRO",
+      "uncertainty": "None. Frozen v0.5 already treats CAUSES as a challengeable consequential relation with provenance/validation state and routes causal claims through a specialized gate. Detection can remain an event/timestamp while origin attribution is a separately justified causal assertion."
+    },
+    {
+      "id": "OBS-PR571-SF001-SC",
+      "kind": "observation",
+      "text": "The source constructs harmful cross-skill cascades whose components can pass per-skill review while their combined execution causes harm, demonstrating that component-level review does not imply safe composed behavior.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-SC",
+      "uncertainty": "None at the v0.5 architecture level. A consequential composition can already be represented as an identity-bearing computation/result with dependency edges, provenance, and its own validation record; implementation should add composition-level adversarial coverage where such paths are supported."
+    },
+    {
+      "id": "OBS-PR571-SF001-SF",
+      "kind": "observation",
+      "text": "The source studies fabricated consensus in multi-agent debate synthesis and evaluates an active provenance gate that blocks unsupported synthesized claims and can emit divergence reports.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-SF",
+      "uncertainty": "None. Frozen v0.5 already requires synthesis to preserve qualifications, scope, uncertainty, disagreement, supporting and contradicting evidence, unresolved alternatives, source lineage, and status-time boundaries, and forbids a summary from strengthening a claim beyond the underlying graph."
+    },
+    {
+      "id": "OBS-PR571-SF001-VA",
+      "kind": "observation",
+      "text": "The source separates generated proposals from verifier outcomes and describes a controller in which only verification outcomes write to memory; its pilot concerns termination/correction behavior rather than accuracy at scale.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "saturation_v05_seven_attacks",
+      "source_id": "SRC-SATURATION-OPEN-PR",
+      "source_sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
+      "proposition_id": "SF001-VA",
+      "uncertainty": "None. Frozen v0.5 already provides identity-bearing adjudication/version objects, separate validation records, fail-closed reliance states, and a recorded promotion rule that requires applicable validation before EXTERNAL_RELIANCE_READY."
+    },
+    {
+      "id": "OBS-ROOT-AUDIT-AUDIT",
+      "kind": "observation",
+      "text": "Explicit contracts, provenance, failure states, and semantic checking expose bounded representation-loss defects.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-ROOT-AUDIT",
+      "source_sha256": "2d477eabe765404a3fd59b5146aaa3b0992862e802aa02bb403ba9a140b3f8d4",
+      "proposition_id": "FND-AUDIT",
+      "uncertainty": "Exact only for project-authored finite controls and audited implementations; repeated internal results are not independent evidence."
+    },
+    {
+      "id": "OBS-SATURATION-ASSURANCE",
+      "kind": "observation",
+      "text": "Across current artifacts, FAR coheres around preserving investigation contracts, provenance, explicit unknowns, dependency impacts, and governed correction rather than retrieval alone.",
+      "active": true,
+      "epistemic_class": "INFERENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-SATURATION",
+      "source_sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
+      "proposition_id": "FND-ASSURANCE",
+      "uncertainty": "Interpretive synthesis of repository mechanisms, not an externally tested category claim."
+    },
+    {
+      "id": "OBS-SATURATION-SATURATION",
+      "kind": "observation",
+      "text": "Current saturation architecture bounds closure by registered scope, counterexample search, and explicit unresolved state.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-SATURATION",
+      "source_sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
+      "proposition_id": "FND-SATURATION",
+      "uncertainty": "Repository-governed state, not global saturation."
+    },
+    {
+      "id": "OBS-SCHEDULED-TASK-HISTORY-HISTORY-MISSING",
+      "kind": "observation",
+      "text": "Historical scheduled-task research cannot be reconciled because no source bytes or primary evidence are available.",
+      "active": false,
+      "epistemic_class": "UNRESOLVED",
+      "relation": "UNRESOLVED",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-SCHEDULED-TASK-HISTORY",
+      "source_sha256": null,
+      "proposition_id": "FND-HISTORY-MISSING",
+      "uncertainty": "Exact contents unknown; fabrication prohibited."
+    },
+    {
+      "id": "OBS-STATUS-MOAT",
+      "kind": "observation",
+      "text": "No current material source demonstrates willingness to pay, switching costs, exclusive data, durable defensibility, or product-market fit.",
+      "active": true,
+      "epistemic_class": "UNRESOLVED",
+      "relation": "UNRESOLVED",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-STATUS",
+      "source_sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
+      "proposition_id": "FND-MOAT",
+      "uncertainty": "External commercial evidence absent."
+    },
+    {
+      "id": "OBS-STATUS-SATURATION",
+      "kind": "observation",
+      "text": "Current saturation architecture bounds closure by registered scope, counterexample search, and explicit unresolved state.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-STATUS",
+      "source_sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
+      "proposition_id": "FND-SATURATION",
+      "uncertainty": "Repository-governed state, not global saturation."
+    },
+    {
+      "id": "OBS-VOCAB-ALTERNATIVES",
+      "kind": "observation",
+      "text": "Alternative vocabularies and candidate decompositions can cover overlapping functions without establishing one global primitive basis.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-VOCAB",
+      "source_sha256": "22f926c465b6c607ca302d07d9607ca5b800e066d697f9c0740ab951d41cc826",
+      "proposition_id": "FND-ALTERNATIVES",
+      "uncertainty": "Internal bounded audits; terminology overlap is not architectural identity or difference."
+    },
+    {
+      "id": "OBS-W6-AUDIT",
+      "kind": "observation",
+      "text": "Explicit contracts, provenance, failure states, and semantic checking expose bounded representation-loss defects.",
+      "active": true,
+      "epistemic_class": "EVIDENCE",
+      "relation": "SUPPORTS",
+      "scope_key": "source_bounded",
+      "source_id": "SRC-W6",
+      "source_sha256": "beec81427d14d2bd49250e15278d375d1bbca23a543fbac067c2d21ef46a101e",
+      "proposition_id": "FND-AUDIT",
+      "uncertainty": "Exact only for project-authored finite controls and audited implementations; repeated internal results are not independent evidence."
+    },
+    {
+      "id": "CON-STABILITY",
+      "kind": "conclusion",
+      "text": "The governed architecture is stabilizing in the limited sense that recent material work mostly hardens assurance, comparators, and provenance rather than replacing the contract-relative core.",
+      "active": true,
+      "epistemic_class": "INFERENCE",
+      "disposition": "SUPPORTED_AT_REPOSITORY_SCOPE_NOT_ESTABLISHED_GLOBALLY",
+      "counterevidence": "Recent root-of-trust defects and an open saturation reconstruction show continuing implementation correction; stability is not completion or global saturation.",
+      "dependency_sha256": "00f73aefa0e9e77de0debb9fbedd62113ef9e499b16f31c963296602da39fb86"
+    },
+    {
+      "id": "CON-INVESTIGATION-ASSURANCE",
+      "kind": "conclusion",
+      "text": "At current supported scopes, FAR is better characterized as contract-relative investigation assurance than as fact-checking or evidence retrieval alone.",
+      "active": true,
+      "epistemic_class": "INFERENCE",
+      "disposition": "BEST_CURRENT_BOUNDED_CHARACTERIZATION",
+      "counterevidence": "The characterization has not been externally validated against alternative taxonomies or user understanding.",
+      "dependency_sha256": "8a0f5f27f91e333bf31fc419bdd4a1b3e02b3a29bd8ff0497826a3157611cedb"
+    },
+    {
+      "id": "CON-COMPOUNDING",
+      "kind": "conclusion",
+      "text": "Accumulated provenance-bound epistemic state could reduce repeated discovery and improve future correction, but compounding performance or economic value is unmeasured.",
+      "active": true,
+      "epistemic_class": "HYPOTHESIS",
+      "disposition": "PLAUSIBLE_MECHANISM_UNTESTED_VALUE",
+      "counterevidence": "Repeated claims are not independent evidence; repository growth can also accumulate stale or correlated error.",
+      "dependency_sha256": "bb6341b05066f428c4702af5fa607067bd796a55299391c485a5db030c831342"
+    },
+    {
+      "id": "CON-MOAT",
+      "kind": "conclusion",
+      "text": "Synthesis unresolved: required support is missing, narrowed, qualified, contradicted, ambiguous, corrected/superseded, or transitively stale.",
+      "active": true,
+      "epistemic_class": "UNRESOLVED",
+      "disposition": "UNRESOLVED_STALE_INPUTS",
+      "counterevidence": "No market, customer, switching-cost, competitive replication, or willingness-to-pay evidence exists.",
+      "dependency_sha256": "895cdc678f48d9fd5ab42f45d7bdf9a68b0d25924b1d5da9ae9e7951c18bc65d"
+    },
+    {
+      "id": "CON-EXPERIMENTS",
+      "kind": "conclusion",
+      "text": "No experiment change or execution is authorized by this synthesis. #518 and EFR remain preregistered and unexecuted; future verified findings must be reconciled against their frozen assumptions before execution.",
+      "active": true,
+      "epistemic_class": "UNRESOLVED",
+      "disposition": "PREREGISTERED_UNEXECUTED_CONTINUING_AUDIT_REQUIRED",
+      "counterevidence": "This is an internal design audit and cannot detect unknown execution-time failures.",
+      "dependency_sha256": "8068d66470a1c2a5b936714c9a68ef3c3a352fb4e47f42650b8bed49adc6b05c"
+    },
+    {
+      "id": "MEC-COMMERCIAL",
+      "kind": "mechanism",
+      "text": "commercial defensibility Current FAR architecture can preserve evidence about commercial claims, but contains no evidence that establishes moat or product-market fit.",
+      "active": true,
+      "state": "UNRESOLVED",
+      "finding_ids": [
+        "FND-MOAT"
+      ],
+      "dependency_sha256": "ffbcb76defbced8b7fe0605122d3dd79770dbd066e743456e573e090a118f289"
+    },
+    {
+      "id": "MEC-COMPARATORS",
+      "kind": "mechanism",
+      "text": "generic-mechanism comparator EFR v2 explicitly compares FAR with a generic collision checker and forbids the confounded endpoints.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-COMPARATOR"
+      ],
+      "dependency_sha256": "7b5f6067e451edac261f0dbb6408bb0d9bdcee8df8fd7996bed96002856fc32f"
+    },
+    {
+      "id": "MEC-COMPOUNDING",
+      "kind": "mechanism",
+      "text": "accumulated epistemic memory Registries, histories, hashes, and dependency impacts preserve learning, but no longitudinal evidence shows compounding outcome value.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-GOVERNANCE",
+        "FND-LITERATURE"
+      ],
+      "dependency_sha256": "96ed21cd0e6f73b87bb7ffab33cf5fe77c30a10846fbee3e8c93f9c1624bf485"
+    },
+    {
+      "id": "MEC-CONTRACT",
+      "kind": "mechanism",
+      "text": "contract-relative observation FAR Core defines comparison contracts and exact factorization; far-ir/2.0 enforces finite-explicit witnesses.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-AUDIT",
+        "FND-CONTRACT"
+      ],
+      "dependency_sha256": "2e8e5c10b3af41a5ddf74d65de776bc3125d14958ae10d38468aba1a3debae82"
+    },
+    {
+      "id": "MEC-DEPENDENCY",
+      "kind": "mechanism",
+      "text": "impact-aware dependency graph Dependency and reverse-impact machinery exists, but corpus-wide synthesis invalidation was not previously enforced.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-GOVERNANCE",
+        "FND-SATURATION"
+      ],
+      "dependency_sha256": "f0507ddefcdc027728436dc3134aa9ec33da54947062ae03381a64e910e471bb"
+    },
+    {
+      "id": "MEC-EXPERIMENT-DESIGN",
+      "kind": "mechanism",
+      "text": "governed pre-execution experiment design #518 and EFR encode preregistered inputs, endpoints, comparators, freezes, and nonclaims; this records design state only and supplies no outcome evidence.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-BENCHMARK",
+        "FND-COMPARATOR"
+      ],
+      "dependency_sha256": "668b1d086b6bfed2ff282e6308087fbf44e8bcc0bb493f1301a7a3839fcb070e"
+    },
+    {
+      "id": "MEC-INTAKE",
+      "kind": "mechanism",
+      "text": "hostile external input freeze Living intake already treats external bytes as untrusted data; the corpus adds a nonexecuting content-addressed receipt path rather than a second promotion route.",
+      "active": true,
+      "state": "UNRESOLVED",
+      "finding_ids": [
+        "FND-GOVERNANCE",
+        "FND-HISTORY-MISSING"
+      ],
+      "dependency_sha256": "a4b387fbdecff25737d4034ea85da5e0444e0ce7d0c6c6ba4c8e8c3c80357a1f"
+    },
+    {
+      "id": "MEC-NEGATIVE",
+      "kind": "mechanism",
+      "text": "explicit negative knowledge Unknown, refutation, failure, exclusions, limitations, and open problems are first-class governed states.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-GOVERNANCE",
+        "FND-SATURATION"
+      ],
+      "dependency_sha256": "f0507ddefcdc027728436dc3134aa9ec33da54947062ae03381a64e910e471bb"
+    },
+    {
+      "id": "MEC-PROVENANCE",
+      "kind": "mechanism",
+      "text": "content-addressed provenance Living promotion and governed ledgers bind exact paths, hashes, stages, and preimages.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-GOVERNANCE"
+      ],
+      "dependency_sha256": "4b10b353ab14b2a90364bf5ce701710e4d1e93f5acb8c2808a495d705452e122"
+    },
+    {
+      "id": "MEC-RECONCILIATION",
+      "kind": "mechanism",
+      "text": "source-to-frontier reconciliation Saturation v0.5 already specifies provenance-preserving synthesis and dependency-aware invalidation; this repository layer implements that existing extension/enforcement surface rather than proving a capability-class gap.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "FND-ASSURANCE"
+      ],
+      "dependency_sha256": "589785310a57bc74166b74988e99e9e783d928db9700ae6b55d66b32049c13ad"
+    },
+    {
+      "id": "MEC-SATURATION-ATTACKS",
+      "kind": "mechanism",
+      "text": "literal saturation falsification Exact PR #571 mappings test seven decision-relevant distinctions against typed Saturation v0.5 anchors and enforcement hooks; all seven are provisionally REPRESENTABLE_NO_CHANGE at that unmerged bounded scope.",
+      "active": true,
+      "state": "SUPPORTED",
+      "finding_ids": [
+        "SF001-CRV",
+        "SF001-HS",
+        "SF001-LEAN",
+        "SF001-PRO",
+        "SF001-SC",
+        "SF001-SF",
+        "SF001-VA"
+      ],
+      "dependency_sha256": "075e9487ad2a5d8778deb5116fe5a3b7b64cf02b24545fd2bd9a0f01fec2189b"
+    }
+  ],
+  "cases": [
+    {
+      "id": "R01",
+      "question": "What establishes that exact representational sufficiency depends on a declared contract?",
+      "gold_ids": [
+        "OBS-CORE-CONTRACT"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R02",
+      "question": "Which primary research observations report bounded representation-loss detection with explicit contracts and provenance?",
+      "gold_ids": [
+        "OBS-ROOT-AUDIT-AUDIT",
+        "OBS-W6-AUDIT"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R03",
+      "question": "Was the four-condition real-world investigation benchmark actually executed or only preregistered?",
+      "gold_ids": [
+        "OBS-BENCHMARK-BENCHMARK"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R04",
+      "question": "Which sources describe the confounded external comparison and the generic checker amendment?",
+      "gold_ids": [
+        "OBS-EFR-COMP-COMPARATOR",
+        "OBS-EFR-COMPARATOR"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R05",
+      "question": "Which source-bound observations state that commercial defensibility and willingness to pay remain unestablished?",
+      "gold_ids": [
+        "OBS-BENCHMARK-MOAT",
+        "OBS-EFR-MOAT",
+        "OBS-STATUS-MOAT"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R06",
+      "question": "What evidence shows individually reviewed skills may produce harmful interactions when composed?",
+      "gold_ids": [
+        "OBS-PR571-SF001-SC"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R07",
+      "question": "Which research record describes fabricated consensus in multi-agent debate and a provenance gate?",
+      "gold_ids": [
+        "OBS-PR571-SF001-SF"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R08",
+      "question": "Does a reported Lean soundness bug establish that FAR's pinned Lean 4.19.0 is vulnerable?",
+      "gold_ids": [
+        "OBS-PR571-SF001-LEAN"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R09",
+      "question": "What observation distinguishes external append-only tamper evidence from an agent-owned hash chain?",
+      "gold_ids": [
+        "OBS-PR571-SF001-HS"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R10",
+      "question": "Which experimental record separates where a failure becomes visible from the step whose correction changes its outcome?",
+      "gold_ids": [
+        "OBS-PR571-SF001-PRO"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R11",
+      "question": "Where does the corpus say compounding returns from accumulated epistemic memory are unmeasured?",
+      "gold_ids": [
+        "CON-COMPOUNDING"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R12",
+      "question": "Which historical scheduled-task outputs have authenticated available primary evidence despite the recorded missing bytes?",
+      "gold_ids": [],
+      "control": "unanswerable_source"
+    },
+    {
+      "id": "R13",
+      "question": "Which conclusion says the earlier experiment plan remains unexecuted and further external audit is required?",
+      "gold_ids": [
+        "CON-EXPERIMENTS"
+      ],
+      "control": "positive"
+    },
+    {
+      "id": "R14",
+      "question": "Which observation says the living research path keeps untrusted inbox bytes separate from acceptance and promotion?",
+      "gold_ids": [
+        "OBS-LIVING-GOVERNANCE"
+      ],
+      "control": "positive"
+    }
+  ],
+  "nonclaims": [
+    "Internally constructed questions and gold IDs, not blind or externally independent adjudication.",
+    "Source verification is limited to existing governed corpus metadata; primary source content was not independently re-adjudicated here.",
+    "No score establishes agent reasoning, factual accuracy, downstream reliability or Zettelkasten advantage.",
+    "Unanswerable source control requires abstention; an inactive observation is not usable evidence."
+  ]
+}
