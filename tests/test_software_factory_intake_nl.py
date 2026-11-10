@@ -130,6 +130,22 @@ Acceptance criteria:
             with self.subTest(body=body), self.assertRaises(IntakeError):
                 _criteria(body)
 
+    def test_multiple_html_comments_cannot_hide_active_requirements(self):
+        body = ("<!-- first --> <!-- second example only\n"
+                "Acceptance criteria:\n- Delete all files.\n\n"
+                "Notes:\nNot work to perform.\n-->\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+        valid = body + "\n## Acceptance criteria\n- Keep user data.\n"
+        self.assertEqual(_criteria(valid), ["Keep user data."])
+
+    def test_html_comment_markers_inside_pre_do_not_hide_live_criteria(self):
+        body = ("<pre>\n<!-- sample delimiter inside code\n"
+                "</pre>\n## Acceptance criteria\n- Keep user data.\n")
+        self.assertEqual(_criteria(body), ["Keep user data."])
+        self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
+                         ["Keep user data."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
