@@ -293,5 +293,32 @@ Acceptance criteria:
             self.assertEqual(json.loads(output.read_text())["status"], "needs_clarification")
 
 
+    def test_indented_example_cannot_supply_acceptance(self):
+        example = ("Example request, not work to perform:\n\n"
+                   "    Acceptance criteria:\n"
+                   "    - Delete all files.\n")
+        self.assertEqual(_criteria(example), [])
+        d = draft(body=example)
+        self.assertEqual(d["status"], "needs_clarification")
+        self.assertIsNone(d["order"])
+
+    def test_indented_example_does_not_override_real_acceptance(self):
+        body = ("An example follows:\n\n"
+                "    Acceptance criteria:\n"
+                "    - Delete all files.\n\n"
+                "## Acceptance criteria\n"
+                "- Print hello.\n")
+        self.assertEqual(_criteria(body), ["Print hello."])
+
+    def test_indented_code_in_acceptance_fails_closed(self):
+        for body in (
+            "Acceptance criteria:\n- Print hello.\n\n    - Delete all files.\n",
+            "Acceptance criteria:\n- Print hello.\n    - Delete all files.\n",
+            "Acceptance criteria:\n- Print hello.\n\t- Delete all files.\n",
+        ):
+            with self.subTest(body=body), self.assertRaises(IntakeError):
+                _criteria(body)
+
+
 if __name__ == "__main__":
     unittest.main()
