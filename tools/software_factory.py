@@ -265,54 +265,69 @@ class Factory:
 
         This records observed GitHub state only; it does not reconstruct historical
         independent reviews, protected App checks, or the merge's authorization.
+        Network I/O must not hold SQLite's writer lock: otherwise a delayed GitHub
+        response prevents independent workers from claiming or recording work.
         """
+        row = self.db.execute("SELECT data FROM orders WHERE id=?", (order_id,)).fetchone()
+        t = self.db.execute("SELECT * FROM tasks WHERE order_id=? AND id=?", (order_id, task_id)).fetchone()
+        if not row or not t or t["state"] != "awaiting_protected_merge":
+            raise FactoryError("task has not completed recorded review stages")
+        order = json.loads(row["data"])
+        repo = order["repository"]
+        history = json.loads(t["history"])
+        build = next(e["evidence"] for e in history if e["event"] == "completed" and e["stage"] == "build")
+        if fetch_json is None:
+            def read(url):
+                headers = {"Accept": "application/vnd.github+json", "User-Agent": "far-software-factory/0.1"}
+                if os.environ.get("GITHUB_TOKEN"):
+                    headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
+                with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=15) as response:
+                    return json.load(response)
+            lookup = read
+        else:
+            lookup = fetch_json
+        root = "https://api.github.com/repos/" + repo
+        pr = lookup(f"{root}/pulls/{build['pr_number']}")
+        observed_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
+        if (pr.get("state") != "closed" or pr.get("merged") is not True
+                or not pr.get("merged_at") or (pr.get("head") or {}).get("sha") != build["head_sha"]
+                or (pr.get("base") or {}).get("ref") != "main"
+                or type(observed_repo) is not str or observed_repo.casefold() != repo.casefold()):
+            raise FactoryError("GitHub PR not merged on intended main from recorded exact head")
+        merge_sha = pr.get("merge_commit_sha")
+        if not isinstance(merge_sha, str) or not SHA.fullmatch(merge_sha):
+            raise FactoryError("invalid merge commit identity")
+        branch = lookup(f"{root}/branches/main")
+        current = (branch.get("commit") or {}).get("sha")
+        if not isinstance(current, str) or not SHA.fullmatch(current):
+            raise FactoryError("invalid live main SHA")
+        ancestry = lookup(f"{root}/compare/{merge_sha}...{current}")
+        if ancestry.get("status") not in {"ahead", "identical"}:
+            raise FactoryError("merged commit not an ancestor of current main")
+        evidence = {"pr_number": build["pr_number"], "head_sha": build["head_sha"],
+                    "merge_commit_sha": merge_sha, "main_sha": current}
+
         def apply():
-            row = self.db.execute("SELECT data FROM orders WHERE id=?", (order_id,)).fetchone()
-            t = self.db.execute("SELECT * FROM tasks WHERE order_id=? AND id=?", (order_id, task_id)).fetchone()
-            if not row or not t or t["state"] != "awaiting_protected_merge":
+            # Another reconciler may finish while this caller is waiting on GitHub.
+            # Recheck immutable build evidence and terminal state under the lock.
+            fresh = self.db.execute(
+                "SELECT state, history FROM tasks WHERE order_id=? AND id=?", (order_id, task_id)
+            ).fetchone()
+            if not fresh or fresh["state"] != "awaiting_protected_merge":
                 raise FactoryError("task has not completed recorded review stages")
-            order = json.loads(row["data"])
-            repo = order["repository"]
-            history = json.loads(t["history"])
-            build = next(e["evidence"] for e in history if e["event"] == "completed" and e["stage"] == "build")
-            if fetch_json is None:
-                def read(url):
-                    headers = {"Accept": "application/vnd.github+json", "User-Agent": "far-software-factory/0.1"}
-                    if os.environ.get("GITHUB_TOKEN"):
-                        headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
-                    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=15) as response:
-                        return json.load(response)
-                lookup = read
-            else:
-                lookup = fetch_json
-            root = "https://api.github.com/repos/" + repo
-            pr = lookup(f"{root}/pulls/{build['pr_number']}")
-            # GitHub repository identity names are case-insensitive. A spelling
-            # difference alone must not invalidate a verified canonical origin.
-            observed_repo = ((pr.get("base") or {}).get("repo") or {}).get("full_name")
-            if (pr.get("state") != "closed" or pr.get("merged") is not True
-                    or not pr.get("merged_at") or (pr.get("head") or {}).get("sha") != build["head_sha"]
-                    or (pr.get("base") or {}).get("ref") != "main"
-                    or type(observed_repo) is not str or observed_repo.casefold() != repo.casefold()):
-                raise FactoryError("GitHub PR not merged on intended main from recorded exact head")
-            merge_sha = pr.get("merge_commit_sha")
-            if not isinstance(merge_sha, str) or not SHA.fullmatch(merge_sha):
-                raise FactoryError("invalid merge commit identity")
-            branch = lookup(f"{root}/branches/main")
-            current = (branch.get("commit") or {}).get("sha")
-            if not isinstance(current, str) or not SHA.fullmatch(current):
-                raise FactoryError("invalid live main SHA")
-            ancestry = lookup(f"{root}/compare/{merge_sha}...{current}")
-            if ancestry.get("status") not in {"ahead", "identical"}:
-                raise FactoryError("merged commit not an ancestor of current main")
-            evidence = {"pr_number": build["pr_number"], "head_sha": build["head_sha"],
-                        "merge_commit_sha": merge_sha, "main_sha": current}
-            history.append({"event": "github_merge_observed", "stage": "delivery", "at": time.time(),
-                            "evidence": evidence, "evidence_sha256": digest(evidence)})
+            latest_history = json.loads(fresh["history"])
+            latest_build = next(
+                e["evidence"] for e in latest_history if e["event"] == "completed" and e["stage"] == "build"
+            )
+            if latest_build != build:
+                raise FactoryError("build evidence changed during delivery observation")
+            latest_history.append({"event": "github_merge_observed", "stage": "delivery", "at": time.time(),
+                                   "evidence": evidence, "evidence_sha256": digest(evidence)})
             self.db.execute("UPDATE tasks SET state='delivered', history=? WHERE order_id=? AND id=?",
-                            (canonical(history), order_id, task_id))
+                            (canonical(latest_history), order_id, task_id))
             return {"state": "delivered", "observation": evidence,
                     "note": "read-only GitHub merge and ancestry observation; historical gate provenance not evaluated"}
+
         return self._tx(apply)
 
     def fail(self, order_id: str, task_id: str, token: str, reason: str, now: float | None = None,
