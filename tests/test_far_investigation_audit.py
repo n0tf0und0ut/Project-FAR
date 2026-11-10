@@ -479,6 +479,74 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         reseal(forged)
         self.assert_rejected(forged, 'request.prompt.question')
 
+    def test_native_model_prompt_all_chronological_views_resist_resealed_mutation(self):
+        """The next model sees only effects actually produced by earlier attempts."""
+        from tools.far_investigation_engine import LocalModel, function_schema
+        from tests.test_far_investigation_usage import envelope
+        script = iter(full_script())
+
+        def native_response(*_args, **_kwargs):
+            action = next(script)
+            response = {'model': 'local', 'usage': {'total_tokens': 1},
+                'choices': [{'message': {'tool_calls': [{'function': {
+                    'name': action['tool'], 'arguments': json.dumps(action['args'])}}]}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=native_response):
+            state = self.runtime().run_agent(LocalModel())
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertTrue(audit(state)['valid'], audit(state))
+        fields = ('tools', 'sources', 'evidence', 'comparisons', 'rechecked',
+                  'freeze', 'candidate_ids', 'evaluated_ids', 'searches')
+        for field in fields:
+            with self.subTest(field=field):
+                forged = copy.deepcopy(state)
+                selected = next(call for call in forged['model_calls']
+                    if type(call) is dict and type(call.get('request')) is dict
+                    and (field == 'searches' or bool(json.loads(
+                        call['request']['messages'][1]['content']).get(field))))
+                old = selected['request']['messages'][1]['content']
+                changed = 0
+                pending = [forged]
+                while pending:
+                    node = pending.pop()
+                    if type(node) is dict:
+                        request = node.get('request')
+                        if (type(request) is dict and type(request.get('messages')) is list
+                                and request['messages'][1]['content'] == old):
+                            prompt = json.loads(old)
+                            if field == 'tools':
+                                prompt['tools'] = ['finish']
+                                request['tools'] = [function_schema('finish')]
+                            elif field == 'sources':
+                                prompt['sources']['src.1']['text'] = 'invented model-visible source'
+                            elif field == 'evidence':
+                                prompt['evidence']['ev.1']['claim'] = 'invented model-visible evidence'
+                            elif field == 'comparisons':
+                                prompt['comparisons'][0]['alternatives'] = ['invented alternative']
+                            elif field == 'rechecked':
+                                prompt['rechecked'] = not prompt['rechecked']
+                            elif field == 'freeze':
+                                prompt['freeze']['status'] = 'FORGED'
+                            elif field == 'candidate_ids':
+                                prompt['candidate_ids'] = ['contract.foraged']
+                            elif field == 'evaluated_ids':
+                                prompt['evaluated_ids'] = ['contract.foraged']
+                            else:
+                                prompt['searches'] = [{'query': 'invented search'}]
+                            request['messages'][1]['content'] = json.dumps(prompt, sort_keys=True)
+                            node['request_sha256'] = hashlib.sha256(json.dumps(
+                                request, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+                            changed += 1
+                        pending.extend(node.values())
+                    elif type(node) is list:
+                        pending.extend(node)
+                self.assertGreater(changed, 1)
+                reseal(forged)
+                self.assert_rejected(forged, '.request.prompt.' + field)
+
     def test_native_failed_retrieve_receipt_requires_its_http_reservation(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import retrieve

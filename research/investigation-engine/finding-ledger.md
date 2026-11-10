@@ -744,3 +744,19 @@ Independent Codex reviewed `507d0211312d114776382ee2837ba01a1e788f55` and report
 Evidence scope: test fixtures are not real model autonomy, external source authentication, independently adjudicated truth, or a demonstrated treatment advantage.
 
 **First hosted correction feedback.** Source/test head `4eb16ef907a0dd1f8144f998956c793c2c9ab197` failed one of 322 investigation-runtime tests (five optional skips): `test_transcript_sources_must_match_registered_task_hints` expected a resealed *agent* transcript with substituted seeds to remain internally valid. The new request-to-seeds audit binding correctly rejects it, making the old assertion obsolete. The test now demands transcript rejection, checks the specific `request.prompt.seeds` invariant, and separately demands campaign-level source-exposure rejection. This preserves and strengthens both independent guards; no forged transcript is retroactively treated as valid. Hosted revalidation still required.
+
+## November 9, 2026 — eighth review: chronological native prompt and nonchunked deadline
+
+Independent Codex review of exact head `f445a4467f6c9b545a4d17bdf2d928d149cd07d7`
+reported two additional P2 invariant failures. The following are corrective
+source and regression *candidates*; they must pass current-head hosted checks
+and a new independent review before protected merge authorization.
+
+| ID / review thread | Counterexample and root cause | Correction and regression boundary |
+| --- | --- | --- |
+| **ENG-MODEL-CHRONOLOGICAL-PROMPT-20261109** / `PRRT_kwDOTH_vCM61eq3G`, comment 4518956164 | The auditor checked question, seeds, policy, prior proposals and recent observations, but accepted self-consistently rewritten model request `sources`, `evidence`, `comparisons`, `freeze`, `candidate_ids`, `evaluated_ids`, `searches` or eligible `tools`. A request could therefore claim access to future or fabricated evidence even with the actual source/tool producers unchanged. | Reconstruct per-attempt model-view inventory and eligibility from the existing validated chronological tool replay, including retained effects of rejected post-dispatch attempts. Compare every native request's model-visible fields at the boundary before its first response. For an interrupted recheck, retain only actually possible committed prefixes rather than certifying an unknown append. Regression `test_native_model_prompt_all_chronological_views_resist_resealed_mutation` rewrites every journaled copy, rebuilds request hashes and reseals, and requires each affected field to fail offline audit. |
+| **ENG-NONCHUNKED-BODY-ABSOLUTE-DEADLINE-20261109** / `PRRT_kwDOTH_vCM61eq3K`, comment 4518956172 | A native `read1()` after an initial early body fragment inherited the socket idle timeout set during header parsing. The clock guard before `read1` did not bound the blocking syscall; a 2-byte trickle could overrun the absolute deadline and observe the later byte. | Refresh native socket timeout to the remaining monotonic whole-request budget before *every* nonchunked blocking body `read1` while preserving the earlier returned prefix. Regression `test_real_nonchunked_socket_trickle_uses_remaining_absolute_deadline` uses a real `http.client.HTTPResponse` over AF_UNIX socketpair, checks only the first byte survives an interrupted 2-byte body, and leaves the trace deny-network policy unchanged. |
+
+These are internally controlled integrity/transport counterexamples, not a
+measurement of real model planning, external truth, or agent superiority. Frozen
+campaign registrations, original evidence and negative outcomes are unchanged.

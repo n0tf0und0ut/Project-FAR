@@ -305,6 +305,21 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 # framing observer now checks the absolute model deadline.
                 incremental = isinstance(native, http.client.HTTPResponse) and not native.chunked
                 reader = native.read1 if incremental else response.read
+
+                def bound_native_body_read():
+                    # The header reader has already set a socket idle timeout.
+                    # Each subsequent read1() must instead use the *remaining*
+                    # whole-request budget; a clock check alone cannot interrupt
+                    # a blocked socket read before its older idle timeout.
+                    if not incremental or deadline_monotonic is None:
+                        return
+                    remaining = deadline_monotonic - time.monotonic()
+                    if remaining <= 0:
+                        raise TimeoutError('absolute response deadline exceeded')
+                    stream = native.fp
+                    sock = getattr(getattr(stream, 'raw', stream), '_sock', None)
+                    if sock is not None:
+                        sock.settimeout(max(.001, remaining))
                 if chunk_size is None and not incremental:
                     enforce_deadline()
                     raw = response.read(max_bytes + 1)
@@ -312,6 +327,7 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
                 else:
                     while len(raw) <= max_bytes:
                         enforce_deadline()
+                        bound_native_body_read()
                         chunk = reader(min(chunk_size or 65536, max_bytes + 1 - len(raw)))
                         if not chunk:
                             enforce_deadline()

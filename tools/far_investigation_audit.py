@@ -872,6 +872,53 @@ def audit(state) -> dict:
         history_offset = 0
         completed = set()
         frozen_index = freeze_events[0][0] if freeze_events else len(events) + 1
+        available_sources, available_projections = {}, {}
+
+        def chronological_prompt_snapshot(at):
+            """Reconstruct only what the model could see after this tool attempt.
+
+            Reuse the auditor's checked, proposal-derived replay rather than the
+            final mutable evidence/intake/search inventory. A model request is
+            created before its first MODEL_OBSERVATION event.
+            """
+            frozen = bool(replay_intake and replay_intake['freeze']['status'] == 'FROZEN')
+            active_evaluations = [row for row in state['evaluations']
+                if evaluation_available_at.get(row['contract_id'], len(events) + 1) <= at]
+            eligible = [] if frozen else ['retrieve', 'search']
+            if available_projections:
+                eligible += ['inspect', 'verify_far']
+                if not frozen:
+                    eligible += ['extract']
+            if produced_evidence and not frozen:
+                eligible += ['compare']
+            if produced_comparisons and not frozen:
+                eligible += ['discover']
+            if replay_intake and not frozen:
+                eligible += ['recheck']
+                if replay_recheck_complete:
+                    eligible += ['freeze']
+            if frozen:
+                eligible += ['verify'] if len(active_evaluations) < len(
+                    replay_intake['discovery']['contract_candidates']) else ['finish']
+            return {
+                'tools': eligible,
+                'sources': {ident: source_view(ident) for ident in available_projections},
+                'evidence': copy.deepcopy(produced_evidence),
+                'comparisons': copy.deepcopy(produced_comparisons),
+                # A failed recheck may leave the final observed SOURCE_RECHECK
+                # either side of its append. Do not invent that missing commit.
+                'rechecked_options': sorted(set(
+                    bool(available_sources) and len(prefix) == len(available_sources)
+                    for prefix in replay_recheck_prefixes)),
+                'freeze': copy.deepcopy(replay_intake['freeze']) if replay_intake else None,
+                'candidate_ids': [c['id'] for c in replay_intake['discovery']['contract_candidates']]
+                    if replay_intake else [],
+                'evaluated_ids': [row['contract_id'] for row in active_evaluations],
+                'searches': [{k: v for k, v in row.items() if k != 'receipt'}
+                    for row in produced_searches],
+            }
+
+        prompt_snapshots = [(0, chronological_prompt_snapshot(0))]
         for index, proposal, kind, payload in tool_attempts:
             # Retrieval can preserve a source even when parsing or the later
             # budget check rejects the call. Its bytes/projection become usable
@@ -1129,6 +1176,30 @@ def audit(state) -> dict:
                     if accepted or (offset < len(state['far_verifications']) and state['far_verifications'][offset] == expected
                                     and successful_far_at.get(offset, index) == index):
                         produced_far.append(expected)
+            prompt_snapshots.append((index, chronological_prompt_snapshot(index)))
+
+        if state['mode'] == 'agent':
+            for attempt, call in enumerate(state['model_calls']):
+                if (type(call) is not dict or call.get('fixture')
+                        or type(call.get('request')) is not dict
+                        or type(call.get('transport')) is not dict
+                        or attempt >= len(prompt_boundaries)):
+                    continue
+                path = 'model_calls[' + str(attempt) + '].request.prompt'
+                def compare_chronological_prompt():
+                    actual = _parse(call['request']['messages'][1]['content'])
+                    boundary = prompt_boundaries[attempt]
+                    # A model attempt's first observation is downstream of the
+                    # prompt generation. Never borrow effects from its own or
+                    # any future tool operation, including retained rejections.
+                    expected = next(snapshot for at, snapshot in reversed(prompt_snapshots)
+                                    if at < boundary)
+                    for field in ('tools', 'sources', 'evidence', 'comparisons',
+                                  'freeze', 'candidate_ids', 'evaluated_ids', 'searches'):
+                        equal(path + '.' + field, actual.get(field), expected[field])
+                    if actual.get('rechecked') not in expected['rechecked_options']:
+                        fail(path + '.rechecked', 'reconstruction mismatch')
+                guarded(path, compare_chronological_prompt)
         equal('evidence.coverage', evidence, produced_evidence)
         equal('compare.coverage', state['comparisons'], produced_comparisons)
         equal('far_verifications.coverage', state['far_verifications'], produced_far)
