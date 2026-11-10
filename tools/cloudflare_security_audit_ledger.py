@@ -103,6 +103,24 @@ def current_head(root: Path):
     return value
 
 
+def source_is_clean_and_tracked(root: Path):
+    """Require an unmodified checkout and real Git-tracked evidence paths."""
+    status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=root, capture_output=True, text=True, check=True, timeout=15,
+    ).stdout
+    if status:
+        raise HandoffError("checkout is dirty; SHA alone cannot bind source evidence")
+    tracked = subprocess.run(
+        ["git", "ls-files", "--cached", "-z"],
+        cwd=root, capture_output=True, check=True, timeout=15,
+    ).stdout
+    return {
+        value.decode("utf-8", errors="surrogateescape")
+        for value in tracked.split(b"\0") if value
+    }
+
+
 def clean_source_path(relative: str, source_root: Path):
     if not isinstance(relative, str) or not relative or "\\" in relative:
         raise HandoffError("invalid source evidence path")
@@ -118,9 +136,12 @@ def clean_source_path(relative: str, source_root: Path):
 
 
 def inspect_source_references(records: list, source_root: Path):
+    tracked = source_is_clean_and_tracked(source_root)
     for item in records:
         for section in ("trace", "evidence"):
             for entry in item[section]:
+                if entry["file"] not in tracked:
+                    raise HandoffError("source evidence path is not tracked by Git")
                 path = clean_source_path(entry["file"], source_root)
                 line = entry["line"]
                 if type(line) is not int or line < 1:
