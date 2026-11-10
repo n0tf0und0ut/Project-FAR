@@ -481,6 +481,87 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(state['rejected_calls'], 1)
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_native_rejected_top_level_transport_does_not_become_http_evidence(self):
+        """Rejected message.content keys are never transport producers."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+        proposals = iter([
+            {'tool': 'retrieve', 'args': {'url': URL_A},
+             'transport': {'timing_scope': 'domain interval',
+                           'raw_response_base64': 'not-base64',
+                           'response_sha256': 'not-a-hash'}},
+            *full_script(),
+        ])
+        def native_response(*_args, **_kwargs):
+            proposal = next(proposals)
+            response = {'model': 'local', 'usage': {'total_tokens': 1},
+                        'choices': [{'message': {'content': json.dumps(proposal)}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=native_response):
+            state = self.runtime().run_agent(LocalModel())
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(len(state['evaluations']), 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_native_model_identifier_replay_enforces_actual_runtime_limits(self):
+        """Matching corrupted response/metadata is not a legal LocalModel call."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+        proposals = iter(full_script())
+        def native_response(*_args, **_kwargs):
+            proposal = next(proposals)
+            response = {'model': 'local', 'usage': {'total_tokens': 1},
+                'choices': [{'message': {'tool_calls': [{'function': {
+                    'name': proposal['tool'],
+                    'arguments': json.dumps(proposal['args'])}}]}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=native_response):
+            original = self.runtime().run_agent(LocalModel())
+        self.assertEqual(original['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertTrue(audit(original)['valid'], audit(original))
+
+        for invalid in ({'invalid': 'identifier'}, 'x' * 513):
+            with self.subTest(invalid_type=type(invalid).__name__):
+                state = copy.deepcopy(original)
+                final = state['model_calls'][-1]
+                before = final['response_base64']
+                response = json.loads(base64.b64decode(before))
+                response['model'] = invalid
+                raw = json.dumps(response).encode()
+                encoded = base64.b64encode(raw).decode()
+                digest = hashlib.sha256(raw).hexdigest()
+                rewritten = [0]
+                def replace_native_copies(node):
+                    if type(node) is dict:
+                        if node.get('response_base64') == before:
+                            node['response_base64'] = encoded
+                            node['response_sha256'] = digest
+                            transport = node.get('transport')
+                            if type(transport) is dict:
+                                transport['raw_response_base64'] = encoded
+                                transport['response_sha256'] = digest
+                                transport['response_bytes_retained'] = len(raw)
+                            rewritten[0] += 1
+                        for child in node.values():
+                            replace_native_copies(child)
+                    elif type(node) is list:
+                        for child in node:
+                            replace_native_copies(child)
+                replace_native_copies(state)
+                self.assertGreaterEqual(rewritten[0], 3)
+                proposals_seen = [ev for ev in state['events']
+                                  if ev['kind'] == 'MODEL_PROPOSAL']
+                proposals_seen[-1]['payload']['metadata']['model'] = invalid
+                reseal(state)
+                self.assert_rejected(state, 'invalid native model identifier')
+
     def test_native_rejected_nested_metadata_envelope_is_application_data(self):
         """Unsupported function args are not owned model-envelope checksums."""
         from tools.far_investigation_engine import LocalModel

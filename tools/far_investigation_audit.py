@@ -172,9 +172,28 @@ def audit(state) -> dict:
         if type(node) is dict:
             # Only HTTP transport envelopes have transport timestamp authority.
             # Arbitrary source/verifier objects may use the same field names.
+            # HTTP transport authority is defined by the journal producer,
+            # never by arbitrary model-selected proposal object keys.
+            event_transport_match = re.fullmatch(
+                r'state\.events\[(\d+)\]\.payload(\.transport|\.receipt\.transport|\.result\.receipt\.transport|\.metadata\.envelope\.transport)',
+                path)
+            event_transport_owner = False
+            if event_transport_match is not None:
+                transport_kind = state['events'][int(event_transport_match.group(1))]['kind']
+                transport_suffix = event_transport_match.group(2)
+                event_transport_owner = (
+                    transport_suffix == '.transport' and transport_kind in (
+                        'MODEL_OBSERVATION', 'HTTP_OBSERVATION',
+                        'SEARCH_OBSERVATION', 'SEARCH_RECHECK_OBSERVATION')
+                    or transport_suffix == '.receipt.transport' and transport_kind in (
+                        'TOOL_REJECTED', 'SOURCE_RECHECK')
+                    or transport_suffix == '.result.receipt.transport'
+                    and transport_kind == 'SEARCH_RECHECK'
+                    or transport_suffix == '.metadata.envelope.transport'
+                    and transport_kind == 'MODEL_PROPOSAL')
             transport_time_path = (
                 re.fullmatch(r'state\.model_calls\[\d+\]\.transport', path)
-                or re.fullmatch(r'state\.events\[\d+\]\.payload\.(?:transport|receipt\.transport|result\.receipt\.transport|metadata\.envelope\.transport)', path)
+                or event_transport_owner
                 or re.fullmatch(r'state\.sources\.src\.\d+\.transport', path)
                 or re.fullmatch(r'state\.searches\[\d+\]\.receipt\.transport', path)
                 or re.fullmatch(r'state\.rechecks\[\d+\]\.receipt\.transport', path))
@@ -289,8 +308,7 @@ def audit(state) -> dict:
                 or event_kind == 'MODEL_PROPOSAL' and event_match.group(2) is not None)
             transport_envelope = (
                 re.fullmatch(r'state\.model_calls\[\d+\]\.transport', path) is not None
-                or re.fullmatch(r'state\.events\[\d+\]\.payload\.transport', path) is not None
-                or re.fullmatch(r'state\.events\[\d+\]\.payload\.metadata\.envelope\.transport', path) is not None
+                or event_transport_owner
                 or re.fullmatch(r'state\.sources\.src\.\d+\.transport', path) is not None)
             for raw_key in ('response_base64', 'raw_response_base64'):
                 if raw_key in node and (model_envelope or transport_envelope):
@@ -440,7 +458,12 @@ def audit(state) -> dict:
                         parsed_proposal = _parse(message['content'])
                     equal(path + '.parsed_proposal', parsed_proposal, payload['proposal'])
                     equal(path + '.tokens', response['usage']['total_tokens'], count)
-                    equal(path + '.model', response.get('model'), payload['metadata'].get('model'))
+                    # The producing LocalModel rejects non-text or oversized
+                    # identifiers even if the response and metadata copies agree.
+                    model_id = response.get('model')
+                    if model_id is not None and (type(model_id) is not str or len(model_id) > 512):
+                        fail(path + '.model', 'invalid native model identifier')
+                    equal(path + '.model', model_id, payload['metadata'].get('model'))
             elif kind == 'TOOL_PROPOSAL':
                 # The runtime checks the token budget before journaling a new
                 # proposal, even when a later operation fails. An exhausted

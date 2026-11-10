@@ -1018,3 +1018,55 @@ These are controlled offline socket mocks, not measured real-host IPv6
 availability, and neither source truth nor general autonomy is established.
 Hosted exact-head execution and authenticated independent review on any
 new head remain mandatory before protected merge.
+
+## November 10, 2026 — exact-integrated-head model-data provenance findings
+
+**ENG-EVENT-TRANSPORT-OWNER-20261110** — authenticated Codex review of
+`8e084b4f27ba0eb4ff51e43ca70ece0e1108b456`, thread
+`PRRT_kwDOTH_vCM61zF7p`, comment 4527704385 (P2).
+
+**Counterexample:** LocalModel's supported `message.content` response
+fallback returns a malformed tool proposal with a top-level `transport`
+object. The runtime correctly rejects the extra proposal field and continues
+the bounded pipeline, but offline audit treats `TOOL_PROPOSAL.payload.transport`
+as trusted HTTP evidence solely because its dictionary path looks like a
+native transport envelope. Arbitrary `timing_scope` or `raw_response_base64`
+data triggers false audit failures.
+
+**Correction:** Determine ownership from the actual event kind plus exact
+transport suffix before validating native timing and transport bytes.
+Only established transport-producing events (`MODEL_OBSERVATION`,
+`HTTP_OBSERVATION`, `SEARCH_OBSERVATION`,
+`SEARCH_RECHECK_OBSERVATION`, `TOOL_REJECTED`, `SOURCE_RECHECK`,
+`SEARCH_RECHECK`, and model-proposal's native metadata envelope) qualify
+at their corresponding paths. Rejected tool proposals are never promoted
+into native transport observations. Other source and model transport owner
+paths retain their previous validation; no valid provenance is suppressed.
+
+**Control:** `test_native_rejected_top_level_transport_does_not_become_http_evidence`
+uses LocalModel's real content fallback, bounded native HTTP reader envelope,
+rejected proposal plus full legitimate script, then audits the resulting
+chronological transcript.
+
+**ENG-NATIVE-MODEL-ID-REPLAY-20261110** — authenticated Codex review of
+`8e084b4f27ba0eb4ff51e43ca70ece0e1108b456`, thread
+`PRRT_kwDOTH_vCM61zF7x`, comment 4527704394 (P2).
+
+**Counterexample:** A resealed LocalModel transcript replaces the final
+native model response's `model` field with a dictionary or text longer than
+512 characters and updates all mirrored raw-body/hash/length and metadata
+copies. The auditor previously checked only equality between the two invalid
+values; the producer runtime rejects that identifier before proposing tools.
+
+**Correction:** Replay enforces the exact native runtime constraint:
+`model` must be absent/null or exactly a Python string of at most 512
+characters, in addition to matching the retained proposal metadata.
+`test_native_model_identifier_replay_enforces_actual_runtime_limits`
+validates legitimate full native replay then reseals dictionary and oversized
+model identifiers across response bytes and mirrored metadata, requiring
+offline audit rejection in both cases.
+
+These are source-to-replay consistency properties, not proof of the external
+model's identity or scientific claim validity. The frozen negative results
+and research evidence are unmodified. Hosted exact-head tests and fresh
+independent exact-head review are separately required before protected merge.
