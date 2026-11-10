@@ -120,8 +120,8 @@ node --test .agents/skills/security-audit/validate-findings.test.cjs \
   .agents/skills/security-audit/validate-coverage-ledger.test.cjs
 ```
 
-These tests verify installation and contract behavior only. They do not establish
-a live vulnerability-audit result, production readiness, independent validation,
-or inference-provider availability.
+These tests verify installation and contract behavior only.
+They do not establish independent validation, production readiness, a live
+vulnerability-audit result, or inference-provider availability.
 No dynamic audit result is claimed until an appropriately sandboxed, exact-head
 agent audit actually executes and records its evidence.
