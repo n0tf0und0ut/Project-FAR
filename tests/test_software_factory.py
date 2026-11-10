@@ -219,5 +219,65 @@ class TestFactory(unittest.TestCase):
         self.assertEqual(before, self.f.snapshot("pilot"))
 
 
+    def test_reconcile_delivery_does_not_block_unrelated_worker_claim(self):
+        """A slow GitHub observation must not hold SQLite's write transaction."""
+        import threading
+
+        review = self._get_reviewed()
+        self.f.record("pilot", "alpha", review["token"],
+                      {"head_sha": B, "reviewer": "external",
+                       "review_url": "https://github.com/x/y/pull/123",
+                       "result": "clean", "unresolved": 0}, now=105)
+        independent = order()
+        independent["id"] = "parallel"
+        independent["tasks"] = [{"id": "solo", "objective": "Independent maintenance",
+                                  "acceptance": ["Worker can claim"], "depends_on": []}]
+        self.f.submit(independent)
+
+        entered, release = threading.Event(), threading.Event()
+        errors = []
+        db_path = Path(self.tmp.name) / "factory.sqlite"
+
+        def github(url):
+            if url.endswith("/pulls/123"):
+                entered.set()
+                if not release.wait(timeout=5):
+                    raise RuntimeError("test synchronization timed out")
+                return {"state": "closed", "merged": True, "merged_at": "2026-11-09T00:00:00Z",
+                        "head": {"sha": B},
+                        "base": {"ref": "main", "repo": {"full_name": "n0tf0und0ut/Project-FAR"}},
+                        "merge_commit_sha": A}
+            if url.endswith("/branches/main"):
+                return {"commit": {"sha": A}}
+            if url.endswith(f"/compare/{A}...{A}"):
+                return {"status": "identical"}
+            raise AssertionError(url)
+
+        def reconcile():
+            worker = Factory(db_path)
+            try:
+                worker.reconcile_delivery("pilot", "alpha", fetch_json=github)
+            except Exception as exc:
+                errors.append(exc)
+            finally:
+                worker.db.close()
+
+        thread = threading.Thread(target=reconcile)
+        thread.start()
+        try:
+            self.assertTrue(entered.wait(timeout=5))
+            self.f.db.execute("PRAGMA busy_timeout=200")
+            claimed = self.f.claim("parallel", "other-builder", now=200)
+            self.assertIsNotNone(claimed)
+            self.assertEqual(claimed["task_id"], "solo")
+        finally:
+            release.set()
+            thread.join(timeout=5)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(errors, [])
+        self.assertEqual(self.f.snapshot("pilot")["tasks"][0]["state"], "delivered")
+
+
+
 if __name__ == "__main__":
     unittest.main()
