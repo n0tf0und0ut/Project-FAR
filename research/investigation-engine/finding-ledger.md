@@ -1072,6 +1072,12 @@ and research evidence are unmodified. Hosted exact-head tests and fresh
 independent exact-head review are separately required before protected merge.
 
 
+## November 10, 2026 — chronological ownership of identical search results
+
+**ENG-SEARCH-DUPLICATE-PRODUCER-20261110** (internal root-cause audit; PR comment 6774076217): the offline auditor reserved the first retained search row for a later accepted attempt merely because the two result values matched. Runtime `_dispatch('search')` appends a result before invalidating the existing discovery; if its `DISCOVERY_INVALIDATED` checkpoint raises `OSError`, that first rejected-but-dispatched attempt legitimately owns a retained row. A retry with an identical request and response can append an identical second row and succeed. The previous `successful_search_at` reservation misattributes both and can reject an unmodified, model-selected, bounded completion.
+
+**Correction:** commit `b3a67ac9e8e1df7f0052a8963f8ecd269d64e5b4` requires actual query/provider/receipt-observation binding and either an accepted producer or a demonstrated post-dispatch mutation, allocating duplicate retained rows in chronological attempt order. **Regressions:** `test_failed_postdispatch_search_retry_keeps_both_identical_retained_rows` in commit `8b2782b7f86e9a65b4a04bc14baaabc128291136` exercises the failed-checkpoint/accepted-retry path; the existing `test_identical_failed_search_observation_cannot_consume_a_later_retry` protects a failure *before* any row is retained. Both passed in the hosted exact-head Investigation Engine runtime step of run 42864359899 (351 tests, 5 optional skips); complete workflow, separate exact-head independent review and protected merge requirements remain outstanding. This preserves original frozen negative evidence.
+
 ## Known review-failure-class coverage index (2026-11-10)
 
 This Research-status index classifies **every unique recorded root-cause ID** in the preceding ledger, including inherited historical fixes, into one primary testable failure class. The controls below are *representative existing regression methods* for each class, not one-to-one proofs for every root-cause ID. In particular, a method's existence is not a proof that it detects every member of its class. These are engineering-level controlled tests, not independent scientific replication, source truth, general agent reliability, or evidence that any future defect is impossible. Missing original Open Deep Research source binding remains BLOCKED_GOVERNANCE. Original frozen results remain unchanged.
@@ -1177,6 +1183,7 @@ New root-cause IDs require corresponding class allocation and evidence-linked te
         "ENG-REJECTED-NATIVE-EFFECTS",
         "ENG-REPEATED-READ",
         "ENG-RETRY-EFFECT-PRODUCER-20261110",
+        "ENG-SEARCH-DUPLICATE-PRODUCER-20261110",
         "ENG-SOURCE-ALLOCATION",
         "ENG-SOURCE-DEPTH-20261109",
         "ENG-SOURCE-PARSER-STACK-20261109",
