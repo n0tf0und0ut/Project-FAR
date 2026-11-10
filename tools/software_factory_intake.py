@@ -29,8 +29,7 @@ HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+wh
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
-PRE_OPEN = re.compile(r"<pre(?:\s[^<>]*)?>", re.I)
-PRE_CLOSE = re.compile(r"</pre\s*>", re.I)
+HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:\s[^<>]*)?>|</pre\s*>", re.I)
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 
@@ -75,6 +74,52 @@ def _strict_json(raw: str) -> object:
         raise IntakeError(f"invalid JSON: {exc.msg}") from exc
 
 
+def _visible_html_line(line: str, pre: bool, comment: bool,
+                       acceptance: bool) -> tuple[str, bool, bool]:
+    """Exclude raw HTML examples by source order, before heading extraction.
+
+    Each marker is consumed under the state at its own position: a comment
+    inside preformatted code cannot close an outer comment, and a pre tag
+    inside a comment cannot open code. Ambiguous mixed visible/HTML content
+    must be clarified instead of silently shortening requirements.
+    """
+    visible: list[str] = []
+    pos = 0
+    found = False
+    for match in HTML_CONTROL.finditer(line):
+        found = True
+        token = match.group(0).lower()
+        if not pre and not comment:
+            visible.append(line[pos:match.start()])
+        if pre:
+            if token.startswith("</pre"):
+                pre = False
+            elif token.startswith("<pre"):
+                raise IntakeError("nested HTML preformatted examples are ambiguous")
+        elif comment:
+            if token == "-->":
+                comment = False
+        elif token == "<!--":
+            if acceptance:
+                raise IntakeError("HTML comment in acceptance criteria requires clarification")
+            comment = True
+        elif token.startswith("<pre"):
+            if acceptance:
+                raise IntakeError("HTML code in acceptance criteria requires clarification")
+            pre = True
+        else:
+            if acceptance:
+                raise IntakeError("stray HTML close in acceptance criteria")
+            raise IntakeError("stray HTML closing delimiter requires clarification")
+        pos = match.end()
+    if not pre and not comment:
+        visible.append(line[pos:])
+    result = "".join(visible)
+    if found and result.strip():
+        raise IntakeError("mixed HTML examples and visible prose require clarification")
+    return result, pre, comment
+
+
 def _criteria(body: str) -> list[str]:
     """Extract explicit acceptance bullets without silently losing requirements.
 
@@ -95,45 +140,9 @@ def _criteria(body: str) -> list[str]:
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
             continue
-        # Once in a preformatted block, comment markers are examples too.
-        # Do not let an example's <!-- delimiter hide later real criteria.
-        if html_pre:
-            if PRE_CLOSE.search(line):
-                html_pre = False
-            continue
-        # Hidden Markdown template comments are never task requirements.
-        # Process every delimiter on the line, including consecutive comments,
-        # before treating a heading or acceptance bullet as actionable.
-        if html_comment or "<!--" in line or "-->" in line:
-            if in_section:
-                raise IntakeError("HTML comment in acceptance criteria requires clarification")
-            pos = 0
-            while pos < len(line):
-                if html_comment:
-                    closing = line.find("-->", pos)
-                    if closing < 0:
-                        break
-                    html_comment = False
-                    pos = closing + 3
-                else:
-                    opening = line.find("<!--", pos)
-                    if opening < 0:
-                        break
-                    html_comment = True
-                    pos = opening + 4
-            continue
-        # GitHub-flavored Markdown preserves HTML <pre> blocks as code.
-        # Treat their contents only as examples, never as acceptance headings.
-        open_pre = PRE_OPEN.search(line)
-        close_pre = PRE_CLOSE.search(line)
-        if open_pre:
-            if in_section:
-                raise IntakeError("HTML code in acceptance criteria requires clarification")
-            html_pre = not (close_pre and close_pre.start() >= open_pre.end())
-            continue
-        if close_pre:
-            if in_section:
-                raise IntakeError("stray HTML code close in acceptance criteria")
+        line, html_pre, html_comment = _visible_html_line(
+            line, html_pre, html_comment, in_section)
+        if not line.strip():
             continue
         if marker:
             if in_section:
