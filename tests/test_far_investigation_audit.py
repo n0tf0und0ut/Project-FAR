@@ -161,6 +161,68 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
                              if e['kind'] == 'TOOL_REJECTED'), state['rejected_calls'])
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_rejected_pre_dispatch_retry_does_not_steal_mutable_effect(self):
+        """Actual LocalModel prompts preserve producer chronology after retries."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+
+        for delayed in ('extract', 'compare', 'discover'):
+            script = full_script()
+            location = next(i for i, proposal in enumerate(script)
+                            if proposal['tool'] == delayed)
+            script.insert(location, copy.deepcopy(script[location]))
+            proposals = iter(script)
+            clock = [0.0]
+            checkpoint_failed = [False]
+
+            def checkpoint(state):
+                event = state['events'][-1]
+                if (not checkpoint_failed[0] and event['kind'] == 'TOOL_PROPOSAL'
+                        and event['payload']['tool'] == delayed):
+                    checkpoint_failed[0] = True
+                    raise OSError('controlled rejected proposal before dispatch')
+
+            def native_response(*_args, **_kwargs):
+                proposal = next(proposals)
+                response = {'model': 'local', 'usage': {'total_tokens': 1},
+                    'choices': [{'message': {'tool_calls': [{'function': {
+                        'name': proposal['tool'],
+                        'arguments': json.dumps(proposal['args'])}}]}}]}
+                raw = json.dumps(response).encode()
+                return raw, envelope(raw)['transport']
+
+            with self.subTest(tool=delayed), patch(
+                    'tools.far_investigation_engine.time.monotonic',
+                    side_effect=lambda: clock[0]):
+                runtime = self.runtime(budget=Budget(max_seconds=.2),
+                                       checkpoint=checkpoint)
+                dispatch = runtime._dispatch
+
+                def expire_actual_retry(tool, args):
+                    outcome = dispatch(tool, args)
+                    if tool == delayed:
+                        clock[0] = .3
+                    return outcome
+
+                with patch.object(runtime, '_dispatch',
+                                  side_effect=expire_actual_retry), patch(
+                        'tools.far_investigation_engine.read_bounded_response',
+                        side_effect=native_response):
+                    state = runtime.run_agent(LocalModel())
+
+            self.assertTrue(checkpoint_failed[0])
+            self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+            attempts = [e for e in state['events'] if e['kind'] == 'TOOL_REJECTED']
+            self.assertEqual([a['payload']['class'] for a in attempts],
+                             ['OSError', 'EngineError'])
+            if delayed == 'extract':
+                self.assertIn('ev.1', state['evidence'])
+            elif delayed == 'compare':
+                self.assertTrue(state['comparisons'])
+            else:
+                self.assertTrue(state['discovery_history'])
+            self.assertTrue(audit(state)['valid'], audit(state))
+
     def test_valid_agent_and_both_workflows_reconstruct_without_network_or_model(self):
         for mode in ('agent', 'deterministic', 'declarative'):
             with self.subTest(mode=mode):
