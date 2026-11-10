@@ -146,13 +146,13 @@ def verify_live(registration: dict, fetch_json=get_github_json) -> str:
     if branch.get("protected") is not True or type(main) is not dict or not SHA40.fullmatch(str(main.get("sha", ""))):
         raise RegistrationError("current protected main identity not verified")
     current_main = main["sha"]
-    compare = fetch_json(root + "compare/" + p["protected_source_commit"] + "...main")
+    compare = fetch_json(root + "compare/" + p["protected_source_commit"] + "..." + current_main)
     if (compare.get("status") not in ("identical", "ahead")
         or type(compare.get("behind_by")) is not int or compare["behind_by"] != 0
         or type(compare.get("merge_base_commit")) is not dict
         or compare["merge_base_commit"].get("sha") != p["protected_source_commit"]
-        or type(compare.get("head_commit")) is not dict
-        or compare["head_commit"].get("sha") != current_main):
+        or type(compare.get("base_commit")) is not dict
+        or compare["base_commit"].get("sha") != p["protected_source_commit"]):
         raise RegistrationError("registered source is not verified ancestor of current protected main")
     source = fetch_json(root + "contents/" + PROTOCOL_PATH + "?ref=" + p["protected_source_commit"])
     if source.get("type") != "file" or source.get("sha") != p["git_blob_sha1"] or source.get("encoding") != "base64":
