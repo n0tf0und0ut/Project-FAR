@@ -94,7 +94,7 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             ("findings.json", self.findings),
         ):
             (self.run_dir / name).write_text(
-                json.dumps(obj, ensure_ascii=False), encoding="utf-8"
+                json.dumps(obj, ensure_ascii=True), encoding="utf-8"
             )
 
     def test_needs_validation_is_open_and_has_no_severity(self):
@@ -151,7 +151,7 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
         self.findings = [sample("rejected")]
         self.findings[0]["title"] = " \t "
         self.persist()
-        with self.assertRaisesRegex(bridge.HandoffError, "visibleContent"):
+        with self.assertRaisesRegex(bridge.HandoffError, "pinned Cloudflare validator"):
             bridge.build_report(self.run_dir, self.head)
         source = bridge.safe_load_json(bridge.SCHEMA)
         normalized = bridge.schema_compatible_with_far(source)
@@ -180,6 +180,54 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(bridge.HandoffError, "duplicate JSON"):
             bridge.build_report(self.run_dir, self.head)
+
+
+    def test_handoff_text_sanitizer_preserves_identity_and_source_references(self):
+        self.assertEqual(bridge.clean_text("safe-001"), "safe-001")
+        self.assertEqual(bridge.clean_text("tools/demo.py:21"), "tools/demo.py:21")
+        report = bridge.build_report(self.run_dir, self.head)
+        self.assertIn("| safe-001 | needs_validation |", report)
+        self.assertIn("tools/cloudflare_security_audit_ledger.py:1", report)
+        self.assertIn("CF/safe-001: Dummy local check", report)
+
+    def test_pinned_upstream_rejects_default_ignorable_only_title(self):
+        self.findings = [sample("rejected")]
+        self.findings[0]["title"] = "\u034f"
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "pinned Cloudflare validator"):
+            bridge.build_report(self.run_dir, self.head)
+
+    def test_pinned_upstream_rejects_unpaired_surrogate_in_visible_title(self):
+        self.findings = [sample("rejected")]
+        self.findings[0]["title"] = "Visible" + chr(0xD800)
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "pinned Cloudflare validator"):
+            bridge.build_report(self.run_dir, self.head)
+
+    def test_skip_worktree_changed_source_is_not_exact_head_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "source"
+            repo.mkdir()
+            def git(*args):
+                return subprocess.run(
+                    ["git", *args], cwd=repo, check=True, capture_output=True,
+                ).stdout
+            git("init", "-q")
+            git("config", "user.name", "FAR source fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            target = repo / "evidence.py"
+            target.write_text("original line\n", encoding="utf-8")
+            git("add", "evidence.py")
+            git("commit", "-qm", "frozen source")
+            references = [{"trace": [{"file": "evidence.py", "line": 1}],
+                           "evidence": []}]
+            bridge.inspect_source_references(references, repo)
+            git("update-index", "--skip-worktree", "evidence.py")
+            target.write_text("original line\nforged line\n", encoding="utf-8")
+            self.assertEqual(git("status", "--porcelain=v1"), b"")
+            references[0]["trace"][0]["line"] = 2
+            with self.assertRaisesRegex(bridge.HandoffError, "do not match exact HEAD"):
+                bridge.inspect_source_references(references, repo)
 
     def test_output_must_be_outside_repository(self):
         process = subprocess.run(

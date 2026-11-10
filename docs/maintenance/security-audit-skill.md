@@ -90,7 +90,11 @@ python tools/cloudflare_security_audit_ledger.py \
   --output "$AUDIT_OUTPUT/FAR-REVIEW-LEDGER.md"
 ```
 
-The handoff requires an exact source-head match and safe source paths. It only
+The handoff requires an exact source-head match, verifies cited worktree file
+bytes against the exact Git HEAD blobs (including skip-worktree cases), and
+runs the pinned Cloudflare findings validator against a private snapshot
+before emitting a report. This requires local Node.js as well as Python and
+Git; absent or rejecting validation fails closed. It only
 produces a human-review template outside the repository. A `confirmed`
 Cloudflare record is still *unadjudicated* under FAR; `needs_validation` is
 an open research lead without severity; `rejected` does not cancel another

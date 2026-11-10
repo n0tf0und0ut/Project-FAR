@@ -13,7 +13,7 @@ import os
 import re
 import stat
 import subprocess
-import unicodedata
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +24,8 @@ SCHEMA = ROOT / ".agents/skills/security-audit/report-schema.json"
 MAX_INPUT = 5 * 1024 * 1024
 MAX_FIELDS = 1000
 MAX_DEPTH = 64
+MAX_SOURCE_BYTES = 8 * 1024 * 1024
+UPSTREAM_FINDINGS_VALIDATOR = ROOT / ".agents/skills/security-audit/validate-findings.cjs"
 SHA = re.compile(r"^[a-f0-9]{40}$")
 FINGERPRINT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$")
 
@@ -135,26 +137,57 @@ def clean_source_path(relative: str, source_root: Path):
     return path
 
 
+def exact_committed_source(root: Path, relative: str) -> bytes:
+    """Bound evidence to Git's HEAD blob; do not trust Git status alone."""
+    spec = "HEAD:" + relative
+    try:
+        measured = subprocess.run(
+            ["git", "cat-file", "-s", spec], cwd=root, capture_output=True,
+            check=True, timeout=15,
+        ).stdout.strip()
+        if not measured.isdigit() or int(measured) > MAX_SOURCE_BYTES:
+            raise HandoffError("source evidence blob exceeds bounded validation")
+        contents = subprocess.run(
+            ["git", "cat-file", "blob", spec], cwd=root, capture_output=True,
+            check=True, timeout=15,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise HandoffError("source evidence Git blob cannot be verified") from exc
+    if len(contents) != int(measured):
+        raise HandoffError("source Git blob changed while reading")
+    return contents
+
+
 def inspect_source_references(records: list, source_root: Path):
     tracked = source_is_clean_and_tracked(source_root)
+    verified: dict[str, bytes] = {}
     for item in records:
         for section in ("trace", "evidence"):
             for entry in item[section]:
-                path = clean_source_path(entry["file"], source_root)
-                if entry["file"] not in tracked:
+                relative = entry["file"]
+                path = clean_source_path(relative, source_root)
+                if relative not in tracked:
                     raise HandoffError("source evidence path is not tracked by Git")
                 line = entry["line"]
-                if type(line) is not int or line < 1:
+                if type(line) is not int or not 1 <= line <= 2_000_000:
                     raise HandoffError("invalid source evidence line")
-                # Avoid scanning entire large source files for an unbounded line.
-                if line > 2_000_000:
-                    raise HandoffError("source line outside bounded range")
-                with path.open("rb") as stream:
-                    for index, _ in enumerate(stream, 1):
-                        if index >= line:
-                            break
-                    else:
-                        raise HandoffError(f"source line does not exist: {entry['file']}:{line}")
+                if relative not in verified:
+                    committed = exact_committed_source(source_root, relative)
+                    if path.stat().st_size > MAX_SOURCE_BYTES:
+                        raise HandoffError("source evidence file exceeds bounded validation")
+                    with path.open("rb") as stream:
+                        observed = stream.read(MAX_SOURCE_BYTES + 1)
+                    if observed != committed:
+                        raise HandoffError(
+                            "source evidence bytes do not match exact HEAD Git blob"
+                        )
+                    verified[relative] = committed
+                committed = verified[relative]
+                count = committed.count(b"\n") + int(
+                    bool(committed) and not committed.endswith(b"\n")
+                )
+                if line > count:
+                    raise HandoffError(f"source line does not exist: {relative}:{line}")
 
 
 def schema_compatible_with_far(source):
@@ -173,37 +206,35 @@ def schema_compatible_with_far(source):
     return source
 
 
-def check_cloudflare_visible_content(value, spec):
-    """Retain Cloudflare's nonempty visible-character contract for local preflight."""
-    if not isinstance(spec, dict):
-        return
-    if spec.get("visibleContent") is True:
-        if not isinstance(value, str) or not any(
-            not c.isspace() and unicodedata.category(c) not in {"Cc", "Cf", "Cs"}
-            for c in value
-        ):
-            raise HandoffError("Cloudflare visibleContent assertion failed")
-    if isinstance(value, dict):
-        for key, child in spec.get("properties", {}).items():
-            if key in value:
-                check_cloudflare_visible_content(value[key], child)
-    if isinstance(value, list) and isinstance(spec.get("items"), dict):
-        for item in value:
-            check_cloudflare_visible_content(item, spec["items"])
-    if "oneOf" in spec and isinstance(value, dict):
-        branches = [b for b in spec["oneOf"]
-                    if isinstance(b, dict)
-                    and b.get("properties", {}).get("verdict", {}).get("const")
-                    == value.get("verdict")]
-        if len(branches) != 1:
-            raise HandoffError("Cloudflare verdict branch ambiguous")
-        check_cloudflare_visible_content(value, branches[0])
+def validate_with_pinned_cloudflare(findings: list):
+    """Run the vendored authoritative validator on a private, immutable snapshot.
+
+    The local JSON-Schema compatibility pass omits Cloudflare's nonstandard
+    visibleContent assertion; this pinned Node tool enforces that constraint,
+    Unicode scalar validity and the upstream semantic rules in full.
+    """
+    try:
+        with tempfile.TemporaryDirectory(prefix="far-cloudflare-findings-") as tmp:
+            snapshot = Path(tmp) / "findings.json"
+            snapshot.write_text(
+                json.dumps(findings, ensure_ascii=True, allow_nan=False),
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                ["node", str(UPSTREAM_FINDINGS_VALIDATOR), str(snapshot)],
+                cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True,
+                timeout=30, check=False,
+            )
+    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        raise HandoffError("pinned Cloudflare validator unavailable or invalid input") from exc
+    if result.returncode:
+        raise HandoffError("pinned Cloudflare validator rejected findings")
 
 
 def clean_text(value: str, max_chars=200):
     if not isinstance(value, str):
         raise HandoffError("invalid text field")
-    safe = " ".join(char for char in value if char == " " or ord(char) >= 32).strip()
+    safe = "".join(char for char in value if char == " " or ord(char) >= 32).strip()
     safe = safe.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     for mark in ("|", "[", "]", "*", "_", "\u0060"):
         safe = safe.replace(mark, "\\" + mark)
@@ -241,7 +272,7 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     problems = list(validator.iter_errors(findings))
     if problems:
         raise HandoffError(f"findings schema rejected data: {problems[0].message[:160]}")
-    check_cloudflare_visible_content(findings, schema)
+    validate_with_pinned_cloudflare(findings)
     fingerprints = [r["fingerprint"] for r in findings]
     if len(fingerprints) != len(set(fingerprints)):
         raise HandoffError("duplicate vulnerability fingerprints")
