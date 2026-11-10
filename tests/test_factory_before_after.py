@@ -341,6 +341,7 @@ class BeforeAfterTests(unittest.TestCase):
             "        '''A narrated check with a multiline verbose description.'''\n"
             "        self.assertTrue(execute())\n",
         )
+        (self.repo / "demo.py").write_text("def execute():\n    return False\n")
         baseline = self.commit("failing test with verbose description")
         (self.repo / "demo.py").write_text("def execute():\n    return True\n")
         candidate = self.commit("fixed behavior with identical narrated oracle")
