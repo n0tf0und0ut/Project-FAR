@@ -71,18 +71,24 @@ def validate_order(data: object) -> dict:
     for task in tasks:
         if any(dep not in by_id or dep == task["id"] for dep in task["depends_on"]):
             raise FactoryError("unknown or self dependency")
-    visiting, visited = set(), set()
-    def visit(key):
-        if key in visiting:
-            raise FactoryError("cyclic dependency")
-        if key not in visited:
-            visiting.add(key)
-            for dep in by_id[key]["depends_on"]:
-                visit(dep)
-            visiting.remove(key)
-            visited.add(key)
-    for key in by_id:
-        visit(key)
+    # Kahn's topological check avoids Python's recursion ceiling on valid
+    # long dependency chains. It preserves the exact accepted DAG language.
+    unmet = {key: len(task["depends_on"]) for key, task in by_id.items()}
+    dependents = {key: [] for key in by_id}
+    for key, task in by_id.items():
+        for dep in task["depends_on"]:
+            dependents[dep].append(key)
+    ready = [key for key, count in unmet.items() if count == 0]
+    visited = 0
+    while ready:
+        key = ready.pop()
+        visited += 1
+        for successor in dependents[key]:
+            unmet[successor] -= 1
+            if unmet[successor] == 0:
+                ready.append(successor)
+    if visited != len(by_id):
+        raise FactoryError("cyclic dependency")
     return data
 
 
