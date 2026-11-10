@@ -1193,7 +1193,7 @@ def audit(state) -> dict:
                     # prompt generation. Never borrow effects from its own or
                     # any future tool operation, including retained rejections.
                     expected = next(snapshot for at, snapshot in reversed(prompt_snapshots)
-                                    if at < boundary)
+                                    if at <= boundary)  # tool outcome's 1-based index is boundary
                     for field in ('tools', 'sources', 'evidence', 'comparisons',
                                   'freeze', 'candidate_ids', 'evaluated_ids', 'searches'):
                         equal(path + '.' + field, actual.get(field), expected[field])
