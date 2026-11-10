@@ -140,7 +140,7 @@ def validate(record: object) -> dict:
     }, "sampling")
     if s["design"] != "prospective-randomized-parallel-pilot":
         raise ContractError("invalid pilot design")
-    if type(s["target_distinct_tasks"]) is not int or not 2 <= s["target_distinct_tasks"] <= 40:
+    if type(s["target_distinct_tasks"]) is not int or s["target_distinct_tasks"] != 8:
         raise ContractError("invalid task target")
     _text(s["source"], "sampling.source")
     _text(s["allocation"], "sampling.allocation")
