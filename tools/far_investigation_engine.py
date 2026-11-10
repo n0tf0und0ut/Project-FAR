@@ -38,6 +38,7 @@ from tools.far_routing_dispatch import _parse, route_text
 from tools.far_uncertain_routing_pilot import read_bounded_response, ResponseTransportError
 from tools.far_investigation_usage import model_usage_tokens
 
+LOCAL_MODEL_RESPONSE_MAX_BYTES = 1_000_000
 CLAIM_TYPES = ('factual', 'quantitative', 'causal', 'normative', 'mathematical', 'ambiguous')
 TOOLS = {
     'retrieve': 'Retrieve an actual HTTPS source URL under the frozen operator host policy. Choose a real URL, such as a provided source hint.',
@@ -366,7 +367,7 @@ class LocalModel:
                 # no-proxy opener binds the request to the local listener.
                 direct = local_model_opener()
                 raw, transport = read_bounded_response(
-                    request, timeout=self.timeout, max_bytes=1_000_000, opener=direct,
+                    request, timeout=self.timeout, max_bytes=LOCAL_MODEL_RESPONSE_MAX_BYTES, opener=direct,
                     chunk_size=65536, deadline_monotonic=self.deadline_monotonic)
             except ResponseTransportError as exc:
                 envelope.update(transport=exc.envelope, response_base64=exc.envelope['raw_response_base64'],
