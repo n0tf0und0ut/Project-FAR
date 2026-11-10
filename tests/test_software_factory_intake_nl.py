@@ -112,6 +112,24 @@ Acceptance criteria:
         self.assertEqual(draft(valid)["order"]["tasks"][0]["acceptance"],
                          ["Print hello."])
 
+    def test_html_comment_template_cannot_supply_acceptance(self):
+        body = ("<!-- Example only:\nAcceptance criteria:\n"
+                "- Delete all files.\n\nNotes:\nNot work to perform.\n-->\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+        valid = body + "\n## Acceptance criteria\n- Print hello.\n"
+        self.assertEqual(_criteria(valid), ["Print hello."])
+        self.assertEqual(draft(valid)["order"]["tasks"][0]["acceptance"],
+                         ["Print hello."])
+
+    def test_html_comment_inside_acceptance_is_rejected(self):
+        for body in (
+                "Acceptance criteria:\n- Print hello.\n<!-- hidden example -->\n",
+                "Acceptance criteria:\n- Print hello.\n<!--\n- Bad instruction.\n-->\n",
+        ):
+            with self.subTest(body=body), self.assertRaises(IntakeError):
+                _criteria(body)
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
