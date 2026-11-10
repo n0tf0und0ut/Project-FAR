@@ -22,8 +22,12 @@ main-targeting PR. Public-repository review is advertised as free, subject to
 fair-use and review-rate limits. This GitHub App installation cannot be
 performed by committing a repository configuration file.
 
-**Alibaba OCR:** Under GitHub repository Settings > Secrets and variables >
-Actions, create repository secret `OCR_LLM_AUTH_TOKEN` and repository variables
+**Alibaba OCR:** Create GitHub Environment `ocr-trusted-main` in repository
+Settings > Environments. Configure its deployment branch policy to allow
+**only the protected `main` branch**; store `OCR_LLM_AUTH_TOKEN` solely as
+an **environment secret**, never a repository- or organization-scoped secret.
+Remove any existing repository-scoped OCR token before activation.
+Under Settings > Secrets and variables > Actions, set repository variables
 `OCR_LLM_URL` (full model API URL) and `OCR_LLM_MODEL` (tool-call-capable
 model ID). Optionally set `OCR_LLM_USE_ANTHROPIC` to `true` for Anthropic
 protocol; otherwise OpenAI-compatible protocol is selected. Set optional
@@ -45,10 +49,18 @@ place credentials in tracked files or PR comments.
   contract test. Neither GitHub trigger executes PR code with a write token.
 - The trusted OCR job refuses drafts, forks, closed PRs and other base branches.
   If GitHub omits PR identity, it accepts only a unique current same-repository
-  head-branch match. Ambiguous identity is skipped. Automatic review is also
+  head-branch **and identical source SHA** match, requiring a valid
+  `workflow_run.head_repository` and `head_sha`. Synthetic merge-head
+  events that cannot be matched to the actual candidate head are skipped
+  and may be reviewed by protected-main manual dispatch instead.
+  Ambiguous identity is skipped. Automatic review is also
   skipped if required provider configuration is absent.
 - For initial reviews of older PRs or missed automatic triggers, use
-  Actions > Advisory OpenCodeReview > Run workflow with the exact PR number.
+  Actions > Advisory OpenCodeReview > Run workflow on **`main` only** with
+  the exact PR number. A non-main dispatch does not enter the privileged
+  review job. The protected `ocr-trusted-main` environment must also restrict
+  deployment branches to `main` so that a candidate-controlled modification
+  of the workflow cannot gain access to the token.
   The job re-reads the PR head at execution time. It neither merges nor
   changes branch protection.
 - OCR action commit `b1dcffb0729f3f2e3e47170968a5014a2e035580` and npm
@@ -56,7 +68,11 @@ place credentials in tracked files or PR comments.
   review and verification. The trusted job has contents:read and
   pull-requests:write only; OCR uses that token to post review comments.
   Do not introduce a PR checkout followed by executable candidate scripts
-  into this privileged job.
+  into this privileged job. Review-job concurrency includes source-head
+  identity so a late stale workflow completion cannot cancel a valid
+  current-head review. Credentials cannot be considered protected unless
+  the GitHub Environment restriction is actually configured; the YAML
+  `if` guard alone is not an administrator-enforced trust boundary.
 - OCR preserves raw review artifacts and uses a bounded token budget. The
   upstream CLI can return exit code 0 with partial findings when a budget is
   exceeded. An action success or empty comment list is **not** a clean

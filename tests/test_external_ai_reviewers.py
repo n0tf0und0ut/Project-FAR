@@ -1,6 +1,9 @@
 """Regression checks for advisory reviewers and protected token boundaries."""
 from pathlib import Path
 import copy
+import json
+import os
+import tempfile
 import re
 import subprocess
 import sys
@@ -61,8 +64,10 @@ class ExternalAIReviewerTests(unittest.TestCase):
         review = self.workflow["jobs"]["review"]
         self.assertEqual(
             review["if"],
-            "github.event_name == 'workflow_run' || github.event_name == 'workflow_dispatch'",
+            "github.event_name == 'workflow_run' || "
+            "(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')",
         )
+        self.assertEqual(review["environment"], "ocr-trusted-main")
         self.assertEqual(review["permissions"], {
             "contents": "read", "pull-requests": "write",
         })
@@ -86,6 +91,89 @@ class ExternalAIReviewerTests(unittest.TestCase):
         self.assertNotIn("secrets.", yaml.safe_dump(bind))
         self.assertIn("steps.context.outputs.enabled == 'true'", review[1]["if"])
         self.assertIn("steps.provider.outputs.configured == 'true'", review[2]["if"])
+
+
+    def _replay_review_context(self, *, origin_repo, event_sha, populated=False):
+        """Execute the actual workflow's GitHub resolver with isolated fake gh."""
+        repo = "n0tf0und0ut/Project-FAR"
+        current_sha = "b" * 40
+        event = {"workflow_run": {
+            "name": "Required PR Review Convergence", "event": "pull_request",
+            "repository": {"full_name": repo},
+            "head_repository": {"full_name": origin_repo},
+            "head_branch": "feature", "head_sha": event_sha,
+            "pull_requests": [{"number": 7, "head": {"sha": event_sha}}]
+            if populated else [],
+        }}
+        candidate = {"number": 7, "state": "open", "draft": False,
+                     "base": {"ref": "main"},
+                     "head": {"repo": {"full_name": repo},
+                              "ref": "feature", "sha": current_sha}}
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            stub = directory / "gh"
+            stub.write_text(
+                "#!/usr/bin/env bash\n"
+                "set -euo pipefail\n"
+                "if [[ \"$1\" != api ]]; then exit 2; fi\n"
+                "if [[ \"$2\" == --paginate ]]; then\n"
+                "  cat \"$FIXTURE_LIST\"\n"
+                "else\n"
+                "  cat \"$FIXTURE_META\"\n"
+                "fi\n",
+                encoding="utf-8",
+            )
+            stub.chmod(0o755)
+            listing = directory / "pr-list.json"
+            listing.write_text(json.dumps([[candidate]]), encoding="utf-8")
+            metadata = directory / "pr.json"
+            metadata.write_text(json.dumps(candidate), encoding="utf-8")
+            output = directory / "github-output.txt"
+            env = dict(os.environ, PATH=str(directory) + os.pathsep
+                       + os.environ.get("PATH", ""),
+                       EVENT_NAME="workflow_run",
+                       EVENT_JSON=json.dumps(event), REQUESTED_PR="",
+                       GITHUB_REPOSITORY=repo, GITHUB_OUTPUT=str(output),
+                       FIXTURE_LIST=str(listing), FIXTURE_META=str(metadata))
+            resolver = self.workflow["jobs"]["review"]["steps"][0]["run"]
+            completed = subprocess.run(
+                ["bash", "-c", resolver], env=env, cwd=ROOT,
+                capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(completed.returncode, 0,
+                             completed.stdout + completed.stderr)
+            return output.read_text(encoding="utf-8") if output.exists() else ""
+
+    def test_fallback_rejects_fork_origin_and_wrong_sha(self):
+        current = "b" * 40
+        self.assertEqual(self._replay_review_context(
+            origin_repo="attacker/Project-FAR", event_sha=current), "")
+        self.assertEqual(self._replay_review_context(
+            origin_repo="n0tf0und0ut/Project-FAR", event_sha="a" * 40), "")
+        self.assertIn("enabled=true", self._replay_review_context(
+            origin_repo="n0tf0und0ut/Project-FAR", event_sha=current))
+
+    def test_populated_stale_event_never_enables_review(self):
+        self.assertEqual(self._replay_review_context(
+            origin_repo="n0tf0und0ut/Project-FAR",
+            event_sha="a" * 40, populated=True), "")
+
+    def test_old_head_concurrency_cannot_cancel_new_head(self):
+        group = self.workflow["concurrency"]["group"]
+        self.assertIn("github.event.workflow_run.head_sha", group)
+        self.assertIn("github.event.workflow_run.id", group)
+        self.assertTrue(self.workflow["concurrency"]["cancel-in-progress"])
+        self.assertNotEqual(
+            f"advisory-ocr-repo-7-{'a' * 40}",
+            f"advisory-ocr-repo-7-{'b' * 40}",
+        )
+
+    def test_privileged_manual_dispatch_is_main_only(self):
+        job = self.workflow["jobs"]["review"]
+        self.assertIn("github.ref == 'refs/heads/main'", job["if"])
+        self.assertEqual(job["environment"], "ocr-trusted-main")
+        self.assertNotIn("secrets.", job["if"])
+        self.assertFalse("refs/heads/unreviewed" == "refs/heads/main")
 
     def test_vendor_action_and_cli_are_immutably_pinned(self):
         run_step = self.workflow["jobs"]["review"]["steps"][-1]

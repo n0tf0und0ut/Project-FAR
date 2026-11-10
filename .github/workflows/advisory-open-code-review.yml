@@ -25,7 +25,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: advisory-ocr-${{ github.repository }}-${{ github.event.workflow_run.pull_requests[0].number || inputs.pr_number || github.run_id }}
+  group: advisory-ocr-${{ github.repository }}-${{ github.event.workflow_run.pull_requests[0].number || inputs.pr_number || github.event.workflow_run.id || github.run_id }}-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -50,8 +50,9 @@ jobs:
             tests.test_workflow_token_permissions -v
 
   review:
-    if: github.event_name == 'workflow_run' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
+    environment: ocr-trusted-main
     timeout-minutes: 45
     permissions:
       contents: read
@@ -82,10 +83,17 @@ jobs:
               # Some GitHub workflow_run events omit the PR list; accept only
               # a unique, same-repository, main-targeting head-branch match.
               run_branch="$(jq -r '.workflow_run.head_branch // ""' <<< "$EVENT_JSON")"
+              run_source_repo="$(jq -r '.workflow_run.head_repository.full_name // ""' <<< "$EVENT_JSON")"
+              run_source_sha="$(jq -r '.workflow_run.head_sha // ""' <<< "$EVENT_JSON")"
+              if [[ "$run_source_repo" != "$GITHUB_REPOSITORY" ||
+                    ! "$run_source_sha" =~ ^[0-9a-f]{40}$ ]]; then
+                echo 'No trustworthy source repository and head SHA for fallback PR matching.'
+                exit 0
+              fi
               if [[ -n "$run_branch" ]]; then
                 candidates="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" --slurp \
-                  | jq --arg branch "$run_branch" --arg repo "$GITHUB_REPOSITORY" \
-                    '[.[][] | select(.head.ref == $branch and .head.repo.full_name == $repo) | .number] | unique')"
+                  | jq --arg branch "$run_branch" --arg repo "$GITHUB_REPOSITORY" --arg source_sha "$run_source_sha" \
+                    '[.[][] | select(.head.ref == $branch and .head.repo.full_name == $repo and .head.sha == $source_sha) | .number] | unique')"
                 pr="$(jq -r 'if length == 1 then .[0] else empty end' <<< "$candidates")"
               fi
             fi
@@ -111,8 +119,11 @@ jobs:
           [[ "$head" =~ ^[0-9a-f]{40}$ ]] || { echo 'Invalid PR head SHA' >&2; exit 1; }
           if [[ "$EVENT_NAME" == workflow_run ]]; then
             source_sha="$(jq -r '.workflow_run.pull_requests[0].head.sha // ""' <<< "$EVENT_JSON")"
-            if [[ -n "$source_sha" && "$source_sha" != "$head" ]]; then
-              echo 'Workflow run represents an older head; skipping stale review.'
+            if [[ -z "$source_sha" ]]; then
+              source_sha="$(jq -r '.workflow_run.head_sha // ""' <<< "$EVENT_JSON")"
+            fi
+            if [[ ! "$source_sha" =~ ^[0-9a-f]{40}$ || "$source_sha" != "$head" ]]; then
+              echo 'Workflow run does not bind the current PR head; skipping stale or ambiguous review.'
               exit 0
             fi
           fi
