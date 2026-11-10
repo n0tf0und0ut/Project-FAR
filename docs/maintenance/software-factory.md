@@ -78,3 +78,7 @@ a `FactoryError("cyclic dependency")`. The regression
 cases. This corrects a valid-work-order rejection; it does not imply a global
 payload-size, task-count, or storage-consumption limit. Production ingestion from
 untrusted clients would require separately justified resource ceilings.
+
+## Optional FARGraph impact advisory
+
+The standalone [FARGraph Research prototype](fargraph.md) adds source-hashed, read-only Python/Lean/Markdown/workflow dependency observations. To evaluate an existing software-factory work order against an exact local candidate checkout, run `python -m tools.factory_fargraph --root . --work-order /tmp/factory-order.json --head-sha "$(git rev-parse HEAD)" --repository n0tf0und0ut/Project-FAR`. The adapter uses this controller's exact work-order parser, validates base ancestry and a clean matching head, and reports syntactic change impact and its unknown coverage. It cannot submit, claim, complete or advance a factory work order, request reviews, write source, or authorize delivery. No mandatory CI or merge gate is changed. This is unpromoted Research advisory evidence, not independent review or proof of completeness.
