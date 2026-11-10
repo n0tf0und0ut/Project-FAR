@@ -47,6 +47,12 @@ python -m py_compile tools/factory_before_after.py
 
 The regression suite creates real temporary Git histories: failing baseline to fixed candidate, passing baseline to regressed candidate, source mutation, empty test discovery, incompatible frozen oracle, expired timeout, input/path traversal, duplicate output path, and worktree cleanup. All outcomes are synthetic engineering fixtures, **not** registered factory performance data.
 
+## Retrospective queue-repair smoke (real source, not a prospective trial)
+
+The dedicated GitHub workflow also attempts one **real source-exact retrospective** on PR #630's previously documented SQLite writer-lock defect. It fetches the historical PR branch without persistent checkout credentials; verifies that the defect-reproducing test-only commit `e2648ea204d033756c8185fc3cea82ce9f26d125` is an ancestor of fix commit `6a7d5eb2864bb3440a34b0bcbdb041a452996d44`; independently compares the two historical `tests/test_software_factory.py` byte digests before running; and then invokes this runner on both exact commits. The source-only diff from before to after modifies `tools/software_factory.py`, not the test oracle. The job retains a short-lived artifact containing each run's raw logs and receipt, whether it passes or fails.
+
+This is **post hoc**, not one of the eight prospectively admitted factory-vs-control tasks. It measures the process behavior of one corrective factory-queue source revision under hosted GitHub tests; it does not establish autonomous coding, safe provider credentials, protected merge for that separate PR, or a generalized performance advantage. If the old test fails and the fixed test passes, the supported claim is limited to that exact Git revision and test-oracle configuration. A failed smoke job is retained as a finding to investigate, not quietly excluded.
+
 ## Next dependency
 
 A source-bound, independently controlled artifact and protected-merge observer is still needed to establish the registered `verified_protected_delivery_rate` denominator and numerator. The selected controller and coding-worker implementations must be frozen before prospective enrollment; current PR #630 remains an unmerged Research prototype that does not actually execute workers. No historical red/green test may be promoted into a new prospective factory-vs-control observation.
