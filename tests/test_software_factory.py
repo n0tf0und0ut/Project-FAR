@@ -279,5 +279,66 @@ class TestFactory(unittest.TestCase):
 
 
 
+    def test_two_concurrent_merge_observers_commit_delivery_once(self):
+        """Stale observations cannot deliver twice after the writer lock is released."""
+        import threading
+
+        review = self._get_reviewed()
+        self.f.record("pilot", "alpha", review["token"],
+                      {"head_sha": B, "reviewer": "independent",
+                       "review_url": "https://github.com/x/y/pull/123",
+                       "result": "clean", "unresolved": 0}, now=105)
+        entered, release = threading.Event(), threading.Event()
+        failures = []
+
+        def github(url):
+            if url.endswith("/pulls/123"):
+                return {"state": "closed", "merged": True,
+                        "merged_at": "2026-11-09T00:00:00Z",
+                        "head": {"sha": B},
+                        "base": {"ref": "main", "repo": {"full_name": "n0tf0und0ut/Project-FAR"}},
+                        "merge_commit_sha": A}
+            if url.endswith("/branches/main"):
+                return {"commit": {"sha": A}}
+            if url.endswith(f"/compare/{A}...{A}"):
+                return {"status": "identical"}
+            raise AssertionError(url)
+
+        def blocked_github(url):
+            if url.endswith("/pulls/123"):
+                entered.set()
+                if not release.wait(timeout=5):
+                    raise AssertionError("controlled observation timeout")
+            return github(url)
+
+        def observe():
+            worker = Factory(Path(self.tmp.name) / "factory.sqlite")
+            try:
+                worker.reconcile_delivery("pilot", "alpha", fetch_json=blocked_github)
+            except Exception as exc:
+                failures.append(exc)
+            finally:
+                worker.db.close()
+
+        thread = threading.Thread(target=observe)
+        thread.start()
+        try:
+            self.assertTrue(entered.wait(timeout=5))
+            self.assertEqual(self.f.reconcile_delivery("pilot", "alpha", github)["state"], "delivered")
+        finally:
+            release.set()
+            thread.join(timeout=5)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(len(failures), 1)
+        self.assertIsInstance(failures[0], FactoryError)
+        self.assertIn("has not completed recorded review stages", str(failures[0]))
+        snapshot = self.f.snapshot("pilot")
+        delivery_events = [event for event in snapshot["tasks"][0]["history"]
+                           if event["event"] == "github_merge_observed"]
+        self.assertEqual(len(delivery_events), 1)
+        self.assertEqual(snapshot["tasks"][0]["state"], "delivered")
+
+
+
 if __name__ == "__main__":
     unittest.main()
