@@ -14,12 +14,20 @@ SKILL_DIR = ROOT / ".agents/skills/security-audit"
 BASE = ".agents/skills/security-audit"
 UPSTREAM = "cloudflare/security-audit-skill"
 COMMIT = "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8"
+LOCK_GIT_BLOB = "cb281cf41c9c9ccd50e1df450b2e292b4e68e94b"
 
 
 def git_blob_sha(content: bytes) -> str:
     return hashlib.sha1(
         b"blob " + str(len(content)).encode("ascii") + b"\0" + content
     ).hexdigest()
+
+
+def verify_manifest_bytes(payload: bytes):
+    """A changed manifest cannot silently rebaseline vendored source blobs."""
+    if git_blob_sha(payload) != LOCK_GIT_BLOB:
+        return ["modified source-lock manifest (requires separately reviewed re-pin)"]
+    return []
 
 
 def verify(manifest, skill_dir=SKILL_DIR):
@@ -87,8 +95,9 @@ def verify(manifest, skill_dir=SKILL_DIR):
 
 def main():
     try:
-        manifest = json.loads(LOCK.read_text(encoding="utf-8"))
-        errors = verify(manifest)
+        payload = LOCK.read_bytes()
+        manifest = json.loads(payload.decode("utf-8"))
+        errors = verify_manifest_bytes(payload) + verify(manifest)
     except (ValueError, OSError, UnicodeError) as exc:
         print("FAIL Cloudflare source lock:", exc)
         return 1
