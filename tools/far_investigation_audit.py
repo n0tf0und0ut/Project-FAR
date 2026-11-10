@@ -957,6 +957,21 @@ def audit(state) -> dict:
                                      if ident in state['projections']}
             accepted = kind == 'TOOL_RESULT'
             result = payload['result'] if accepted else None
+            # A rejected proposal checkpoint is not an executed tool. Retained
+            # effects may be credited only when the runtime has passed the
+            # dispatch boundary, as evidenced by its exact post-dispatch
+            # budget rejection or an invalidation event emitted after mutation.
+            proposal_start = index - 2
+            while proposal_start >= 0 and events[proposal_start]['kind'] != 'TOOL_PROPOSAL':
+                proposal_start -= 1
+            dispatched_invalidation = any(
+                event['kind'] == 'DISCOVERY_INVALIDATED'
+                for event in events[proposal_start + 1:index - 1])
+            rejected_postdispatch = (
+                kind == 'TOOL_REJECTED' and type(payload) is dict
+                and ((payload.get('class') == 'EngineError'
+                      and payload.get('reason') == 'wall-clock budget exhausted')
+                     or (payload.get('class') == 'OSError' and dispatched_invalidation)))
             try:
                 tool, args = validate_dispatch(proposal, replay_intake, completed)
             except (ValueError, TypeError):
@@ -1026,13 +1041,15 @@ def audit(state) -> dict:
                             if accepted:
                                 equal('extract.evidence_id', result['evidence_id'], ident)
                                 equal('extract.proposal', {k: v for k, v in result.items() if k != 'evidence_id'}, expected)
-                            if accepted or (evidence.get(ident) == expected and successful_evidence_at.get(ident, index) == index):
+                            if accepted or (rejected_postdispatch and evidence.get(ident) == expected
+                                            and successful_evidence_at.get(ident, index) == index):
                                 produced_evidence[ident] = expected
                         else:
                             if accepted:
                                 equal('compare.proposal', result, expected)
                             offset = len(produced_comparisons)
-                            if accepted or (offset < len(state['comparisons']) and state['comparisons'][offset] == expected
+                            if accepted or (rejected_postdispatch and offset < len(state['comparisons'])
+                                            and state['comparisons'][offset] == expected
                                             and successful_comparison_at.get(offset, index) == index):
                                 produced_comparisons.append(expected)
             # These actual mutable effects invalidate the draft and its terminal
@@ -1048,7 +1065,8 @@ def audit(state) -> dict:
                             if history_offset < len(state['discovery_history']) else None)
                 expected = None
                 if (snapshot is not None and index < frozen_index
-                        and (accepted or successful_discovery_at.get(history_offset, index) == index)):
+                        and (accepted or (rejected_postdispatch
+                             and successful_discovery_at.get(history_offset, index) == index))):
                     context = {**state, 'sources': available_sources, 'projections': available_projections,
                                'evidence': produced_evidence, 'comparisons': produced_comparisons,
                                'searches': produced_searches}
@@ -1069,7 +1087,8 @@ def audit(state) -> dict:
                             paths = [row['path'] for row in actual_candidate['parameter_provenance']]
                             if len(paths) == len(set(paths)) and set(paths) == set(rows):
                                 expected_candidate['parameter_provenance'] = [rows[path] for path in paths]
-                if accepted or (expected is not None and sha256_json(snapshot) == sha256_json(expected)):
+                if accepted or (rejected_postdispatch and expected is not None
+                                and sha256_json(snapshot) == sha256_json(expected)):
                     if expected is None:
                         fail('discover.proposal', 'no reconstructable discovery snapshot')
                     else:
@@ -1147,9 +1166,7 @@ def audit(state) -> dict:
                         'rechecked_searches': len(produced_searches),
                         'scope': 'unchanged bounded projections only; not semantic or open-world completeness'})
             elif tool == 'freeze' and (accepted or (
-                    kind == 'TOOL_REJECTED' and type(payload) is dict
-                    and payload.get('class') == 'EngineError'
-                    and payload.get('reason') == 'wall-clock budget exhausted'
+                    rejected_postdispatch and payload.get('class') == 'EngineError'
                     and not freeze_events and not args and state['intake']
                     and state['intake']['freeze']['status'] == 'FROZEN' and replay_intake
                     and replay_intake['freeze']['status'] == 'DRAFT'
