@@ -1,0 +1,26 @@
+{
+  "schema": "far-factory-protocol-registration/1",
+  "status": "Research-protocol-source-identified-trial-not-executed",
+  "study_id": "FAR-FACTORY-SELF-EVAL-001",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "protocol": {
+    "path": "research/factory-evaluation/protocol-v1.json",
+    "merged_pr": 633,
+    "protected_source_commit": "12b0b4c86b26da72b8f845ed65740baf092503ea",
+    "git_blob_sha1": "a9cde761b10ca85b0faaed3a5b0a8bd94ed46cdd",
+    "file_sha256": "f3526d953e087fba98d84d6332e02c88442ec12d965cec74e8d09ef6e35a4f44"
+  },
+  "trial": {
+    "cohort_admitted": false,
+    "execution_manifest_frozen": false,
+    "trial_executed": false,
+    "verified_results_available": false,
+    "superiority_claim_allowed": false
+  },
+  "limitations": [
+    "Source SHA and file digests bind a merged protocol, not an executed comparative trial.",
+    "GitHub API ancestry and original PR merge must be independently rechecked before a future study begins.",
+    "An exact Git source commit is immutable; this registration file is a reviewed candidate until protected merge and is not an independently signed scientific result.",
+    "Missing model credentials, isolated runner verification, independently reviewed arm implementation manifest, frozen eligible cohort, and outcome observer block the pilot."
+  ]
+}
