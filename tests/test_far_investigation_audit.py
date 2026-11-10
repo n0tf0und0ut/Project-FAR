@@ -56,6 +56,96 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         if fragment:
             self.assertTrue(any(fragment in e for e in outcome['errors']), outcome)
 
+    def test_native_replay_rejects_over_nested_model_proposal(self):
+        """Native replay must reject the same nesting that LocalModel rejects."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+
+        proposals = iter(full_script())
+        def native_response(*_args, **_kwargs):
+            proposal = next(proposals)
+            response = {'model': 'local', 'usage': {'total_tokens': 1},
+                        'choices': [{'message': {'content': json.dumps(proposal)}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=native_response):
+            original = self.runtime().run_agent(LocalModel())
+        self.assertEqual(original['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertTrue(audit(original)['valid'], audit(original))
+
+        state = copy.deepcopy(original)
+        before = state['model_calls'][0]['response_base64']
+        response = json.loads(base64.b64decode(before))
+        proposal = json.loads(response['choices'][0]['message']['content'])
+        nested = 'leaf'
+        for _ in range(65):
+            nested = {'child': nested}
+        proposal['invalid_extra'] = nested
+        response['choices'][0]['message']['content'] = json.dumps(proposal)
+        raw = json.dumps(response).encode()
+        encoded, digest = base64.b64encode(raw).decode(), hashlib.sha256(raw).hexdigest()
+        changed = [0]
+        def rewrite_native_copies(node):
+            if type(node) is dict:
+                if node.get('response_base64') == before:
+                    node['response_base64'] = encoded
+                    node['response_sha256'] = digest
+                    transport = node.get('transport')
+                    if type(transport) is dict:
+                        transport['raw_response_base64'] = encoded
+                        transport['response_sha256'] = digest
+                        transport['response_bytes_retained'] = len(raw)
+                    changed[0] += 1
+                for child in node.values():
+                    rewrite_native_copies(child)
+            elif type(node) is list:
+                for child in node:
+                    rewrite_native_copies(child)
+        rewrite_native_copies(state)
+        self.assertGreaterEqual(changed[0], 3)
+        reseal(state)
+        self.assert_rejected(state, 'native_proposal_nesting')
+
+    def test_postdiscovery_rejected_comparison_retry_retains_both_identical_rows(self):
+        """A retained failed comparison precedes its identical accepted retry."""
+        script = full_script()
+        discover_at = next(i for i, proposal in enumerate(script)
+                           if proposal['tool'] == 'discover')
+        new_compare = action('compare', evidence_ids=['ev.1', 'ev.2'],
+                             alternatives=['Independent post-discovery comparison.'])
+        script[discover_at + 1:discover_at + 1] = [
+            copy.deepcopy(new_compare), copy.deepcopy(new_compare),
+            copy.deepcopy(script[discover_at]),
+        ]
+        failed = [False]
+        def checkpoint(state):
+            if (not failed[0] and state['events'][-1]['kind'] == 'DISCOVERY_INVALIDATED'
+                    and len(state['comparisons']) == 2):
+                failed[0] = True
+                raise OSError('simulated failure after comparison mutation')
+        state = self.runtime(checkpoint=checkpoint).run_agent(ScriptedFixtureModel(script))
+        self.assertTrue(failed[0])
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(len(state['comparisons']), 3)
+        self.assertEqual(state['comparisons'][1], state['comparisons'][2])
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_resealed_wall_clock_exhaustion_cannot_continue_to_completion(self):
+        """A recorded terminal budget rejection disallows later execution."""
+        state = self.complete()
+        earlier = next(event for event in state['events']
+                       if event['kind'] == 'TOOL_RESULT'
+                       and event['payload']['tool'] == 'extract')
+        earlier['kind'] = 'TOOL_REJECTED'
+        earlier['payload'] = {'class': 'EngineError',
+                              'reason': 'wall-clock budget exhausted'}
+        state['rejected_calls'] += 1
+        reseal(state)
+        self.assert_rejected(state, 'wall_clock_exhaustion.terminal')
+
     def test_resealed_terminal_failure_cannot_be_scored_as_completion(self):
         for mode in ('agent', 'deterministic'):
             with self.subTest(mode=mode):
