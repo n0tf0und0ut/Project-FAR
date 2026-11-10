@@ -57,6 +57,54 @@ ENTRYPOINT = (
 )
 
 
+# Task-specific public-interface checks use exactly the six frozen case inputs,
+# but invoke the required entrypoints independently of solution.transform.
+# This prevents adapter-only repairs from receiving a false positive.
+INTERFACE_CALLERS = (
+    "import copy,json,sys\n"
+    "sys.path.insert(0,'/app')\n"
+    "d=json.load(sys.stdin)\n"
+    "original=copy.deepcopy(d)\n"
+    "from normalize import canonical,legacy\n"
+    "answer={'service':canonical(d['name']),'legacy':legacy(d['name'])}\n"
+    "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
+    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
+    "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
+)
+INTERFACE_REUSE = (
+    "import copy,json,sys\n"
+    "sys.path.insert(0,'/app')\n"
+    "d=json.load(sys.stdin)\n"
+    "original=copy.deepcopy(d)\n"
+    "import shared\n"
+    "calls=[]\n"
+    "def spy(value):\n"
+    "    calls.append(value)\n"
+    "    return 'FAR_HELPER_USED_V1'\n"
+    "shared.slugify=spy\n"
+    "from catalog import slugs\n"
+    "answer={'result':slugs(d['items']),'calls':calls}\n"
+    "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
+    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
+    "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
+)
+INTERFACE_ENTRYPOINTS = {'CALLERS-01': INTERFACE_CALLERS,
+                         'REUSE-06': INTERFACE_REUSE}
+
+
+def _interface_probes(task:dict) -> list[tuple[dict,str]]:
+    """Use the existing six frozen inputs to check declared public interfaces."""
+    cases = task['public'] + task['hidden']
+    if task['id'] == 'CALLERS-01':
+        return [(case, INTERFACE_CALLERS) for case in cases]
+    if task['id'] == 'REUSE-06':
+        return [({'input':case['input'],
+                  'expected':{'result':['FAR_HELPER_USED_V1'] * len(case['input']['items']),
+                              'calls':case['input']['items']}}, INTERFACE_REUSE)
+                for case in cases]
+    return []
+
+
 class ContractError(ValueError):
     pass
 
@@ -252,12 +300,12 @@ def _strict_json_output(stdout):
     return body
 
 
-def _grade_case(snapshot:Path,case:dict):
+def _grade_case(snapshot:Path,case:dict,entrypoint:str=ENTRYPOINT):
     name='far-agent-instr-'+uuid.uuid4().hex
     cmd=['docker','run','--rm','--name',name,'-i','--network','none','--cap-drop','ALL',
          '--read-only','--security-opt','no-new-privileges','--memory','384m',
          '--pids-limit','64','-v',str(snapshot.resolve())+':/app:ro','-w','/app',IMAGE,
-         'python','-I','-B','-c',ENTRYPOINT]
+         'python','-I','-B','-c',entrypoint]
     result=None; transport_error=None
     try:
         result=capture_candidate_process(cmd,json.dumps(case['input'],allow_nan=False))
@@ -447,14 +495,18 @@ def grade_slot(root:Path,slot_id:str,provider_record:dict):
         (submitted/name).parent.mkdir(parents=True,exist_ok=True)
         (submitted/name).write_bytes(contents)
     complete=all(n in source for n in task['files'])
+    probes=_interface_probes(task)
     if complete:
         results=[_grade_case(submitted,c) for c in task['public']+task['hidden']]
+        interface_checks=[_grade_case(submitted,c,entrypoint=script) for c,script in probes]
     else:
         results=[{'status':'INFRA_FAILURE','error':'source_missing_or_unsafe'} for _ in range(6)]
+        interface_checks=[{'status':'INFRA_FAILURE','error':'source_missing_or_unsafe'} for _ in probes]
     trace=provider_record.get('validated_trace')
     valid=bool(complete and not unauthorized and provider_record.get('exit_code')==0 and
                provider_record.get('timed_out') is False and provider_record.get('output_limited') is False and
-               isinstance(trace,dict) and len(results)==6 and all(row['status']=='PASS' for row in results))
+               isinstance(trace,dict) and len(results)==6 and
+               all(row['status']=='PASS' for row in results+interface_checks))
     return {'schema':'far-agent-instruction-observation/2',**cell,
             'freeze':manifest['freeze'],'previous_observation_sha256':provider_record.get('previous_observation_sha256'),
             'model_id':proto['runtime']['model_id'],
@@ -468,8 +520,9 @@ def grade_slot(root:Path,slot_id:str,provider_record:dict):
             'output_limited':provider_record['output_limited'],
             'source_sha256':{n:digest(data) for n,data in source.items()},
             'changed_files':edits,'unauthorized':unauthorized,
-            'comparisons':results,'outcome':'SUCCESS' if valid else 'FAILURE',
-            'graded':all(x['status']!='INFRA_FAILURE' for x in results),
+            'comparisons':results,'interface_checks':interface_checks,
+            'outcome':'SUCCESS' if valid else 'FAILURE',
+            'graded':all(x['status']!='INFRA_FAILURE' for x in results+interface_checks),
             'limitations':'Trusted host/executable attestations and Codex stream parsing are not cryptographic proof of provider-side model selection or instruction ingestion.'}
 
 
@@ -557,7 +610,31 @@ def analyze(root:Path):
                     except (ContractError,ValueError,TypeError,OverflowError):pass
                 if item['status']!=('PASS' if good else 'FAILURE'):
                     raise ContractError('grader output and verdict disagree')
-            success=(not unauthorized and bool(edits) and all(r['status']=='PASS' for r in record['comparisons']))
+            probes=_interface_probes(task)
+            interface_checks=record.get('interface_checks')
+            if not isinstance(interface_checks,list) or len(interface_checks)!=len(probes):
+                raise ContractError('missing required public-interface verification')
+            for item,(case,_) in zip(interface_checks,probes):
+                if item.get('status') not in ('PASS','FAILURE'):
+                    raise ContractError('infrastructure failure in required interface tests')
+                stdout=item.get('stdout');stderr=item.get('stderr')
+                if (not isinstance(stdout,str) or not isinstance(stderr,str)
+                        or digest(stdout.encode())!=item.get('stdout_sha256')
+                        or digest(stderr.encode())!=item.get('stderr_sha256')):
+                    raise ContractError('interface test transcript digest mismatch')
+                good=False
+                if (item.get('exit_code')==0 and item.get('timed_out') is False
+                        and item.get('output_limited') is False
+                        and item.get('cleanup_error') is None):
+                    try:
+                        parsed=_strict_json_output(stdout)
+                        good=(parsed['input_unchanged']
+                              and canonical(parsed['value'])==canonical(case['expected']))
+                    except (ContractError,ValueError,TypeError,OverflowError):pass
+                if item['status']!=('PASS' if good else 'FAILURE'):
+                    raise ContractError('interface result and verdict disagree')
+            success=(not unauthorized and bool(edits) and
+                     all(r['status']=='PASS' for r in record['comparisons']+interface_checks))
             if record.get('outcome')!=('SUCCESS' if success else 'FAILURE'):
                 raise ContractError('record claimed a false outcome')
             rows.append(record)
