@@ -25,10 +25,10 @@ class RegistrationTests(unittest.TestCase):
         self.sample = {
             "pulls/633": {"merged": True, "merge_commit_sha": SOURCE_SHA},
             "branches/main": {"protected": True, "commit": {"sha": SOURCE_SHA}},
-            "compare/" + SOURCE_SHA + "...main": {
+            "compare/" + SOURCE_SHA + "..." + SOURCE_SHA: {
                 "status": "identical", "behind_by": 0,
                 "merge_base_commit": {"sha": SOURCE_SHA},
-                "head_commit": {"sha": SOURCE_SHA},
+                "base_commit": {"sha": SOURCE_SHA},
             },
             "contents/research/factory-evaluation/protocol-v1.json?ref=" + SOURCE_SHA: {
                 "type": "file", "sha": self.reg["protocol"]["git_blob_sha1"],
@@ -50,9 +50,9 @@ class RegistrationTests(unittest.TestCase):
     def test_live_ancestry_with_newer_protected_main(self):
         newer = "c" * 40
         self.sample["branches/main"]["commit"]["sha"] = newer
-        comparison = self.sample["compare/" + SOURCE_SHA + "...main"]
+        comparison = self.sample.pop("compare/" + SOURCE_SHA + "..." + SOURCE_SHA)
         comparison["status"] = "ahead"
-        comparison["head_commit"]["sha"] = newer
+        self.sample["compare/" + SOURCE_SHA + "..." + newer] = comparison
         self.assertEqual(registration.verify_live(self.reg, self.fetch), newer)
 
     def test_changed_source_bytes_fail_closed(self):
@@ -80,14 +80,30 @@ class RegistrationTests(unittest.TestCase):
             registration.verify_live(self.reg, self.fetch)
 
     def test_rewritten_history_or_not_ancestor_is_rejected(self):
-        self.sample["compare/" + SOURCE_SHA + "...main"]["behind_by"] = 1
+        self.sample["compare/" + SOURCE_SHA + "..." + SOURCE_SHA]["behind_by"] = 1
         with self.assertRaisesRegex(registration.RegistrationError, "not verified ancestor"):
             registration.verify_live(self.reg, self.fetch)
 
-    def test_comparison_head_mismatch_is_rejected(self):
-        self.sample["compare/" + SOURCE_SHA + "...main"]["head_commit"]["sha"] = "b" * 40
+    def test_comparison_base_mismatch_is_rejected(self):
+        self.sample["compare/" + SOURCE_SHA + "..." + SOURCE_SHA]["base_commit"]["sha"] = "b" * 40
         with self.assertRaisesRegex(registration.RegistrationError, "not verified ancestor"):
             registration.verify_live(self.reg, self.fetch)
+
+    def test_comparison_pins_exact_captured_main_sha(self):
+        newer = "c" * 40
+        self.sample["branches/main"]["commit"]["sha"] = newer
+        captured = []
+        def spy(url):
+            captured.append(url)
+            if url.endswith("compare/" + SOURCE_SHA + "..." + newer):
+                return {
+                    "status": "ahead", "behind_by": 0,
+                    "merge_base_commit": {"sha": SOURCE_SHA},
+                    "base_commit": {"sha": SOURCE_SHA},
+                }
+            return self.fetch(url)
+        self.assertEqual(registration.verify_live(self.reg, spy), newer)
+        self.assertTrue(any(url.endswith("compare/" + SOURCE_SHA + "..." + newer) for url in captured))
 
     def test_lookalike_content_with_wrong_hash_is_rejected(self):
         key = "contents/research/factory-evaluation/protocol-v1.json?ref=" + SOURCE_SHA
