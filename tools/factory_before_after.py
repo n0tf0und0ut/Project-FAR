@@ -32,6 +32,9 @@ RESULTS = {"OBSERVED_EXIT_STATUS_IMPROVEMENT", "NO_OBSERVED_IMPROVEMENT",
            "OBSERVED_NO_REGRESSION", "OBSERVED_REGRESSION", "INCOMPARABLE", "UNKNOWN"}
 MAX_TIMEOUT = 600
 MAX_STREAM_BYTES = 8 * 1024 * 1024
+# Conservative reconstruction of actual unittest method IDs from verbose output.
+# Unrecognized/dynamic output fails closed; the test process is not authenticated.
+OBSERVED_TEST_ID = re.compile(rb"(?m)^(test_[A-Za-z0-9_]+ \([A-Za-z_][A-Za-z0-9_.]*\)) \.\.\. ")
 
 
 class RunnerError(ValueError):
@@ -216,14 +219,19 @@ def _run_test(worktree: Path, label: str, pattern: str, timeout: int,
     raw_stderr = stderr.read_bytes()
     counts = re.findall(rb"\bRan ([0-9]+) tests? in ", raw_stderr)
     test_count = int(counts[-1]) if counts else 0
+    observed_ids = [match.decode("ascii") for match in OBSERVED_TEST_ID.findall(raw_stderr)]
+    inventory_complete = (test_count > 0 and len(observed_ids) == test_count
+                          and len(set(observed_ids)) == test_count)
     status = "TIMEOUT" if timed_out else "UNKNOWN"
-    if not timed_out and not overflow and test_count > 0:
+    if not timed_out and not overflow and inventory_complete:
         status = "PASS" if code == 0 else "FAIL"
     dirty = bool(_git(worktree, "status", "--porcelain", "--untracked-files=no").stdout.strip())
     if dirty:
         status = "UNKNOWN"  # tested source changed after receipt's initial identity
     return {
         "status": status, "exit_code": code, "test_count_reported": test_count,
+        "observed_test_ids": sorted(observed_ids),
+        "test_inventory_complete": inventory_complete,
         "started_at": started, "finished_at": finished, "wall_seconds": seconds,
         "tracked_checkout_modified": dirty, "command": command,
         "stream_limit_exceeded": overflow,
@@ -275,12 +283,19 @@ def evaluate(repository: Path, baseline: str, candidate: str, pattern: str,
                 trial["before"] = _run_test(worktrees[0], "before", pattern, timeout_seconds, output_dir, repository)
                 trial["after"] = _run_test(worktrees[1], "after", pattern, timeout_seconds, output_dir, repository)
                 b, c = trial["before"]["status"], trial["after"]["status"]
-                trial["verdict"] = {
-                    ("FAIL", "PASS"): "OBSERVED_EXIT_STATUS_IMPROVEMENT",
-                    ("PASS", "FAIL"): "OBSERVED_REGRESSION",
-                    ("PASS", "PASS"): "OBSERVED_NO_REGRESSION",
-                    ("FAIL", "FAIL"): "NO_OBSERVED_IMPROVEMENT",
-                }.get((b, c), "UNKNOWN")
+                inventories_complete = (trial["before"]["test_inventory_complete"]
+                                        and trial["after"]["test_inventory_complete"])
+                trial["test_inventory_comparable"] = (inventories_complete
+                    and trial["before"]["observed_test_ids"] == trial["after"]["observed_test_ids"])
+                if inventories_complete and not trial["test_inventory_comparable"]:
+                    trial["verdict"] = "INCOMPARABLE"
+                else:
+                    trial["verdict"] = {
+                        ("FAIL", "PASS"): "OBSERVED_EXIT_STATUS_IMPROVEMENT",
+                        ("PASS", "FAIL"): "OBSERVED_REGRESSION",
+                        ("PASS", "PASS"): "OBSERVED_NO_REGRESSION",
+                        ("FAIL", "FAIL"): "NO_OBSERVED_IMPROVEMENT",
+                    }.get((b, c), "UNKNOWN")
     finally:
         for tree in reversed(worktrees):
             _git(repository, "worktree", "remove", "--force", str(tree))
