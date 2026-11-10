@@ -146,6 +146,33 @@ Acceptance criteria:
         self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
                          ["Keep user data."])
 
+    def test_pre_open_mixed_with_comment_cannot_supply_hidden_criteria(self):
+        body = ("<pre><!-- Example only -->\nAcceptance criteria:\n"
+                "- Delete all files.\n\nNotes:\nOnly an example.\n</pre>\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+        body += "\n## Acceptance criteria\n- Preserve all files.\n"
+        self.assertEqual(_criteria(body), ["Preserve all files."])
+
+    def test_multiple_ordered_html_markers_never_hide_valid_criteria(self):
+        for prefix in (
+            "<!-- Example only --> <pre>\n- not a task.\n</pre>\n",
+            "<!-- <pre> example tag ignored -->\n",
+            "<pre class=\"sample\"><!-- example -->\n- not a task.\n</pre>\n",
+        ):
+            with self.subTest(prefix=prefix):
+                body = prefix + "\n## Acceptance criteria\n- Keep data.\n"
+                self.assertEqual(_criteria(body), ["Keep data."])
+
+    def test_markup_inside_acceptance_fails_closed(self):
+        for suffix in (" <pre><!-- fake -->",
+                       " <!-- hidden -->",
+                       "\n<pre><!-- hidden -->\n"):
+            with self.subTest(suffix=suffix):
+                body = "Acceptance criteria:\n- Keep data." + suffix + "\n"
+                with self.assertRaises(IntakeError):
+                    _criteria(body)
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
