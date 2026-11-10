@@ -13,6 +13,7 @@ import os
 import re
 import stat
 import subprocess
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -135,6 +136,49 @@ def inspect_source_references(records: list, source_root: Path):
                         raise HandoffError(f"source line does not exist: {entry['file']}:{line}")
 
 
+def schema_compatible_with_far(source):
+    """Remove only Cloudflare's nonstandard visibleContent assertion in memory.
+
+    FAR's intentionally constrained local jsonschema package rejects custom
+    keywords. We enforce that assertion separately below; the upstream Node
+    validator remains the authoritative full-format check during the audit.
+    The pinned vendor schema file is never changed.
+    """
+    if isinstance(source, dict):
+        return {key: schema_compatible_with_far(value)
+                for key, value in source.items() if key != "visibleContent"}
+    if isinstance(source, list):
+        return [schema_compatible_with_far(value) for value in source]
+    return source
+
+
+def check_cloudflare_visible_content(value, spec):
+    """Retain Cloudflare's nonempty visible-character contract for local preflight."""
+    if not isinstance(spec, dict):
+        return
+    if spec.get("visibleContent") is True:
+        if not isinstance(value, str) or not any(
+            not c.isspace() and unicodedata.category(c) not in {"Cc", "Cf", "Cs"}
+            for c in value
+        ):
+            raise HandoffError("Cloudflare visibleContent assertion failed")
+    if isinstance(value, dict):
+        for key, child in spec.get("properties", {}).items():
+            if key in value:
+                check_cloudflare_visible_content(value[key], child)
+    if isinstance(value, list) and isinstance(spec.get("items"), dict):
+        for item in value:
+            check_cloudflare_visible_content(item, spec["items"])
+    if "oneOf" in spec and isinstance(value, dict):
+        branches = [b for b in spec["oneOf"]
+                    if isinstance(b, dict)
+                    and b.get("properties", {}).get("verdict", {}).get("const")
+                    == value.get("verdict")]
+        if len(branches) != 1:
+            raise HandoffError("Cloudflare verdict branch ambiguous")
+        check_cloudflare_visible_content(value, branches[0])
+
+
 def clean_text(value: str, max_chars=200):
     if not isinstance(value, str):
         raise HandoffError("invalid text field")
@@ -172,10 +216,11 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     schema = safe_load_json(SCHEMA)
     if not isinstance(findings, list):
         raise HandoffError("audit findings must be an array")
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema_compatible_with_far(schema))
     problems = list(validator.iter_errors(findings))
     if problems:
         raise HandoffError(f"findings schema rejected data: {problems[0].message[:160]}")
+    check_cloudflare_visible_content(findings, schema)
     fingerprints = [r["fingerprint"] for r in findings]
     if len(fingerprints) != len(set(fingerprints)):
         raise HandoffError("duplicate vulnerability fingerprints")
