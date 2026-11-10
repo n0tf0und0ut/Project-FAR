@@ -308,15 +308,27 @@ def audit(state) -> dict:
                                 fail(path, 'truncated response marked complete')
                             if node.get('response_truncated') and node.get('response_hash_scope') == 'complete_body':
                                 fail(path, 'prefix hash represented as full-body hash')
-            if ('request_sha256' in node and (
-                    path.startswith('state.model_calls[') and path.count('.') == 1
-                    or path.startswith('state.events[') and path.endswith('.payload')
-                        and 'request' in node and 'response_base64' in node
-                    or path.endswith('.metadata.envelope'))):
+            if 'request_sha256' in node and model_envelope:
                 raw = guarded(path + '.request', lambda: json.dumps(
                     node['request'], sort_keys=True, separators=(',', ':'), allow_nan=False).encode())
                 if raw is not None:
                     equal(path + '.request_sha256', hashlib.sha256(raw).hexdigest(), node['request_sha256'])
+            # Native model observations, including malformed/failed responses,
+            # must retain exactly the same bytes in the outer envelope and the
+            # bounded reader's transport receipt. Successful MODEL_PROPOSAL
+            # verification alone cannot bind an interrupted final attempt.
+            if model_envelope and type(node.get('transport')) is dict:
+                transport = node['transport']
+                equal(path + '.transport.retained_body', node.get('response_base64'),
+                      transport.get('raw_response_base64'))
+                equal(path + '.transport.retained_hash', node.get('response_sha256'),
+                      transport.get('response_sha256'))
+                if node.get('response_base64') is not None:
+                    decoded = guarded(path + '.transport.retained_bytes',
+                        lambda: base64.b64decode(node['response_base64'], validate=True))
+                    if decoded is not None:
+                        equal(path + '.transport.retained_length', len(decoded),
+                              transport.get('response_bytes_retained'))
             for key, child in node.items():
                 # Source JSON is independently reconstructed by parse_receipt.
                 # Its arbitrary keys are data, not model/transport envelopes.

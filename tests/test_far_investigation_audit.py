@@ -314,6 +314,68 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(state['rejected_calls'], 1)
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_native_rejected_nested_metadata_envelope_is_application_data(self):
+        """Unsupported function args are not owned model-envelope checksums."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+
+        attempts = iter([
+            action('retrieve', url=URL_A,
+                   metadata={'envelope': {'request_sha256': 'not-hash'}}),
+            *full_script(),
+        ])
+        def native_response(*_args, **_kwargs):
+            proposal = next(attempts)
+            response = {'model': 'controlled-native-test',
+                'usage': {'total_tokens': 1},
+                'choices': [{'message': {'tool_calls': [{'function': {
+                    'name': proposal['tool'],
+                    'arguments': json.dumps(proposal['args'])}}]}}]}
+            raw = json.dumps(response).encode()
+            return raw, envelope(raw)['transport']
+
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   side_effect=native_response):
+            state = self.runtime().run_agent(LocalModel())
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(len(state['evaluations']), 1)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+    def test_failed_native_model_bytes_cannot_disagree_with_transport_after_reseal(self):
+        """The malformed final model response still binds its retained bytes."""
+        from tools.far_investigation_engine import LocalModel
+        from tests.test_far_investigation_usage import envelope
+
+        response = {'model': 'controlled-native-test',
+            'usage': {'total_tokens': 10},
+            'choices': [{'message': None}]}
+        raw = json.dumps(response).encode()
+        with patch('tools.far_investigation_engine.read_bounded_response',
+                   return_value=(raw, envelope(raw)['transport'])):
+            state = self.runtime(budget=Budget(max_steps=1)).run_agent(LocalModel())
+        self.assertEqual(state['status'], 'FAILED_OR_INCOMPLETE')
+        self.assertEqual(state['model_tokens'], 10)
+        self.assertTrue(audit(state)['valid'], audit(state))
+
+        forged = copy.deepcopy(state)
+        replacement = b'{}'
+        altered = 0
+        candidates = [forged['model_calls'][0]] + [
+            event['payload'] for event in forged['events']
+            if event['kind'] == 'MODEL_OBSERVATION']
+        for attempt in candidates:
+            if type(attempt) is dict and type(attempt.get('transport')) is dict:
+                attempt['response_base64'] = base64.b64encode(replacement).decode()
+                attempt['response_sha256'] = hashlib.sha256(replacement).hexdigest()
+                altered += 1
+        self.assertGreater(altered, 1)
+        # A self-consistent rewrite of the outer layers and token accounting
+        # must still fail against the unchanged native transport observation.
+        forged['model_tokens'] = 0
+        reseal(forged)
+        self.assert_rejected(forged, '.transport.retained_body')
+
     def test_failed_search_recheck_receipt_requires_exact_reservation(self):
         from tests.test_far_investigation_retrieval import Response, dns
         from tools.far_investigation_retrieval import public_search, public_search_url

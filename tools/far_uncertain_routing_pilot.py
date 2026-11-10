@@ -6,6 +6,7 @@ or independent oracle is claimed. Nothing here changes the canonical FAR gate.
 from __future__ import annotations
 
 import argparse
+import copy
 import base64
 import hashlib
 import http.client
@@ -93,6 +94,24 @@ class _DeadlineHeaderReader:
 
     def __getattr__(self, name):
         return getattr(self.stream, name)
+
+
+def _isolated_deadline_opener(opener, deadline, timeout):
+    """Preserve the caller's reusable opener; bind deadline handlers per call.
+
+    OpenerDirector.add_handler() is persistent. Installing a closure directly
+    on a caller-owned opener lets the first request's timeout/deadline govern
+    all later requests. Clone the handler registrations and install only on
+    this request's director; shallow-copy handlers so their parent references
+    cannot be rebound away from the original opener.
+    """
+    if deadline is None or not isinstance(opener, urllib.request.OpenerDirector):
+        return opener
+    isolated = urllib.request.OpenerDirector()
+    for handler in opener.handlers:
+        isolated.add_handler(copy.copy(handler))
+    _install_deadline_header_handlers(isolated, deadline, timeout)
+    return isolated
 
 
 def _install_deadline_header_handlers(opener, deadline, timeout=None):
@@ -275,8 +294,8 @@ def read_bounded_response(request: urllib.request.Request, *, timeout: float,
 
     try:
         try:
-            client = opener if opener is not None else urllib.request.build_opener(NoRedirect())
-            _install_deadline_header_handlers(client, deadline_monotonic, timeout)
+            supplied = opener if opener is not None else urllib.request.build_opener(NoRedirect())
+            client = _isolated_deadline_opener(supplied, deadline_monotonic, timeout)
             enforce_deadline()
             remaining = (deadline_monotonic - time.monotonic()) if deadline_monotonic is not None else timeout
             response = client.open(request, timeout=max(.001, min(timeout, remaining)))

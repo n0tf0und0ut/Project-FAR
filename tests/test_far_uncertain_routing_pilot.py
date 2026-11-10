@@ -260,6 +260,70 @@ class NativeFramingTests(unittest.TestCase):
                 self.assertFalse(envelope['response_complete'])
                 self.assertLess(elapsed, .16)
 
+    def test_reused_opener_cannot_inherit_previous_deadline_or_transport_timeout(self):
+        """A caller-owned OpenerDirector must remain reusable across requests."""
+        import socket
+        import threading
+        import time
+        import urllib.request
+
+        responses = [(0, b'a'), (.14, b'b'), (0, b'c')]
+        workers = []
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        original_handlers = tuple(opener.handlers)
+        original_parents = tuple(handler.parent for handler in original_handlers)
+
+        def connect(connection):
+            client, server = socket.socketpair()
+            connection.sock = client
+            delay, body = responses.pop(0)
+
+            def respond():
+                with server:
+                    try:
+                        request = server.recv(65536)
+                        self.assertIn(b'GET', request)
+                        time.sleep(delay)
+                        server.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\n' + body)
+                    except OSError:
+                        pass
+
+            worker = threading.Thread(target=respond, daemon=True)
+            worker.start()
+            workers.append(worker)
+
+        url = urllib.request.Request('http://127.0.0.1:18085/')
+        with patch.object(http.client.HTTPConnection, 'connect', connect):
+            first_start = time.monotonic()
+            first, _ = study.read_bounded_response(
+                url, timeout=.20, max_bytes=100, opener=opener,
+                deadline_monotonic=first_start + .22)
+            self.assertEqual(first, b'a')
+
+            second_start = time.monotonic()
+            with self.assertRaises(study.ResponseTransportError) as failed:
+                study.read_bounded_response(
+                    url, timeout=.05, max_bytes=100, opener=opener,
+                    deadline_monotonic=second_start + .50)
+            self.assertLess(time.monotonic() - second_start, .12)
+            self.assertIn(failed.exception.envelope['transport_error'],
+                          ('TimeoutError', 'URLError'))
+
+            # First deadline has expired, but a new request must still work.
+            time.sleep(max(0, first_start + .25 - time.monotonic()))
+            third, _ = study.read_bounded_response(
+                url, timeout=.15, max_bytes=100, opener=opener,
+                deadline_monotonic=time.monotonic() + .40)
+            self.assertEqual(third, b'c')
+
+        for worker in workers:
+            worker.join(timeout=1)
+        self.assertEqual(responses, [])
+        self.assertEqual(tuple(opener.handlers), original_handlers)
+        self.assertTrue(all(handler.parent is original_parent
+                            for handler, original_parent in zip(
+                                opener.handlers, original_parents)))
+
     def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
         import time
         from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader
