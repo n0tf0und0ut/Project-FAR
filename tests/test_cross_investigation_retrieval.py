@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import copy
+import json
 import runpy
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -87,6 +90,38 @@ class CrossInvestigationRetrievalTests(unittest.TestCase):
     def test_empty_index_rejected_k(self):
         with self.assertRaisesRegex(ValueError, "k must be positive"):
             API["ranking"]([], "test", k=0)
+
+    def test_python_ranking_matches_frozen_crosscheck(self):
+        reference = json.loads(
+            (DIR / "results-js-crosscheck-v0.1.json").read_text(encoding="utf-8")
+        )
+        actual = API["evaluate"](self.fixture, k=5)
+        self.assertEqual(actual["documents_indexed"], reference["document_count"])
+        self.assertAlmostEqual(actual["macro_recall_at_k"], reference["macro_recall_at_5"])
+        self.assertAlmostEqual(actual["mrr_at_k"], reference["mrr_at_5"])
+        self.assertEqual(
+            actual["unanswerable_abstention_rate"], reference["abstain_accuracy"]
+        )
+        for observed, expected in zip(actual["case_results"], reference["results"], strict=True):
+            self.assertEqual(observed["id"], expected["id"])
+            self.assertEqual(
+                [record["id"] for record in observed["retrieved"]],
+                [record["id"] for record in expected["retrieved"]],
+            )
+
+    def test_cli_replays_pinned_baseline(self):
+        process = subprocess.run(
+            [sys.executable, str(DIR / "run_baseline.py"),
+             "--verify-source", str(ROOT / "research/corpus/synthesis-v1.0.json"),
+             "--verify-corpus", str(ROOT / "research/corpus/corpus-v1.0.json")],
+            capture_output=True, text=True, check=True, timeout=30,
+        )
+        result = json.loads(process.stdout)
+        self.assertEqual(result["cases"], 14)
+        self.assertEqual(result["documents_indexed"], 43)
+        self.assertAlmostEqual(result["macro_recall_at_k"], 1.0)
+        self.assertAlmostEqual(result["mrr_at_k"], 25 / 26)
+        self.assertEqual(result["unanswerable_abstention_rate"], 0.0)
 
 
 if __name__ == "__main__":
