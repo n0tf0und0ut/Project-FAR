@@ -96,6 +96,17 @@ def _criteria(body: str) -> list[str]:
                 raise IntakeError("fenced examples inside acceptance criteria require clarification")
             fence = (marker.group("mark")[0], len(marker.group("mark")))
             continue
+        # Markdown treats four-column indentation as a code block. A fenced
+        # example is already excluded above; an indented one must not become
+        # a synthetic acceptance heading or executable criterion.
+        indentation = line[:len(line) - len(line.lstrip(" \\t"))]
+        columns = 0
+        for char in indentation:
+            columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
+        if columns >= 4 and line.strip():
+            if in_section:
+                raise IntakeError("indented code in acceptance criteria requires clarification")
+            continue
         if HEADING.fullmatch(line):
             last_bullet = None
             in_section = True
