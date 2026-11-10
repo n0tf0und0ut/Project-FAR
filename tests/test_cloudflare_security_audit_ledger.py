@@ -145,6 +145,18 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
         with self.assertRaisesRegex(bridge.HandoffError, "unsafe source"):
             bridge.build_report(self.run_dir, self.head)
 
+    def test_cloudflare_visible_content_survives_far_schema_compatibility(self):
+        self.findings = [sample("rejected")]
+        self.findings[0]["title"] = " \t "
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "visibleContent"):
+            bridge.build_report(self.run_dir, self.head)
+        source = bridge.safe_load_json(bridge.SCHEMA)
+        normalized = bridge.schema_compatible_with_far(source)
+        self.assertIn("visibleContent", json.dumps(source))
+        self.assertNotIn("visibleContent", json.dumps(normalized))
+        self.assertIn("required", json.dumps(normalized))
+
     def test_duplicate_json_key_fails_closed(self):
         (self.run_dir / "findings.json").write_text(
             '{"a": 1, "a": 2}', encoding="utf-8"
