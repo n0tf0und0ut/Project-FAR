@@ -11,6 +11,9 @@ import argparse
 import hashlib
 import json
 import os
+import selectors
+import signal
+import time
 from pathlib import Path, PurePosixPath
 import re
 import shlex
@@ -20,10 +23,13 @@ import sys
 import tempfile
 import uuid
 
+# Support both `python -m tools.agent_instruction_premerge` and direct-script usage.
+REPO_PARENT = str(Path(__file__).resolve().parents[1])
+if REPO_PARENT not in sys.path:
+    sys.path.insert(0, REPO_PARENT)
+
 from tools.workflow_efficacy_free_agent import (
-    capture_candidate_process, execute_agent_process,
-    unauthorized_file_changes, GRADER_IMAGE, CANDIDATE_STARTED,
-    MAX_CANDIDATE_OUTPUT_BYTES,
+    capture_candidate_process, GRADER_IMAGE,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,13 +45,14 @@ START = "FAR_CANDIDATE_STARTED_V1"
 FINISH = "FAR_CANDIDATE_COMPLETED_V1"
 IMAGE = GRADER_IMAGE
 ENTRYPOINT = (
-    "import json,runpy,sys\n"
+    "import copy,json,runpy,sys\n"
     "sys.path.insert(0,'/app')\n"
     "d=json.load(sys.stdin)\n"
+    "original=copy.deepcopy(d)\n"
     "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
     "candidate=runpy.run_path('/app/solution.py')\n"
     "answer=candidate['transform'](d)\n"
-    "sys.stdout.write(json.dumps(answer,sort_keys=True,allow_nan=False,separators=(',',':')))\n"
+    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
     "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
 )
 
@@ -138,7 +145,7 @@ def load_contract():
     if proto.get("runtime",{}).get("model_id")!="gpt-6":
         raise ContractError("model lock drift")
     schedule=make_schedule(proto,tasks)
-    if SCHEDULE.is_file() and strict_load(SCHEDULE.read_bytes())!=schedule:
+    if not SCHEDULE.is_file() or strict_load(SCHEDULE.read_bytes())!=schedule:
         raise ContractError("precommitted schedule does not match protocol")
     return proto,tasks,schedule
 
@@ -170,257 +177,498 @@ def pinned_instructions(ref):
     return data
 
 
-def prepare(path: Path):
+def freeze_identity():
+    """Pin the actual candidate source and all controlling input bytes per campaign."""
+    return {"protocol_sha256":digest(PROTOCOL.read_bytes()),
+            "tasks_sha256":digest(TASKS.read_bytes()),
+            "schedule_sha256":digest(SCHEDULE.read_bytes()),
+            "runner_sha256":digest(Path(__file__).read_bytes()),
+            "grader_helper_sha256":digest((ROOT/'tools/workflow_efficacy_free_agent.py').read_bytes())}
+
+
+def validate_prepared(root:Path):
+    manifest=strict_load((root/'prepared-manifest.json').read_bytes())
+    if manifest.get('schema')!='far-agent-instruction-prepared/2' or manifest.get('freeze')!=freeze_identity():
+        raise ContractError('prepared campaign freeze differs from scoring source')
+    _,tasks,sched=load_contract()
+    if manifest.get('schedule_sha256')!=digest(canonical(sched)):
+        raise ContractError('prepared schedule drift')
+    expected=sched['slots']
+    if not isinstance(manifest.get('slots'),list) or len(manifest['slots'])!=len(expected):
+        raise ContractError('incomplete prepared slot inventory')
+    for i,(m,s) in enumerate(zip(manifest['slots'],expected)):
+        if any(m.get(k)!=s[k] for k in s):
+            raise ContractError(f'prepared slot {i} reordered or edited')
+    return manifest
+
+
+def prepare(path:Path):
     proto,tasks,schedule=load_contract()
     if path.exists():
-        raise ContractError("output already exists; refusing to overwrite blinded workspaces")
-    instr={a:pinned_instructions(proto["instruction_arms"][a]) for a in ARMS}
-    task_by_id={t["id"]:t for t in tasks}
+        raise ContractError('output already exists; refusing to overwrite frozen campaign')
+    instr={a:pinned_instructions(proto['instruction_arms'][a]) for a in ARMS}
+    # Check all input references and helper source before creating outputs.
+    freeze=freeze_identity()
+    task_by_id={t['id']:t for t in tasks}
     path.mkdir(parents=True)
-    (path/"workspaces").mkdir()
-    (path/"evidence").mkdir()
-    meta=[]
-    for cell in schedule["slots"]:
-        case=task_by_id[cell["task_id"]]
-        ws=path/"workspaces"/cell["slot_id"]
+    (path/'workspaces').mkdir()
+    (path/'evidence').mkdir()
+    entries=[]
+    for cell in schedule['slots']:
+        task=task_by_id[cell['task_id']]
+        ws=path/'workspaces'/cell['slot_id']
         ws.mkdir()
-        for name,src in case["files"].items():
-            (ws/name).write_text(src,encoding="utf-8")
-        data=instr[cell["arm"]]
-        (ws/"AGENTS.md").write_bytes(data)
-        prompt=("Repair the existing Python code to satisfy the task below. Preserve specified public interfaces, avoid unnecessary files and dependencies, and follow repository AGENTS.md. "
-                "Hidden cases are not available in this workspace.\n\n"
-                +case["goal"]+"\n\nVisible examples (input -> expected):\n"
-                +json.dumps(case["public"],sort_keys=True,indent=2,ensure_ascii=False)+"\n")
-        (ws/"README.md").write_text(prompt,encoding="utf-8")
-        (ws/".gitignore").write_text("__pycache__/\n*.pyc\n",encoding="utf-8")
-        subprocess.run(["git","init","-q"],cwd=ws,check=True,timeout=20)
-        subprocess.run(["git","add","."],cwd=ws,check=True,timeout=20)
-        subprocess.run(["git","-c","user.name=FAR premerge","-c","user.email=far@example.invalid","commit","-qm","Frozen task input"],cwd=ws,check=True,timeout=20)
-        meta.append({**cell,"instructions_sha256":digest(data),
-                     "source_sha256":{n:digest(s.encode()) for n,s in case["files"].items()},
-                     "prompt_sha256":digest(prompt.encode())})
-    (path/"prepared-manifest.json").write_text(json.dumps({"schema":"far-agent-instruction-prepared/1", "slots":meta},indent=2)+"\n")
+        for name,src in task['files'].items():
+            (ws/name).write_text(src,encoding='utf-8')
+        (ws/'AGENTS.md').write_bytes(instr[cell['arm']])
+        prompt=('Repair the existing Python code to satisfy the task below. Preserve specified public interfaces, avoid unnecessary files and dependencies, and follow repository AGENTS.md. '
+                'Hidden cases are not available in this workspace.\n\n'
+                +task['goal']+'\n\nVisible examples (input -> expected):\n'
+                +json.dumps(task['public'],sort_keys=True,indent=2,ensure_ascii=False)+'\n')
+        (ws/'README.md').write_text(prompt,encoding='utf-8')
+        (ws/'.gitignore').write_text('__pycache__/\n*.pyc\n',encoding='utf-8')
+        subprocess.run(['git','init','-q'],cwd=ws,check=True,timeout=20)
+        subprocess.run(['git','add','.'],cwd=ws,check=True,timeout=20)
+        subprocess.run(['git','-c','user.name=FAR premerge','-c','user.email=far@example.invalid',
+                        'commit','-qm','Frozen task input'],cwd=ws,check=True,timeout=20)
+        file_hashes={name:digest((ws/name).read_bytes()) for name in [*task['files'],'AGENTS.md','README.md','.gitignore']}
+        entries.append({**cell,'initial_files_sha256':file_hashes,
+                        'source_sha256':{name:file_hashes[name] for name in task['files']},
+                        'instructions_sha256':file_hashes['AGENTS.md'],
+                        'prompt_sha256':file_hashes['README.md']})
+    manifest={'schema':'far-agent-instruction-prepared/2','freeze':freeze,
+              'schedule_sha256':digest(canonical(schedule)),'slots':entries}
+    (path/'prepared-manifest.json').write_bytes(canonical(manifest))
     return path
 
 
 def _strict_json_output(stdout):
-    head=START+"\n"
-    tail="\n"+FINISH+"\n"
+    head=START+'\n'; tail='\n'+FINISH+'\n'
     if not stdout.startswith(head) or not stdout.endswith(tail):
-        raise ContractError("candidate did not return complete bounded result")
-    return strict_load(stdout[len(head):-len(tail)])
+        raise ContractError('candidate did not return complete bounded result')
+    body=strict_load(stdout[len(head):-len(tail)])
+    if not isinstance(body,dict) or set(body)!={'value','input_unchanged'} or type(body['input_unchanged']) is not bool:
+        raise ContractError('candidate output missing independent mutation observation')
+    return body
 
 
-def _grade_case(ws:Path,case):
-    name="far-agent-instr-"+uuid.uuid4().hex
-    cmd=["docker","run","--rm","--name",name,"-i","--network","none","--cap-drop","ALL",
-         "--read-only","--security-opt","no-new-privileges","--memory","384m",
-         "--pids-limit","64","-v",str(ws.resolve())+":/app:ro","-w","/app",IMAGE,
-         "python","-I","-B","-c",ENTRYPOINT]
+def _grade_case(snapshot:Path,case:dict):
+    name='far-agent-instr-'+uuid.uuid4().hex
+    cmd=['docker','run','--rm','--name',name,'-i','--network','none','--cap-drop','ALL',
+         '--read-only','--security-opt','no-new-privileges','--memory','384m',
+         '--pids-limit','64','-v',str(snapshot.resolve())+':/app:ro','-w','/app',IMAGE,
+         'python','-I','-B','-c',ENTRYPOINT]
+    result=None; transport_error=None
     try:
-        record=capture_candidate_process(cmd,json.dumps(case["input"],allow_nan=False))
+        result=capture_candidate_process(cmd,json.dumps(case['input'],allow_nan=False))
     except (OSError,subprocess.TimeoutExpired) as e:
-        return {"status":"INFRA_FAILURE","error":type(e).__name__}
-    finally:
+        transport_error=type(e).__name__
+    cleanup_error=None
+    try:
+        cleanup=subprocess.run(['docker','rm','--force',name],capture_output=True,text=True,timeout=15)
+        if cleanup.returncode!=0 and 'No such container' not in cleanup.stderr:
+            cleanup_error='docker_cleanup_failed:'+cleanup.stderr[:2000]
+    except (OSError,subprocess.TimeoutExpired) as e:
+        cleanup_error='docker_cleanup_unverified:'+type(e).__name__
+    if result is None:
+        return {'status':'INFRA_FAILURE','error':transport_error or 'transport_missing',
+                'cleanup_error':cleanup_error}
+    row={'status':'FAILURE','exit_code':result['exit_code'],'stdout':result['stdout'],
+         'stderr':result['stderr'],'timed_out':result['timed_out'],
+         'output_limited':result['output_limited'],
+         'stdout_sha256':digest(result['stdout'].encode()),
+         'stderr_sha256':digest(result['stderr'].encode()),
+         'stdout_bytes_observed':result.get('stdout_bytes_observed'),
+         'stderr_bytes_observed':result.get('stderr_bytes_observed'),
+         'cleanup_error':cleanup_error}
+    if cleanup_error or not result['stdout'].startswith(START+'\n'):
+        row['status']='INFRA_FAILURE'
+    elif result['timed_out'] or result['output_limited']:
+        row['status']='FAILURE'
+    elif result['exit_code']==0:
         try:
-            cleanup=subprocess.run(["docker","rm","--force",name],capture_output=True,
-                                   text=True,timeout=15)
-            if cleanup.returncode!=0 and "No such container" not in cleanup.stderr:
-                return {"status":"INFRA_FAILURE","error":"docker_cleanup_failed"}
-        except (OSError,subprocess.TimeoutExpired):
-            # No successful grader result is retained if isolation cleanup fails.
-            return {"status":"INFRA_FAILURE","error":"docker_cleanup_unverified"}
-    row={"status":"FAILURE","exit_code":record["exit_code"],
-         "stdout":record["stdout"],"stderr":record["stderr"],
-         "timed_out":record["timed_out"],"output_limited":record["output_limited"],
-         "stdout_sha256":digest(record["stdout"].encode()),"stderr_sha256":digest(record["stderr"].encode())}
-    if not record["stdout"].startswith(START+"\n"):
-        row["status"]="INFRA_FAILURE"
-    elif record["timed_out"] or record["output_limited"]:
-        row["status"]="FAILURE"
-    elif record["exit_code"]==0:
-        try:
-            actual=_strict_json_output(record["stdout"])
-            row["status"]="PASS" if canonical(actual)==canonical(case["expected"]) else "FAILURE"
+            output=_strict_json_output(result['stdout'])
+            row['status']='PASS' if (output['input_unchanged'] and
+                                    canonical(output['value'])==canonical(case['expected'])) else 'FAILURE'
         except (ContractError,ValueError,TypeError,OverflowError):
             pass
     return row
 
 
+def _classify_sources(actual:dict,expected:dict,allowed:set):
+    violations=[]
+    for rel in sorted(set(actual)|set(expected)):
+        if rel not in expected:
+            violations.append('NEW_FILE:'+rel)
+        elif rel not in actual:
+            violations.append('MISSING_FILE:'+rel)
+        elif digest(actual[rel])!=expected[rel] and rel not in allowed:
+            violations.append('UNAUTHORIZED_EDIT:'+rel)
+    edits=sorted(rel for rel in allowed if rel in expected and rel in actual
+                 and digest(actual[rel])!=expected[rel])
+    if not edits:violations.append('NO_IMPLEMENTATION_EDIT')
+    return sorted(violations),edits
+
+
+def _workspace_snapshot(ws:Path,entry:dict,task:dict):
+    """Compare every retained file against trusted bytes, never against candidate Git HEAD."""
+    actual={};unsafe=[]
+    for folder,dirs,files in os.walk(ws,followlinks=False):
+        relroot=Path(folder).relative_to(ws)
+        dirs[:]=[d for d in dirs if not (str(relroot)=='.' and d=='.git')]
+        for dirname in dirs:
+            path=Path(folder)/dirname
+            if path.is_symlink():unsafe.append('SYMLINK_DIRECTORY:'+path.relative_to(ws).as_posix())
+        for filename in files:
+            path=Path(folder)/filename
+            rel=path.relative_to(ws).as_posix()
+            if path.is_symlink() or not path.is_file():
+                unsafe.append('UNSAFE_FILE:'+rel);continue
+            if path.stat().st_size>200_000:
+                unsafe.append('OVERSIZED_FILE:'+rel);continue
+            actual[rel]=path.read_bytes()
+    violations,edits=_classify_sources(actual,entry['initial_files_sha256'],
+                                      set(task['allowed_changes']))
+    return actual,sorted(set(violations+unsafe)),edits
+
+
+def _parse_agent_trace(raw:bytes):
+    """Validate documented Codex exec JSONL lifecycle, not arbitrary log hashes."""
+    if not raw or len(raw)>2_000_000 or not raw.endswith(b'\n'):
+        raise ContractError('incomplete or oversized Codex trace')
+    lines=raw.splitlines()
+    if len(lines)>20000:raise ContractError('oversized Codex event stream')
+    events=[strict_load(x) for x in lines]
+    if not all(isinstance(e,dict) and isinstance(e.get('type'),str) for e in events):
+        raise ContractError('invalid Codex event JSON')
+    if len(events)<3 or events[0].get('type')!='thread.started' or not isinstance(events[0].get('thread_id'),str) or not events[0]['thread_id']:
+        raise ContractError('missing Codex thread identity')
+    types=[e['type'] for e in events]
+    if types.count('thread.started')!=1 or types.count('turn.started')!=1 or types.count('turn.completed')!=1 or types[-1]!='turn.completed' or any(x in types for x in ('turn.failed','error')):
+        raise ContractError('Codex stream has missing, duplicated or failed lifecycle')
+    usage=events[-1].get('usage')
+    if not isinstance(usage,dict) or any(type(usage.get(k)) is not int or usage[k]<0 for k in ('input_tokens','output_tokens')):
+        raise ContractError('Codex completion missing token usage')
+    if usage['input_tokens']==0 or usage['output_tokens']==0:
+        raise ContractError('Codex completion did not report model usage')
+    return {'thread_id':events[0]['thread_id'],'input_tokens':usage['input_tokens'],
+            'output_tokens':usage['output_tokens'],'events':len(events)}
+
+
+def _command_identity(command:list[str],model_id:str):
+    """Accept only a fixed Codex runner contract; do not execute arbitrary wrappers."""
+    expect=['codex','exec','--json','--model',model_id,'--sandbox','workspace-write',
+            '--ephemeral','--ignore-user-config','--ignore-rules',
+            'Read README.md and AGENTS.md, then make the code changes needed to satisfy the task.']
+    if command!=expect:
+        raise ContractError('agent invocation differs from pinned Codex execution contract')
+    exe=shutil.which('codex')
+    if not exe:raise ContractError('Codex executable unavailable')
+    real=Path(exe).resolve()
+    if not real.is_file() or real.stat().st_size>300_000_000:
+        raise ContractError('invalid executable')
+    version=subprocess.run([str(real),'--version'],capture_output=True,text=True,timeout=20)
+    if version.returncode or not version.stdout.strip().startswith('codex-cli '):
+        raise ContractError('cannot identify Codex CLI release')
+    return {'schema':'far-codex-runtime/1','executable_path':str(real),
+            'executable_sha256':digest(real.read_bytes()),'version':version.stdout.strip(),
+            'command':command,'requested_model':model_id,
+            'model_identity_basis':'Codex CLI --model argument plus validated event trace; provider-selected backend not cryptographically attested'}
+
+
+def _execute_traced_agent(command:list[str],ws:Path,env:dict,seconds:int,max_bytes:int):
+    """Capture both streams with byte ceilings; reap process-group descendants always."""
+    start=time.monotonic(); buff={'stdout':bytearray(),'stderr':bytearray()}; counts={'stdout':0,'stderr':0}
+    timed_out=False;output_limited=False; code=None
+    proc=subprocess.Popen(command,cwd=ws,env=env,stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,start_new_session=True)
+    try:
+        with selectors.DefaultSelector() as sel:
+            for key in ('stdout','stderr'):
+                sel.register(getattr(proc,key),selectors.EVENT_READ,key)
+            while sel.get_map():
+                remaining=seconds-(time.monotonic()-start)
+                if remaining<=0:
+                    timed_out=True;break
+                events=sel.select(min(remaining,0.2))
+                for key,_ in events:
+                    chunk=os.read(key.fileobj.fileno(),8192)
+                    if not chunk:
+                        sel.unregister(key.fileobj);continue
+                    dest=key.data;counts[dest]+=len(chunk)
+                    if len(buff[dest])<max_bytes:
+                        buff[dest].extend(chunk[:max_bytes-len(buff[dest])])
+                    if counts[dest]>max_bytes:
+                        output_limited=True;break
+                if output_limited:break
+            if not timed_out and not output_limited:
+                try:
+                    code=proc.wait(timeout=max(0.001,seconds-(time.monotonic()-start)))
+                except subprocess.TimeoutExpired:
+                    timed_out=True
+    finally:
+        # A successfully exited parent can leave a child altering the source.
+        # Kill the entire private process group before snapshotting any code.
+        try:os.killpg(proc.pid,signal.SIGKILL)
+        except ProcessLookupError:pass
+        proc.wait(timeout=10)
+        for stream in (proc.stdout,proc.stderr):stream.close()
+    return {'stdout':bytes(buff['stdout']),'stderr':bytes(buff['stderr']),
+            'stdout_bytes_observed':counts['stdout'],
+            'stderr_bytes_observed':counts['stderr'],
+            'output_limited':output_limited,'timed_out':timed_out,
+            'exit_code':code,'elapsed_seconds':time.monotonic()-start}
+
+
+def _record_path(root:Path,slot_id:str):
+    return root/'evidence'/(slot_id+'.json')
+
+
 def grade_slot(root:Path,slot_id:str,provider_record:dict):
-    proto,tasks,schedule=load_contract()
-    allslots={s["slot_id"]:s for s in schedule["slots"]}
-    if slot_id not in allslots:
-        raise ContractError("unregistered slot")
-    cell=allslots[slot_id];task=next(t for t in tasks if t["id"]==cell["task_id"])
-    ws=root/"workspaces"/slot_id
-    if not ws.is_dir():
-        raise ContractError("missing workspace")
-    initial=pinned_instructions(proto["instruction_arms"][cell["arm"]])
-    if (ws/"AGENTS.md").read_bytes()!=initial:
-        raise ContractError("AGENTS.md was modified by the candidate")
-    manifest=strict_load((root/"prepared-manifest.json").read_bytes())
-    entry=next((x for x in manifest["slots"] if x["slot_id"]==slot_id),None)
-    if entry is None or entry["instructions_sha256"]!=digest(initial) or digest((ws/"README.md").read_bytes())!=entry["prompt_sha256"]:
-        raise ContractError("workspace identity or prompt drift")
-    extra=unauthorized_file_changes(ws,set(task["allowed_changes"]))
-    if any((ws/name).is_symlink() or not (ws/name).is_file() for name in task["files"]):
-        raise ContractError("candidate replaced a source with a symlink/nonfile")
-    edits=[x for x in task["files"] if digest((ws/x).read_bytes())!=entry["source_sha256"][x]]
-    if not edits:
-        extra.append("NO_IMPLEMENTATION_EDIT")
-    if not isinstance(provider_record,dict) or provider_record.get("model_id")!=proto["runtime"]["model_id"] or not provider_record.get("raw_event_sha256") or not HEX64.fullmatch(provider_record["raw_event_sha256"]):
-        raise ContractError("missing/invalid observed model execution receipt")
-    rows=[_grade_case(ws,c) for c in task["public"]+task["hidden"]]
-    observed=bool(not extra and provider_record.get("execution_exit_code")==0 and provider_record.get("timed_out") is False and all(x["status"]=="PASS" for x in rows))
-    return {"schema":"far-agent-instruction-observation/1",**cell,
-            "model_id":provider_record["model_id"],
-            "raw_event_sha256":provider_record["raw_event_sha256"],
-            "instruction_sha256":digest(initial),
-            "changed_files":edits,"unauthorized":sorted(extra),
-            "sources_sha256":{n:digest((ws/n).read_bytes()) for n in task["files"]},
-            "execution_exit_code":provider_record.get("execution_exit_code"),
-            "execution_timed_out":provider_record.get("timed_out"),
-            "comparisons":rows,"outcome":"SUCCESS" if observed else "FAILURE",
-            "graded":all(x["status"]!="INFRA_FAILURE" for x in rows),
-            "limits":"Model identity is operator/provider declared; raw log and workspace do not prove model read AGENTS.md."}
+    proto,tasks,sched=load_contract()
+    manifest=validate_prepared(root)
+    cells={s['slot_id']:s for s in sched['slots']}
+    if slot_id not in cells:raise ContractError('unregistered slot')
+    cell=cells[slot_id];task=next(t for t in tasks if t['id']==cell['task_id'])
+    entry=manifest['slots'][cell['position']-1]
+    ws=root/'workspaces'/slot_id
+    if not ws.is_dir():raise ContractError('missing candidate workspace')
+    original=pinned_instructions(proto['instruction_arms'][cell['arm']])
+    if digest(original)!=entry['instructions_sha256']:
+        raise ContractError('workspace instruction baseline inconsistent with Git')
+    source,unauthorized,edits=_workspace_snapshot(ws,entry,task)
+    evidence=root/'evidence'/slot_id
+    submitted=evidence/'submitted'
+    submitted.mkdir(exist_ok=False)
+    for name,contents in source.items():
+        (submitted/name).parent.mkdir(parents=True,exist_ok=True)
+        (submitted/name).write_bytes(contents)
+    complete=all(n in source for n in task['files'])
+    if complete:
+        results=[_grade_case(submitted,c) for c in task['public']+task['hidden']]
+    else:
+        results=[{'status':'INFRA_FAILURE','error':'source_missing_or_unsafe'} for _ in range(6)]
+    trace=provider_record.get('validated_trace')
+    valid=bool(complete and not unauthorized and provider_record.get('exit_code')==0 and
+               provider_record.get('timed_out') is False and provider_record.get('output_limited') is False and
+               isinstance(trace,dict) and len(results)==6 and all(row['status']=='PASS' for row in results))
+    return {'schema':'far-agent-instruction-observation/2',**cell,
+            'freeze':manifest['freeze'],'previous_observation_sha256':provider_record.get('previous_observation_sha256'),
+            'model_id':proto['runtime']['model_id'],
+            'runtime':provider_record['runtime'],'trace':trace,
+            'stdout_sha256':provider_record['stdout_sha256'],
+            'stderr_sha256':provider_record['stderr_sha256'],
+            'stdout_bytes_observed':provider_record['stdout_bytes_observed'],
+            'stderr_bytes_observed':provider_record['stderr_bytes_observed'],
+            'exit_code':provider_record['exit_code'],
+            'timed_out':provider_record['timed_out'],
+            'output_limited':provider_record['output_limited'],
+            'source_sha256':{n:digest(data) for n,data in source.items()},
+            'changed_files':edits,'unauthorized':unauthorized,
+            'comparisons':results,'outcome':'SUCCESS' if valid else 'FAILURE',
+            'graded':all(x['status']!='INFRA_FAILURE' for x in results),
+            'limitations':'Trusted host/executable attestations and Codex stream parsing are not cryptographic proof of provider-side model selection or instruction ingestion.'}
 
 
 def analyze(root:Path):
     proto,tasks,sched=load_contract()
-    rows=[]; errors=[]
-    for cell in sched["slots"]:
-        path=root/"evidence"/(cell["slot_id"]+".json")
+    try:manifest=validate_prepared(root)
+    except (OSError,ValueError) as e:
+        if not root.exists() or not any(root.iterdir()):
+            return {'decision':'NOT_EXECUTED','valid_slots':0,'required_slots':40,
+                    'errors':['NO_PREPARED_CAMPAIGN']}
+        return {'decision':'INVALID_EVIDENCE','valid_slots':0,'required_slots':40,
+                'errors':['PREPARED_FREEZE_INVALID:'+type(e).__name__]}
+    rows=[];errors=[];previous=None
+    for cell in sched['slots']:
+        sid=cell['slot_id'];path=_record_path(root,sid)
         if not path.is_file():
-            errors.append("MISSING:"+cell["slot_id"]);continue
+            if (root/'evidence'/sid).exists() or (root/'evidence'/(sid+'.attempt.json')).exists():
+                errors.append('ATTEMPTED_BUT_INCOMPLETE:'+sid)
+            else:errors.append('MISSING:'+sid)
+            continue
         try:
-            item=strict_load(path.read_bytes())
-            if item.get("schema")!="far-agent-instruction-observation/1" or any(item.get(k)!=cell[k] for k in ("slot_id","arm","repetition","task_id")):
-                raise ContractError("slot mismatch")
-            if item.get("graded") is not True or item.get("outcome") not in ("SUCCESS","FAILURE") or len(item.get("comparisons",[]))!=6 or not isinstance(item.get("unauthorized"),list):
-                raise ContractError("incomplete comparison receipts")
-            evidence=root/"evidence"/cell["slot_id"]
-            raw=(evidence/"agent-events.ndjson").read_bytes()
-            if not raw or digest(raw)!=item.get("raw_event_sha256"):
-                raise ContractError("agent event evidence missing or corrupted")
-            task=next(t for t in tasks if t["id"]==cell["task_id"])
-            originals=next(e for e in strict_load((root/"prepared-manifest.json").read_bytes())["slots"] if e["slot_id"]==cell["slot_id"])
-            if item.get("instruction_sha256")!=originals["instructions_sha256"]:
-                raise ContractError("instruction identity mismatch")
-            edits=[]
-            for name in task["files"]:
-                current=(evidence/name).read_bytes()
-                if digest(current)!=item.get("sources_sha256",{}).get(name):
-                    raise ContractError("submitted source identity mismatch")
-                if digest(current)!=originals["source_sha256"][name]:
-                    edits.append(name)
-            if sorted(edits)!=sorted(item.get("changed_files",[])):
-                raise ContractError("declared edit list inconsistent with source evidence")
-            cases=task["public"]+task["hidden"]
-            for observation,example in zip(item["comparisons"],cases):
-                if observation.get("status")=="INFRA_FAILURE":
-                    raise ContractError("infrastructure failure is not a valid completed grade")
-                stdout=observation.get("stdout")
-                stderr=observation.get("stderr")
-                if not isinstance(stdout,str) or not isinstance(stderr,str) or digest(stdout.encode())!=observation.get("stdout_sha256") or digest(stderr.encode())!=observation.get("stderr_sha256"):
-                    raise ContractError("grader raw-output identity mismatch")
-                if not stdout.startswith(START+"\n"):
-                    raise ContractError("candidate did not start; mislabeled as model failure")
-                passed=False
-                if observation.get("exit_code")==0 and observation.get("timed_out") is False and observation.get("output_limited") is False:
+            record=strict_load(path.read_bytes())
+            if record.get('schema')!='far-agent-instruction-observation/2' or record.get('freeze')!=manifest['freeze']:
+                raise ContractError('wrong observation schema or campaign freeze')
+            if any(record.get(k)!=cell[k] for k in cell):
+                raise ContractError('slot mismatch')
+            if record.get('previous_observation_sha256')!=previous:
+                raise ContractError('actual execution-order chain broken')
+            previous=digest(path.read_bytes())
+            entry=manifest['slots'][cell['position']-1]
+            if record.get('model_id')!=proto['runtime']['model_id']:
+                raise ContractError('declared model differs from protocol')
+            runtime=record.get('runtime')
+            if not isinstance(runtime,dict) or runtime.get('requested_model')!=proto['runtime']['model_id'] or runtime.get('schema')!='far-codex-runtime/1':
+                raise ContractError('invalid runtime provenance')
+            if runtime.get('command')!=_command_expected(proto['runtime']['model_id']):
+                raise ContractError('execution command not the pinned CLI protocol')
+            if not isinstance(runtime.get('version'),str) or not runtime['version'].startswith('codex-cli ') or not HEX64.fullmatch(runtime.get('executable_sha256','')):
+                raise ContractError('incomplete executable attestation')
+            slotdir=root/'evidence'/sid
+            if strict_load((slotdir/'runtime.json').read_bytes())!=runtime:
+                raise ContractError('retained execution environment differs from observation')
+            attempt=strict_load((root/'evidence'/(sid+'.attempt.json')).read_bytes())
+            if attempt.get('freeze')!=manifest['freeze'] or attempt.get('slot_id')!=sid or attempt.get('previous_observation_sha256')!=record['previous_observation_sha256'] or attempt.get('runtime')!=runtime:
+                raise ContractError('pre-exposure attempt manifest mismatch')
+            raw=(slotdir/'agent-events.ndjson').read_bytes();err=(slotdir/'agent-stderr.txt').read_bytes()
+            if digest(raw)!=record.get('stdout_sha256') or digest(err)!=record.get('stderr_sha256'):
+                raise ContractError('model transcript bytes differ')
+            if len(raw)>proto['runtime']['max_agent_output_bytes'] or not record.get('trace') or record.get('output_limited') is not False or record.get('timed_out') is not False:
+                raise ContractError('incomplete model trace')
+            if _parse_agent_trace(raw)!=record['trace']:
+                raise ContractError('model lifecycle not supported by preserved stream')
+            if record.get('exit_code')!=0 or record.get('stdout_bytes_observed')!=len(raw) or record.get('stderr_bytes_observed')!=len(err):
+                raise ContractError('model runner exit/byte-count mismatch')
+            task=next(t for t in tasks if t['id']==cell['task_id'])
+            submitted=slotdir/'submitted';stored={}
+            if not submitted.is_dir():raise ContractError('missing snapshot directory')
+            for file in submitted.rglob('*'):
+                if file.is_symlink():raise ContractError('unsafe retained symlink')
+                if not file.is_file():continue
+                name=file.relative_to(submitted).as_posix()
+                if file.stat().st_size>200_000:raise ContractError('oversized retained file')
+                stored[name]=file.read_bytes()
+            if {n:digest(c) for n,c in stored.items()}!=record.get('source_sha256'):
+                raise ContractError('submitted source inventory digest mismatch')
+            expected=entry['initial_files_sha256']
+            unauthorized,edits=_classify_sources(stored,expected,set(task['allowed_changes']))
+            if edits!=record.get('changed_files') or unauthorized!=record.get('unauthorized'):
+                raise ContractError('source edits/permission facts not reproduced')
+            if not all(n in stored for n in task['files']):
+                raise ContractError('missing retained candidate sources')
+            if not record.get('graded') or not isinstance(record.get('comparisons'),list) or len(record['comparisons'])!=6:
+                raise ContractError('ungraded/absent comparison evidence')
+            for item,case in zip(record['comparisons'],task['public']+task['hidden']):
+                if item.get('status') not in ('PASS','FAILURE'):
+                    raise ContractError('infrastructure error in supposedly completed results')
+                stdout=item.get('stdout');stderr=item.get('stderr')
+                if not isinstance(stdout,str) or not isinstance(stderr,str) or digest(stdout.encode())!=item.get('stdout_sha256') or digest(stderr.encode())!=item.get('stderr_sha256'):
+                    raise ContractError('grader byte-digest mismatch')
+                good=False
+                if item.get('exit_code')==0 and item.get('timed_out') is False and item.get('output_limited') is False and item.get('cleanup_error') is None:
                     try:
-                        passed=canonical(_strict_json_output(stdout))==canonical(example["expected"])
-                    except (ContractError,ValueError,TypeError,OverflowError):
-                        pass
-                if ("PASS" if passed else "FAILURE")!=observation.get("status"):
-                    raise ContractError("grader verdict differs from retained raw output")
-            recomputed=(not item["unauthorized"] and bool(edits) and item.get("execution_exit_code")==0 and item.get("execution_timed_out") is False and all(r["status"]=="PASS" for r in item["comparisons"]))
-            if item["outcome"]!=("SUCCESS" if recomputed else "FAILURE"):
-                raise ContractError("outcome differs from retained evidence")
-            rows.append(item)
-        except (OSError,UnicodeError,ValueError,TypeError) as e:
-            errors.append("INVALID:"+cell["slot_id"]+":"+type(e).__name__)
+                        parsed=_strict_json_output(stdout)
+                        good=parsed['input_unchanged'] and canonical(parsed['value'])==canonical(case['expected'])
+                    except (ContractError,ValueError,TypeError,OverflowError):pass
+                if item['status']!=('PASS' if good else 'FAILURE'):
+                    raise ContractError('grader output and verdict disagree')
+            success=(not unauthorized and bool(edits) and all(r['status']=='PASS' for r in record['comparisons']))
+            if record.get('outcome')!=('SUCCESS' if success else 'FAILURE'):
+                raise ContractError('record claimed a false outcome')
+            rows.append(record)
+        except (OSError,ValueError,TypeError,KeyError) as e:
+            errors.append('INVALID:'+sid+':'+type(e).__name__)
     if errors:
-        return {"decision":"NOT_EXECUTED" if len(rows)==0 and all(e.startswith("MISSING:") for e in errors) else "INVALID_EVIDENCE", "valid_slots":len(rows),"required_slots":40,"errors":errors}
-    keyed={(r["task_id"],r["repetition"],r["arm"]):r for r in rows}
+        unstarted=len(rows)==0 and all(e.startswith('MISSING:') for e in errors)
+        return {'decision':'NOT_EXECUTED' if unstarted else 'INVALID_EVIDENCE',
+                'valid_slots':len(rows),'required_slots':40,'errors':errors}
+    keyed={(r['task_id'],r['repetition'],r['arm']):r for r in rows}
     failures=[]
-    guards={t["id"] for t in tasks if t["category"] in proto["scoring"]["guard_categories"]}
-    for t in tasks:
+    guards={t['id'] for t in tasks if t['category'] in proto['scoring']['guard_categories']}
+    for task in tasks:
         for rep in (1,2):
-            a=keyed[(t["id"],rep,"control")]["outcome"]
-            b=keyed[(t["id"],rep,"treatment")]["outcome"]
-            if t["id"] in guards and b!="SUCCESS":
-                failures.append({"task":t["id"],"rep":rep,"reason":"treatment guard failed","control":a,"treatment":b})
-            elif a=="SUCCESS" and b!="SUCCESS":
-                failures.append({"task":t["id"],"rep":rep,"reason":"treatment-only regression","control":a,"treatment":b})
-    return {"decision":"SCREEN_FAIL" if failures else "SCREEN_PASS","valid_slots":40,
-            "control_successes":sum(r["outcome"]=="SUCCESS" for r in rows if r["arm"]=="control"),
-            "treatment_successes":sum(r["outcome"]=="SUCCESS" for r in rows if r["arm"]=="treatment"),
-            "failure_details":failures,"nonclaims":proto["scoring"]["limitations"]}
+            a=keyed[(task['id'],rep,'control')]['outcome'];b=keyed[(task['id'],rep,'treatment')]['outcome']
+            if task['id'] in guards and b!='SUCCESS':
+                failures.append({'task':task['id'],'repetition':rep,'reason':'treatment guard failed'})
+            elif a=='SUCCESS' and b!='SUCCESS':
+                failures.append({'task':task['id'],'repetition':rep,'reason':'treatment-only regression'})
+    return {'decision':'SCREEN_FAIL' if failures else 'SCREEN_PASS','valid_slots':40,
+            'control_successes':sum(r['outcome']=='SUCCESS' for r in rows if r['arm']=='control'),
+            'treatment_successes':sum(r['outcome']=='SUCCESS' for r in rows if r['arm']=='treatment'),
+            'failure_details':failures,'nonclaims':proto['scoring']['limitations']}
+
+
+def _command_expected(model):
+    return ['codex','exec','--json','--model',model,'--sandbox','workspace-write',
+            '--ephemeral','--ignore-user-config','--ignore-rules',
+            'Read README.md and AGENTS.md, then make the code changes needed to satisfy the task.']
 
 
 def run_slot(root:Path,slot_id:str,agent_command:str):
     proto,tasks,sched=load_contract()
-    if slot_id not in {cell["slot_id"] for cell in sched["slots"]}:
-        raise ContractError("unregistered slot")
-    command=shlex.split(agent_command)
-    if not command or not shutil.which(command[0]):
-        raise ContractError("agent executable unavailable")
-    if not any(command[i:i+2]==["--model",proto["runtime"]["model_id"]] for i in range(len(command)-1)):
-        raise ContractError("agent command must explicitly select the pinned model")
-    ws=root/"workspaces"/slot_id
-    if not ws.is_dir():raise ContractError("workspace was not prepared")
-    evidence=root/"evidence"/slot_id
-    if evidence.exists() or (root/"evidence"/(slot_id+".json")).exists():
-        raise ContractError("slot already has results; reruns would violate freeze")
+    manifest=validate_prepared(root)
+    if slot_id not in {s['slot_id'] for s in sched['slots']}:
+        raise ContractError('unregistered slot')
+    cell=next(x for x in sched['slots'] if x['slot_id']==slot_id)
+    cmd=shlex.split(agent_command)
+    if cmd!=_command_expected(proto['runtime']['model_id']):
+        raise ContractError('not the preregistered Codex invocation')
+    runtime=_command_identity(cmd,proto['runtime']['model_id'])
+    ws=root/'workspaces'/slot_id
+    if not ws.is_dir():raise ContractError('workspace missing')
+    evidence=root/'evidence'/slot_id
+    if evidence.exists() or _record_path(root,slot_id).exists():
+        raise ContractError('attempt already exists; no selective reruns')
+    previous=None
+    for prior in sched['slots'][:cell['position']-1]:
+        path=_record_path(root,prior['slot_id'])
+        if not path.is_file():raise ContractError('previous registered slot was not completed; frozen order required')
+        row=strict_load(path.read_bytes())
+        if row.get('slot_id')!=prior['slot_id'] or row.get('position')!=prior['position'] or row.get('previous_observation_sha256')!=previous:
+            raise ContractError('previous evidence chain is invalid')
+        previous=digest(path.read_bytes())
+    # The attempt marker is written *before* contacting the provider.
     evidence.mkdir(parents=True)
-    code,raw,timed_out=execute_agent_process(command,ws,os.environ.copy(),proto["runtime"]["max_agent_seconds"])
-    (evidence/"agent-events.ndjson").write_text(raw)
-    for task in tasks:
-        if task["id"] in slot_id:
-            for name in task["files"]:
-                source=ws/name
-                if source.is_symlink() or not source.is_file():
-                    raise ContractError("unsafe candidate source; refusing to copy")
-                shutil.copyfile(source,evidence/name)
-            break
-    provider={"model_id":proto["runtime"]["model_id"],"raw_event_sha256":digest(raw.encode()),
-              "execution_exit_code":code,"timed_out":timed_out}
-    record=grade_slot(root,slot_id,provider)
-    (root/"evidence"/(slot_id+".json")).write_text(json.dumps(record,indent=2,ensure_ascii=False)+"\n")
-    return record
+    attempt={'schema':'far-agent-instruction-attempt/1','slot_id':slot_id,
+             'freeze':manifest['freeze'],'runtime':runtime,'previous_observation_sha256':previous}
+    (root/'evidence'/(slot_id+'.attempt.json')).write_bytes(canonical(attempt))
+    (evidence/'runtime.json').write_bytes(canonical(runtime))
+    try:
+        run=_execute_traced_agent(cmd,ws,os.environ.copy(),
+                                  proto['runtime']['max_agent_seconds'],
+                                  proto['runtime']['max_agent_output_bytes'])
+        (evidence/'agent-events.ndjson').write_bytes(run['stdout'])
+        (evidence/'agent-stderr.txt').write_bytes(run['stderr'])
+        try:trace=_parse_agent_trace(run['stdout'])
+        except (ValueError,UnicodeError):trace=None
+        receipt={'runtime':runtime,'validated_trace':trace,
+                 'previous_observation_sha256':previous,
+                 'stdout_sha256':digest(run['stdout']),'stderr_sha256':digest(run['stderr']),
+                 **{k:run[k] for k in ('exit_code','timed_out','output_limited','stdout_bytes_observed','stderr_bytes_observed')}}
+        record=grade_slot(root,slot_id,receipt)
+        _record_path(root,slot_id).write_bytes(canonical(record))
+        return record
+    except Exception as exc:
+        # Preserve the attempted slot as a negative immutable trace even if
+        # source integrity or Docker fails before a standard grade exists.
+        failure={'schema':'far-agent-instruction-attempt-error/1','slot_id':slot_id,
+                 'error_type':type(exc).__name__,'message':str(exc),
+                 'runtime':runtime,'previous_observation_sha256':previous}
+        (evidence/'negative-outcome.json').write_bytes(canonical(failure))
+        raise
 
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action",choices=["validate","schedule","prepare","run-slot","analyze"])
-    parser.add_argument("--output",type=Path)
-    parser.add_argument("--slot")
-    parser.add_argument("--agent-command",help="Full Codex CLI command with explicit --model gpt-6. Prompt is README.md within each workspace.")
+    parser.add_argument('action',choices=['validate','schedule','prepare','run-slot','analyze'])
+    parser.add_argument('--output',type=Path)
+    parser.add_argument('--slot')
+    parser.add_argument('--agent-command',help='Exact Codex CLI command; use fixed --model gpt-6 --json and full isolated flags')
     args=parser.parse_args(argv)
-    if args.action=="validate":
+    if args.action=='validate':
         proto,tasks,sched=load_contract()
-        result={"valid":True,"status":proto["status"],"tasks":len(tasks),"slots":len(sched["slots"]),
-                "source_sha256":proto["task_corpus"]["sha256"],"model_runs":0}
-    elif args.action=="schedule":
-        result=load_contract()[2]
-    elif args.action=="prepare":
-        if not args.output:parser.error("prepare requires --output")
-        result={"prepared_root":str(prepare(args.output)),"status":"NOT_EXECUTED"}
-    elif args.action=="run-slot":
+        result={'valid':True,'status':proto['status'],'tasks':len(tasks),
+                'slots':len(sched['slots']),'source_sha256':proto['task_corpus']['sha256'],
+                'model_runs':0}
+    elif args.action=='schedule':result=load_contract()[2]
+    elif args.action=='prepare':
+        if not args.output:parser.error('prepare requires --output')
+        result={'prepared_root':str(prepare(args.output)),'status':'NOT_EXECUTED'}
+    elif args.action=='run-slot':
         if not args.output or not args.slot or not args.agent_command:
-            parser.error("run-slot requires --output, --slot and --agent-command")
+            parser.error('run-slot requires --output, --slot and --agent-command')
         result=run_slot(args.output,args.slot,args.agent_command)
     else:
-        if not args.output:parser.error("analyze requires --output")
+        if not args.output:parser.error('analyze requires --output')
         result=analyze(args.output)
     print(json.dumps(result,indent=2,sort_keys=True))
-    return 0 if result.get("valid",True) or args.action in ("schedule","prepare","run-slot","analyze") else 1
+    return 0
 
 
-if __name__=="__main__":
+if __name__=='__main__':
     try:sys.exit(main())
     except (ContractError,OSError,ValueError,subprocess.CalledProcessError,subprocess.TimeoutExpired) as exc:
-        print("AGENT_INSTRUCTION_PREFLIGHT_BLOCKED: " + str(exc),file=sys.stderr)
+        print('AGENT_INSTRUCTION_PREFLIGHT_BLOCKED: '+str(exc),file=sys.stderr)
         sys.exit(2)

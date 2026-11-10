@@ -41,8 +41,8 @@ On a secured operator machine with the intended model, Docker and a suitable Cod
 ```bash
 python tools/agent_instruction_premerge.py run-slot \
   --output /path/outside/the/repo/far-ponytail-premerge-001 \
-  --slot CALLERS-01-R1-control \
-  --agent-command 'codex exec --json --model gpt-6 --sandbox workspace-write "Read README.md and AGENTS.md, then make the code changes needed to satisfy the task."'
+  --slot CALLERS-01-R2-control \
+  --agent-command 'codex exec --json --model gpt-6 --sandbox workspace-write --ephemeral --ignore-user-config --ignore-rules "Read README.md and AGENTS.md, then make the code changes needed to satisfy the task."'
 ```
 
 The command shown is an **operator execution example**, not evidence this environment has the CLI, model, credentials, Docker, or a proven agent sandbox. Configure the agent's tool restrictions and record model/provider identity and environment provenance before any actual run. Do not execute a different model under this protocol. Complete the exact 40-slot schedule without outcome-driven repeats. The runner retains raw stdout and submitted sources, then grades against the hidden cases in Docker; it will not manufacture test results when the grader is unavailable.
@@ -58,3 +58,13 @@ The analyzer fails closed on missing slots or malformed evidence and recomputes 
 ## Dependency and authority limits
 
 This bounded Research study adds no requirement to protected branch rules and does not modify PR #632. It borrows the established output-capture/grader execution helpers from `tools/workflow_efficacy_free_agent.py`. It does not overwrite, pool, or reinterpret any prior FAR experiment, including the existing 60-run scripted-repair study or the 72/72 bounded tool-agent study. The independent Codex review and protected App gate for #632 remain obligatory. External/representative performance superiority is not established even if the internal screen passes.
+
+## Exact-head repair and evidence hardening before model exposure
+
+The first independent PR review found concrete fail-open mechanisms in the initially committed evaluator. The repair preserves the original preregistered `protocol.json`, task corpus and schedule and changes only *operational runner, tests and documentation* before any model exposures. No scored run, favorable resampling, or outcome-driven model tuning has occurred. The prepared manifest now binds SHA-256 of the protocol, schedule, corpus, runner and reused grader helper; changing these after `prepare` prevents later analysis rather than silently changing an acceptance decision.
+
+The repaired runner compares every source against controller-owned initial hashes (not candidate Git HEAD), retains unauthorized extra files, rejects modifications to `AGENTS.md` and `README.md`, and grades a captured immutable source snapshot. A trusted entrypoint independently checks that `transform` did not mutate the input. Every attempt writes a pre-exposure receipt; interrupted/integrity-violating attempts are not reclassified as never executed. Run order is enforced and hash-chained. Grader cleanup errors preserve the pre-cleanup receipt. The host captures both agent stdout and stderr with explicit byte and time limits and kills the private process group before capturing submitted files. The analyzer recomputes outcomes from retained raw grader output, source snapshots, verified Codex CLI JSON event lifecycle and runtime identity receipts.
+
+`codex exec --json` must produce a single `thread.started`, a single `turn.started` and a final `turn.completed` with nonzero token usage. The invocation is restricted to the exact model-argument/sandbox/config command shown above, and the actual executable path, SHA-256 and `codex --version` response are retained. This is **host-verified command and trace provenance**, not a cryptographically signed provider proof of the effective backend model. The operator must also independently establish and record CLI authentication, backend model availability, network/tool restrictions, and the isolation boundary. A Codex workspace-write sandbox on a host that also exposes the hidden task corpus may not be sufficient to establish blind evaluation; running it that way must not be represented as isolated or independently graded. A separate isolated agent host or container seeing only a single task workspace, and a trusted grader holding the oracles, is required for a defensible evaluation.
+
+**Execution boundary:** The connected GitHub reviewer is not a substitute for 40 model executions. This ChatGPT session does not have an authenticated Codex CLI, Docker grader and verified provider/model configuration. The campaign's status remains `PREREGISTERED_NOT_EXECUTED`; structural tests alone cannot satisfy the screen. PR #632 may only merge after its separately required protected review and authorization process. A pre-merge screen result must not be asserted while actual execution and isolation are unverified.
