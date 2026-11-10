@@ -1,0 +1,5 @@
+Build a minimal command-line word counter.
+
+Acceptance criteria:
+- The tool prints 3 for the input "one two three".
+- The tool reports an error for an unreadable input file.
