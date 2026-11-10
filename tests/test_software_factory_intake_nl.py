@@ -192,6 +192,16 @@ Acceptance criteria:
             self.assertEqual(result.returncode, 2)
             self.assertEqual(source.read_text(), BODY)
 
+    def test_issue_workflow_captures_only_with_read_only_permissions(self):
+        workflow = Path(".github/workflows/factory-intake-advisory.yml").read_text()
+        self.assertIn("issues: read", workflow)
+        self.assertIn("contents: read", workflow)
+        self.assertNotIn("contents: write", workflow)
+        self.assertNotIn("issues: write", workflow)
+        self.assertNotIn("submit --", workflow)
+        self.assertIn("github.event.label.name == 'factory-intake'", workflow)
+        self.assertIn("actions/upload-artifact", workflow)
+
     def test_cli_staged_intake(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
