@@ -86,6 +86,7 @@ def _criteria(body: str) -> list[str]:
     last_bullet: int | None = None
     fence: tuple[str, int] | None = None
     html_pre = False
+    html_comment = False
     for line in body.splitlines():
         marker = FENCE.fullmatch(line)
         if fence is not None:
@@ -93,6 +94,24 @@ def _criteria(body: str) -> list[str]:
                     and marker.group("mark")[0] == fence[0]
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
+            continue
+        # Hidden Markdown/HTML template comments are not task requirements.
+        # Reject comments inside an active section rather than accepting a
+        # shortened contract; skip examples before detecting any headings.
+        if html_comment:
+            if "-->" in line:
+                html_comment = False
+            continue
+        comment_open = line.find("<!--")
+        comment_close = line.find("-->")
+        if comment_open >= 0:
+            if in_section:
+                raise IntakeError("HTML comment in acceptance criteria requires clarification")
+            html_comment = not (comment_close >= comment_open + 4)
+            continue
+        if comment_close >= 0:
+            if in_section:
+                raise IntakeError("stray HTML comment close in acceptance criteria")
             continue
         # GitHub-flavored Markdown preserves HTML <pre> blocks as code.
         # Treat their contents only as examples, never as acceptance headings.
