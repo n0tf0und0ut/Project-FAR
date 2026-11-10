@@ -32,3 +32,14 @@ A local, read-only pilot used candidate `FAR-LIT-0180C9D6CDB2EBB2` at recorded r
 The proposed order ID hashes the pinned source commit, candidate ID, Git blob, target base SHA and repository identity. Repeating the same inputs produces byte-identical output and the same order ID. A changed candidate, source commit, or target base produces a **new** proposal for independent assessment, rather than silently replacing prior provenance. This is per-snapshot idempotence, not global semantic deduplication across changing inbox heads. The SHA-1 and SHA-256 references detect data mismatches but do not certify scientific truth, user authorization, or cryptographic signer identity.
 
 The current pilot accepts only `CANDIDATE_LITERATURE` in `UNREVIEWED_CANDIDATE` / `DISCOVERED` state with explicit Research-only lifecycle flags. This deliberately excludes other record types, other repositories, queued execution, broad scanning, claim adjudication, and auto-promotion. The one-candidate pilot does not establish autonomous-agent reliability or commercial advantage. Future extension requires a separate authorized change and independent exact-head review.
+
+### Adversarial JSON boundary correction (SF-BRIDGE-JSON-DEPTH-UNICODE-NONFINITE)
+
+The reviewable untrusted input boundary rejects nested JSON beyond 128 levels, escaped
+lone Unicode surrogates (in keys or values), and numeric exponents that decode to
+infinite float values. This closes three concrete cases where the earlier decoder
+accepted invalid data or leaked raw interpreter exceptions before the expected
+`BridgeError` envelope could be produced. The regression tests first reproduced the
+failures, including a 12,000-level nested array, escaped `\ud800` source identity,
+and `1e99999`. These changes do not alter the previously recorded genuine candidate
+witness or the advisory work-order contract.

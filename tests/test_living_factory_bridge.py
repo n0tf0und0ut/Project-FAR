@@ -167,6 +167,30 @@ class BridgeUnitTests(unittest.TestCase):
         with self.assertRaises(bridge.BridgeError):
             propose(raw=raw)
 
+    def test_untrusted_json_nesting_is_bounded_without_raw_recursion_error(self):
+        raw = b"[" * 12000 + b"0" + b"]" * 12000
+        with self.assertRaises(bridge.BridgeError):
+            bridge.strict_json(raw)
+        # Below the runtime JSON parser's own recursion failure threshold,
+        # a maliciously nested but parseable input must still be rejected.
+        raw = b"[" * 256 + b"0" + b"]" * 256
+        with self.assertRaises(bridge.BridgeError):
+            bridge.strict_json(raw)
+
+    def test_surrogate_escape_in_untrusted_candidate_never_crashes_digest(self):
+        obj = fixture()
+        obj["source_key"] = "doi:invalid-" + chr(0xD800)
+        raw = json.dumps(obj, ensure_ascii=True).encode("utf-8")
+        with self.assertRaises(bridge.BridgeError):
+            propose(raw=raw)
+        for raw in (b'{"bad\\ud800":1}', b'{"x":"\\udc00"}'):
+            with self.subTest(raw=raw), self.assertRaises(bridge.BridgeError):
+                bridge.strict_json(raw)
+
+    def test_nonfinite_numeric_exponent_fails_closed(self):
+        with self.assertRaises(bridge.BridgeError):
+            bridge.strict_json(b'{"x":1e99999}')
+
     def test_invalid_repository_ref_main_sha_fails(self):
         raw=raw_fixture()
         for args in ({"repository":"enemy/repo"},{"source_ref_sha":"main"},{"base_sha":"x"}):

@@ -12,6 +12,7 @@ import base64
 import binascii
 import hashlib
 import json
+import math
 import re
 import sys
 import urllib.error
@@ -55,13 +56,41 @@ def strict_json(raw: bytes, *, limit: int = MAX_API_BYTES) -> object:
     def reject_constant(value):
         raise BridgeError("non-finite JSON token: " + value)
 
+    def finite_float(value):
+        parsed = float(value)
+        if not math.isfinite(parsed):
+            raise BridgeError("non-finite JSON number")
+        return parsed
+
     try:
-        return json.loads(raw.decode("utf-8", errors="strict"),
-                          object_pairs_hook=unique, parse_constant=reject_constant)
+        document = json.loads(raw.decode("utf-8", errors="strict"),
+                              object_pairs_hook=unique, parse_constant=reject_constant,
+                              parse_float=finite_float)
     except BridgeError:
         raise
-    except (UnicodeDecodeError, ValueError) as exc:
-        raise BridgeError("invalid UTF-8 JSON input") from exc
+    except (UnicodeDecodeError, ValueError, RecursionError) as exc:
+        raise BridgeError("invalid UTF-8 JSON input or excessive JSON nesting") from exc
+
+    # JSON escapes can encode lone UTF-16 surrogates even though the transport is
+    # UTF-8. Do not accept bytes that later fail provenance serialization. Limit
+    # nested structures independently of the interpreter-specific parser limit.
+    stack = [(document, 0)]
+    while stack:
+        value, depth = stack.pop()
+        if depth > 128:
+            raise BridgeError("JSON nesting exceeds permitted depth")
+        if isinstance(value, str):
+            try:
+                value.encode("utf-8", errors="strict")
+            except UnicodeEncodeError as exc:
+                raise BridgeError("JSON contains invalid Unicode surrogate") from exc
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                stack.append((key, depth + 1))
+                stack.append((item, depth + 1))
+        elif isinstance(value, list):
+            stack.extend((item, depth + 1) for item in value)
+    return document
 
 
 def git_blob_sha1(raw: bytes) -> str:
