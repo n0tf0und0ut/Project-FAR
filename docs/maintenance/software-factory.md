@@ -67,3 +67,14 @@ network observation. The independent adversarial test
 observations cannot both commit delivery. These deterministic controls establish
 the narrow lock and state-transition properties only, not distributed exactly-once
 execution across a mutable GitHub service or worker authenticity.
+
+## Dependency graph depth
+
+Work-order dependency validation now uses an iterative topological check rather
+than recursive traversal. A valid chain of 1,250 distinct tasks must pass regardless
+of Python's default recursion limit, and adding a closing back-edge must produce
+a `FactoryError("cyclic dependency")`. The regression
+`test_deep_dependency_dag_preserves_validity_and_detects_cycles` checks both
+cases. This corrects a valid-work-order rejection; it does not imply a global
+payload-size, task-count, or storage-consumption limit. Production ingestion from
+untrusted clients would require separately justified resource ceilings.
