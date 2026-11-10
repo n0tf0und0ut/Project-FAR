@@ -1331,6 +1331,39 @@ class OfflineInvestigationAuditTests(unittest.TestCase):
         self.assertEqual(state['rejected_calls'], 1)
         self.assertTrue(audit(state)['valid'], audit(state))
 
+    def test_failed_postdispatch_search_retry_keeps_both_identical_retained_rows(self):
+        """A failed invalidation checkpoint does not transfer a search to its retry."""
+        script = full_script()
+        discover_at = next(i for i, proposal in enumerate(script)
+                           if proposal['tool'] == 'discover')
+        new_search = action('search', query='postdiscovery', provider='wikimedia')
+        script[discover_at + 1:discover_at + 1] = [
+            copy.deepcopy(new_search), copy.deepcopy(new_search),
+            copy.deepcopy(script[discover_at]),
+        ]
+        fixed = receipt(URL_A, BODY_A)
+        def searcher(query, provider, policy, checkpoint):
+            checkpoint(copy.deepcopy(fixed))
+            return {'query': query, 'provider': provider,
+                    'receipt': copy.deepcopy(fixed), 'hits': [],
+                    'status': 'SEARCH_COMPLETED'}
+
+        failed = [False]
+        def checkpoint(state):
+            if (not failed[0] and state['events'][-1]['kind'] == 'DISCOVERY_INVALIDATED'
+                    and len(state['searches']) == 1):
+                failed[0] = True
+                raise OSError('post-dispatch search checkpoint failure')
+
+        state = self.runtime(searcher=searcher, checkpoint=checkpoint).run_agent(
+            ScriptedFixtureModel(script))
+        self.assertTrue(failed[0])
+        self.assertEqual(state['status'], 'BOUNDED_PIPELINE_COMPLETED')
+        self.assertEqual(state['rejected_calls'], 1)
+        self.assertEqual(len(state['searches']), 2)
+        self.assertEqual(state['searches'][0], state['searches'][1])
+        self.assertTrue(audit(state)['valid'], audit(state))
+
     def test_identical_failed_search_observation_cannot_consume_a_later_retry(self):
         fixed = receipt(URL_A, BODY_A)
         count = 0
