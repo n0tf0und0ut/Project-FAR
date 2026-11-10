@@ -2,6 +2,8 @@
 from pathlib import Path
 import copy
 import re
+import subprocess
+import sys
 import unittest
 import yaml
 
@@ -97,6 +99,15 @@ class ExternalAIReviewerTests(unittest.TestCase):
         self.assertEqual(run_step["with"]["head_sha"],
                          "\u0024{{ steps.context.outputs.head_sha }}")
         self.assertIn("workflow_run", _events(self.workflow))
+
+    def test_hygiene_recognizes_real_coderabbit_globs(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools/check_repository_hygiene.py")],
+            cwd=ROOT, capture_output=True, text=True, timeout=30,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Repository hygiene OK", result.stdout)
 
     def test_required_convergence_workflow_not_replaced(self):
         required = yaml.safe_load(
