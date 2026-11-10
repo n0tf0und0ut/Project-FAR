@@ -9,7 +9,9 @@
     "synthesis_input_sha256": "a529a77d4b28bd95cd76229fd0b5e73fdb9cbcf4331796a1847985708cb59be0",
     "corpus_sha256": "4dcc5ddb34e2d17b189c24bce5cb766ec3404ac883804bf1465a5b9daf261d50",
     "inventory_sha256": "3b32a5bb835dabe5aa252e5013d7d107176887a63e7a3001936aaa8dae1aab56",
-    "synthesis_format": "far-research-synthesis/1.2"
+    "synthesis_format": "far-research-synthesis/1.2",
+    "corpus_path": "research/corpus/corpus-v1.0.json",
+    "corpus_git_blob_sha1": "75e247908aed5c3d7957ac421b9f352f3536d6ad"
   },
   "task": "retrieve exact declared observation and conclusion record identifiers; no scientific inference or source-truth certification",
   "frozen_before_scoring": true,
@@ -20,154 +22,176 @@
       "path": "theory/theorems/Project-FAR-Theory-Closure-v1.1.md",
       "sha256": "91513dce21273364ef8ad24ebd1102e3b5957b513bbd5bc429f2b10917fa8239",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-CALIBRATION",
       "path": "docs/audits/far-core-epistemic-calibration-v1.0.md",
       "sha256": "3e93cf7a653cb49135141646028b594166cd80391ab852e16bb695f4495760c6",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-W6",
       "path": "docs/research/pca-w6-empirical-audit-utility/02-execution-and-results.md",
       "sha256": "beec81427d14d2bd49250e15278d375d1bbca23a543fbac067c2d21ef46a101e",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-LIVING",
       "path": "research/living/README.md",
       "sha256": "1c25d4203d620bd791a959728e5bf09e5d4ec74f790b0e75a17f39084708c0f7",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-LIVING-REVIEW",
       "path": "docs/audits/living-core-claim-review-issue-513-2026-09-29.md",
       "sha256": "a93b37022dff5cee2839c6085c849e2e3b603fabea47e590a95f3548d2d008ca",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-SATURATION",
       "path": "docs/architecture/saturation-baseline-v0.5.md",
       "sha256": "87ebab958e96b5a2342d7765c8fb5899b92306ac3cedcfd8cae72bf0a8b41bca",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-ROOT-AUDIT",
       "path": "docs/audits/root-of-trust-audit-2026-09.md",
       "sha256": "2d477eabe765404a3fd59b5146aaa3b0992862e802aa02bb403ba9a140b3f8d4",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-COMPETITION",
       "path": "docs/audits/ikd-w2-expanded-candidate-competition-audit.md",
       "sha256": "559fb5bb7167e6bb9dd20e87503ca81c1ac9bd3d332cb6268996f3234fba8085",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-VOCAB",
       "path": "docs/audits/usd-w2-alternative-vocabulary-competition-audit.md",
       "sha256": "22f926c465b6c607ca302d07d9607ca5b800e066d697f9c0740ab951d41cc826",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-BENCHMARK",
       "path": "research/comparisons/far-investigation-benchmark-v0.1.md",
       "sha256": "402e3b205647cabfaa860d6b453a9a6e3334bef5343cc19a08c79dd1f985cd24",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-EFR",
       "path": "docs/governance/external-falsification-and-replication-program-v1.0.md",
       "sha256": "f98b44e50a05e0cf3652d01683221aadd43606f75a904ff8d52a145c52f9f23c",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-EFR-COMP",
       "path": "docs/governance/external-falsification-and-replication-comparator-amendment-v2.0.md",
       "sha256": "a2a6cc08a4ac57274df66d37b7824560aaf18e481667cabeb33b541a6d7a1570",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-STATUS",
       "path": "docs/project-status.md",
       "sha256": "8514cd9e0225ee7e9721cf2fef288bc42cce9a8324bdc21ca81c7856c9561e36",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-MERGED-REVIEWS",
       "path": "docs/audits/merged-pr-review-classification/FINDINGS.md",
       "sha256": "8018a33c02fff08800e609bd0868cfee5de912eec39c7109e5a5381c065ab066",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-SCHEDULED-TASK-HISTORY",
       "path": null,
       "sha256": null,
       "evidence_usable": false,
-      "review_status": "DISCOVERY_LEAD"
+      "review_status": "DISCOVERY_LEAD",
+      "primary_evidence_verified": false
     },
     {
       "id": "SRC-SATURATION-OPEN-PR",
       "path": "research/corpus/snapshots/pr-571-manifest-v1.0.json",
       "sha256": "1b12710663e27dc157fe4af6d493906fc427333fcc32cc61891f495a8e4f1109",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-LIVING-PR490",
       "path": "research/corpus/snapshots/pr-490-manifest-v1.0.json",
       "sha256": "542e0418dd77d32aeea03e9c86407cccfa9545dd384562c3a46bbaf508538640",
       "evidence_usable": false,
-      "review_status": "DISCOVERY_LEAD"
+      "review_status": "DISCOVERY_LEAD",
+      "primary_evidence_verified": false
     },
     {
       "id": "SRC-ASSURANCE",
       "path": "theory/evaluation/far-core-assurance-v1.0.json",
       "sha256": "1ed4157fb9cb7a5ce5f428a73e0fc2287b17499360708b063dc5b6fec9f98f60",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-LIVING-REVIEW-PRIOR",
       "path": "docs/audits/living-core-claim-review-issue-513-2026-09-20.md",
       "sha256": "1cd72a86e35cc46c9b0b50745af595eb8494aa6e1fa3ee683fbabcd37ccc3b7e",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-EFR-R2-V11",
       "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.1.md",
       "sha256": "f2efbf02dbd8c430ef014519c9b4365eb723a152fb68636e2939b502429f4232",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-EFR-R2-V12",
       "path": "docs/governance/external-falsification-and-replication-r2-input-amendment-v1.2.md",
       "sha256": "799326e285553835039fc24892cd2152d2ed9e329bbe355f2ed9258bccf855f8",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     },
     {
       "id": "SRC-LIVING-REVIEWS",
       "path": "research/living/review-dispositions-v1.0.json",
       "sha256": "2d3a0335c8f6f1941fa9ca3d18e04df825453e227c921773cda7a25be3eb5817",
       "evidence_usable": true,
-      "review_status": "GOVERNED_REPOSITORY_SOURCE"
+      "review_status": "GOVERNED_REPOSITORY_SOURCE",
+      "primary_evidence_verified": true
     }
   ],
   "records": [
