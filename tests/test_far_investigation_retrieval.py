@@ -109,8 +109,10 @@ class RetrievalTests(unittest.TestCase):
             self.assertTrue(started.is_set())
             self.assertEqual(lookups, [('example.org', 443)])
             self.assertEqual(caught.exception.receipt['status'], 'FAILED')
+            # urllib's native handler wraps the deadline's TimeoutError in
+            # URLError before the bounded reader records the failure class.
             self.assertEqual(caught.exception.receipt['transport']['transport_error'],
-                             'TimeoutError')
+                             'URLError')
             open_socket.assert_not_called()
         finally:
             release.set()
