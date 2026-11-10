@@ -335,7 +335,7 @@ class ContractTests(unittest.TestCase):
                       'exit_code':0,'timed_out':False,'output_limited':False,
                       'validated_trace':{'thread_id':'a'},'previous_observation_sha256':None}
             used=[]
-            def fake_grade(snapshot,case):
+            def fake_grade(snapshot,case,entrypoint=b.ENTRYPOINT):
                 used.append(snapshot)
                 self.assertTrue(str(snapshot).endswith('/submitted'))
                 self.assertEqual((snapshot/'solution.py').read_text(),'def transform(d): return 3\n')
@@ -345,7 +345,7 @@ class ContractTests(unittest.TestCase):
                  patch.object(b,'pinned_instructions',return_value=initial), \
                  patch.object(b,'_grade_case',side_effect=fake_grade):
                 r=b.grade_slot(root,cell['slot_id'],provider)
-            self.assertEqual(len(used),6)
+            self.assertEqual(len(used),12)  # six original plus six public-interface probes
             self.assertEqual(r['outcome'],'FAILURE')
             self.assertEqual((root/'evidence'/cell['slot_id']/'submitted'/'solution.py').read_text(),
                              'def transform(d): return 3\n')
