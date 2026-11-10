@@ -20,6 +20,13 @@ class CloudflareSecuritySkillTests(unittest.TestCase):
     def test_exact_upstream_snapshot_is_preserved(self):
         self.assertEqual(lock.verify(self.manifest), [])
 
+    def test_manifest_bytes_are_also_pinned_not_just_self_reported(self):
+        original = lock.LOCK.read_bytes()
+        self.assertEqual(lock.verify_manifest_bytes(original), [])
+        changed = original + b"\n"
+        self.assertIn("modified source-lock manifest (requires separately reviewed re-pin)",
+                      lock.verify_manifest_bytes(changed))
+
     def test_modification_and_missing_file_fail_closed(self):
         with tempfile.TemporaryDirectory() as folder:
             target = Path(folder) / "skill"
