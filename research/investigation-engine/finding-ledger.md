@@ -854,3 +854,26 @@ review-convergence metadata and protected checks must be verified separately
 before any merge-ready verdict. No frozen evidence, prior negative outcome,
 research registration, accepted theory, or general agent performance claim
 was changed by these corrections.
+
+## November 10, 2026 — thirteenth exact-head Codex review: two fresh P2 defects
+
+The authenticated Codex review of predecessor head
+`0c0a221752f07ab3cefc23e45c28e50dc392208d` surfaced two new,
+independently reproducible failure modes. Both were still present in the
+normal two-parent protected-main integration head
+`1318703a567a9ad13469a472d47590eb1d6d7a6c`; neither was
+covered by the earlier four fixes. The review itself is independent
+automated inspection, not experimental truth or merge authorization.
+
+| Root cause and source | Exact failure mode and scope | Candidate correction and regression obligation |
+| --- | --- | --- |
+| **ENG-RETRY-EFFECT-PRODUCER-20261110**, thread `PRRT_kwDOTH_vCM61p4nU`, comment 4523761618 | After a `TOOL_PROPOSAL` checkpoint fails with pre-dispatch `OSError`, a second attempt executes `extract`, `compare`, or `discover`, mutates retained state, and is later rejected for exceeding the wall-clock budget. Without any accepted result, the auditor's `successful_*_at.get(..., index) == index` fallback credits the first, undispatched rejection. A genuine LocalModel transcript then fails the reconstructed evidence, available tools or discovery views. | Only credit a rejected mutation to an attempt with a runtime-distinguishable post-dispatch outcome: exact post-dispatch wall-clock `EngineError`, or for evidence/comparison the recorded `DISCOVERY_INVALIDATED` event emitted after the mutation. A pre-dispatch proposal-checkpoint `OSError` can never claim the effect. `test_rejected_pre_dispatch_retry_does_not_steal_mutable_effect` uses actual `LocalModel`-shaped responses and controlled first/second attempts for each of the three tools, with the unchanged transcript as an audit-positive oracle. Existing positive controls continue checking legitimate post-dispatch failures and accepted producer precedence. |
+| **ENG-DNS-PREFLIGHT-DEADLINE-20261110**, thread `PRRT_kwDOTH_vCM61p4ne`, comment 4523761630 | The default exact-host public-address preflight synchronously executes the operator's resolver before the bounded HTTP transport. An unresolved DNS call can block the investigation worker past both transport timeout and remaining wall-clock investigation deadline, despite the HTTP reader timing out immediately afterward. This affects initial retrieval, public search and every recheck. | Enforce the minimum of per-request timeout and remaining investigation deadline across DNS and HTTP; perform blocking resolution only inside daemon workers whose outstanding count is bounded and whose result is accepted solely before deadline. On expiry fail closed, preserve the failed source receipt, never open HTTP or claim resolved addresses, and release a resolver slot only after the worker actually exits. `test_dns_preflight_cannot_overrun_request_or_investigation_deadline` checks both clocks with a controlled stalled resolver and no HTTP; `test_expired_dns_budget_never_calls_resolver` checks pre-expiry rejection. Retained DNS output remains preflight evidence, not a pinned transport destination or source-truth guarantee. |
+
+The repairs were made on PR #614's development branch without modifying
+frozen research inputs, prior negative experiment results, canonical theory,
+protected main or independently attested artifacts. They are **candidate**
+repairs until their hosted exact-head regression and integration workflows
+pass. Previous-head green CI and resolved threads are not substituted for a
+new independent review, native review-convergence, merge-authority,
+exact-head assurance or the dedicated protected App gate.
