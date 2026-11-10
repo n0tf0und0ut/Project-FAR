@@ -264,12 +264,17 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
         self.assertTrue(payload.startswith('```json') and payload.endswith('```'), payload[:80])
         catalog = json.loads(payload[len('```json'):-len('```')].strip())
         self.assertEqual(catalog['schema'], 'far-investigation-failure-class-coverage/1')
-        ledger_ids = set(re.findall(r'\b(?:ENG|RC608|HIST-608|HTTP-FRAMING)-[A-Z0-9-]+\b', earlier))
+        # Also inspect additions after the index: future findings must not
+        # bypass coverage merely by being appended below this section.
+        inventory_text = earlier + tail.split(end, 1)[1]
+        ledger_ids = set(re.findall(r'\b(?:ENG|RC608|HIST-608|HTTP-FRAMING)-[A-Z0-9-]+\b', inventory_text))
         allocated = [finding for group in catalog['classes']
                      for finding in group['finding_ids']]
         self.assertEqual(len(allocated), len(set(allocated)), 'duplicate finding assignment')
         self.assertEqual(set(allocated), ledger_ids, 'unclassified or invented finding IDs')
         self.assertGreaterEqual(len(catalog['classes']), 9)
+        workflow = (Path(__file__).resolve().parents[1] /
+                    '.github/workflows/far-investigation-engine.yml').read_text(encoding='utf-8')
         names = [group['name'] for group in catalog['classes']]
         self.assertEqual(len(names), len(set(names)), 'duplicate class name')
         for group in catalog['classes']:
@@ -281,6 +286,8 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
                 for kind in ('negative_controls', 'positive_controls'):
                     for name in group[kind]:
                         module_name, class_name, method_name = name.rsplit('.', 2)
+                        self.assertIn(module_name, workflow,
+                                      'coverage reference is not present in the hosted test command')
                         module = importlib.import_module(module_name)
                         case = getattr(module, class_name)
                         self.assertTrue(issubclass(case, unittest.TestCase), name)
