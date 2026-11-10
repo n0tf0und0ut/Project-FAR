@@ -28,6 +28,7 @@ MAX_ISSUE_BYTES = 131072
 HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+when|definition\s+of\s+done|success\s+criteria)\s*:?\s*$", re.I)
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
+FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 
@@ -73,35 +74,55 @@ def _strict_json(raw: str) -> object:
 
 
 def _criteria(body: str) -> list[str]:
-    """Copy *explicitly labeled* criteria verbatim; never invent test oracles."""
-    result = []
+    """Extract explicit acceptance bullets without silently losing requirements.
+
+    Indented Markdown continuations are joined. Unexpected prose or fenced code
+    inside a criteria section is rejected, not interpreted as instructions.
+    """
+    result: list[str] = []
     in_section = False
-    in_fence = False
+    last_bullet: int | None = None
+    fence: tuple[str, int] | None = None
     for line in body.splitlines():
-        if line.lstrip().startswith("```") or line.lstrip().startswith("~~~"):
-            in_fence = not in_fence
-            if in_section:
-                in_section = False
+        marker = FENCE.fullmatch(line)
+        if fence is not None:
+            if (marker and not marker.group("suffix").strip()
+                    and marker.group("mark")[0] == fence[0]
+                    and len(marker.group("mark")) >= fence[1]):
+                fence = None
             continue
-        if in_fence:
+        if marker:
+            if in_section:
+                raise IntakeError("fenced examples inside acceptance criteria require clarification")
+            fence = (marker.group("mark")[0], len(marker.group("mark")))
             continue
         if HEADING.fullmatch(line):
+            last_bullet = None
             in_section = True
             continue
         if not in_section:
             continue
-        if ANY_HEADING.fullmatch(line) or (line.strip() and line.lstrip().startswith('```')):
+        if ANY_HEADING.fullmatch(line):
+            last_bullet = None
             in_section = False
             continue
-        m = BULLET.match(line)
-        if m:
-            value = m.group(1).strip()
+        match = BULLET.match(line)
+        if match:
+            value = match.group(1).strip()
             if not value or len(value) > 1000:
                 raise IntakeError("acceptance criterion must have 1-1000 characters")
             result.append(value)
+            last_bullet = len(result) - 1
         elif line.strip():
-            # A new prose paragraph ends the criteria section.
-            in_section = False
+            # Markdown's indented continuation belongs to the preceding bullet.
+            leading = len(line) - len(line.lstrip(" \t"))
+            if leading >= 2 and last_bullet is not None:
+                combined = result[last_bullet] + " " + line.strip()
+                if len(combined) > 1000:
+                    raise IntakeError("acceptance criterion exceeds 1000 characters")
+                result[last_bullet] = combined
+            else:
+                raise IntakeError("unrecognized acceptance prose; use a bullet or heading")
     if len(result) > 32 or len(set(result)) != len(result):
         raise IntakeError("duplicate or excessive acceptance criteria")
     return result
@@ -138,7 +159,7 @@ def compile_request(*, repository: str, base_sha: str, title: str, body: str,
     order = None
     if acceptance:
         order = {"schema": "far-software-factory/work-order/1", "id": order_id,
-                 "repository": repository, "base_sha": base_sha,
+                 "repository": repository.casefold(), "base_sha": base_sha,
                  "tasks": [{"id": "implementation", "objective": title.strip(),
                             "acceptance": acceptance, "depends_on": []}]}
         validate_order(order)
@@ -259,7 +280,7 @@ def main(argv=None) -> int:
         if args.command == "draft-text":
             if Path(args.text_file).resolve() == Path(args.output).resolve():
                 raise IntakeError("draft output must not overwrite original source")
-            text = Path(args.text_file).read_text(encoding="utf-8")
+            text = Path(args.text_file).read_bytes().decode("utf-8", "strict")
             lines = text.splitlines()
             title = next((line.strip() for line in lines if line.strip()), "")
             if not title:
@@ -272,8 +293,16 @@ def main(argv=None) -> int:
                                     body=body, source_kind="github_issue",
                                     source_ref=f"{args.repo}#{args.issue}")
         else:
-            if args.receipt_file and Path(args.receipt_file).resolve() == Path(args.draft_file).resolve():
-                raise IntakeError("receipt must not overwrite intake draft")
+            db_file = Path(args.db).resolve()
+            draft_file = Path(args.draft_file).resolve()
+            if draft_file == db_file:
+                raise IntakeError("draft must not be the queue database")
+            if args.receipt_file:
+                receipt_file = Path(args.receipt_file).resolve()
+                related_db_files = {db_file, *(Path(str(db_file) + suffix) for suffix in
+                                                ("-wal", "-shm", "-journal"))}
+                if receipt_file == draft_file or receipt_file in related_db_files:
+                    raise IntakeError("receipt must not overwrite draft or queue database/sidecars")
             draft = _strict_json(Path(args.draft_file).read_text(encoding="utf-8"))
             receipt = submit_draft(draft, args.db)
             if args.receipt_file:

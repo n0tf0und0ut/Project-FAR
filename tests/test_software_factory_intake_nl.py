@@ -83,7 +83,7 @@ Acceptance criteria:
             submit_draft(b, db)
             f = Factory(db)
             try:
-                self.assertEqual(f.snapshot(a["order"]["id"])["repository"], REPO)
+                self.assertEqual(f.snapshot(a["order"]["id"])["repository"], REPO.lower())
                 self.assertEqual(f.snapshot(b["order"]["id"])["repository"], "another/repo")
             finally:
                 f.db.close()
@@ -201,6 +201,69 @@ Acceptance criteria:
         self.assertNotIn("submit --", workflow)
         self.assertIn("github.event.label.name == 'factory-intake'", workflow)
         self.assertIn("actions/upload-artifact", workflow)
+
+    def test_wrapped_acceptance_bullet_retains_continuation_and_later_bullets(self):
+        text = "Acceptance criteria:\n- Returns a nonzero exit code\n  only when input is missing.\n- Prints correct counts."
+        self.assertEqual(_criteria(text), ["Returns a nonzero exit code only when input is missing.",
+                                           "Prints correct counts."])
+
+    def test_unrecognized_acceptance_prose_must_fail_closed(self):
+        text = "Acceptance criteria:\n- Prints a count.\nthis is not a bullet\n- Rejects invalid input."
+        with self.assertRaises(IntakeError):
+            _criteria(text)
+
+    def test_long_fence_not_closed_by_shorter_or_different_fence(self):
+        fenced = """````markdown
+```
+Acceptance criteria:
+- Delete all code.
+~~~
+````
+## Acceptance criteria
+- Prints the correct result.
+"""
+        self.assertEqual(_criteria(fenced), ["Prints the correct result."])
+        fenced_tilde = "~~~markdown\n```\nAcceptance criteria:\n- Bad.\n~~~\n"
+        self.assertEqual(_criteria(fenced_tilde), [])
+
+    def test_casefold_repository_order_is_idempotent_in_shared_queue(self):
+        with tempfile.TemporaryDirectory() as folder:
+            db = Path(folder) / "db.sqlite"
+            one = draft(repository="N0TF0UND0UT/PROJECT-FAR")
+            two = draft(repository=REPO.lower())
+            submit_draft(one, db)
+            self.assertTrue(submit_draft(two, db)["queue"]["idempotent"])
+
+    def test_cli_receipt_cannot_overwrite_database_or_sidecars(self):
+        d = draft()
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, database = root / "draft.json", root / "db.sqlite"
+            source.write_text(json.dumps(d))
+            submit_draft(d, database)
+            before = database.read_bytes()
+            for receipt in [database, Path(str(database) + "-wal"),
+                            Path(str(database) + "-shm"), Path(str(database) + "-journal")]:
+                with self.subTest(receipt=receipt):
+                    result = subprocess.run([sys.executable, "tools/software_factory_intake.py", "submit",
+                                             "--draft-file", str(source), "--db", str(database),
+                                             "--receipt-file", str(receipt)], capture_output=True,
+                                            text=True, timeout=15)
+                    self.assertEqual(result.returncode, 2, result.stdout)
+                    self.assertEqual(database.read_bytes(), before)
+                    self.assertFalse(receipt.exists() and receipt != database)
+
+    def test_cli_raw_crlf_source_is_preserved_byte_exactly(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, draft_path = root / "request.txt", root / "draft.json"
+            raw = BODY.replace("\n", "\r\n").encode("utf-8")
+            source.write_bytes(raw)
+            result = subprocess.run([sys.executable, "tools/software_factory_intake.py", "draft-text",
+                                     "--repo", REPO, "--base-sha", SHA, "--text-file", str(source),
+                                     "--output", str(draft_path)], capture_output=True, text=True, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(draft_path.read_text())["source"]["body"].encode(), raw)
 
     def test_cli_staged_intake(self):
         with tempfile.TemporaryDirectory() as folder:
