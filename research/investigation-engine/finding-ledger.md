@@ -877,3 +877,43 @@ repairs until their hosted exact-head regression and integration workflows
 pass. Previous-head green CI and resolved threads are not substituted for a
 new independent review, native review-convergence, merge-authority,
 exact-head assurance or the dedicated protected App gate.
+
+## November 10, 2026 — parallel integration-head Codex review and Python 3.11 TLS override
+
+The authenticated Codex review of integration head
+`1318703a567a9ad13469a472d47590eb1d6d7a6c` opened two additional
+P2 threads. One is the same DNS preflight deadline defect independently
+reported against `0c0a221...`; it was already being corrected on the
+successor branch before this review completed. The other is a separate
+TLS compatibility defect that the earlier SSLContext-identity test missed.
+
+- **ENG-TLS-HOSTNAME-OVERRIDE-PY311-20261110**, thread
+  `PRRT_kwDOTH_vCM61qASn`, comment 4523811853.
+  On Python 3.11, `HTTPSHandler(context=context, check_hostname=True)`
+  can retain a per-handler `_check_hostname` override even if
+  `context.check_hostname=False`. Deadline override had preserved the
+  SSLContext object but dropped that separately stored operator setting.
+  The adapter now preserves and forwards the override when the running
+  standard library actually exposes it, omitting a constructor parameter
+  that Python 3.12+ no longer supports. The regression
+  `test_deadline_https_retains_python311_hostname_override` checks
+  source/isolated TLS context identity, conditional override propagation
+  through the deadline connection factory, and original opener ownership.
+  It complements the native socketpair SSLContext regression rather than
+  replacing it.
+- **ENG-DNS-TRANSPORT-BUDGET-INTEGRATION-20261110**, thread
+  `PRRT_kwDOTH_vCM61qASx`, comment 4523811864.
+  The review reproduced slow DNS in the deterministic
+  `Investigation.run_workflow()` lane, confirming the same underlying
+  preflight blockage as comment 4523761630 in the native source retrieval
+  lane. The single bounded resolver-worker correction and regressions in
+  the preceding section address both contexts. Separate reviews do not
+  imply independent experiments or two different root causes.
+
+These are corrective candidates until hosted tests on the new exact head
+and a fresh authenticated substantive review pass. The last attempted
+Codex request was rejected by the service's review usage limit; that
+external block is explicitly unresolved. Neither this ledger nor
+resolving a thread substitutes for a clean exact-head Codex review or
+the protected `review-convergence`, `merge-authority` and
+`protected-repin-gate` checks.
