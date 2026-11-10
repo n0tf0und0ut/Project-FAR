@@ -189,6 +189,63 @@ class ContractTests(unittest.TestCase):
             with self.subTest(payload=value),self.assertRaises(b.ContractError):
                 b._parse_agent_trace(value)
 
+    def test_caller_public_interfaces_checked_outside_adapter(self):
+        task = next(t for t in b.load_contract()[1] if t['id'] == 'CALLERS-01')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for path, source in task['files'].items():
+                (root / path).write_text(source)
+            # The adapter can be correct while both required public functions
+            # remain broken. This must never count as a complete repair.
+            (root / 'solution.py').write_text(
+                'def transform(d):\n'
+                '    value=d["name"].strip().casefold()\n'
+                '    return {"service":value,"legacy":value}\n'
+            )
+            case = task['hidden'][0]
+            normal = b.ENTRYPOINT.replace('/app/solution.py', str(root/'solution.py'))
+            observed = subprocess.run([sys.executable,'-I','-B','-c',normal],
+                input=json.dumps(case['input']),text=True,capture_output=True,timeout=5)
+            self.assertEqual(observed.returncode,0,observed.stderr)
+            self.assertEqual(b._strict_json_output(observed.stdout)['value'],case['expected'])
+            probes = b._interface_probes(task)
+            self.assertEqual(len(probes), 6)
+            check, entrypoint = probes[2]
+            result = subprocess.run([sys.executable,'-I','-B','-c',
+                entrypoint.replace("'/app'",repr(str(root)))],
+                input=json.dumps(check['input']),text=True,capture_output=True,timeout=5)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertNotEqual(b._strict_json_output(result.stdout)['value'],check['expected'])
+
+    def test_catalog_helper_use_checked_outside_adapter(self):
+        task = next(t for t in b.load_contract()[1] if t['id'] == 'REUSE-06')
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for path, source in task['files'].items():
+                (root / path).write_text(source)
+            # Hardcoded normalization in transform can match hidden outputs
+            # without fixing catalog.slugs or calling shared.slugify.
+            (root / 'solution.py').write_text(
+                'import re\n'
+                'def transform(d):\n'
+                '    return [re.sub(r"[^a-z0-9]+","-",s.strip().casefold()).strip("-") '
+                'for s in d["items"]]\n'
+            )
+            case = task['public'][0]
+            normal = b.ENTRYPOINT.replace('/app/solution.py', str(root/'solution.py'))
+            observed = subprocess.run([sys.executable,'-I','-B','-c',normal],
+                input=json.dumps(case['input']),text=True,capture_output=True,timeout=5)
+            self.assertEqual(observed.returncode,0,observed.stderr)
+            self.assertEqual(b._strict_json_output(observed.stdout)['value'],case['expected'])
+            probes = b._interface_probes(task)
+            self.assertEqual(len(probes), 6)
+            check, entrypoint = probes[0]
+            result = subprocess.run([sys.executable,'-I','-B','-c',
+                entrypoint.replace("'/app'",repr(str(root)))],
+                input=json.dumps(check['input']),text=True,capture_output=True,timeout=5)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertNotEqual(b._strict_json_output(result.stdout)['value'],check['expected'])
+
     def test_candidate_mutation_is_detected_by_trusted_wrapper(self):
         with tempfile.TemporaryDirectory() as tmp:
             script=Path(tmp)/'solution.py'
