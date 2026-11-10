@@ -45,3 +45,25 @@ The program validates input schemas, rejects unknown fields, uses SQLite transac
 Lease expiration is evaluated after SQLite acquires the `BEGIN IMMEDIATE` writer lock for claim, record, and failure transitions. An expired worker cannot submit evidence merely because its request arrived before a contended database write. Tests exercise the lock-wait boundary with a second connection and validate failure without committing stage evidence.
 
 GitHub's canonical owner/repository full name is compared case-insensitively with the registered work order name when observing protected merge delivery. A different repository continues to fail closed. This is an identity-string comparison correction, not authentication of worker-reported review evidence or a replacement for protected GitHub checks.
+
+## External GitHub observation and SQLite concurrency
+
+Delivery reconciliation is deliberately separated into a read-only GitHub observation
+and a short SQLite writer transaction. The observer verifies the recorded PR head,
+canonical repository, main target, merged commit, current main, and ancestry **without
+holding the SQLite writer lock**. Only after those observations succeed does it
+acquire `BEGIN IMMEDIATE`, recheck the task's `awaiting_protected_merge` state
+and original build evidence, and append one delivery receipt. If another observer
+already delivered the task or the recorded build state changed, the stale observer
+fails without appending a second delivery receipt. This does not authenticate
+historical required-check provenance or grant merge permission.
+
+The defect-detecting test `test_reconcile_delivery_does_not_block_unrelated_worker_claim`
+was added to an otherwise unchanged implementation and reproduced
+`sqlite3.OperationalError: database is locked` in hosted CI because an artificial
+GitHub delay held the writer lock. The implementation now releases that lock during
+network observation. The independent adversarial test
+`test_two_concurrent_merge_observers_commit_delivery_once` verifies that concurrent
+observations cannot both commit delivery. These deterministic controls establish
+the narrow lock and state-transition properties only, not distributed exactly-once
+execution across a mutable GitHub service or worker authenticity.
