@@ -1159,11 +1159,13 @@ New root-cause IDs require corresponding class allocation and evidence-linked te
       "purpose": "Recorded receipts, proposals, evidence, comparisons and native results derive from their actual producing attempts.",
       "negative_controls": [
         "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_resealed_comparison_copies_are_reconstructed_from_the_proposal",
-        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_native_rejected_top_level_transport_does_not_become_http_evidence"
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_native_rejected_top_level_transport_does_not_become_http_evidence",
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_identical_failed_search_observation_cannot_consume_a_later_retry"
       ],
       "positive_controls": [
         "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_postdiscovery_rejected_comparison_retry_retains_both_identical_rows",
-        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_valid_agent_and_both_workflows_reconstruct_without_network_or_model"
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_valid_agent_and_both_workflows_reconstruct_without_network_or_model",
+        "tests.test_far_investigation_audit.OfflineInvestigationAuditTests.test_failed_postdispatch_search_retry_keeps_both_identical_retained_rows"
       ],
       "finding_ids": [
         "ENG-ACCEPTED-CHECKPOINT-DURABILITY",
