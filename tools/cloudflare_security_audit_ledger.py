@@ -140,9 +140,9 @@ def inspect_source_references(records: list, source_root: Path):
     for item in records:
         for section in ("trace", "evidence"):
             for entry in item[section]:
+                path = clean_source_path(entry["file"], source_root)
                 if entry["file"] not in tracked:
                     raise HandoffError("source evidence path is not tracked by Git")
-                path = clean_source_path(entry["file"], source_root)
                 line = entry["line"]
                 if type(line) is not int or line < 1:
                     raise HandoffError("invalid source evidence line")
