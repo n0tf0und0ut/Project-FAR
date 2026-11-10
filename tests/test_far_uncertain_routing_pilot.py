@@ -324,6 +324,51 @@ class NativeFramingTests(unittest.TestCase):
                             for handler, original_parent in zip(
                                 opener.handlers, original_parents)))
 
+    def test_deadline_https_keeps_operator_ssl_context_and_opener_ownership(self):
+        """A request deadline cannot replace the configured HTTPS trust policy."""
+        import socket
+        import ssl
+        import threading
+        import time
+        import urllib.request
+
+        context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_3
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
+                                              urllib.request.HTTPSHandler(context=context))
+        original_handlers = tuple(opener.handlers)
+        original_parents = tuple(handler.parent for handler in original_handlers)
+        observed_contexts, workers = [], []
+
+        def connect(connection):
+            observed_contexts.append(connection._context)
+            client, server = socket.socketpair()
+            connection.sock = client
+
+            def respond():
+                with server:
+                    request = server.recv(65536)
+                    self.assertIn(b'GET', request)
+                    server.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok')
+
+            worker = threading.Thread(target=respond, daemon=True)
+            worker.start()
+            workers.append(worker)
+
+        with patch.object(http.client.HTTPSConnection, 'connect', connect):
+            raw, transport = study.read_bounded_response(
+                urllib.request.Request('https://example.org/'),
+                timeout=1, max_bytes=128, opener=opener,
+                deadline_monotonic=time.monotonic() + 1)
+        for worker in workers:
+            worker.join(timeout=1)
+        self.assertEqual(raw, b'ok')
+        self.assertTrue(transport['response_complete'])
+        self.assertEqual(observed_contexts, [context])
+        self.assertEqual(tuple(opener.handlers), original_handlers)
+        self.assertTrue(all(handler.parent is parent
+                            for handler, parent in zip(original_handlers, original_parents)))
+
     def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
         import time
         from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader
