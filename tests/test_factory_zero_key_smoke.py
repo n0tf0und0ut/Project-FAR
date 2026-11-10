@@ -114,6 +114,44 @@ class GitAndRuntimeTests(unittest.TestCase):
         self.base = run_git(self.repo, "rev-parse", "HEAD")
         self.blob = run_git(self.repo, "rev-parse", "HEAD:tools/example.py")
 
+    def test_standalone_grader_snapshot_has_internal_git_directory(self):
+        with tempfile.TemporaryDirectory() as td:
+            isolated = smoke.prepare_test_checkout(self.repo, Path(td))
+            self.assertTrue((isolated / ".git").is_dir())
+            self.assertEqual(run_git(isolated, "status", "--porcelain"), "")
+            self.assertEqual((isolated / "tools/example.py").read_bytes(),
+                             (self.repo / "tools/example.py").read_bytes())
+            self.assertNotEqual(run_git(isolated, "rev-parse", "--git-dir"),
+                                str(self.repo / ".git"))
+            (isolated / "tools/example.py").write_text("x = 9\n")
+            self.assertTrue(run_git(isolated, "status", "--porcelain"))
+            self.assertEqual((self.repo / "tools/example.py").read_text(), "x = 1\n")
+
+    def test_failed_baseline_blocks_model_and_keeps_receipt(self):
+        entry = {**BASE, "base_sha": self.base, "source_git_blob": self.blob}
+        path = Path(self.tmp.name) / "baseline-task.json"
+        path.write_bytes(encode(entry))
+        output = Path(self.tmp.name) / "baseline-failed"
+        stub = types.ModuleType("tools.workflow_efficacy_free_agent")
+        stub.local_model_digest = lambda: smoke.MODEL_DIGEST
+        with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": stub}), \
+                mock.patch.object(smoke, "grader_image_id", return_value="sha256:" + "a" * 64), \
+                mock.patch.object(smoke, "grade_in_docker", return_value={"state": "FAIL", "exit_code": 1}), \
+                mock.patch.object(smoke, "model_reply", side_effect=AssertionError("no model call allowed")) as model:
+            result = smoke.run(self.repo, path, output)
+        model.assert_not_called()
+        self.assertEqual(result["before"]["state"], "FAIL")
+        self.assertEqual(result["verdict"], "BLOCKED_OR_MODEL_OUTPUT_INVALID")
+        self.assertIn("baseline public tests", result["error"])
+        self.assertIsNone(result["generation"])
+        self.assertTrue((output / "receipt.json").is_file())
+
+    def test_unpinned_grader_image_identity_rejected(self):
+        with mock.patch.object(smoke.subprocess, "run",
+                               return_value=subprocess.CompletedProcess([], 0, stdout="image-tag-only\n")):
+            with self.assertRaisesRegex(smoke.SmokeError, "non-addressed grader image"):
+                smoke.grader_image_id()
+
     def test_git_apply_checks_exact_allowlist(self):
         with tempfile.TemporaryDirectory() as root:
             rootpath = Path(root) / "checkout"
@@ -137,7 +175,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             def intercept(cmd, **kwargs):
                 seen.extend(cmd)
                 return original([str(script)], **kwargs)
-            with mock.patch.object(smoke.subprocess, "Popen", side_effect=intercept):
+            with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
+                    mock.patch.object(smoke.subprocess, "Popen", side_effect=intercept):
                 result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
             self.assertEqual(result["state"], "PASS")
             self.assertEqual(seen[:2], ["docker", "run"])
@@ -145,6 +184,9 @@ class GitAndRuntimeTests(unittest.TestCase):
             self.assertIn("--read-only", seen)
             self.assertIn("no-new-privileges", seen)
             self.assertIn("readonly", " ".join(seen))
+            self.assertIn("GIT_OPTIONAL_LOCKS=0", seen)
+            self.assertIn("GIT_CONFIG_VALUE_0=/app", seen)
+            self.assertIn(smoke.IMAGE, seen)
             self.assertNotIn("GITHUB_TOKEN", " ".join(seen))
             self.assertEqual((Path(td) / "before.stdout").read_bytes(), b"good")
 
@@ -154,7 +196,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             script.write_text("#!/bin/sh\nprintf 'Ran 0 tests in 0.001s\\nOK\\n' >&2\n")
             script.chmod(0o755)
             original = smoke.subprocess.Popen
-            with mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
+            with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
+                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
                 result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
             self.assertEqual(result["state"], "UNKNOWN")
             self.assertEqual(result["test_count_reported"], 0)
@@ -165,7 +208,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             script.write_text("#!/bin/sh\nhead -c 2000000 /dev/zero\n")
             script.chmod(0o755)
             original = smoke.subprocess.Popen
-            with mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
+            with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
+                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
                 with mock.patch.object(smoke.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
                     result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
             self.assertEqual(result["state"], "UNKNOWN")
@@ -184,6 +228,7 @@ class GitAndRuntimeTests(unittest.TestCase):
         tests = {"state": "PASS", "exit_code": 0, "elapsed_seconds": 0.1}
         with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": mock_module}), \
                 mock.patch.object(smoke, "model_reply", return_value=model), \
+                mock.patch.object(smoke, "grader_image_id", return_value="sha256:" + "a" * 64), \
                 mock.patch.object(smoke, "grade_in_docker", return_value=tests):
             receipt = smoke.run(self.repo, manifest_path, output)
         self.assertEqual(receipt["verdict"], "VISIBLE_TESTS_PASSED_NOT_INDEPENDENTLY_VERIFIED")
@@ -197,6 +242,23 @@ class GitAndRuntimeTests(unittest.TestCase):
         with self.assertRaises(smoke.SmokeError):
             smoke.run(self.repo, manifest_path, output)
 
+    def test_missing_local_model_preserves_blocked_receipt(self):
+        entry = {**BASE, "base_sha": self.base, "source_git_blob": self.blob}
+        path = Path(self.tmp.name) / "task-model.json"
+        path.write_bytes(encode(entry))
+        output = Path(self.tmp.name) / "model-unavailable"
+        stub = types.ModuleType("tools.workflow_efficacy_free_agent")
+        def unavailable():
+            raise RuntimeError("local model daemon unavailable")
+        stub.local_model_digest = unavailable
+        with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": stub}):
+            result = smoke.run(self.repo, path, output)
+        self.assertEqual(result["verdict"], "BLOCKED_OR_MODEL_OUTPUT_INVALID")
+        self.assertEqual(result["error_type"], "RuntimeError")
+        self.assertIsNone(result["model_digest"])
+        self.assertTrue((output / "receipt.json").is_file())
+        self.assertEqual(len(run_git(self.repo, "worktree", "list").splitlines()), 1)
+
     def test_source_blob_mismatch_preserves_blocked_receipt(self):
         entry = {**BASE, "base_sha": self.base, "source_git_blob": "0" * 40}
         path = Path(self.tmp.name) / "task.json"
@@ -204,7 +266,8 @@ class GitAndRuntimeTests(unittest.TestCase):
         output = Path(self.tmp.name) / "failed-output"
         stub = types.ModuleType("tools.workflow_efficacy_free_agent")
         stub.local_model_digest = lambda: smoke.MODEL_DIGEST
-        with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": stub}):
+        with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": stub}), \
+                mock.patch.object(smoke, "grader_image_id", return_value="sha256:" + "a" * 64):
             row = smoke.run(self.repo, path, output)
         self.assertEqual(row["verdict"], "BLOCKED_OR_MODEL_OUTPUT_INVALID")
         self.assertIn("blob mismatch", row["error"])

@@ -17,6 +17,7 @@ import signal
 from pathlib import Path, PurePosixPath
 import re
 import secrets
+import shutil
 import subprocess
 import tempfile
 import time
@@ -28,7 +29,7 @@ SHA1 = re.compile(r"[0-9a-f]{40}\Z")
 CHECK = re.compile(r"test_[A-Za-z0-9_]+\Z")
 MODEL = "qwen2.5-coder:1.5b"
 MODEL_DIGEST = "d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668"
-IMAGE = "python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30"
+IMAGE = "far-zero-key-grader:648-v1"
 MAX_RESPONSE_BYTES = 65536
 MAX_SOURCE_BYTES = 120000
 MAX_TASK_BYTES = 20000
@@ -187,19 +188,55 @@ def apply_candidate(worktree: Path, patch: str, path: str) -> str:
     return blob
 
 
-def grade_in_docker(worktree: Path, module: str, out: Path, label: str) -> dict:
-    """Execute only public tests in a bounded no-network read-only container.
+def prepare_test_checkout(source: Path, scratch: Path) -> Path:
+    """Copy only exact source bytes into a standalone, clean Git repository.
 
-    Capture both output pipes incrementally. A malicious candidate must not be
-    able to exhaust the host memory by printing unbounded test output.
+    A Git-linked worktree's .git file points to a host absolute path and is not
+    usable inside a separately mounted Docker /app. A self-contained disposable
+    Git repository preserves public tests of git status without exposing the
+    host repository's Git administration directory or authenticated remotes.
     """
+    destination = scratch / "checkout"
+    shutil.copytree(source, destination, symlinks=True,
+                    ignore=shutil.ignore_patterns(".git"))
+    git(destination, "init", "-q")
+    git(destination, "add", "-A")
+    git(destination, "-c", "user.name=FAR Research",
+        "-c", "user.email=research@example.invalid", "commit", "--no-gpg-sign",
+        "-qm", "isolated public-test snapshot")
+    if git(destination, "status", "--porcelain").stdout.strip():
+        raise SmokeError("public test snapshot must begin with a clean Git status")
+    return destination
+
+
+def grader_image_id() -> str:
+    cp = subprocess.run(["docker", "image", "inspect", IMAGE, "--format", "{{.Id}}"],
+                        capture_output=True, text=True, timeout=15, check=False)
+    image_id = cp.stdout.strip()
+    if cp.returncode or re.fullmatch(r"sha256:[0-9a-f]{64}", image_id) is None:
+        raise SmokeError("unavailable or non-addressed grader image")
+    return image_id
+
+
+def grade_in_docker(worktree: Path, module: str, out: Path, label: str) -> dict:
+    """Run the public tests from a temporary standalone Git snapshot."""
+    with tempfile.TemporaryDirectory(prefix="far-smoke-public-test-") as td:
+        isolated = prepare_test_checkout(worktree, Path(td))
+        return _run_docker_public_tests(isolated, module, out, label)
+
+
+def _run_docker_public_tests(worktree: Path, module: str, out: Path, label: str) -> dict:
+    """Bound the untrusted test process, and preserve its output/exit state."""
     name = "far-smoke-" + secrets.token_hex(8)
     cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--read-only",
            "--cap-drop", "ALL", "--pids-limit", "64", "--memory", "2g", "--cpus", "2",
            "--security-opt", "no-new-privileges", "--user", "65534:65534",
            "--tmpfs", "/tmp:rw,nosuid,nodev,size=128m", "--mount",
            f"type=bind,src={worktree.resolve()},dst=/app,readonly", "-w", "/app",
-           "-e", "PYTHONDONTWRITEBYTECODE=1", "-e", "HOME=/tmp", IMAGE,
+           "-e", "PYTHONDONTWRITEBYTECODE=1", "-e", "HOME=/tmp",
+           "-e", "GIT_OPTIONAL_LOCKS=0", "-e", "GIT_CONFIG_GLOBAL=/dev/null",
+           "-e", "GIT_CONFIG_COUNT=1", "-e", "GIT_CONFIG_KEY_0=safe.directory",
+           "-e", "GIT_CONFIG_VALUE_0=/app", IMAGE,
            "python", "-m", "unittest", "-v", f"tests.{module}"]
     started = time.monotonic()
     result: dict = {"state": "UNKNOWN", "exit_code": None, "elapsed_seconds": None,
@@ -285,17 +322,15 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         raise SmokeError("source SHA does not resolve to commit")
     if git(repo, "merge-base", "--is-ancestor", m["base_sha"], "HEAD", check=False).returncode:
         raise SmokeError("source base not ancestor of inspected candidate")
-    # Caller must run scripts/workflow_efficacy_start_ollama.sh. Reuse its
-    # validated local model registry contract, not an unpinned provider alias.
-    from tools.workflow_efficacy_free_agent import local_model_digest
-    digest = local_model_digest()
-    if digest != MODEL_DIGEST:
-        raise SmokeError("unpinned model digest")
+    # Initialize an artifact before contacting a runtime that may be absent or
+    # return an unexpected model identity. Availability failures still require
+    # an auditable, fail-closed receipt rather than an uncaught exception.
     output.mkdir(parents=True, mode=0o700)
     receipt = {"schema": SCHEMA, "status": "Research / provider smoke / NOT REGISTERED FACTORY TRIAL",
                "manifest_sha256": sha(mbytes), "task_id": m["task_id"],
                "base_sha": m["base_sha"], "source_git_blob": m["source_git_blob"],
-               "model": MODEL, "model_digest": digest, "provider_cost_usd": 0,
+               "model": MODEL, "model_digest": None, "grader_image_id": None,
+               "provider_cost_usd": 0,
                "limitations": ["One constrained local model request is not autonomous PR delivery.",
                                "Model response/visible tests cannot certify correctness or withheld holdout.",
                                "Docker and worktrees do not establish complete host-side sandbox isolation.",
@@ -304,6 +339,15 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
     scratch = tempfile.TemporaryDirectory(prefix="far-worker-smoke-")
     worktree = None
     try:
+        # Reuse the previously verified provider contract. Its import and
+        # registry query may fail when the model is unavailable; preserve that
+        # failure in the receipt without executing untrusted source.
+        from tools.workflow_efficacy_free_agent import local_model_digest
+        digest = local_model_digest()
+        receipt["model_digest"] = digest
+        if digest != MODEL_DIGEST:
+            raise SmokeError("unpinned model digest")
+        receipt["grader_image_id"] = grader_image_id()
         worktree = Path(scratch.name) / "checkout"
         git(repo, "worktree", "add", "--detach", str(worktree), m["base_sha"])
         path = m["allowed_path"]
@@ -313,6 +357,10 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         if git(worktree, "hash-object", path).stdout.decode().strip() != m["source_git_blob"]:
             raise SmokeError("source blob mismatch")
         receipt["before"] = grade_in_docker(worktree, m["test_module"], output, "before")
+        # A failed baseline is an invalid evaluation environment, not a repair
+        # opportunity. Avoid a wasteful model call that would be uninterpretable.
+        if receipt["before"]["state"] != "PASS":
+            raise SmokeError("baseline public tests not passing in frozen grader environment")
         source = file.read_text(encoding="utf-8")
         prompt = ("Task ID: " + m["task_id"] + "\nIssue #" + str(m["issue_number"]) +
                   "\nRequirement: " + m["task_text"] + "\nOnly allowed file: " + path +
@@ -330,7 +378,8 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         receipt["verdict"] = ("VISIBLE_TESTS_PASSED_NOT_INDEPENDENTLY_VERIFIED"
                               if receipt["after"]["state"] == "PASS"
                               else "MODEL_PATCH_UNVERIFIED")
-    except (SmokeError, OSError, subprocess.SubprocessError, TimeoutError, ValueError) as exc:
+    except (SmokeError, OSError, subprocess.SubprocessError, TimeoutError, ValueError,
+            RuntimeError, ImportError) as exc:
         receipt["verdict"] = "BLOCKED_OR_MODEL_OUTPUT_INVALID"
         receipt["error_type"] = type(exc).__name__
         receipt["error"] = str(exc)[:200]

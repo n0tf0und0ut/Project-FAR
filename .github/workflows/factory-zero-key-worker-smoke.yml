@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - tools/factory_zero_key_smoke.py
+      - tools/factory_zero_key_grader.Dockerfile
       - tests/test_factory_zero_key_smoke.py
       - research/factory-evaluation/zero-key-worker-smoke-648-v1.json
       - .github/workflows/factory-zero-key-worker-smoke.yml
@@ -31,12 +32,68 @@ jobs:
       - name: Check syntax
         run: python -m py_compile tools/factory_zero_key_smoke.py
 
+  grader-preflight:
+    needs: [offline-contract]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout candidate without persistent credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Build grader with required Git and pinned Python dependencies
+        run: |
+          docker build --pull=false -t far-zero-key-grader:648-v1 \
+            --file tools/factory_zero_key_grader.Dockerfile .
+          docker image inspect far-zero-key-grader:648-v1 --format '{{.Id}}'
+      - name: Execute source-exact public baseline preflight without a model call
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python - <<'PYTHON'
+          import json, tempfile
+          from pathlib import Path
+          from tools.factory_zero_key_smoke import git, grade_in_docker, grader_image_id
+          base = "efd855db687215368fe8f466e40d2e5cc7a7a863"
+          repo = Path.cwd()
+          out = Path(__import__("os").environ["RUNNER_TEMP"]) / "far-grader-preflight"
+          out.mkdir(parents=True, exist_ok=False)
+          with tempfile.TemporaryDirectory() as temp:
+              checkout = Path(temp) / "base"
+              git(repo, "worktree", "add", "--detach", str(checkout), base)
+              try:
+                  image = grader_image_id()
+                  result = grade_in_docker(checkout, "test_health_and_runner", out, "before")
+                  receipt = {"schema": "far-factory-public-grader-preflight/1",
+                             "base_sha": base, "grader_image_id": image, "result": result,
+                             "scope": "Research-only public baseline test, no model/worker execution"}
+                  (out / "receipt.json").write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+                  print("PUBLIC_GRADER_STATE", result["state"], "TEST_COUNT", result["test_count_reported"])
+                  if result["state"] != "PASS":
+                      raise SystemExit(1)
+              finally:
+                  git(repo, "worktree", "remove", "--force", str(checkout), check=False)
+          PYTHON
+      - name: Retain grader receipts and failed test logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: factory-zero-key-grader-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/far-grader-preflight/
+          if-no-files-found: warn
+          retention-days: 30
+
   local-worker-smoke:
     needs: [offline-contract]
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main' &&
-      github.head_ref == 'research/factory-zero-key-worker-smoke-20261110'
+      github.head_ref == 'research/factory-zero-key-worker-smoke-20261110' &&
+      github.event.pull_request.head.sha == '6c3483e81ee225144243ac7ad1ee607340c00df3'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -56,6 +113,10 @@ jobs:
         run: python -m unittest tests.test_factory_zero_key_smoke -v
       - name: Install existing pinned zero-key model
         run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Build grader prerequisites for the one frozen initial attempt
+        run: |
+          docker build --pull=false -t far-zero-key-grader:648-v1 \
+            --file tools/factory_zero_key_grader.Dockerfile .
       - name: Run one excluded genuine maintenance-task smoke
         env:
           PYTHONDONTWRITEBYTECODE: '1'
