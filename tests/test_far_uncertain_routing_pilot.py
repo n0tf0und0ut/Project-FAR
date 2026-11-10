@@ -369,6 +369,36 @@ class NativeFramingTests(unittest.TestCase):
         self.assertTrue(all(handler.parent is parent
                             for handler, parent in zip(original_handlers, original_parents)))
 
+    def test_deadline_https_retains_python311_hostname_override(self):
+        """Forward the optional transport override on runtimes that expose it."""
+        import ssl
+        import time
+        import urllib.request
+
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        source = urllib.request.HTTPSHandler(context=context, check_hostname=True)
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), source)
+        original = tuple(opener.handlers)
+        clone = study._isolated_deadline_opener(opener, time.monotonic() + 1, 1)
+        deadline_handler = next(handler for handler in clone.handlers
+                                if type(handler).__name__ == 'DeadlineHTTPSHandler')
+        self.assertIs(deadline_handler._context, context)
+        with patch.object(deadline_handler, 'do_open', return_value=None) as dispatch:
+            deadline_handler.https_open(
+                urllib.request.Request('https://example.org/'))
+        passed = dispatch.call_args.kwargs
+        self.assertIs(passed['context'], context)
+        if hasattr(source, '_check_hostname'):
+            self.assertIs(source._check_hostname, True)
+            self.assertIs(deadline_handler._check_hostname, True)
+            self.assertIs(passed['check_hostname'], True)
+        else:
+            # Python 3.12+ removed HTTPSConnection(check_hostname=...).
+            # Do not pass a keyword unsupported by that standard library.
+            self.assertNotIn('check_hostname', passed)
+        self.assertEqual(tuple(opener.handlers), original)
+
     def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
         import time
         from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader
