@@ -340,5 +340,21 @@ class TestFactory(unittest.TestCase):
 
 
 
+    def test_deep_dependency_dag_preserves_validity_and_detects_cycles(self):
+        """Valid finite DAGs and actual cycles must not depend on recursion limit."""
+        large = order()
+        large["id"] = "deepchain"
+        large["tasks"] = [
+            {"id": f"task-{i:04d}", "objective": "Maintain workflow",
+             "acceptance": ["Verified"], "depends_on": [f"task-{i-1:04d}"] if i else []}
+            for i in reversed(range(1250))
+        ]
+        self.assertIs(validate_order(large), large)
+        large["tasks"][-1]["depends_on"] = ["task-1249"]
+        with self.assertRaisesRegex(FactoryError, "cyclic"):
+            validate_order(large)
+
+
+
 if __name__ == "__main__":
     unittest.main()
