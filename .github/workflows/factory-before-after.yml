@@ -1,0 +1,69 @@
+name: Factory Before After Runner
+
+on:
+  pull_request:
+    paths:
+      - "tools/factory_before_after.py"
+      - "tests/test_factory_before_after.py"
+      - "docs/maintenance/factory-before-after.md"
+      - ".github/workflows/factory-before-after.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  before-after:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Red-green Git history and negative controls
+        run: python -m unittest discover -s tests -p test_factory_before_after.py -v
+      - name: Syntax and command interface
+        run: |
+          python -m py_compile tools/factory_before_after.py
+          python tools/factory_before_after.py --help
+
+  retrospective-queue-defect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Retrieve exact historical source revisions without write credentials
+        run: |
+          git fetch --no-tags origin '+refs/pull/630/head:refs/remotes/origin/factory-630'
+          git cat-file -e 'e2648ea204d033756c8185fc3cea82ce9f26d125^{commit}'
+          git cat-file -e '6a7d5eb2864bb3440a34b0bcbdb041a452996d44^{commit}'
+          git merge-base --is-ancestor e2648ea204d033756c8185fc3cea82ce9f26d125 6a7d5eb2864bb3440a34b0bcbdb041a452996d44
+      - name: Execute historical queue defect before and after on one frozen oracle
+        run: |
+          before=e2648ea204d033756c8185fc3cea82ce9f26d125
+          after=6a7d5eb2864bb3440a34b0bcbdb041a452996d44
+          oracle_before="$(git show "$before:tests/test_software_factory.py" | sha256sum | cut -d' ' -f1)"
+          oracle_after="$(git show "$after:tests/test_software_factory.py" | sha256sum | cut -d' ' -f1)"
+          test "$oracle_before" = "$oracle_after"
+          python tools/factory_before_after.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --baseline "$before" --candidate "$after" \
+            --test-pattern test_software_factory.py \
+            --oracle-path tests/test_software_factory.py \
+            --expected-oracle-sha256 "$oracle_before" \
+            --timeout-seconds 120 \
+            --output "$RUNNER_TEMP/factory-queue-retrospective"
+      - name: Retain raw test output and execution receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-queue-retrospective
+          path: ${{ runner.temp }}/factory-queue-retrospective/
+          if-no-files-found: warn
+          retention-days: 7
