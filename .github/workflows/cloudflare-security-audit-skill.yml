@@ -12,7 +12,9 @@ on:
       - 'docs/maintenance/cloudflare-security-audit-source-lock.json'
       - 'docs/maintenance/security-audit-skill.md'
       - 'tools/check_cloudflare_security_skill.py'
+      - 'tools/cloudflare_security_audit_ledger.py'
       - 'tests/test_cloudflare_security_skill.py'
+      - 'tests/test_cloudflare_security_audit_ledger.py'
   workflow_dispatch:
 
 permissions:
@@ -39,6 +41,7 @@ jobs:
         run: |
           python -m unittest \
             tests.test_cloudflare_security_skill \
+            tests.test_cloudflare_security_audit_ledger \
             tests.test_workflow_token_permissions -v
       - name: Self-test Cloudflare validators (not a vulnerability audit)
         run: |
