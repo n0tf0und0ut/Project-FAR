@@ -187,7 +187,7 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
         self.assertEqual(bridge.clean_text("tools/demo.py:21"), "tools/demo.py:21")
         report = bridge.build_report(self.run_dir, self.head)
         self.assertIn("| safe-001 | needs_validation |", report)
-        self.assertIn("tools/cloudflare_security_audit_ledger.py:1", report)
+        self.assertIn("tools/cloudflare\\_security\\_audit\\_ledger.py:1", report)
         self.assertIn("CF/safe-001: Dummy local check", report)
 
     def test_pinned_upstream_rejects_default_ignorable_only_title(self):

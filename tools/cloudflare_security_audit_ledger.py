@@ -272,13 +272,13 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     problems = list(validator.iter_errors(findings))
     if problems:
         raise HandoffError(f"findings schema rejected data: {problems[0].message[:160]}")
-    validate_with_pinned_cloudflare(findings)
     fingerprints = [r["fingerprint"] for r in findings]
     if len(fingerprints) != len(set(fingerprints)):
         raise HandoffError("duplicate vulnerability fingerprints")
     if any(not FINGERPRINT.fullmatch(p) for p in fingerprints):
         raise HandoffError("invalid vulnerability fingerprint")
     inspect_source_references(findings, source_root)
+    validate_with_pinned_cloudflare(findings)
 
     status = meta["run_status"]
     rows = [
