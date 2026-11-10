@@ -1,0 +1,74 @@
+name: Factory Zero-Key Worker Smoke (Research)
+
+on:
+  pull_request:
+    paths:
+      - tools/factory_zero_key_smoke.py
+      - tests/test_factory_zero_key_smoke.py
+      - research/factory-evaluation/zero-key-worker-smoke-648-v1.json
+      - .github/workflows/factory-zero-key-worker-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout candidate without persistent credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Prepare Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Test fail-closed output handling
+        run: python -m unittest tests.test_factory_zero_key_smoke -v
+      - name: Check syntax
+        run: python -m py_compile tools/factory_zero_key_smoke.py
+
+  local-worker-smoke:
+    needs: [offline-contract]
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'research/factory-zero-key-worker-smoke-20261110'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout candidate without persistent credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Prepare Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Execute source-bound offline tests
+        run: python -m unittest tests.test_factory_zero_key_smoke -v
+      - name: Install existing pinned zero-key model
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Run one excluded genuine maintenance-task smoke
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m tools.factory_zero_key_smoke \
+            --repository "$GITHUB_WORKSPACE" \
+            --task-file research/factory-evaluation/zero-key-worker-smoke-648-v1.json \
+            --output "$RUNNER_TEMP/far-worker-smoke-result"
+      - name: Preserve all evidence, including failure receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: factory-zero-key-worker-smoke-${{ github.run_id }}
+          path: ${{ runner.temp }}/far-worker-smoke-result/
+          if-no-files-found: warn
+          retention-days: 30
