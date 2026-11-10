@@ -988,3 +988,33 @@ HTTPS TLS-context/hostname, retry, native framing, DNS and source receipt
 regressions remain required. A clean exact-head hosted test and independent
 substantive review remain separate obligations; green checks alone do not
 promote scientific validity or authorize protected merge.
+
+## November 10, 2026 — per-address socket construction fallback
+
+**ENG-ADDRESS-FAMILY-SOCKET-CONSTRUCTION-20261110** — authenticated Codex
+exact-head review of `03b60d946310b3e87cdb7a102b6549a7b5972a35`, thread
+`PRRT_kwDOTH_vCM61wi7t`, comment 4526606546 (P2).
+
+**Counterexample:** Native connection-time DNS returns AF_INET6 before a
+usable AF_INET result. On an IPv4-only host, constructing the IPv6 socket
+raises `OSError(EAFNOSUPPORT)` before the per-address retry handler starts;
+the IPv4 address is never attempted. Python's native `create_connection`
+would try later addresses. This regression affects the new deadline-aware
+connection adapter, not frozen investigation research evidence.
+
+**Root cause and repair:** Socket construction was outside the existing
+per-address `try/except OSError`. Move it inside, initialize the socket
+handle to `None`, and close only successfully constructed handles. The
+remaining monotonic deadline is recomputed on each candidate; hostname,
+operator TLS, proxy and deadline checks are retained. A construction error
+now falls through to later usable addresses and propagates when exhausted.
+
+**Regression controls:**
+`test_native_connection_retries_ipv4_when_ipv6_socket_creation_fails`
+reproduces EAFNOSUPPORT on the IPv6 attempt then verifies that IPv4 connects
+with no premature socket closure. `test_native_socket_creation_failure_keeps_last_error`
+verifies the real native error is propagated when there is no fallback.
+These are controlled offline socket mocks, not measured real-host IPv6
+availability, and neither source truth nor general autonomy is established.
+Hosted exact-head execution and authenticated independent review on any
+new head remain mandatory before protected merge.

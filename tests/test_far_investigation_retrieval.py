@@ -162,6 +162,52 @@ class RetrievalTests(unittest.TestCase):
         sock.connect.assert_called_once_with(('93.184.216.34', 443))
         self.assertLessEqual(sock.settimeout.call_args.args[0], .11)
 
+    def test_native_connection_retries_ipv4_when_ipv6_socket_creation_fails(self):
+        """IPv6-unavailable hosts must still reach a usable IPv4 address."""
+        import errno
+        from tools.far_uncertain_routing_pilot import _deadline_native_connection
+        addresses = [
+            (socket.AF_INET6, socket.SOCK_STREAM, 6, '',
+             ('2001:db8::42', 443, 0, 0)),
+            (socket.AF_INET, socket.SOCK_STREAM, 6, '',
+             ('93.184.216.34', 443)),
+        ]
+        ipv4_socket = Mock()
+        def create(family, socktype, proto):
+            if family == socket.AF_INET6:
+                raise OSError(errno.EAFNOSUPPORT, 'IPv6 unsupported on host')
+            return ipv4_socket
+        with patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                   return_value=addresses), \
+             patch('tools.far_uncertain_routing_pilot.socket.socket',
+                   side_effect=create) as make_socket:
+            result = _deadline_native_connection(
+                ('example.org', 443), .3, None, time.monotonic() + .3)
+        self.assertIs(result, ipv4_socket)
+        self.assertEqual(make_socket.call_count, 2)
+        self.assertEqual(make_socket.call_args_list[0].args[0], socket.AF_INET6)
+        self.assertEqual(make_socket.call_args_list[1].args[0], socket.AF_INET)
+        ipv4_socket.connect.assert_called_once_with(('93.184.216.34', 443))
+        ipv4_socket.close.assert_not_called()
+
+    def test_native_socket_creation_failure_keeps_last_error(self):
+        """When no address can construct a socket, propagate the real error."""
+        import errno
+        from tools.far_uncertain_routing_pilot import _deadline_native_connection
+        def no_ipv6(*args, **kwargs):
+            raise OSError(errno.EAFNOSUPPORT, 'unsupported address family')
+        with patch('tools.far_uncertain_routing_pilot.socket.getaddrinfo',
+                   return_value=[
+                       (socket.AF_INET6, socket.SOCK_STREAM, 6, '',
+                        ('2001:db8::42', 443, 0, 0))]), \
+             patch('tools.far_uncertain_routing_pilot.socket.socket',
+                   side_effect=no_ipv6) as factory, \
+             self.assertRaises(OSError) as caught:
+            _deadline_native_connection(
+                ('example.org', 443), .3, None, time.monotonic() + .3)
+        self.assertEqual(caught.exception.errno, errno.EAFNOSUPPORT)
+        factory.assert_called_once()
+
     def test_native_connect_refreshes_tls_socket_budget_after_tcp(self):
         """A slow successful TCP connect must not hand TLS an old timeout."""
         from tools.far_uncertain_routing_pilot import _deadline_native_connection

@@ -163,8 +163,12 @@ def _deadline_native_connection(address, timeout, source_address, deadline):
         remaining = end - time.monotonic()
         if remaining <= 0:
             raise TimeoutError('connection deadline exhausted')
-        sock = socket.socket(family, socktype, proto)
+        sock = None
         try:
+            # Creating a socket can fail for one address family (for example,
+            # IPv6 on IPv4-only hosts) without invalidating later DNS results.
+            # Treat construction like bind/connect in the per-address retry.
+            sock = socket.socket(family, socktype, proto)
             sock.settimeout(max(.001, remaining))
             if source_address:
                 sock.bind(source_address)
@@ -180,7 +184,8 @@ def _deadline_native_connection(address, timeout, source_address, deadline):
             return sock
         except OSError as exc:
             last_error = exc
-            sock.close()
+            if sock is not None:
+                sock.close()
     if last_error is not None:
         raise last_error
     raise OSError('connection DNS returned no usable address')
