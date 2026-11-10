@@ -1,6 +1,6 @@
 # Maintenance recovery: historical defect control (Research)
 
-**Status:** Research; an algorithm-level local replay and four offline harness tests were executed on 2026-11-10. A source-exact execution of the new runner on the two historical Git blobs, a fresh blind agent repair, and a human maintenance assessment have **not** been executed. This record does not establish maintainability, agent competence, or effects of any FAR instruction or architecture gate.
+**Status:** Research; source-exact historical replay **executed** in the GitHub-hosted Repository Health run [42871543486](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42871543486), job [130023781113](https://github.com/n0tf0und0ut/Project-FAR/actions/runs/42871543486/job/130023781113), on 2026-11-10. All five maintenance-recovery tests passed, including the replay against both immutable historical source blobs. An independent blinded agent repair and human maintenance assessment have **not** been executed. This is retrospective internal software evidence, not proof of maintainability, agent competence, or effectiveness of a FAR instruction or architecture gate.
 
 ## Question and scope
 
@@ -23,6 +23,12 @@ python3 -m unittest tests.test_maintenance_recovery_001 -v
 ```
 
 The script runs four graph cases per source with the recursion limit fixed at 900, including a valid 1,250-node chain and a closing back-edge cycle. It reports structured outcomes and whether they match frozen expectations. Child-process execution is not a hardened operating-system sandbox. The two historical sources are trusted, project-authored Git objects; the report is internal retrospective verification only.
+
+## GitHub-hosted source-exact verification (2026-11-10)
+
+The completed Repository Health run `42871543486` (job `130023781113`) checked out the PR with full Git history and executed `test_exact_historical_source_replay_from_git_checkout`: **ok**, not skipped. The test loads both pinned `tools/software_factory.py` versions by exact commit, verifies their Git blob SHA-1 against the frozen pins, invokes each actual module in a separate Python child process with recursion limit 900, and requires all eight observed case outcomes to match the fixed `EXPECTED` table. The remaining four maintenance-recovery tests passed. The canonical fast run reports **3,510 tests, 54 optional skips, 0 failures**, and **125 health checks passed**.
+
+This is a successful historical source-exact **regression calibration**, not new coding-agent behavior or an externally independent experiment. The old and new algorithm observations below were separately reconstructed locally before this hosted run. No source, oracle, or frozen external finding was rewritten.
 
 ## Recorded local algorithm-level observations
 
