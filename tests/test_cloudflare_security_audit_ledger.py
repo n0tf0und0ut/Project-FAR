@@ -85,12 +85,13 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             "execution_policy": "sandboxed-source-and-local-only",
         }
         self.findings = [sample("needs_validation")]
+        self.coverage = []  # Exact top-level format accepted by the pinned validator.
         self.persist()
 
     def persist(self):
         for name, obj in (
             ("run-metadata.json", self.meta),
-            ("coverage-ledger.json", {"units": []}),
+            ("coverage-ledger.json", self.coverage),
             ("findings.json", self.findings),
         ):
             (self.run_dir / name).write_text(
@@ -227,6 +228,74 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             self.assertEqual(git("status", "--porcelain=v1"), b"")
             references[0]["trace"][0]["line"] = 2
             with self.assertRaisesRegex(bridge.HandoffError, "do not match exact HEAD"):
+                bridge.inspect_source_references(references, repo)
+
+    def test_coverage_ledger_matches_upstream_top_level_array(self):
+        path = self.run_dir / "coverage-ledger.json"
+        validated = subprocess.run(
+            ["node", str(bridge.UPSTREAM_COVERAGE_VALIDATOR), str(path)],
+            cwd=ROOT, capture_output=True, text=True, timeout=20,
+        )
+        self.assertEqual(validated.returncode, 0, validated.stdout + validated.stderr)
+        self.assertIn("safe-001", bridge.build_report(self.run_dir, self.head))
+        self.coverage = {"units": []}
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "coverage ledger container"):
+            bridge.build_report(self.run_dir, self.head)
+
+    def test_escaped_unpaired_surrogate_metadata_does_not_create_output(self):
+        self.meta["run_id"] = "run-" + chr(0xD800)
+        self.persist()
+        with self.assertRaisesRegex(bridge.HandoffError, "invalid Unicode scalar"):
+            bridge.build_report(self.run_dir, self.head)
+        destination = self.run_dir / "advisory-output.md"
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools/cloudflare_security_audit_ledger.py"),
+             "--run-dir", str(self.run_dir), "--expected-head", self.head,
+             "--output", str(destination)],
+            cwd=ROOT, capture_output=True, text=True, timeout=30,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(destination.exists())
+
+    def test_upstream_rejection_precedes_costly_local_schema_walk(self):
+        self.findings = [sample("rejected")]
+        self.findings[0]["trace"] = [[0] * 120 + [i] for i in range(1000)]
+        self.persist()
+        with patch.object(bridge, "Draft202012Validator",
+                          side_effect=AssertionError("slow local schema validation invoked")):
+            with self.assertRaisesRegex(bridge.HandoffError, "pinned Cloudflare validator"):
+                bridge.build_report(self.run_dir, self.head)
+
+    def test_git_replace_cannot_substitute_evidence_for_exact_head(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            repo.mkdir()
+            def git(*args):
+                return subprocess.run(["git", *args], cwd=repo, capture_output=True,
+                                      check=True).stdout.strip()
+            git("init", "-q")
+            git("config", "user.name", "FAR replacement fixture")
+            git("config", "user.email", "fixture@example.invalid")
+            evidence = repo / "evidence.py"
+            evidence.write_text("original line\\n", encoding="utf-8")
+            git("add", "evidence.py")
+            git("commit", "-qm", "original")
+            frozen = git("rev-parse", "HEAD").decode()
+            evidence.write_text("original line\\nforged line\\n", encoding="utf-8")
+            git("add", "evidence.py")
+            git("commit", "-qm", "replacement")
+            replacement = git("rev-parse", "HEAD").decode()
+            git("reset", "--hard", frozen)
+            git("replace", frozen, replacement)
+            git("read-tree", "--reset", "-u", "HEAD")
+            self.assertEqual(
+                bridge.exact_committed_source(repo, "evidence.py"),
+                b"original line\\n",
+            )
+            references = [{"trace": [{"file": "evidence.py", "line": 2}],
+                           "evidence": []}]
+            with self.assertRaisesRegex(bridge.HandoffError, "dirty|do not match exact HEAD|does not exist"):
                 bridge.inspect_source_references(references, repo)
 
     def test_output_must_be_outside_repository(self):

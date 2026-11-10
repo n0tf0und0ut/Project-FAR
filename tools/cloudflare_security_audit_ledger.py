@@ -26,6 +26,7 @@ MAX_FIELDS = 1000
 MAX_DEPTH = 64
 MAX_SOURCE_BYTES = 8 * 1024 * 1024
 UPSTREAM_FINDINGS_VALIDATOR = ROOT / ".agents/skills/security-audit/validate-findings.cjs"
+UPSTREAM_COVERAGE_VALIDATOR = ROOT / ".agents/skills/security-audit/validate-coverage-ledger.cjs"
 SHA = re.compile(r"^[a-f0-9]{40}$")
 FINGERPRINT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$")
 
@@ -97,7 +98,7 @@ def safe_load_json(path: Path):
 
 def current_head(root: Path):
     value = subprocess.run(
-        ["git", "rev-parse", "--verify", "HEAD^{commit}"],
+        ["git", "--no-replace-objects", "rev-parse", "--verify", "HEAD^{commit}"],
         cwd=root, capture_output=True, text=True, check=True, timeout=10
     ).stdout.strip()
     if not SHA.fullmatch(value):
@@ -108,13 +109,13 @@ def current_head(root: Path):
 def source_is_clean_and_tracked(root: Path):
     """Require an unmodified checkout and real Git-tracked evidence paths."""
     status = subprocess.run(
-        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        ["git", "--no-replace-objects", "status", "--porcelain=v1", "--untracked-files=all"],
         cwd=root, capture_output=True, text=True, check=True, timeout=15,
     ).stdout
     if status:
         raise HandoffError("checkout is dirty; SHA alone cannot bind source evidence")
     tracked = subprocess.run(
-        ["git", "ls-files", "--cached", "-z"],
+        ["git", "--no-replace-objects", "ls-files", "--cached", "-z"],
         cwd=root, capture_output=True, check=True, timeout=15,
     ).stdout
     return {
@@ -142,13 +143,13 @@ def exact_committed_source(root: Path, relative: str) -> bytes:
     spec = "HEAD:" + relative
     try:
         measured = subprocess.run(
-            ["git", "cat-file", "-s", spec], cwd=root, capture_output=True,
+            ["git", "--no-replace-objects", "cat-file", "-s", spec], cwd=root, capture_output=True,
             check=True, timeout=15,
         ).stdout.strip()
         if not measured.isdigit() or int(measured) > MAX_SOURCE_BYTES:
             raise HandoffError("source evidence blob exceeds bounded validation")
         contents = subprocess.run(
-            ["git", "cat-file", "blob", spec], cwd=root, capture_output=True,
+            ["git", "--no-replace-objects", "cat-file", "blob", spec], cwd=root, capture_output=True,
             check=True, timeout=15,
         ).stdout
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
@@ -206,7 +207,8 @@ def schema_compatible_with_far(source):
     return source
 
 
-def validate_with_pinned_cloudflare(findings: list):
+def validate_with_pinned_cloudflare(records: list, validator: Path = UPSTREAM_FINDINGS_VALIDATOR,
+                                   label: str = "findings"):
     """Run the vendored authoritative validator on a private, immutable snapshot.
 
     The local JSON-Schema compatibility pass omits Cloudflare's nonstandard
@@ -215,25 +217,29 @@ def validate_with_pinned_cloudflare(findings: list):
     """
     try:
         with tempfile.TemporaryDirectory(prefix="far-cloudflare-findings-") as tmp:
-            snapshot = Path(tmp) / "findings.json"
+            snapshot = Path(tmp) / (label + ".json")
             snapshot.write_text(
-                json.dumps(findings, ensure_ascii=True, allow_nan=False),
+                json.dumps(records, ensure_ascii=True, allow_nan=False),
                 encoding="utf-8",
             )
             result = subprocess.run(
-                ["node", str(UPSTREAM_FINDINGS_VALIDATOR), str(snapshot)],
+                ["node", str(validator), str(snapshot)],
                 cwd=ROOT, stdin=subprocess.DEVNULL, capture_output=True,
                 timeout=30, check=False,
             )
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
         raise HandoffError("pinned Cloudflare validator unavailable or invalid input") from exc
     if result.returncode:
-        raise HandoffError("pinned Cloudflare validator rejected findings")
+        raise HandoffError("pinned Cloudflare validator rejected " + label)
 
 
 def clean_text(value: str, max_chars=200):
     if not isinstance(value, str):
         raise HandoffError("invalid text field")
+    try:
+        value.encode("utf-8", errors="strict")
+    except UnicodeEncodeError as exc:
+        raise HandoffError("rendered metadata contains invalid Unicode scalar values") from exc
     safe = "".join(char for char in value if char == " " or ord(char) >= 32).strip()
     safe = safe.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     for mark in ("|", "[", "]", "*", "_", "\u0060"):
@@ -252,7 +258,7 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     meta = safe_load_json(run_dir / "run-metadata.json")
     coverage = safe_load_json(run_dir / "coverage-ledger.json")
     findings = safe_load_json(run_dir / "findings.json")
-    if not isinstance(meta, dict) or not isinstance(coverage, dict):
+    if not isinstance(meta, dict) or not isinstance(coverage, list):
         raise HandoffError("invalid audit metadata or coverage ledger container")
     if meta.get("source_ref") != expected_head:
         raise HandoffError("audit source SHA does not match checkout")
@@ -265,9 +271,13 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     if meta.get("repo") not in {"Project-FAR", "n0tf0und0ut/Project-FAR"}:
         raise HandoffError("audit repository identity mismatch")
 
-    schema = safe_load_json(SCHEMA)
     if not isinstance(findings, list):
         raise HandoffError("audit findings must be an array")
+    # Run pinned, bounded upstream validation before local jsonschema's
+    # potentially quadratic unique-items comparison on hostile nested data.
+    validate_with_pinned_cloudflare(coverage, UPSTREAM_COVERAGE_VALIDATOR, "coverage")
+    validate_with_pinned_cloudflare(findings)
+    schema = safe_load_json(SCHEMA)
     validator = Draft202012Validator(schema_compatible_with_far(schema))
     problems = list(validator.iter_errors(findings))
     if problems:
@@ -278,7 +288,6 @@ def build_report(run_dir: Path, expected_head: str, source_root: Path = ROOT):
     if any(not FINGERPRINT.fullmatch(p) for p in fingerprints):
         raise HandoffError("invalid vulnerability fingerprint")
     inspect_source_references(findings, source_root)
-    validate_with_pinned_cloudflare(findings)
 
     status = meta["run_status"]
     rows = [
