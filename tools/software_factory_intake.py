@@ -29,6 +29,8 @@ HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+wh
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
+PRE_OPEN = re.compile(r"<pre(?:\s[^<>]*)?>", re.I)
+PRE_CLOSE = re.compile(r"</pre\s*>", re.I)
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 
@@ -83,6 +85,7 @@ def _criteria(body: str) -> list[str]:
     in_section = False
     last_bullet: int | None = None
     fence: tuple[str, int] | None = None
+    html_pre = False
     for line in body.splitlines():
         marker = FENCE.fullmatch(line)
         if fence is not None:
@@ -90,6 +93,23 @@ def _criteria(body: str) -> list[str]:
                     and marker.group("mark")[0] == fence[0]
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
+            continue
+        # GitHub-flavored Markdown preserves HTML <pre> blocks as code.
+        # Treat their contents only as examples, never as acceptance headings.
+        if html_pre:
+            if PRE_CLOSE.search(line):
+                html_pre = False
+            continue
+        open_pre = PRE_OPEN.search(line)
+        close_pre = PRE_CLOSE.search(line)
+        if open_pre:
+            if in_section:
+                raise IntakeError("HTML code in acceptance criteria requires clarification")
+            html_pre = not (close_pre and close_pre.start() >= open_pre.end())
+            continue
+        if close_pre:
+            if in_section:
+                raise IntakeError("stray HTML code close in acceptance criteria")
             continue
         if marker:
             if in_section:
@@ -113,7 +133,12 @@ def _criteria(body: str) -> list[str]:
             continue
         if not in_section:
             continue
-        if ANY_HEADING.fullmatch(line):
+        # An indented title-like line may be a continuation of a bullet.
+        # Do not silently terminate the section and drop later criteria.
+        leading = len(line) - len(line.lstrip(" \t"))
+        continuation = (last_bullet is not None and leading >= 2
+                        and not line.lstrip().startswith("#"))
+        if ANY_HEADING.fullmatch(line) and not continuation:
             last_bullet = None
             in_section = False
             continue
