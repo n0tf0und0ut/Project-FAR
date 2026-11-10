@@ -333,6 +333,27 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(record['stdout_bytes_observed']>200,True)
             self.assertLessEqual(len(record['stderr']),200)
 
+    def test_agent_subprocess_cannot_read_unregistered_parent_stdin(self):
+        # A real redirected-input parent process must not leak its bytes into
+        # the model invocation, even though the run-slot command is fixed.
+        with tempfile.TemporaryDirectory() as tmp:
+            script = (
+                "import os,sys\n"
+                "from pathlib import Path\n"
+                "from tools.agent_instruction_premerge import _execute_traced_agent\n"
+                "result=_execute_traced_agent("
+                "[sys.executable,'-c','import sys; print(sys.stdin.read())'],"
+                "Path(sys.argv[1]),os.environ.copy(),5,1000)\n"
+                "sys.stdout.write(result['stdout'].decode('utf-8'))\n"
+            )
+            result = subprocess.run(
+                [sys.executable, "-c", script, tmp], input="UNREGISTERED TASK CONTEXT",
+                text=True, capture_output=True, cwd=b.ROOT, timeout=20,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, "\n")
+            self.assertNotIn("UNREGISTERED TASK CONTEXT", result.stdout)
+
     def test_schedule_blocks_out_of_order_execution_before_exposure(self):
         proto,tasks,sched=b.load_contract()
         wrong=sched['slots'][2]['slot_id']

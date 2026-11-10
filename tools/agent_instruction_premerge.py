@@ -380,8 +380,11 @@ def _execute_traced_agent(command:list[str],ws:Path,env:dict,seconds:int,max_byt
     """Capture both streams with byte ceilings; reap process-group descendants always."""
     start=time.monotonic(); buff={'stdout':bytearray(),'stderr':bytearray()}; counts={'stdout':0,'stderr':0}
     timed_out=False;output_limited=False; code=None
-    proc=subprocess.Popen(command,cwd=ws,env=env,stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,start_new_session=True)
+    # The fixed prompt is the sole task context. Never inherit parent stdin:
+    # Codex CLI treats piped bytes as additional, unregistered instructions.
+    proc=subprocess.Popen(command,cwd=ws,env=env,stdin=subprocess.DEVNULL,
+                          stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                          start_new_session=True)
     try:
         with selectors.DefaultSelector() as sel:
             for key in ('stdout','stderr'):
