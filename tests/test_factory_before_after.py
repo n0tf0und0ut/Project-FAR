@@ -177,5 +177,79 @@ class BeforeAfterTests(unittest.TestCase):
         self.assertEqual(outcome["verdict"], "OBSERVED_REGRESSION")
 
 
+    def test_nested_oracle_cannot_be_substituted_by_same_basename(self):
+        nested = self.repo / "tests/frozen"
+        nested.mkdir()
+        (nested / "test_demo.py").write_text(
+            "import unittest\nclass NeverPass(unittest.TestCase):\n"
+            "    def test_fail(self):\n        self.fail('registered oracle should fail')\n"
+        )
+        sha = runner.sha256_file(nested / "test_demo.py")
+        with self.assertRaisesRegex(runner.RunnerError, "oracle path"):
+            runner.evaluate(self.repo, self.before, self.after, "test_demo.py",
+                            "tests/frozen/test_demo.py", sha, self.out)
+        self.assertFalse(self.out.exists())
+
+    def test_ambiguous_same_basename_oracle_is_rejected(self):
+        (self.repo / "tests/frozen").mkdir()
+        (self.repo / "tests/frozen/test_demo.py").write_text(
+            "import unittest\nclass Other(unittest.TestCase):\n"
+            "    def test_other(self):\n        self.assertTrue(True)\n"
+        )
+        before = self.commit("two same-name test files")
+        (self.repo / "demo.py").write_text("def execute():\n    return 'different'\n")
+        after = self.commit("change source with duplicate test basename")
+        with self.assertRaisesRegex(runner.RunnerError, "ambiguous"):
+            self.measure(before, after, self.oracle)
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX symlink support")
+    def test_symlinked_parent_cannot_redirect_receipts_into_source(self):
+        alias = Path(self.tmp.name) / "alias"
+        alias.symlink_to(self.repo, target_is_directory=True)
+        with self.assertRaisesRegex(runner.RunnerError, "outside"):
+            self.measure(out=alias / "artifacts")
+        self.assertFalse((self.repo / "artifacts").exists())
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX inherited pipes")
+    def test_background_descendant_cannot_change_sealed_log_hash(self):
+        self.test_file.write_text(
+            "import subprocess\nimport sys\nimport unittest\n"
+            "class TestBackground(unittest.TestCase):\n"
+            "    def test_background(self):\n"
+            "        subprocess.Popen([sys.executable, '-c', "
+            "'import time; time.sleep(0.35); print(1234567)'])\n"
+            "        self.assertTrue(True)\n"
+        )
+        older = self.commit("spawn late stdout writer")
+        (self.repo / "demo.py").write_text("def execute():\n    return 'different'\n")
+        newer = self.commit("source change with unchanged background oracle")
+        result = self.measure(older, newer, runner.sha256_file(self.test_file), timeout=4)
+        self.assertEqual(result["verdict"], "OBSERVED_NO_REGRESSION")
+        for stage in ("before", "after"):
+            path = self.out / (stage + ".stdout")
+            self.assertIn(b"1234567", path.read_bytes())
+            self.assertEqual(result[stage]["stdout"]["sha256"], runner.sha256_file(path))
+        import time
+        time.sleep(0.5)
+        for stage in ("before", "after"):
+            path = self.out / (stage + ".stdout")
+            self.assertEqual(result[stage]["stdout"]["sha256"], runner.sha256_file(path))
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX pipes")
+    def test_unbounded_test_output_is_never_counted_as_success(self):
+        self.test_file.write_text(
+            "import unittest\nclass Flood(unittest.TestCase):\n"
+            "    def test_flood(self):\n"
+            "        print('x' * (8 * 1024 * 1024 + 4096))\n"
+        )
+        before = self.commit("large output oracle")
+        (self.repo / "demo.py").write_text("def execute():\n    return 'different'\n")
+        after = self.commit("changed source")
+        result = self.measure(before, after, runner.sha256_file(self.test_file), timeout=10)
+        self.assertEqual(result["verdict"], "UNKNOWN")
+        self.assertTrue(result["before"]["stream_limit_exceeded"])
+        self.assertLessEqual(result["before"]["stdout"]["size"], runner.MAX_STREAM_BYTES)
+
+
 if __name__ == "__main__":
     unittest.main()
