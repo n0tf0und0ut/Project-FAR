@@ -219,7 +219,8 @@ def validate_with_pinned_cloudflare(records: list, validator: Path = UPSTREAM_FI
         with tempfile.TemporaryDirectory(prefix="far-cloudflare-findings-") as tmp:
             snapshot = Path(tmp) / (label + ".json")
             snapshot.write_text(
-                json.dumps(records, ensure_ascii=True, allow_nan=False),
+                json.dumps(records, ensure_ascii=False, allow_nan=False,
+                           separators=(",", ":")),
                 encoding="utf-8",
             )
             result = subprocess.run(

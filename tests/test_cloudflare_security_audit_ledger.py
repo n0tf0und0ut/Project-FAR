@@ -239,6 +239,26 @@ class SecurityLedgerHandoffTests(unittest.TestCase):
             with self.assertRaisesRegex(bridge.HandoffError, "do not match exact HEAD"):
                 bridge.inspect_source_references(references, repo)
 
+    def test_upstream_valid_unicode_snapshot_stays_within_original_byte_budget(self):
+        # 900k CJK characters occupy 2.7 MiB as UTF-8, but 5.4 MiB if
+        # snapshotting escapes each character to \\uXXXX. The pinned
+        # validator accepts the original source record; the converter must.
+        self.findings = [sample("rejected")]
+        self.findings[0]["description"] = "漢" * 900_000
+        direct = self.run_dir / "findings.json"
+        direct.write_text(
+            json.dumps(self.findings, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        self.assertLess(direct.stat().st_size, bridge.MAX_INPUT)
+        original = subprocess.run(
+            ["node", str(bridge.UPSTREAM_FINDINGS_VALIDATOR), str(direct)],
+            cwd=ROOT, capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(original.returncode, 0, original.stdout + original.stderr)
+        rendered = bridge.build_report(self.run_dir, self.head)
+        self.assertIn("CF/safe-001", rendered)
+
     def test_coverage_ledger_matches_upstream_top_level_array(self):
         path = self.run_dir / "coverage-ledger.json"
         validated = subprocess.run(
