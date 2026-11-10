@@ -34,7 +34,10 @@ MAX_TIMEOUT = 600
 MAX_STREAM_BYTES = 8 * 1024 * 1024
 # Conservative reconstruction of actual unittest method IDs from verbose output.
 # Unrecognized/dynamic output fails closed; the test process is not authenticated.
-OBSERVED_TEST_ID = re.compile(rb"(?m)^(test_[A-Za-z0-9_]+ \([A-Za-z_][A-Za-z0-9_.]*\)) \.\.\. ")
+OBSERVED_TEST_ID = re.compile(
+    rb"(?m)^(test_[A-Za-z0-9_]+ \([A-Za-z_][A-Za-z0-9_.]*\))"
+    rb"(?: \.\.\. |[ \t]*\r?$)"
+)
 
 
 class RunnerError(ValueError):

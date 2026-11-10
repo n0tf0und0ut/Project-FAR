@@ -333,5 +333,25 @@ class BeforeAfterTests(unittest.TestCase):
         self.assertEqual(result["verdict"], "INCOMPARABLE")
 
 
+    def test_multiline_verbose_unittest_description_is_a_single_case(self):
+        self.test_file.write_text(
+            "import unittest\nfrom demo import execute\n"
+            "class TestDemo(unittest.TestCase):\n"
+            "    def test_enabled(self):\n"
+            "        '''A narrated check with a multiline verbose description.'''\n"
+            "        self.assertTrue(execute())\n",
+        )
+        baseline = self.commit("failing test with verbose description")
+        (self.repo / "demo.py").write_text("def execute():\n    return True\n")
+        candidate = self.commit("fixed behavior with identical narrated oracle")
+        result = self.measure(baseline, candidate, runner.sha256_file(self.test_file))
+        self.assertEqual(result["before"]["test_count_reported"], 1)
+        self.assertEqual(result["after"]["test_count_reported"], 1)
+        self.assertTrue(result["before"]["test_inventory_complete"])
+        self.assertTrue(result["after"]["test_inventory_complete"])
+        self.assertTrue(result["test_inventory_comparable"])
+        self.assertEqual(result["verdict"], "OBSERVED_EXIT_STATUS_IMPROVEMENT")
+
+
 if __name__ == "__main__":
     unittest.main()
