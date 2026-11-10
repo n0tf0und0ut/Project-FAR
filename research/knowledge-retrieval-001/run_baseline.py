@@ -88,7 +88,7 @@ def verify_source_bytes(fixture: dict, source_path: Path) -> None:
         current = sources.get(src["id"])
         if current is None or any(current.get(k) != src[k] for k in
                                   ("path", "sha256", "evidence_usable",
-                                   "review_status", "primary_evidence_verified")):
+                                   "review_status")):
             raise ValueError(f"source metadata mismatch: {src['id']}")
     observations = {r["id"]: r for r in obj["observations"]}
     conclusions = {r["id"]: r for r in obj["conclusions"]}
@@ -112,6 +112,23 @@ def verify_source_bytes(fixture: dict, source_path: Path) -> None:
             candidate = row["text"] if key == "statement" else row[key]
             if candidate != origin[key]:
                 raise ValueError(f"snapshot record differs: {row['id']} {key}")
+
+
+def verify_corpus_bytes(fixture: dict, source_path: Path) -> None:
+    """Bind original primary-source review metadata to the frozen corpus bytes."""
+    raw = source_path.read_bytes()
+    blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+    if blob != fixture["snapshot"]["corpus_git_blob_sha1"]:
+        raise ValueError("corpus bytes differ from pinned Git blob")
+    obj = json.loads(raw, object_pairs_hook=strict_object)
+    sources = {row["id"]: row for row in obj["sources"]}
+    if len(sources) != len(fixture["sources"]):
+        raise ValueError("corpus source count differs")
+    for row in fixture["sources"]:
+        actual = sources.get(row["id"])
+        if actual is None or any(actual.get(key) != row[key] for key in
+                                 ("path", "sha256", "primary_evidence_verified")):
+            raise ValueError(f"corpus provenance differs: {row['id']}")
 
 
 def admissible(row: dict, sources: dict[str, dict]) -> bool:
@@ -194,12 +211,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", type=Path, default=DEFAULT_FIXTURE)
     parser.add_argument("--verify-source", type=Path, default=None)
+    parser.add_argument("--verify-corpus", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--k", type=int, default=5)
     args = parser.parse_args()
     fixture = load_fixture(args.fixture)
     if args.verify_source is not None:
         verify_source_bytes(fixture, args.verify_source)
+    if args.verify_corpus is not None:
+        verify_corpus_bytes(fixture, args.verify_corpus)
     result = evaluate(fixture, args.k)
     rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
