@@ -164,17 +164,15 @@ class GitAndRuntimeTests(unittest.TestCase):
                 run_git(self.repo, "worktree", "remove", "--force", str(rootpath))
 
     def test_docker_grade_never_receives_host_credentials_or_network(self):
-        # Fake Docker daemon executable reads the argv and prints a receipt;
-        # this exercises real pipe collection and timeout handling.
+        # Run a real child process via the declared Python interpreter;
+        # inspect the original Docker arguments and exercise bounded pipes.
         with tempfile.TemporaryDirectory() as td:
-            script = Path(td) / "fake-docker"
-            script.write_text("#!/bin/sh\nprintf 'good'\nprintf 'Ran 1 test in 0.1s\\nOK\\n' >&2\n")
-            script.chmod(0o755)
+            child = [sys.executable, "-c", "import sys; sys.stdout.write('good'); sys.stderr.write('Ran 1 test in 0.1s\\nOK\\n')"]
             original = smoke.subprocess.Popen
             seen = []
             def intercept(cmd, **kwargs):
                 seen.extend(cmd)
-                return original([str(script)], **kwargs)
+                return original(child, **kwargs)
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
                     mock.patch.object(smoke.subprocess, "Popen", side_effect=intercept):
                 result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
@@ -192,24 +190,20 @@ class GitAndRuntimeTests(unittest.TestCase):
 
     def test_zero_test_exit_zero_is_not_success(self):
         with tempfile.TemporaryDirectory() as td:
-            script = Path(td) / "zero-tests"
-            script.write_text("#!/bin/sh\nprintf 'Ran 0 tests in 0.001s\\nOK\\n' >&2\n")
-            script.chmod(0o755)
+            child = [sys.executable, "-c", "import sys; sys.stderr.write('Ran 0 tests in 0.001s\\nOK\\n')"]
             original = smoke.subprocess.Popen
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
-                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
+                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original(child, **kw)):
                 result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
             self.assertEqual(result["state"], "UNKNOWN")
             self.assertEqual(result["test_count_reported"], 0)
 
     def test_docker_output_overflow_is_bounded_and_not_green(self):
         with tempfile.TemporaryDirectory() as td:
-            script = Path(td) / "flood"
-            script.write_text("#!/bin/sh\nhead -c 2000000 /dev/zero\n")
-            script.chmod(0o755)
+            child = [sys.executable, "-c", "import sys; sys.stdout.buffer.write(b'x' * 2000000)"]
             original = smoke.subprocess.Popen
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
-                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original([str(script)], **kw)):
+                    mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original(child, **kw)):
                 with mock.patch.object(smoke.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
                     result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
             self.assertEqual(result["state"], "UNKNOWN")
