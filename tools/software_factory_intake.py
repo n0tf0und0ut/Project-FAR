@@ -95,30 +95,35 @@ def _criteria(body: str) -> list[str]:
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
             continue
-        # Hidden Markdown/HTML template comments are not task requirements.
-        # Reject comments inside an active section rather than accepting a
-        # shortened contract; skip examples before detecting any headings.
-        if html_comment:
-            if "-->" in line:
-                html_comment = False
-            continue
-        comment_open = line.find("<!--")
-        comment_close = line.find("-->")
-        if comment_open >= 0:
-            if in_section:
-                raise IntakeError("HTML comment in acceptance criteria requires clarification")
-            html_comment = not (comment_close >= comment_open + 4)
-            continue
-        if comment_close >= 0:
-            if in_section:
-                raise IntakeError("stray HTML comment close in acceptance criteria")
-            continue
-        # GitHub-flavored Markdown preserves HTML <pre> blocks as code.
-        # Treat their contents only as examples, never as acceptance headings.
+        # Once in a preformatted block, comment markers are examples too.
+        # Do not let an example's <!-- delimiter hide later real criteria.
         if html_pre:
             if PRE_CLOSE.search(line):
                 html_pre = False
             continue
+        # Hidden Markdown template comments are never task requirements.
+        # Process every delimiter on the line, including consecutive comments,
+        # before treating a heading or acceptance bullet as actionable.
+        if html_comment or "<!--" in line or "-->" in line:
+            if in_section:
+                raise IntakeError("HTML comment in acceptance criteria requires clarification")
+            pos = 0
+            while pos < len(line):
+                if html_comment:
+                    closing = line.find("-->", pos)
+                    if closing < 0:
+                        break
+                    html_comment = False
+                    pos = closing + 3
+                else:
+                    opening = line.find("<!--", pos)
+                    if opening < 0:
+                        break
+                    html_comment = True
+                    pos = opening + 4
+            continue
+        # GitHub-flavored Markdown preserves HTML <pre> blocks as code.
+        # Treat their contents only as examples, never as acceptance headings.
         open_pre = PRE_OPEN.search(line)
         close_pre = PRE_CLOSE.search(line)
         if open_pre:
