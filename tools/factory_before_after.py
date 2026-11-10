@@ -17,6 +17,7 @@ import os
 from pathlib import Path, PurePosixPath
 import platform
 import re
+import selectors
 import signal
 import subprocess
 import sys
@@ -29,6 +30,7 @@ PATTERN = re.compile(r"^test_[A-Za-z0-9_]+\.py$")
 RESULTS = {"OBSERVED_EXIT_STATUS_IMPROVEMENT", "NO_OBSERVED_IMPROVEMENT",
            "OBSERVED_NO_REGRESSION", "OBSERVED_REGRESSION", "INCOMPARABLE", "UNKNOWN"}
 MAX_TIMEOUT = 600
+MAX_STREAM_BYTES = 8 * 1024 * 1024
 
 
 class RunnerError(ValueError):
@@ -75,7 +77,7 @@ def _validate_input(repo: Path, before: str, after: str, pattern: str,
     pure = PurePosixPath(oracle_path)
     if (not pure.parts or pure.is_absolute() or any(part in (".", "..") for part in pure.parts)
             or "\\" in oracle_path or str(pure) != oracle_path
-            or not oracle_path.startswith("tests/") or pure.name != pattern):
+            or tuple(pure.parts) != ("tests", pattern)):
         raise RunnerError("oracle path must match tests/<same test pattern> without traversal")
     if type(oracle_sha256) is not str or not SHA256.fullmatch(oracle_sha256):
         raise RunnerError("trusted expected oracle SHA-256 is required")
@@ -100,11 +102,32 @@ def _oracle_digest(worktree: Path, path: str) -> str:
         raise RunnerError("exact oracle source is absent from one commit")
     if current.stat().st_size > 1024 * 1024:
         raise RunnerError("oracle test source is too large")
+    # Discovery selects by basename, so conservatively reject any second file
+    # with that name (including nested packages not discovered by unittest).
+    matches = list((worktree / "tests").rglob(current.name))
+    if len(matches) != 1 or matches[0] != current:
+        raise RunnerError("ambiguous discovered test oracle basename")
     return sha256_file(current)
+
+
+def _terminate_group(child: subprocess.Popen) -> None:
+    """Do not leave same-process-group descendants able to write test pipes."""
+    try:
+        if os.name == "posix":
+            os.killpg(child.pid, signal.SIGKILL)
+        elif child.poll() is None:
+            child.kill()
+    except ProcessLookupError:
+        pass
 
 
 def _run_test(worktree: Path, label: str, pattern: str, timeout: int,
               out: Path, repo: Path) -> dict:
+    # The streamed descriptor collector currently requires POSIX anonymous
+    # pipes and process groups; unsupported hosts must fail rather than attest
+    # that their subprocess trees have been sealed.
+    if os.name != "posix":
+        raise RunnerError("source-exact test collector requires POSIX process groups")
     stdout = out / (label + ".stdout")
     stderr = out / (label + ".stderr")
     command = [sys.executable, "-m", "unittest", "discover", "-s", "tests",
@@ -114,40 +137,83 @@ def _run_test(worktree: Path, label: str, pattern: str, timeout: int,
            "PYTHONDONTWRITEBYTECODE": "1"}
     started = utc()
     start = time.monotonic()
-    status = "UNKNOWN"
+    deadline = start + timeout
+    timed_out = False
+    overflow = False
+    count = {"stdout": 0, "stderr": 0}
     code = None
     with stdout.open("wb") as so, stderr.open("wb") as se:
         try:
             child = subprocess.Popen(command, cwd=worktree, env=env, stdin=subprocess.DEVNULL,
-                                     stdout=so, stderr=se, start_new_session=(os.name == "posix"))
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                     start_new_session=True, close_fds=True)
         except OSError as exc:
             raise RunnerError("test interpreter could not start") from exc
+        # Only the trusted collector owns the output files; tested code sees
+        # anonymous pipes. EOF from BOTH pipes is required before hashes are
+        # finalized, including output inherited by background descendants.
+        selector = selectors.DefaultSelector()
         try:
-            code = child.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            if os.name == "posix":
-                os.killpg(child.pid, signal.SIGKILL)
-            else:
-                child.kill()
-            child.wait()
-            status = "TIMEOUT"
+            for label_stream, stream in (("stdout", child.stdout), ("stderr", child.stderr)):
+                assert stream is not None
+                os.set_blocking(stream.fileno(), False)
+                selector.register(stream, selectors.EVENT_READ, (label_stream, so if label_stream == "stdout" else se))
+            while selector.get_map():
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    timed_out = True
+                    break
+                for key, _ in selector.select(timeout=min(remaining, 0.2)):
+                    stream_name, writer = key.data
+                    chunk = os.read(key.fileobj.fileno(), 65536)
+                    if not chunk:
+                        selector.unregister(key.fileobj)
+                        key.fileobj.close()
+                        continue
+                    free = MAX_STREAM_BYTES - count[stream_name]
+                    if len(chunk) > free:
+                        if free:
+                            writer.write(chunk[:free])
+                        count[stream_name] += max(0, free)
+                        overflow = True
+                        break
+                    writer.write(chunk)
+                    count[stream_name] += len(chunk)
+                if overflow:
+                    break
+            if not timed_out and not overflow:
+                try:
+                    code = child.wait(timeout=max(0.001, deadline - time.monotonic()))
+                except subprocess.TimeoutExpired:
+                    timed_out = True
+        finally:
+            _terminate_group(child)
+            try:
+                child.wait(timeout=3)
+            except subprocess.TimeoutExpired as exc:
+                raise RunnerError("test leader could not be terminated") from exc
+            for stream in (child.stdout, child.stderr):
+                if stream is not None:
+                    stream.close()
+            selector.close()
+        if code is None:
+            code = child.returncode
     seconds = round(time.monotonic() - start, 6)
     finished = utc()
     raw_stderr = stderr.read_bytes()
     counts = re.findall(rb"\bRan ([0-9]+) tests? in ", raw_stderr)
     test_count = int(counts[-1]) if counts else 0
-    if status != "TIMEOUT":
-        if test_count == 0:
-            status = "UNKNOWN"  # unittest exits zero even when nothing was exercised
-        else:
-            status = "PASS" if code == 0 else "FAIL"
+    status = "TIMEOUT" if timed_out else "UNKNOWN"
+    if not timed_out and not overflow and test_count > 0:
+        status = "PASS" if code == 0 else "FAIL"
     dirty = bool(_git(worktree, "status", "--porcelain", "--untracked-files=no").stdout.strip())
     if dirty:
-        status = "UNKNOWN"  # test altered tracked sources/oracles
+        status = "UNKNOWN"  # tested source changed after receipt's initial identity
     return {
         "status": status, "exit_code": code, "test_count_reported": test_count,
         "started_at": started, "finished_at": finished, "wall_seconds": seconds,
         "tracked_checkout_modified": dirty, "command": command,
+        "stream_limit_exceeded": overflow,
         "stdout": {"path": stdout.name, "sha256": sha256_file(stdout), "size": stdout.stat().st_size},
         "stderr": {"path": stderr.name, "sha256": sha256_file(stderr), "size": stderr.stat().st_size},
     }
@@ -158,7 +224,7 @@ def evaluate(repository: Path, baseline: str, candidate: str, pattern: str,
              timeout_seconds: int = 120) -> dict:
     repository = repository.resolve()
     _validate_input(repository, baseline, candidate, pattern, oracle_path, oracle_sha256, timeout_seconds)
-    output_dir = output_dir.absolute()
+    output_dir = output_dir.resolve()  # Resolve symlinked parents before containment checks.
     if output_dir.exists():
         raise RunnerError("output directory already exists: receipts are never overwritten")
     if output_dir.is_relative_to(repository):
