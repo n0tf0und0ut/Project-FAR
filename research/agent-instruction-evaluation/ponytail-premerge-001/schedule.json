@@ -1,0 +1,286 @@
+{
+  "schema": "far-agent-instruction-schedule/1",
+  "slots": [
+    {
+      "arm": "control",
+      "position": 1,
+      "repetition": 2,
+      "slot_id": "CALLERS-01-R2-control",
+      "task_id": "CALLERS-01"
+    },
+    {
+      "arm": "treatment",
+      "position": 2,
+      "repetition": 2,
+      "slot_id": "CALLERS-01-R2-treatment",
+      "task_id": "CALLERS-01"
+    },
+    {
+      "arm": "control",
+      "position": 3,
+      "repetition": 1,
+      "slot_id": "CONFIG-10-R1-control",
+      "task_id": "CONFIG-10"
+    },
+    {
+      "arm": "treatment",
+      "position": 4,
+      "repetition": 1,
+      "slot_id": "CONFIG-10-R1-treatment",
+      "task_id": "CONFIG-10"
+    },
+    {
+      "arm": "control",
+      "position": 5,
+      "repetition": 2,
+      "slot_id": "REUSE-06-R2-control",
+      "task_id": "REUSE-06"
+    },
+    {
+      "arm": "treatment",
+      "position": 6,
+      "repetition": 2,
+      "slot_id": "REUSE-06-R2-treatment",
+      "task_id": "REUSE-06"
+    },
+    {
+      "arm": "control",
+      "position": 7,
+      "repetition": 1,
+      "slot_id": "CALLERS-01-R1-control",
+      "task_id": "CALLERS-01"
+    },
+    {
+      "arm": "treatment",
+      "position": 8,
+      "repetition": 1,
+      "slot_id": "CALLERS-01-R1-treatment",
+      "task_id": "CALLERS-01"
+    },
+    {
+      "arm": "control",
+      "position": 9,
+      "repetition": 1,
+      "slot_id": "PARSER-04-R1-control",
+      "task_id": "PARSER-04"
+    },
+    {
+      "arm": "treatment",
+      "position": 10,
+      "repetition": 1,
+      "slot_id": "PARSER-04-R1-treatment",
+      "task_id": "PARSER-04"
+    },
+    {
+      "arm": "control",
+      "position": 11,
+      "repetition": 2,
+      "slot_id": "JOURNAL-07-R2-control",
+      "task_id": "JOURNAL-07"
+    },
+    {
+      "arm": "treatment",
+      "position": 12,
+      "repetition": 2,
+      "slot_id": "JOURNAL-07-R2-treatment",
+      "task_id": "JOURNAL-07"
+    },
+    {
+      "arm": "control",
+      "position": 13,
+      "repetition": 2,
+      "slot_id": "CONFIG-10-R2-control",
+      "task_id": "CONFIG-10"
+    },
+    {
+      "arm": "treatment",
+      "position": 14,
+      "repetition": 2,
+      "slot_id": "CONFIG-10-R2-treatment",
+      "task_id": "CONFIG-10"
+    },
+    {
+      "arm": "control",
+      "position": 15,
+      "repetition": 1,
+      "slot_id": "PAGES-05-R1-control",
+      "task_id": "PAGES-05"
+    },
+    {
+      "arm": "treatment",
+      "position": 16,
+      "repetition": 1,
+      "slot_id": "PAGES-05-R1-treatment",
+      "task_id": "PAGES-05"
+    },
+    {
+      "arm": "control",
+      "position": 17,
+      "repetition": 1,
+      "slot_id": "PATH-03-R1-control",
+      "task_id": "PATH-03"
+    },
+    {
+      "arm": "treatment",
+      "position": 18,
+      "repetition": 1,
+      "slot_id": "PATH-03-R1-treatment",
+      "task_id": "PATH-03"
+    },
+    {
+      "arm": "control",
+      "position": 19,
+      "repetition": 2,
+      "slot_id": "MONEY-02-R2-control",
+      "task_id": "MONEY-02"
+    },
+    {
+      "arm": "treatment",
+      "position": 20,
+      "repetition": 2,
+      "slot_id": "MONEY-02-R2-treatment",
+      "task_id": "MONEY-02"
+    },
+    {
+      "arm": "treatment",
+      "position": 21,
+      "repetition": 1,
+      "slot_id": "JOURNAL-07-R1-treatment",
+      "task_id": "JOURNAL-07"
+    },
+    {
+      "arm": "control",
+      "position": 22,
+      "repetition": 1,
+      "slot_id": "JOURNAL-07-R1-control",
+      "task_id": "JOURNAL-07"
+    },
+    {
+      "arm": "treatment",
+      "position": 23,
+      "repetition": 2,
+      "slot_id": "FROZEN-09-R2-treatment",
+      "task_id": "FROZEN-09"
+    },
+    {
+      "arm": "control",
+      "position": 24,
+      "repetition": 2,
+      "slot_id": "FROZEN-09-R2-control",
+      "task_id": "FROZEN-09"
+    },
+    {
+      "arm": "treatment",
+      "position": 25,
+      "repetition": 1,
+      "slot_id": "MONEY-02-R1-treatment",
+      "task_id": "MONEY-02"
+    },
+    {
+      "arm": "control",
+      "position": 26,
+      "repetition": 1,
+      "slot_id": "MONEY-02-R1-control",
+      "task_id": "MONEY-02"
+    },
+    {
+      "arm": "treatment",
+      "position": 27,
+      "repetition": 1,
+      "slot_id": "GATE-08-R1-treatment",
+      "task_id": "GATE-08"
+    },
+    {
+      "arm": "control",
+      "position": 28,
+      "repetition": 1,
+      "slot_id": "GATE-08-R1-control",
+      "task_id": "GATE-08"
+    },
+    {
+      "arm": "treatment",
+      "position": 29,
+      "repetition": 2,
+      "slot_id": "PATH-03-R2-treatment",
+      "task_id": "PATH-03"
+    },
+    {
+      "arm": "control",
+      "position": 30,
+      "repetition": 2,
+      "slot_id": "PATH-03-R2-control",
+      "task_id": "PATH-03"
+    },
+    {
+      "arm": "treatment",
+      "position": 31,
+      "repetition": 2,
+      "slot_id": "PARSER-04-R2-treatment",
+      "task_id": "PARSER-04"
+    },
+    {
+      "arm": "control",
+      "position": 32,
+      "repetition": 2,
+      "slot_id": "PARSER-04-R2-control",
+      "task_id": "PARSER-04"
+    },
+    {
+      "arm": "treatment",
+      "position": 33,
+      "repetition": 1,
+      "slot_id": "REUSE-06-R1-treatment",
+      "task_id": "REUSE-06"
+    },
+    {
+      "arm": "control",
+      "position": 34,
+      "repetition": 1,
+      "slot_id": "REUSE-06-R1-control",
+      "task_id": "REUSE-06"
+    },
+    {
+      "arm": "treatment",
+      "position": 35,
+      "repetition": 2,
+      "slot_id": "PAGES-05-R2-treatment",
+      "task_id": "PAGES-05"
+    },
+    {
+      "arm": "control",
+      "position": 36,
+      "repetition": 2,
+      "slot_id": "PAGES-05-R2-control",
+      "task_id": "PAGES-05"
+    },
+    {
+      "arm": "treatment",
+      "position": 37,
+      "repetition": 2,
+      "slot_id": "GATE-08-R2-treatment",
+      "task_id": "GATE-08"
+    },
+    {
+      "arm": "control",
+      "position": 38,
+      "repetition": 2,
+      "slot_id": "GATE-08-R2-control",
+      "task_id": "GATE-08"
+    },
+    {
+      "arm": "treatment",
+      "position": 39,
+      "repetition": 1,
+      "slot_id": "FROZEN-09-R1-treatment",
+      "task_id": "FROZEN-09"
+    },
+    {
+      "arm": "control",
+      "position": 40,
+      "repetition": 1,
+      "slot_id": "FROZEN-09-R1-control",
+      "task_id": "FROZEN-09"
+    }
+  ],
+  "study": "FAR-PONYTAIL-PREMERGE-001"
+}
