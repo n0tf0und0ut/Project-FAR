@@ -137,8 +137,31 @@ class ContractTests(unittest.TestCase):
                            '/unavailable/nonexistent --model gpt-6')
 
     def test_infrastructure_failure_not_a_model_failure(self):
+        # Never infer Docker absence from the executing host: CI has Docker.
+        # Inject a real transport-launch error independently of host capability.
         _,tasks,_=b.load_contract()
-        with tempfile.TemporaryDirectory() as tmp:
+        cleanup=subprocess.CompletedProcess(args=['docker','rm'],returncode=0,
+                                            stdout='',stderr='')
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(b,'capture_candidate_process',
+                             side_effect=OSError('docker transport unavailable')) as invoke, \
+                patch.object(b.subprocess,'run',return_value=cleanup) as cleanup_run:
+            result=b._grade_case(Path(tmp),tasks[0]['public'][0])
+        invoke.assert_called_once()
+        cleanup_run.assert_called_once()
+        self.assertEqual(result['status'],'INFRA_FAILURE')
+        self.assertEqual(result['error'],'OSError')
+
+    def test_candidate_did_not_start_is_infrastructure_failure(self):
+        _,tasks,_=b.load_contract()
+        evidence={'stdout':'','stderr':'docker: image pull denied',
+                  'stdout_bytes_observed':0,'stderr_bytes_observed':25,
+                  'exit_code':125,'timed_out':False,'output_limited':False}
+        cleanup=subprocess.CompletedProcess(args=['docker','rm'],returncode=0,
+                                            stdout='',stderr='')
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(b,'capture_candidate_process',return_value=evidence), \
+                patch.object(b.subprocess,'run',return_value=cleanup):
             result=b._grade_case(Path(tmp),tasks[0]['public'][0])
         self.assertEqual(result['status'],'INFRA_FAILURE')
 
