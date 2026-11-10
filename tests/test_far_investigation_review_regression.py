@@ -1,7 +1,10 @@
 """Replays of native length and model-budget failure cases."""
 import copy
 import json
+import importlib
+import re
 import unittest
+from pathlib import Path
 from unittest.mock import Mock
 
 from tools.far_investigation_audit import audit
@@ -242,6 +245,47 @@ class InvestigationReviewerRegressionTests(unittest.TestCase):
         reseal(copy_state)
         errors=audit(copy_state)['errors']
         self.assertTrue(any('content_length' in e for e in errors),errors)
+
+    def test_known_failure_class_index_is_complete_and_controls_exist(self):
+        """A new ledger finding cannot silently lack a failure class and test references.
+
+        This is *structural* coverage verification only: behavior and defect
+        sensitivity require separately executed positive/negative controls.
+        """
+        ledger = (Path(__file__).resolve().parents[1] /
+                  'research/investigation-engine/finding-ledger.md').read_text(encoding='utf-8')
+        header = '## Known review-failure-class coverage index (2026-11-10)'
+        begin = '<!-- BEGIN FAR-INVESTIGATION-FAILURE-CLASS-COVERAGE/1 -->'
+        end = '<!-- END FAR-INVESTIGATION-FAILURE-CLASS-COVERAGE/1 -->'
+        self.assertEqual(ledger.count(begin), 1)
+        self.assertEqual(ledger.count(end), 1)
+        earlier, tail = ledger.split(header, 1)
+        payload = tail.split(begin, 1)[1].split(end, 1)[0].strip()
+        self.assertTrue(payload.startswith('```json') and payload.endswith('```'), payload[:80])
+        catalog = json.loads(payload[len('```json'):-len('```')].strip())
+        self.assertEqual(catalog['schema'], 'far-investigation-failure-class-coverage/1')
+        ledger_ids = set(re.findall(r'\\b(?:ENG|RC608|HIST-608|HTTP-FRAMING)-[A-Z0-9-]+\\b', earlier))
+        allocated = [finding for group in catalog['classes']
+                     for finding in group['finding_ids']]
+        self.assertEqual(len(allocated), len(set(allocated)), 'duplicate finding assignment')
+        self.assertEqual(set(allocated), ledger_ids, 'unclassified or invented finding IDs')
+        self.assertGreaterEqual(len(catalog['classes']), 9)
+        names = [group['name'] for group in catalog['classes']]
+        self.assertEqual(len(names), len(set(names)), 'duplicate class name')
+        for group in catalog['classes']:
+            with self.subTest(failure_class=group['name']):
+                self.assertTrue(group['purpose'].strip())
+                self.assertTrue(group['finding_ids'])
+                self.assertTrue(group['negative_controls'])
+                self.assertTrue(group['positive_controls'])
+                for kind in ('negative_controls', 'positive_controls'):
+                    for name in group[kind]:
+                        module_name, class_name, method_name = name.rsplit('.', 2)
+                        module = importlib.import_module(module_name)
+                        case = getattr(module, class_name)
+                        self.assertTrue(issubclass(case, unittest.TestCase), name)
+                        self.assertTrue(method_name.startswith('test_'), name)
+                        self.assertTrue(callable(getattr(case, method_name)), name)
 
     def test_no_tools_can_follow_exhausted_model_budget(self):
         original=Investigation(QUESTION,
