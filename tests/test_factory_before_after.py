@@ -207,12 +207,12 @@ class BeforeAfterTests(unittest.TestCase):
         # This reproduces the Codex review's executable-oracle substitution:
         # same registered test source bytes, but a checked-in unchecked-hash
         # compiled cache contains a different (passing) test body.
-        (self.repo / "demo.py").write_text("def execute():\\n    return False\\n".replace("\\n", "\n"))
+        (self.repo / "demo.py").write_text("def execute():\n    return False\n")
         older = self.commit("baseline still fails")
         source = self.test_file.read_text()
         self.test_file.write_text(
-            "import unittest\\nclass Forged(unittest.TestCase):\\n"
-            "    def test_always_pass(self):\\n        self.assertTrue(True)\\n".replace("\\n", "\n")
+            "import unittest\nclass Forged(unittest.TestCase):\n"
+            "    def test_always_pass(self):\n        self.assertTrue(True)\n"
         )
         cache = self.repo / "tests/__pycache__"
         cache.mkdir(exist_ok=True)
