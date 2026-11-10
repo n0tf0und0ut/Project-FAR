@@ -19,6 +19,7 @@ import platform
 import re
 import selectors
 import signal
+import tempfile
 import subprocess
 import sys
 import tempfile
@@ -107,6 +108,12 @@ def _oracle_digest(worktree: Path, path: str) -> str:
     matches = list((worktree / "tests").rglob(current.name))
     if len(matches) != 1 or matches[0] != current:
         raise RunnerError("ambiguous discovered test oracle basename")
+    # An unchecked-hash .pyc in either checkout can override otherwise
+    # identical registered .py bytes even when bytecode writes are disabled.
+    # Fail closed instead of allowing the candidate to supply executable test
+    # code whose bytes were never compared to the frozen oracle digest.
+    if any((worktree / "tests").rglob("*.pyc")):
+        raise RunnerError("precompiled test bytecode is forbidden")
     return sha256_file(current)
 
 
@@ -130,7 +137,12 @@ def _run_test(worktree: Path, label: str, pattern: str, timeout: int,
         raise RunnerError("source-exact test collector requires POSIX process groups")
     stdout = out / (label + ".stdout")
     stderr = out / (label + ".stderr")
-    command = [sys.executable, "-m", "unittest", "discover", "-s", "tests",
+    # A private empty alternate cache prevents even imported modules from
+    # consulting source-tree __pycache__ entries while discovery runs.
+    # Clean-up occurs after child process-group finalization.
+    cache = tempfile.TemporaryDirectory(prefix="far-pycache-", dir=out)
+    command = [sys.executable, "-X", "pycache_prefix=" + cache.name,
+               "-m", "unittest", "discover", "-s", "tests",
                "-p", pattern, "-v"]
     env = {"PATH": os.defpath, "HOME": str(worktree), "TMPDIR": str(worktree),
            "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PYTHONHASHSEED": "0",
@@ -196,6 +208,7 @@ def _run_test(worktree: Path, label: str, pattern: str, timeout: int,
                 if stream is not None:
                     stream.close()
             selector.close()
+            cache.cleanup()
         if code is None:
             code = child.returncode
     seconds = round(time.monotonic() - start, 6)
