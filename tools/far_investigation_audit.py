@@ -75,7 +75,7 @@ def audit(state) -> dict:
     # Imported lazily: the runtime exposes this auditor through a lazy wrapper.
     from tools.far_investigation_engine import (
         build_discovery, build_inspection, build_report, validate_dispatch, validate_proposal,
-        select_native_candidate, SYSTEM, function_schema,
+        select_native_candidate, SYSTEM, function_schema, LOCAL_MODEL_RESPONSE_MAX_BYTES,
     )
     errors = []
     counters = {}
@@ -636,6 +636,15 @@ def audit(state) -> dict:
                   sha256_json({k: v for k, v in state.items() if k != 'events'}))
         if tool_pending is not absent:
             fail('events', 'unfinished tool proposal')
+        # FAILURE is terminal in both runtime controllers and in _finalize().
+        # A resealed journal cannot score a completed report after a failure.
+        failure_positions = [i for i, event in enumerate(events) if event['kind'] == 'FAILURE']
+        if failure_positions:
+            if (len(failure_positions) != 1 or failure_positions[0] != len(events) - 2
+                    or state['status'] != 'FAILED_OR_INCOMPLETE'):
+                fail('failure.chronology', 'terminal failure contradicts final execution status or order')
+        elif state['status'] == 'FAILED_OR_INCOMPLETE':
+            fail('failure.chronology', 'failed execution lacks terminal failure event')
         accepted_tokens = tokens
         accounting = state.get('model_token_accounting')
         if accounting is not None and accounting != 'validated-response-per-attempt/1':
@@ -716,6 +725,13 @@ def audit(state) -> dict:
                         and type(call.get('request')) is dict
                         and type(call.get('transport')) is dict):
                     transport = call['transport']
+                    # LocalModel always uses a finite native reader ceiling,
+                    # including a malformed response on the final attempt.
+                    # Transport/hash agreement alone cannot establish this.
+                    if (len(base64.b64decode(transport['raw_response_base64'], validate=True))
+                            > LOCAL_MODEL_RESPONSE_MAX_BYTES):
+                        fail('model_calls[' + str(attempt) + '].transport.max_bytes',
+                             'retained native response exceeds LocalModel byte ceiling')
                     request = call['request']
                     prefix = 'model_calls[' + str(attempt) + '].request'
                     def validate_model_request():
@@ -1130,10 +1146,17 @@ def audit(state) -> dict:
                     equal('recheck.result', result, {'rechecked_sources': len(replay_rechecks),
                         'rechecked_searches': len(produced_searches),
                         'scope': 'unchanged bounded projections only; not semantic or open-world completeness'})
-            elif tool == 'freeze' and (accepted or (not freeze_events and not args and state['intake']
+            elif tool == 'freeze' and (accepted or (
+                    kind == 'TOOL_REJECTED' and type(payload) is dict
+                    and payload.get('class') == 'EngineError'
+                    and payload.get('reason') == 'wall-clock budget exhausted'
+                    and not freeze_events and not args and state['intake']
                     and state['intake']['freeze']['status'] == 'FROZEN' and replay_intake
                     and replay_intake['freeze']['status'] == 'DRAFT'
                     and replay_recheck_complete)):
+                # Only a post-dispatch wall-clock expiry can leave a frozen
+                # intake without an accepted TOOL_RESULT. A checkpoint failure
+                # on TOOL_PROPOSAL occurs before dispatch and cannot produce it.
                 if args or replay_intake is None or len(replay_rechecks) != len(available_sources):
                     fail('freeze.proposal', 'complete proposal-derived terminal intake required')
                 elif not replay_recheck_complete:
