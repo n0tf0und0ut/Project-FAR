@@ -754,7 +754,7 @@ and a new independent review before protected merge authorization.
 
 | ID / review thread | Counterexample and root cause | Correction and regression boundary |
 | --- | --- | --- |
-| **ENG-MODEL-CHRONOLOGICAL-PROMPT-20261109** / `PRRT_kwDOTH_vCM61eq3G`, comment 4518956164 | The auditor checked question, seeds, policy, prior proposals and recent observations, but accepted self-consistently rewritten model request `sources`, `evidence`, `comparisons`, `freeze`, `candidate_ids`, `evaluated_ids`, `searches` or eligible `tools`. A request could therefore claim access to future or fabricated evidence even with the actual source/tool producers unchanged. | Reconstruct per-attempt model-view inventory and eligibility from the existing validated chronological tool replay, including retained effects of rejected post-dispatch attempts. Compare every native request's model-visible fields at the boundary before its first response. For an interrupted recheck, retain only actually possible committed prefixes rather than certifying an unknown append. Regression `test_native_model_prompt_all_chronological_views_resist_resealed_mutation` rewrites every journaled copy, rebuilds request hashes and reseals, and requires each affected field to fail offline audit. |
+| **ENG-MODEL-CHRONOLOGICAL-PROMPT-20261109** / `PRRT_kwDOTH_vCM61eq3G`, comment 4518956168 | The auditor checked question, seeds, policy, prior proposals and recent observations, but accepted self-consistently rewritten model request `sources`, `evidence`, `comparisons`, `freeze`, `candidate_ids`, `evaluated_ids`, `searches` or eligible `tools`. A request could therefore claim access to future or fabricated evidence even with the actual source/tool producers unchanged. | Reconstruct per-attempt model-view inventory and eligibility from the existing validated chronological tool replay, including retained effects of rejected post-dispatch attempts. Compare every native request's model-visible fields at the boundary before its first response. For an interrupted recheck, retain only actually possible committed prefixes rather than certifying an unknown append. Regression `test_native_model_prompt_all_chronological_views_resist_resealed_mutation` rewrites every journaled copy, rebuilds request hashes and reseals, and requires each affected field to fail offline audit. |
 | **ENG-NONCHUNKED-BODY-ABSOLUTE-DEADLINE-20261109** / `PRRT_kwDOTH_vCM61eq3K`, comment 4518956172 | A native `read1()` after an initial early body fragment inherited the socket idle timeout set during header parsing. The clock guard before `read1` did not bound the blocking syscall; a 2-byte trickle could overrun the absolute deadline and observe the later byte. | Refresh native socket timeout to the remaining monotonic whole-request budget before *every* nonchunked blocking body `read1` while preserving the earlier returned prefix. Regression `test_real_nonchunked_socket_trickle_uses_remaining_absolute_deadline` uses a real `http.client.HTTPResponse` over AF_UNIX socketpair, checks only the first byte survives an interrupted 2-byte body, and leaves the trace deny-network policy unchanged. |
 
 These are internally controlled integrity/transport counterexamples, not a
@@ -762,3 +762,27 @@ measurement of real model planning, external truth, or agent superiority. Frozen
 campaign registrations, original evidence and negative outcomes are unchanged.
 
 **First hosted counterexample on corrective head `06e014b65262e93297e2e3e9a19e7764ee94d90b`:** The frozen-investigations job `129528969165` ran 309 tests with five optional skips and five failures. The new native prompt test and original frozen 24-transcript campaign replay failed because the first snapshot check mistakenly compared 1-based terminal tool-event indices with a 0-based first-MODEL_OBSERVATION index using `<`. It therefore omitted the most recent completed tool effect at each model prompt, rejecting valid source, evidence, freeze, and tool views. The correction uses `<=` to include exactly that prior completed tool outcome while still excluding the model's own future actions. Existing full native-journey and preserved frozen-archive replay tests provide the positive boundary; resealed mutations provide negative controls. This fixes the audit oracle, not the frozen evidence. A clean corrected-head rerun has not yet been observed.
+
+## November 10, 2026 — ninth independent review: chunk separator whole-request deadline
+
+Independent Codex exact-head review of `fabdd9960bd41aba6bb32492fe8c61a5a277e36c` reported
+**ENG-CHUNK-SEPARATOR-DEADLINE-20261110**, thread `PRRT_kwDOTH_vCM61gAcW`
+(comment 4519535689). After the header, chunk-size line and chunk-body
+deadline repairs, a remaining uninstrumented path called the native buffered
+`read(2)` for the CRLF between chunks. One socket receive supplied CR just
+before the execution deadline; the same originally calculated socket timeout
+allowed the LF read to continue past that deadline. The reviewer reproduced
+a 171-ms failure under a 100-ms absolute limit.
+
+The candidate correction replaces only the separator's two-byte buffered
+read with two bounded one-byte `read1(1)` operations, calling the
+monotonic deadline/socket-timeout guard before and after each receive.
+Strict CRLF checking and failed-response decoded-prefix preservation
+remain mandatory. The new `test_real_chunk_separator_trickle_uses_remaining_absolute_deadline`
+drives an actual native chunked `HTTPResponse` over AF_UNIX socketpair
+with the first byte of chunk data and CR before the limit, LF after the
+limit, and demands an interrupted receipt retaining exactly the decoded
+`a` prefix with matching hash. Existing native positive, malformed
+separator, chunk framing, deadline and frozen-archive controls must remain
+green; this is not yet a verified current-head result. No original
+campaign evidence or experiment outcomes have been modified.

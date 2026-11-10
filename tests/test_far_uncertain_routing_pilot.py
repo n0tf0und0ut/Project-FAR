@@ -152,6 +152,54 @@ class NativeFramingTests(unittest.TestCase):
         self.assertFalse(failed.exception.envelope['response_complete'])
         self.assertLess(elapsed, .30)
 
+    def test_real_chunk_separator_trickle_uses_remaining_absolute_deadline(self):
+        """The CR and LF between native chunks must be separately bounded."""
+        import socket
+        import threading
+        import time
+        import urllib.request
+
+        workers = []
+        def connect(connection):
+            client, server = socket.socketpair()
+            connection.sock = client
+            def respond():
+                with server:
+                    try:
+                        request = server.recv(65536)
+                        self.assertIn(b'GET', request)
+                        server.sendall(b'HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n'
+                                       b'1\r\na')
+                        time.sleep(.05)
+                        server.sendall(b'\r')
+                        time.sleep(.30)  # LF arrives after the whole-request deadline.
+                        server.sendall(b'\n0\r\n\r\n')
+                    except OSError:
+                        pass
+
+            worker = threading.Thread(target=respond, daemon=True)
+            worker.start()
+            workers.append(worker)
+
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        start = time.monotonic()
+        with patch.object(http.client.HTTPConnection, 'connect', connect):
+            with self.assertRaises(study.ResponseTransportError) as failed:
+                study.read_bounded_response(
+                    urllib.request.Request('http://127.0.0.1:18085/'),
+                    timeout=1, max_bytes=100, opener=opener,
+                    deadline_monotonic=start + .20)
+        elapsed = time.monotonic() - start
+        for worker in workers:
+            worker.join(timeout=1)
+        observed = base64.b64decode(failed.exception.envelope['raw_response_base64'])
+        self.assertEqual(observed, b'a')
+        self.assertEqual(failed.exception.envelope['response_sha256'],
+                         hashlib.sha256(b'a').hexdigest())
+        self.assertEqual(failed.exception.envelope['transport_error'], 'TimeoutError')
+        self.assertFalse(failed.exception.envelope['response_complete'])
+        self.assertLess(elapsed, .30)
+
     def test_header_trickle_reader_enforces_absolute_deadline_without_network(self):
         import time
         from tools.far_uncertain_routing_pilot import _DeadlineHeaderReader

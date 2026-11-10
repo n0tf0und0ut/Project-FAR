@@ -177,14 +177,30 @@ class _ChunkFramingObserver:
             if self.remaining == 0:
                 self.phase = "separator"
             return b"".join(chunks)
+        if self.phase == "separator":
+            # Native HTTPResponse._get_chunk_left() reads the separator with
+            # fp.read(2). A buffered read can block for the second byte using
+            # the socket timeout that was calculated before the first. Preserve
+            # strict CRLF framing, refreshing the remaining absolute deadline
+            # before *each* blocking byte of this two-byte protocol delimiter.
+            if amount != 2:
+                raise http.client.IncompleteRead(bytes(self.prefix))
+            reader = getattr(self.stream, "read1", self.stream.read)
+            data = bytearray()
+            for expected in (b"\r", b"\n"):
+                self._check_deadline()
+                part = reader(1)
+                if part:
+                    data.extend(part)
+                    self.framing_bytes += len(part)
+                self._check_deadline()
+                if part != expected or self.framing_bytes > self.limit + 65536:
+                    raise http.client.IncompleteRead(bytes(self.prefix))
+            self.phase = "size"
+            return bytes(data)
         self._check_deadline()
         data = self.stream.read(amount)
         self._check_deadline()
-        if self.phase == "separator":
-            self.framing_bytes += len(data)
-            if data != b"\r\n":
-                raise http.client.IncompleteRead(bytes(self.prefix))
-            self.phase = "size"
         return data
 
     def readline(self, limit=-1):
