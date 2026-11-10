@@ -43,6 +43,16 @@ The receipt path is used only when the latest authenticated exact-head state is 
 
 On 2026-10-23 the service completed review of #578 at `6c874db2e0dc2ce8a4281bf9c507001a3b0787fd`. Summary comment 6293998197 retained null finding flags while receipts 6374221633 and 6374521211 explicitly said "Didn't find any major issues." This is an observed integration-contract mismatch, not evidence that null means false or that the service violated a documented public schema. The user explicitly authorized a review-evidence policy repair after this blocker was reported. v1.1 deliberately accepts a weaker finding-state assertion for metadata convergence while retaining substantive review, finding-ledger closure and all protected gates as separate obligations.
 
+A completed/null receipt is attributed to its reviewed-commit SHA before
+its optional prose is grammar-checked. An authenticated receipt with exactly
+one unambiguous valid commit prefix for an older, different head is historical
+and cannot invalidate the current exact-head receipt solely due to unfamiliar
+older cosmetic wording. Missing, duplicated or invalid attribution fails
+closed; current-head malformed or conflicting text is still rejected. The
+five-second correlation, authenticated origin, API prefix resolution,
+no-unresolved-findings semantics and all independent protected gates remain
+unchanged. Historical receipts are never promoted as current evidence.
+
 Both summary and receipt must originate from bot login `chatgpt-codex-connector[bot]`, type `Bot`, App slug `chatgpt-codex-connector` and numeric App ID `1144995`. The latest unambiguous machine summary must name the full exact head and status `completed`. When its unresolved flag is null, exactly one matching, unedited, whole-comment v1 receipt must contain the explicit no-major-issues sentence and a reviewed commit of 10–40 lowercase hex digits. Only the two observed optional suffixes ("Chef's kiss." and "Keep them coming!") are recognized; unknown formats fail closed. The receipt must precede the summary's API update by zero to five seconds. GitHub's commit endpoint must resolve its prefix unambiguously to the same full head. Quoted/embedded receipts, duplicated markers/JSON keys, malformed flags, edited/stale receipts, ambiguous prefixes and multiple contemporaneous receipts do not qualify.
 
 This path records `completion_basis=authenticated_no_major_issues_receipt` with both source IDs, timestamps, prefix resolution and the original null unresolved value in `far-pr-review-convergence/2`. It does not assert zero minor findings. It cannot clear a known unresolved result from another authenticated state, an unresolved thread, changes requested, or a running/failed latest review. A completed/null summary without the full receipt evidence still fails closed, including when a human approval exists. The five-second correlation window is an observed compatibility rule, not a vendor-guaranteed run identifier; changed service behavior can require a separately reviewed amendment. No external scientific independence or correctness follows from this automated metadata.
