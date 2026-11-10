@@ -58,7 +58,9 @@ def strict_json(raw: bytes, *, limit: int = MAX_API_BYTES) -> object:
     try:
         return json.loads(raw.decode("utf-8", errors="strict"),
                           object_pairs_hook=unique, parse_constant=reject_constant)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except BridgeError:
+        raise
+    except (UnicodeDecodeError, ValueError) as exc:
         raise BridgeError("invalid UTF-8 JSON input") from exc
 
 

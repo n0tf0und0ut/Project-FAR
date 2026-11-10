@@ -191,7 +191,7 @@ class BridgeUnitTests(unittest.TestCase):
         self.assertEqual(out["source"]["governed_question_ids"],["FAR-RQ-004","FAR-RQ-009"])
 
     def test_strict_json_bounds_and_utf8(self):
-        for raw in (b"\xff",b'{"a":1,"a":2}',b'{"a": Infinity}',b"x"*(bridge.MAX_API_BYTES+1)):
+        for raw in (b"\xff",b'{"a":1,"a":2}',b'{"a": Infinity}',b"x"*(bridge.MAX_API_BYTES+1), b'{"big":'+b"9"*5000+b"}"):
             with self.subTest(raw=raw[:20]),self.assertRaises(bridge.BridgeError):
                 bridge.strict_json(raw)
 
