@@ -11,7 +11,7 @@ CODERABBIT = ROOT / ".coderabbit.yaml"
 
 
 def _events(document):
-    return document.get("on", document.get(True), {})
+    return document.get("on", document.get(True, {}))
 
 
 def _is_advisory_coderabbit(document):
