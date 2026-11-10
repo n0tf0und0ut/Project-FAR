@@ -139,10 +139,19 @@ def _install_deadline_header_handlers(opener, deadline, timeout=None):
     class DeadlineHTTPSHandler(urllib.request.HTTPSHandler):
         handler_order = 450
         def https_open(self, request):
-            return self.do_open(DeadlineHTTPSConnection, request, context=self._context)
+            return self.do_open(DeadlineHTTPSConnection, request, context=self._context,
+                                check_hostname=self._check_hostname)
 
+    # The deadline handler precedes the original transport. Reuse the TLS
+    # context and hostname policy actually configured by the operator instead
+    # of silently replacing them with urllib's default trust settings.
+    original_https = next((handler for handler in opener.handlers
+                           if isinstance(handler, urllib.request.HTTPSHandler)), None)
+    https_options = ({'context': original_https._context,
+                      'check_hostname': original_https._check_hostname}
+                     if original_https is not None else {})
     opener.add_handler(DeadlineHTTPHandler())
-    opener.add_handler(DeadlineHTTPSHandler())
+    opener.add_handler(DeadlineHTTPSHandler(**https_options))
 
 
 class _ChunkFramingObserver:
