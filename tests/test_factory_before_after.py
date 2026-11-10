@@ -285,5 +285,53 @@ class BeforeAfterTests(unittest.TestCase):
         self.assertLessEqual(result["before"]["stdout"]["size"], runner.MAX_STREAM_BYTES)
 
 
+    def test_same_oracle_with_dropped_cases_is_incomparable(self):
+        self.test_file.write_text(
+            "import unittest\nfrom selector import load_tests\n"
+            "class TestDemo(unittest.TestCase):\n"
+            "    def test_fail(self):\n        self.fail('real failure')\n"
+            "    def test_pass(self):\n        self.assertTrue(True)\n",
+        )
+        selector = self.repo / "selector.py"
+        selector.write_text("def load_tests(loader, tests, pattern):\n    return tests\n")
+        before = self.commit("two selected tests, one failing")
+        selector.write_text(
+            "def load_tests(loader, tests, pattern):\n"
+            "    return loader.loadTestsFromName('test_demo.TestDemo.test_pass')\n",
+        )
+        after = self.commit("candidate suppresses failing case without changing oracle bytes")
+        result = self.measure(before, after, runner.sha256_file(self.test_file))
+        self.assertEqual(result["before"]["test_count_reported"], 2)
+        self.assertEqual(result["after"]["test_count_reported"], 1)
+        self.assertEqual(result["before"]["status"], "FAIL")
+        self.assertEqual(result["after"]["status"], "PASS")
+        self.assertEqual(result["verdict"], "INCOMPARABLE")
+
+    def test_same_count_with_swapped_test_identity_is_incomparable(self):
+        self.test_file.write_text(
+            "import unittest\nfrom selector import load_tests\n"
+            "class TestDemo(unittest.TestCase):\n"
+            "    def test_fail(self):\n        self.fail('real failure')\n"
+            "    def test_pass(self):\n        self.assertTrue(True)\n",
+        )
+        selector = self.repo / "selector.py"
+        selector.write_text(
+            "def load_tests(loader, tests, pattern):\n"
+            "    return loader.loadTestsFromName('test_demo.TestDemo.test_fail')\n",
+        )
+        before = self.commit("one selected failing test")
+        selector.write_text(
+            "def load_tests(loader, tests, pattern):\n"
+            "    return loader.loadTestsFromName('test_demo.TestDemo.test_pass')\n",
+        )
+        after = self.commit("one selected passing test with different identity")
+        result = self.measure(before, after, runner.sha256_file(self.test_file))
+        self.assertEqual(result["before"]["test_count_reported"], 1)
+        self.assertEqual(result["after"]["test_count_reported"], 1)
+        self.assertEqual(result["before"]["status"], "FAIL")
+        self.assertEqual(result["after"]["status"], "PASS")
+        self.assertEqual(result["verdict"], "INCOMPARABLE")
+
+
 if __name__ == "__main__":
     unittest.main()
