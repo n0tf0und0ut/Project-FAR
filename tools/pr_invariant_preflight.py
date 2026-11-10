@@ -24,7 +24,8 @@ from tools.pr_review_convergence import api, paginate
 
 # The preflight contract is introduced through a protected PR. Earlier open
 # PRs retain their historical review obligations without surprise CI changes.
-CUTOVER = '2026-11-10T00:00:00Z'
+# Activation PR must merge before this UTC cutoff; otherwise advance and re-review.
+CUTOVER = '2026-11-11T00:00:00Z'
 START = '<!-- FAR-INVARIANTS-V1\n'
 END = '\nFAR-INVARIANTS-END -->'
 IDENTIFIER = re.compile(r'[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){1,8}\Z')
