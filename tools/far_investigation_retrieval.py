@@ -16,6 +16,7 @@ import http.client
 import ipaddress
 import json
 import socket
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -107,7 +108,47 @@ def _proxy_configuration(host: str) -> tuple[str, str]:
     return configured, proxy_host.lower()
 
 
-def validate_url(url: str, policy: RetrievalPolicy) -> dict:
+
+# Blocking system resolution is not cancellable on its caller's thread.
+# A finite number of daemon workers lets deadlines fail closed even when
+# getaddrinfo hangs; expired workers keep their slot until actually finished.
+_DNS_PENDING_LIMIT = threading.BoundedSemaphore(8)
+
+
+def _deadline_resolve(host: str, policy: RetrievalPolicy, deadline_monotonic: float | None):
+    end = min(time.monotonic() + policy.timeout,
+              deadline_monotonic if deadline_monotonic is not None else float('inf'))
+    remaining = end - time.monotonic()
+    if remaining <= 0 or not _DNS_PENDING_LIMIT.acquire(timeout=remaining):
+        raise TimeoutError("DNS preflight deadline exhausted")
+    answer = {}
+    finished = threading.Event()
+
+    def resolve():
+        try:
+            answer['rows'] = policy.resolver(host, 443, type=socket.SOCK_STREAM)
+        except BaseException as exc:
+            answer['exception'] = exc
+        finally:
+            _DNS_PENDING_LIMIT.release()
+            finished.set()
+
+    worker = threading.Thread(target=resolve, name="far-dns-preflight", daemon=True)
+    try:
+        worker.start()
+    except BaseException:
+        _DNS_PENDING_LIMIT.release()
+        raise
+    if not finished.wait(max(0., end - time.monotonic())):
+        raise TimeoutError("DNS preflight deadline exhausted")
+    if 'exception' in answer:
+        raise answer['exception']
+    if time.monotonic() > end:
+        raise TimeoutError("DNS preflight deadline exhausted")
+    return answer['rows']
+
+
+def validate_url(url: str, policy: RetrievalPolicy, *, deadline_monotonic: float | None = None) -> dict:
     """Validate exact hostname, then the explicitly chosen DNS trust boundary."""
     if not isinstance(url, str) or len(url) > 8192 or any(ord(c) < 33 or ord(c) == 127 for c in url):
         raise ValueError("invalid URL transport")
@@ -122,7 +163,7 @@ def validate_url(url: str, policy: RetrievalPolicy) -> dict:
         return {"host": host, "addresses": None, "validated_at": _now(), "dns_mode": "proxy",
                 "proxy_host": proxy_host, "public_ip_validation": "UNESTABLISHED",
                 "transport_boundary": "Exact HTTPS hostname policy; inherited forced proxy owns DNS and destination enforcement; resolved target addresses unknown"}
-    results = policy.resolver(host, 443, type=socket.SOCK_STREAM)
+    results = _deadline_resolve(host, policy, deadline_monotonic)
     addresses = sorted({row[4][0] for row in results})
     if not addresses or any(not ipaddress.ip_address(ip).is_global for ip in addresses):
         raise ValueError("DNS returned no address or a non-public destination")
@@ -165,6 +206,10 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
     """
     receipt = _envelope(url)
     started = time.monotonic()
+    # Bound the entire DNS + HTTP operation by both transport and campaign
+    # deadlines instead of resetting the transport window after DNS.
+    request_deadline = min(started + policy.timeout,
+                           deadline_monotonic if deadline_monotonic is not None else float('inf'))
     next_progress_bytes = 65536
 
     def save():
@@ -174,7 +219,7 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
 
     save()
     try:
-        receipt["destination"] = validate_url(url, policy)
+        receipt["destination"] = validate_url(url, policy, deadline_monotonic=request_deadline)
         req = urllib.request.Request(url, headers=receipt["request"]["headers"], method="GET")
         if policy.dns_mode == "proxy":
             configured_proxy, proxy_host = _proxy_configuration(receipt["destination"]["host"])
@@ -216,7 +261,7 @@ def retrieve(url: str, policy: RetrievalPolicy, *, checkpoint: Callable | None =
             raw, transport = read_bounded_response(
                 req, timeout=policy.timeout, max_bytes=policy.max_bytes + 1,
                 opener=client, checkpoint=capture, chunk_size=65536,
-                deadline_monotonic=deadline_monotonic)
+                deadline_monotonic=request_deadline)
         except ResponseTransportError as exc:
             capture(exc.envelope)
             receipt["transport"] = exc.envelope
