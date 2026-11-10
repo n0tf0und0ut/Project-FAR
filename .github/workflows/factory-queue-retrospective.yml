@@ -1,0 +1,26 @@
+name: Factory Queue Retrospective Evidence
+
+on:
+  pull_request:
+    paths:
+      - "research/factory-evaluation/queue-lock-retrospective-20261110.zip"
+      - "research/factory-evaluation/queue-lock-retrospective-20261110.json"
+      - "tests/test_factory_queue_retrospective_evidence.py"
+      - ".github/workflows/factory-queue-retrospective.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-archived-observation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check fixed archive digest and member-level before/after receipt consistency
+        run: python -m unittest discover -s tests -p test_factory_queue_retrospective_evidence.py -v
