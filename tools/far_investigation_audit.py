@@ -929,8 +929,6 @@ def audit(state) -> dict:
                 if terminal_index is not None and (timestamp(events[request_index - 1]['at'])
                         <= timestamp(row['evaluated_at']) <= timestamp(events[terminal_index - 1]['at'])):
                     evaluation_available_at[row['contract_id']] = terminal_index
-        successful_search_at = accepted_producers('search', state['searches'],
-            lambda row: {k: v for k, v in row.items() if k != 'receipt'})
         replay_intake, replay_rechecks, missing_evidence = None, [], None
         replay_recheck_prefixes, replay_recheck_complete = [[]], False
         produced_freeze_index = None
@@ -1046,9 +1044,12 @@ def audit(state) -> dict:
                 if row is not None and request is not None and observation is not None:
                     bound = (row.get('query') == args.get('query') == request.get('query')
                              and row.get('provider') == args.get('provider') == request.get('provider')
-                             and sha256_json(row.get('receipt')) == sha256_json(observation)
-                             and successful_search_at.get(offset, index) == index)
-                    if accepted or bound:
+                             and sha256_json(row.get('receipt')) == sha256_json(observation))
+                    # Only an accepted operation or proven post-dispatch
+                    # mutation may own a retained search. Assign identical
+                    # rows in attempt order, rather than crediting a future
+                    # accepted retry with an earlier failed attempt's row.
+                    if accepted or (rejected_postdispatch and bound):
                         if not bound:
                             fail('search.producer', 'retained search differs from actual request/observation')
                         if accepted:
