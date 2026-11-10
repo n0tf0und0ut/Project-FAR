@@ -124,7 +124,8 @@ def field(path):
     value = data
     for key in path.strip(".").split("."):
         if key.endswith("[0]"):
-            value = value.get(key[:-3], [])[0]
+            array = value.get(key[:-3], [])
+            value = array[0] if array else {}
         elif isinstance(value, dict):
             value = value.get(key)
         else:
