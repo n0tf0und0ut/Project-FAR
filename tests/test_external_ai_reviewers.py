@@ -111,33 +111,74 @@ class ExternalAIReviewerTests(unittest.TestCase):
                               "ref": "feature", "sha": current_sha}}
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
-            stub = directory / "gh"
-            stub.write_text(
-                "#!/usr/bin/env bash\n"
-                "set -euo pipefail\n"
-                "if [[ \"$1\" != api ]]; then exit 2; fi\n"
-                "if [[ \"$2\" == --paginate ]]; then\n"
-                "  cat \"$FIXTURE_LIST\"\n"
-                "else\n"
-                "  cat \"$FIXTURE_META\"\n"
-                "fi\n",
-                encoding="utf-8",
-            )
-            stub.chmod(0o755)
-            listing = directory / "pr-list.json"
-            listing.write_text(json.dumps([[candidate]]), encoding="utf-8")
-            metadata = directory / "pr.json"
-            metadata.write_text(json.dumps(candidate), encoding="utf-8")
+            # Replay the real workflow Bash resolver without introducing
+            # ephemeral executables or an undeclared jq process into FAR traces.
+            # The shim models the bounded jq selectors used by this contract.
+            jq_model = """
+import json
+import sys
+args = sys.argv[1:]
+query = args[-1]
+data = json.load(sys.stdin)
+def field(path):
+    value = data
+    for key in path.strip(".").split("."):
+        if key.endswith("[0]"):
+            value = value.get(key[:-3], [])[0]
+        elif isinstance(value, dict):
+            value = value.get(key)
+        else:
+            return ""
+    return value if value is not None else ""
+if query.startswith("[.workflow_run.pull_requests[].number]"):
+    values = sorted(set(item["number"] for item in data["workflow_run"]["pull_requests"]))
+    answer = values[0] if len(values) == 1 else ""
+elif query.startswith("[.[][] | select("):
+    named = {}
+    for idx, word in enumerate(args[:-2]):
+        if word == "--arg":
+            named[args[idx + 1]] = args[idx + 2]
+    numbers = sorted(set(item["number"] for page in data for item in page
+                         if item["head"]["ref"] == named["branch"]
+                         and item["head"]["repo"]["full_name"] == named["repo"]
+                         and item["head"]["sha"] == named["source_sha"]))
+    answer = numbers
+elif query == "if length == 1 then .[0] else empty end":
+    answer = data[0] if len(data) == 1 else ""
+else:
+    answer = field(query.split(" // ")[0])
+if isinstance(answer, (dict, list)):
+    print(json.dumps(answer))
+else:
+    print(str(answer).lower() if isinstance(answer, bool) else answer)
+"""
+            shell_shim = """
+gh() {
+  if [[ "$*" == *"pulls?state=open"* ]]; then
+    printf "%s" "$FIXTURE_LIST_JSON"
+  elif [[ "$*" == *"/pulls/7"* ]]; then
+    printf "%s" "$FIXTURE_META_JSON"
+  else
+    return 2
+  fi
+}
+jq() { "$PYTHON_INTERPRETER" -c "$PY_JQ_MODEL" "$@"; }
+"""
+            candidate = {"number": 7, "state": "open", "draft": False,
+                         "base": {"ref": "main"},
+                         "head": {"repo": {"full_name": repo},
+                                  "ref": "feature", "sha": current_sha}}
             output = directory / "github-output.txt"
-            env = dict(os.environ, PATH=str(directory) + os.pathsep
-                       + os.environ.get("PATH", ""),
+            env = dict(os.environ,
                        EVENT_NAME="workflow_run",
                        EVENT_JSON=json.dumps(event), REQUESTED_PR="",
                        GITHUB_REPOSITORY=repo, GITHUB_OUTPUT=str(output),
-                       FIXTURE_LIST=str(listing), FIXTURE_META=str(metadata))
+                       FIXTURE_LIST_JSON=json.dumps([[candidate]]),
+                       FIXTURE_META_JSON=json.dumps(candidate),
+                       PYTHON_INTERPRETER=sys.executable, PY_JQ_MODEL=jq_model)
             resolver = self.workflow["jobs"]["review"]["steps"][0]["run"]
             completed = subprocess.run(
-                ["bash", "-c", resolver], env=env, cwd=ROOT,
+                ["bash", "-c", shell_shim + "\n" + resolver], env=env, cwd=ROOT,
                 capture_output=True, text=True, timeout=30,
             )
             self.assertEqual(completed.returncode, 0,
