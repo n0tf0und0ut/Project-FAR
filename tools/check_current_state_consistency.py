@@ -135,9 +135,11 @@ def validate_texts(
         require("roadmap", f"`{next_workstream}` — next", "roadmap next-workstream drifted")
         require("next_actions", f"Canonical next workstream: `{next_workstream}`.", "next-actions workstream drifted")
 
-    require("agents", "If purported current-authority surfaces conflict", "agent routing does not fail closed on authority conflicts")
-    require("agents", "project memory", "agent routing does not subordinate memory to repository authority")
-    require("agents", "repository presence as evidence that an artifact exists, not that its contents are Accepted", "agent routing conflates repository presence with epistemic authority")
+    # Bind to the current condensed instruction contract rather than obsolete
+    # prose, while independently checking each required authority boundary.
+    require("agents", "If current authoritative sources conflict, stop the affected inference and report the conflict", "agent routing does not fail closed on authority conflicts")
+    require("agents", "Prior chats, summaries and cached copies are not substitutes", "agent routing does not subordinate memory to repository authority")
+    require("agents", "Repository presence, memories, generated outputs and archives do not confer acceptance", "agent routing conflates repository presence with epistemic authority")
 
     stale_current_phrases = {
         "status": [
