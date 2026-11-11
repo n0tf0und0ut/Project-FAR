@@ -1,0 +1,101 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-3DA754A3277C6A0F",
+  "discovery": {
+    "first_seen_utc": "2026-10-21T04:47:35Z",
+    "last_seen_utc": "2026-10-21T16:49:23Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "HIST-SUFFICIENCY",
+        "lens": "formal_mathematics",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          1897,
+          1906
+        ],
+        "query": "sufficiency sufficient statistic information experiment comparison",
+        "seen_utc": "2026-10-21T04:47:35Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "HIST-PROBABILITY-DECISION",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          1897,
+          1906
+        ],
+        "query": "probability decision theory sufficient information history",
+        "seen_utc": "2026-10-21T16:49:23Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.5962/bhl.title.27698",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "James Watson"
+      ],
+      "cited_by_count": 0,
+      "doi": "10.5962/bhl.title.27698",
+      "provider": "OpenAlex",
+      "provider_id": "https://openalex.org/W4241261576",
+      "published_date": "1906-01-01",
+      "title": "The dog book : a popular history of the dog, with practical information as to care and management of house, kennel, and exhibition dogs; and descriptions of all the important breeds / By James Watson.",
+      "url": "https://doi.org/10.5962/bhl.title.27698",
+      "work_type": "book"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "formal_mathematics",
+      "historical_foundations"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

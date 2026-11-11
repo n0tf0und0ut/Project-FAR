@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-2394B81677117E35",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T01:07:54Z",
+    "last_seen_utc": "2026-10-01T07:49:58Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_ORIENTATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "8abb652d0ffbdaaafa74e01e36a942c08477c737766be54e52016a80f009f07c",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multiobjective decision external preference orientation",
+        "seen_utc": "2026-09-11T01:07:54Z",
+        "target_id": "FAR-RQ-008",
+        "target_ids": [
+          "FAR-RQ-008"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1016/bs.adcom.2015.03.001",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Slim Bechikh",
+        "Marouane Kessentini",
+        "Lamjed Ben Said",
+        "Khaled Ghédira"
+      ],
+      "container": "Advances in Computers",
+      "doi": "10.1016/bs.adcom.2015.03.001",
+      "provider": "Crossref",
+      "provider_id": "10.1016/bs.adcom.2015.03.001",
+      "published_date": "2015-01-01",
+      "publisher": "Elsevier",
+      "title": "Preference Incorporation in Evolutionary Multiobjective Optimization",
+      "url": "https://doi.org/10.1016/bs.adcom.2015.03.001",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

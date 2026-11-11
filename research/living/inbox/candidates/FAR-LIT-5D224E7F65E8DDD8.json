@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-5D224E7F65E8DDD8",
+  "discovery": {
+    "first_seen_utc": "2026-09-25T07:51:16Z",
+    "last_seen_utc": "2026-09-26T00:38:10Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-09-25T07:51:16Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/tip.2007.896622",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Mila Nikolova",
+        "Raymond H. Chan"
+      ],
+      "container": "IEEE Transactions on Image Processing",
+      "doi": "10.1109/tip.2007.896622",
+      "provider": "Crossref",
+      "provider_id": "10.1109/tip.2007.896622",
+      "published_date": "2007-06-01",
+      "publisher": "Institute of Electrical and Electronics Engineers (IEEE)",
+      "title": "The Equivalence of Half-Quadratic Minimization and the Gradient Linearization Iteration",
+      "url": "https://doi.org/10.1109/tip.2007.896622",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

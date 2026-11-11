@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-CD3840EB836AD6C8",
+  "discovery": {
+    "first_seen_utc": "2026-09-15T06:10:59Z",
+    "last_seen_utc": "2026-09-15T22:18:14Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "bisimulation quotient minimization computation",
+        "seen_utc": "2026-09-15T06:10:59Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1016/0016-7037(96)00096-8",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "S.K. Saxena"
+      ],
+      "container": "Geochimica et Cosmochimica Acta",
+      "doi": "10.1016/0016-7037(96)00096-8",
+      "provider": "Crossref",
+      "provider_id": "10.1016/0016-7037(96)00096-8",
+      "published_date": "1996-07-01",
+      "publisher": "Elsevier BV",
+      "title": "Earth mineralogical model: Gibbs free energy minimization computation in the system MgOFeOSiO2",
+      "url": "https://doi.org/10.1016/0016-7037(96)00096-8",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

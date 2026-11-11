@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Permanent noncanonical anchor for the unattended living-research inbox pull request.",
+  "authority": "Research",
+  "merge_policy": "NEVER_MERGE_THIS_ANCHOR",
+  "promotion_policy": "Promote reviewed research state through a separate snapshot branch and protected pull request; keep the rolling inbox PR open.",
+  "claim_effect": "NONE"
+}

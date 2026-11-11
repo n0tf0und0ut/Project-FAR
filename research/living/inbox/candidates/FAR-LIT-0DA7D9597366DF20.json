@@ -1,0 +1,78 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-0DA7D9597366DF20",
+  "discovery": {
+    "first_seen_utc": "2026-10-24T11:09:50Z",
+    "last_seen_utc": "2026-10-24T11:09:50Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "historical_query_id": "META-GROUNDING-DEPENDENCE",
+        "lens": "formal_metaphysics",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1837,
+          1846
+        ],
+        "query": "grounding dependence supervenience formal logic order metaphysics",
+        "seen_utc": "2026-10-24T11:09:50Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1017/s2042169900008063",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [],
+      "container": "Camden Old Series",
+      "doi": "10.1017/s2042169900008063",
+      "provider": "Crossref",
+      "provider_id": "10.1017/s2042169900008063",
+      "published_date": "2010-02-23",
+      "publisher": "Cambridge University Press (CUP)",
+      "title": "XIX. The Superior of the House of St. Robert near Knaresborough, of the Order of the Holy Trinity and the Redemption of Captives, and Vicar-General and Provincial of the said Order in England, to Thomas Popley, admitting him to certain privileges belonging to the Order. A. D. 1473.",
+      "url": "https://doi.org/10.1017/s2042169900008063",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "formal_metaphysics"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

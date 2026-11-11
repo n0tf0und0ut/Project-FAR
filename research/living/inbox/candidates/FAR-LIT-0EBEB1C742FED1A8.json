@@ -1,0 +1,80 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-0EBEB1C742FED1A8",
+  "discovery": {
+    "first_seen_utc": "2026-10-20T03:54:00Z",
+    "last_seen_utc": "2026-10-20T03:54:00Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "HIST-PROBABILITY-DECISION",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          1927,
+          1936
+        ],
+        "query": "probability decision theory sufficient information history",
+        "seen_utc": "2026-10-20T03:54:00Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "openalex:w7199540660",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Rocky Mountain Law Review"
+      ],
+      "cited_by_count": 0,
+      "doi": null,
+      "provider": "OpenAlex",
+      "provider_id": "https://openalex.org/W7199540660",
+      "published_date": "1928-01-01",
+      "title": "Current Decisions",
+      "url": "https://scholar.law.colorado.edu/lawreview/vol1/iss1/7",
+      "work_type": "article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "historical_foundations"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

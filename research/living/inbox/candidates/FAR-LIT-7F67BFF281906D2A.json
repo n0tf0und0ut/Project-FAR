@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-7F67BFF281906D2A",
+  "discovery": {
+    "first_seen_utc": "2026-09-08T17:15:59Z",
+    "last_seen_utc": "2026-09-11T01:07:54Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "large language model adversarial reviewer calibration independent evaluation",
+        "seen_utc": "2026-09-08T17:15:59Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/docs63458.2024.10704419",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Rui Zhong",
+        "Yang Cao",
+        "Jun Yu",
+        "Masaharu Munetomo"
+      ],
+      "container": "2024 6th International Conference on Data-driven Optimization of Complex Systems (DOCS)",
+      "doi": "10.1109/docs63458.2024.10704419",
+      "provider": "Crossref",
+      "provider_id": "10.1109/docs63458.2024.10704419",
+      "published_date": "2024-08-16",
+      "publisher": "IEEE",
+      "title": "Large Language Model Assisted Adversarial Robustness Neural Architecture Search",
+      "url": "https://doi.org/10.1109/docs63458.2024.10704419",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

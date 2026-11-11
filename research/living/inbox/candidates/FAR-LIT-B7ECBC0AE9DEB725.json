@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-B7ECBC0AE9DEB725",
+  "discovery": {
+    "first_seen_utc": "2026-09-09T00:40:23Z",
+    "last_seen_utc": "2026-09-11T01:07:54Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information preserving representation audit observational equivalence",
+        "seen_utc": "2026-09-09T00:40:23Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.15587/2706-5448.2026.360928",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Maksym Moskalenko"
+      ],
+      "container": "Technology audit and production reserves",
+      "doi": "10.15587/2706-5448.2026.360928",
+      "provider": "Crossref",
+      "provider_id": "10.15587/2706-5448.2026.360928",
+      "published_date": "2026-05-29",
+      "publisher": "Private Company Technology Center",
+      "title": "Development and verification of an orchestration architecture of AI agents for automated API testing with a unified representation of requirements",
+      "url": "https://doi.org/10.15587/2706-5448.2026.360928",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

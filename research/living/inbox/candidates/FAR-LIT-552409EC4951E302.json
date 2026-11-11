@@ -1,0 +1,63 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-552409EC4951E302",
+  "discovery": {
+    "first_seen_utc": "2026-11-10T20:28:45Z",
+    "last_seen_utc": "2026-11-10T21:24:03Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "bisimulation quotient minimization computation",
+        "seen_utc": "2026-11-10T20:28:45Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1007/11812128_21",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Yung-Pin Cheng",
+        "Hong-Yi Wang",
+        "Yu-Ru Cheng"
+      ],
+      "container": "Lecture Notes in Computer Science Implementation and Application of Automata",
+      "doi": "10.1007/11812128_21",
+      "provider": "Crossref",
+      "provider_id": "10.1007/11812128_21",
+      "published_date": "2006-01-01",
+      "publisher": "Springer Berlin Heidelberg",
+      "title": "On-the-Fly Branching Bisimulation Minimization for Compositional Analysis",
+      "url": "https://doi.org/10.1007/11812128_21",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-C915E685D42A4957",
+  "discovery": {
+    "first_seen_utc": "2026-11-07T23:46:19Z",
+    "last_seen_utc": "2026-11-11T10:12:29Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "large language model adversarial reviewer calibration independent evaluation",
+        "seen_utc": "2026-11-07T23:46:19Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      },
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multi agent debate correlated errors independence evaluation",
+        "seen_utc": "2026-11-10T01:27:55Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1038/s41598-026-42705-7",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Insaf Kraidia",
+        "Iyas Qaddara",
+        "Alhanof Almutairi",
+        "Nada Alzaben",
+        "Samir Brahim Belhouari"
+      ],
+      "container": "Scientific Reports",
+      "doi": "10.1038/s41598-026-42705-7",
+      "provider": "Crossref",
+      "provider_id": "10.1038/s41598-026-42705-7",
+      "published_date": "2026-04-08",
+      "publisher": "Springer Science and Business Media LLC",
+      "title": "When collaboration fails: persuasion driven adversarial influence in multi agent large language model debate",
+      "url": "https://doi.org/10.1038/s41598-026-42705-7",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

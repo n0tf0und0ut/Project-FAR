@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-98269EB4B7D9F2C1",
+  "discovery": {
+    "first_seen_utc": "2026-09-14T07:08:55Z",
+    "last_seen_utc": "2026-09-14T22:46:06Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information bottleneck decision loss sufficient statistic",
+        "seen_utc": "2026-09-14T07:08:55Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.52202/075280-3353",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Sangwoo Seo",
+        "Sungwon Kim",
+        "Chanyoung Park"
+      ],
+      "container": "Advances in Neural Information Processing Systems 36",
+      "doi": "10.52202/075280-3353",
+      "provider": "Crossref",
+      "provider_id": "10.52202/075280-3353",
+      "published_date": "2023-01-01",
+      "publisher": "Neural Information Processing Systems Foundation, Inc. (NeurIPS)",
+      "title": "Interpretable Prototype-based Graph Information Bottleneck",
+      "url": "https://doi.org/10.52202/075280-3353",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-1FCE8E8D1A0F15EA",
+  "discovery": {
+    "first_seen_utc": "2026-09-21T17:04:41Z",
+    "last_seen_utc": "2026-09-24T00:54:11Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_ORIENTATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "8abb652d0ffbdaaafa74e01e36a942c08477c737766be54e52016a80f009f07c",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multiobjective decision external preference orientation",
+        "seen_utc": "2026-09-21T17:04:41Z",
+        "target_id": "FAR-RQ-008",
+        "target_ids": [
+          "FAR-RQ-008"
+        ]
+      },
+      {
+        "candidate_relation": "EXTERNAL_ORIENTATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "8abb652d0ffbdaaafa74e01e36a942c08477c737766be54e52016a80f009f07c",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "partial order preference elicitation incomparable criteria",
+        "seen_utc": "2026-09-21T17:04:41Z",
+        "target_id": "FAR-RQ-008",
+        "target_ids": [
+          "FAR-RQ-008"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.2139/ssrn.7498328",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Antonio López Jáimes",
+        "Montserrat Alvarado-González",
+        "Diego González Chávez"
+      ],
+      "container": null,
+      "doi": "10.2139/ssrn.7498328",
+      "provider": "Crossref",
+      "provider_id": "10.2139/ssrn.7498328",
+      "published_date": "2026-01-01",
+      "publisher": "Elsevier BV",
+      "title": "An emotion-based preference elicitation framework applied to Interactive Multiobjective Optimization",
+      "url": "https://doi.org/10.2139/ssrn.7498328",
+      "work_type": "posted-content"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}
