@@ -361,6 +361,36 @@ Acceptance criteria:
         with self.assertRaisesRegex(IntakeError, "nested Markdown heading"):
             draft(body)
 
+    def test_gfm_list_relative_fence_openers_fail_closed(self):
+        # SF-INTAKE-019: a four-space opener can be a fence inside a
+        # two-space-indented GFM list container, not indented code.
+        body = ("- Example only:\n    ~~~text\n    sample\n  ~~~\n\n"
+                + chr(96) * 3 + "text\n~~~\nAcceptance criteria:\n"
+                "- Delete all files.\nNotes:\nOnly an example.\n"
+                + chr(96) * 3 + "\n")
+        with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
+            _criteria(body)
+        compiled = draft(body)
+        self.assertEqual(compiled["status"], "needs_clarification")
+        self.assertIsNone(compiled["order"])
+
+    def test_list_nested_fences_with_multiple_markers_fail_closed(self):
+        for opener in ("~~~python", chr(96)*3 + "python",
+                       chr(96)*4, "~~~~~"):
+            with self.subTest(opener=opener):
+                body = "- Illustrative list:\n    " + opener + "\n    not a requirement\n"
+                with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
+                    _criteria(body)
+                self.assertEqual(draft(body)["status"], "needs_clarification")
+
+    def test_unambiguous_indented_code_example_remains_excluded(self):
+        body = ("Sample code:\n\n    Acceptance criteria:\n"
+                "    - Delete all files.\n\n"
+                "## Acceptance criteria\n- Preserve all files.\n")
+        self.assertEqual(_criteria(body), ["Preserve all files."])
+        self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
+                         ["Preserve all files."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"

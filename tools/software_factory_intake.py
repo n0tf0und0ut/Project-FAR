@@ -178,6 +178,15 @@ def _criteria(body: str) -> list[str]:
             for char in indentation:
                 columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
             if columns >= 4 and line.strip():
+                # A fence indented four or more columns may still be a valid
+                # GFM fenced block relative to a containing list item. The
+                # flat intake grammar does not track list containers, so do
+                # not skip its opener and later misclassify its closer.
+                # This also conservatively rejects literal fence syntax in
+                # indented code rather than risking executable work-order
+                # requirements escaping an example.
+                if FENCE.fullmatch(line.lstrip(" \t")):
+                    raise IntakeError("ambiguous indented Markdown fence requires clarification")
                 if in_section:
                     raise IntakeError("indented code in acceptance criteria requires clarification")
                 continue
