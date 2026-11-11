@@ -164,6 +164,29 @@ Acceptance criteria:
                 body = prefix + "\n## Acceptance criteria\n- Keep data.\n"
                 self.assertEqual(_criteria(body), ["Keep data."])
 
+    def test_multiline_html_pre_delimiters_cannot_spoof_acceptance(self):
+        # Valid HTML tag attributes and close delimiters may span lines.
+        # A line-by-line regex must reject unrecognized fragments before
+        # template examples can be promoted into live work orders.
+        for open_tag, close_tag in (
+                ("<pre\nclass=\"example\">", "</pre\n>"),
+                ("<pre\nclass=\"example\">", "</pre>"),
+                ("<pre>", "</pre\n>"),
+                ("<pre\n>", "</pre>"),
+        ):
+            with self.subTest(open_tag=open_tag, close_tag=close_tag):
+                body = ("Example only:\n" + open_tag + "\n"
+                        "Acceptance criteria:\n- Delete all files.\n\n"
+                        "Notes:\nNot work to perform.\n" + close_tag + "\n")
+                with self.assertRaises(IntakeError):
+                    _criteria(body)
+
+    def test_pre_marker_inside_fenced_example_is_not_an_active_tag(self):
+        body = ("~~~html\n<pre\nclass=\"example\">\n"
+                "Acceptance criteria:\n- Delete all files.\n~~~\n"
+                "## Acceptance criteria\n- Preserve user data.\n")
+        self.assertEqual(_criteria(body), ["Preserve user data."])
+
     def test_markup_inside_acceptance_fails_closed(self):
         for suffix in (" <pre><!-- fake -->",
                        " <!-- hidden -->",
