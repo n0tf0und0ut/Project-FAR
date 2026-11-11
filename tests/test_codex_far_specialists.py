@@ -44,7 +44,7 @@ class CodexSpecialistTests(unittest.TestCase):
         self.assertEqual(adapter.check(adapter.ROOT), [])
 
     def test_ci_job_invokes_adapter_validation(self):
-        workflow = (adapter.ROOT / '.github/workflows/repo-health.yml').read_text()
+        workflow = (adapter.ROOT / '.github/workflows/codex-far-specialists.yml').read_text()
         self.assertIn('python tools/check_codex_far_specialists.py', workflow)
         self.assertIn('python -m unittest tests.test_codex_far_specialists -v', workflow)
 

@@ -21,7 +21,7 @@ python tools/check_codex_far_specialists.py
 python -m unittest tests.test_codex_far_specialists -v
 ```
 
-Repository Health runs both commands on PRs and on protected main. The validator compares all 14 source names and descriptions with both adapter surfaces, validates TOML, rejects missing/stale/altered adapters and symlinked sources, and fails on metadata drift. This checks wiring, not model invocation, live task quality, or actual Codex runtime discovery.
+The separate read-only `Codex FAR Specialist Adapter Contract` workflow runs both commands on relevant PRs and by manual dispatch; protected Repository Health remains unchanged and hash-locked. The validator compares all 14 source names and descriptions with both adapter surfaces, validates TOML, rejects missing/stale/altered adapters and symlinked sources, and fails on metadata drift. This checks wiring, not model invocation, live task quality, or actual Codex runtime discovery.
 
 ## Boundaries
 

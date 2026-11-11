@@ -29,10 +29,6 @@ jobs:
         python-version: '3.11'
     - name: Install dependencies
       run: pip install -r requirements.txt
-    - name: Verify Codex FAR specialist adapters
-      run: |
-        python tools/check_codex_far_specialists.py
-        python -m unittest tests.test_codex_far_specialists -v
     - name: Run theory verifier
       run: python tools/verify_theory.py
     - name: Run canonical fast repository health check
