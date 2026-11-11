@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from collections import defaultdict
+from fnmatch import fnmatchcase
 from pathlib import Path
 import yaml
 from common_health import ROOT, iter_files, rel
@@ -20,6 +21,23 @@ def resolve_ref(p, v):
 
 def is_dynamic_ref(v):
     return '${{' in v or '$(' in v
+
+def resolves_coderabbit_review_glob(relative, location, key, value):
+    """Only CodeRabbit path_instructions.path may name a source glob.
+
+    Require a real file match so a typo remains a repository hygiene failure.
+    All other YAML path references retain the exact-path validation.
+    """
+    if (relative != '.coderabbit.yaml' or key != 'path'
+            or len(location) != 3 or location[:2] != ('reviews', 'path_instructions')
+            or not isinstance(location[2], int)):
+        return False
+    if not any(char in value for char in '*?['):
+        return False
+    if Path(value).is_absolute() or '..' in Path(value).parts:
+        return False
+    return any(fnmatchcase(rel(candidate), value)
+               for candidate in ROOT.rglob('*') if candidate.is_file())
 
 for p in iter_files({'.yaml','.yml'}):
     relative=rel(p)
@@ -66,6 +84,7 @@ for p in iter_files({'.yaml','.yml'}):
                     and not v.startswith(('http://','https://'))
                     and ('/' in v or '.' in v)
                     and not resolve_ref(p, v)
+                    and not resolves_coderabbit_review_glob(relative, location, kl, v)
                 ):
                     errors.append(f'{relative}: referenced path missing: {v}')
                 walk(v, kl, location + (k,), artifact_step and k == 'with')

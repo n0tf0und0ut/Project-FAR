@@ -1,0 +1,18 @@
+{
+  "schema": "far-software-factory/work-order/1",
+  "id": "pilot",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "base_sha": "75562cc65245be2bc1b8832cf92411c31919a406",
+  "tasks": [
+    {
+      "id": "queue-contract",
+      "objective": "Verify immutable work-order intake and crash-safe claims",
+      "acceptance": [
+        "Rejects dependency cycles and duplicate IDs",
+        "Expired lease can be reclaimed without accepting stale tokens",
+        "Converged review cannot bypass protected merge"
+      ],
+      "depends_on": []
+    }
+  ]
+}
