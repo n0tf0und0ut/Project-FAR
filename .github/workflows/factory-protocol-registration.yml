@@ -1,0 +1,27 @@
+name: Factory Protocol Registration
+
+on:
+  pull_request:
+    paths:
+      - "tools/factory_evaluation_registration.py"
+      - "tests/test_factory_evaluation_registration.py"
+      - "research/factory-evaluation/protocol-registration-v1.json"
+      - "docs/maintenance/factory-protocol-registration.md"
+      - ".github/workflows/factory-protocol-registration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test source-bound registration and adversarial failures
+        run: python -m unittest discover -s tests -p test_factory_evaluation_registration.py -v
+      - name: Independently retrieve merged GitHub protocol provenance
+        run: python tools/factory_evaluation_registration.py research/factory-evaluation/protocol-registration-v1.json research/factory-evaluation/protocol-v1.json --verify-live
