@@ -219,6 +219,32 @@ Acceptance criteria:
                          "## Acceptance criteria\n- Preserve all files.\n")
                 self.assertEqual(_criteria(valid), ["Preserve all files."])
 
+    def test_only_gfm_line_endings_split_source_lines(self):
+        # U+2028, U+2029 and U+0085 belong to the code line, not to
+        # GFM's LF, CR and CRLF line-ending categories.
+        for mark in ("~~~", chr(96) * 3):
+            for unusual in ("\u2028", "\u2029", "\u0085"):
+                with self.subTest(mark=mark, unusual=repr(unusual)):
+                    body = (mark + "text\n" + mark + unusual + "\n"
+                            "Acceptance criteria:\n- Delete all files.\n"
+                            "Notes:\nOnly an example.\n" + mark + "\n")
+                    self.assertEqual(_criteria(body), [])
+                    self.assertEqual(draft(body)["status"], "needs_clarification")
+        for sep in ("\n", "\r", "\r\n"):
+            with self.subTest(sep=repr(sep)):
+                body = sep.join(("Acceptance criteria:", "- Keep files.", ""))
+                self.assertEqual(_criteria(body), ["Keep files."])
+
+    def test_invalid_backtick_fence_info_string_fails_closed(self):
+        ticks = chr(96) * 3
+        body = (ticks + "not" + chr(96) + "a" + chr(96) + "fence\n"
+                + ticks + "\nAcceptance criteria:\n- Delete all files.\n"
+                "Notes:\nOnly an example.\n" + ticks + "\n")
+        with self.assertRaises(IntakeError):
+            _criteria(body)
+        with self.assertRaises(IntakeError):
+            draft(body)
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
