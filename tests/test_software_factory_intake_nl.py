@@ -326,6 +326,41 @@ Acceptance criteria:
         self.assertEqual(_criteria(body),
                          ["Keep data.", "Keep backups.", "Exit successfully."])
 
+    def test_tab_terminated_fence_closer_preserves_hidden_example(self):
+        # SF-INTAKE-016: GFM permits trailing tabs on closing fences.
+        body = ("~~~text\n~~~\t\n" + chr(96) * 3 +
+                "text\n~~~\nAcceptance criteria:\n- Delete all files.\n"
+                "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+        valid = body + "\nAcceptance criteria:\n- Preserve all files.\n"
+        self.assertEqual(_criteria(valid), ["Preserve all files."])
+        self.assertEqual(draft(valid)["order"]["tasks"][0]["acceptance"],
+                         ["Preserve all files."])
+
+    def test_unicode_whitespace_cannot_open_pre_examples(self):
+        # SF-INTAKE-017: Python \s accepts U+00A0, which GFM's HTML
+        # delimiter whitespace does not. Fail closed before fence state drifts.
+        for ws in ("\u00a0", "\u2003", "\u202f"):
+            with self.subTest(ws=repr(ws)):
+                body = ("<pre" + ws + ">\n" + chr(96) * 3 + "text\n</pre>\n"
+                        "Acceptance criteria:\n- Delete all files.\n"
+                        "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
+                with self.assertRaisesRegex(IntakeError, "malformed HTML pre tag"):
+                    _criteria(body)
+                self.assertEqual(draft(body)["status"], "needs_clarification")
+
+    def test_nested_atx_heading_in_list_item_is_rejected(self):
+        # SF-INTAKE-018: nested headings are not top-level section switches.
+        body = ("Acceptance criteria:\n- Report status correctly.\n"
+                "  ## Error handling\n  - Return nonzero for invalid input.\n"
+                "- Preserve all user files.\n")
+        with self.assertRaisesRegex(IntakeError, "nested Markdown heading"):
+            _criteria(body)
+        compiled = draft(body)
+        self.assertEqual(compiled["status"], "needs_clarification")
+        self.assertIsNone(compiled["order"])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"

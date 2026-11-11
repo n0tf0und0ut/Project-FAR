@@ -29,7 +29,7 @@ HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+wh
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
-HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:\s[^<>]*)?>|</pre\s*>", re.I)
+HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:[ \t][^<>]*)?>|</pre[ \t]*>", re.I)
 HTML_PRE_PREFIX = re.compile(r"</?pre\b", re.I)
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -163,7 +163,7 @@ def _criteria(body: str) -> list[str]:
     for line in re.split(r"\r\n|\n|\r", body):
         marker = FENCE.fullmatch(line)
         if fence is not None:
-            if (marker and not marker.group("suffix").strip(" ")
+            if (marker and not marker.group("suffix").strip(" \t")
                     and marker.group("mark")[0] == fence[0]
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
@@ -196,8 +196,13 @@ def _criteria(body: str) -> list[str]:
         # headings. Otherwise an indented literal "Acceptance:" continuation
         # resets the section and silently drops required contract text.
         leading = len(line) - len(line.lstrip(" \t"))
-        continuation = (in_section and last_bullet is not None and leading >= 2
-                        and not line.lstrip().startswith("#"))
+        # GFM permits indented ATX headings inside list items. Parsing such
+        # nested structure with the flat acceptance grammar can silently
+        # discard requirements; require clarification instead.
+        if (in_section and last_bullet is not None and leading >= 2
+                and line.lstrip().startswith("#")):
+            raise IntakeError("nested Markdown heading requires clarification")
+        continuation = (in_section and last_bullet is not None and leading >= 2)
         if HEADING.fullmatch(line) and not continuation:
             last_bullet = None
             in_section = True
