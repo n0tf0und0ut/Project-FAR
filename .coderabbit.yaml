@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Advisory review only. Project FAR's protected review/merge obligations remain separate.
+language: en-US
+reviews:
+  profile: chill
+  high_level_summary: false
+  review_info: true
+  review_details: true
+  review_status: true
+  review_progress: true
+  fail_commit_status: true
+  auto_approvals:
+    enabled: false
+  finishing_touches:
+    autofix:
+      enabled: false
+    fix_ci:
+      enabled: false
+    unit_tests:
+      enabled: false
+    docstrings:
+      enabled: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+    drafts: false
+  path_instructions:
+    - path: ".github/workflows/**"
+      instructions: |
+        Treat changed trust boundaries, event eligibility, token permissions,
+        secret exposure, action version pinning, and protected-main source
+        binding as high-risk invariants. Report a concrete exploit or
+        counterexample, not just an unsupported concern. Never suggest
+        weakening required merge/review checks to obtain green status.
+    - path: "tools/**"
+      instructions: |
+        Check root-cause correctness, fail-closed behavior, provenance and
+        exact-head binding, ambiguous/unknown states, integration effects,
+        and changed validation oracles. Include a minimal reproducer.
+    - path: "tests/**"
+      instructions: |
+        Check that tests actually fail on representative faulty behavior,
+        exercise negative and boundary cases, and do not merely restate
+        the implementation.
+    - path: "docs/governance/**"
+      instructions: |
+        Preserve canonical authority and distinction between automated
+        review metadata, human approval, substantive verification, and
+        external scientific replication. Flag unsupported claim promotion.
+    - path: "research/**"
+      instructions: |
+        Do not transform hypotheses or finite internal tests into accepted,
+        externally replicated, or generally reliable scientific claims.
+        Preserve frozen evidence, denominators, and uncertainty.
