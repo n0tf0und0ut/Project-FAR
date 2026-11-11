@@ -310,7 +310,10 @@ Acceptance criteria:
             f = Factory(db)
             try:
                 order = f.snapshot(compiled["order"]["id"])
-                self.assertEqual(order["tasks"][0]["acceptance"],
+                self.assertEqual(order["tasks"][0]["state"], "queued")
+                claimed = f.claim(compiled["order"]["id"], worker="intake-test", now=100)
+                self.assertIsNotNone(claimed)
+                self.assertEqual(claimed["task"]["acceptance"],
                                  ["Print the following literal label: Acceptance:",
                                   "Exit successfully for valid inputs."])
             finally:
