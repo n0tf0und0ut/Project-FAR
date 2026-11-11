@@ -40,6 +40,14 @@ class CodexSpecialistTests(unittest.TestCase):
             self.assertEqual(config['name'], adapter.agent_id(name))
             self.assertIn(f'.claude/skills/{name}/SKILL.md', config['developer_instructions'])
 
+    def test_checked_in_catalog_matches_current_source(self):
+        self.assertEqual(adapter.check(adapter.ROOT), [])
+
+    def test_ci_job_invokes_adapter_validation(self):
+        workflow = (adapter.ROOT / '.github/workflows/repo-health.yml').read_text()
+        self.assertIn('python tools/check_codex_far_specialists.py', workflow)
+        self.assertIn('python -m unittest tests.test_codex_far_specialists -v', workflow)
+
     def test_canonical_source_change_requires_adapter_sync(self):
         src = self.root / '.claude/skills' / NAMES[0] / 'SKILL.md'
         src.write_text(src.read_text().replace('Test far-', 'Changed far-'))
