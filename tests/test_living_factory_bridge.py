@@ -1,4 +1,4 @@
-"""Read-only #490 factory proposal pilot; source data must never become instructions."""
+"""Read-only rolling inbox factory pilot; source data never becomes instructions."""
 from __future__ import annotations
 
 import base64
@@ -47,13 +47,14 @@ def raw_fixture(obj=None) -> bytes:
 def propose(obj=None, *, src=SRC_SHA, main=MAIN_SHA, raw=None):
     raw = raw_fixture(obj) if raw is None else raw
     return bridge.build_proposal(raw=raw, candidate_id=ID, source_ref_sha=src,
-                                 recorded_blob_sha=bridge.git_blob_sha1(raw), base_sha=main)
+                                 recorded_blob_sha=bridge.git_blob_sha1(raw), base_sha=main,
+                                 source_pr_number=653)
 
 
 def remote_fixture(obj=None):
     raw = raw_fixture(obj)
     path = bridge.candidate_path(ID)
-    pr = {"number": 490, "state": "open", "draft": True,
+    pr = {"number": 653, "state": "open", "draft": True,
           "head": {"sha": SRC_SHA, "ref": "automation/living-research-inbox",
                    "repo": {"full_name": "n0tf0und0ut/Project-FAR"}},
           "base": {"ref": "main"}}
@@ -62,7 +63,7 @@ def remote_fixture(obj=None):
                "sha": bridge.git_blob_sha1(raw), "size": len(raw),
                "content": base64.encodebytes(raw).decode("ascii")}
     responses = {
-        bridge.API_ROOT + "/pulls/490": pr,
+        bridge.INBOX_PRS_URL: [pr],
         bridge.API_ROOT + "/branches/main": main,
         bridge.API_ROOT + "/contents/" + path + "?ref=" + SRC_SHA: content,
     }
@@ -195,7 +196,8 @@ class BridgeUnitTests(unittest.TestCase):
         raw=raw_fixture()
         for args in ({"repository":"enemy/repo"},{"source_ref_sha":"main"},{"base_sha":"x"}):
             params={"raw":raw,"candidate_id":ID,"source_ref_sha":SRC_SHA,
-                    "recorded_blob_sha":bridge.git_blob_sha1(raw),"base_sha":MAIN_SHA}
+                    "recorded_blob_sha":bridge.git_blob_sha1(raw),"base_sha":MAIN_SHA,
+                    "source_pr_number":653}
             params.update(args)
             with self.subTest(args=args),self.assertRaises(bridge.BridgeError):
                 bridge.build_proposal(**params)
@@ -231,6 +233,37 @@ class LiveReadBoundaryTests(unittest.TestCase):
         self.assertEqual(p["source"]["commit_sha"],SRC_SHA)
         self.assertTrue(p["proposed_work_order"]["id"].startswith("living-"))
 
+    def test_single_active_inbox_discovery_is_mandatory(self):
+        # Closed historical #490 is not a valid substitute for one current
+        # owner-bootstrapped draft source on the configured branch.
+        for value in ([], [remote_fixture()[bridge.INBOX_PRS_URL][0]] * 2, {},
+                      None, [{"number": 490, "state": "closed"}]):
+            responses = remote_fixture()
+            responses[bridge.INBOX_PRS_URL] = value
+            with self.subTest(value=repr(value)[:80]), self.assertRaises(bridge.BridgeError):
+                bridge.fetch_live_proposal(ID, getter=responses.__getitem__)
+
+    def test_discovered_pr_identity_binds_proposal_and_dedupe(self):
+        responses = remote_fixture()
+        out = bridge.fetch_live_proposal(ID, getter=responses.__getitem__)
+        self.assertEqual(out["source"]["pull_request"], 653)
+        self.assertEqual(out["source"]["branch"], bridge.SOURCE_BRANCH)
+        old = propose()
+        self.assertEqual(old["proposed_work_order"]["id"], out["proposed_work_order"]["id"])
+        raw = raw_fixture()
+        replaced = bridge.build_proposal(
+            raw=raw, candidate_id=ID, source_ref_sha=SRC_SHA,
+            recorded_blob_sha=bridge.git_blob_sha1(raw),
+            base_sha=MAIN_SHA, source_pr_number=654,
+        )
+        self.assertNotEqual(replaced["proposed_work_order"]["id"],
+                            out["proposed_work_order"]["id"])
+        for number in (0, -1, True, "653"):
+            with self.subTest(number=number), self.assertRaises(bridge.BridgeError):
+                bridge.build_proposal(raw=raw, candidate_id=ID, source_ref_sha=SRC_SHA,
+                                      recorded_blob_sha=bridge.git_blob_sha1(raw),
+                                      base_sha=MAIN_SHA, source_pr_number=number)
+
     def test_rejects_non_permanent_inbox_branch_and_non_draft_pr(self):
         for mutation in (
             lambda d:d.update(state="closed"),
@@ -241,7 +274,7 @@ class LiveReadBoundaryTests(unittest.TestCase):
             lambda d:d.update(number=491),
             lambda d:d["head"].update(sha="invalid"),
         ):
-            responses=remote_fixture();pr=responses[bridge.API_ROOT+"/pulls/490"];mutation(pr)
+            responses=remote_fixture();pr=responses[bridge.INBOX_PRS_URL][0];mutation(pr)
             with self.subTest(pr=pr), self.assertRaises(bridge.BridgeError):
                 bridge.fetch_live_proposal(ID,getter=responses.__getitem__)
 
@@ -271,7 +304,7 @@ class LiveReadBoundaryTests(unittest.TestCase):
 
     def test_api_url_is_fixed_to_github(self):
         for url in ("https://example.org/foo", "http://api.github.com/repos/"+bridge.REPOSITORY,
-                    "https://api.github.com.evil.example/repos/"+bridge.REPOSITORY+"/pulls/490"):
+                    "https://api.github.com.evil.example/repos/"+bridge.REPOSITORY+"/pulls/653"):
             with self.assertRaises(bridge.BridgeError):
                 bridge.read_github_json(url)
 
