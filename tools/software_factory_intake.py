@@ -75,6 +75,18 @@ def _strict_json(raw: str) -> object:
         raise IntakeError(f"invalid JSON: {exc.msg}") from exc
 
 
+def _reject_unhandled_html(text: str) -> None:
+    """Fail closed on raw HTML other than recognized comment/pre examples.
+
+    Unknown tags can introduce GFM HTML blocks whose contents look like live
+    Markdown acceptance criteria. Never silently promote those example lines.
+    Source inside Markdown fences, HTML comments, or pre blocks is excluded
+    before this check; plain comparisons with a separated '<' stay literal.
+    """
+    if re.search(r"<(?=[A-Za-z!/?])", text):
+        raise IntakeError("unsupported raw HTML requires clarification")
+
+
 def _visible_html_line(line: str, pre: bool, comment: bool,
                        acceptance: bool) -> tuple[str, bool, bool]:
     """Exclude raw HTML examples by source order, before heading extraction.
@@ -102,7 +114,9 @@ def _visible_html_line(line: str, pre: bool, comment: bool,
         found = True
         token = match.group(0).lower()
         if not pre and not comment:
-            visible.append(line[pos:match.start()])
+            fragment = line[pos:match.start()]
+            _reject_unhandled_html(fragment)
+            visible.append(fragment)
         if pre:
             if token.startswith("</pre"):
                 pre = False
@@ -125,7 +139,9 @@ def _visible_html_line(line: str, pre: bool, comment: bool,
             raise IntakeError("stray HTML closing delimiter requires clarification")
         pos = match.end()
     if not pre and not comment:
-        visible.append(line[pos:])
+        fragment = line[pos:]
+        _reject_unhandled_html(fragment)
+        visible.append(fragment)
     result = "".join(visible)
     if found and result.strip():
         raise IntakeError("mixed HTML examples and visible prose require clarification")
