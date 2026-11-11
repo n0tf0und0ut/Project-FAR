@@ -271,7 +271,7 @@ class LiveReadBoundaryTests(unittest.TestCase):
             lambda d:d["head"].update(ref="main"),
             lambda d:d["head"]["repo"].update(full_name="other/Project-FAR"),
             lambda d:d["base"].update(ref="other"),
-            lambda d:d.update(number=491),
+            lambda d:d.update(number=0),
             lambda d:d["head"].update(sha="invalid"),
         ):
             responses=remote_fixture();pr=responses[bridge.INBOX_PRS_URL][0];mutation(pr)
