@@ -428,7 +428,8 @@ Acceptance criteria:
                         "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
                 with self.assertRaisesRegex(IntakeError, "container-prefixed Markdown fence"):
                     _criteria(body)
-                self.assertEqual(draft(body)["status"], "needs_clarification")
+                with self.assertRaisesRegex(IntakeError, "container-prefixed Markdown fence"):
+                    draft(body)
 
     def test_non_gfm_unicode_prefix_cannot_enter_html_pre_state(self):
         # SF-INTAKE-022: Unicode NBSP preceding a valid pre tag is not a
@@ -440,7 +441,8 @@ Acceptance criteria:
                         "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
                 with self.assertRaisesRegex(IntakeError, "non-GFM whitespace"):
                     _criteria(body)
-                self.assertEqual(draft(body)["status"], "needs_clarification")
+                with self.assertRaisesRegex(IntakeError, "non-GFM whitespace"):
+                    draft(body)
 
     def test_plain_top_level_fence_and_ascii_pre_prefix_still_work(self):
         backticks = chr(96) * 3
