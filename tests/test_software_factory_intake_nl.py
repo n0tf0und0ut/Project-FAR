@@ -348,7 +348,8 @@ Acceptance criteria:
                         "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
                 with self.assertRaisesRegex(IntakeError, "malformed HTML pre tag"):
                     _criteria(body)
-                self.assertEqual(draft(body)["status"], "needs_clarification")
+                with self.assertRaisesRegex(IntakeError, "malformed HTML pre tag"):
+                    draft(body)
 
     def test_nested_atx_heading_in_list_item_is_rejected(self):
         # SF-INTAKE-018: nested headings are not top-level section switches.
@@ -357,9 +358,8 @@ Acceptance criteria:
                 "- Preserve all user files.\n")
         with self.assertRaisesRegex(IntakeError, "nested Markdown heading"):
             _criteria(body)
-        compiled = draft(body)
-        self.assertEqual(compiled["status"], "needs_clarification")
-        self.assertIsNone(compiled["order"])
+        with self.assertRaisesRegex(IntakeError, "nested Markdown heading"):
+            draft(body)
 
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
