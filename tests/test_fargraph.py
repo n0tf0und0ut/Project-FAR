@@ -209,6 +209,73 @@ class RepoFixture(unittest.TestCase):
         git('commit','-qm','modified')
         self.assertEqual(git_changed_files(self.root,base),['pkg/base.py'])
 
+    def test_excluded_external_symlink_remains_fresh_and_target_mutation_invalidates(self):
+        external=Path(self.temp.name).parent/('fargraph-link-one-'+self.root.name+'.md')
+        external.write_text('outside one')
+        other=Path(self.temp.name).parent/('fargraph-link-two-'+self.root.name+'.md')
+        other.write_text('outside two')
+        self.addCleanup(lambda:external.unlink(missing_ok=True))
+        self.addCleanup(lambda:other.unlink(missing_ok=True))
+        link=self.root/'docs/unsafe.md'
+        link.symlink_to(external)
+        g=build(self.root)
+        self.assertTrue(g.freshness()['fresh'])
+        self.assertNotIn('docs/unsafe.md',g.hashes)
+        link.unlink()
+        link.symlink_to(other)
+        state=g.freshness()
+        self.assertFalse(state['fresh'])
+        self.assertIn('docs/unsafe.md',state['changed_or_removed'])
+
+    def test_oversized_source_is_rejected_without_unbounded_read(self):
+        big=self.root/'oversize.py'
+        with big.open('wb') as stream:
+            stream.truncate(64 * 1024 * 1024)
+        g=build(self.root)
+        self.assertNotIn('oversize.py',g.hashes)
+        self.assertIn('oversize.py', [d['path'] for d in g.diagnostics
+                                     if d['kind']=='skipped_large_file'])
+        self.assertTrue(g.freshness()['fresh'])
+
+    def test_git_changed_files_preserves_unicode_and_deleted_paths(self):
+        def git(*args):
+            return subprocess.run(['git','-C',str(self.root),*args],
+                                  check=True,text=True,capture_output=True).stdout.strip()
+        git('init','-q')
+        git('config','user.email','fargraph-test@example.invalid')
+        git('config','user.name','Fargraph Test')
+        self.write('café.py','value = 1\n')
+        git('add','.')
+        git('commit','-qm','base')
+        base=git('rev-parse','HEAD')
+        self.write('café.py','value = 2\n')
+        git('add','café.py')
+        git('commit','-qm','change')
+        self.assertEqual(git_changed_files(self.root,base),['café.py'])
+        git('rm','café.py')
+        git('commit','-qm','delete')
+        self.assertEqual(git_changed_files(self.root,base,diff_filter='D'),['café.py'])
+
+    def test_mcp_malformed_parameter_objects_do_not_crash_stdio(self):
+        s=Server(str(self.root))
+        bad={'jsonrpc':'2.0','id':11,'method':'tools/call',
+             'params':['unexpected']}
+        invalid=s.handle(bad)
+        self.assertEqual(invalid['error']['code'],-32602)
+        other=s.handle({'jsonrpc':'2.0','id':12,'method':'tools/call',
+                        'params':{'name':'fargraph_impact','arguments':['wrong']}})
+        self.assertEqual(other['error']['code'],-32602)
+        self.assertEqual(s.handle({'jsonrpc':'2.0','id':13,'method':'ping'})['result'],{})
+        messages=[bad,{'jsonrpc':'2.0','id':14,'method':'ping'}]
+        proc=subprocess.run([sys.executable,'-m','fargraph.mcp','--root',str(self.root)],
+                            input='\n'.join(json.dumps(m) for m in messages)+'\n',
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=10)
+        self.assertEqual(proc.returncode,0,proc.stderr)
+        replies=[json.loads(line) for line in proc.stdout.splitlines()]
+        self.assertEqual([x['id'] for x in replies],[11,14])
+        self.assertEqual(replies[0]['error']['code'],-32602)
+        self.assertEqual(replies[1]['result'],{})
+
     def test_mcp_refresh(self):
         s=Server(str(self.root))
         prior=s.graph.hashes['README.md']

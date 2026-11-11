@@ -51,6 +51,7 @@ class Edge:
 @dataclass
 class Graph:
     root: Path
+    tracked_only: bool = False
     nodes: dict[str, Node] = field(default_factory=dict)
     edges: list[Edge] = field(default_factory=list)
     hashes: dict[str, str] = field(default_factory=dict)
@@ -89,25 +90,40 @@ class Graph:
         }
 
     def freshness(self) -> dict:
-        """Compare snapshot hashes with current bytes; never silently use a stale graph."""
+        """Detect drift within the same inventory scope and excluded symlinks."""
         changed = []
         for rel, previous in sorted(self.hashes.items()):
             path = self.root / rel
             try:
                 if not path.is_file() or not path.resolve().is_relative_to(self.root):
                     changed.append(rel)
-                elif hashlib.sha256(path.read_bytes()).hexdigest() != previous:
+                    continue
+                with path.open("rb") as stream:
+                    current = stream.read(MAX_SOURCE_BYTES + 1)
+                if len(current) > MAX_SOURCE_BYTES or hashlib.sha256(current).hexdigest() != previous:
                     changed.append(rel)
-            except OSError:
+            except (OSError, RuntimeError):
+                changed.append(rel)
+        excluded = {d['path']: d for d in self.diagnostics
+                    if d['kind'] == 'external_symlink'}
+        for rel, recorded in sorted(excluded.items()):
+            path = self.root / rel
+            try:
+                if (not path.is_symlink()
+                        or path.resolve().is_relative_to(self.root)
+                        or hashlib.sha256(os.fsencode(os.readlink(path))).hexdigest() != recorded['detail']):
+                    changed.append(rel)
+            except (OSError, RuntimeError):
                 changed.append(rel)
         ignored = {d['path'] for d in self.diagnostics
-                   if d['kind'] in {'skipped_large_file','unreadable'}}
+                   if d['kind'] in {'skipped_large_file', 'unreadable', 'external_symlink'}}
         new = []
-        for path in _discover_files(self.root):
+        for path in _discover_files(self.root, tracked_only=self.tracked_only):
             rel = path.relative_to(self.root).as_posix()
             if rel not in self.hashes and rel not in ignored:
                 new.append(rel)
-        return {'fresh': not changed and not new, 'changed_or_removed': changed,
+        return {'fresh': not changed and not new,
+                'changed_or_removed': sorted(set(changed)),
                 'new_files': new, 'unindexed_at_snapshot': sorted(ignored)}
 
     def stats(self) -> dict:
@@ -243,9 +259,17 @@ def _py_module_target(root: Path, source_path: str, module: str, level: int = 0)
 def _read_source(g: Graph, path: Path) -> str | None:
     rel=path.relative_to(g.root).as_posix()
     try:
-        content=path.read_bytes()
-        if len(content)>MAX_SOURCE_BYTES:
-            g.diagnostic('skipped_large_file',rel,0,f'{len(content)} bytes')
+        # Check size and cap the actual read: an attacker can grow a file
+        # between stat and read, so neither an unbounded read_bytes() nor a
+        # pre-read stat alone is a valid memory limit.
+        size = path.stat().st_size
+        if size > MAX_SOURCE_BYTES:
+            g.diagnostic('skipped_large_file',rel,0,f'{size} bytes')
+            return None
+        with path.open("rb") as stream:
+            content = stream.read(MAX_SOURCE_BYTES + 1)
+        if len(content) > MAX_SOURCE_BYTES:
+            g.diagnostic('skipped_large_file',rel,0,f'>{MAX_SOURCE_BYTES} bytes')
             return None
         text=content.decode('utf-8')
         g.hashes[rel]=hashlib.sha256(content).hexdigest()
@@ -431,8 +455,21 @@ def _python(g:Graph,rel:str,body:str)->None:
     PythonVisitor(g,rel,tree).run()
 
 
-def _discover_files(root: Path) -> list[Path]:
-    """Bound traversal by pruning vendor/cache directories before entering them."""
+def _discover_files(root: Path, tracked_only: bool = False) -> list[Path]:
+    """Prune local caches; exact Git views use the tracked index inventory."""
+    if tracked_only:
+        done = subprocess.run(
+            ['git', '-C', str(root), 'ls-files', '--cached', '-z'],
+            capture_output=True, check=True, timeout=30,
+        )
+        found = []
+        for raw in done.stdout.split(b'\0'):
+            if not raw:
+                continue
+            path = root / os.fsdecode(raw)
+            if path.suffix.lower() in SUPPORTED and (path.is_file() or path.is_symlink()):
+                found.append(path)
+        return sorted(found)
     found = []
     for dirname, dirs, files in os.walk(root, followlinks=False):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not
@@ -444,16 +481,19 @@ def _discover_files(root: Path) -> list[Path]:
     return sorted(found)
 
 
-def build(root: str | Path) -> Graph:
+def build(root: str | Path, tracked_only: bool = False) -> Graph:
     root=Path(root).expanduser().resolve()
     if not root.is_dir():
         raise ValueError(f'Not a directory: {root}')
-    g=Graph(root)
-    files=_discover_files(root)
+    g=Graph(root, tracked_only=tracked_only)
+    files=_discover_files(root, tracked_only=tracked_only)
     for path in files:
         rel=path.relative_to(root)
         if path.is_symlink() and not path.resolve().is_relative_to(root):
-            g.diagnostic('external_symlink',rel.as_posix(),0,'skipped')
+            # Excluded links are not graph evidence, but preserve their literal
+            # target identity to detect meaningful changes during freshness.
+            target_digest = hashlib.sha256(os.fsencode(os.readlink(path))).hexdigest()
+            g.diagnostic('external_symlink',rel.as_posix(),0,target_digest)
             continue
         body=_read_source(g,path)
         if body is None:continue
@@ -470,11 +510,16 @@ def build(root: str | Path) -> Graph:
     return g
 
 
-def git_changed_files(root: Path, base: str, head: str = 'HEAD') -> list[str]:
-    # No shell interpolation; ref selection is user-controlled, but git handles it as argv.
-    command=['git','-C',str(root),'diff','--name-only','--diff-filter=ACMRTUXB',f'{base}...{head}','--']
-    done=subprocess.run(command,check=True,capture_output=True,text=True,timeout=30)
-    return sorted(set(p for p in done.stdout.splitlines() if p))
+def git_changed_files(root: Path, base: str, head: str = 'HEAD',
+                      diff_filter: str = 'ACMRTUXB') -> list[str]:
+    # NUL-terminated Git paths avoid core.quotePath's escaped display format
+    # and preserve Unicode, spaces and literal newlines in filenames.
+    if diff_filter not in {'ACMRTUXB', 'D'}:
+        raise ValueError('Unsupported Git diff filter')
+    command=['git','-C',str(root),'diff','--name-only','-z',
+             '--diff-filter='+diff_filter,f'{base}...{head}','--']
+    done=subprocess.run(command,check=True,capture_output=True,timeout=30)
+    return sorted(set(os.fsdecode(p) for p in done.stdout.split(b'\0') if p))
 
 
 def save(g:Graph,output:Path)->None:

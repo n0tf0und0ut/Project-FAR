@@ -63,9 +63,10 @@ def evaluate(root: Path, work_order: Path, head_sha: str, repository: str,
     if ancestry.returncode != 0:
         raise ValueError("Work-order base is not an ancestor of the exact candidate head")
     changed = git_changed_files(root, base, head_sha)
-    deleted = _git(root, "diff", "--name-only", "--diff-filter=D",
-                   base + "..." + head_sha, "--").splitlines()
-    graph = build(root)
+    deleted = git_changed_files(root, base, head_sha, diff_filter="D")
+    # Only indexed Git-tracked bytes can be attributed to exact HEAD.
+    # Ignored local files are not evidence from the committed candidate.
+    graph = build(root, tracked_only=True)
     freshness = graph.freshness()
     if not freshness["fresh"]:
         raise ValueError("Repository changed while indexing; graph is not exact-source")

@@ -46,9 +46,13 @@ class Server:
         if method=='tools/list':return {'jsonrpc':'2.0','id':mid,'result':{'tools':specs()}}
         if method!='tools/call':
             return {'jsonrpc':'2.0','id':mid,'error':{'code':-32601,'message':'Method not found'}}
-        params=msg.get('params') or {}
+        params=msg.get('params', {})
+        if not isinstance(params, dict):
+            return {'jsonrpc':'2.0','id':mid,'error':{'code':-32602,'message':'Invalid params object'}}
         name=params.get('name')
-        a=params.get('arguments') or {}
+        a=params.get('arguments', {})
+        if not isinstance(a, dict):
+            return {'jsonrpc':'2.0','id':mid,'error':{'code':-32602,'message':'Invalid tool arguments object'}}
         try:
             if name=='fargraph_status':result=self.graph.freshness()
             elif name=='fargraph_stats':result={**self.graph.stats(),'freshness':self.graph.freshness()}

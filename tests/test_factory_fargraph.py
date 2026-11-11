@@ -99,6 +99,32 @@ class FactoryFargraphTests(unittest.TestCase):
         self.assertEqual(result["deleted_paths_with_unknown_prior_edges"], ["b.py"])
         self.assertIn("b.py", result["impact"]["missing"])
 
+    def test_ignored_supported_local_file_cannot_enter_exact_head_graph(self):
+        (self.root / ".gitignore").write_text("local.py\n")
+        git(self.root,"add",".gitignore")
+        git(self.root,"commit","-qm","ignore local")
+        self.head=git(self.root,"rev-parse","HEAD")
+        (self.root/"local.py").write_text("from a import f\n")
+        result=self.run_eval()
+        self.assertNotIn("local.py",result["indexed_source_hashes"])
+        self.assertTrue(result["index_freshness"]["fresh"])
+        self.assertEqual(result["status"],"ADVISORY_ONLY_NO_MERGE_AUTHORITY")
+
+    def test_unicode_deleted_paths_are_reported_without_git_quoting(self):
+        (self.root/"café.py").write_text("value = 1\n")
+        git(self.root,"add","café.py")
+        git(self.root,"commit","-qm","unicode base")
+        self.base=git(self.root,"rev-parse","HEAD")
+        order=json.loads(self.order.read_text())
+        order["base_sha"]=self.base
+        self.order.write_text(json.dumps(order))
+        git(self.root,"rm","café.py")
+        git(self.root,"commit","-qm","delete unicode")
+        self.head=git(self.root,"rev-parse","HEAD")
+        result=self.run_eval()
+        self.assertEqual(result["deleted_paths_with_unknown_prior_edges"],["café.py"])
+        self.assertIn("café.py",result["impact"]["missing"])
+
     def test_cli_success_and_failure_codes(self):
         from contextlib import redirect_stdout, redirect_stderr
         from io import StringIO
