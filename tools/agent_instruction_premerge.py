@@ -50,10 +50,13 @@ IMAGE = GRADER_IMAGE
 # Use a call-local baseline, reject known frame/native introspection paths, and
 # keep the same input/output protocol for all three entrypoint variants.
 # Python audit hooks are defense in depth, not isolation from hostile C code.
-OBSERVER_SETUP = (
+OBSERVER_PROLOGUE = (
     "import copy,json,runpy,sys\n"
     "sys.path.insert(0,'/app')\n"
     "d=json.load(sys.stdin)\n"
+    "emit=sys.stdout.write\n"
+    "flush=sys.stdout.flush\n"
+    "dumps=json.dumps\n"
     "def _deny_grader_introspection(event,args,_base=sys.base_prefix,_Error=RuntimeError):\n"
     "    if event == 'sys._getframe':\n"
     "        path=args[0].f_code.co_filename\n"
@@ -91,17 +94,28 @@ OBSERVER_SETUP = (
     "    before=snapshot(payload)\n"
     "    answer=call(payload)\n"
     "    return answer,snapshot(payload)==before\n"
-    "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
+    "emit('" + START + "\\n');flush()\n"
 )
+def _indent_observer(source: str) -> str:
+    """Put trusted grader code in the active invocation's local scope."""
+    return "".join("    " + line for line in source.splitlines(keepends=True))
+
+
+# Candidate import-time code cannot replace the active _run frame's local
+# audit callback, snapshot verifier, payload or bound output handles.
+OBSERVER_SETUP = "def _run():\n" + _indent_observer(OBSERVER_PROLOGUE)
 OBSERVER_EMIT = (
-    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':input_unchanged},"
+    "emit(dumps({'value':answer,'input_unchanged':input_unchanged},"
     "sort_keys=True,allow_nan=False,separators=(',',':')))\n"
-    "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
+    "emit('\\n" + FINISH + "\\n');flush()\n"
 )
+OBSERVER_EMIT = _indent_observer(OBSERVER_EMIT) + "_run()\n"
 ENTRYPOINT = (
     OBSERVER_SETUP
-    + "candidate=runpy.run_path('/app/solution.py')\n"
-    + "answer,input_unchanged=_checked(candidate['transform'],d)\n"
+    + _indent_observer(
+        "candidate=runpy.run_path('/app/solution.py')\n"
+        "answer,input_unchanged=_checked(candidate['transform'],d)\n"
+    )
     + OBSERVER_EMIT
 )
 
@@ -110,24 +124,28 @@ ENTRYPOINT = (
 # comparison flag directly, and frame-introspection attempts fail closed.
 INTERFACE_CALLERS = (
     OBSERVER_SETUP
-    + "def _call(payload):\n"
-    + "    from normalize import canonical,legacy\n"
-    + "    return {'service':canonical(payload['name']),'legacy':legacy(payload['name'])}\n"
-    + "answer,input_unchanged=_checked(_call,d)\n"
+    + _indent_observer(
+        "def _call(payload):\n"
+        "    from normalize import canonical,legacy\n"
+        "    return {'service':canonical(payload['name']),'legacy':legacy(payload['name'])}\n"
+        "answer,input_unchanged=_checked(_call,d)\n"
+    )
     + OBSERVER_EMIT
 )
 INTERFACE_REUSE = (
     OBSERVER_SETUP
-    + "def _call(payload):\n"
-    + "    import shared\n"
-    + "    calls=[]\n"
-    + "    def spy(value):\n"
-    + "        calls.append(value)\n"
-    + "        return 'FAR_HELPER_USED_V1'\n"
-    + "    shared.slugify=spy\n"
-    + "    from catalog import slugs\n"
-    + "    return {'result':slugs(payload['items']),'calls':calls}\n"
-    + "answer,input_unchanged=_checked(_call,d)\n"
+    + _indent_observer(
+        "def _call(payload):\n"
+        "    import shared\n"
+        "    calls=[]\n"
+        "    def spy(value):\n"
+        "        calls.append(value)\n"
+        "        return 'FAR_HELPER_USED_V1'\n"
+        "    shared.slugify=spy\n"
+        "    from catalog import slugs\n"
+        "    return {'result':slugs(payload['items']),'calls':calls}\n"
+        "answer,input_unchanged=_checked(_call,d)\n"
+    )
     + OBSERVER_EMIT
 )
 INTERFACE_ENTRYPOINTS = {'CALLERS-01': INTERFACE_CALLERS,
