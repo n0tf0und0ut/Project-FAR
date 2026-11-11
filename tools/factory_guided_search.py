@@ -105,14 +105,29 @@ def run_search(
             feedback.append({"slot": slot, "status": "INVALID_PROPOSAL"})
             continue
 
+        # Debit declared nonnegative integer cost even if the remaining
+        # evaluation receipt has an invalid oracle/source identity. A forged
+        # mismatch must not erase its own reported consumption and permit
+        # subsequent attempts beyond the reported-cost ceiling. This cannot
+        # authenticate or prepaid-limit external provider spending.
         try:
-            receipt = _receipt(evaluate(dict(candidate)), candidate, oracle_sha256)
+            raw_receipt = evaluate(dict(candidate))
+            reported = (raw_receipt.get("cost_micro_usd")
+                        if type(raw_receipt) is dict else None)
+            if type(reported) is int and reported >= 0:
+                total_cost += reported
+            receipt = _receipt(raw_receipt, candidate, oracle_sha256)
         except Exception as exc:
-            attempts.append({"slot": slot, "candidate": candidate, "status": "EVALUATION_ERROR", "error_type": type(exc).__name__})
+            if total_cost > max_cost_micro_usd:
+                attempts.append({"slot": slot, "candidate": candidate,
+                                 "status": "BUDGET_EXCEEDED", "error_type": type(exc).__name__})
+                terminated = "BUDGET_EXCEEDED"
+                break
+            attempts.append({"slot": slot, "candidate": candidate,
+                             "status": "EVALUATION_ERROR", "error_type": type(exc).__name__})
             feedback.append({"slot": slot, "status": "EVALUATION_ERROR"})
             continue
 
-        total_cost += receipt["cost_micro_usd"]
         if total_cost > max_cost_micro_usd:
             attempts.append({"slot": slot, "candidate": candidate, "receipt": receipt, "status": "BUDGET_EXCEEDED"})
             terminated = "BUDGET_EXCEEDED"

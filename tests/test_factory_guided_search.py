@@ -40,6 +40,36 @@ class GuidedSearchTests(unittest.TestCase):
         r = self.search(lambda c: {**receipt(c), 'oracle_sha256': 'c' * 64})
         self.assertEqual([x['status'] for x in r['attempts']], ['EVALUATION_ERROR'] * 3)
 
+    def test_invalid_provenance_still_debits_reported_cost(self):
+        # SF-GUIDED-COST-001: mismatched oracle evidence cannot erase a
+        # positive evaluator-reported cost and continue beyond the budget.
+        seen = []
+        def wrong_oracle(c):
+            seen.append(c["candidate_id"])
+            return {**receipt(c, price=1), "oracle_sha256": "c" * 64}
+        exhausted = self.search(wrong_oracle, max_cost_micro_usd=0)
+        self.assertEqual(seen, ["c0"])
+        self.assertEqual(exhausted["termination"], "BUDGET_EXCEEDED")
+        self.assertEqual(exhausted["total_reported_cost_micro_usd"], 1)
+        self.assertEqual([x["status"] for x in exhausted["attempts"]],
+                         ["BUDGET_EXCEEDED"])
+        self.assertIsNone(exhausted["selected_candidate"])
+        self.assertNotIn(ORACLE, repr(exhausted))
+
+        seen.clear()
+        gradual = self.search(wrong_oracle, max_cost_micro_usd=2)
+        self.assertEqual(seen, ["c0", "c1", "c2"])
+        self.assertEqual(gradual["total_reported_cost_micro_usd"], 3)
+        self.assertEqual([x["status"] for x in gradual["attempts"]],
+                         ["EVALUATION_ERROR", "EVALUATION_ERROR", "BUDGET_EXCEEDED"])
+        self.assertIsNone(gradual["selected_candidate"])
+
+    def test_valid_reported_cost_is_never_double_counted(self):
+        value = self.search(lambda c: receipt(c, price=1), max_cost_micro_usd=3)
+        self.assertEqual(value["total_reported_cost_micro_usd"], 3)
+        self.assertEqual(value["termination"], "ATTEMPTS_EXHAUSTED")
+        self.assertEqual([x["status"] for x in value["attempts"]], ["ELIGIBLE"] * 3)
+
     def test_receipt_for_wrong_commit_rejected(self):
         r = self.search(lambda c: {**receipt(c), 'source_sha': 'e' * 40})
         self.assertIsNone(r['selected_candidate'])

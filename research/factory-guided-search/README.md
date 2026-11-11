@@ -17,7 +17,7 @@ This code examines one narrower question: can a bounded candidate loop preserve 
 - Candidate declaration: candidate ID, exact base SHA, exact source SHA, artifact SHA-256.
 - Evaluator receipt: same candidate and source SHA, exact frozen oracle digest, PASS/FAIL/UNKNOWN for independently specified tests and FAR-contract audit, evidence SHA-256, nonnegative integer cost and duration.
 - Selection: both gates must be PASS. Among eligible candidates, lexicographically minimize reported micro-dollar cost, elapsed milliseconds, then original slot and candidate ID. Previous proposer feedback contains only slot/status labels, without raw oracle or evidence details.
-- Failure handling: preserve invalid candidates, callback errors and UNKNOWN/ineligible outcomes; reject mismatched source/oracle receipts. Stop on observed budget overrun. No attempt is silently regraded or replaced.
+- Failure handling: preserve invalid candidates, callback errors and UNKNOWN/ineligible outcomes; reject mismatched source/oracle receipts. Valid nonnegative integer cost reports are debited even when the remaining receipt fails provenance validation, so invalid oracle/source evidence cannot erase **reported** consumption or silently extend the candidate loop. Stop on observed budget overrun; opaque exceptions and malformed cost declarations still cannot prove any actual provider-charge ceiling. No attempt is silently regraded or replaced.
 - Result: CANDIDATE_PENDING_INDEPENDENT_VERIFICATION or NO_ELIGIBLE_CANDIDATE. Neither status authorizes protected delivery.
 
 ## Trust and scientific limits
