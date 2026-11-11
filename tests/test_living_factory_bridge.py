@@ -96,7 +96,8 @@ class BridgeUnitTests(unittest.TestCase):
         raw = raw_fixture()
         with self.assertRaisesRegex(bridge.BridgeError, "blob identity"):
             bridge.build_proposal(raw=raw+b" ", candidate_id=ID, source_ref_sha=SRC_SHA,
-                                  recorded_blob_sha=bridge.git_blob_sha1(raw), base_sha=MAIN_SHA)
+                                  recorded_blob_sha=bridge.git_blob_sha1(raw), base_sha=MAIN_SHA,
+                                  source_pr_number=653)
 
     def test_invalid_candidate_path_never_becomes_request_path(self):
         for name in ("../AGENTS.md", "../../.github", "FAR-LIT-zzzz", "FAR-LIT-1", ID+"/other"):
