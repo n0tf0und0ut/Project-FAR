@@ -32,6 +32,22 @@ def git(repo: Path, *args: str) -> str:
     return subprocess.run(["git", *args], cwd=repo, capture_output=True, check=True, text=True).stdout.strip()
 
 
+def missing_pinned_history_in_shallow_clone(root: Path) -> bool:
+    """Skip only an unresolvable historical pin in an explicitly shallow clone.
+
+    Complete checkouts must still fail if a pinned source disappears; never
+    interpret a synthetic fixture as historical source-exact verification.
+    """
+    shallow = subprocess.run(["git", "-C", str(root), "rev-parse", "--is-shallow-repository"],
+                             capture_output=True, text=True, timeout=15, check=False)
+    if shallow.returncode != 0 or shallow.stdout.strip() != "true":
+        return False
+    return any(subprocess.run(
+        ["git", "-C", str(root), "cat-file", "-e", f"{sha}:{b.SOURCE}"],
+        capture_output=True, timeout=15, check=False
+    ).returncode != 0 for sha, _blob in b.PINS.values())
+
+
 class HistoricalReplayTests(unittest.TestCase):
     def test_expected_observer_outcomes(self):
         for arm in b.PINS:
@@ -75,10 +91,34 @@ class HistoricalReplayTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         if not (root / ".git").exists():
             self.skipTest("no Git checkout: source-exact replay not executed")
+        if missing_pinned_history_in_shallow_clone(root):
+            self.skipTest("shallow checkout lacks pinned historical commits: source-exact replay NOT EXECUTED")
         result = b.replay(root)
         self.assertTrue(result["replay_passed"], result)
         self.assertEqual(result["cases"], b.EXPECTED)
         self.assertEqual(result["coding_agent_executions"], 0)
+
+    def test_shallow_checkout_missing_historical_pins_is_explicitly_unverified(self):
+        with tempfile.TemporaryDirectory() as td:
+            original = Path(td) / "original"
+            original.mkdir()
+            git(original, "init", "-q")
+            git(original, "config", "user.email", "unit-test@invalid.example")
+            git(original, "config", "user.name", "Unit Test")
+            source = original / b.SOURCE
+            source.parent.mkdir(parents=True)
+            for index in range(2):
+                source.write_bytes(fixture("before" if index == 0 else "after"))
+                git(original, "add", b.SOURCE)
+                git(original, "-c", "commit.gpgsign=false", "commit", "-qm",
+                    f"synthetic fixture commit {index}")
+            clone = Path(td) / "depth-one"
+            subprocess.run(["git", "clone", "-q", "--depth", "1",
+                            original.as_uri(), str(clone)],
+                           check=True, capture_output=True, timeout=30)
+            self.assertEqual(git(clone, "rev-parse", "--is-shallow-repository"), "true")
+            self.assertTrue(missing_pinned_history_in_shallow_clone(clone))
+            self.assertFalse(missing_pinned_history_in_shallow_clone(original))
 
     def test_missing_history_and_invalid_identity_fail_closed(self):
         with tempfile.TemporaryDirectory() as td:
