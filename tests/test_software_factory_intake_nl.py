@@ -281,6 +281,48 @@ Acceptance criteria:
         body = "Acceptance criteria:\n- Complete in < 5 seconds.\n"
         self.assertEqual(_criteria(body), ["Complete in < 5 seconds."])
 
+    def test_acceptance_named_indented_bullet_continuations_are_preserved(self):
+        # SF-INTAKE-015: acceptance-heading recognition previously ran before
+        # continuation classification, dropping an indented literal label.
+        labels = ("Acceptance:", "Acceptance criteria:", "Done when:",
+                  "Definition of done:", "Success criteria:")
+        for label in labels:
+            with self.subTest(label=label):
+                body = ("Acceptance criteria:\n"
+                        "- Print the following literal label:\n"
+                        "  " + label + "\n"
+                        "- Exit successfully for valid inputs.\n")
+                required = ["Print the following literal label: " + label,
+                            "Exit successfully for valid inputs."]
+                self.assertEqual(_criteria(body), required)
+                compiled = draft(body)
+                self.assertEqual(compiled["status"], "ready_for_manual_submission")
+                self.assertEqual(compiled["order"]["tasks"][0]["acceptance"], required)
+                self.assertEqual(verify_draft(compiled), compiled)
+
+    def test_acceptance_named_literal_survives_actual_queue_submission(self):
+        body = ("Acceptance criteria:\n- Print the following literal label:\n"
+                "  Acceptance:\n- Exit successfully for valid inputs.\n")
+        compiled = draft(body)
+        with tempfile.TemporaryDirectory() as root:
+            db = Path(root) / "queue.sqlite"
+            submit_draft(compiled, db)
+            f = Factory(db)
+            try:
+                order = f.snapshot(compiled["order"]["id"])
+                self.assertEqual(order["tasks"][0]["acceptance"],
+                                 ["Print the following literal label: Acceptance:",
+                                  "Exit successfully for valid inputs."])
+            finally:
+                f.db.close()
+
+    def test_actual_unindented_acceptance_heading_starts_another_section(self):
+        body = ("Acceptance criteria:\n- Keep data.\n"
+                "Acceptance:\n- Keep backups.\n"
+                "## Success criteria\n- Exit successfully.\n")
+        self.assertEqual(_criteria(body),
+                         ["Keep data.", "Keep backups.", "Exit successfully."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"

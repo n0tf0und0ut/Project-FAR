@@ -192,7 +192,13 @@ def _criteria(body: str) -> list[str]:
             line, html_pre, html_comment, in_section)
         if not line.strip():
             continue
-        if HEADING.fullmatch(line):
+        # Compute bullet continuation BEFORE interpreting acceptance-shaped
+        # headings. Otherwise an indented literal "Acceptance:" continuation
+        # resets the section and silently drops required contract text.
+        leading = len(line) - len(line.lstrip(" \t"))
+        continuation = (in_section and last_bullet is not None and leading >= 2
+                        and not line.lstrip().startswith("#"))
+        if HEADING.fullmatch(line) and not continuation:
             last_bullet = None
             in_section = True
             continue
@@ -200,9 +206,6 @@ def _criteria(body: str) -> list[str]:
             continue
         # An indented title-like line may be a continuation of a bullet.
         # Do not silently terminate the section and drop later criteria.
-        leading = len(line) - len(line.lstrip(" \t"))
-        continuation = (last_bullet is not None and leading >= 2
-                        and not line.lstrip().startswith("#"))
         if ANY_HEADING.fullmatch(line) and not continuation:
             last_bullet = None
             in_section = False
