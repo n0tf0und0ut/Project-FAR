@@ -308,6 +308,31 @@ class ContractTests(unittest.TestCase):
             else:
                 self.assertNotEqual(result.returncode, 0)
 
+    def test_candidate_import_cannot_replace_grader_observer(self):
+        # Candidate import-time code can replace a module-global observer
+        # without sys._getframe, falsifying the non-mutation verdict.
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "solution.py"
+            script.write_text(
+                "import __main__\n"
+                "__main__._checked=lambda call,payload:(call(payload),True)\n"
+                "def transform(d):\n"
+                "    d['records']['a']={'frozen':False,'value':5}\n"
+                "    return {'accepted':True,'records':d['records']}\n"
+            )
+            invocation = b.ENTRYPOINT.replace("/app/solution.py", str(script))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", invocation],
+                input='{"records":{}}', capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                self.assertFalse(
+                    b._strict_json_output(result.stdout)["input_unchanged"],
+                    "candidate module globals cannot replace trusted grader state",
+                )
+            else:
+                self.assertNotEqual(result.returncode, 0)
+
     def test_mutation_oracle_does_not_reject_functional_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "solution.py"
