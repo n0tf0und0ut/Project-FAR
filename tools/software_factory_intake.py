@@ -30,6 +30,7 @@ ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
 BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
 HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:\s[^<>]*)?>|</pre\s*>", re.I)
+HTML_PRE_PREFIX = re.compile(r"</?pre\b", re.I)
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 
@@ -86,7 +87,18 @@ def _visible_html_line(line: str, pre: bool, comment: bool,
     visible: list[str] = []
     pos = 0
     found = False
-    for match in HTML_CONTROL.finditer(line):
+    tokens = list(HTML_CONTROL.finditer(line))
+    complete_pre_starts = {
+        match.start() for match in tokens
+        if match.group(0).lower().startswith(("<pre", "</pre"))
+    }
+    # Valid HTML pre tags can span physical source lines. A per-line parser
+    # must reject incomplete delimiters rather than promoting their hidden
+    # example criteria into real acceptance requirements.
+    for prefix in HTML_PRE_PREFIX.finditer(line):
+        if prefix.start() not in complete_pre_starts:
+            raise IntakeError("multiline or malformed HTML pre tag requires clarification")
+    for match in tokens:
         found = True
         token = match.group(0).lower()
         if not pre and not comment:
