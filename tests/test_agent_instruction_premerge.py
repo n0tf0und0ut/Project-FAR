@@ -556,7 +556,7 @@ class ContractTests(unittest.TestCase):
         proto,tasks,sched=b.load_contract()
         cell=sched['slots'][0]
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp)
+            root=Path(tmp)/'campaign'
             with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
                 b.prepare(root)
                 ws=root/'workspaces'/cell['slot_id']
@@ -584,7 +584,7 @@ class ContractTests(unittest.TestCase):
         proto,tasks,sched=b.load_contract()
         cell=sched['slots'][0]
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp)
+            root=Path(tmp)/'campaign'
             with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
                 b.prepare(root)
                 with patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
@@ -607,7 +607,7 @@ class ContractTests(unittest.TestCase):
                   'stderr_bytes_observed':0,'output_limited':False,'timed_out':False,
                   'exit_code':0,'elapsed_seconds':0.1}
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp)
+            root=Path(tmp)/'campaign'
             with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
                 b.prepare(root)
                 ws=root/'workspaces'/cell['slot_id']
