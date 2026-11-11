@@ -213,6 +213,11 @@ def _criteria(body: str) -> list[str]:
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
         if HEADING.fullmatch(line) and not continuation:
+            # Indented acceptance headers can be text inside an enclosing
+            # Markdown list, not a live top-level work-order section.
+            # Supporting them requires a container-aware Markdown parser.
+            if leading:
+                raise IntakeError("indented acceptance heading requires clarification")
             last_bullet = None
             in_section = True
             continue
@@ -226,6 +231,11 @@ def _criteria(body: str) -> list[str]:
             continue
         match = BULLET.match(line)
         if match:
+            # A nested GFM list item is not a new top-level acceptance item.
+            # Flattening nested requirements without their container semantics
+            # can change the contract; reject this unsupported structure.
+            if leading >= 2:
+                raise IntakeError("nested acceptance bullet requires clarification")
             value = match.group(1).strip()
             if not value or len(value) > 1000:
                 raise IntakeError("acceptance criterion must have 1-1000 characters")

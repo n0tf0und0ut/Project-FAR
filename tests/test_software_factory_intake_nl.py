@@ -391,6 +391,30 @@ Acceptance criteria:
         self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
                          ["Preserve all files."])
 
+    def test_list_contained_acceptance_heading_never_promotes_example(self):
+        # GFM nests the following header and child bullet inside an example.
+        body = ("- Example only, not a work request:\n"
+                "  Acceptance criteria:\n"
+                "  - Delete all files.\n")
+        with self.assertRaisesRegex(IntakeError, "indented acceptance heading"):
+            _criteria(body)
+        with self.assertRaisesRegex(IntakeError, "indented acceptance heading"):
+            draft(body)
+
+    def test_indented_gfm_heading_is_not_silently_promoted(self):
+        body = ("  ## Acceptance criteria\n"
+                "- Delete all files.\n")
+        with self.assertRaisesRegex(IntakeError, "indented acceptance heading"):
+            _criteria(body)
+
+    def test_nested_acceptance_list_bullets_fail_closed(self):
+        body = ("Acceptance criteria:\n- Report status accurately.\n"
+                "  - Delete all files.\n- Preserve all files.\n")
+        with self.assertRaisesRegex(IntakeError, "nested acceptance bullet"):
+            _criteria(body)
+        with self.assertRaisesRegex(IntakeError, "nested acceptance bullet"):
+            draft(body)
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
