@@ -258,6 +258,51 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(out['value'],42)
             self.assertFalse(out['input_unchanged'])
 
+    def test_candidate_cannot_rebase_mutation_oracle_through_caller_frame(self):
+        # Reproduce the source-bound P1: the candidate can directly overwrite
+        # module-global 'original' in the trusted wrapper's caller frame.
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "solution.py"
+            script.write_text(
+                "import sys\n"
+                "def transform(d):\n"
+                "    d['records']['a']={'frozen':False,'value':5}\n"
+                "    sys._getframe(1).f_globals['original']=d\n"
+                "    return {'accepted':True,'records':d['records']}\n"
+            )
+            invocation = b.ENTRYPOINT.replace("/app/solution.py", str(script))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", invocation],
+                input='{"records":{}}', capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                self.assertFalse(
+                    b._strict_json_output(result.stdout)["input_unchanged"],
+                    "candidate changed caller records but forged an unchanged-input score",
+                )
+            else:
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_mutation_oracle_does_not_reject_functional_copy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "solution.py"
+            script.write_text(
+                "import copy\n"
+                "def transform(d):\n"
+                "    result=copy.deepcopy(d)\n"
+                "    result['records']['a']={'frozen':False,'value':5}\n"
+                "    return {'accepted':True,'records':result['records']}\n"
+            )
+            invocation = b.ENTRYPOINT.replace("/app/solution.py", str(script))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", invocation],
+                input='{"records":{}}', capture_output=True, text=True, timeout=5,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            observed = b._strict_json_output(result.stdout)
+            self.assertTrue(observed["input_unchanged"])
+            self.assertEqual(observed["value"]["records"]["a"]["value"], 5)
+
     def test_committed_unauthorized_edits_are_detected_from_baseline(self):
         task=next(t for t in b.load_contract()[1] if t['id']=='REUSE-06')
         with tempfile.TemporaryDirectory() as tmp:
