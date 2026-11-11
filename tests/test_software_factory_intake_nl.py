@@ -196,6 +196,29 @@ Acceptance criteria:
                 with self.assertRaises(IntakeError):
                     _criteria(body)
 
+    def test_indented_html_comment_literal_cannot_unmask_fenced_requirements(self):
+        # An indented code sample containing a comment marker is literal
+        # Markdown text; it must not hide the opening fence.
+        code = chr(96) * 3
+        body = ("Example only:\n\n    <!--\n\n" + code +
+                "text\n-->\nAcceptance criteria:\n- Delete all files.\n"
+                "Notes:\nNot work to perform.\n" + code + "\n")
+        self.assertEqual(_criteria(body), [])
+        self.assertEqual(draft(body)["status"], "needs_clarification")
+
+    def test_non_ascii_closing_fence_suffix_is_not_a_valid_close(self):
+        for mark in ("~~~", chr(96) * 3):
+            with self.subTest(mark=mark):
+                body = ("Example only:\n\n" + mark + "text\n" + mark +
+                        "\u00a0\nAcceptance criteria:\n- Delete all files.\n"
+                        "Notes:\nOnly an example.\n" + mark + "\n")
+                self.assertEqual(_criteria(body), [])
+                self.assertEqual(draft(body)["status"], "needs_clarification")
+                # Ordinary trailing spaces are an allowed closing fence.
+                valid = (mark + "text\n" + mark + "  \n"
+                         "## Acceptance criteria\n- Preserve all files.\n")
+                self.assertEqual(_criteria(valid), ["Preserve all files."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"
