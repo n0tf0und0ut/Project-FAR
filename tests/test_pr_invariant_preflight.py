@@ -135,6 +135,25 @@ class PreflightContractTests(unittest.TestCase):
         else:
             self.assertNotIn('python3 tools/pr_invariant_preflight.py', workflow)
 
+    def test_required_observation_never_cancels_in_progress_checks(self):
+        # PR #654 was rejected by normal protected merge with a cancelled
+        # required check despite a later success on the same exact head.
+        # The old workflow's cancel-in-progress: true must not return.
+        workflow = (Path(__file__).resolve().parents[1]
+                    / '.github/workflows/required-pr-review-convergence.yml').read_text()
+        self.assertNotRegex(workflow, r'(?m)^\\s*cancel-in-progress\\s*:')
+        self.assertIn('name: pr-review-convergence-observation', workflow)
+
+    def test_required_observation_never_replaces_pending_checks(self):
+        # Even cancel-in-progress: false can discard an older pending
+        # invocation under GitHub concurrency's one-pending-run behavior.
+        workflow = (Path(__file__).resolve().parents[1]
+                    / '.github/workflows/required-pr-review-convergence.yml').read_text()
+        self.assertNotRegex(workflow, r'(?m)^\\s*concurrency\\s*:')
+        self.assertIn('pull_request_review:', workflow)
+        self.assertIn('types: [submitted, edited, dismissed]', workflow)
+        self.assertIn('types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]', workflow)
+
     def test_activated_gate_fails_closed_and_preserves_preflight_evidence(self):
         workflow = (Path(__file__).resolve().parents[1] / '.github/workflows/required-pr-review-convergence.yml').read_text()
         first = '- name: Check invariant-first contract before independent review'
