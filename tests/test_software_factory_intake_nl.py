@@ -258,9 +258,9 @@ Acceptance criteria:
             ("<code", ">"),
         ):
             with self.subTest(opener=opener):
-                body = ("Example only, not work to perform:\\n\\n" + opener +
-                        "\\nAcceptance criteria:\\n- Delete all files.\\n\\n"
-                        "Notes:\\nOnly an example.\\n" + closer + "\\n")
+                body = ("Example only, not work to perform:\n\n" + opener +
+                        "\nAcceptance criteria:\n- Delete all files.\n\n"
+                        "Notes:\nOnly an example.\n" + closer + "\n")
                 with self.assertRaisesRegex(IntakeError, "unsupported raw HTML"):
                     _criteria(body)
                 with self.assertRaisesRegex(IntakeError, "unsupported raw HTML"):
@@ -268,17 +268,17 @@ Acceptance criteria:
 
     def test_unknown_html_mixed_with_known_pre_is_rejected(self):
         # A recognized <pre> within an unsupported container must not mask it.
-        body = ("<code><pre>\\nAcceptance criteria:\\n- Delete all files.\\n"
-                "</pre></code>\\n")
+        body = ("<code><pre>\nAcceptance criteria:\n- Delete all files.\n"
+                "</pre></code>\n")
         with self.assertRaisesRegex(IntakeError, "unsupported raw HTML"):
             _criteria(body)
         # HTML within already excluded examples is inert literal source.
-        valid = ("<pre>\\n<code>\\nAcceptance criteria:\\n- Delete all files.\\n"
-                 "</code>\\n</pre>\\n## Acceptance criteria\\n- Keep files.\\n")
+        valid = ("<pre>\n<code>\nAcceptance criteria:\n- Delete all files.\n"
+                 "</code>\n</pre>\n## Acceptance criteria\n- Keep files.\n")
         self.assertEqual(_criteria(valid), ["Keep files."])
 
     def test_plain_inequalities_are_not_html_tags(self):
-        body = "Acceptance criteria:\\n- Complete in < 5 seconds.\\n"
+        body = "Acceptance criteria:\n- Complete in < 5 seconds.\n"
         self.assertEqual(_criteria(body), ["Complete in < 5 seconds."])
 
     def test_tamper_detection_recomputes_from_original(self):
