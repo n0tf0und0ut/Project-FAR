@@ -144,7 +144,7 @@ def _criteria(body: str) -> list[str]:
     fence: tuple[str, int] | None = None
     html_pre = False
     html_comment = False
-    for line in body.splitlines():
+    for line in re.split(r"\r\n|\n|\r", body):
         marker = FENCE.fullmatch(line)
         if fence is not None:
             if (marker and not marker.group("suffix").strip(" ")
@@ -166,6 +166,8 @@ def _criteria(body: str) -> list[str]:
                     raise IntakeError("indented code in acceptance criteria requires clarification")
                 continue
             if marker:
+                if marker.group("mark")[0] == "`" and "`" in marker.group("suffix"):
+                    raise IntakeError("backtick fence info string requires clarification")
                 if in_section:
                     raise IntakeError("fenced examples inside acceptance criteria require clarification")
                 fence = (marker.group("mark")[0], len(marker.group("mark")))
