@@ -415,6 +415,42 @@ Acceptance criteria:
         with self.assertRaisesRegex(IntakeError, "nested acceptance bullet"):
             draft(body)
 
+    def test_container_prefixed_fences_fail_closed_even_outside_acceptance(self):
+        # SF-INTAKE-021: list-prefixed opener ignored; a later bare closer
+        # was misread as an opener and exposed criteria hidden in GFM code.
+        for prefix in ("- ~~~text", "1. ~~~text", "> ~~~text",
+                       "- " + chr(96) * 3 + "text",
+                       "> " + chr(96) * 3 + "text"):
+            with self.subTest(prefix=prefix):
+                body = (prefix + "\n  sample\n  ~~~\n\n" +
+                        chr(96) * 3 + "text\n~~~\n"
+                        "Acceptance criteria:\n- Delete all files.\n"
+                        "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
+                with self.assertRaisesRegex(IntakeError, "container-prefixed Markdown fence"):
+                    _criteria(body)
+                self.assertEqual(draft(body)["status"], "needs_clarification")
+
+    def test_non_gfm_unicode_prefix_cannot_enter_html_pre_state(self):
+        # SF-INTAKE-022: Unicode NBSP preceding a valid pre tag is not a
+        # GFM HTML-block prefix; ignoring it skips the true Markdown fence.
+        for prefix in ("\u00a0", "\u2003", "\u202f"):
+            with self.subTest(prefix=repr(prefix)):
+                body = (prefix + "<pre>\n" + chr(96) * 3 + "text\n"
+                        "</pre>\nAcceptance criteria:\n- Delete all files.\n"
+                        "Notes:\nOnly an example.\n" + chr(96) * 3 + "\n")
+                with self.assertRaisesRegex(IntakeError, "non-GFM whitespace"):
+                    _criteria(body)
+                self.assertEqual(draft(body)["status"], "needs_clarification")
+
+    def test_plain_top_level_fence_and_ascii_pre_prefix_still_work(self):
+        backticks = chr(96) * 3
+        body = ("  <pre>\nExample only\n</pre>\n" +
+                backticks + "text\nAcceptance criteria:\n- Delete all files.\n" +
+                backticks + "\nAcceptance criteria:\n- Preserve files.\n")
+        self.assertEqual(_criteria(body), ["Preserve files."])
+        self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
+                         ["Preserve files."])
+
     def test_tamper_detection_recomputes_from_original(self):
         d = draft()
         d["order"]["tasks"][0]["acceptance"][0] = "Delete all repositories"

@@ -115,6 +115,11 @@ def _visible_html_line(line: str, pre: bool, comment: bool,
         token = match.group(0).lower()
         if not pre and not comment:
             fragment = line[pos:match.start()]
+            # GFM tag/container whitespace is ASCII space/tab. Python's
+            # Unicode-aware str.strip() would erase NBSP before <pre>, enter
+            # the wrong HTML state and skip a real subsequent code fence.
+            if any(ch.isspace() and ch not in " \t" for ch in fragment):
+                raise IntakeError("non-GFM whitespace before HTML delimiter requires clarification")
             _reject_unhandled_html(fragment)
             visible.append(fragment)
         if pre:
@@ -173,6 +178,13 @@ def _criteria(body: str) -> list[str]:
         # an info string on an opening fence is likewise never an HTML tag.
         # Preserve open pre/comment state so its genuine closer is still read.
         if not html_pre and not html_comment:
+            # The intake parser intentionally supports only top-level fence
+            # openers. GFM also permits fences nested in list/blockquote
+            # containers, which can desynchronize the flat state machine and
+            # promote sample text as executable acceptance criteria.
+            # Reject every marker not recognized as a bare top-level fence.
+            if not marker and re.search(r"(?:`{3,}|~{3,})", line):
+                raise IntakeError("container-prefixed Markdown fence requires clarification")
             indentation = line[:len(line) - len(line.lstrip(" \t"))]
             columns = 0
             for char in indentation:
