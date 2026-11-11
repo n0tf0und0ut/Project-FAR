@@ -16,6 +16,7 @@ import math
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Callable
 
@@ -26,7 +27,6 @@ else:
 
 BRIDGE_SCHEMA = "far-software-factory/living-bridge-proposal/1"
 REPOSITORY = "n0tf0und0ut/Project-FAR"
-SOURCE_PR = 490
 SOURCE_BRANCH = "automation/living-research-inbox"
 SOURCE_BASE = "main"
 CANDIDATE = re.compile(r"FAR-LIT-[0-9A-F]{16}\Z")
@@ -35,6 +35,13 @@ SHA = re.compile(r"[0-9a-f]{40}\Z")
 MAX_CANDIDATE_BYTES = 128 * 1024
 MAX_API_BYTES = 512 * 1024
 API_ROOT = "https://api.github.com/repos/" + REPOSITORY
+# Bound discovery to exactly the owner's rolling branch and protected base.
+# A closed/recreated PR cannot be reopened after GitHub rewrites its source ref.
+INBOX_PRS_URL = (
+    API_ROOT + "/pulls?state=open&head=" +
+    urllib.parse.quote(REPOSITORY.split("/")[0] + ":" + SOURCE_BRANCH, safe="") +
+    "&base=main&per_page=2"
+)
 
 
 class BridgeError(ValueError):
@@ -161,10 +168,12 @@ def validate_candidate(raw: bytes, candidate_id: str) -> tuple[dict, list[str]]:
 
 
 def build_proposal(*, raw: bytes, candidate_id: str, source_ref_sha: str,
-                   recorded_blob_sha: str, base_sha: str,
+                   recorded_blob_sha: str, base_sha: str, source_pr_number: int,
                    repository: str = REPOSITORY) -> dict:
     """Pure, deterministic proposal; cannot start or authorize a factory task."""
     candidate_path(candidate_id)
+    if type(source_pr_number) is not int or source_pr_number < 1:
+        raise BridgeError("source PR must be a positive GitHub PR number")
     source_ref_sha = _require_sha(source_ref_sha, "source inbox commit")
     recorded_blob_sha = _require_sha(recorded_blob_sha, "GitHub candidate blob")
     base_sha = _require_sha(base_sha, "target main")
@@ -175,7 +184,8 @@ def build_proposal(*, raw: bytes, candidate_id: str, source_ref_sha: str,
     record, targets = validate_candidate(raw, candidate_id)
     path = candidate_path(candidate_id)
     source_sha256 = hashlib.sha256(raw).hexdigest()
-    namespace = {"candidate_id": candidate_id, "source_ref": source_ref_sha,
+    namespace = {"candidate_id": candidate_id, "source_pr": source_pr_number,
+                 "source_ref": source_ref_sha,
                  "source_blob": recorded_blob_sha, "base_sha": base_sha,
                  "repository": REPOSITORY.casefold()}
     key = hashlib.sha256(canonical(namespace).encode("utf-8")).hexdigest()[:24]
@@ -208,7 +218,7 @@ def build_proposal(*, raw: bytes, candidate_id: str, source_ref_sha: str,
         "submit_to_queue": False,
         "source": {
             "repository": REPOSITORY,
-            "pull_request": SOURCE_PR,
+            "pull_request": source_pr_number,
             "branch": SOURCE_BRANCH,
             "commit_sha": source_ref_sha,
             "path": path,
@@ -254,18 +264,24 @@ def read_github_json(url: str) -> object:
 
 
 def fetch_live_proposal(candidate_id: str, getter: Callable[[str], object] = read_github_json) -> dict:
-    """Confirm live #490 identity, then read one candidate pinned to its exact commit."""
+    """Discover one open draft inbox, then pin candidate bytes to that exact head."""
     path = candidate_path(candidate_id)
-    pr = _require_mapping(getter(API_ROOT + "/pulls/490"), "PR 490 metadata")
-    head = _require_mapping(pr.get("head"), "PR 490 head")
-    base = _require_mapping(pr.get("base"), "PR 490 base")
-    head_repo = _require_mapping(head.get("repo"), "PR 490 repository")
-    if (pr.get("number") != SOURCE_PR or pr.get("state") != "open"
+    candidates = getter(INBOX_PRS_URL)
+    if type(candidates) is not list or len(candidates) != 1:
+        raise BridgeError("expected exactly one open draft permanent rolling inbox")
+    pr = _require_mapping(candidates[0], "rolling inbox PR metadata")
+    source_pr_number = pr.get("number")
+    if type(source_pr_number) is not int or source_pr_number < 1:
+        raise BridgeError("invalid permanent inbox PR number")
+    head = _require_mapping(pr.get("head"), "rolling inbox head")
+    base = _require_mapping(pr.get("base"), "rolling inbox base")
+    head_repo = _require_mapping(head.get("repo"), "rolling inbox repository")
+    if (pr.get("state") != "open"
             or pr.get("draft") is not True or head.get("ref") != SOURCE_BRANCH
             or base.get("ref") != SOURCE_BASE
             or str(head_repo.get("full_name", "")).casefold() != REPOSITORY.casefold()):
-        raise BridgeError("source is not the permanent, open draft #490 research inbox")
-    source_ref_sha = _require_sha(head.get("sha"), "current PR490 head")
+        raise BridgeError("source is not the permanent, open draft research inbox")
+    source_ref_sha = _require_sha(head.get("sha"), "current rolling inbox head")
     main = _require_mapping(getter(API_ROOT + "/branches/main"), "main branch")
     if main.get("name") != "main" or main.get("protected") is not True:
         raise BridgeError("main is not identified as a protected branch")
@@ -286,12 +302,13 @@ def fetch_live_proposal(candidate_id: str, getter: Callable[[str], object] = rea
     if type(size) is not int or size != len(raw):
         raise BridgeError("GitHub candidate content size mismatch")
     return build_proposal(raw=raw, candidate_id=candidate_id, source_ref_sha=source_ref_sha,
-                          recorded_blob_sha=blob_sha, base_sha=base_sha)
+                          recorded_blob_sha=blob_sha, base_sha=base_sha,
+                          source_pr_number=source_pr_number)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--candidate-id", required=True, help="One FAR-LIT-[0-9A-F]{16} candidate in live PR #490")
+    parser.add_argument("--candidate-id", required=True, help="One FAR-LIT-[0-9A-F]{16} candidate in the single open draft living inbox")
     args = parser.parse_args(argv)
     try:
         output = fetch_live_proposal(args.candidate_id)
