@@ -147,30 +147,32 @@ def _criteria(body: str) -> list[str]:
     for line in body.splitlines():
         marker = FENCE.fullmatch(line)
         if fence is not None:
-            if (marker and not marker.group("suffix").strip()
+            if (marker and not marker.group("suffix").strip(" ")
                     and marker.group("mark")[0] == fence[0]
                     and len(marker.group("mark")) >= fence[1]):
                 fence = None
             continue
+        # Classify literal Markdown blocks before interpreting HTML markers.
+        # Four-column indentation means a marker in the code is only text;
+        # an info string on an opening fence is likewise never an HTML tag.
+        # Preserve open pre/comment state so its genuine closer is still read.
+        if not html_pre and not html_comment:
+            indentation = line[:len(line) - len(line.lstrip(" \t"))]
+            columns = 0
+            for char in indentation:
+                columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
+            if columns >= 4 and line.strip():
+                if in_section:
+                    raise IntakeError("indented code in acceptance criteria requires clarification")
+                continue
+            if marker:
+                if in_section:
+                    raise IntakeError("fenced examples inside acceptance criteria require clarification")
+                fence = (marker.group("mark")[0], len(marker.group("mark")))
+                continue
         line, html_pre, html_comment = _visible_html_line(
             line, html_pre, html_comment, in_section)
         if not line.strip():
-            continue
-        if marker:
-            if in_section:
-                raise IntakeError("fenced examples inside acceptance criteria require clarification")
-            fence = (marker.group("mark")[0], len(marker.group("mark")))
-            continue
-        # Markdown treats four-column indentation as a code block. A fenced
-        # example is already excluded above; an indented one must not become
-        # a synthetic acceptance heading or executable criterion.
-        indentation = line[:len(line) - len(line.lstrip(" \t"))]
-        columns = 0
-        for char in indentation:
-            columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
-        if columns >= 4 and line.strip():
-            if in_section:
-                raise IntakeError("indented code in acceptance criteria requires clarification")
             continue
         if HEADING.fullmatch(line):
             last_bullet = None
