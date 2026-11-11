@@ -66,6 +66,20 @@ The initially proposed knowledge explorer is **not justified by this small ceili
 
 Before proposing semantic links, graph storage, or agent-memory changes, the next authorized research step would be a prospectively frozen and independently judged set of paraphrases, conflicting scopes, missing sources, and repeated investigations. Compare an unaugmented lexical baseline with any candidate only under matched resources and the existing FAR governance and replication controls.
 
+## 2026-11-11 source-projection integrity correction
+
+Independent exact-head review found that the lexical index consumes observation
+`uncertainty` and conclusion `counterevidence`, while the original verifier
+checked only statements and selected identifiers. A fixture could therefore
+change retrieved answers without altering the pinned canonical source blobs.
+The source-bound verifier now reconstructs and checks every indexed Research
+record field, including uncertainty/counterevidence, source/proposition IDs,
+disposition, active state, dependencies and mechanism finding IDs, and rejects
+unexpected additional fields. Four adversarial tests mutate those projected
+inputs and require rejection. The frozen questions, record projection, JavaScript
+crosscheck, result metrics, corpus/synthesis blobs and source identity are **not
+changed**. The fix is a verification correction, not new evaluation evidence.
+
 ## Nonclaims
 
 - No independent primary-source verification or external evaluator was used.

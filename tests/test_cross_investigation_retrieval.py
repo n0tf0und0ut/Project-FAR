@@ -69,6 +69,56 @@ class CrossInvestigationRetrievalTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "pinned synthesis Git blob"):
                 API["verify_source_bytes"](self.fixture, mutant)
 
+    def test_mutated_observation_uncertainty_changes_ranking_but_is_refused(self):
+        modified = copy.deepcopy(self.fixture)
+        row = next(x for x in modified["records"] if x["kind"] == "observation")
+        row["uncertainty"] = "banana spaceship moon"
+        candidates = [x for x in modified["records"] if x["active"]]
+        self.assertIn(
+            row["id"],
+            [hit["id"] for hit in API["ranking"](candidates, "banana spaceship moon", 5)]
+        )
+        with self.assertRaisesRegex(ValueError, "snapshot record differs"):
+            API["verify_source_bytes"](
+                modified, ROOT / "research/corpus/synthesis-v1.0.json"
+            )
+
+    def test_mutated_conclusion_counterevidence_is_refused(self):
+        modified = copy.deepcopy(self.fixture)
+        row = next(x for x in modified["records"] if x["kind"] == "conclusion")
+        row["counterevidence"] = "banana spaceship moon"
+        with self.assertRaisesRegex(ValueError, "snapshot record differs"):
+            API["verify_source_bytes"](
+                modified, ROOT / "research/corpus/synthesis-v1.0.json"
+            )
+
+    def test_all_projected_provenance_and_state_fields_are_verified(self):
+        cases = (
+            ("observation", "proposition_id", "FND-FORGED"),
+            ("conclusion", "dependency_sha256", "0" * 64),
+            ("mechanism", "state", "ACCEPTED"),
+            ("mechanism", "active", False),
+            ("conclusion", "active", False),
+        )
+        for kind, field, value in cases:
+            with self.subTest(kind=kind, field=field):
+                modified = copy.deepcopy(self.fixture)
+                row = next(x for x in modified["records"] if x["kind"] == kind)
+                row[field] = value
+                with self.assertRaisesRegex(ValueError, "snapshot record differs"):
+                    API["verify_source_bytes"](
+                        modified, ROOT / "research/corpus/synthesis-v1.0.json"
+                    )
+
+    def test_extra_unbound_search_text_field_is_refused(self):
+        modified = copy.deepcopy(self.fixture)
+        row = next(x for x in modified["records"] if x["kind"] == "observation")
+        row["counterevidence"] = "injected ranking terms"
+        with self.assertRaisesRegex(ValueError, "snapshot record differs"):
+            API["verify_source_bytes"](
+                modified, ROOT / "research/corpus/synthesis-v1.0.json"
+            )
+
     def test_mutated_corpus_refused(self):
         with tempfile.TemporaryDirectory() as path:
             mutant = Path(path) / "corpus.json"

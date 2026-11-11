@@ -95,23 +95,56 @@ def verify_source_bytes(fixture: dict, source_path: Path) -> None:
     mechanisms = {r["id"]: r for r in obj["mechanisms"]}
     if len(fixture["records"]) != len(observations) + len(conclusions) + len(mechanisms):
         raise ValueError("source record count differs")
+    # Verify the *complete* indexed projection, not just the statement.
+    # Ranking reads text, uncertainty and counterevidence; admissibility and
+    # result metadata also depend on active, kind, source IDs and state.
+    # Any unchecked property would permit a changed fixture to pass the exact
+    # synthesis-blob check while producing different retrieval results.
     for row in fixture["records"]:
-        if row["kind"] == "observation":
-            origin = observations[row["id"]]
-            checks = ("statement", "active", "source_id", "source_sha256",
-                      "relation", "scope_key", "epistemic_class")
-        elif row["kind"] == "conclusion":
-            origin = conclusions[row["id"]]
-            checks = ("statement", "epistemic_class", "disposition")
+        kind, ident = row.get("kind"), row.get("id")
+        if kind == "observation":
+            origin = observations.get(ident)
+            if origin is None:
+                raise ValueError(f"snapshot observation missing: {ident}")
+            expected = {
+                "id": ident, "kind": kind, "text": origin["statement"],
+                "active": origin["active"],
+                "epistemic_class": origin["epistemic_class"],
+                "relation": origin["relation"],
+                "scope_key": origin["scope_key"],
+                "source_id": origin["source_id"],
+                "source_sha256": origin["source_sha256"],
+                "proposition_id": origin["proposition_id"],
+                "uncertainty": origin["uncertainty"],
+            }
+        elif kind == "conclusion":
+            origin = conclusions.get(ident)
+            if origin is None:
+                raise ValueError(f"snapshot conclusion missing: {ident}")
+            expected = {
+                "id": ident, "kind": kind, "text": origin["statement"],
+                "active": True, "epistemic_class": origin["epistemic_class"],
+                "disposition": origin["disposition"],
+                "counterevidence": origin["counterevidence"],
+                "dependency_sha256": origin["dependency_sha256"],
+            }
+        elif kind == "mechanism":
+            origin = mechanisms.get(ident)
+            if origin is None:
+                raise ValueError(f"snapshot mechanism missing: {ident}")
+            expected = {
+                "id": ident, "kind": kind,
+                "text": origin["name"] + " " + origin["literal_comparison"],
+                "active": True, "state": origin["state"],
+                "finding_ids": origin["finding_ids"],
+                "dependency_sha256": origin["dependency_sha256"],
+            }
         else:
-            origin = mechanisms[row["id"]]
-            if row["text"] != origin["name"] + " " + origin["literal_comparison"]:
-                raise ValueError(f"mechanism text changed: {row['id']}")
-            continue
-        for key in checks:
-            candidate = row["text"] if key == "statement" else row[key]
-            if candidate != origin[key]:
-                raise ValueError(f"snapshot record differs: {row['id']} {key}")
+            raise ValueError(f"unknown snapshot record kind: {kind}")
+        # Exact key-set and value equality prevents undeclared searchable
+        # fields as well as mutation of existing frozen scoring inputs.
+        if row != expected:
+            raise ValueError(f"snapshot record differs: {ident}")
 
 
 def verify_corpus_bytes(fixture: dict, source_path: Path) -> None:
