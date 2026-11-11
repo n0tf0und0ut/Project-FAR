@@ -370,9 +370,8 @@ Acceptance criteria:
                 + chr(96) * 3 + "\n")
         with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
             _criteria(body)
-        compiled = draft(body)
-        self.assertEqual(compiled["status"], "needs_clarification")
-        self.assertIsNone(compiled["order"])
+        with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
+            draft(body)
 
     def test_list_nested_fences_with_multiple_markers_fail_closed(self):
         for opener in ("~~~python", chr(96)*3 + "python",
@@ -381,7 +380,8 @@ Acceptance criteria:
                 body = "- Illustrative list:\n    " + opener + "\n    not a requirement\n"
                 with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
                     _criteria(body)
-                self.assertEqual(draft(body)["status"], "needs_clarification")
+                with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
+                    draft(body)
 
     def test_unambiguous_indented_code_example_remains_excluded(self):
         body = ("Sample code:\n\n    Acceptance criteria:\n"
