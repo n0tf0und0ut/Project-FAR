@@ -283,6 +283,31 @@ class ContractTests(unittest.TestCase):
             else:
                 self.assertNotEqual(result.returncode, 0)
 
+    def test_mutation_oracle_rejects_candidate_defined_equality(self):
+        # A candidate may replace a JSON dict with a dict subclass whose
+        # __eq__ lies, causing ordinary d == deepcopy(d) to return True.
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "solution.py"
+            script.write_text(
+                "class Forged(dict):\n"
+                "    def __eq__(self, other): return True\n"
+                "def transform(d):\n"
+                "    d['records']=Forged({'a':{'frozen':False,'value':5}})\n"
+                "    return {'accepted':True,'records':dict(d['records'])}\n"
+            )
+            invocation = b.ENTRYPOINT.replace("/app/solution.py", str(script))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", invocation],
+                input='{"records":{}}', capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                self.assertFalse(
+                    b._strict_json_output(result.stdout)["input_unchanged"],
+                    "candidate-defined __eq__ cannot certify a mutated input",
+                )
+            else:
+                self.assertNotEqual(result.returncode, 0)
+
     def test_mutation_oracle_does_not_reject_functional_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "solution.py"
