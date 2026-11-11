@@ -69,10 +69,9 @@ VALID_TEXTS = {
         "not `PCA-W7` or “W7.”\n"
     ),
     "agents": (
-        "If purported current-authority surfaces conflict, stop. "
-        "Treat project memory as navigation only. "
-        "Treat repository presence as evidence that an artifact exists, "
-        "not that its contents are Accepted.\n"
+        "If current authoritative sources conflict, stop the affected inference and report the conflict. "
+        "Prior chats, summaries and cached copies are not substitutes. "
+        "Repository presence, memories, generated outputs and archives do not confer acceptance.\n"
     ),
 }
 
@@ -138,12 +137,25 @@ class CurrentStateConsistencyTests(unittest.TestCase):
     def test_agent_routing_must_subordinate_memory(self):
         texts = copy.deepcopy(VALID_TEXTS)
         texts["agents"] = (
-            "If purported current-authority surfaces conflict, stop. "
-            "Treat repository presence as evidence that an artifact exists, "
-            "not that its contents are Accepted.\n"
+            "If current authoritative sources conflict, stop the affected inference and report the conflict. "
+            "Repository presence, memories, generated outputs and archives do not confer acceptance.\n"
         )
         errors = self.validate(texts)
         self.assertTrue(any("subordinate memory" in error for error in errors))
+
+    def test_agent_routing_must_fail_closed_on_authority_conflict(self):
+        texts = copy.deepcopy(VALID_TEXTS)
+        texts["agents"] = texts["agents"].replace(
+            "If current authoritative sources conflict, stop the affected inference and report the conflict. ", ""
+        )
+        self.assertTrue(any("authority conflicts" in error for error in self.validate(texts)))
+
+    def test_agent_routing_must_not_promote_repository_presence(self):
+        texts = copy.deepcopy(VALID_TEXTS)
+        texts["agents"] = texts["agents"].replace(
+            "Repository presence, memories, generated outputs and archives do not confer acceptance.", ""
+        )
+        self.assertTrue(any("epistemic authority" in error for error in self.validate(texts)))
 
     def test_historical_v1_0_cannot_be_repromoted_as_current(self):
         texts = copy.deepcopy(VALID_TEXTS)
