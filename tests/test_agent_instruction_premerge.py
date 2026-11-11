@@ -552,40 +552,78 @@ class ContractTests(unittest.TestCase):
                     b.run_slot(root,wrong,shlex.join(b._command_expected('gpt-6')))
             self.assertFalse((root/'evidence'/wrong).exists())
 
+    def test_pre_exposure_rejects_tampering_before_agent(self):
+        proto,tasks,sched=b.load_contract()
+        cell=sched['slots'][0]
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
+                b.prepare(root)
+                ws=root/'workspaces'/cell['slot_id']
+                entry=b.validate_prepared(root)['slots'][0]
+                task=next(x for x in tasks if x['id']==cell['task_id'])
+                material=b._registered_workspace_bytes(task,b'original instructions')
+                receipt=b._verify_pre_exposure_workspace(ws,entry,task,b'original instructions')
+                self.assertEqual(receipt['file_sha256'],entry['initial_files_sha256'])
+                for name in ('README.md','AGENTS.md','.gitignore',next(iter(task['files']))):
+                    with self.subTest(file=name):
+                        (ws/name).write_bytes(material[name]+b'\nUNREGISTERED')
+                        with patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
+                             patch.object(b,'_execute_traced_agent') as invoke:
+                            with self.assertRaisesRegex(b.ContractError,'pre-exposure staged workspace'):
+                                b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
+                            invoke.assert_not_called()
+                        self.assertFalse((root/'evidence'/(cell['slot_id']+'.attempt.json')).exists())
+                        (ws/name).write_bytes(material[name])
+                (ws/'README.md').write_bytes(b'forged prompt')
+                entry['initial_files_sha256']['README.md']=b.digest(b'forged prompt')
+                with self.assertRaisesRegex(b.ContractError,'manifest input differs'):
+                    b._verify_pre_exposure_workspace(ws,entry,task,b'original instructions')
+
+    def test_pre_exposure_receipt_survives_failed_agent(self):
+        proto,tasks,sched=b.load_contract()
+        cell=sched['slots'][0]
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
+                b.prepare(root)
+                with patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
+                     patch.object(b,'_execute_traced_agent',side_effect=OSError('agent unavailable')):
+                    with self.assertRaisesRegex(OSError,'agent unavailable'):
+                        b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
+            marker=b.strict_load((root/'evidence'/(cell['slot_id']+'.attempt.json')).read_bytes())
+            self.assertEqual(marker['pre_exposure']['file_sha256'],
+                             b.validate_prepared(root)['slots'][0]['initial_files_sha256'])
+            self.assertTrue((root/'evidence'/cell['slot_id']/'negative-outcome.json').is_file())
+
     def test_attempted_instruction_mutation_is_recorded_as_negative_observation(self):
         proto,tasks,sched=b.load_contract()
-        cell=sched['slots'][0];task=next(t for t in tasks if t['id']==cell['task_id'])
+        cell=sched['slots'][0]
+        runtime={'schema':'far-codex-runtime/1','requested_model':'gpt-6'}
+        raw=(b'{"type":"thread.started","thread_id":"s1"}\n'
+             b'{"type":"turn.started"}\n'
+             b'{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":1}}\n')
+        response={'stdout':raw,'stderr':b'','stdout_bytes_observed':len(raw),
+                  'stderr_bytes_observed':0,'output_limited':False,'timed_out':False,
+                  'exit_code':0,'elapsed_seconds':0.1}
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp); ws=root/'workspaces'/cell['slot_id']
-            ws.mkdir(parents=True);(root/'evidence').mkdir()
-            for name,source in task['files'].items():(ws/name).write_text(source)
-            (ws/'AGENTS.md').write_text('original instructions')
-            (ws/'README.md').write_text('original prompt')
-            (ws/'.gitignore').write_text('ignore')
-            expected={p.name:b.digest(p.read_bytes()) for p in ws.iterdir()}
-            (ws/'solution.py').write_text('def transform(d):return 100\n')
-            (ws/'AGENTS.md').write_text('agent-overwrote-instructions')
-            manifest={'freeze':b.freeze_identity(),'slots':[{**cell,
-                      'initial_files_sha256':expected,
-                      'instructions_sha256':b.digest(b'original instructions')}]}
-            runtime={'schema':'far-codex-runtime/1','requested_model':'gpt-6'}
-            raw=(b'{"type":"thread.started","thread_id":"s1"}\n'
-                 b'{"type":"turn.started"}\n'
-                 b'{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":1}}\n')
-            response={'stdout':raw,'stderr':b'','stdout_bytes_observed':len(raw),
-                      'stderr_bytes_observed':0,'output_limited':False,'timed_out':False,
-                      'exit_code':0,'elapsed_seconds':0.1}
-            with patch.object(b,'validate_prepared',return_value=manifest), \
-                 patch.object(b,'_command_identity',return_value=runtime), \
-                 patch.object(b,'_execute_traced_agent',return_value=response), \
-                 patch.object(b,'pinned_instructions',return_value=b'original instructions'), \
-                 patch.object(b,'_grade_case',return_value={'status':'FAILURE'}):
-                observation=b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected('gpt-6')))
-                report=b.analyze(root)
+            root=Path(tmp)
+            with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
+                b.prepare(root)
+                ws=root/'workspaces'/cell['slot_id']
+                def mutate_after_exposure(*_args):
+                    (ws/'AGENTS.md').write_text('agent-overwrote-instructions')
+                    (ws/'solution.py').write_text('def transform(d):return 100\n')
+                    return response
+                with patch.object(b,'_command_identity',return_value=runtime), \
+                     patch.object(b,'_execute_traced_agent',side_effect=mutate_after_exposure), \
+                     patch.object(b,'_grade_case',return_value={'status':'FAILURE'}):
+                    observation=b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
             self.assertIn('UNAUTHORIZED_EDIT:AGENTS.md',observation['unauthorized'])
             self.assertEqual(observation['outcome'],'FAILURE')
+            self.assertEqual(observation['pre_exposure']['schema'],'far-agent-instruction-pre-exposure/1')
             self.assertTrue((root/'evidence'/(cell['slot_id']+'.json')).is_file())
             self.assertTrue((root/'evidence'/cell['slot_id']/'agent-events.ndjson').is_file())
-            self.assertNotEqual(report['decision'],'NOT_EXECUTED')
+            self.assertNotEqual(b.analyze(root)['decision'],'NOT_EXECUTED')
 
 if __name__=='__main__': unittest.main()
