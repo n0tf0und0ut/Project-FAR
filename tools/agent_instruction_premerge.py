@@ -44,53 +44,67 @@ ID = re.compile(r"[A-Z][A-Z0-9]*-[0-9]{2}\Z")
 START = "FAR_CANDIDATE_STARTED_V1"
 FINISH = "FAR_CANDIDATE_COMPLETED_V1"
 IMAGE = GRADER_IMAGE
-ENTRYPOINT = (
+# Candidate source runs in Docker, but also shares a Python interpreter with
+# the scoring wrapper. A module-global copy of the input can be rebound by
+# sys._getframe(1).f_globals in candidate code, falsely certifying no mutation.
+# Use a call-local baseline, reject known frame/native introspection paths, and
+# keep the same input/output protocol for all three entrypoint variants.
+# Python audit hooks are defense in depth, not isolation from hostile C code.
+OBSERVER_SETUP = (
     "import copy,json,runpy,sys\n"
     "sys.path.insert(0,'/app')\n"
     "d=json.load(sys.stdin)\n"
-    "original=copy.deepcopy(d)\n"
+    "def _deny_grader_introspection(event,args):\n"
+    "    if event in ('sys._getframe','sys._current_frames','gc.get_objects',"
+    "'gc.get_referrers','gc.get_referents','sys.settrace','sys.setprofile') "
+    "or event.startswith('ctypes.'):\n"
+    "        raise RuntimeError('candidate attempted grader introspection')\n"
+    "sys.addaudithook(_deny_grader_introspection)\n"
+    "def _checked(call,payload):\n"
+    "    before=copy.deepcopy(payload)\n"
+    "    answer=call(payload)\n"
+    "    return answer,payload==before\n"
     "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
-    "candidate=runpy.run_path('/app/solution.py')\n"
-    "answer=candidate['transform'](d)\n"
-    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
+)
+OBSERVER_EMIT = (
+    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':input_unchanged},"
+    "sort_keys=True,allow_nan=False,separators=(',',':')))\n"
     "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
 )
+ENTRYPOINT = (
+    OBSERVER_SETUP
+    + "candidate=runpy.run_path('/app/solution.py')\n"
+    + "answer,input_unchanged=_checked(candidate['transform'],d)\n"
+    + OBSERVER_EMIT
+)
 
-
-# Task-specific public-interface checks use exactly the six frozen case inputs,
-# but invoke the required entrypoints independently of solution.transform.
-# This prevents adapter-only repairs from receiving a false positive.
+# The two extra integration/maintainability probes use the same call-local
+# mutation observer as the primary adapter. No candidate can provide the
+# comparison flag directly, and frame-introspection attempts fail closed.
 INTERFACE_CALLERS = (
-    "import copy,json,sys\n"
-    "sys.path.insert(0,'/app')\n"
-    "d=json.load(sys.stdin)\n"
-    "original=copy.deepcopy(d)\n"
-    "from normalize import canonical,legacy\n"
-    "answer={'service':canonical(d['name']),'legacy':legacy(d['name'])}\n"
-    "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
-    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
-    "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
+    OBSERVER_SETUP
+    + "def _call(payload):\n"
+    + "    from normalize import canonical,legacy\n"
+    + "    return {'service':canonical(payload['name']),'legacy':legacy(payload['name'])}\n"
+    + "answer,input_unchanged=_checked(_call,d)\n"
+    + OBSERVER_EMIT
 )
 INTERFACE_REUSE = (
-    "import copy,json,sys\n"
-    "sys.path.insert(0,'/app')\n"
-    "d=json.load(sys.stdin)\n"
-    "original=copy.deepcopy(d)\n"
-    "import shared\n"
-    "calls=[]\n"
-    "def spy(value):\n"
-    "    calls.append(value)\n"
-    "    return 'FAR_HELPER_USED_V1'\n"
-    "shared.slugify=spy\n"
-    "from catalog import slugs\n"
-    "answer={'result':slugs(d['items']),'calls':calls}\n"
-    "sys.stdout.write('" + START + "\\n');sys.stdout.flush()\n"
-    "sys.stdout.write(json.dumps({'value':answer,'input_unchanged':d==original},sort_keys=True,allow_nan=False,separators=(',',':')))\n"
-    "sys.stdout.write('\\n" + FINISH + "\\n');sys.stdout.flush()\n"
+    OBSERVER_SETUP
+    + "def _call(payload):\n"
+    + "    import shared\n"
+    + "    calls=[]\n"
+    + "    def spy(value):\n"
+    + "        calls.append(value)\n"
+    + "        return 'FAR_HELPER_USED_V1'\n"
+    + "    shared.slugify=spy\n"
+    + "    from catalog import slugs\n"
+    + "    return {'result':slugs(payload['items']),'calls':calls}\n"
+    + "answer,input_unchanged=_checked(_call,d)\n"
+    + OBSERVER_EMIT
 )
 INTERFACE_ENTRYPOINTS = {'CALLERS-01': INTERFACE_CALLERS,
                          'REUSE-06': INTERFACE_REUSE}
-
 
 def _interface_probes(task:dict) -> list[tuple[dict,str]]:
     """Use the existing six frozen inputs to check declared public interfaces."""
