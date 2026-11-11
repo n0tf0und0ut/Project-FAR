@@ -141,7 +141,7 @@ class PreflightContractTests(unittest.TestCase):
         # The old workflow's cancel-in-progress: true must not return.
         workflow = (Path(__file__).resolve().parents[1]
                     / '.github/workflows/required-pr-review-convergence.yml').read_text()
-        self.assertNotRegex(workflow, r'(?m)^\\s*cancel-in-progress\\s*:')
+        self.assertNotRegex(workflow, r'(?m)^\s*cancel-in-progress\s*:')
         self.assertIn('name: pr-review-convergence-observation', workflow)
 
     def test_required_observation_never_replaces_pending_checks(self):
@@ -149,7 +149,7 @@ class PreflightContractTests(unittest.TestCase):
         # invocation under GitHub concurrency's one-pending-run behavior.
         workflow = (Path(__file__).resolve().parents[1]
                     / '.github/workflows/required-pr-review-convergence.yml').read_text()
-        self.assertNotRegex(workflow, r'(?m)^\\s*concurrency\\s*:')
+        self.assertNotRegex(workflow, r'(?m)^\s*concurrency\s*:')
         self.assertIn('pull_request_review:', workflow)
         self.assertIn('types: [submitted, edited, dismissed]', workflow)
         self.assertIn('types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, edited]', workflow)
