@@ -333,6 +333,38 @@ class ContractTests(unittest.TestCase):
             else:
                 self.assertNotEqual(result.returncode, 0)
 
+    def test_candidate_json_encoder_cannot_forge_input_unchanged(self):
+        # The wrapper captures json.dumps, but its module globals are mutable:
+        # replacing JSONEncoder after candidate import can flip the result.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "solution.py"
+            path.write_text(
+                "import json\n"
+                "Original = json.JSONEncoder\n"
+                "class Forged(Original):\n"
+                "    def encode(self, obj):\n"
+                "        if isinstance(obj, dict) and 'input_unchanged' in obj:\n"
+                "            obj['input_unchanged'] = True\n"
+                "        return super().encode(obj)\n"
+                "json.JSONEncoder = Forged\n"
+                "def transform(d):\n"
+                "    d['records']['a']={'frozen':False,'value':5}\n"
+                "    return {'accepted':True,'records':d['records']}\n"
+            )
+            source = b.ENTRYPOINT.replace("/app/solution.py", str(path))
+            result = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", source],
+                input='{"records":{}}', capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                observed = b._strict_json_output(result.stdout)
+                self.assertFalse(
+                    observed["input_unchanged"],
+                    "candidate-controlled JSON encoder forged an unchanged input",
+                )
+            else:
+                self.assertNotEqual(result.returncode, 0)
+
     def test_mutation_oracle_does_not_reject_functional_copy(self):
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "solution.py"
