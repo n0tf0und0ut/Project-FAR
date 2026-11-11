@@ -93,7 +93,12 @@ OBSERVER_PROLOGUE = (
     "        raise _Error('candidate input mutated into unsupported type')\n"
     "    before=snapshot(payload)\n"
     "    answer=call(payload)\n"
-    "    return answer,snapshot(payload)==before\n"
+    # Encode candidate-controlled output before taking the final input
+    # snapshot. A malicious JSONEncoder may mutate the returned input after
+    # transform() has finished, which must not be called non-mutation.
+    "    encoded=dumps(answer,sort_keys=True,allow_nan=False,separators=(',',':'))\n"
+    "    if type(encoded) is not str: raise RuntimeError('invalid JSON encoder result')\n"
+    "    return encoded,snapshot(payload)==before\n"
     "emit('" + START + "\\n');flush()\n"
 )
 def _indent_observer(source: str) -> str:
@@ -105,8 +110,10 @@ def _indent_observer(source: str) -> str:
 # audit callback, snapshot verifier, payload or bound output handles.
 OBSERVER_SETUP = "def _run():\n" + _indent_observer(OBSERVER_PROLOGUE)
 OBSERVER_EMIT = (
-    "emit(dumps({'value':answer,'input_unchanged':input_unchanged},"
-    "sort_keys=True,allow_nan=False,separators=(',',':')))\n"
+    # Never serialize the trusted verdict through candidate-mutable
+    # json.JSONEncoder global state; encode only the candidate's answer.
+    "emit('{\"value\":'+answer_json+',\"input_unchanged\":'+"
+    "('true' if input_unchanged is True else 'false')+'}')\n"
     "emit('\\n" + FINISH + "\\n');flush()\n"
 )
 OBSERVER_EMIT = _indent_observer(OBSERVER_EMIT) + "_run()\n"
@@ -114,7 +121,7 @@ ENTRYPOINT = (
     OBSERVER_SETUP
     + _indent_observer(
         "candidate=runpy.run_path('/app/solution.py')\n"
-        "answer,input_unchanged=_checked(candidate['transform'],d)\n"
+        "answer_json,input_unchanged=_checked(candidate['transform'],d)\n"
     )
     + OBSERVER_EMIT
 )
@@ -128,7 +135,7 @@ INTERFACE_CALLERS = (
         "def _call(payload):\n"
         "    from normalize import canonical,legacy\n"
         "    return {'service':canonical(payload['name']),'legacy':legacy(payload['name'])}\n"
-        "answer,input_unchanged=_checked(_call,d)\n"
+        "answer_json,input_unchanged=_checked(_call,d)\n"
     )
     + OBSERVER_EMIT
 )
@@ -144,7 +151,7 @@ INTERFACE_REUSE = (
         "    shared.slugify=spy\n"
         "    from catalog import slugs\n"
         "    return {'result':slugs(payload['items']),'calls':calls}\n"
-        "answer,input_unchanged=_checked(_call,d)\n"
+        "answer_json,input_unchanged=_checked(_call,d)\n"
     )
     + OBSERVER_EMIT
 )
