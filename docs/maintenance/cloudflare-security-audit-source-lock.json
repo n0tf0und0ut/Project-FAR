@@ -1,0 +1,94 @@
+{
+  "schema": "far-cloudflare-security-audit-source-lock/1",
+  "upstream_repository": "cloudflare/security-audit-skill",
+  "upstream_commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+  "upstream_skill_path": "skills/security-audit",
+  "installed_skill_path": ".agents/skills/security-audit",
+  "license": "MIT",
+  "files": [
+    {
+      "path": ".agents/skills/security-audit/LICENSE",
+      "git_blob_sha1": "6dbc9ecb3a5b9080e95b962869e8c7ab16cfdc20"
+    },
+    {
+      "path": ".agents/skills/security-audit/AI-AND-LLM.md",
+      "git_blob_sha1": "02ba9039eca4cec811fefc77bce0d7349b379aae"
+    },
+    {
+      "path": ".agents/skills/security-audit/ATTACK-CLASSES.md",
+      "git_blob_sha1": "18a2beb4dbb554fb52b0a0293b8bd9108207f8fa"
+    },
+    {
+      "path": ".agents/skills/security-audit/CLIENT-SIDE.md",
+      "git_blob_sha1": "8ba673e9e7e3d02f5518aa0219bcbeec7957531b"
+    },
+    {
+      "path": ".agents/skills/security-audit/CLOUD-AND-DEPLOYMENT.md",
+      "git_blob_sha1": "5569f76c7740744aa3f60aaa89eaefe275f2e6c9"
+    },
+    {
+      "path": ".agents/skills/security-audit/DATA-ISOLATION-AND-LIFECYCLE.md",
+      "git_blob_sha1": "0cba1fa463b62c9b0caba710a201e29c1eecd0ec"
+    },
+    {
+      "path": ".agents/skills/security-audit/DESKTOP-MOBILE-AND-LOCAL-IPC.md",
+      "git_blob_sha1": "d6230098651bff6348d3868c11f566bfb1306e7f"
+    },
+    {
+      "path": ".agents/skills/security-audit/HUNTING.md",
+      "git_blob_sha1": "377d4dcfbe88a049379448cd7892717185401597"
+    },
+    {
+      "path": ".agents/skills/security-audit/MEMORY-SAFETY-AND-BINARY.md",
+      "git_blob_sha1": "86ff4920752661fc4a31a35ca4f962ace5dd5f48"
+    },
+    {
+      "path": ".agents/skills/security-audit/PROTOCOLS-RPC-AND-MESSAGING.md",
+      "git_blob_sha1": "b04ab88f852224838fdc9683d9fcccd858b0778a"
+    },
+    {
+      "path": ".agents/skills/security-audit/RECONNAISSANCE.md",
+      "git_blob_sha1": "1a170a93ab76b93dc5ac268a5b690beb423a8aa9"
+    },
+    {
+      "path": ".agents/skills/security-audit/RESOURCE-EXHAUSTION-AND-AVAILABILITY.md",
+      "git_blob_sha1": "6cbbd1e2cfa482068c8279c2f7da9db43d3f54b8"
+    },
+    {
+      "path": ".agents/skills/security-audit/SKILL.md",
+      "git_blob_sha1": "92178dad304d3f63e37582a297026a7874e12c62"
+    },
+    {
+      "path": ".agents/skills/security-audit/SUPPLY-CHAIN-AND-RELEASE.md",
+      "git_blob_sha1": "bf96aed0803bc07471483ab129dea86759c3e305"
+    },
+    {
+      "path": ".agents/skills/security-audit/VALIDATION-AND-REPORTING.md",
+      "git_blob_sha1": "5e200d7387e665e53e0e4190fa4a5814c334c507"
+    },
+    {
+      "path": ".agents/skills/security-audit/WEB-PROTOCOL-AND-AUTH.md",
+      "git_blob_sha1": "1a099fa575cf52a61e9a627f91b61015120fa517"
+    },
+    {
+      "path": ".agents/skills/security-audit/report-schema.json",
+      "git_blob_sha1": "55815a3687a45fff63d8ebf20068611bd6ad6d9a"
+    },
+    {
+      "path": ".agents/skills/security-audit/validate-coverage-ledger.cjs",
+      "git_blob_sha1": "0ef58657bef18b26a92321df6c8e3d31bc8e6659"
+    },
+    {
+      "path": ".agents/skills/security-audit/validate-coverage-ledger.test.cjs",
+      "git_blob_sha1": "b1444f57e1b021a61175733b8c356171861c8701"
+    },
+    {
+      "path": ".agents/skills/security-audit/validate-findings.cjs",
+      "git_blob_sha1": "2843feceddb7e30bf10d6e4f7bbe6640e4c57799"
+    },
+    {
+      "path": ".agents/skills/security-audit/validate-findings.test.cjs",
+      "git_blob_sha1": "8d245b226bbe2fdf28b46b3203b99c2824039d2d"
+    }
+  ]
+}
