@@ -178,13 +178,6 @@ def _criteria(body: str) -> list[str]:
         # an info string on an opening fence is likewise never an HTML tag.
         # Preserve open pre/comment state so its genuine closer is still read.
         if not html_pre and not html_comment:
-            # The intake parser intentionally supports only top-level fence
-            # openers. GFM also permits fences nested in list/blockquote
-            # containers, which can desynchronize the flat state machine and
-            # promote sample text as executable acceptance criteria.
-            # Reject every marker not recognized as a bare top-level fence.
-            if not marker and re.search(r"(?:`{3,}|~{3,})", line):
-                raise IntakeError("container-prefixed Markdown fence requires clarification")
             indentation = line[:len(line) - len(line.lstrip(" \t"))]
             columns = 0
             for char in indentation:
@@ -202,6 +195,13 @@ def _criteria(body: str) -> list[str]:
                 if in_section:
                     raise IntakeError("indented code in acceptance criteria requires clarification")
                 continue
+            # The intake parser intentionally supports only top-level fence
+            # openers. GFM also permits fences nested in list/blockquote
+            # containers, which can desynchronize the flat state machine and
+            # promote sample text as executable acceptance criteria.
+            # Reject every marker not recognized as a bare top-level fence.
+            if not marker and re.search(r"(?:`{3,}|~{3,})", line):
+                raise IntakeError("container-prefixed Markdown fence requires clarification")
             if marker:
                 if marker.group("mark")[0] == "`" and "`" in marker.group("suffix"):
                     raise IntakeError("backtick fence info string requires clarification")
