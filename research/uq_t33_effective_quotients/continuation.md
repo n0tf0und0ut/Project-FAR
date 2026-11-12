@@ -1,0 +1,45 @@
+# UQ-T33 continuation — a computable finite-state fragment
+
+**Status:** Research. This is an additional, internally reasoned computational result. It does not alter FAR Core, its proof register, UQ-T33's canonical open status, or any frozen result.
+
+## Question and precise assumption
+
+What known structure makes a quotient computable when the full test set is infinite?
+
+Fix a **fully specified finite deterministic Moore machine**: nonempty state set X of size n, finite action alphabet A, total deterministic transition function δ:X×A→X, and total output o:X→O with decidable equality. Declare every finite word w∈A* as a test and define obs(w,x)=o(δ*(x,w)), including the empty word.
+
+This is a restricted exact contract. All transition and output data must be available; no unspecified environment or hidden state is admitted.
+
+## R4: effective quotient and sharp distinguishing depth
+
+**Claim:** The exact infinite-word observational quotient is computable by finite partition refinement. Every observationally distinguishable pair has a distinguishing word of length at most max(n−2,0). For n≥2, this bound is sharp.
+
+**Proof:** Define E_0 on states by equality of immediate outputs. Define E_(d+1) by x E_(d+1) y iff o(x)=o(y) and, for every a∈A, δ(x,a) E_d δ(y,a). Induction on d shows that E_d equates exactly those states that agree under every action word of length at most d: the empty word tests immediate output, while a nonempty word begins with an action a and leaves a suffix of length at most d−1.
+
+Consequently E_0⊇E_1⊇..., so the induced partitions only refine. If the partition does not change at a round, the defining recurrence produces the same partition at all later rounds; the fixed point therefore equals agreement under every finite word.
+
+If E_0 has just one class, all state outputs coincide. No word can distinguish any states because every reached state also has that same output; E_0 is already a fixed point. Otherwise E_0 has at least two classes, and every strict refinement increases the class count by at least one. Since there are at most n classes, at most n−2 strict refinements can occur. Thus E_max(n−2,0) is the full observational equivalence relation. Grouping each state by its current output and the current classes of its action successors until a fixed point computes the exact quotient. ∎
+
+**Sharpness:** For each n≥2, take states 0,...,n−1, a single action advancing x to min(x+1,n−1), and output 1 only at state n−1. States 0 and 1 agree on all words of length less than n−2, while the word with exactly n−2 actions distinguishes them. Therefore the worst-case depth bound is achieved. ∎
+
+The bound concerns word length, not total evaluation count or shortest representation implementation. This is standard finite-state partition refinement; its use here establishes a well-specified positive fragment of UQ-T33 and does not imply mathematical novelty.
+
+## Executable tests
+
+The standard-library implementation is in finite_state.py. Test cases independently compare its fixed-point partition with direct evaluation of all words through the theorem's depth bound, exhaustively for:
+- all binary-output one-action machines with 1–4 states;
+- all binary-output two-action machines with 1–3 states.
+
+Further tests cover the sharp-length chain, constant-output cases, and malformed transition tables. The complete inherited and continuation suite has 11 tests and passed locally. Run from repository root:
+
+    python -m unittest tests.test_uq_t33_effective_quotients
+
+The implementation assumes outputs have hashable canonical labels (Python dictionary keys), which is stronger than the mathematical requirement of decidable equality; that implementation restriction must not be misread as a theorem premise. Exhaustive tests cover only the displayed finite machines. The mathematical proof uses induction and the monotonic finite-partition bound.
+
+## Falsification and limitations
+
+A counterexample would be two states of a valid finite complete deterministic Moore machine agreeing on all words of length at most max(n−2,0) but differing on a longer word; or a flaw in the recurrence/fixed-point argument. Tests actively compare the algorithm to independently evaluated word outcomes.
+
+This result cannot certify that a real reasoning environment has a known finite complete state set or deterministic transition semantics. Partial, probabilistic, nondeterministic, hidden-state, continuous, oracle-dependent, changing-ontology, or unrestricted computational processes require different contracts and arguments. The infinite-family undecidability result in discovery.md remains valid outside this restricted model.
+
+**Next research question:** What externally checkable evidence can justify the finite-state completeness assumption, or establish a completeness horizon without assuming complete transition knowledge? The fixed-point proof cannot supply that premise itself.
