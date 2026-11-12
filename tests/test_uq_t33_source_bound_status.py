@@ -110,6 +110,13 @@ class SourceBoundCorrespondenceTests(unittest.TestCase):
         root = ROOT / "commercial/far-decision-integrity/src"
         self.assertTrue(root.is_dir(), "real production package is required; no skipped runtime tests")
         sys.path.insert(0, str(root))
+        import importlib
+        module = importlib.import_module("far_decision_integrity.adjudicate")
+        self.assertEqual(Path(module.__file__).resolve(), (ROOT / m.SOURCE_REL).resolve(),
+                         "import shadowing: runtime did not load the pinned source file")
+        actual_bytes = Path(module.__file__).read_bytes()
+        self.assertEqual(m.git_blob_sha(actual_bytes), m.SOURCE_GIT_BLOB)
+        self.assertEqual(__import__("hashlib").sha256(actual_bytes).hexdigest(), m.SOURCE_SHA256)
         from far_decision_integrity.adjudicate import adjudicate
         from far_decision_integrity.model import (
             DecisionPackage, DecisionNode, SCHEMA_VERSION
