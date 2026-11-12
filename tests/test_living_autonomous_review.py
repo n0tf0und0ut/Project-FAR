@@ -739,6 +739,7 @@ class AutonomousLivingReviewTests(unittest.TestCase):
             safe = archived("--worktree-attributes")
             self.assertEqual(original_state, safe[state_rel])
             self.assertEqual(original_candidate, safe[candidate_rel])
+
     def test_workflow_contains_race_serialization_retry_validation_and_explicit_dispatch_guards(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
         self.assertIn("headRepositoryOwner", workflow)
