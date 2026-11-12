@@ -14,6 +14,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import stat
 import subprocess
 from typing import Iterable
 from urllib.parse import unquote, urlsplit
@@ -59,6 +60,9 @@ class Graph:
     source_snapshots: dict[str, tuple[int, str | None] | None] = field(default_factory=dict, repr=False)
     _edge_keys: set = field(default_factory=set, repr=False)
     _source_paths: frozenset[str] | None = field(default=None, repr=False)
+    _source_targets: dict[str, Path] = field(default_factory=dict, repr=False)
+    _lookup_targets: dict[tuple[Path, tuple[str, ...]], tuple[str | None, str]] = field(
+        default_factory=dict, repr=False)
 
     def add_node(self, id: str, kind: str, path: str, line: int = 0, label: str = "") -> str:
         self.nodes.setdefault(id, Node(id, kind, path, line, label))
@@ -98,7 +102,7 @@ class Graph:
         }
 
     def freshness(self) -> dict:
-        """Detect drift in indexed sources, excluded sources, and external symlinks."""
+        """Detect drift in source contents, exclusions, and dependency lookups."""
         changed = []
         for rel, snapshot in sorted(self.source_snapshots.items()):
             path = self.root / rel
@@ -106,7 +110,7 @@ class Graph:
             try:
                 resolved = path.resolve()
                 if (not resolved.is_relative_to(self.root)
-                        or (self._source_paths is not None and resolved != path)):
+                        or resolved != self._source_targets.get(rel, path)):
                     changed.append(rel)
                     continue
                 if path.is_file():
@@ -131,6 +135,9 @@ class Graph:
                    if d['kind'] in {'skipped_large_file', 'unreadable', 'external_symlink'}}
         inventory = {path.relative_to(self.root).as_posix() for path in self._source_files()}
         changed.extend(self.source_snapshots.keys() - inventory)
+        for (path, index_names), snapshot in self._lookup_targets.items():
+            if _ordinary_target(self.root, path, index_names) != snapshot:
+                changed.append(path.relative_to(self.root).as_posix())
         new = sorted(inventory - self.hashes.keys() - ignored)
         return {'fresh': not changed and not new,
                 'changed_or_removed': sorted(set(changed)),
@@ -221,6 +228,31 @@ def _normalize_query_path(root: Path, path: str, exact: bool = False) -> str:
     return candidate.relative_to(root).as_posix()
 
 
+def _ordinary_target(root: Path, path: Path, index_names: tuple[str, ...]) -> tuple[str | None, str]:
+    try:
+        candidate = path.resolve()
+        if not candidate.is_relative_to(root):
+            return None, "outside_root"
+        if index_names and candidate.is_dir():
+            for name in index_names:
+                if (candidate / name).is_file():
+                    candidate = (candidate / name).resolve()
+                    if not candidate.is_relative_to(root):
+                        return None, "outside_root"
+                    break
+        status = "resolved" if candidate.is_file() else "missing"
+        return candidate.relative_to(root).as_posix(), status
+    except (OSError, RuntimeError):
+        return None, "invalid_path"
+
+
+def _ordinary_lookup(g: Graph, path: Path, index_names: tuple[str, ...] = ()) -> tuple[str | None, str]:
+    key = (path, index_names)
+    if key not in g._lookup_targets:
+        g._lookup_targets[key] = _ordinary_target(g.root, path, index_names)
+    return g._lookup_targets[key]
+
+
 def _resolve_local(g: Graph, current: str, raw: str) -> tuple[str | None, str]:
     """Only accept existing in-root files/dirs. Never resolve network locations."""
     raw = raw.strip().strip('<>')
@@ -249,20 +281,7 @@ def _resolve_local(g: Graph, current: str, raw: str) -> tuple[str | None, str]:
             if candidate.as_posix() in g._source_paths:
                 return candidate.as_posix(), "resolved"
         return rel.as_posix(), "missing"
-    try:
-        candidate = target.resolve()
-    except (OSError, RuntimeError):
-        return None, "invalid_path"
-    if not candidate.is_relative_to(root):
-        return None, "outside_root"
-    if candidate.is_dir():
-        for name in index_names:
-            if (candidate/name).is_file():
-                candidate = candidate/name
-                break
-    if not candidate.is_file():
-        return candidate.relative_to(root).as_posix(), "missing"
-    return candidate.relative_to(root).as_posix(), "resolved"
+    return _ordinary_lookup(g, target, index_names)
 
 
 def _py_module_target(g: Graph, source_path: str, module: str, level: int = 0) -> str | None:
@@ -275,26 +294,38 @@ def _py_module_target(g: Graph, source_path: str, module: str, level: int = 0) -
         base = []
     parts = [*base, *module.split('.')] if module else base
     root = g.root
-    candidates=[]
+    candidates=[root.joinpath(*parts,'__init__.py')]
     if parts:
         candidates.append(root.joinpath(*parts[:-1],parts[-1]+'.py'))
-    candidates.append(root.joinpath(*parts,'__init__.py'))
     for cand in candidates:
         if g._source_paths is not None:
             rel = cand.relative_to(root).as_posix()
             if rel in g._source_paths:
                 return rel
             continue
-        if cand.is_file() and cand.resolve().is_relative_to(root):
-            return cand.resolve().relative_to(root).as_posix()
+        target, status = _ordinary_lookup(g, cand)
+        if status == "resolved":
+            return target
     return None
 
 
+def _open_source(path: str, flags: int) -> int:
+    return os.open(path, flags | getattr(os, "O_NONBLOCK", 0))
+
+
 def _bounded_source(path: Path) -> tuple[int, bytes | None]:
-    size = path.stat().st_size
-    if size > MAX_SOURCE_BYTES:
-        return size, None
-    with path.open("rb") as stream:
+    metadata = path.stat()
+    if not stat.S_ISREG(metadata.st_mode):
+        raise OSError("Source is not a regular file")
+    if metadata.st_size > MAX_SOURCE_BYTES:
+        return metadata.st_size, None
+    # Recheck the descriptor before reading in case the path changed after stat.
+    with open(path, "rb", opener=_open_source) as stream:
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OSError("Source is not a regular file")
+        if metadata.st_size > MAX_SOURCE_BYTES:
+            return metadata.st_size, None
         content = stream.read(MAX_SOURCE_BYTES + 1)
     return len(content), content if len(content) <= MAX_SOURCE_BYTES else None
 
@@ -494,12 +525,22 @@ class PythonVisitor(ast.NodeVisitor):
 
 
 def _python(g:Graph,rel:str,body:str)->None:
+    # Stage this file's analysis so a traversal failure cannot publish partial edges.
+    source_graph = Graph(g.root, _source_paths=g._source_paths, _lookup_targets=g._lookup_targets)
     try:
         tree=ast.parse(body,filename=rel)
+        PythonVisitor(source_graph,rel,tree).run()
     except SyntaxError as exc:
         g.diagnostic('python_syntax_error',rel,exc.lineno or 0,exc.msg)
         return
-    PythonVisitor(g,rel,tree).run()
+    except RecursionError:
+        g.diagnostic('python_ast_depth_limit',rel,0,'Python parsing or traversal exceeded the recursion limit')
+        return
+    for node_id, node in source_graph.nodes.items():
+        g.nodes.setdefault(node_id, node)
+    g.edges.extend(edge for edge in source_graph.edges if edge not in g._edge_keys)
+    g._edge_keys.update(source_graph._edge_keys)
+    g.diagnostics.extend(source_graph.diagnostics)
 
 
 def _discover_files(root: Path, tracked_only: bool = False) -> list[Path]:
@@ -535,18 +576,19 @@ def build(root: str | Path, tracked_only: bool = False, *,
         raise ValueError(f'Not a directory: {root}')
     g=Graph(root, tracked_only=tracked_only, _source_paths=source_paths)
     for path in g._source_files():
-        rel=path.relative_to(root)
+        rel=path.relative_to(root).as_posix()
         if source_paths is not None and (not path.is_file() or path.resolve() != path):
-            raise ValueError(f'Pinned source is missing or not a regular file: {rel.as_posix()}')
-        if path.is_symlink() and not path.resolve().is_relative_to(root):
-            # Excluded links are not graph evidence, but preserve their literal
-            # target identity to detect meaningful changes during freshness.
-            target_digest = hashlib.sha256(os.fsencode(os.readlink(path))).hexdigest()
-            g.diagnostic('external_symlink',rel.as_posix(),0,target_digest)
-            continue
+            raise ValueError(f'Pinned source is missing or not a regular file: {rel}')
+        if path.is_symlink():
+            resolved = path.resolve()
+            if not resolved.is_relative_to(root):
+                # Preserve the excluded link's literal target for freshness checks.
+                target_digest = hashlib.sha256(os.fsencode(os.readlink(path))).hexdigest()
+                g.diagnostic('external_symlink',rel,0,target_digest)
+                continue
+            g._source_targets[rel] = resolved
         body=_read_source(g,path)
         if body is None:continue
-        rel=path.relative_to(root).as_posix()
         ext=path.suffix.lower()
         if ext=='.py':_python(g,rel,body)
         elif ext=='.md':_markdown(g,rel,body)

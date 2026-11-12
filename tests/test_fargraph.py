@@ -1,11 +1,14 @@
+import builtins
 import json
+import os
+import stat
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from fargraph.core import MAX_SOURCE_BYTES, build, git_changed_files
+from fargraph.core import MAX_SOURCE_BYTES, PythonVisitor, build, git_changed_files
 from fargraph.mcp import Server
 
 
@@ -110,6 +113,95 @@ class RepoFixture(unittest.TestCase):
         g=build(self.root)
         self.assertTrue(any(d['kind']=='python_syntax_error' and d['path']=='pkg/bad.py' for d in g.diagnostics))
 
+    def test_python_analysis_depth_error_isolated_from_other_sources(self):
+        self.write('limited.py', 'import pkg.base\n')
+        original_run = PythonVisitor.run
+
+        def run(visitor):
+            original_run(visitor)
+            if visitor.rel == 'limited.py':
+                raise RecursionError('fixture analysis limit')
+
+        with patch.object(PythonVisitor, 'run', run):
+            graph = build(self.root)
+        self.assertTrue(any(d['kind'] == 'python_ast_depth_limit' and d['path'] == 'limited.py'
+                            for d in graph.diagnostics))
+        self.assertFalse(any(edge.path == 'limited.py' for edge in graph.edges))
+        self.assertTrue(any(edge.path == 'pkg/use.py' for edge in graph.edges))
+
+    def test_python_package_precedes_same_named_module(self):
+        self.write('pkg.py', 'value = 0\n')
+        self.write('caller.py', 'import pkg\n')
+        sources = frozenset({'pkg.py', 'pkg/__init__.py', 'caller.py'})
+        for source_paths in (None, sources):
+            with self.subTest(pinned=source_paths is not None):
+                graph = build(self.root, source_paths=source_paths)
+                targets = {edge.target for edge in graph.edges if edge.path == 'caller.py'}
+                self.assertEqual(targets, {'file:pkg/__init__.py'})
+
+    def test_equal_bytes_do_not_hide_retargeted_internal_symlink(self):
+        self.write('a.py', 'value = 1\n')
+        self.write('b.py', 'value = 1\n')
+        self.write('caller.py', 'import alias\n')
+        alias = self.root / 'alias.py'
+        alias.symlink_to('a.py')
+        graph = build(self.root)
+        self.assertTrue(graph.freshness()['fresh'])
+        alias.unlink()
+        alias.symlink_to('b.py')
+        self.assertEqual(graph.freshness()['changed_or_removed'], ['alias.py'])
+        affected = build(self.root).impact(['b.py'])['possibly_affected']
+        self.assertIn('caller.py', {entry['path'] for entry in affected})
+
+    def test_dependency_lookup_detects_retargeted_directory_symlink(self):
+        for package in ('first', 'second'):
+            self.write(f'{package}/__init__.py', 'value = 1\n')
+            self.write(f'{package}/README.md', '# Package\n')
+        self.write('links.md', '[Guide](alias/README.md)\n[Package](alias/)\n')
+        self.write('caller.py', 'import alias\n')
+        alias = self.root / 'alias'
+        alias.symlink_to('first', target_is_directory=True)
+        graph = build(self.root)
+        self.assertTrue(graph.freshness()['fresh'])
+        self.assertEqual({edge.target for edge in graph.edges if edge.path == 'links.md'},
+                         {'file:first/README.md'})
+        self.assertEqual({edge.target for edge in graph.edges if edge.path == 'caller.py'},
+                         {'file:first/__init__.py'})
+
+        alias.unlink()
+        alias.symlink_to('second', target_is_directory=True)
+        self.assertFalse(graph.freshness()['fresh'])
+        refreshed = build(self.root)
+        self.assertEqual({edge.target for edge in refreshed.edges if edge.path == 'links.md'},
+                         {'file:second/README.md'})
+        self.assertEqual({edge.target for edge in refreshed.edges if edge.path == 'caller.py'},
+                         {'file:second/__init__.py'})
+
+    def test_nonregular_paths_are_excluded_before_opening_sources(self):
+        self.write('placeholder.py', 'value = 1\n')
+        placeholder = self.root / 'placeholder.py'
+        alias = self.root / 'alias.py'
+        alias.symlink_to(placeholder)
+        original_stat = Path.stat
+
+        def source_stat(path, *args, **kwargs):
+            result = original_stat(path, *args, **kwargs)
+            if path in (placeholder, alias) and kwargs.get('follow_symlinks', True):
+                return os.stat_result((stat.S_IFDIR, *tuple(result)[1:]))
+            return result
+
+        def guard_open(path, *args, **kwargs):
+            self.assertNotIn(path, (placeholder, alias))
+            return builtins.open(path, *args, **kwargs)
+
+        with (patch.object(Path, 'stat', source_stat),
+              patch('fargraph.core.open', guard_open, create=True)):
+            graph = build(self.root)
+            self.assertTrue(graph.freshness()['fresh'])
+        for path in ('placeholder.py', 'alias.py'):
+            self.assertNotIn(path, graph.hashes)
+            self.assertIn(path, {d['path'] for d in graph.diagnostics if d['kind'] == 'unreadable'})
+
     def test_determinism(self):
         g1=build(self.root).to_dict()
         g2=build(self.root).to_dict()
@@ -204,14 +296,14 @@ class RepoFixture(unittest.TestCase):
     def test_file_read_failure_then_recovery_or_removal_invalidates_index(self):
         caller = self.root / 'caller.py'
         caller.write_text('import pkg.base\n')
-        original_open = Path.open
+        original_open = builtins.open
 
         def open_source(path, *args, **kwargs):
             if path == caller:
                 raise PermissionError('fixture denied')
             return original_open(path, *args, **kwargs)
 
-        with patch.object(Path, 'open', open_source):
+        with patch('fargraph.core.open', open_source, create=True):
             graph = build(self.root)
             self.assertTrue(graph.freshness()['fresh'])
         self.assertEqual(graph.freshness()['changed_or_removed'], ['caller.py'])

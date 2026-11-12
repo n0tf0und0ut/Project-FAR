@@ -26,7 +26,7 @@ python -m fargraph.mcp --root .
 
 The factory adapter selects source files and resolves dependency targets from the pinned Git tree's regular-file inventory. It verifies the size of every selected source against Git and checks the raw blob digest for sources within the size cap, including undecodable files. Missing supported sources in sparse checkouts and local changes that would hide a committed source fail validation. Ignored generated files cannot add a resolved edge. Changed symbolic links and submodule entries are reported as unindexed Git paths. Invalid Markdown URLs are recorded as diagnostics while other links remain analyzable.
 
-The MCP subprocess exposes only structural read and refresh operations; it has no ability to write GitHub content, change factory queue state, approve reviews, or merge PRs. If an initially excluded source becomes indexable, the subprocess requires a refresh before tracing or impact analysis. A graph finding may guide testing and source inspection but cannot replace either.
+The MCP subprocess exposes only structural read and refresh operations; it has no ability to write GitHub content, change factory queue state, approve reviews, or merge PRs. If an initially excluded source becomes indexable or a source or dependency lookup resolves to a different path, the subprocess requires a refresh before tracing or impact analysis. Dependency lookups also detect changes through directory symlinks without recursively indexing those directories. Nonregular sources are excluded. Python parsing or traversal depth limits are reported for the affected source, and analysis continues for other files. A graph finding may guide testing and source inspection but cannot replace either.
 
 ## Tested boundaries
 
