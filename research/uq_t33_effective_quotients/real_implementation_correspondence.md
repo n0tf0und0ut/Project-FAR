@@ -9,6 +9,7 @@ Earlier R7 verified that two supplied finite tables commute. The table claimant 
 - Subject: commercial/far-decision-integrity/src/far_decision_integrity/adjudicate.py.
 - Frozen protected-main starting commit: aa5cb8faf36b5e033bb96bf6e9f7f3f351387913.
 - Exact subject source Git blob: d6167a41ddff47675db004da2f1bfe409acd7251.
+- Independently pinned source SHA-256: cbfaa4462a41aefaaff73344e389e87d50cd95071cd13b11515526c33e22c073.
 - Program fragment: adjudicate() terminal findings-to-IntegrityStatus resolver.
 - Observation: only returned Adjudication.status after all findings have been generated. Upstream finding generation, imports, I/O, semantic checks, other output fields and environment are not included.
 
@@ -29,7 +30,7 @@ For a **separately declared analysis wrapper**, let the concrete state be F and 
 
 ## Stronger source evidence than an authored model table
 
-The new source_bound_status.py checker reads the actual source path and validates the immutable Git blob SHA. It parses the real adjudicate AST and requires the exact final statement sequence, status conditions, branch order and return expression. Source drift, mutated status priority, an inserted final override, an unavailable source file, and stale identities fail closed.
+The new source_bound_status.py checker reads the actual source path and validates both the immutable Git blob SHA and an independently calculated SHA-256. It parses the real adjudicate AST and requires the exact final statement sequence, status conditions, branch order and return expression. Source drift, mutated status priority, an inserted final override, an unavailable source file, and stale identities fail closed.
 
 The checker does not accept a claimant-provided digest as authority. It reports SOURCE_BOUND_STATUS_FRAGMENT_VERIFIED with explicit negative fields: whole_program_correspondence=NOT_VERIFIED, deployed_environment_correspondence=NOT_VERIFIED and independent_external_replication=NOT_OBTAINED.
 
@@ -48,3 +49,7 @@ True I3 certification requires an investigator outside Project FAR control, inde
 The next full-system challenge is to prove source and runtime correspondence for the upstream finding-generation pipeline under a separately frozen input and observation contract. It must account for external semantic checkers, object validity, emitted findings, non-status fields and environment. The R8 certificate alone does not imply a bounded complete deployed system.
 
 **Disposition:** the source identity and a finite observable resolver have been bound to a real software artifact for independently checkable replay, but no independent I3 replication, total application-model correspondence, or empirical process identification has occurred. Preserve this Research-only result and all negative findings.
+
+## Third-party verification
+
+See [the independent replication packet](external_replication_packet.md). It freezes proof obligations, source and build identity, negative controls, pass/fail standards, and evidence retention requirements. **No external I3 team has executed that protocol; no external independent certification is claimed.**
