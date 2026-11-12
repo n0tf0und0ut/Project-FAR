@@ -39,7 +39,7 @@ BULLET = re.compile(rf"^[ \t]*{LIST_MARKER}(?P<padding>[ \t]+)(?P<content>\S.*)$
 TASK_MARKER = re.compile(r"^\[[\sxX]\](?:\s+|$)", re.ASCII)
 THEMATIC_BREAK = re.compile(r"^ {0,3}([*_-])(?:[ \t]*\1){2,}[ \t]*$")
 SETEXT_UNDERLINE = re.compile(r"(?:=+|-+)[ \t]*")
-LINK_DEFINITION = re.compile(r"^\[.+\]:")
+LINK_DEFINITION = re.compile(r"^\[(?:\\.|[^\[\]\\])+\]:")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
 # GFM type 1 HTML blocks terminate on the exact tag, case-insensitively.
 HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:[ \t][^<>]*)?>|</pre>", re.I)
@@ -182,6 +182,7 @@ def _criteria(body: str) -> list[str]:
     result: list[str] = []
     in_section = False
     last_bullet: int | None = None
+    last_bullet_has_task_marker = False
     fence: tuple[str, int] | None = None
     html_pre = False
     html_comment = False
@@ -308,7 +309,10 @@ def _criteria(body: str) -> list[str]:
                 raise IntakeError("indented code in acceptance criteria requires clarification")
             content = match.group("content")
             _require_paragraph_text(content)
-            value = TASK_MARKER.sub("", content, count=1).strip()
+            task_marker = TASK_MARKER.match(content)
+            last_bullet_has_task_marker = task_marker is not None
+            start = task_marker.end() if task_marker else 0
+            value = content[start:].strip()
             if not value or len(value) > 1000:
                 raise IntakeError("acceptance bullets require a nonempty criterion of at most 1000 characters")
             result.append(value)
@@ -321,6 +325,10 @@ def _criteria(body: str) -> list[str]:
                     raise IntakeError("nested Markdown heading requires clarification")
                 _require_paragraph_text(content)
                 combined = result[last_bullet] + " " + content.strip()
+                # Link labels may span physical lines. Check the joined text
+                # only when it begins the original paragraph without a checkbox.
+                if not last_bullet_has_task_marker and LINK_DEFINITION.match(combined):
+                    raise IntakeError("nested Markdown link definition requires clarification")
                 if len(combined) > 1000:
                     raise IntakeError("acceptance criterion exceeds 1000 characters")
                 result[last_bullet] = combined

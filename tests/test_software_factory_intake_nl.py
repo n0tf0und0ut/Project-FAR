@@ -256,7 +256,7 @@ Acceptance criteria:
 
     def test_acceptance_bullets_reject_nested_nonparagraph_blocks(self):
         for block in ("> Quoted example.", "## Example heading", "1. Example item",
-                      "***", "[sample]: /example"):
+                      "***", "[sample]: /example", "[sample\n  name]: /example", r"[sample\]]: /example"):
             with self.subTest(block=block), self.assertRaisesRegex(IntakeError, "nested Markdown"):
                 draft(f"## Acceptance criteria\n- {block}\n")
         for continuation in ("> Quoted example.", "==="):
@@ -266,6 +266,11 @@ Acceptance criteria:
                          ["Print counts.", "Handle empty input."])
         self.assertEqual(_criteria("## Acceptance criteria\n- [ ]text remains literal.\n"),
                          ["[ ]text remains literal."])
+        self.assertEqual(_criteria("## Acceptance criteria\n- [Status] emits [code]: print it.\n"
+                                   "- [x] [Exit\n  code]: Print it.\n"
+                                   "- [Target\n  path] is shown.\n"),
+                         ["[Status] emits [code]: print it.", "[Exit code]: Print it.",
+                          "[Target path] is shown."])
         with self.assertRaisesRegex(IntakeError, "nonempty criterion"):
             draft("## Acceptance criteria\n- [ ]\n")
 
