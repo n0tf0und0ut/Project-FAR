@@ -18,6 +18,7 @@ from typing import Iterable
 SOURCE_REL = Path("commercial/far-decision-integrity/src/far_decision_integrity/adjudicate.py")
 # Fetched from protected main aa5cb8faf36b5e033bb96bf6e9f7f3f351387913.
 SOURCE_GIT_BLOB = "d6167a41ddff47675db004da2f1bfe409acd7251"
+SOURCE_SHA256 = "cbfaa4462a41aefaaff73344e389e87d50cd95071cd13b11515526c33e22c073"
 
 UNSUPPORTED = frozenset({
     "authorization-dependency-missing", "required-node-invalid", "evidence-contradicted",
@@ -83,6 +84,7 @@ def inspect_source(raw: bytes) -> dict:
     earlier findings generation and imported code are out of scope.
     """
     require(git_blob_sha(raw) == SOURCE_GIT_BLOB, "SOURCE_BLOB_MISMATCH")
+    require(hashlib.sha256(raw).hexdigest() == SOURCE_SHA256, "SOURCE_SHA256_MISMATCH")
     return _check_fragment(raw)
 
 
