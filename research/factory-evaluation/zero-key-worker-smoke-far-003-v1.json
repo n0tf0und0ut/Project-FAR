@@ -1,0 +1,10 @@
+{
+  "schema": "far-factory-zero-key-smoke/1",
+  "task_id": "FAR-MAINT-003",
+  "issue_number": 629,
+  "base_sha": "5253a45ac7f5bfbda1278cf3b8fbf4b9b22136f8",
+  "source_git_blob": "3217647b5ca09ed40ab79a849952aa29f7c033ab",
+  "allowed_path": "tools/software_factory.py",
+  "task_text": "Repair Factory.fail so max_attempts values of the wrong type (including bool, None, string, list, and dict) raise FactoryError, not TypeError or implicit acceptance. Reject them without changing the active lease or its history. Preserve existing valid integer retry behavior. Work on tools/software_factory.py only. Return exactly one JSON object with a unified Git diff in a patch property. No policy, test or frozen-evidence changes.",
+  "test_module": "test_software_factory"
+}
