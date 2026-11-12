@@ -641,6 +641,7 @@ class AutonomousLivingReviewTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
                             "-c", "user.email=fixture@example.invalid", "commit", "-qm", "blob"], check=True)
             validate_ref_paths(repo, "HEAD", [rel])
+
     def test_validated_snapshot_preserves_retry_writer_inputs(self):
         # Reproduce the retry-only path's copy requirements from the exact
         # extraction inputs, including the permanent nonmergeable inbox anchor.
@@ -684,6 +685,7 @@ class AutonomousLivingReviewTests(unittest.TestCase):
                     self.assertIn(rel, members)
                     self.assertTrue(members[rel].isfile())
                     self.assertEqual(expected.encode(), bundle.extractfile(members[rel]).read())
+
     def test_workflow_contains_race_serialization_retry_validation_and_explicit_dispatch_guards(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
         self.assertIn("headRepositoryOwner", workflow)
