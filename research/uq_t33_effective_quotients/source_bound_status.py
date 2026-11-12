@@ -180,3 +180,19 @@ def certify_source(root: Path) -> dict:
         "method": "PINNED_SOURCE_AST_PLUS_FINITE_WRAPPER_INDUCTION",
     })
     return report
+
+
+def main() -> int:
+    import json
+    import sys
+    try:
+        report = certify_source(Path(__file__).resolve().parents[2])
+    except SourceCorrespondenceError as exc:
+        print(json.dumps({"result": "SOURCE_CORRESPONDENCE_REJECTED", "error_code": exc.code}), file=sys.stderr)
+        return 1
+    print(json.dumps(report, sort_keys=True, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
