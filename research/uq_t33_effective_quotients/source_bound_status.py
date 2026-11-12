@@ -171,6 +171,8 @@ def certify_source(root: Path) -> dict:
         "finite_wrapper_transition_obligations": len(flags) * len(ACTION_RULES),
         "observable_classes": len(set(classes)),
         "word_length_horizon": max(len(flags) - 2, 0),
+        "minimal_quotient_states": len(set(classes)),
+        "quotient_word_length_horizon": max(len(set(classes)) - 2, 0),
         "actual_program_scope": "TERMINAL_STATUS_RESOLUTION_ONLY",
         "whole_program_correspondence": "NOT_VERIFIED",
         "deployed_environment_correspondence": "NOT_VERIFIED",
