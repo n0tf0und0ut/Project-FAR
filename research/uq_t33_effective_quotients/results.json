@@ -1,0 +1,41 @@
+{
+  "status": "bounded_executable_corrob_only",
+  "exhaustive_binary_test_families_n_1_through_4": 65812,
+  "tight_cases": [
+    {
+      "cases": 2,
+      "observational_classes": 2,
+      "tests_available": 1,
+      "minimum_basis_size": 1,
+      "bound": 1
+    },
+    {
+      "cases": 3,
+      "observational_classes": 3,
+      "tests_available": 2,
+      "minimum_basis_size": 2,
+      "bound": 2
+    },
+    {
+      "cases": 4,
+      "observational_classes": 4,
+      "tests_available": 3,
+      "minimum_basis_size": 3,
+      "bound": 3
+    },
+    {
+      "cases": 6,
+      "observational_classes": 6,
+      "tests_available": 5,
+      "minimum_basis_size": 5,
+      "bound": 5
+    }
+  ],
+  "finite_horizon_counterexample": {
+    "tested_horizon": 6,
+    "all_prefix_tests_collide": true,
+    "later_separating_test": 8,
+    "late_observation_1": 1,
+    "late_observation_0": 0
+  }
+}
