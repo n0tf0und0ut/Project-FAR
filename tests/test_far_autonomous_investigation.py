@@ -7,12 +7,16 @@ from __future__ import annotations
 
 import copy
 import base64
+import contextlib
 import hashlib
 import io
 import json
+import tempfile
 import unittest
 import urllib.error
 from collections import Counter
+from functools import partial
+from pathlib import Path
 from unittest.mock import patch
 
 from mechanization.far_mechanization.intake_v1 import aggregate_manifest, validate_manifest
@@ -188,11 +192,13 @@ class RealInvestigationTests(unittest.TestCase):
             inv.execute("deterministic", fetcher=invalid_fetch, checkpoint=evidence.append)
         saved = evidence[-1]
         self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(saved["actions"][-1]["status"], "FAILED")
         receipt = saved["receipts"]["latest"]
         self.assertEqual(base64.b64decode(receipt["raw_base64"]), raw)
         self.assertEqual(receipt["sha256"], hashlib.sha256(raw).hexdigest())
         self.assertEqual(receipt["parsed"], None)
         self.assertIn("source not strict JSON", receipt["parse_error"])
+        self.assertEqual(saved["actions"][-1]["failure"], receipt["parse_error"])
         self.assertEqual(saved["verifier_calls"], 0)
         self.assertIsNone(saved["frozen"])
 
@@ -209,23 +215,41 @@ class RealInvestigationTests(unittest.TestCase):
             inv.execute("deterministic", fetcher=invalid_recheck, checkpoint=evidence.append)
         saved = evidence[-1]
         self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(saved["actions"][-1]["status"], "FAILED")
         recheck = saved["rechecks"][-1]
         self.assertEqual(recheck["source"], "latest")
         self.assertEqual(base64.b64decode(recheck["raw_base64"]), raw)
         self.assertEqual(recheck["sha256"], hashlib.sha256(raw).hexdigest())
         self.assertIsNone(recheck["parsed"])
         self.assertIn("release metadata incomplete", recheck["parse_error"])
+        self.assertEqual(saved["actions"][-1]["failure"], recheck["parse_error"])
         self.assertIsNone(saved["frozen"])
         self.assertEqual(saved["verifier_calls"], 0)
 
     def test_network_drift_aborts_without_freeze_and_preserves_partial(self):
         f, calls = fake_sources(change=True)
-        last = []
-        with self.assertRaisesRegex(inv.InvestigationError, "projection changed"):
-            inv.execute("deterministic", fetcher=f, checkpoint=last.append)
-        self.assertGreaterEqual(len(last), 4)
-        self.assertIsNone(last[-1]["frozen"])
-        self.assertEqual(last[-1]["verifier_calls"], 0)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "investigation.json"
+            with patch.object(inv, "execute", partial(inv.execute, fetcher=f)):
+                with contextlib.redirect_stderr(io.StringIO()) as stderr:
+                    code = inv.main(["run", "--mode", "deterministic", "--output", str(output)])
+            self.assertEqual(code, 2)
+            self.assertFalse(output.exists())
+            failure = json.loads(output.with_suffix(".failure.json").read_text())
+            saved = json.loads(output.with_suffix(".partial.json").read_text())
+        action = saved["actions"][-1]
+        self.assertEqual(saved["status"], failure["status"])
+        self.assertEqual(saved["status"], "FAILED_OR_INCOMPLETE")
+        self.assertEqual(action["actual"], "REFETCH_ALL")
+        self.assertEqual(action["status"], "FAILED")
+        self.assertEqual(action["failure"], failure["reason"])
+        self.assertEqual(action["failure"], json.loads(stderr.getvalue())["reason"])
+        self.assertIn("projection changed", action["failure"])
+        self.assertIsNone(saved["frozen"])
+        self.assertEqual(saved["verifier_calls"], 0)
+        raw = base64.b64decode(saved["rechecks"][0]["raw_base64"])
+        self.assertEqual(raw, gh_latest("drifted-after-first-fetch"))
+        self.assertEqual(saved["rechecks"][0]["sha256"], hashlib.sha256(raw).hexdigest())
         self.assertEqual(calls["latest"], 2)
 
     def test_invalid_release_data_and_unavailable_sources_fail(self):

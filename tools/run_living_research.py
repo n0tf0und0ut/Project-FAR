@@ -19,7 +19,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
@@ -307,7 +307,9 @@ def crossref_query(
     message = payload.get("message")
     if not isinstance(message, dict) or not isinstance(message.get("items"), list):
         raise LivingResearchError("Crossref response missing message.items")
-    items = [item for item in message["items"] if isinstance(item, dict)]
+    items = message["items"]
+    if any(not isinstance(item, dict) for item in items):
+        raise LivingResearchError("Crossref response contains a non-object item")
     return items, {"provider": "Crossref", "parameters": params, "rows_returned": len(items)}
 
 
@@ -344,7 +346,9 @@ def openalex_query(
     )
     if not isinstance(payload.get("results"), list):
         raise LivingResearchError("OpenAlex response missing results")
-    items = [item for item in payload["results"] if isinstance(item, dict)]
+    items = payload["results"]
+    if any(not isinstance(item, dict) for item in items):
+        raise LivingResearchError("OpenAlex response contains a non-object item")
     return items, {"provider": "OpenAlex", "parameters": {k: ("<set>" if k == "api_key" else v) for k, v in params.items()}, "rows_returned": len(items)}
 
 
@@ -375,8 +379,9 @@ def openlibrary_query(
     docs = payload.get("docs")
     if not isinstance(docs, list):
         raise LivingResearchError("Open Library response missing docs")
-    items = [item for item in docs if isinstance(item, dict)]
-    return items, {"provider": "Open Library", "parameters": params, "rows_returned": len(items)}
+    if any(not isinstance(item, dict) for item in docs):
+        raise LivingResearchError("Open Library response contains a non-object item")
+    return docs, {"provider": "Open Library", "parameters": params, "rows_returned": len(docs)}
 
 
 def crossref_text(item: dict[str, Any]) -> str:
@@ -567,6 +572,12 @@ def load_state(root: Path, config: dict[str, Any], now: datetime) -> dict[str, A
         default["historical"].update(state["historical"])
     if isinstance(state.get("openlibrary"), dict):
         default["openlibrary"].update(state["openlibrary"])
+    if not cursor and "incremental_bootstrap_start_date" in state:
+        try:
+            start = date.fromisoformat(state["incremental_bootstrap_start_date"])
+        except (TypeError, ValueError) as exc:
+            raise LivingResearchError("invalid incremental bootstrap start date") from exc
+        default["incremental_bootstrap_start_date"] = start.isoformat()
     return default
 
 
@@ -783,11 +794,16 @@ def run(
     overlap_days = int(crossref_cfg.get("overlap_days", 2))
     lookback_days = int(crossref_cfg.get("initial_lookback_days", 14))
     cursor_raw = state.get("incremental_cursor_utc")
-    start = parse_utc(cursor_raw) - timedelta(days=overlap_days) if cursor_raw else now - timedelta(days=lookback_days)
+    if cursor_raw:
+        start_date = (parse_utc(cursor_raw) - timedelta(days=overlap_days)).date().isoformat()
+    else:
+        start_date = state.get("incremental_bootstrap_start_date") or (
+            now - timedelta(days=lookback_days)
+        ).date().isoformat()
     # Crossref's index-date filters take a calendar date. Passing a full timestamp
     # (`2026-08-25T12:42:01Z`) makes every incremental request fail with HTTP 400, which
     # is what run 34227532304 recorded for all 24 incremental queries.
-    index_window = (start.date().isoformat(), now.date().isoformat())
+    index_window = (start_date, now.date().isoformat())
 
     for target in config["targets"]:
         target_id = target["target_id"]
@@ -945,7 +961,11 @@ def run(
     incremental_failed = any(f.get("mode") == "incremental" for f in run_record["failures"])
     if not incremental_failed:
         state["incremental_cursor_utc"] = now_iso
+        state.pop("incremental_bootstrap_start_date", None)
         run_record["cursor_advanced"] = True
+    elif not cursor_raw:
+        # Keep the earliest unscanned date until the first successful scan.
+        state["incremental_bootstrap_start_date"] = start_date
 
     state["run_count"] += 1
     state["last_run_id"] = run_id

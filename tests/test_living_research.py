@@ -117,6 +117,43 @@ class LivingResearchTests(unittest.TestCase):
             self.assertEqual(result["status"],"PARTIAL_SOURCE_FAILURE"); self.assertFalse(result["cursor_advanced"]); self.assertIsNone(lr.read_json(repo.root/lr.STATE_PATH)["incremental_cursor_utc"])
         finally: repo.close()
 
+    def test_incremental_bootstrap_recovery_preserves_first_failed_date(self):
+        repo = TempRepo()
+        try:
+            windows = []
+            states = []
+            for day, failed in ((8, True), (9, True), (10, False), (11, False)):
+                def crossref(url, *_):
+                    query_filter = parse_qs(urlparse(url).query)["filter"][0]
+                    if query_filter.startswith("from-index-date:"):
+                        windows.append(query_filter)
+                        if failed:
+                            return {"message": {"items": [None]}}
+                    return {"message": {"items": []}}
+
+                result = lr.run(
+                    repo.root, now=datetime(2026, 9, day, 12, tzinfo=timezone.utc),
+                    crossref_transport=crossref, openalex_transport=lambda *_: {"results": []},
+                    openlibrary_transport=lambda *_: {"docs": []}, sleep_fn=lambda _: None,
+                )
+                self.assertEqual(result["cursor_advanced"], not failed)
+                states.append(lr.read_json(repo.root / lr.STATE_PATH))
+
+            self.assertEqual(windows, [
+                "from-index-date:2026-08-25,until-index-date:2026-09-08",
+                "from-index-date:2026-08-25,until-index-date:2026-09-09",
+                "from-index-date:2026-08-25,until-index-date:2026-09-10",
+                "from-index-date:2026-09-08,until-index-date:2026-09-11",
+            ])
+            for state in states[:2]:
+                self.assertIsNone(state["incremental_cursor_utc"])
+                self.assertEqual(state["incremental_bootstrap_start_date"], "2026-08-25")
+            for state in states[2:]:
+                self.assertNotIn("incremental_bootstrap_start_date", state)
+            self.assertEqual(states[2]["incremental_cursor_utc"], "2026-09-10T12:00:00Z")
+        finally:
+            repo.close()
+
     def test_historical_failure_freezes_historical_cursor(self):
         repo=TempRepo()
         try:
@@ -124,6 +161,58 @@ class LivingResearchTests(unittest.TestCase):
             result=lr.run(repo.root,now=datetime(2026,9,8,12,0,tzinfo=timezone.utc),crossref_transport=lambda *a:crossref_payload(),openalex_transport=oa,openlibrary_transport=lambda *a:openlibrary_payload(),sleep_fn=lambda _:None)
             state=lr.read_json(repo.root/lr.STATE_PATH); self.assertEqual(result["status"],"PARTIAL_SOURCE_FAILURE"); self.assertTrue(result["cursor_advanced"]); self.assertFalse(result["historical_advanced"]); self.assertEqual(state["historical"]["query_index"],0); self.assertEqual(state["historical"]["window_end_year"],2026)
         finally: repo.close()
+
+    def test_malformed_provider_row_freezes_only_the_affected_cursor_and_recovers(self):
+        cases = (
+            ("Crossref", "incremental"),
+            ("Crossref", "historical_backfill"),
+            ("OpenAlex", "historical_backfill"),
+            ("Open Library", "historical_book_backfill"),
+        )
+        for provider, mode in cases:
+            with self.subTest(provider=provider, mode=mode):
+                repo = TempRepo()
+                try:
+                    config = lr.read_json(repo.root / lr.CONFIG_PATH)
+                    config["sources"]["openlibrary"]["interval_runs"] = 1
+                    write_json(repo.root / lr.CONFIG_PATH, config)
+
+                    def crossref(url, *_):
+                        query_filter = parse_qs(urlparse(url).query)["filter"][0]
+                        lane = "incremental" if query_filter.startswith("from-index-date:") else "historical_backfill"
+                        return {"message": {"items": [None] if (provider, mode) == ("Crossref", lane) else []}}
+
+                    start = datetime(2026, 9, 8, 12, tzinfo=timezone.utc)
+                    result = lr.run(
+                        repo.root, now=start, crossref_transport=crossref,
+                        openalex_transport=lambda *_: {"results": [None] if provider == "OpenAlex" else []},
+                        openlibrary_transport=lambda *_: {"docs": [None] if provider == "Open Library" else []},
+                        sleep_fn=lambda _: None,
+                    )
+                    state = lr.read_json(repo.root / lr.STATE_PATH)
+                    self.assertEqual(result["status"], "PARTIAL_SOURCE_FAILURE")
+                    self.assertEqual([(row["provider"], row["mode"]) for row in result["failures"]], [(provider, mode)])
+                    self.assertEqual(state["incremental_cursor_utc"], None if mode == "incremental" else lr.utc_iso(start))
+                    self.assertEqual(state["historical"]["window_end_year"], 2026 if mode == "historical_backfill" else 2016)
+                    self.assertEqual(state["openlibrary"]["page"], 1 if mode == "historical_book_backfill" else 2)
+                    self.assertEqual(len(result["queries"]), 3)
+                    self.assertTrue(all(row["request"]["rows_returned"] == 0 for row in result["queries"]))
+
+                    resumed = start.replace(hour=13)
+                    result = lr.run(
+                        repo.root, now=resumed, crossref_transport=lambda *_: {"message": {"items": []}},
+                        openalex_transport=lambda *_: {"results": []},
+                        openlibrary_transport=lambda *_: {"docs": []},
+                        sleep_fn=lambda _: None,
+                    )
+                    state = lr.read_json(repo.root / lr.STATE_PATH)
+                    self.assertEqual(result["status"], "SUCCESS")
+                    self.assertEqual(result["failures"], [])
+                    self.assertEqual(state["incremental_cursor_utc"], lr.utc_iso(resumed))
+                    self.assertEqual(state["historical"]["window_end_year"], 2016 if mode == "historical_backfill" else 2006)
+                    self.assertEqual(state["openlibrary"]["page"], 2 if mode == "historical_book_backfill" else 3)
+                finally:
+                    repo.close()
 
     def test_acceptance_cap_prevents_extra_candidate_files(self):
         repo=TempRepo()

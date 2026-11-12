@@ -187,9 +187,11 @@ async def upload_document(request: Request):
     except (InvalidBundle, AcquisitionError, OSError, ValueError, TypeError) as exc:
         raise HTTPException(422, "invalid uploaded source: "+str(exc)[:250]) from exc
     finally:
-        if form is not None:
-            await form.close()
-        _GATE.release()
+        try:
+            if form is not None:
+                await form.close()
+        finally:
+            _GATE.release()
 
 if __name__ == "__main__":
     import uvicorn
