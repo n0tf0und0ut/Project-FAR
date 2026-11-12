@@ -1,0 +1,713 @@
+{
+  "format": "far-knowledge-retrieval-js-check/0.1",
+  "status": "Research",
+  "scorer": "JavaScript direct reconstruction of Python lexical-IDF baseline; source and corpus Git blob pins checked via GitHub",
+  "snapshot": {
+    "main_commit": "efd855db687215368fe8f466e40d2e5cc7a7a863",
+    "synthesis_path": "research/corpus/synthesis-v1.0.json",
+    "synthesis_git_blob_sha1": "63a63cf84e1b44e3c60fe4eda70cc7fd0ddbc7a3",
+    "synthesis_input_sha256": "a529a77d4b28bd95cd76229fd0b5e73fdb9cbcf4331796a1847985708cb59be0",
+    "corpus_sha256": "4dcc5ddb34e2d17b189c24bce5cb766ec3404ac883804bf1465a5b9daf261d50",
+    "inventory_sha256": "3b32a5bb835dabe5aa252e5013d7d107176887a63e7a3001936aaa8dae1aab56",
+    "synthesis_format": "far-research-synthesis/1.2",
+    "corpus_path": "research/corpus/corpus-v1.0.json",
+    "corpus_git_blob_sha1": "75e247908aed5c3d7957ac421b9f352f3536d6ad"
+  },
+  "document_count": 43,
+  "case_count": 14,
+  "macro_recall_at_5": 1,
+  "mrr_at_5": 0.9615384615384616,
+  "abstain_accuracy": 0,
+  "results": [
+    {
+      "id": "R01",
+      "gold_ids": [
+        "OBS-CORE-CONTRACT"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-CORE-CONTRACT",
+          "kind": "observation",
+          "score": 2.0288792,
+          "source_id": "SRC-CORE",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-CONTRACT",
+          "kind": "mechanism",
+          "score": 1.50548276,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "MEC-COMMERCIAL",
+          "kind": "mechanism",
+          "score": 1.05630262,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "UNRESOLVED"
+        },
+        {
+          "id": "OBS-PR571-SF001-HS",
+          "kind": "observation",
+          "score": 1.03043893,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-PROVENANCE",
+          "kind": "mechanism",
+          "score": 0.78719709,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R02",
+      "gold_ids": [
+        "OBS-ROOT-AUDIT-AUDIT",
+        "OBS-W6-AUDIT"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-ROOT-AUDIT-AUDIT",
+          "kind": "observation",
+          "score": 3.52960414,
+          "source_id": "SRC-ROOT-AUDIT",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-W6-AUDIT",
+          "kind": "observation",
+          "score": 3.52960414,
+          "source_id": "SRC-W6",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-CORE-ASSURANCE",
+          "kind": "observation",
+          "score": 1.39274355,
+          "source_id": "SRC-CORE",
+          "epistemic_class": "INFERENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-LIVING-ASSURANCE",
+          "kind": "observation",
+          "score": 1.39274355,
+          "source_id": "SRC-LIVING",
+          "epistemic_class": "INFERENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-SATURATION-ASSURANCE",
+          "kind": "observation",
+          "score": 1.39274355,
+          "source_id": "SRC-SATURATION",
+          "epistemic_class": "INFERENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R03",
+      "gold_ids": [
+        "OBS-BENCHMARK-BENCHMARK"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-BENCHMARK-BENCHMARK",
+          "kind": "observation",
+          "score": 4.17540272,
+          "source_id": "SRC-BENCHMARK",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-EXPERIMENT-DESIGN",
+          "kind": "mechanism",
+          "score": 1.53203999,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "CON-EXPERIMENTS",
+          "kind": "conclusion",
+          "score": 0.69650865,
+          "source_id": null,
+          "epistemic_class": "UNRESOLVED",
+          "state": "PREREGISTERED_UNEXECUTED_CONTINUING_AUDIT_REQUIRED"
+        },
+        {
+          "id": "CON-INVESTIGATION-ASSURANCE",
+          "kind": "conclusion",
+          "score": 0.64804348,
+          "source_id": null,
+          "epistemic_class": "INFERENCE",
+          "state": "BEST_CURRENT_BOUNDED_CHARACTERIZATION"
+        },
+        {
+          "id": "OBS-ROOT-AUDIT-AUDIT",
+          "kind": "observation",
+          "score": 0.61082725,
+          "source_id": "SRC-ROOT-AUDIT",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R04",
+      "gold_ids": [
+        "OBS-EFR-COMP-COMPARATOR",
+        "OBS-EFR-COMPARATOR"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-EFR-COMP-COMPARATOR",
+          "kind": "observation",
+          "score": 3.41080298,
+          "source_id": "SRC-EFR-COMP",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-EFR-COMPARATOR",
+          "kind": "observation",
+          "score": 3.41080298,
+          "source_id": "SRC-EFR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-COMPARATORS",
+          "kind": "mechanism",
+          "score": 2.87824763,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "MEC-CONTRACT",
+          "kind": "mechanism",
+          "score": 0.87733279,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-BENCHMARK-MOAT",
+          "kind": "observation",
+          "score": 0.63751524,
+          "source_id": "SRC-BENCHMARK",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R05",
+      "gold_ids": [
+        "OBS-BENCHMARK-MOAT",
+        "OBS-EFR-MOAT",
+        "OBS-STATUS-MOAT"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-BENCHMARK-MOAT",
+          "kind": "observation",
+          "score": 2.99318463,
+          "source_id": "SRC-BENCHMARK",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        },
+        {
+          "id": "OBS-EFR-MOAT",
+          "kind": "observation",
+          "score": 2.99318463,
+          "source_id": "SRC-EFR",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        },
+        {
+          "id": "OBS-STATUS-MOAT",
+          "kind": "observation",
+          "score": 2.99318463,
+          "source_id": "SRC-STATUS",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        },
+        {
+          "id": "MEC-COMMERCIAL",
+          "kind": "mechanism",
+          "score": 1.63943474,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "UNRESOLVED"
+        },
+        {
+          "id": "CON-MOAT",
+          "kind": "conclusion",
+          "score": 1.32396299,
+          "source_id": null,
+          "epistemic_class": "UNRESOLVED",
+          "state": "UNRESOLVED_STALE_INPUTS"
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R06",
+      "gold_ids": [
+        "OBS-PR571-SF001-SC"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-PR571-SF001-SC",
+          "kind": "observation",
+          "score": 1.18098223,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-COMPOUNDING",
+          "kind": "mechanism",
+          "score": 0.99222354,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-CALIBRATION-LITERATURE",
+          "kind": "observation",
+          "score": 0.78576773,
+          "source_id": "SRC-CALIBRATION",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-LIVING-REVIEW-LITERATURE",
+          "kind": "observation",
+          "score": 0.78576773,
+          "source_id": "SRC-LIVING-REVIEW",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R07",
+      "gold_ids": [
+        "OBS-PR571-SF001-SF"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-PR571-SF001-SF",
+          "kind": "observation",
+          "score": 3.90162567,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-HS",
+          "kind": "observation",
+          "score": 0.89969803,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-PRO",
+          "kind": "observation",
+          "score": 0.83295852,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-LIVING-GOVERNANCE",
+          "kind": "observation",
+          "score": 0.80425891,
+          "source_id": "SRC-LIVING",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-PROVENANCE",
+          "kind": "mechanism",
+          "score": 0.59495266,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R08",
+      "gold_ids": [
+        "OBS-PR571-SF001-LEAN"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-PR571-SF001-LEAN",
+          "kind": "observation",
+          "score": 4.13852,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-CONTRACT",
+          "kind": "mechanism",
+          "score": 0.95161198,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R09",
+      "gold_ids": [
+        "OBS-PR571-SF001-HS"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-PR571-SF001-HS",
+          "kind": "observation",
+          "score": 3.97283684,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-VA",
+          "kind": "observation",
+          "score": 0.84928519,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-EXPERIMENT-DESIGN",
+          "kind": "mechanism",
+          "score": 0.68651056,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-BENCHMARK-MOAT",
+          "kind": "observation",
+          "score": 0.63751524,
+          "source_id": "SRC-BENCHMARK",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        },
+        {
+          "id": "OBS-EFR-MOAT",
+          "kind": "observation",
+          "score": 0.63751524,
+          "source_id": "SRC-EFR",
+          "epistemic_class": "UNRESOLVED",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R10",
+      "gold_ids": [
+        "OBS-PR571-SF001-PRO"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-PR571-SF001-PRO",
+          "kind": "observation",
+          "score": 4.1577141,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-VA",
+          "kind": "observation",
+          "score": 0.9193492,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-NEGATIVE",
+          "kind": "mechanism",
+          "score": 0.84848809,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "MEC-COMPOUNDING",
+          "kind": "mechanism",
+          "score": 0.82411065,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-LIVING-GOVERNANCE",
+          "kind": "observation",
+          "score": 0.80425891,
+          "source_id": "SRC-LIVING",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R11",
+      "gold_ids": [
+        "CON-COMPOUNDING"
+      ],
+      "retrieved": [
+        {
+          "id": "MEC-COMPOUNDING",
+          "kind": "mechanism",
+          "score": 3.50576207,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "CON-COMPOUNDING",
+          "kind": "conclusion",
+          "score": 2.8082935,
+          "source_id": null,
+          "epistemic_class": "HYPOTHESIS",
+          "state": "PLAUSIBLE_MECHANISM_UNTESTED_VALUE"
+        },
+        {
+          "id": "MEC-DEPENDENCY",
+          "kind": "mechanism",
+          "score": 0.87733279,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-MERGED-REVIEWS-REVIEW-HISTORY",
+          "kind": "observation",
+          "score": 0.74148154,
+          "source_id": "SRC-MERGED-REVIEWS",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-INTAKE",
+          "kind": "mechanism",
+          "score": 0.70851014,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "UNRESOLVED"
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 0.5,
+      "abstained": false
+    },
+    {
+      "id": "R12",
+      "gold_ids": [],
+      "retrieved": [
+        {
+          "id": "CON-MOAT",
+          "kind": "conclusion",
+          "score": 0.85304132,
+          "source_id": null,
+          "epistemic_class": "UNRESOLVED",
+          "state": "UNRESOLVED_STALE_INPUTS"
+        },
+        {
+          "id": "OBS-LIVING-GOVERNANCE",
+          "kind": "observation",
+          "score": 0.80425891,
+          "source_id": "SRC-LIVING",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-INTAKE",
+          "kind": "mechanism",
+          "score": 0.768496,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "UNRESOLVED"
+        },
+        {
+          "id": "OBS-PR571-SF001-VA",
+          "kind": "observation",
+          "score": 0.6098566,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-LEAN",
+          "kind": "observation",
+          "score": 0.52380431,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": null,
+      "reciprocal_rank": null,
+      "abstained": false
+    },
+    {
+      "id": "R13",
+      "gold_ids": [
+        "CON-EXPERIMENTS"
+      ],
+      "retrieved": [
+        {
+          "id": "CON-EXPERIMENTS",
+          "kind": "conclusion",
+          "score": 2.24277735,
+          "source_id": null,
+          "epistemic_class": "UNRESOLVED",
+          "state": "PREREGISTERED_UNEXECUTED_CONTINUING_AUDIT_REQUIRED"
+        },
+        {
+          "id": "CON-MOAT",
+          "kind": "conclusion",
+          "score": 0.85304132,
+          "source_id": null,
+          "epistemic_class": "UNRESOLVED",
+          "state": "UNRESOLVED_STALE_INPUTS"
+        },
+        {
+          "id": "MEC-EXPERIMENT-DESIGN",
+          "kind": "mechanism",
+          "score": 0.84552943,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-CALIBRATION-LITERATURE",
+          "kind": "observation",
+          "score": 0.78576773,
+          "source_id": "SRC-CALIBRATION",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-LIVING-REVIEW-LITERATURE",
+          "kind": "observation",
+          "score": 0.78576773,
+          "source_id": "SRC-LIVING-REVIEW",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    },
+    {
+      "id": "R14",
+      "gold_ids": [
+        "OBS-LIVING-GOVERNANCE"
+      ],
+      "retrieved": [
+        {
+          "id": "OBS-LIVING-GOVERNANCE",
+          "kind": "observation",
+          "score": 5.52105191,
+          "source_id": "SRC-LIVING",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "MEC-INTAKE",
+          "kind": "mechanism",
+          "score": 3.56946513,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "UNRESOLVED"
+        },
+        {
+          "id": "MEC-PROVENANCE",
+          "kind": "mechanism",
+          "score": 1.82292429,
+          "source_id": null,
+          "epistemic_class": null,
+          "state": "SUPPORTED"
+        },
+        {
+          "id": "OBS-PR571-SF001-VA",
+          "kind": "observation",
+          "score": 1.08312065,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        },
+        {
+          "id": "OBS-PR571-SF001-HS",
+          "kind": "observation",
+          "score": 0.48987483,
+          "source_id": "SRC-SATURATION-OPEN-PR",
+          "epistemic_class": "EVIDENCE",
+          "state": null
+        }
+      ],
+      "recall_at_k": 1,
+      "reciprocal_rank": 1,
+      "abstained": false
+    }
+  ],
+  "limitations": [
+    "Not a verified execution of the Python runner",
+    "Questions and gold constructed by same research process",
+    "Evidence authority remains in governed source corpus, not this derived snapshot",
+    "This is a lexical comparator, not a native FAR agent evaluation"
+  ]
+}
