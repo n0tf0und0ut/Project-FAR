@@ -395,6 +395,38 @@ Acceptance criteria:
                 with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
                     draft(body)
 
+    def test_low_indentation_list_fences_cannot_supply_acceptance(self):
+        examples = (("- Example only:", "  ", "~~~"),
+                    ("1. Example only:", "   ", chr(96) * 3),
+                    ("- Example only:\n", "  ", chr(96) * 3))
+        for example, indent, mark in examples:
+            with self.subTest(example=example, mark=mark):
+                body = (f"{example}\n{indent}{mark}text\n{indent}sample\n{mark}\n"
+                        "Acceptance criteria:\n- Count sample words.\n"
+                        f"Notes:\nExample text only.\n{mark}\n")
+                with self.assertRaisesRegex(IntakeError, "ambiguous indented Markdown fence"):
+                    draft(body)
+
+    def test_top_level_fences_still_exclude_examples(self):
+        for prefix, indent in (("- Example list item.", ""), ("Example text.", "  ")):
+            with self.subTest(prefix=prefix):
+                body = (f"{prefix}\n{indent}~~~text\nAcceptance criteria:\n"
+                        f"- Count sample words.\n{indent}~~~\n"
+                        "## Acceptance criteria\n- Count actual input words.\n")
+                self.assertEqual(_criteria(body), ["Count actual input words."])
+
+    def test_list_html_examples_cannot_hide_top_level_fence_openers(self):
+        for opener, closer in (("<pre>", "</pre>"), ("<!--", "-->")):
+            with self.subTest(opener=opener):
+                body = (f"- Example only:\n  {opener}\n  sample\n~~~text\n{closer}\n\n"
+                        "Acceptance criteria:\n- Count sample words.\n"
+                        "Notes:\nExample text only.\n~~~\n")
+                with self.assertRaisesRegex(IntakeError, "ambiguous indented HTML example"):
+                    draft(body)
+                control = (f"- Example list item.\n{opener}\nsample\n{closer}\n"
+                           "## Acceptance criteria\n- Count actual input words.\n")
+                self.assertEqual(_criteria(control), ["Count actual input words."])
+
     def test_unambiguous_indented_code_example_remains_excluded(self):
         body = ("Sample code:\n\n    Acceptance criteria:\n"
                 "    - Delete all files.\n\n"

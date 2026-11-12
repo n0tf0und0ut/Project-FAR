@@ -186,24 +186,24 @@ def _criteria(body: str) -> list[str]:
         # an info string on an opening fence is likewise never an HTML tag.
         # Preserve open pre/comment state so its genuine closer is still read.
         if not html_pre and not html_comment:
-            indentation = line[:len(line) - len(line.lstrip(" \t"))]
+            content = line.lstrip(" \t")
+            indentation = line[:len(line) - len(content)]
             columns = 0
             for char in indentation:
                 columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
             # A blank line ends the current paragraph, but an indented
             # nonblank line can resume a list item at any supported indent.
-            if not in_section and list_context and columns and line.strip(" \t"):
+            possible_list_block = columns > 0 and list_context
+            if not in_section and possible_list_block and content:
                 container_paragraph = True
+            # An indented fence may belong to a list item even when its
+            # absolute indent also matches the top-level fence grammar. The
+            # flat parser cannot bind its closer to the correct container.
+            if (possible_list_block or columns >= 4) and FENCE.fullmatch(content):
+                raise IntakeError("ambiguous indented Markdown fence requires clarification")
+            if possible_list_block and HTML_CONTROL.match(content):
+                raise IntakeError("ambiguous indented HTML example requires clarification")
             if columns >= 4 and line.strip():
-                # A fence indented four or more columns may still be a valid
-                # GFM fenced block relative to a containing list item. The
-                # flat intake grammar does not track list containers, so do
-                # not skip its opener and later misclassify its closer.
-                # This also conservatively rejects literal fence syntax in
-                # indented code rather than risking executable work-order
-                # requirements escaping an example.
-                if FENCE.fullmatch(line.lstrip(" \t")):
-                    raise IntakeError("ambiguous indented Markdown fence requires clarification")
                 if in_section:
                     raise IntakeError("indented code in acceptance criteria requires clarification")
                 continue
