@@ -146,7 +146,10 @@ jobs:
           # The rolling inbox is unprotected data. Do not extract arbitrary tree
           # objects (including symlinks) into a secret-bearing writer job.
           snapshot_paths=(research/living/repository-state-v1.0.json)
-          for path in research/living/inbox/candidates research/living/inbox/autonomous-review-attempts; do
+          # Preserve all data that the retry-only writer carries forward.
+          # The entire inbox (including its permanent PR anchor), run history,
+          # and both state files are consumed downstream; validate every Git blob.
+          for path in research/living/inbox research/living/runs research/living/state-v1.0.json; do
             if git cat-file -e "$source_sha:$path" 2>/dev/null; then
               snapshot_paths+=("$path")
             fi
