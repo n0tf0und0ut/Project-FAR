@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -8,6 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 from tools import run_living_autonomous_review as ar
+from tools.validate_research_carry import validate_ref_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 CID = "FAR-LIT-55DC0543A2C4B8A2"
@@ -606,6 +608,37 @@ class AutonomousLivingReviewTests(unittest.TestCase):
         self.assertTrue((out / "review" / ar.REVIEWS).is_file())
         self.assertFalse((out / "inbox" / ar.REVIEWS).exists())
 
+    def test_privileged_review_archives_only_validated_data(self):
+        workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
+        extract = workflow.split("      - name: Extract exact inbox snapshot", 1)[1].split(
+            "      - name: Execute bounded autonomous adjudication", 1)[0]
+        self.assertIn("set -euo pipefail", extract)
+        self.assertIn("snapshot_paths=(research/living/repository-state-v1.0.json)", extract)
+        self.assertIn("research/living/inbox/candidates research/living/inbox/autonomous-review-attempts", extract)
+        self.assertIn('python tools/validate_research_carry.py --ref "$source_sha" "${validation_args[@]}"', extract)
+        self.assertIn('git archive "$source_sha" -- "${snapshot_paths[@]}"', extract)
+        self.assertLess(extract.index("python tools/validate_research_carry.py"), extract.index("git archive"))
+        self.assertNotIn('git archive "${{ steps.freeze.outputs.source_sha }}" |', extract)
+
+    def test_research_carry_validator_rejects_symlinked_state_and_accepts_blob(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            rel = "research/living/repository-state-v1.0.json"
+            state = repo / rel
+            state.parent.mkdir(parents=True)
+            state.symlink_to("/scratch/outside.json")
+            subprocess.run(["git", "-C", str(repo), "add", "--", rel], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "symlink"], check=True)
+            with self.assertRaisesRegex(ValueError, "forbidden carried git object"):
+                validate_ref_paths(repo, "HEAD", [rel])
+            state.unlink()
+            state.write_text('{"core_claim_review_queue":[]}', encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "--", rel], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "blob"], check=True)
+            validate_ref_paths(repo, "HEAD", [rel])
     def test_workflow_contains_race_serialization_retry_validation_and_explicit_dispatch_guards(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
         self.assertIn("headRepositoryOwner", workflow)
