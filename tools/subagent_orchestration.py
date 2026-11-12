@@ -34,6 +34,13 @@ _FORBIDDEN_CLEAN_ROOM_CONTEXT = frozenset({
 })
 
 
+# Prevent a callback from recursively dispatching its own in-flight task.
+# Context-local by design: not cross-thread or cross-process deduplication.
+_IN_FLIGHT_TASK_IDS: ContextVar[frozenset[str]] = ContextVar(
+    "far_in_flight_task_ids", default=frozenset()
+)
+
+
 def canonical_json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
@@ -653,6 +660,22 @@ def detect_conflicts(reports: Sequence[AgentReport]) -> tuple[Conflict, ...]:
     return tuple(conflicts)
 
 
+def _invoke_once(runtime: AgentRuntime, agent: AgentSpec, task: AgentTask) -> AgentReport:
+    """Fail closed on same-context recursive dispatch, including on exception paths.
+
+    Other tasks and later sequential attempts remain valid. This guards the
+    synchronous invocation boundary only; it cannot cancel a hung provider.
+    """
+    active = _IN_FLIGHT_TASK_IDS.get()
+    if task.task_id in active:
+        raise RuntimeError(f"duplicate in-flight task invocation: {task.task_id}")
+    token = _IN_FLIGHT_TASK_IDS.set(active | {task.task_id})
+    try:
+        return runtime.invoke(agent, task)
+    finally:
+        _IN_FLIGHT_TASK_IDS.reset(token)
+
+
 def orchestrate(
     *,
     plan: OrchestrationPlan,
@@ -742,7 +765,7 @@ def orchestrate(
             dependency_reports=dependency_reports,
         )
         try:
-            report = runtime.invoke(agent, task)
+            report = _invoke_once(runtime, agent, task)
             _validate_report_binding(report, task)
             _validate_global_finding_ids(report, reports.values())
         except Exception as exc:
