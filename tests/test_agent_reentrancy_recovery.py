@@ -180,6 +180,41 @@ class ReentrantTaskTests(unittest.TestCase):
         finally:
             loop.close()
 
+    def test_deferred_callback_chain_does_not_retain_inactive_ancestors(self):
+        # Every scheduled callback copies its parent's context. Without pruning
+        # expired markers, this sequence grows a tombstone per invocation.
+        depth = []
+        outputs = []
+        loop = asyncio.new_event_loop()
+        completed = loop.create_future()
+        count = 12
+
+        def callback(_agent, task):
+            depth.append(len(sub._IN_FLIGHT_INVOCATIONS.get()))
+            if len(depth) < count:
+                loop.call_soon(lambda: outputs.append(sub.orchestrate(
+                    plan=plan, runtime=runtime, objective='callback-chain',
+                    context=(), run_id='same-callback-chain',
+                )))
+            else:
+                completed.set_result(True)
+            return success(task)
+
+        plan, runtime = environment(callback)
+        try:
+            first = sub.orchestrate(plan=plan, runtime=runtime,
+                                    objective='callback-chain', context=(),
+                                    run_id='same-callback-chain')
+            self.assertEqual(first.status, sub.RunStatus.COMPLETED)
+            loop.run_until_complete(completed)
+            self.assertEqual(len(depth), count)
+            self.assertEqual(depth, [1] * count)
+            self.assertEqual(len(outputs), count - 1)
+            self.assertTrue(all(out.status is sub.RunStatus.COMPLETED
+                                for out in outputs))
+        finally:
+            loop.close()
+
 
 if __name__ == '__main__':
     unittest.main()
