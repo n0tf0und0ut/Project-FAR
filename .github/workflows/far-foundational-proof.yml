@@ -33,11 +33,17 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/foundational
-          lean research/far-core-foundational-falsification/FARFoundationalAudit.lean 2>&1 | tee artifacts/foundational/lean-kernel-and-axioms.log
+          {
+            lean research/far-core-foundational-falsification/FARFoundationalAudit.lean
+            lean research/far-core-foundational-falsification/FARContractCompleteness.lean
+          } 2>&1 | tee artifacts/foundational/lean-kernel-and-axioms.log
           if grep -Ei 'declaration uses .sorry.|warning:.*sorry|error:' artifacts/foundational/lean-kernel-and-axioms.log; then
             echo "Lean proof has a placeholder or error" >&2
             exit 1
           fi
+      - name: Independently exercise exhaustive finite countermodels
+        shell: bash
+        run: python -m unittest discover -s research/far-core-foundational-falsification -p 'test_contract_completeness.py' -v
       - name: Retain kernel diagnostics and transitive axioms
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
