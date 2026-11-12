@@ -84,3 +84,41 @@ These sources contextualize the result; the proofs here stand or fall on the exp
 **OPEN:** Whether any concrete FAR-selected contract captures every relevant outcome for a specific externally selected real reasoning system. Neither mathematics alone nor an internally coherent model automatically supplies W, F, admissible tests, or the correspondence premise. The governing contract-selection/empirical assurance limitations remain.
 
 This is not an impossibility of all mathematical real-world reasoning; it is a proof that real-world semantics cannot be conjured from an observation interface that leaves live alternatives indistinguishable.
+
+
+## R-C6 — exact decidability from the nonempty version space
+
+The missing premise is not just model semantics: it is **target identifiability**. Let H be a separately justified class of possible targets W→Y. Let D be authoritative world-state/target-output samples, and let H_D contain exactly the targets in H agreeing with all D. Write C_O(f) for ker(O)⊆ker(f).
+
+**Theorem:** If H_D is nonempty, one YES/NO verdict valid for every target still possible exists exactly when all possible targets agree about completeness:
+
+\[
+(\exists b\in\{\mathrm{YES},\mathrm{NO}\}\;\forall f\in H_D,\ 
+[b=\mathrm{YES}\iff C_O(f)])
+\iff
+(\forall f,g\in H_D,\ C_O(f)\iff C_O(g)).
+\]
+
+If H_D contains one complete and one incomplete target, the evidence **cannot determine** which verdict is true. Calling either answer proved is an epistemic error, not a limitation of the theorem prover. Moreover, H_D must be **nonempty**: for an empty hypothesis class, universal YES and universal NO are both vacuously true. Establishing that the actual target belongs to H_D is a *separate real-system correspondence obligation*, never implied by consistency of internally generated predictions.
+
+The results are formalized as FARVersionSpace.binary_decidable_iff_candidates_agree, FARVersionSpace.conflicting_candidates_prevent_verdict and FARVersionSpace.empty_hypothesis_has_both_fake_verdicts.
+
+## R-C7 — sharp finite-oracle coverage threshold
+
+Assume the full domain W is finite and known, O:W→B is known, and an authoritative membership oracle supplies f(w) on demand. There is **no** restriction on binary target functions f:W→{0,1}.
+
+Let U = {w∈W | there is v≠w with O(v)=O(w)}: all points in non-singleton observation fibers.
+
+**Worst-case positive certification requires f(w) for every w in U**. If one x∈U is unqueried, choose a distinct y in its fiber. The all-zero f_good and the single-point-flip f_bad agree on every queried state but have opposite completeness verdicts. The claim cannot be decided positively from the evidence. Conversely, if every member of U was queried, and all equal-O sampled pairs had equal oracle outputs, completeness follows for all W. Singleton fibers cannot contain a collision witness and need no target query.
+
+Consequently, the exact worst-case positive target-value query count is |U|, while an observed negative counterexample needs just two queried states sharing O with distinct f outcomes. This counts oracle-value queries on a declared known domain, not discovery of W, trust in the oracle, learning O, or computational search effort.
+
+The lower and upper claims are mechanized by FARVersionSpace.missing_nonsingleton_fiber_point_blocks_yes and FARVersionSpace.complete_from_nontrivial_fiber_coverage.
+
+## Evidence, reproducibility and nonclaims
+
+FARVersionSpace.lean is a Research-only extension of the existing source-independent Lean 4 reconstruction. The exact-head GitHub workflow compiles FARContractCompleteness as a module, then compiles the new proof and prints transitive axioms. The research finite-test file now has 13 tests, including exhaustive binary candidate-version spaces for up to four states (4,681 observation/sample/target triples), 1,360 observation/sample sets through five states for the lower bound, bounded upper checks, contradictory samples, and a wrong-hypothesis-class false-positive control. These do not constitute tests on an externally specified live real system.
+
+**Verdict:** The universal positive claim that an incomplete observer or self-authored model can establish completeness of *arbitrary unknown real-world behavior* from its own data is REFUTED. The necessary and sufficient *information condition* for a definite verdict is proved for the specified H_D. A real-system-positive verdict requires separately justified target membership, domain coverage and source/execution correspondence; the mathematical proof does not conjure those facts.
+
+Relevant prior art: Dana Angluin, Learning Regular Sets from Queries and Counterexamples, Information and Computation (1987), DOI 10.1016/0890-5401(87)90052-6. That work explicitly assumes external membership and equivalence query access. R-C6/R-C7 are elementary function/identifiability results, not originality claims.
