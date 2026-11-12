@@ -1,0 +1,75 @@
+{
+  "by_extension": {
+    ".js": {
+      "covered_as_graph_node_source_paths": 1,
+      "sample_unrepresented_paths": [],
+      "source_files": 1
+    },
+    ".json": {
+      "covered_as_graph_node_source_paths": 53,
+      "sample_unrepresented_paths": [
+        ".agents/skills/security-audit/report-schema.json",
+        "agepony-acceptance/far-accept-1-basic.json",
+        "agepony-acceptance/far-accept-2-same-bytes.json",
+        "agepony-acceptance/far-accept-3-escapes.json",
+        "agepony-acceptance/far-accept-4-prompts-off.json"
+      ],
+      "source_files": 1245
+    },
+    ".lean": {
+      "covered_as_graph_node_source_paths": 0,
+      "sample_unrepresented_paths": [
+        "mechanization/lean/CanonicalUniversalityTerminal.lean",
+        "mechanization/lean/Canonicality.lean",
+        "mechanization/lean/ConservativeExtensibility.lean",
+        "mechanization/lean/DefinitionalCompleteness.lean",
+        "mechanization/lean/FARCanonicalBridge.lean"
+      ],
+      "source_files": 23
+    },
+    ".md": {
+      "covered_as_graph_node_source_paths": 0,
+      "sample_unrepresented_paths": [
+        ".agents/skills/far-canonical-source-resolver/SKILL.md",
+        ".agents/skills/far-claim-registry/SKILL.md",
+        ".agents/skills/far-clean-room-auditor/SKILL.md",
+        ".agents/skills/far-contradiction-detector/SKILL.md",
+        ".agents/skills/far-counterexample-hunter/SKILL.md"
+      ],
+      "source_files": 1515
+    },
+    ".py": {
+      "covered_as_graph_node_source_paths": 945,
+      "sample_unrepresented_paths": [],
+      "source_files": 945
+    },
+    ".sh": {
+      "covered_as_graph_node_source_paths": 11,
+      "sample_unrepresented_paths": [],
+      "source_files": 11
+    },
+    ".yaml": {
+      "covered_as_graph_node_source_paths": 68,
+      "sample_unrepresented_paths": [
+        "conformance/far-ir-1.0/invalid/malformed.yaml",
+        "tests/fixtures/mechanization/parser/invalid/malformed.yaml",
+        "tests/fixtures/mechanization/parser/invalid/root-sequence.yaml"
+      ],
+      "source_files": 71
+    },
+    ".yml": {
+      "covered_as_graph_node_source_paths": 78,
+      "sample_unrepresented_paths": [],
+      "source_files": 78
+    }
+  },
+  "file_set": "All extracted source archive files under pinned commit",
+  "graph_edges": 43839,
+  "graph_nodes": 19100,
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "limitation": "A file represented by one node may still have incorrect or incomplete edges; zero source paths means Graphify provides no direct source node for the file in this graph.",
+  "schema": "far-graphify-file-source-coverage/v0.1",
+  "source_commit": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "status": "Research: source path coverage (not graph semantic recall)",
+  "unique_graph_source_paths": 1165
+}
