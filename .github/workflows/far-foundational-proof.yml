@@ -1,0 +1,48 @@
+name: FAR foundational independent proof audit
+
+on:
+  pull_request:
+    paths:
+      - 'research/far-core-foundational-falsification/**'
+      - '.github/workflows/far-foundational-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  foundational-kernel-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install pinned Lean 4.19.0 from verified archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(cat lean-toolchain)" = 'leanprover/lean4:v4.19.0'
+          archive="$RUNNER_TEMP/lean-4.19.0-linux.tar.zst"
+          curl -sSfL --retry 3 --retry-delay 1 --retry-max-time 120 --connect-timeout 15 --max-time 120 -o "$archive" https://github.com/leanprover/lean4/releases/download/v4.19.0/lean-4.19.0-linux.tar.zst
+          echo "6fe3ce97a58f44e2b3567d455b994eacec5bfe9ae7774f2a573444480ba813fe  $archive" | sha256sum -c -
+          tar --zstd -xf "$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/lean-4.19.0-linux/bin" >> "$GITHUB_PATH"
+      - name: Independently kernel-check FAR claims and defeating conditions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/foundational
+          lean research/far-core-foundational-falsification/FARFoundationalAudit.lean 2>&1 | tee artifacts/foundational/lean-kernel-and-axioms.log
+          if grep -Ei 'declaration uses .sorry.|warning:.*sorry|error:' artifacts/foundational/lean-kernel-and-axioms.log; then
+            echo "Lean proof has a placeholder or error" >&2
+            exit 1
+          fi
+      - name: Retain kernel diagnostics and transitive axioms
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: far-foundational-proof
+          path: artifacts/foundational/lean-kernel-and-axioms.log
+          if-no-files-found: warn
+          retention-days: 30
