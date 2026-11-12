@@ -332,7 +332,7 @@ Acceptance criteria:
                 f.db.close()
 
     def test_actual_unindented_acceptance_heading_starts_another_section(self):
-        body = ("Acceptance criteria:\n- Keep data.\n"
+        body = ("Acceptance criteria:\n- Keep data.\n\n"
                 "Acceptance:\n- Keep backups.\n"
                 "## Success criteria\n- Exit successfully.\n")
         self.assertEqual(_criteria(body),
@@ -618,6 +618,33 @@ Acceptance criteria:
         text = "Acceptance criteria:\n- Returns a nonzero exit code\n  only when input is missing.\n- Prints correct counts."
         self.assertEqual(_criteria(text), ["Returns a nonzero exit code only when input is missing.",
                                            "Prints correct counts."])
+
+    def test_heading_like_lazy_continuation_cannot_shorten_criteria(self):
+        for indent in (" ", "  ", "   "):
+            with self.subTest(indent=indent):
+                body = (f"Acceptance criteria:\n- Return nonzero\n{indent}Only when input is missing:\n"
+                        "- Print counts.\n")
+                self.assertEqual(draft(body)["order"]["tasks"][0]["acceptance"],
+                                 ["Return nonzero Only when input is missing:", "Print counts."])
+        for ambiguous in ("Only when input is missing:", "\u00a0Only when input is missing:",
+                          "Acceptance:", " ## Notes"):
+            with self.subTest(ambiguous=ambiguous), self.assertRaises(IntakeError):
+                draft(f"Acceptance criteria:\n- Return nonzero\n{ambiguous}\n- Print counts.\n")
+        for indent in (" ", "  "):
+            with self.subTest(separated=indent), self.assertRaises(IntakeError):
+                draft(f"Acceptance criteria:\n- Return nonzero\n\n{indent}A separate paragraph.\n")
+
+    def test_plain_labels_need_blank_separator_but_top_level_atx_does_not(self):
+        for heading in ("\nNotes:", "## Notes"):
+            with self.subTest(heading=heading):
+                self.assertEqual(_criteria(f"Acceptance criteria:\n- Print counts.\n{heading}\n- Excluded.\n"),
+                                 ["Print counts."])
+
+    def test_only_ascii_markdown_heading_boundaries_open_acceptance(self):
+        for heading in ("##Acceptance criteria", "##\u00a0Acceptance criteria",
+                        "\u00a0Acceptance criteria", "Acceptance\u2003criteria"):
+            with self.subTest(heading=heading):
+                self.assertEqual(draft(f"{heading}\n- Print counts.\n")["status"], "needs_clarification")
 
     def test_unrecognized_acceptance_prose_must_fail_closed(self):
         text = "Acceptance criteria:\n- Prints a count.\nthis is not a bullet\n- Rejects invalid input."

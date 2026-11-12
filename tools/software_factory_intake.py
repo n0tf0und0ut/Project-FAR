@@ -26,8 +26,13 @@ except ModuleNotFoundError:  # python tools/software_factory_intake.py
 INTAKE_SCHEMA = "far-software-factory/intake/1"
 MAX_REQUEST_BYTES = 65536
 MAX_ISSUE_BYTES = 131072
-HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+when|definition\s+of\s+done|success\s+criteria)\s*:?\s*$", re.I)
-ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
+HEADING = re.compile(
+    r"^[ \t]*(?:#{1,6}[ \t]+)?(?:acceptance(?:[ \t]+criteria)?|done[ \t]+when|"
+    r"definition[ \t]+of[ \t]+done|success[ \t]+criteria)[ \t]*:?[ \t]*$",
+    re.I | re.ASCII,
+)
+ATX_HEADING = re.compile(r"^[ \t]*#{1,6}(?:[ \t]+|$)")
+PLAIN_LABEL = re.compile(r"^[A-Z][\w /-]{2,48}:[ \t]*$")
 LIST_MARKER = r"(?:[-*+]|[0-9]{1,9}[.)])"
 LIST_CONTAINER = re.compile(rf"^ {{0,3}}{LIST_MARKER}(?:[ \t]+|$)")
 BULLET = re.compile(rf"^[ \t]*{LIST_MARKER}[ \t]+(?:\[[ xX]\]\s*)?(\S.*)$")
@@ -171,8 +176,10 @@ def _criteria(body: str) -> list[str]:
     html_comment = False
     container_paragraph = False
     list_context = False
+    blank = True
     for line in re.split(r"\r\n|\n|\r", body):
-        if not line.strip(" \t"):
+        blank_before, blank = blank, not line.strip(" \t")
+        if blank:
             container_paragraph = False
         marker = FENCE.fullmatch(line)
         if fence is not None:
@@ -234,21 +241,27 @@ def _criteria(body: str) -> list[str]:
         # GFM permits indented ATX headings inside list items. Parsing such
         # nested structure with the flat acceptance grammar can silently
         # discard requirements; require clarification instead.
-        if (in_section and last_bullet is not None and leading >= 2
-                and line.lstrip().startswith("#")):
+        atx_heading = ATX_HEADING.match(line)
+        indented_after_bullet = in_section and last_bullet is not None and leading > 0
+        continuation = indented_after_bullet and not blank_before
+        if indented_after_bullet and atx_heading:
             raise IntakeError("nested Markdown heading requires clarification")
-        continuation = (in_section and last_bullet is not None and leading >= 2)
         if not in_section and LIST_CONTAINER.match(line):
             list_context = True
             container_paragraph = True
         elif not in_section and re.match(r"^ {0,3}>", line):
             container_paragraph = True
-        elif re.match(r"^#{1,6}[ \t]+", line):
+        elif atx_heading and not leading:
             container_paragraph = False
             list_context = False
         elif not leading and not container_paragraph:
             list_context = False
-        if HEADING.fullmatch(line) and not continuation:
+        acceptance_heading = HEADING.fullmatch(line)
+        plain_label = PLAIN_LABEL.fullmatch(line)
+        if (in_section and last_bullet is not None and not blank_before
+                and not atx_heading and not continuation and (acceptance_heading or plain_label)):
+            raise IntakeError("plain section labels after criteria require a blank line")
+        if acceptance_heading and not continuation:
             # Indented acceptance headers can be text inside an enclosing
             # Markdown list, not a live top-level work-order section.
             # Supporting them requires a container-aware Markdown parser.
@@ -266,7 +279,7 @@ def _criteria(body: str) -> list[str]:
             raise IntakeError("thematic break in acceptance criteria requires clarification")
         # An indented title-like line may be a continuation of a bullet.
         # Do not silently terminate the section and drop later criteria.
-        if ANY_HEADING.fullmatch(line) and not continuation:
+        if (atx_heading and not leading) or plain_label:
             last_bullet = None
             in_section = False
             continue
@@ -282,10 +295,9 @@ def _criteria(body: str) -> list[str]:
                 raise IntakeError("acceptance criterion must have 1-1000 characters")
             result.append(value)
             last_bullet = len(result) - 1
-        elif line.strip():
+        else:
             # Markdown's indented continuation belongs to the preceding bullet.
-            leading = len(line) - len(line.lstrip(" \t"))
-            if leading >= 2 and last_bullet is not None:
+            if continuation:
                 combined = result[last_bullet] + " " + line.strip()
                 if len(combined) > 1000:
                     raise IntakeError("acceptance criterion exceeds 1000 characters")
