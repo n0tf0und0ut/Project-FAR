@@ -35,8 +35,11 @@ ATX_HEADING = re.compile(r"^[ \t]*#{1,6}(?:[ \t]+|$)")
 PLAIN_LABEL = re.compile(r"^[A-Z][\w /-]{2,48}:[ \t]*$")
 LIST_MARKER = r"(?:[-*+]|[0-9]{1,9}[.)])"
 LIST_CONTAINER = re.compile(rf"^ {{0,3}}{LIST_MARKER}(?:[ \t]+|$)")
-BULLET = re.compile(rf"^[ \t]*{LIST_MARKER}[ \t]+(?:\[[ xX]\]\s*)?(\S.*)$")
+BULLET = re.compile(rf"^[ \t]*{LIST_MARKER}(?P<padding>[ \t]+)(?P<content>\S.*)$")
+TASK_MARKER = re.compile(r"^\[[\sxX]\](?:\s+|$)", re.ASCII)
 THEMATIC_BREAK = re.compile(r"^ {0,3}([*_-])(?:[ \t]*\1){2,}[ \t]*$")
+SETEXT_UNDERLINE = re.compile(r"(?:=+|-+)[ \t]*")
+LINK_DEFINITION = re.compile(r"^\[.+\]:")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
 # GFM type 1 HTML blocks terminate on the exact tag, case-insensitively.
 HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:[ \t][^<>]*)?>|</pre>", re.I)
@@ -161,6 +164,13 @@ def _visible_html_line(line: str, pre: bool, comment: bool,
     if found and result.strip():
         raise IntakeError("mixed HTML examples and visible prose require clarification")
     return result, pre, comment
+
+
+def _require_paragraph_text(content: str) -> None:
+    if (content.startswith(">") or ATX_HEADING.match(content)
+            or LIST_CONTAINER.match(content) or THEMATIC_BREAK.fullmatch(content)
+            or LINK_DEFINITION.match(content)):
+        raise IntakeError("nested Markdown block in acceptance criteria requires clarification")
 
 
 def _criteria(body: str) -> list[str]:
@@ -291,15 +301,26 @@ def _criteria(body: str) -> list[str]:
             # can change the contract; reject this unsupported structure.
             if leading >= 2:
                 raise IntakeError("nested acceptance bullet requires clarification")
-            value = match.group(1).strip()
+            # Four columns of padding are prose; five or more introduce
+            # indented code. Tabs advance from the actual marker column.
+            content_column = len(line[:match.start("content")].expandtabs(4))
+            if content_column - match.start("padding") > 4:
+                raise IntakeError("indented code in acceptance criteria requires clarification")
+            content = match.group("content")
+            _require_paragraph_text(content)
+            value = TASK_MARKER.sub("", content, count=1).strip()
             if not value or len(value) > 1000:
-                raise IntakeError("acceptance criterion must have 1-1000 characters")
+                raise IntakeError("acceptance bullets require a nonempty criterion of at most 1000 characters")
             result.append(value)
             last_bullet = len(result) - 1
         else:
             # Markdown's indented continuation belongs to the preceding bullet.
             if continuation:
-                combined = result[last_bullet] + " " + line.strip()
+                content = line.lstrip(" \t")
+                if SETEXT_UNDERLINE.fullmatch(content):
+                    raise IntakeError("nested Markdown heading requires clarification")
+                _require_paragraph_text(content)
+                combined = result[last_bullet] + " " + content.strip()
                 if len(combined) > 1000:
                     raise IntakeError("acceptance criterion exceeds 1000 characters")
                 result[last_bullet] = combined

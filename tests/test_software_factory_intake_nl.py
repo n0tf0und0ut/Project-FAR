@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 from tools.software_factory import Factory, FactoryError, validate_order
 from tools.software_factory_intake import (
     IntakeError, _NoRedirect, _criteria, _strict_json, compile_request, fetch_issue, submit_draft, verify_draft,
@@ -243,6 +244,30 @@ Acceptance criteria:
             _criteria("## Acceptance criteria\n1. Count three words.\n2. Handle empty input.\n"),
             ["Count three words.", "Handle empty input."],
         )
+
+    def test_acceptance_bullets_reject_indented_code_items(self):
+        for marker in ("-     ", "1.     ", "12)     ", "-\t\t", " 1.\t\t"):
+            with self.subTest(marker=marker), self.assertRaisesRegex(IntakeError, "indented code"):
+                draft(f"## Acceptance criteria\n{marker}Example output only.\n")
+        for marker in ("-    ", "-\t", " 1.\t", "12)    "):
+            with self.subTest(marker=marker):
+                self.assertEqual(_criteria(f"## Acceptance criteria\n{marker}Print counts.\n"),
+                                 ["Print counts."])
+
+    def test_acceptance_bullets_reject_nested_nonparagraph_blocks(self):
+        for block in ("> Quoted example.", "## Example heading", "1. Example item",
+                      "***", "[sample]: /example"):
+            with self.subTest(block=block), self.assertRaisesRegex(IntakeError, "nested Markdown"):
+                draft(f"## Acceptance criteria\n- {block}\n")
+        for continuation in ("> Quoted example.", "==="):
+            with self.subTest(continuation=continuation), self.assertRaisesRegex(IntakeError, "nested Markdown"):
+                draft(f"## Acceptance criteria\n- Print counts.\n  {continuation}\n")
+        self.assertEqual(_criteria("## Acceptance criteria\n- [\t] Print counts.\n- [x] Handle empty input.\n"),
+                         ["Print counts.", "Handle empty input."])
+        self.assertEqual(_criteria("## Acceptance criteria\n- [ ]text remains literal.\n"),
+                         ["[ ]text remains literal."])
+        with self.assertRaisesRegex(IntakeError, "nonempty criterion"):
+            draft("## Acceptance criteria\n- [ ]\n")
 
     def test_only_gfm_line_endings_split_source_lines(self):
         # U+2028, U+2029 and U+0085 belong to the code line, not to
@@ -810,6 +835,21 @@ Acceptance criteria:
                                     capture_output=True, text=True, timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue(json.loads(result.stdout)["queue"]["order_id"].startswith("intake-"))
+
+    def test_cli_submit_revalidates_legacy_bullet_draft_before_writing_queue(self):
+        body = "## Acceptance criteria\n-     Example output only.\n"
+        with patch("tools.software_factory_intake._criteria", return_value=["Example output only."]):
+            legacy = draft(body)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            drafted, db = root / "draft.json", root / "db.sqlite"
+            drafted.write_text(json.dumps(legacy), encoding="utf-8")
+            result = subprocess.run([sys.executable, "tools/software_factory_intake.py", "submit",
+                                     "--draft-file", str(drafted), "--db", str(db)],
+                                    capture_output=True, text=True, timeout=15)
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("indented code", result.stderr)
+            self.assertFalse(db.exists())
 
     def test_cli_underspecified_draft_exit_code_three_and_no_db(self):
         with tempfile.TemporaryDirectory() as folder:
