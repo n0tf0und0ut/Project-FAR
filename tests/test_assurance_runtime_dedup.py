@@ -28,7 +28,7 @@ class AssuranceRuntimeDedupTests(unittest.TestCase):
         self.assertIn("tests.canonical", check.get("depends_on", []))
         self.assertEqual(
             self.checks["tests.canonical"]["command"],
-            ["python", "tools/run_tests.py", "--fast", "--jobs", "4"],
+            ["python", "tools/run_tests.py", "--fast"],
         )
         self.assertIs(check.get("cacheable"), False)
         self.assertEqual(check["timeout_seconds"], 1800)

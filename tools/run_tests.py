@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
-import re
-import subprocess
 import importlib.util
 import inspect
 import os
@@ -137,161 +133,6 @@ def count_tests(suite: unittest.TestSuite) -> int:
     return suite.countTestCases()
 
 
-
-def _canonical_cases(suite: unittest.TestSuite):
-    """Unwrap the discovered suite without dropping module-level function cases."""
-    for item in suite:
-        if isinstance(item, unittest.TestSuite):
-            yield from _canonical_cases(item)
-        else:
-            yield item
-
-
-def _canonical_module(case) -> str:
-    # unittest.TestCase classes can retain their original import-path module
-    # even when discovered via a dynamically named source file.
-    # FunctionTestCase is different: its wrapper class is unittest.case, but
-    # the function ID is anchored to the actual dynamically loaded module.
-    source = (
-        case.id().rsplit(".", 1)[0]
-        if isinstance(case, unittest.FunctionTestCase)
-        else case.__class__.__module__
-    )
-    if not isinstance(source, str) or not re.fullmatch(
-        r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", source
-    ) or source in {"unittest.case", "unittest.loader", "__main__"}:
-        raise ValueError(f"cannot prove canonical test-module identity: {case.id()}")
-    return source
-
-
-def _suite_fingerprint(cases) -> str:
-    identities = [test.id() for test in cases]
-    if len(identities) != len(set(identities)):
-        raise ValueError("canonical test discovery contains duplicate test IDs")
-    records = [(test.id(), _canonical_module(test)) for test in cases]
-    return hashlib.sha256(json.dumps(records, separators=(",", ":")).encode()).hexdigest()
-
-
-def _test_shards(cases, jobs: int) -> list[list[int]]:
-    """Keep each discovered test module on one worker (unittest class/module fixtures)."""
-    if not 1 <= jobs <= 32:
-        raise ValueError("canonical shard count must be in [1, 32]")
-    by_module: dict[str, list[int]] = {}
-    for index, case in enumerate(cases):
-        source = _canonical_module(case)
-        by_module.setdefault(source, []).append(index)
-    if not by_module:
-        raise ValueError("canonical test discovery is empty")
-    jobs = min(jobs, len(by_module))
-    allocations: list[list[int]] = [[] for _ in range(jobs)]
-    loads = [0] * jobs
-    for _, indices in sorted(by_module.items(), key=lambda item: (-len(item[1]), item[0])):
-        slot = min(range(jobs), key=lambda index: (loads[index], index))
-        allocations[slot].extend(indices)
-        loads[slot] += len(indices)
-    for indices in allocations:
-        indices.sort()
-    coverage = sorted(index for indices in allocations for index in indices)
-    if coverage != list(range(len(cases))) or any(not indices for indices in allocations):
-        raise ValueError("parallel canonical test partition is incomplete or duplicated")
-    return allocations
-
-
-def _worker_main(cases, args, digest: str) -> int:
-    if (args._shard_index is None or args._shard_count is None
-            or args._expected_digest is None or args._shard_count < 2
-            or not 0 <= args._shard_index < args._shard_count):
-        raise ValueError("invalid canonical worker identity")
-    if args._expected_digest != digest:
-        raise ValueError("canonical worker discovered a different test suite")
-    shards = _test_shards(cases, args._shard_count)
-    if len(shards) != args._shard_count:
-        raise ValueError("canonical worker shard count changed")
-    indices = shards[args._shard_index]
-    selected = unittest.TestSuite(cases[index] for index in indices)
-    started = time.monotonic()
-    print(f"Project FAR test discovery: {len(indices)} tests in shard {args._shard_index + 1}/{args._shard_count}", flush=True)
-    result = DiagnosticTextTestRunner(verbosity=2, buffer=False).run(selected)
-    elapsed = time.monotonic() - started
-    success = result.wasSuccessful() and 0 < result.testsRun <= len(indices)
-    print(f"Project FAR tests run: {result.testsRun} in {elapsed:.3f}s", flush=True)
-    receipt = {
-        "index": args._shard_index,
-        "jobs": args._shard_count,
-        "suite_digest": digest,
-        "selected": len(indices),
-        "executed": result.testsRun,
-        "skipped": len(result.skipped),
-        "successful": success,
-    }
-    print("FAR_SHARD_RESULT " + json.dumps(receipt, sort_keys=True), flush=True)
-    return 0 if success else 1
-
-
-def _parallel_main(cases, jobs: int) -> int:
-    digest = _suite_fingerprint(cases)
-    shards = _test_shards(cases, jobs)
-    jobs = len(shards)
-    print(
-        f"Project FAR parallel canonical discovery: {len(cases)} tests, {jobs} workers; "
-        f"suite SHA-256 {digest}", flush=True,
-    )
-    with tempfile.TemporaryDirectory(prefix="far-parallel-tests-") as directory:
-        launched = []
-        try:
-            for index in range(jobs):
-                path = Path(directory) / f"shard-{index}.log"
-                log = path.open("w+", encoding="utf-8")
-                command = [
-                    sys.executable, str(Path(__file__).resolve()),
-                    "--_shard-index", str(index), "--_shard-count", str(jobs),
-                    "--_expected-digest", digest,
-                ]
-                process = subprocess.Popen(
-                    command, cwd=ROOT, env=dict(os.environ),
-                    stdout=log, stderr=subprocess.STDOUT,
-                )
-                launched.append((process, log, path))
-            okay = True
-            executed = 0
-            for index, (process, log, path) in enumerate(launched):
-                returncode = process.wait()
-                log.flush()
-                output = path.read_text(encoding="utf-8", errors="replace")
-                print(f"===== canonical shard {index + 1}/{jobs} (exit {returncode}) =====", flush=True)
-                print(output, flush=True)
-                receipts = [line[len("FAR_SHARD_RESULT "):] for line in output.splitlines()
-                            if line.startswith("FAR_SHARD_RESULT ")]
-                try:
-                    if len(receipts) != 1:
-                        raise ValueError("missing or duplicated canonical shard result")
-                    receipt = json.loads(receipts[0])
-                    if not isinstance(receipt, dict):
-                        raise ValueError("canonical shard result must be an object")
-                    expected = {
-                        "index": index, "jobs": jobs, "suite_digest": digest,
-                        "selected": len(shards[index]), "successful": True,
-                    }
-                    if any(receipt.get(key) != value for key, value in expected.items()):
-                        raise ValueError("canonical shard result disagrees with parent discovery")
-                    count = receipt.get("executed")
-                    if (type(count) is not int or not 0 < count <= len(shards[index])
-                            or returncode != 0):
-                        raise ValueError("canonical shard did not complete successfully")
-                    executed += count
-                except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
-                    okay = False
-                    print(f"FAR canonical shard {index + 1} failure: {exc}", file=sys.stderr)
-            print(f"Project FAR tests run: {executed} across {jobs} workers", flush=True)
-            return 0 if okay and executed > 0 else 1
-        finally:
-            for process, log, _ in launched:
-                if process.poll() is None:
-                    process.kill()
-                    process.wait()
-                log.close()
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run all intended Project FAR tests.")
     parser.add_argument(
@@ -299,31 +140,9 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="reserved for future slow-test exclusion; currently runs the full test suite",
     )
-    parser.add_argument("--jobs", type=int, default=1, help="parallel module workers (1 retains original serial semantics)")
-    parser.add_argument("--_shard-index", type=int, help=argparse.SUPPRESS)
-    parser.add_argument("--_shard-count", type=int, help=argparse.SUPPRESS)
-    parser.add_argument("--_expected-digest", help=argparse.SUPPRESS)
-    args = parser.parse_args(argv)
+    parser.parse_args(argv)
     suite = discover_suite()
     total = count_tests(suite)
-    if args.jobs < 1 or args.jobs > 32:
-        parser.error("--jobs must be in [1, 32]")
-    if args._shard_index is not None:
-        try:
-            cases = list(_canonical_cases(suite))
-            return _worker_main(cases, args, _suite_fingerprint(cases))
-        except ValueError as exc:
-            print(f"FAR canonical worker invalid: {exc}", file=sys.stderr)
-            return 2
-    if args._shard_count is not None or args._expected_digest is not None:
-        parser.error("incomplete internal shard arguments")
-    if args.jobs > 1:
-        try:
-            cases = list(_canonical_cases(suite))
-            return _parallel_main(cases, args.jobs)
-        except ValueError as exc:
-            print(f"FAR canonical sharding invalid: {exc}", file=sys.stderr)
-            return 2
     print(f"Project FAR test discovery: {total} tests")
     if total == 0:
         print("PROJECT FAR TESTS FAILED: zero tests discovered", file=sys.stderr)

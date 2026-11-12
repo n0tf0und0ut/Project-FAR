@@ -43,7 +43,7 @@
     "tools/assemble_validation_certificate.py": "8d2e3692e5530879d7e9d183cbe27981d0c2e3444d6fce05b52888beaf47dec8",
     "tools/checker_rule_mutation.py": "ffcd176b106bdf01bcdaf0ad721f8f5d451784a59859eaa170b03a52b8b8a023",
     "tools/configure_validation_protection.py": "745a799fbda636788a7ae54d0fb961d421c71deaf69834df576bd8c62dba6b11",
-    "tools/run_tests.py": "797bddf4004d36f8a6054c2851598a873e8cb20fa1395f7b8badf47c16bcc6f5",
+    "tools/run_tests.py": "e9d2876f5159167922a1977fd63e7f1f2f676c70be5cb66c4f1fd17f31cb244a",
     "validation/runtime-dependencies.json": "560d7b1ed9a6b4a0976b6cc455cfb089cf32b88a20c6df493a78c4339d90a4b6",
     "validation/runtime-policy.json": "38422ec54eec221805f1e58dae6035cfdc461a350ecf7635143079b4e39d1814",
     "validation/test-weakening-waivers.json": "311e12701b273cb91110b98b7cdec4de2b570c602c00ac27f5bb76ea039cc834",
