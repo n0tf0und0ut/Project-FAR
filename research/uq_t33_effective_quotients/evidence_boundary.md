@@ -61,7 +61,7 @@ Reproduce from repository root:
     python -m unittest tests.test_uq_t33_effective_quotients tests.test_uq_t33_evidence_gate
     python -c "import json; from research.uq_t33_effective_quotients.evidence_gate import certificate; print(json.dumps(certificate(json.load(open('research/uq_t33_effective_quotients/example_evidence.json'))), indent=2))"
 
-The original UQ-T33 tests and eleven new correspondence tests passed locally: **25/25**. Neither these tests nor the model-level report is a proof of source-to-runtime correctness.
+The original UQ-T33 tests and twelve new correspondence tests passed locally: **25/25**. Neither these tests nor the model-level report is a proof of source-to-runtime correctness.
 
 ## What an external investigator must independently establish
 
