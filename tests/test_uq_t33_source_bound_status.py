@@ -42,6 +42,19 @@ class SourceBoundCorrespondenceTests(unittest.TestCase):
         }
         self.assertEqual({b: m.status_of_flags(b) for b in product((False, True), repeat=3)}, expected)
 
+    def test_status_classes_are_minimal_for_add_only_wrapper(self):
+        from research.uq_t33_effective_quotients.finite_state import quotient
+        flags = tuple(product((False, True), repeat=3))
+        outputs = tuple(m.status_of_flags(f) for f in flags)
+        trans = tuple(tuple(flags.index(m.abstract_add(f, r)) for r in m.ACTION_RULES)
+                      for f in flags)
+        classes, rounds = quotient(outputs, trans)
+        self.assertEqual(len(set(classes)), 4)
+        self.assertEqual(rounds, 0)
+        for x in range(8):
+            for y in range(8):
+                self.assertEqual(classes[x] == classes[y], outputs[x] == outputs[y)
+
     def test_nonparticipating_unknown_rules_do_not_change_classes(self):
         for rules in (frozenset(), frozenset(("arbitrary-unseen-rule",)),
                       frozenset(("semantic-contract-invalid",)),
