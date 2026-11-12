@@ -1,0 +1,167 @@
+{
+  "analyze_checker_source": [
+    "far_validation/mutations.py",
+    "far_validation/oracle.py",
+    "tests/test_validation_assurance.py",
+    "tests/test_validation_trace_regression.py"
+  ],
+  "compare_packages": [
+    "mechanization/far_mechanization/compare_adjudication.py",
+    "tests/test_compare_adjudication.py",
+    "tests/test_compare_adjudication_golden.py",
+    "tests/test_compare_adjudication_integrity.py",
+    "tests/test_compare_adjudication_mutations.py"
+  ],
+  "compile_proposal": [
+    "commercial/far-investigation-audit/full_cli.py",
+    "commercial/far-investigation-audit/tests/test_end_to_end.py",
+    "commercial/far-investigation-audit/tests/test_independent_evidence.py",
+    "commercial/far-investigation-audit/workflow.py"
+  ],
+  "detect_weakening": [
+    "far_validation/mutations.py",
+    "far_validation/weakening.py",
+    "research/internal-assurance-2026-09-10/reproduce_protected_defects.py",
+    "tests/test_pr436_root_closure.py",
+    "tests/test_protected_repin_authorization.py",
+    "tests/test_target_category_compositional_invariant.py",
+    "tests/test_target_category_validator_assurance_hardening.py",
+    "tests/test_target_category_weakening_aliases.py",
+    "tests/test_validation_assurance.py",
+    "tests/test_weakening_disabling_regression.py",
+    "tests/test_weakening_namespace_rebinding.py"
+  ],
+  "evidence_bundle": [
+    "commercial/far-investigation-audit/tests/test_independent_evidence.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle10.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle11.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle13.py"
+  ],
+  "heuristic_proposal": [
+    "commercial/far-investigation-audit/tests/test_end_to_end.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle10.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle11.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle6.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle9.py",
+    "commercial/far-investigation-audit/workflow.py"
+  ],
+  "history_contiguous": [
+    "tests/test_upp_historical_checkers.py",
+    "tools/check_upp_w3_contract.py",
+    "tools/check_upp_w6_equivalence.py",
+    "tools/check_upp_w7_recoverable_commitment.py",
+    "tools/check_upp_w8_constrained_evolution.py"
+  ],
+  "independent_grade": [
+    "tests/test_weight_space_pilot.py",
+    "tools/check_weight_space_publication.py",
+    "tools/weight_space_replay.py"
+  ],
+  "load_swe_agent_trace": [
+    "commercial/far-decision-integrity/src/far_decision_integrity/external_trace_cli.py",
+    "commercial/far-decision-integrity/tests/test_external_trace.py",
+    "commercial/far-decision-integrity/tests/test_strict_json_intake.py"
+  ],
+  "openai_proposal": [
+    "commercial/far-investigation-audit/tests/test_end_to_end.py",
+    "commercial/far-investigation-audit/tests/test_failure_boundaries.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle4.py",
+    "commercial/far-investigation-audit/workflow.py"
+  ],
+  "parse_json_artifact": [
+    "commercial/far-investigation-audit/cli.py",
+    "commercial/far-investigation-audit/full_cli.py",
+    "commercial/far-investigation-audit/memory.py",
+    "commercial/far-investigation-audit/verify.py",
+    "commercial/far-investigation-audit/webapp.py"
+  ],
+  "parse_yaml_text": [
+    "mechanization/far_mechanization/conformance.py",
+    "mechanization/far_mechanization/parser.py",
+    "tests/mechanization/test_end_to_end.py",
+    "tests/mechanization/test_packaging_security.py",
+    "tests/mechanization/test_parser.py",
+    "tests/mechanization/test_serialization.py"
+  ],
+  "read_attestation": [
+    "far_validation/assured_engine.py",
+    "far_validation/certificate.py",
+    "far_validation/formal_model.py",
+    "far_validation/mutations.py",
+    "tests/test_validation_assurance.py"
+  ],
+  "recover_target": [
+    "tests/test_s_core_w3_reference.py",
+    "tools/check_s_core_w3.py",
+    "tools/s_core_w3_reference.py",
+    "tools/w3_5_factorization.py"
+  ],
+  "redact_outbound": [
+    "tests/test_far_research_infrastructure.py",
+    "tools/adversarial_research_harness.py",
+    "tools/subagent_orchestration.py"
+  ],
+  "resolve_public": [
+    "commercial/far-investigation-audit/acquire.py",
+    "commercial/far-investigation-audit/discovery.py",
+    "commercial/far-investigation-audit/tests/test_end_to_end.py"
+  ],
+  "serialize_json": [
+    "mechanization/far_mechanization/cli.py",
+    "mechanization/far_mechanization/serialization.py",
+    "tests/mechanization/test_conformance.py",
+    "tests/mechanization/test_end_to_end.py",
+    "tests/mechanization/test_performance_safeguards.py",
+    "tests/mechanization/test_serialization.py"
+  ],
+  "serialize_yaml": [
+    "mechanization/far_mechanization/cli.py",
+    "mechanization/far_mechanization/serialization.py",
+    "tests/mechanization/test_conformance.py",
+    "tests/mechanization/test_end_to_end.py",
+    "tests/mechanization/test_packaging_security.py",
+    "tests/mechanization/test_performance_safeguards.py",
+    "tests/mechanization/test_serialization.py"
+  ],
+  "source_receipt": [
+    "tests/test_weight_space_publication.py",
+    "tools/check_weight_space_publication.py",
+    "tools/weight_space_pilot.py",
+    "tools/weight_space_replay.py"
+  ],
+  "successor_recorded": [
+    "tests/test_upp_historical_checkers.py",
+    "tools/check_upp_w10_semantic_interpretation.py",
+    "tools/check_upp_w3_contract.py",
+    "tools/check_upp_w5_machinery_closure.py",
+    "tools/check_upp_w6_equivalence.py",
+    "tools/check_upp_w7_recoverable_commitment.py",
+    "tools/check_upp_w8_constrained_evolution.py",
+    "tools/check_upp_w9_dependency_structure.py"
+  ],
+  "validate_socratic_record": [
+    "mechanization/far_mechanization/epistemic.py",
+    "mechanization/far_mechanization/socratic_epistemic.py",
+    "tests/test_socratic_epistemic_extensions.py",
+    "tests/test_socratic_epistemic_extensions_replication.py",
+    "tests/test_socratic_epistemic_lifecycle_chronology.py",
+    "tests/test_socratic_epistemic_review_hardening.py"
+  ],
+  "verify_evidence_bundle": [
+    "commercial/far-decision-integrity/tests/test_core.py",
+    "commercial/far-decision-integrity/tests/test_reasoning_regression.py",
+    "commercial/far-decision-integrity/tests/test_strict_json_intake.py"
+  ],
+  "verify_signature": [
+    "far_validation/repin_agepony_acceptance.py",
+    "far_validation/repin_signature.py",
+    "tests/test_repin_signature.py"
+  ],
+  "write_attestation": [
+    "far_validation/assured_engine.py",
+    "far_validation/certificate.py",
+    "far_validation/formal_model.py",
+    "far_validation/mutations.py",
+    "tests/test_validation_assurance.py"
+  ]
+}
