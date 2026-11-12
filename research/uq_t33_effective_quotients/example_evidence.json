@@ -1,0 +1,90 @@
+{
+  "concrete": {
+    "states": [
+      "0:0",
+      "0:1",
+      "1:0",
+      "1:1",
+      "2:0",
+      "2:1"
+    ],
+    "actions": [
+      "tick",
+      "reset"
+    ],
+    "outputs": [
+      "busy",
+      "busy",
+      "busy",
+      "busy",
+      "done",
+      "done"
+    ],
+    "transitions": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        1
+      ]
+    ]
+  },
+  "abstract": {
+    "states": [
+      "start",
+      "middle",
+      "done"
+    ],
+    "actions": [
+      "tick",
+      "reset"
+    ],
+    "outputs": [
+      "busy",
+      "busy",
+      "done"
+    ],
+    "transitions": [
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        0
+      ]
+    ]
+  },
+  "abstraction": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2
+  ],
+  "claimed_state_bound": 3,
+  "expected_concrete_table_sha256": "5926fac0b89a78b95ad7439c0b07a93387d45b4df87267a49015c580601fdeab"
+}
