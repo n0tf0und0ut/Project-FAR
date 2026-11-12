@@ -20,9 +20,11 @@ jobs:
     name: pr-review-convergence-observation
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    concurrency:
-      group: pr-review-required-${{ github.repository }}-${{ github.event.pull_request.number }}
-      cancel-in-progress: true
+    # Required PR-event observations must not be cancelled or displaced by
+    # overlapping edited/review events on the same head. A cancelled eligible
+    # instance blocked the normal protected merge of PR #654 on 2026-11-11
+    # even when a newer required observation had succeeded. Execute each event;
+    # retain exact-head validation and the unchanged fail-closed gate below.
     permissions:
       contents: read
       pull-requests: read
