@@ -118,5 +118,35 @@ class ReentrantTaskTests(unittest.TestCase):
                             for result in outputs))
 
 
+    def test_recursive_failed_dispatch_is_bounded_and_later_retry_allowed(self):
+        calls = []
+        nested = []
+
+        def callback(_agent, task):
+            calls.append(task.task_id)
+            if len(calls) == 1:
+                nested.append(sub.orchestrate(
+                    plan=plan, runtime=runtime, objective='same-failing-work',
+                    context=(), run_id='same-failing-run',
+                ))
+            raise RuntimeError('injected unsuccessful attempt')
+
+        plan, runtime = environment(callback)
+        outer = sub.orchestrate(plan=plan, runtime=runtime, objective='same-failing-work',
+                                context=(), run_id='same-failing-run')
+        self.assertEqual(len(calls), 1, 'unsuccessful duplicate consumed a second invocation')
+        self.assertEqual(outer.status, sub.RunStatus.FAILED)
+        self.assertEqual(nested[0].status, sub.RunStatus.FAILED)
+        self.assertIn('duplicate in-flight task invocation', nested[0].failures[0].error)
+        self.assertIn('injected unsuccessful attempt', outer.failures[0].error)
+
+        sequential = sub.orchestrate(plan=plan, runtime=runtime,
+                                     objective='same-failing-work', context=(),
+                                     run_id='same-failing-run')
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0], calls[1])
+        self.assertEqual(sequential.status, sub.RunStatus.FAILED)
+
+
 if __name__ == '__main__':
     unittest.main()
