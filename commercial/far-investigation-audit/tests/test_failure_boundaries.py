@@ -147,6 +147,32 @@ class WebFailureBoundaryTests(unittest.TestCase):
                 "kind": "text", "text": "A bounded source."}})
             self.assertEqual(valid.status_code, 200)
 
+    def test_multipart_cleanup_failure_releases_shared_worker(self):
+        from threading import BoundedSemaphore
+        from fastapi.testclient import TestClient
+        from starlette.datastructures import FormData
+        from webapp import app
+
+        worker = BoundedSemaphore(1)
+        close = FormData.close
+
+        async def close_with_error(form):
+            self.assertFalse(worker.acquire(blocking=False), "cleanup still owns the worker")
+            await close(form)
+            raise OSError("simulated upload cleanup failure")
+
+        files = {"file": ("source.txt", b"A bounded source.", "text/plain")}
+        with patch("webapp._GATE", worker), TestClient(app) as client:
+            with patch.object(FormData, "close", close_with_error):
+                with self.assertRaisesRegex(OSError, "simulated upload cleanup failure"):
+                    client.post("/api/upload", files=files)
+
+            paste = client.post("/api/investigate", json={"source": {
+                "kind": "text", "text": "A bounded source."}})
+            upload = client.post("/api/upload", files=files)
+            for response in (paste, upload):
+                self.assertEqual(response.status_code, 200, response.text)
+
 
 if __name__ == "__main__":
     unittest.main()

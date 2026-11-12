@@ -475,8 +475,8 @@ def validate_manifest(
         incomplete = [
             str(step.get("id"))
             for step in required_steps
-            if not isinstance(step, dict)
-            or str(step.get("status", "")).lower() not in COMPLETE_STATES
+            if isinstance(step, dict)
+            and str(step.get("status", "")).lower() not in COMPLETE_STATES
         ]
         if incomplete:
             errors.append(f"{investigation}: PASS with incomplete required steps: {', '.join(incomplete)}")
@@ -484,7 +484,7 @@ def validate_manifest(
         missing_evidence = [
             str(step.get("id"))
             for step in required_steps
-            if not isinstance(step, dict) or not step.get("evidence")
+            if isinstance(step, dict) and not step.get("evidence")
         ]
         if missing_evidence:
             errors.append(

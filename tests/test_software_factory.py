@@ -90,6 +90,22 @@ class TestFactory(unittest.TestCase):
             self.f.record("pilot", "alpha", review["token"], {"head_sha": B, "reviewer": "builder",
                           "review_url": "https://github.com/x/y/pull/1", "result": "clean", "unresolved": 0}, now=105)
 
+    def test_malformed_reviewer_preserves_review_lease_for_retry(self):
+        review = self._get_reviewed()
+        before = self.f.snapshot("pilot")
+        evidence = {"head_sha": B, "review_url": "https://github.com/x/y/pull/1",
+                    "result": "clean", "unresolved": 0}
+        for reviewer in ([], {}, None):
+            with self.subTest(reviewer=reviewer):
+                with self.assertRaisesRegex(FactoryError, "independent"):
+                    self.f.record("pilot", "alpha", review["token"],
+                                  {**evidence, "reviewer": reviewer}, now=105)
+                self.assertEqual(self.f.snapshot("pilot"), before)
+
+        result = self.f.record("pilot", "alpha", review["token"],
+                               {**evidence, "reviewer": "another"}, now=106)
+        self.assertEqual(result["state"], "awaiting_protected_merge")
+
     def test_reconcile_merge_an_releases_dependency(self):
         review = self._get_reviewed()
         self.f.record("pilot", "alpha", review["token"], {"head_sha": B, "reviewer": "another",
