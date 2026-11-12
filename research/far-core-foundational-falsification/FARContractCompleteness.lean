@@ -43,11 +43,15 @@ theorem complete_iff_decoder {World : Type u} {O : Type v} {Y : Type w}
     apply Subtype.ext
     exact hxy
 
+/-- Injectivity is stated locally to avoid depending on an additional math library. -/
+def Injective {World : Type u} {O : Type v} (observe : World → O) : Prop :=
+  ∀ ⦃x y⦄, observe x = observe y → x = y
+
 /-- Sharp boundary: completeness for every possible target iff the observer is injective. -/
 theorem all_targets_iff_injective {World : Type u} {O : Type v}
     (observe : World → O) :
     (∀ (Y : Type u) (target : World → Y), Complete observe target) ↔
-      Function.Injective observe := by
+      Injective observe := by
   constructor
   · intro hall x y hxy
     exact hall World (id : World → World) x y hxy
