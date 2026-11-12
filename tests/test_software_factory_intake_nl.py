@@ -615,11 +615,17 @@ Acceptance criteria:
                     self.assertEqual(database.read_bytes(), before)
                     self.assertFalse(receipt.exists() and receipt != database)
 
-    def test_blockquote_lazy_text_cannot_supply_acceptance(self):
-        with self.assertRaisesRegex(IntakeError, "blockquote"):
-            draft("> Example text\nAcceptance criteria:\n- Example only.\n")
-        self.assertEqual(_criteria("> Example text\n\nAcceptance criteria:\n- Real.\n"), ["Real."])
-        self.assertEqual(_criteria("> Example text\n## Acceptance criteria\n- Real.\n"), ["Real."])
+    def test_container_lazy_text_cannot_supply_acceptance(self):
+        for example in ("> Example text", "- Example text", "2. Example text"):
+            with self.subTest(example=example):
+                with self.assertRaisesRegex(IntakeError, "lazy Markdown container"):
+                    draft(f"{example}\nAcceptance criteria:\n- Example only.\n")
+                self.assertEqual(
+                    _criteria(f"{example}\n\nAcceptance criteria:\n- Real.\n"), ["Real."]
+                )
+                self.assertEqual(
+                    _criteria(f"{example}\n## Acceptance criteria\n- Real.\n"), ["Real."]
+                )
 
     def test_cli_receipt_rejects_database_hardlink(self):
         d = draft()

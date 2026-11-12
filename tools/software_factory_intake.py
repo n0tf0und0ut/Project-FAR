@@ -166,10 +166,10 @@ def _criteria(body: str) -> list[str]:
     fence: tuple[str, int] | None = None
     html_pre = False
     html_comment = False
-    quote_paragraph = False
+    container_paragraph = False
     for line in re.split(r"\r\n|\n|\r", body):
         if not line.strip(" \t"):
-            quote_paragraph = False
+            container_paragraph = False
         marker = FENCE.fullmatch(line)
         if fence is not None:
             if (marker and not marker.group("suffix").strip(" \t")
@@ -211,7 +211,7 @@ def _criteria(body: str) -> list[str]:
                     raise IntakeError("backtick fence info string requires clarification")
                 if in_section:
                     raise IntakeError("fenced examples inside acceptance criteria require clarification")
-                quote_paragraph = False
+                container_paragraph = False
                 fence = (marker.group("mark")[0], len(marker.group("mark")))
                 continue
         line, html_pre, html_comment = _visible_html_line(
@@ -229,18 +229,18 @@ def _criteria(body: str) -> list[str]:
                 and line.lstrip().startswith("#")):
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
-        if re.match(r"^ {0,3}>", line):
-            quote_paragraph = True
+        if not in_section and re.match(r"^ {0,3}(?:>|(?:[-*+]|[0-9]{1,9}[.)])[ \t]+)", line):
+            container_paragraph = True
         elif re.match(r"^#{1,6}[ \t]+", line):
-            quote_paragraph = False
+            container_paragraph = False
         if HEADING.fullmatch(line) and not continuation:
             # Indented acceptance headers can be text inside an enclosing
             # Markdown list, not a live top-level work-order section.
             # Supporting them requires a container-aware Markdown parser.
             if leading:
                 raise IntakeError("indented acceptance heading requires clarification")
-            if quote_paragraph:
-                raise IntakeError("possible lazy blockquote acceptance heading requires clarification")
+            if container_paragraph:
+                raise IntakeError("possible lazy Markdown container acceptance heading requires clarification")
             last_bullet = None
             in_section = True
             continue
