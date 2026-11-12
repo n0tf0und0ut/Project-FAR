@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - .github/workflows/assurance-runtime-benchmark.yml
+      - tools/run_tests.py
+      - validation/manifest.json
+      - validation_bootstrap/assurance-lock.json
 
 permissions:
   contents: read
