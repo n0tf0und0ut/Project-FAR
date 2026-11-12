@@ -382,5 +382,17 @@ class TestFactory(unittest.TestCase):
 
 
 
+    def test_fail_rejects_non_string_reason_without_consuming_lease(self):
+        claim = self.f.claim("pilot", "builder", now=100)
+        before = self.f.snapshot("pilot")
+        for invalid in (None, [], {}, 0):
+            with self.subTest(reason=repr(invalid)):
+                with self.assertRaisesRegex(FactoryError, "failure reason"):
+                    self.f.fail("pilot", "alpha", claim["token"], invalid, now=101)
+                self.assertEqual(self.f.snapshot("pilot"), before)
+        outcome = self.f.fail("pilot", "alpha", claim["token"], "worker failed", now=102)
+        self.assertEqual(outcome["state"], "queued")
+
+
 if __name__ == "__main__":
     unittest.main()
