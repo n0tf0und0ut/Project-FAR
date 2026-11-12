@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import io
 import json
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -614,7 +616,7 @@ class AutonomousLivingReviewTests(unittest.TestCase):
             "      - name: Execute bounded autonomous adjudication", 1)[0]
         self.assertIn("set -euo pipefail", extract)
         self.assertIn("snapshot_paths=(research/living/repository-state-v1.0.json)", extract)
-        self.assertIn("research/living/inbox/candidates research/living/inbox/autonomous-review-attempts", extract)
+        self.assertIn("research/living/inbox research/living/runs research/living/state-v1.0.json", extract)
         self.assertIn('python tools/validate_research_carry.py --ref "$source_sha" "${validation_args[@]}"', extract)
         self.assertIn('git archive "$source_sha" -- "${snapshot_paths[@]}"', extract)
         self.assertLess(extract.index("python tools/validate_research_carry.py"), extract.index("git archive"))
@@ -639,6 +641,49 @@ class AutonomousLivingReviewTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
                             "-c", "user.email=fixture@example.invalid", "commit", "-qm", "blob"], check=True)
             validate_ref_paths(repo, "HEAD", [rel])
+    def test_validated_snapshot_preserves_retry_writer_inputs(self):
+        # Reproduce the retry-only path's copy requirements from the exact
+        # extraction inputs, including the permanent nonmergeable inbox anchor.
+        workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
+        extract = workflow.split("      - name: Extract exact inbox snapshot", 1)[1].split(
+            "      - name: Execute bounded autonomous adjudication", 1)[0]
+        retry = workflow.split("      - name: Persist bounded retry record only", 1)[1].split(
+            "      - name: Materialize and validate human-review branch", 1)[0]
+        paths = ("research/living/inbox", "research/living/runs",
+                 "research/living/state-v1.0.json", "research/living/repository-state-v1.0.json")
+        for path in paths:
+            self.assertIn(path, extract)
+            self.assertIn(path, retry)
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            files = {
+                "research/living/inbox/.rolling-pr-anchor.json": "anchor",
+                "research/living/inbox/candidates/candidate.json": "candidate",
+                "research/living/runs/record.json": "run-history",
+                "research/living/state-v1.0.json": "cursor",
+                "research/living/repository-state-v1.0.json": "queue",
+            }
+            for rel, value in files.items():
+                target = repo / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(value, encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "research/living"], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit",
+                            "-qm", "carry"], check=True)
+            validate_ref_paths(repo, "HEAD", list(paths))
+            archive = subprocess.run(
+                ["git", "-C", str(repo), "archive", "HEAD", "--", *paths],
+                check=True, capture_output=True, timeout=10,
+            ).stdout
+            with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as bundle:
+                members = {item.name.rstrip("/"): item for item in bundle.getmembers()}
+                for rel, expected in files.items():
+                    self.assertIn(rel, members)
+                    self.assertTrue(members[rel].isfile())
+                    self.assertEqual(expected.encode(), bundle.extractfile(members[rel]).read())
     def test_workflow_contains_race_serialization_retry_validation_and_explicit_dispatch_guards(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
         self.assertIn("headRepositoryOwner", workflow)
