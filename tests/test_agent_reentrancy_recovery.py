@@ -5,6 +5,7 @@ These are deterministic executed callback tests, not live model trials.
 """
 from __future__ import annotations
 
+import asyncio
 import unittest
 from pathlib import Path
 
@@ -146,6 +147,38 @@ class ReentrantTaskTests(unittest.TestCase):
         self.assertEqual(len(calls), 2)
         self.assertEqual(calls[0], calls[1])
         self.assertEqual(sequential.status, sub.RunStatus.FAILED)
+
+    def test_deferred_same_task_after_completion_is_not_false_blocked(self):
+        # Codex review 4556867867: call_soon copies a context whose source
+        # invocation may complete before the deferred callback is executed.
+        calls = []
+        deferred = []
+        loop = asyncio.new_event_loop()
+
+        def callback(_agent, task):
+            calls.append(task.task_id)
+            if len(calls) == 1:
+                loop.call_soon(lambda: deferred.append(sub.orchestrate(
+                    plan=plan, runtime=runtime, objective='deferred-work',
+                    context=(), run_id='same-deferred-run',
+                )))
+            return success(task)
+
+        plan, runtime = environment(callback)
+        try:
+            outer = sub.orchestrate(plan=plan, runtime=runtime,
+                                    objective='deferred-work', context=(),
+                                    run_id='same-deferred-run')
+            self.assertEqual(outer.status, sub.RunStatus.COMPLETED)
+            # The new context inherits the original in-flight marker by
+            # reference. It must observe the marker as inactive on completion.
+            loop.run_until_complete(asyncio.sleep(0))
+            self.assertEqual(len(deferred), 1)
+            self.assertEqual(deferred[0].status, sub.RunStatus.COMPLETED)
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(calls[0], calls[1])
+        finally:
+            loop.close()
 
 
 if __name__ == '__main__':
