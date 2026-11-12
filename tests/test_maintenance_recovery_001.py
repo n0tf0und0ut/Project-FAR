@@ -114,9 +114,15 @@ class HistoricalReplayTests(unittest.TestCase):
                     f"synthetic fixture commit {index}")
             clone = Path(td) / "depth-one"
             subprocess.run(["git", "clone", "-q", "--depth", "1",
+                            "--config", "user.name=Unit Test",
+                            "--config", "user.email=unit-test@invalid.example",
                             original.as_uri(), str(clone)],
                            check=True, capture_output=True, timeout=30)
             self.assertEqual(git(clone, "rev-parse", "--is-shallow-repository"), "true")
+            self.assertEqual(
+                git(clone, "reflog", "show", "-1", "--format=%gn%n%ge", "HEAD"),
+                "Unit Test\nunit-test@invalid.example",
+            )
             self.assertTrue(missing_pinned_history_in_shallow_clone(clone))
             self.assertFalse(missing_pinned_history_in_shallow_clone(original))
 

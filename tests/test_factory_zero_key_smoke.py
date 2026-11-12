@@ -109,9 +109,10 @@ class GitAndRuntimeTests(unittest.TestCase):
         (self.repo / "tools/example.py").write_text("x = 1\n", encoding="utf-8")
         (self.repo / "tests/test_health_and_runner.py").write_text("pass\n", encoding="utf-8")
         run_git(self.repo, "init", "-q")
+        run_git(self.repo, "config", "user.name", "Research")
+        run_git(self.repo, "config", "user.email", "research@example.com")
         run_git(self.repo, "add", ".")
-        run_git(self.repo, "-c", "user.name=Research", "-c", "user.email=research@example.com",
-                "commit", "-qm", "baseline")
+        run_git(self.repo, "commit", "-qm", "baseline")
         self.base = run_git(self.repo, "rev-parse", "HEAD")
         self.blob = run_git(self.repo, "rev-parse", "HEAD:tools/example.py")
 
@@ -163,6 +164,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             rootpath = Path(root) / "checkout"
             run_git(self.repo, "worktree", "add", "--detach", str(rootpath), self.base)
             try:
+                self.assertEqual(run_git(rootpath, "reflog", "show", "-1", "--format=%gn%n%ge", "HEAD"),
+                                 "Research\nresearch@example.com")
                 self.assertEqual(smoke.apply_candidate(rootpath, example_patch(), "tools/example.py"),
                                  run_git(rootpath, "hash-object", "tools/example.py"))
                 self.assertEqual((rootpath / "tools/example.py").read_text(), "x = 2\n")
