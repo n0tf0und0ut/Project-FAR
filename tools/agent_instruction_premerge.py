@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Prospectively locked 40-slot AGENTS.md screen; no claim of model execution.
 
-Setup/schedule and scoring are deterministic. Live calls require an installed,
-operator-configured Codex CLI; candidate source is graded only in pinned Docker.
+Setup and scheduling are deterministic. Live execution and scored results are
+blocked until the grader has an independently trustworthy mutation observer.
 The tool never changes frozen protocol files and never merges pull requests.
 """
 from __future__ import annotations
@@ -44,6 +44,7 @@ ID = re.compile(r"[A-Z][A-Z0-9]*-[0-9]{2}\Z")
 START = "FAR_CANDIDATE_STARTED_V1"
 FINISH = "FAR_CANDIDATE_COMPLETED_V1"
 IMAGE = GRADER_IMAGE
+UNVERIFIED_OBSERVER = 'UNVERIFIED_MUTATION_OBSERVER'
 # Candidate source runs in Docker, but also shares a Python interpreter with
 # the scoring wrapper. A module-global copy of the input can be rebound by
 # sys._getframe(1).f_globals in candidate code, falsely certifying no mutation.
@@ -173,6 +174,12 @@ def _interface_probes(task:dict) -> list[tuple[dict,str]]:
 
 class ContractError(ValueError):
     pass
+
+
+def _require_trusted_observer() -> None:
+    # The candidate shares an interpreter with the mutation observer. Docker
+    # isolates the host, but does not isolate the observer from the candidate.
+    raise ContractError(UNVERIFIED_OBSERVER)
 
 
 def digest(raw: bytes) -> str:
@@ -580,6 +587,7 @@ def _record_path(root:Path,slot_id:str):
 
 
 def grade_slot(root:Path,slot_id:str,provider_record:dict):
+    _require_trusted_observer()
     proto,tasks,sched=load_contract()
     manifest=validate_prepared(root)
     cells={s['slot_id']:s for s in sched['slots']}
@@ -647,6 +655,11 @@ def analyze(root:Path):
             if (root/'evidence'/sid).exists() or (root/'evidence'/(sid+'.attempt.json')).exists():
                 errors.append('ATTEMPTED_BUT_INCOMPLETE:'+sid)
             else:errors.append('MISSING:'+sid)
+            continue
+        try:
+            _require_trusted_observer()
+        except ContractError:
+            errors.append(UNVERIFIED_OBSERVER + ':' + sid)
             continue
         try:
             record=strict_load(path.read_bytes())
@@ -806,6 +819,7 @@ def run_slot(root:Path,slot_id:str,agent_command:str):
     entry=manifest['slots'][cell['position']-1]
     instructions=pinned_instructions(proto['instruction_arms'][cell['arm']])
     pre_exposure=_verify_pre_exposure_workspace(ws,entry,task,instructions)
+    _require_trusted_observer()
     # The attempt marker is written *before* contacting the provider.
     evidence.mkdir(parents=True)
     attempt={'schema':'far-agent-instruction-attempt/1','slot_id':slot_id,

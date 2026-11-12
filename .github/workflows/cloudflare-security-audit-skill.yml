@@ -1,0 +1,50 @@
+name: Cloudflare Security Audit Skill Contract
+
+# Tests the pinned tool snapshot, not the security of Project FAR.
+# No model credentials, no PR comments, no privileged PR checkout.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.agents/skills/security-audit/**'
+      - '.claude/skills/security-audit/**'
+      - '.github/workflows/cloudflare-security-audit-skill.yml'
+      - 'docs/maintenance/cloudflare-security-audit-source-lock.json'
+      - 'docs/maintenance/security-audit-skill.md'
+      - 'tools/check_cloudflare_security_skill.py'
+      - 'tools/cloudflare_security_audit_ledger.py'
+      - 'tests/test_cloudflare_security_skill.py'
+      - 'tests/test_cloudflare_security_audit_ledger.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vendor-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Install repository validation dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Validate exact vendored upstream source
+        run: python tools/check_cloudflare_security_skill.py
+      - name: Test skill integration and token boundaries
+        run: |
+          python -m unittest \
+            tests.test_cloudflare_security_skill \
+            tests.test_cloudflare_security_audit_ledger \
+            tests.test_workflow_token_permissions -v
+      - name: Self-test Cloudflare validators (not a vulnerability audit)
+        run: |
+          node --test \
+            .agents/skills/security-audit/validate-findings.test.cjs \
+            .agents/skills/security-audit/validate-coverage-ledger.test.cjs

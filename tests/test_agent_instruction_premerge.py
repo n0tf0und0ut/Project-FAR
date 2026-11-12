@@ -124,6 +124,33 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(r['decision'],'INVALID_EVIDENCE')
         self.assertTrue(r['errors'])
 
+    def test_unverified_mutation_observer_blocks_live_execution_and_scoring(self):
+        proto, _, schedule = b.load_contract()
+        slot = schedule['slots'][0]['slot_id']
+        command = shlex.join(b._command_expected(proto['runtime']['model_id']))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'campaign'
+            with patch.object(b, 'pinned_instructions', return_value=b'original instructions'):
+                b.prepare(root)
+                self.assertEqual(b.analyze(root)['decision'], 'NOT_EXECUTED')
+                with patch.object(b, '_command_identity', return_value={}), \
+                     patch.object(b, '_execute_traced_agent') as invoke, \
+                     patch.object(b, '_grade_case') as grade:
+                    with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
+                        b.run_slot(root, slot, command)
+                    with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
+                        b.grade_slot(root, slot, {})
+                    invoke.assert_not_called()
+                    grade.assert_not_called()
+                self.assertEqual(list((root / 'evidence').iterdir()), [])
+                receipt = b._record_path(root, slot)
+                receipt.write_bytes(b'{"outcome":"SUCCESS"}')
+                report = b.analyze(root)
+                self.assertEqual(report['decision'], 'INVALID_EVIDENCE')
+                self.assertEqual(report['valid_slots'], 0)
+                self.assertIn(b.UNVERIFIED_OBSERVER + ':' + slot, report['errors'])
+                self.assertEqual(receipt.read_bytes(), b'{"outcome":"SUCCESS"}')
+
     def test_missing_git_history_fails_before_workspace_creation(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'workspaces'
@@ -468,7 +495,8 @@ class ContractTests(unittest.TestCase):
                 self.assertEqual((snapshot/'solution.py').read_text(),'def transform(d): return 3\n')
                 (ws/'solution.py').write_text('def transform(d): return -99\n')
                 return {'status':'FAILURE'}
-            with patch.object(b,'validate_prepared',return_value=manifest), \
+            with patch.object(b,'_require_trusted_observer'), \
+                 patch.object(b,'validate_prepared',return_value=manifest), \
                  patch.object(b,'pinned_instructions',return_value=initial), \
                  patch.object(b,'_grade_case',side_effect=fake_grade):
                 r=b.grade_slot(root,cell['slot_id'],provider)
@@ -587,7 +615,8 @@ class ContractTests(unittest.TestCase):
             root=Path(tmp)/'campaign'
             with patch.object(b,'pinned_instructions',return_value=b'original instructions'):
                 b.prepare(root)
-                with patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
+                with patch.object(b,'_require_trusted_observer'), \
+                     patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
                      patch.object(b,'_execute_traced_agent',side_effect=OSError('agent unavailable')):
                     with self.assertRaisesRegex(OSError,'agent unavailable'):
                         b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
@@ -615,7 +644,8 @@ class ContractTests(unittest.TestCase):
                     (ws/'AGENTS.md').write_text('agent-overwrote-instructions')
                     (ws/'solution.py').write_text('def transform(d):return 100\n')
                     return response
-                with patch.object(b,'_command_identity',return_value=runtime), \
+                with patch.object(b,'_require_trusted_observer'), \
+                     patch.object(b,'_command_identity',return_value=runtime), \
                      patch.object(b,'_execute_traced_agent',side_effect=mutate_after_exposure), \
                      patch.object(b,'_grade_case',return_value={'status':'FAILURE'}):
                     observation=b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
