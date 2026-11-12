@@ -84,8 +84,7 @@ class SourceBoundCorrespondenceTests(unittest.TestCase):
 
     def test_actual_production_blob_and_certificate(self):
         path = ROOT / m.SOURCE_REL
-        if not path.is_file():
-            self.skipTest("production checkout not present in this standalone local scratch tree")
+        self.assertTrue(path.is_file(), "real production source is required; no skipped correspondence tests")
         report = m.certify_source(ROOT)
         self.assertEqual(report["source_git_blob"], m.SOURCE_GIT_BLOB)
         self.assertEqual(report["abstraction_states"], 8)
@@ -96,8 +95,7 @@ class SourceBoundCorrespondenceTests(unittest.TestCase):
     def test_live_adjudicate_all_eight_priority_cases(self):
         import sys
         root = ROOT / "commercial/far-decision-integrity/src"
-        if not root.is_dir():
-            self.skipTest("production checkout not present in local scratch tree")
+        self.assertTrue(root.is_dir(), "real production package is required; no skipped runtime tests")
         sys.path.insert(0, str(root))
         from far_decision_integrity.adjudicate import adjudicate
         from far_decision_integrity.model import (
