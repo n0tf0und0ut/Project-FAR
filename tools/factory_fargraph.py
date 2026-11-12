@@ -23,7 +23,7 @@ _SHA = re.compile(r"[0-9a-f]{40}\Z")
 
 
 def _git(root: Path, *args: str) -> str:
-    proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True,
+    proc = subprocess.run(["git", "--no-replace-objects", "-C", str(root), *args], capture_output=True,
                           text=True, timeout=25, check=False)
     if proc.returncode != 0:
         raise ValueError("Git verification failed: " + (proc.stderr.strip() or "git exit " + str(proc.returncode)))
@@ -115,7 +115,7 @@ def evaluate(root: Path, work_order: Path, head_sha: str, repository: str,
     base = order["base_sha"]
     if _git(root, "rev-parse", "--verify", base + "^{commit}") != base:
         raise ValueError("Work-order base is not an exact commit identity")
-    ancestry = subprocess.run(["git", "-C", str(root), "merge-base", "--is-ancestor", base, head_sha],
+    ancestry = subprocess.run(["git", "--no-replace-objects", "-C", str(root), "merge-base", "--is-ancestor", base, head_sha],
                               capture_output=True, text=True, timeout=25, check=False)
     if ancestry.returncode != 0:
         raise ValueError("Work-order base is not an ancestor of the exact candidate head")

@@ -108,6 +108,26 @@ class FactoryFargraphTests(unittest.TestCase):
         self.assertEqual(result["deleted_paths_with_unknown_prior_edges"], ["b.py"])
         self.assertIn("b.py", result["impact"]["missing"])
 
+    def test_rename_preserves_deleted_path_independent_of_git_configuration(self):
+        git(self.root, "mv", "b.py", "caller.py")
+        git(self.root, "commit", "-qm", "rename caller")
+        self.head = git(self.root, "rev-parse", "HEAD")
+        for renames in ("true", "false"):
+            with self.subTest(renames=renames):
+                git(self.root, "config", "diff.renames", renames)
+                result = self.run_eval()
+                self.assertEqual(result["deleted_paths_with_unknown_prior_edges"], ["b.py"])
+                self.assertIn("caller.py", result["impact"]["changed"])
+
+    def test_replace_ref_cannot_change_exact_head_ancestry(self):
+        tree = git(self.root, "rev-parse", "HEAD^{tree}")
+        alternate = git(self.root, "commit-tree", tree, "-m", "unrelated parentless commit")
+        git(self.root, "replace", self.head, alternate)
+        self.assertEqual(self.run_eval()["impact"]["changed"], ["a.py"])
+        git(self.root, "replace", "-d", self.head)
+        git(self.root, "replace", self.base, alternate)
+        self.assertEqual(self.run_eval()["impact"]["changed"], ["a.py"])
+
     def test_ignored_supported_local_file_cannot_enter_exact_head_graph(self):
         (self.root / ".gitignore").write_text("local.py\n")
         git(self.root,"add",".gitignore")

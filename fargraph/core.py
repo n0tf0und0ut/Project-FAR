@@ -516,7 +516,7 @@ def git_changed_files(root: Path, base: str, head: str = 'HEAD',
     # and preserve Unicode, spaces and literal newlines in filenames.
     if diff_filter not in {'ACMRTUXB', 'D'}:
         raise ValueError('Unsupported Git diff filter')
-    command=['git','-C',str(root),'diff','--name-only','-z',
+    command=['git','--no-replace-objects','-C',str(root),'diff','--no-renames','--name-only','-z',
              '--diff-filter='+diff_filter,f'{base}...{head}','--']
     done=subprocess.run(command,check=True,capture_output=True,timeout=30)
     return sorted(set(os.fsdecode(p) for p in done.stdout.split(b'\0') if p))
