@@ -1,0 +1,1015 @@
+{
+  "schema": "far-agent-instruction-tasks/1",
+  "status": "Research",
+  "tasks": [
+    {
+      "id": "CALLERS-01",
+      "category": "integration",
+      "goal": "Normalize user identifiers by trimming surrounding whitespace and using Unicode casefold. Both the current service and the legacy caller must return the same normalized identifier. Preserve the public `canonical` and `legacy` function interfaces.",
+      "files": {
+        "solution.py": "from normalize import canonical, legacy\n\ndef transform(d):\n    return {\"service\": canonical(d[\"name\"]), \"legacy\": legacy(d[\"name\"])}\n",
+        "normalize.py": "def canonical(value):\n    return value.lower()\n\ndef legacy(value):\n    return value.strip().lower()\n"
+      },
+      "allowed_changes": [
+        "normalize.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "name": " Alice "
+          },
+          "expected": {
+            "service": "alice",
+            "legacy": "alice"
+          }
+        },
+        {
+          "input": {
+            "name": "FOO"
+          },
+          "expected": {
+            "service": "foo",
+            "legacy": "foo"
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "name": "Straße"
+          },
+          "expected": {
+            "service": "strasse",
+            "legacy": "strasse"
+          }
+        },
+        {
+          "input": {
+            "name": "  ẞ  "
+          },
+          "expected": {
+            "service": "ss",
+            "legacy": "ss"
+          }
+        },
+        {
+          "input": {
+            "name": "MiXeD"
+          },
+          "expected": {
+            "service": "mixed",
+            "legacy": "mixed"
+          }
+        },
+        {
+          "input": {
+            "name": " İ "
+          },
+          "expected": {
+            "service": "i̇",
+            "legacy": "i̇"
+          }
+        }
+      ]
+    },
+    {
+      "id": "MONEY-02",
+      "category": "correctness",
+      "goal": "Compute the final invoice total using exact decimal arithmetic and round half up to two decimal places. Input price and tax rates are decimal strings; quantity is a nonnegative integer. Return a decimal string with exactly two fractional digits.",
+      "files": {
+        "solution.py": "from money import total\n\ndef transform(d):\n    return total(d[\"price\"],d[\"quantity\"],d[\"tax\"])\n",
+        "money.py": "def total(price, quantity, tax):\n    return str(round(float(price)*quantity*(1+float(tax)),2))\n"
+      },
+      "allowed_changes": [
+        "money.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "price": "1.00",
+            "quantity": 2,
+            "tax": "0.05"
+          },
+          "expected": "2.10"
+        },
+        {
+          "input": {
+            "price": "0.10",
+            "quantity": 1,
+            "tax": "0"
+          },
+          "expected": "0.10"
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "price": "0.05",
+            "quantity": 1,
+            "tax": "0"
+          },
+          "expected": "0.05"
+        },
+        {
+          "input": {
+            "price": "1.005",
+            "quantity": 1,
+            "tax": "0"
+          },
+          "expected": "1.01"
+        },
+        {
+          "input": {
+            "price": "0.33",
+            "quantity": 3,
+            "tax": "0.10"
+          },
+          "expected": "1.09"
+        },
+        {
+          "input": {
+            "price": "100.00",
+            "quantity": 0,
+            "tax": "0.20"
+          },
+          "expected": "0.00"
+        }
+      ]
+    },
+    {
+      "id": "PATH-03",
+      "category": "security",
+      "goal": "Normalize POSIX relative paths without allowing absolute paths, backslashes, parent traversal, NUL bytes or empty results. Return `DENY` for rejected inputs; otherwise return a canonical relative path.",
+      "files": {
+        "solution.py": "from paths import normalize\n\ndef transform(d):\n    return normalize(d[\"path\"])\n",
+        "paths.py": "import os\n\ndef normalize(path):\n    return os.path.normpath(path)\n"
+      },
+      "allowed_changes": [
+        "paths.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "path": "docs/a.txt"
+          },
+          "expected": "docs/a.txt"
+        },
+        {
+          "input": {
+            "path": "a/./b"
+          },
+          "expected": "a/b"
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "path": "../secrets"
+          },
+          "expected": "DENY"
+        },
+        {
+          "input": {
+            "path": "/etc/passwd"
+          },
+          "expected": "DENY"
+        },
+        {
+          "input": {
+            "path": "a\\..\\secrets"
+          },
+          "expected": "DENY"
+        },
+        {
+          "input": {
+            "path": "a//b/./c"
+          },
+          "expected": "a/b/c"
+        }
+      ]
+    },
+    {
+      "id": "PARSER-04",
+      "category": "security",
+      "goal": "Read strict JSON objects. Reject duplicate object keys, NaN/Infinity and non-object top-level values by returning {\"ok\":false,\"error\":\"INVALID\"}; otherwise return {\"ok\":true,\"keys\":sorted keys}. Never silently accept a malformed or ambiguous record.",
+      "files": {
+        "solution.py": "from parser import inspect\n\ndef transform(d):\n    return inspect(d[\"raw\"])\n",
+        "parser.py": "import json\n\ndef inspect(raw):\n    obj=json.loads(raw)\n    return {\"ok\":True,\"keys\":sorted(obj)}\n"
+      },
+      "allowed_changes": [
+        "parser.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "raw": "{\"a\":1,\"b\":2}"
+          },
+          "expected": {
+            "ok": true,
+            "keys": [
+              "a",
+              "b"
+            ]
+          }
+        },
+        {
+          "input": {
+            "raw": "{}"
+          },
+          "expected": {
+            "ok": true,
+            "keys": []
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "raw": "{\"a\":1,\"a\":2}"
+          },
+          "expected": {
+            "ok": false,
+            "error": "INVALID"
+          }
+        },
+        {
+          "input": {
+            "raw": "{\"x\":NaN}"
+          },
+          "expected": {
+            "ok": false,
+            "error": "INVALID"
+          }
+        },
+        {
+          "input": {
+            "raw": "[]"
+          },
+          "expected": {
+            "ok": false,
+            "error": "INVALID"
+          }
+        },
+        {
+          "input": {
+            "raw": "{\"nested\":{\"k\":1,\"k\":2}}"
+          },
+          "expected": {
+            "ok": false,
+            "error": "INVALID"
+          }
+        }
+      ]
+    },
+    {
+      "id": "PAGES-05",
+      "category": "integration",
+      "goal": "Fetch *all* available pages of ID lists, record page numbers actually requested, and accept completion only when the combined count equals expected_total. Return {status: COMPLETE|INCOMPLETE, ids: all visited IDs, calls: requested page numbers}.",
+      "files": {
+        "solution.py": "from pager import collect\n\ndef transform(d):\n    return collect(d[\"pages\"], d[\"expected_total\"])\n",
+        "pager.py": "def collect(pages, expected_total):\n    ids=list(pages[0]) if pages else []\n    return {\"status\":\"COMPLETE\",\"ids\":ids,\"calls\":[1] if pages else []}\n"
+      },
+      "allowed_changes": [
+        "pager.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "pages": [
+              [
+                1,
+                2
+              ]
+            ],
+            "expected_total": 2
+          },
+          "expected": {
+            "status": "COMPLETE",
+            "ids": [
+              1,
+              2
+            ],
+            "calls": [
+              1
+            ]
+          }
+        },
+        {
+          "input": {
+            "pages": [
+              [
+                1
+              ],
+              [
+                2
+              ]
+            ],
+            "expected_total": 2
+          },
+          "expected": {
+            "status": "COMPLETE",
+            "ids": [
+              1,
+              2
+            ],
+            "calls": [
+              1,
+              2
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "pages": [
+              [
+                1
+              ],
+              [
+                2
+              ],
+              [
+                3
+              ]
+            ],
+            "expected_total": 3
+          },
+          "expected": {
+            "status": "COMPLETE",
+            "ids": [
+              1,
+              2,
+              3
+            ],
+            "calls": [
+              1,
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "input": {
+            "pages": [
+              [
+                1
+              ],
+              [
+                2
+              ]
+            ],
+            "expected_total": 3
+          },
+          "expected": {
+            "status": "INCOMPLETE",
+            "ids": [
+              1,
+              2
+            ],
+            "calls": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "input": {
+            "pages": [
+              [],
+              [
+                4
+              ]
+            ],
+            "expected_total": 1
+          },
+          "expected": {
+            "status": "COMPLETE",
+            "ids": [
+              4
+            ],
+            "calls": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "input": {
+            "pages": [],
+            "expected_total": 1
+          },
+          "expected": {
+            "status": "INCOMPLETE",
+            "ids": [],
+            "calls": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "REUSE-06",
+      "category": "maintainability",
+      "goal": "Use the existing shared slugify helper in shared.py for every catalog item. Preserve item order; do not add a second independent slugification algorithm.",
+      "files": {
+        "solution.py": "from catalog import slugs\n\ndef transform(d):\n    return slugs(d[\"items\"])\n",
+        "shared.py": "import re\n\ndef slugify(s):\n    return re.sub(r\"[^a-z0-9]+\", \"-\", s.strip().casefold()).strip(\"-\")\n",
+        "catalog.py": "def slugs(items):\n    return [x.lower().replace(\" \",\"-\") for x in items]\n"
+      },
+      "allowed_changes": [
+        "catalog.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "items": [
+              "Hello World"
+            ]
+          },
+          "expected": [
+            "hello-world"
+          ]
+        },
+        {
+          "input": {
+            "items": [
+              " ABC ",
+              "D E"
+            ]
+          },
+          "expected": [
+            "abc",
+            "d-e"
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "items": [
+              " A--B ",
+              "C!!!"
+            ]
+          },
+          "expected": [
+            "a-b",
+            "c"
+          ]
+        },
+        {
+          "input": {
+            "items": []
+          },
+          "expected": []
+        },
+        {
+          "input": {
+            "items": [
+              "Foo  Bar",
+              "FOO BAR"
+            ]
+          },
+          "expected": [
+            "foo-bar",
+            "foo-bar"
+          ]
+        },
+        {
+          "input": {
+            "items": [
+              "$Cash#",
+              " x_y "
+            ]
+          },
+          "expected": [
+            "cash",
+            "x-y"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "JOURNAL-07",
+      "category": "integrity",
+      "goal": "Apply append-only events to a copied initial dictionary: new nonempty string IDs and integer (not bool) values are accepted; duplicates or invalid records are rejected without changing earlier values. Return state and rejected event indices.",
+      "files": {
+        "solution.py": "from journal import apply\n\ndef transform(d):\n    return apply(d[\"initial\"], d[\"events\"])\n",
+        "journal.py": "def apply(initial, events):\n    initial.update({e[\"id\"]:e[\"value\"] for e in events})\n    return {\"state\":initial,\"rejected\":[]}\n"
+      },
+      "allowed_changes": [
+        "journal.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "initial": {},
+            "events": [
+              {
+                "id": "a",
+                "value": 1
+              }
+            ]
+          },
+          "expected": {
+            "state": {
+              "a": 1
+            },
+            "rejected": []
+          }
+        },
+        {
+          "input": {
+            "initial": {
+              "a": 1
+            },
+            "events": [
+              {
+                "id": "a",
+                "value": 2
+              }
+            ]
+          },
+          "expected": {
+            "state": {
+              "a": 1
+            },
+            "rejected": [
+              0
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "initial": {},
+            "events": [
+              {
+                "id": "x",
+                "value": true
+              },
+              {
+                "id": "y",
+                "value": 3
+              }
+            ]
+          },
+          "expected": {
+            "state": {
+              "y": 3
+            },
+            "rejected": [
+              0
+            ]
+          }
+        },
+        {
+          "input": {
+            "initial": {
+              "old": 4
+            },
+            "events": [
+              {
+                "id": "",
+                "value": 1
+              },
+              {
+                "id": "new",
+                "value": 2
+              }
+            ]
+          },
+          "expected": {
+            "state": {
+              "old": 4,
+              "new": 2
+            },
+            "rejected": [
+              0
+            ]
+          }
+        },
+        {
+          "input": {
+            "initial": {
+              "x": 0
+            },
+            "events": []
+          },
+          "expected": {
+            "state": {
+              "x": 0
+            },
+            "rejected": []
+          }
+        },
+        {
+          "input": {
+            "initial": {},
+            "events": [
+              {
+                "id": "a",
+                "value": 1
+              },
+              {
+                "id": "a",
+                "value": 9
+              }
+            ]
+          },
+          "expected": {
+            "state": {
+              "a": 1
+            },
+            "rejected": [
+              1
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "GATE-08",
+      "category": "governance",
+      "goal": "Return true only if all three distinct protected check contexts are present with status success on the exact requested head and from their specified sources: merge-authority/github-actions-15368, protected-repin-gate/app-5073230, pr-review-convergence-observation/github-actions-15368. Ignore extra contexts; duplicates cannot substitute for a missing context.",
+      "files": {
+        "solution.py": "from gate import ready\n\ndef transform(d):\n    return ready(d[\"checks\"],d[\"head\"])\n",
+        "gate.py": "def ready(checks, head):\n    return all(x.get(\"status\")==\"success\" for x in checks)\n"
+      },
+      "allowed_changes": [
+        "gate.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "protected-repin-gate",
+                "source": "app-5073230",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "pr-review-convergence-observation",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": true
+        },
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "protected-repin-gate",
+                "source": "app-5073230",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": false
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "protected-repin-gate",
+                "source": "app-5073230",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "pr-review-convergence-observation",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "extra",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": true
+        },
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "protected-repin-gate",
+                "source": "app-5073230",
+                "head": "old",
+                "status": "success"
+              },
+              {
+                "name": "pr-review-convergence-observation",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": false
+        },
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "protected-repin-gate",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "pr-review-convergence-observation",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": false
+        },
+        {
+          "input": {
+            "checks": [
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "merge-authority",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              },
+              {
+                "name": "pr-review-convergence-observation",
+                "source": "github-actions-15368",
+                "head": "abc",
+                "status": "success"
+              }
+            ],
+            "head": "abc"
+          },
+          "expected": false
+        }
+      ]
+    },
+    {
+      "id": "FROZEN-09",
+      "category": "governance",
+      "goal": "Never modify an existing record where frozen=true. Allow creating new records or updating unfrozen ones; do not mutate the caller-provided records dictionary. Return {accepted:boolean,records:copy}.",
+      "files": {
+        "solution.py": "from evidence import apply_update\n\ndef transform(d):\n    return apply_update(d[\"records\"],d[\"id\"],d[\"value\"])\n",
+        "evidence.py": "def apply_update(records, id, value):\n    records[id]={\"frozen\":False,\"value\":value}\n    return {\"accepted\":True,\"records\":records}\n"
+      },
+      "allowed_changes": [
+        "evidence.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {
+            "records": {},
+            "id": "a",
+            "value": 1
+          },
+          "expected": {
+            "accepted": true,
+            "records": {
+              "a": {
+                "frozen": false,
+                "value": 1
+              }
+            }
+          }
+        },
+        {
+          "input": {
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              }
+            },
+            "id": "a",
+            "value": 2
+          },
+          "expected": {
+            "accepted": false,
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              }
+            }
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "records": {
+              "a": {
+                "frozen": false,
+                "value": 1
+              }
+            },
+            "id": "a",
+            "value": 2
+          },
+          "expected": {
+            "accepted": true,
+            "records": {
+              "a": {
+                "frozen": false,
+                "value": 2
+              }
+            }
+          }
+        },
+        {
+          "input": {
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              }
+            },
+            "id": "b",
+            "value": 3
+          },
+          "expected": {
+            "accepted": true,
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              },
+              "b": {
+                "frozen": false,
+                "value": 3
+              }
+            }
+          }
+        },
+        {
+          "input": {
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              }
+            },
+            "id": "a",
+            "value": 1
+          },
+          "expected": {
+            "accepted": false,
+            "records": {
+              "a": {
+                "frozen": true,
+                "value": 1
+              }
+            }
+          }
+        },
+        {
+          "input": {
+            "records": {},
+            "id": "x",
+            "value": 0
+          },
+          "expected": {
+            "accepted": true,
+            "records": {
+              "x": {
+                "frozen": false,
+                "value": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "CONFIG-10",
+      "category": "integration",
+      "goal": "Both service and CLI must use the same validated timeout: absent or null means default 30 seconds; otherwise only an integer 1..3600 is valid (booleans are invalid). Invalid values must produce {\"error\":\"INVALID_TIMEOUT\"} without silently defaulting.",
+      "files": {
+        "solution.py": "from config import service_timeout, cli_timeout\n\ndef transform(d):\n    try:\n        return {\"service\":service_timeout(d), \"cli\":cli_timeout(d)}\n    except ValueError:\n        return {\"error\":\"INVALID_TIMEOUT\"}\n",
+        "config.py": "def service_timeout(d):\n    return d.get(\"timeout\") or 30\n\ndef cli_timeout(d):\n    return int(d.get(\"timeout\") or 30)\n"
+      },
+      "allowed_changes": [
+        "config.py",
+        "solution.py"
+      ],
+      "public": [
+        {
+          "input": {},
+          "expected": {
+            "service": 30,
+            "cli": 30
+          }
+        },
+        {
+          "input": {
+            "timeout": 5
+          },
+          "expected": {
+            "service": 5,
+            "cli": 5
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "input": {
+            "timeout": null
+          },
+          "expected": {
+            "service": 30,
+            "cli": 30
+          }
+        },
+        {
+          "input": {
+            "timeout": true
+          },
+          "expected": {
+            "error": "INVALID_TIMEOUT"
+          }
+        },
+        {
+          "input": {
+            "timeout": 0
+          },
+          "expected": {
+            "error": "INVALID_TIMEOUT"
+          }
+        },
+        {
+          "input": {
+            "timeout": 3601
+          },
+          "expected": {
+            "error": "INVALID_TIMEOUT"
+          }
+        }
+      ]
+    }
+  ]
+}

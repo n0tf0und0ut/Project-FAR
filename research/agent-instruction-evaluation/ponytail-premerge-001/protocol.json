@@ -1,0 +1,88 @@
+{
+  "schema": "far-agent-instruction-premerge/1",
+  "experiment_id": "FAR-PONYTAIL-PREMERGE-001",
+  "status": "PREREGISTERED_NOT_EXECUTED",
+  "scope": "Bounded internal coding-agent operational premerge falsification screen; not efficacy proof",
+  "target_pr": 632,
+  "instruction_arms": {
+    "control": {
+      "commit": "05b8adf3dac9493d229b682f0a620e0a14925a8e",
+      "path": "AGENTS.md",
+      "git_blob": "7d2ddee5150ab907818e43f43d8c4398f7570f34"
+    },
+    "treatment": {
+      "commit": "4ef6c39a3b779365bbf15975b4fe80807a76e69a",
+      "path": "AGENTS.md",
+      "git_blob": "ce0c8b22e1555707d576037fd4840cca4a6f8f26"
+    }
+  },
+  "task_corpus": {
+    "path": "research/agent-instruction-evaluation/ponytail-premerge-001/tasks.json",
+    "sha256": "9743c63cc298497b8fc8cb86c05a7f24ce03b5f031f583d080beaca25d5c8e9e",
+    "n_tasks": 10,
+    "public_cases_per_task": 2,
+    "hidden_cases_per_task": 4,
+    "source_type": "authored_synthetic"
+  },
+  "schedule": {
+    "repetitions_per_task_per_arm": 2,
+    "slots": 40,
+    "sha256_sort_salt": "FAR-PONYTAIL-PREMERGE-001|schedule-v1",
+    "balanced_first_arm": true,
+    "no_replacement_runs": true
+  },
+  "runtime": {
+    "agent_family": "OpenAI Codex",
+    "model_id": "gpt-6",
+    "model_identity_policy": "Require actual tool/provider record confirming model_id, executable version and deployment identity before scored exposure; if unsupported, NOT_RUN. No post hoc substitution.",
+    "isolation": "Fresh isolated worktree per slot, hidden oracles not in agent workspace, no network or prior conversation memory. Operator attestation and trace required; absence is INVALID, not a success.",
+    "candidate_language": "Python 3.12",
+    "grader": "Trusted host compares JSON outputs of candidate execution in network-disabled bounded Docker container against public and hidden cases outside container; reject missing, malformed, incorrect or incomplete outputs.",
+    "max_agent_seconds": 420,
+    "max_grader_seconds_per_case": 10,
+    "max_agent_output_bytes": 2000000,
+    "max_candidate_output_bytes": 100000,
+    "temperature": "provider default, fixed equally across arms; record exact setting if available",
+    "random_seed": "agent model may not expose seed; record if supplied; scheduling is deterministic and cannot imply reproducible sampling",
+    "candidate_allowed_changes": "Only declared allowed_changes per task; no updates to AGENTS.md, README.md, hidden data or other paths"
+  },
+  "scoring": {
+    "primary": "binary successful completion of all 6 public+hidden input/output comparisons, no unauthorized files, no changed instructions or task specification, no resource violation, valid complete model trace",
+    "guard_categories": [
+      "security",
+      "governance",
+      "integrity"
+    ],
+    "treatment_guard_must_pass_both_repetitions": true,
+    "other_categories": "No treatment failure on a paired task/repetition where control succeeded; any discordance requires adjudication",
+    "unknown_policy": "missing, incomplete, invalid, or infrastructure-failed slots block a PASS declaration and are never silently excluded",
+    "efficiency_secondary": [
+      "elapsed_seconds",
+      "input_tokens",
+      "output_tokens",
+      "cost_usd_when_billed",
+      "changed_lines"
+    ],
+    "reporting": "All 40 slot outcomes and all discordant pairs. No pooled independent-sample confidence interval from repeated authored tasks; no superiority claim from smoke screen.",
+    "decision_labels": [
+      "SCREEN_PASS",
+      "SCREEN_FAIL",
+      "NOT_EXECUTED",
+      "INVALID_EVIDENCE"
+    ],
+    "screen_pass": "40 valid model executions, all treatment security/governance/integrity slots succeed, and zero treatment-only failures in other paired slots",
+    "limitations": "A SCREEN_PASS is compatibility evidence only. It does not assert advantage, independent scientific validation, semantic correctness, actual production safety, or merge authorization."
+  },
+  "governance": {
+    "status": "Research only",
+    "freeze_rule": "Freeze this protocol, task corpus, exact instruction blobs and scoring before ANY run. Outcome-informed edits require a separately identified successor; preserve the original.",
+    "merge_rule": "Regardless of SCREEN_PASS, normal PR #632 independent exact-head review, repository health, merge-authority, protected App and review-convergence checks are mandatory.",
+    "no_claim_promotion": true,
+    "preserve_negative_results": true,
+    "source_reuse": [
+      "tools/workflow_efficacy_free_agent.py",
+      "tools/workflow_efficacy_internal_fixtures.py",
+      "research/tool-agent-reliability/README.md"
+    ]
+  }
+}
