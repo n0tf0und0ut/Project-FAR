@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-222489BFAD4BC547",
+  "discovery": {
+    "first_seen_utc": "2026-10-23T01:03:38Z",
+    "last_seen_utc": "2026-10-23T03:55:33Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "decision audit omission detection experiment",
+        "seen_utc": "2026-10-23T01:03:38Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1177/02750740261498871",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Jared Olsen",
+        "Mary Feeney"
+      ],
+      "container": "The American Review of Public Administration",
+      "doi": "10.1177/02750740261498871",
+      "provider": "Crossref",
+      "provider_id": "10.1177/02750740261498871",
+      "published_date": "2026-10-19",
+      "publisher": "SAGE Publications",
+      "title": "Does Citizen Political Ideology Shape Bureaucratic Responsiveness? Evidence From an Audit Experiment",
+      "url": "https://doi.org/10.1177/02750740261498871",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

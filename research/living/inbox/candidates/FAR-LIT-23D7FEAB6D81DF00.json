@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-23D7FEAB6D81DF00",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T06:02:08Z",
+    "last_seen_utc": "2026-09-13T01:26:04Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multiobjective cost preorder Pareto representation",
+        "seen_utc": "2026-09-11T06:02:08Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1007/978-3-540-88908-3_9",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Alexander V. Lotov",
+        "Kaisa Miettinen"
+      ],
+      "container": "Lecture Notes in Computer Science Multiobjective Optimization",
+      "doi": "10.1007/978-3-540-88908-3_9",
+      "provider": "Crossref",
+      "provider_id": "10.1007/978-3-540-88908-3_9",
+      "published_date": "2008-01-01",
+      "publisher": "Springer Berlin Heidelberg",
+      "title": "Visualizing the Pareto Frontier",
+      "url": "https://doi.org/10.1007/978-3-540-88908-3_9",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -4,7 +4,7 @@
   "candidate_id": "FAR-LIT-CB0972AEB359CB34",
   "discovery": {
     "first_seen_utc": "2026-09-08T14:12:39Z",
-    "last_seen_utc": "2026-09-08T14:35:12Z",
+    "last_seen_utc": "2026-09-08T14:55:01Z",
     "query_bindings": [
       {
         "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",

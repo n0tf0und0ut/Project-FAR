@@ -1,0 +1,63 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-6486E664AD212829",
+  "discovery": {
+    "first_seen_utc": "2026-09-11T15:13:45Z",
+    "last_seen_utc": "2026-09-11T15:13:45Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "bisimulation quotient minimization computation",
+        "seen_utc": "2026-09-11T15:13:45Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/icit46573.2021.9453497",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Christoph Hackl",
+        "Julian Kullick",
+        "Niklas Monzen"
+      ],
+      "container": "2021 22nd IEEE International Conference on Industrial Technology (ICIT)",
+      "doi": "10.1109/icit46573.2021.9453497",
+      "provider": "Crossref",
+      "provider_id": "10.1109/icit46573.2021.9453497",
+      "published_date": "2021-03-10",
+      "publisher": "IEEE",
+      "title": "Generic loss minimization for nonlinear synchronous machines by analytical computation of optimal reference currents considering copper and iron losses",
+      "url": "https://doi.org/10.1109/icit46573.2021.9453497",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

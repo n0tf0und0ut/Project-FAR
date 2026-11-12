@@ -1,0 +1,64 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-61D64FBBAEFAD5AA",
+  "discovery": {
+    "first_seen_utc": "2026-10-22T01:00:06Z",
+    "last_seen_utc": "2026-10-23T00:06:43Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-10-22T01:00:06Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/cieec50170.2021.9510484",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Hongyi Yang",
+        "Qidi Shen",
+        "Zhaokai Li",
+        "Xiaoyan Huang"
+      ],
+      "container": "2021 IEEE 4th International Electrical and Energy Conference (CIEEC)",
+      "doi": "10.1109/cieec50170.2021.9510484",
+      "provider": "Crossref",
+      "provider_id": "10.1109/cieec50170.2021.9510484",
+      "published_date": "2021-05-28",
+      "publisher": "IEEE",
+      "title": "Loss Minimization Control of PMSM Using Gradient Descent Algorithm",
+      "url": "https://doi.org/10.1109/cieec50170.2021.9510484",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

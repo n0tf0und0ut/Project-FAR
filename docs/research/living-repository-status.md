@@ -8,14 +8,14 @@ Research candidate only. Discovery or triage does not establish support, dispute
 - Canonical surfaces tracked: **20**
 - FAR-CORE claims reconciled: **14/14**
 - Governed research questions indexed: **10**
-- Research candidates: **160**
-- Historical-backfill candidates: **51**
-- Philosophy/metaphysics/history-lens candidates: **2**
-- High-attention metadata candidates: **15**
-- Direct core-threat candidates: **16**
-- Canonically reviewed candidates present: **12**
+- Research candidates: **3808**
+- Historical-backfill candidates: **2663**
+- Philosophy/metaphysics/history-lens candidates: **1667**
+- High-attention metadata candidates: **91**
+- Direct core-threat candidates: **150**
+- Canonically reviewed candidates present: **29**
 - Canonical review dispositions recorded: **29**
-- Core-claim review queue: **0**
+- Core-claim review queue: **20**
 - Canonical surfaces changed since prior reconciliation: **0**
 
 ## Claim-change rule

@@ -1,0 +1,99 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-BD030D8F72FBFC00",
+  "discovery": {
+    "first_seen_utc": "2026-11-10T03:30:24Z",
+    "last_seen_utc": "2026-11-10T04:34:32Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "historical_query_id": "META-GROUNDING-DEPENDENCE",
+        "lens": "formal_metaphysics",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1747,
+          1756
+        ],
+        "query": "grounding dependence supervenience formal logic order metaphysics",
+        "seen_utc": "2026-11-10T04:34:32Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "historical_query_id": "META-IDENTITY-INDISCERNIBILITY",
+        "lens": "formal_metaphysics",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1747,
+          1756
+        ],
+        "query": "metaphysics identity indiscernibility formal logic structure",
+        "seen_utc": "2026-11-10T03:30:24Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1037/11694-010",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "George Berkeley"
+      ],
+      "container": "The elements of philosophy: containing, I. The most useful parts of logic, including both metaphysics and dialectic, or the art of reasoning: with a brief account of the progress of the mind towards its highest perfection, to which is prefixed a short introduction to the study of the sciences; II. A brief view both of the speculative and practical part of moral philosophy, as improved by Christianity, to which is added an original letter concerning the settlement of bishops in America (3rd ed.).",
+      "doi": "10.1037/11694-010",
+      "provider": "Crossref",
+      "provider_id": "10.1037/11694-010",
+      "published_date": "1754-01-01",
+      "publisher": "A Millar",
+      "title": "I. A beautiful summary description of universal nature.",
+      "url": "https://doi.org/10.1037/11694-010",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "formal_metaphysics"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

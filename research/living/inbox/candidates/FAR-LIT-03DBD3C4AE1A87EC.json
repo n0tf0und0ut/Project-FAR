@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-03DBD3C4AE1A87EC",
+  "discovery": {
+    "first_seen_utc": "2026-09-08T19:56:28Z",
+    "last_seen_utc": "2026-09-09T00:40:23Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured reasoning audit error detection human evaluation",
+        "seen_utc": "2026-09-08T19:56:28Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.31222/osf.io/q59x4_v1",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Jaffer Shah",
+        "P. Shanmugavadivu Dr",
+        "Thamizhiniyan Natarajan"
+      ],
+      "container": null,
+      "doi": "10.31222/osf.io/q59x4_v1",
+      "provider": "Crossref",
+      "provider_id": "10.31222/osf.io/q59x4_v1",
+      "published_date": "2026-09-08",
+      "publisher": "Center for Open Science",
+      "title": "Reliability-metric reporting in diabetic retinopathy artificial intelligence: a structured audit of 245 studies and a proposed minimum reporting standard",
+      "url": "https://doi.org/10.31222/osf.io/q59x4_v1",
+      "work_type": "posted-content"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

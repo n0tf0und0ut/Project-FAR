@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-AE19EB0D05A1376B",
+  "discovery": {
+    "first_seen_utc": "2026-09-15T11:46:20Z",
+    "last_seen_utc": "2026-09-16T00:49:58Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "representation loss audit empirical study",
+        "seen_utc": "2026-09-15T11:46:20Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1506/8yp9-p27g-5nw5-djkk",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Lawrence J. Abbott",
+        "Susan Parker",
+        "Gary F. Peters",
+        "K. Raghunandan"
+      ],
+      "container": "Contemporary Accounting Research",
+      "doi": "10.1506/8yp9-p27g-5nw5-djkk",
+      "provider": "Crossref",
+      "provider_id": "10.1506/8yp9-p27g-5nw5-djkk",
+      "published_date": "2010-01-15",
+      "publisher": "Wiley",
+      "title": "An Empirical Investigation of Audit Fees, Nonaudit Fees, and Audit Committees*",
+      "url": "https://doi.org/10.1506/8yp9-p27g-5nw5-djkk",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-D796C60FB59772C5",
+  "discovery": {
+    "first_seen_utc": "2026-11-07T23:09:28Z",
+    "last_seen_utc": "2026-11-07T23:09:28Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured reasoning contract provenance audit",
+        "seen_utc": "2026-11-07T23:09:28Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/icdscnc70670.2026.11746448",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Syed Mohammed Mannan",
+        "Siddique Jaffer Shafeeq",
+        "Shaikh Mohd Amaan",
+        "Mustafiz Khan",
+        "S. Sarumathi"
+      ],
+      "container": "2026 2nd International Conference on Distributed Systems, Computer Networks and Cybersecurity (ICDSCNC)",
+      "doi": "10.1109/icdscnc70670.2026.11746448",
+      "provider": "Crossref",
+      "provider_id": "10.1109/icdscnc70670.2026.11746448",
+      "published_date": "2026-08-01",
+      "publisher": "IEEE",
+      "title": "Verifiable AI-Audit: A Comparative Literature Survey of AI-Assisted Smart Contract Security, Explainability, Compliance, and Verifiable Audit Provenance",
+      "url": "https://doi.org/10.1109/icdscnc70670.2026.11746448",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-4B8A3AD9F359499E",
+  "discovery": {
+    "first_seen_utc": "2026-10-25T07:47:18Z",
+    "last_seen_utc": "2026-10-25T07:47:18Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "HIST-PROBABILITY-DECISION",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1817,
+          1826
+        ],
+        "query": "probability decision theory sufficient information history",
+        "seen_utc": "2026-10-25T07:47:18Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.5962/bhl.title.50847",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Joseph. Nash"
+      ],
+      "container": null,
+      "doi": "10.5962/bhl.title.50847",
+      "provider": "Crossref",
+      "provider_id": "10.5962/bhl.title.50847",
+      "published_date": "1824-01-01",
+      "publisher": "Sherwood, Jones, and Co.,",
+      "title": "A practical treatise on British song birds : in which is given every information relative to their natural history, incubation, &c. : together with the method of rearing and managing both old and young birds /",
+      "url": "https://doi.org/10.5962/bhl.title.50847",
+      "work_type": "monograph"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "historical_foundations"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}
