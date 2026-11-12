@@ -1,0 +1,10 @@
+{
+  "schema": "far-factory-zero-key-smoke/1",
+  "task_id": "FAR-MAINT-002",
+  "issue_number": 648,
+  "base_sha": "efd855db687215368fe8f466e40d2e5cc7a7a863",
+  "source_git_blob": "74c72d1ee4c80f6734ddb00ddb8c42a51dd30262",
+  "allowed_path": "tools/repo_health_check.py",
+  "task_text": "The repository health runner claims to be read-only, but it must detect mutations to the Git checkout even when the overall Git porcelain status classification does not change. In particular, its run should not silently accept altered bytes in a file that was already modified, an already-untracked file, or the staged index. A truly unchanged checkout should still be accepted. The detector must fail closed on inability to establish integrity, and ordinary health-command failures must remain visible. Reproduce the mechanism where feasible. Work on only the allowed file; do not alter policies, tests or frozen evidence. Report limits including transient writes restored to identical state and races.",
+  "test_module": "test_health_and_runner"
+}
