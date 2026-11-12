@@ -357,7 +357,7 @@ PAGE = r'''<!doctype html>
 <div class="workspace"><article class="release"><div class="releaseHead"><div><span>Approved baseline</span><h3>Release 7.4.0</h3></div><span class="badge green">JUSTIFIED</span></div><div class="graph"><div class="node"><i></i><b>Invoice + contract match</b><em>evidence</em></div><div class="node"><i></i><b>Vendor identity verified</b><em>evidence</em></div><div class="node rule"><i></i><b>Inside Q3 capital envelope</b><em>policy</em></div><div class="node auth"><i></i><b>Sanctions clearance</b><em>authorization</em></div><div class="node auth"><i></i><b>Treasury controller approval</b><em>authorization</em></div><div class="node"><i></i><b>Account attestation + anomaly screen</b><em>evidence</em></div></div><div class="decisionLine"><b>Execute supplier wire</b><span>AUTHORIZED</span></div></article>
 <div class="bridge"><b>→</b></div>
 <article class="release"><div class="releaseHead"><div><span>Candidate</span><h3>Release 7.4.1</h3></div><span class="badge red">UNSUPPORTED</span></div><div class="graph"><div class="node"><i></i><b>Invoice + contract match</b><em>evidence</em></div><div class="node"><i></i><b>Vendor identity verified</b><em>evidence</em></div><div class="node rule"><i></i><b>Inside Q3 capital envelope</b><em>policy</em></div><div class="node removed"><i></i><b>Sanctions clearance</b><em>disconnected</em></div><div class="node removed"><i></i><b>Treasury controller approval</b><em>disconnected</em></div><div class="node"><i></i><b>Account attestation + anomaly screen</b><em>evidence</em></div></div><div class="decisionLine"><b>Execute supplier wire</b><span>OUTPUT MATCH</span></div></article></div>
-<div class="auditAction"><button class="primary" onclick="runExample()">Run release-integrity audit</button></div><div class="statusRail" id="statusRail"><div class="statusRailTop"><span id="phase">Initializing canonical comparison…</span><span class="mono" id="phasePct">0%</span></div><div class="progress"><i id="progress"></i></div></div>
+<div class="auditAction"><button class="primary" onclick="runExample()">Run release-integrity audit</button></div><div class="statusRail" id="statusRail"><div class="statusRailTop"><span id="phase" role="status">Initializing canonical comparison…</span><span class="mono" id="phasePct">0%</span></div><div class="progress"><i id="progress"></i></div></div>
 </section>
 <section class="section"><div id="result" class="result"><div class="resultTop"><div><div class="resultEyebrow">FAR release decision</div><h2 id="headline"></h2></div><div class="decisionBadge" id="releaseDecision">—</div></div><div class="resultBody"><div class="resultNarrative"><p id="summary"></p><p id="why"></p><div class="findings" id="structural"></div><div class="unknowns" id="unknowns"></div><details id="rules"><summary>Inspect additional FAR rule findings</summary><div id="ruleList"></div></details><div class="resultActions"><a id="downloadReport" download="far-verification-report.json">Download evidence report</a><a href="#" onclick="document.getElementById('rawWrap').open=true;return false">Inspect canonical artifact</a></div><details id="rawWrap"><summary>Canonical FAR artifact</summary><pre id="raw"></pre></details></div><aside class="resultSide"><div class="metric"><span>Status transition</span><b id="transition">—</b></div><div class="metric"><span>Structural regressions</span><b id="changeCount">—</b></div><div class="metric"><span>Trace completeness</span><b id="completeness">—</b></div><div class="metric"><span>Evidence fingerprint</span><b class="mono" id="fingerprint">—</b></div></aside></div></div></section>
 <section class="section" id="upload"><div class="sectionHead"><div class="sectionLabel">Your system</div><div><h2>Bring the evidence your stack already produces.</h2><p class="sectionLead">FAR accepts common structured, document, and spreadsheet containers while preserving one hard boundary: the content must resolve to a valid FAR decision package. No silent inference. No pretending arbitrary prose is a trace.</p></div></div><div class="uploadShell"><div><p class="uploadCopy">Compare two releases, two policy states, or two executions. Mix formats between baseline and candidate. Document containers can carry embedded JSON, YAML, or TOML; tabular files use the documented FAR table layout.</p><div class="formatCloud"><span>JSON</span><span>JSONL</span><span>YAML</span><span>TOML</span><span>XML</span><span>CSV</span><span>XLSX</span><span>Markdown</span><span>TXT</span><span>DOCX</span><span>PDF</span></div></div><form id="form" class="uploadPanel"><div class="upload"><label class="file">Baseline evidence<input name="baseline" type="file" accept="__ACCEPT__" required></label><label class="file">Candidate evidence<input name="candidate" type="file" accept="__ACCEPT__" required></label></div><p class="support">Maximum 10 MB per file. Uploaded containers are parsed in memory and must validate as FAR decision packages.</p><button class="primary" type="submit">Analyze supplied evidence</button><p id="error" class="error"></p></form></div></section>
@@ -366,9 +366,39 @@ PAGE = r'''<!doctype html>
 <script>
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 let reportUrl=null;
+let analysisEpoch=0;
 function updateReportDownload(artifact){const next=URL.createObjectURL(new Blob([JSON.stringify(artifact,null,2)+'\n'],{type:'application/json'}));document.getElementById('downloadReport').href=next;if(reportUrl)URL.revokeObjectURL(reportUrl);reportUrl=next;}
 function render(d){updateReportDownload(d.artifact);document.getElementById('headline').textContent=d.headline;document.getElementById('releaseDecision').textContent=d.release_decision;document.getElementById('summary').textContent=d.plain_summary;document.getElementById('why').textContent=d.why_it_matters;document.getElementById('transition').textContent=d.status_transition.join(' → ');document.getElementById('changeCount').textContent=d.structural_changes.length;document.getElementById('completeness').textContent=Math.round(d.trace_completeness*100)+'%';document.getElementById('fingerprint').textContent=d.artifact.sha256.slice(0,12)+'…';document.getElementById('structural').innerHTML=d.structural_changes.map(x=>'<div class="finding"><b>'+esc(x.title)+'</b><span>'+esc(x.description)+'</span></div>').join('');document.getElementById('unknowns').innerHTML=d.unknowns.length?'<b>Declared unknowns</b><br>'+d.unknowns.map(esc).join('<br>'):'';document.getElementById('unknowns').style.display=d.unknowns.length?'block':'none';document.getElementById('ruleList').innerHTML=d.rule_findings.map(x=>'<p><b>'+esc(x.title)+':</b> '+esc(x.description)+'</p>').join('');document.getElementById('rules').style.display=d.rule_findings.length?'block':'none';document.getElementById('raw').textContent=JSON.stringify(d.artifact,null,2);document.getElementById('result').classList.add('show');document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});}
-async function runExample(){const rail=document.getElementById('statusRail'),bar=document.getElementById('progress'),phase=document.getElementById('phase'),pct=document.getElementById('phasePct');rail.classList.add('show');const steps=[['Canonicalizing evidence graph…',28],['Comparing decision dependencies…',57],['Evaluating authorization closure…',82],['Hashing deterministic report…',100]];const request=fetch('/api/example').then(r=>r.json());for(const [text,value] of steps){phase.textContent=text;pct.textContent=value+'%';bar.style.width=value+'%';await new Promise(r=>setTimeout(r,320));}render(await request);}
-document.getElementById('form').addEventListener('submit',async e=>{e.preventDefault();const error=document.getElementById('error');error.textContent='';try{const r=await fetch('/api/analyze',{method:'POST',body:new FormData(e.target)});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Analysis failed');render(d);}catch(err){error.textContent=err.message;}});
+function setExampleProgress(message, progress) {
+  document.getElementById('phase').textContent=message;
+  document.getElementById('phasePct').textContent=progress;
+  document.getElementById('progress').style.width=progress;
+}
+async function runAnalysis(form) {
+  const epoch=++analysisEpoch;
+  const error=document.getElementById('error');
+  error.textContent='';
+  document.getElementById('statusRail').classList.toggle('show',!form);
+  if (!form) setExampleProgress('Running canonical comparison…','0%');
+  try {
+    const response=form
+      ? await fetch('/api/analyze',{method:'POST',body:new FormData(form)})
+      : await fetch('/api/example');
+    const result=await response.json();
+    if (epoch!==analysisEpoch) return;
+    if (!response.ok) throw new Error(result.detail||'Analysis failed');
+    render(result);
+    if (!form) setExampleProgress('Canonical comparison complete.','100%');
+  } catch (err) {
+    if (epoch!==analysisEpoch) return;
+    if (form) error.textContent=err.message;
+    else setExampleProgress(err.message,'0%');
+  }
+}
+function runExample() { return runAnalysis(); }
+document.getElementById('form').addEventListener('submit',event=>{
+  event.preventDefault();
+  return runAnalysis(event.target);
+});
 </script>
 </body></html>'''

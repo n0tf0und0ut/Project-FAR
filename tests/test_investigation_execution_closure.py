@@ -179,6 +179,21 @@ class InvestigationExecutionClosureTests(unittest.TestCase):
                 errors,
             )
 
+    def test_malformed_pass_step_does_not_stop_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest, evidence_path = self._fixture()
+            manifest["required_steps"].extend([
+                "unstructured step",
+                {"id": "unfinished", "status": "not_executed", "evidence": []},
+            ])
+            path = self._write_fixture(root, manifest, evidence_path)
+            errors = validate_manifest(path, root, manifest_results={})
+            self.assertIn("VI-900: required step must be a mapping", errors)
+            self.assertIn("VI-900: PASS with incomplete required steps: unfinished", errors)
+            self.assertIn("VI-900: PASS with required steps lacking evidence: unfinished", errors)
+            self.assertIn(f"VI-900: PASS requires evidence_closure contract {CLOSURE_CONTRACT}", errors)
+
     def test_future_pass_with_complete_closure_is_valid(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

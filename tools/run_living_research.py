@@ -307,7 +307,9 @@ def crossref_query(
     message = payload.get("message")
     if not isinstance(message, dict) or not isinstance(message.get("items"), list):
         raise LivingResearchError("Crossref response missing message.items")
-    items = [item for item in message["items"] if isinstance(item, dict)]
+    items = message["items"]
+    if any(not isinstance(item, dict) for item in items):
+        raise LivingResearchError("Crossref response contains a non-object item")
     return items, {"provider": "Crossref", "parameters": params, "rows_returned": len(items)}
 
 
@@ -344,7 +346,9 @@ def openalex_query(
     )
     if not isinstance(payload.get("results"), list):
         raise LivingResearchError("OpenAlex response missing results")
-    items = [item for item in payload["results"] if isinstance(item, dict)]
+    items = payload["results"]
+    if any(not isinstance(item, dict) for item in items):
+        raise LivingResearchError("OpenAlex response contains a non-object item")
     return items, {"provider": "OpenAlex", "parameters": {k: ("<set>" if k == "api_key" else v) for k, v in params.items()}, "rows_returned": len(items)}
 
 
@@ -375,8 +379,9 @@ def openlibrary_query(
     docs = payload.get("docs")
     if not isinstance(docs, list):
         raise LivingResearchError("Open Library response missing docs")
-    items = [item for item in docs if isinstance(item, dict)]
-    return items, {"provider": "Open Library", "parameters": params, "rows_returned": len(items)}
+    if any(not isinstance(item, dict) for item in docs):
+        raise LivingResearchError("Open Library response contains a non-object item")
+    return docs, {"provider": "Open Library", "parameters": params, "rows_returned": len(docs)}
 
 
 def crossref_text(item: dict[str, Any]) -> str:

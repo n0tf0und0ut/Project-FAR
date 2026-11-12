@@ -95,7 +95,7 @@ def _parse_input(args: argparse.Namespace) -> ParseResult:
         return parse_document(text or "", source, getattr(args, "format", None))
     return parse_file(args.file, explicit_format=getattr(args, "format", None))
 
-def _validate(args: argparse.Namespace) -> tuple[int, str, str]:
+def _validate(args: argparse.Namespace, *, diagnostics_sort: str | None = None) -> tuple[int, str, str]:
     cfg = _effective(args)
     result = _parse_input(args)
     diagnostics = list(result.diagnostics)
@@ -103,12 +103,15 @@ def _validate(args: argparse.Namespace) -> tuple[int, str, str]:
         graph = build_graph(result.document).graph
         diagnostics.extend(validate_graph(graph, result.document).diagnostics)
         diagnostics.extend(validate_dependencies(result.document, graph))
+    code = 0 if not diagnostics else 1
+    if diagnostics_sort is not None and args.output != "json":
+        return code, _diagnostics_text(diagnostics, diagnostics_sort), ""
     if cfg.output == "json":
         out = json.dumps({"valid": not diagnostics, "summary": _summary(diagnostics), "diagnostics": [_diagnostic_to_dict(d) for d in _sort_diagnostics(diagnostics)]}, indent=2, sort_keys=True) + "\n"
     else:
         out = "" if cfg.quiet and diagnostics else ("VALID\n" if not diagnostics else "INVALID\n")
         if not cfg.quiet: out += _diagnostics_text(diagnostics)
-    return (0 if not diagnostics else 1), out, ""
+    return code, out, ""
 
 def _parse_cmd(args: argparse.Namespace) -> tuple[int, str, str]:
     result = _parse_input(args)
@@ -158,15 +161,7 @@ def _graph(args: argparse.Namespace) -> tuple[int, str, str]:
     return (0 if not diagnostics else 1), f"Nodes: {s['node_count']}\nEdges: {s['edge_count']}\nDependencies: {s['dependency_count']}\nCycles: {s['cycle_count']}\n", _diagnostics_text(diagnostics) if diagnostics else ""
 
 def _diagnostics_cmd(args: argparse.Namespace) -> tuple[int, str, str]:
-    code, out, err = _validate(args)
-    if args.output == "json": return code, out, err
-    result = _parse_input(args)
-    diagnostics = list(result.diagnostics)
-    if result.document is not None:
-        graph = build_graph(result.document).graph
-        diagnostics.extend(validate_graph(graph, result.document).diagnostics)
-        diagnostics.extend(validate_dependencies(result.document, graph))
-    return code, _diagnostics_text(diagnostics, args.sort), ""
+    return _validate(args, diagnostics_sort=args.sort)
 
 def _stats(args: argparse.Namespace) -> tuple[int, str, str]:
     result = _parse_input(args)
