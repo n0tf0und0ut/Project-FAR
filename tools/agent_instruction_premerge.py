@@ -793,6 +793,7 @@ def _command_expected(model):
 
 
 def run_slot(root:Path,slot_id:str,agent_command:str):
+    _require_trusted_observer()
     proto,tasks,sched=load_contract()
     manifest=validate_prepared(root)
     if slot_id not in {s['slot_id'] for s in sched['slots']}:
@@ -819,7 +820,6 @@ def run_slot(root:Path,slot_id:str,agent_command:str):
     entry=manifest['slots'][cell['position']-1]
     instructions=pinned_instructions(proto['instruction_arms'][cell['arm']])
     pre_exposure=_verify_pre_exposure_workspace(ws,entry,task,instructions)
-    _require_trusted_observer()
     # The attempt marker is written *before* contacting the provider.
     evidence.mkdir(parents=True)
     attempt={'schema':'far-agent-instruction-attempt/1','slot_id':slot_id,

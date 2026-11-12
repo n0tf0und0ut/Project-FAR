@@ -133,15 +133,20 @@ class ContractTests(unittest.TestCase):
             with patch.object(b, 'pinned_instructions', return_value=b'original instructions'):
                 b.prepare(root)
                 self.assertEqual(b.analyze(root)['decision'], 'NOT_EXECUTED')
-                with patch.object(b, '_command_identity', return_value={}), \
-                     patch.object(b, '_execute_traced_agent') as invoke, \
-                     patch.object(b, '_grade_case') as grade:
-                    with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
-                        b.run_slot(root, slot, command)
-                    with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
-                        b.grade_slot(root, slot, {})
-                    invoke.assert_not_called()
-                    grade.assert_not_called()
+                for executable in (None, sys.executable):
+                    with self.subTest(executable=executable), \
+                         patch.object(b.shutil, 'which', return_value=executable) as lookup, \
+                         patch.object(b.subprocess, 'run') as process, \
+                         patch.object(b, '_execute_traced_agent') as invoke, \
+                         patch.object(b, '_grade_case') as grade:
+                        with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
+                            b.run_slot(root, slot, command)
+                        with self.assertRaisesRegex(b.ContractError, b.UNVERIFIED_OBSERVER):
+                            b.grade_slot(root, slot, {})
+                        lookup.assert_not_called()
+                        process.assert_not_called()
+                        invoke.assert_not_called()
+                        grade.assert_not_called()
                 self.assertEqual(list((root / 'evidence').iterdir()), [])
                 receipt = b._record_path(root, slot)
                 receipt.write_bytes(b'{"outcome":"SUCCESS"}')
@@ -160,10 +165,10 @@ class ContractTests(unittest.TestCase):
             self.assertFalse(out.exists())
 
     def test_unsupported_agent_command_fails_closed(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaises((b.ContractError,FileNotFoundError)):
-                b.run_slot(Path(tmp),b.load_contract()[2]['slots'][0]['slot_id'],
-                           '/unavailable/nonexistent --model gpt-6')
+        with patch.object(b.shutil, 'which') as lookup:
+            with self.assertRaisesRegex(b.ContractError, 'differs from pinned Codex'):
+                b._command_identity(['/unavailable/nonexistent', '--model', 'gpt-6'], 'gpt-6')
+            lookup.assert_not_called()
 
     def test_infrastructure_failure_not_a_model_failure(self):
         # Never infer Docker absence from the executing host: CI has Docker.
@@ -574,7 +579,8 @@ class ContractTests(unittest.TestCase):
             (root/'evidence').mkdir()
             (root/'workspaces'/wrong).mkdir(parents=True)
             fake={'schema':'far-codex-runtime/1','requested_model':'gpt-6'}
-            with patch.object(b,'validate_prepared',return_value={'freeze':b.freeze_identity()}), \
+            with patch.object(b,'_require_trusted_observer'), \
+                 patch.object(b,'validate_prepared',return_value={'freeze':b.freeze_identity()}), \
                  patch.object(b,'_command_identity',return_value=fake):
                 with self.assertRaisesRegex(b.ContractError,'previous registered slot'):
                     b.run_slot(root,wrong,shlex.join(b._command_expected('gpt-6')))
@@ -596,7 +602,8 @@ class ContractTests(unittest.TestCase):
                 for name in ('README.md','AGENTS.md','.gitignore',next(iter(task['files']))):
                     with self.subTest(file=name):
                         (ws/name).write_bytes(material[name]+b'\nUNREGISTERED')
-                        with patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
+                        with patch.object(b,'_require_trusted_observer'), \
+                             patch.object(b,'_command_identity',return_value={'schema':'far-codex-runtime/1'}), \
                              patch.object(b,'_execute_traced_agent') as invoke:
                             with self.assertRaisesRegex(b.ContractError,'pre-exposure staged workspace'):
                                 b.run_slot(root,cell['slot_id'],shlex.join(b._command_expected(proto['runtime']['model_id'])))
