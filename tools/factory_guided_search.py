@@ -30,8 +30,12 @@ def _sha(value: object, pattern: re.Pattern, label: str) -> str:
     return value
 
 
+def _has_schema(raw: object, keys: set[str]) -> bool:
+    return type(raw) is dict and all(type(key) is str for key in raw) and raw.keys() == keys
+
+
 def _candidate(raw: object, base_sha: str) -> dict:
-    if type(raw) is not dict or set(raw) != CANDIDATE_KEYS:
+    if not _has_schema(raw, CANDIDATE_KEYS):
         raise SearchInputError("candidate shape mismatch")
     _sha(raw["candidate_id"], IDENT, "candidate_id")
     if _sha(raw["base_sha"], SHA, "base_sha") != base_sha:
@@ -42,7 +46,7 @@ def _candidate(raw: object, base_sha: str) -> dict:
 
 
 def _receipt(raw: object, candidate: dict, oracle_sha256: str) -> dict:
-    if type(raw) is not dict or set(raw) != RECEIPT_KEYS:
+    if not _has_schema(raw, RECEIPT_KEYS):
         raise SearchInputError("receipt shape mismatch")
     if _sha(raw["candidate_id"], IDENT, "candidate_id") != candidate["candidate_id"]:
         raise SearchInputError("receipt candidate mismatch")
@@ -113,8 +117,13 @@ def run_search(
         # authenticate or prepaid-limit external provider spending.
         try:
             raw_receipt = evaluate(dict(candidate))
-            reported = (raw_receipt.get("cost_micro_usd")
-                        if type(raw_receipt) is dict else None)
+            reported = None
+            if type(raw_receipt) is dict:
+                reported = next(
+                    (value for key, value in raw_receipt.items()
+                     if type(key) is str and key == "cost_micro_usd"),
+                    None,
+                )
             if type(reported) is int and reported >= 0:
                 total_cost += reported
             receipt = _receipt(raw_receipt, candidate, oracle_sha256)

@@ -97,6 +97,31 @@ class GuidedSearchTests(unittest.TestCase):
         result = self.search(lambda c: receipt(c, test=[]))
         self.assertEqual(result["attempts"][0]["error_type"], "SearchInputError")
 
+    def test_callback_records_reject_non_string_schema_keys(self):
+        class Impostor:
+            def __init__(self, field):
+                self.field = field
+
+            def __eq__(self, other):
+                return self.field == other
+
+            def __hash__(self):
+                return hash(self.field)
+
+        def spoof(record, field):
+            value = record.pop(field)
+            record[Impostor(field)] = value
+            return record
+
+        proposal = self.search(lambda c: receipt(c), proposer=lambda i, _: spoof(candidate(i), "source_sha"))
+        self.assertIsNone(proposal["selected_candidate"])
+        self.assertEqual(proposal["attempts"][0]["status"], "INVALID_PROPOSAL")
+
+        output = self.search(lambda c: spoof(receipt(c, price=1), "source_sha"), max_cost_micro_usd=3)
+        self.assertIsNone(output["selected_candidate"])
+        self.assertEqual(output["attempts"][0]["error_type"], "SearchInputError")
+        self.assertEqual(output["total_reported_cost_micro_usd"], 3)
+
     def test_duplicate_identity_is_rejected_even_if_oracle_claims_pass(self):
         r = self.search(lambda c: receipt(c), proposer=lambda i, f: candidate(0))
         self.assertEqual([x['status'] for x in r['attempts']], ['ELIGIBLE', 'INVALID_PROPOSAL', 'INVALID_PROPOSAL'])
