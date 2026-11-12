@@ -101,5 +101,100 @@ class ContractCompletenessControls(unittest.TestCase):
         self.assertGreater(len(set(obs)), len(set(constant)))
 
 
+def epistemic_status(observation, possible_targets):
+    if not possible_targets:
+        return "INCONSISTENT"
+    verdicts = {complete(observation, target) for target in possible_targets}
+    if verdicts == {True}:
+        return "CERTIFIED"
+    if verdicts == {False}:
+        return "REFUTED"
+    return "UNDERDETERMINED"
+
+
+class VersionSpaceAudit(unittest.TestCase):
+    def test_all_small_world_version_spaces(self):
+        count = 0
+        for n in range(5):
+            for observation in product(range(2), repeat=n):
+                for mask in range(1 << n):
+                    sampled = {i for i in range(n) if mask & (1 << i)}
+                    for actual in product(range(2), repeat=n):
+                        possible = [
+                            target for target in product(range(2), repeat=n)
+                            if all(target[i] == actual[i] for i in sampled)
+                        ]
+                        status = epistemic_status(observation, possible)
+                        verdicts = {complete(observation, target) for target in possible}
+                        self.assertEqual(status == "UNDERDETERMINED", len(verdicts) == 2)
+                        self.assertEqual(status == "CERTIFIED", verdicts == {True})
+                        self.assertEqual(status == "REFUTED", verdicts == {False})
+                        count += 1
+        self.assertEqual(count, sum(8**n for n in range(5)))
+
+    def test_missing_any_nonsingleton_fiber_point_blocks_yes(self):
+        count = 0
+        for n in range(2, 6):
+            for observation in product(range(2), repeat=n):
+                for mask in range(1 << n):
+                    sampled = {i for i in range(n) if mask & (1 << i)}
+                    missing = [
+                        i for i in range(n) if i not in sampled
+                        and any(j != i and observation[j] == observation[i]
+                                for j in range(n))
+                    ]
+                    if missing:
+                        omitted = missing[0]
+                        good = (0,) * n
+                        bad = tuple(int(i == omitted) for i in range(n))
+                        self.assertTrue(all(good[i] == bad[i] for i in sampled))
+                        self.assertTrue(complete(observation, good))
+                        self.assertFalse(complete(observation, bad))
+                    count += 1
+        self.assertEqual(count, sum(4**n for n in range(2, 6)))
+
+    def test_covered_nonsingleton_fibers_certify_yes(self):
+        count = 0
+        for n in range(5):
+            for observation in product(range(2), repeat=n):
+                relevant = {
+                    i for i in range(n)
+                    if any(j != i and observation[j] == observation[i] for j in range(n))
+                }
+                for mask in range(1 << n):
+                    sampled = {i for i in range(n) if mask & (1 << i)}
+                    if not relevant.issubset(sampled):
+                        continue
+                    for target in product(range(2), repeat=n):
+                        pairs_agree = all(
+                            observation[i] != observation[j] or target[i] == target[j]
+                            for i in sampled for j in sampled
+                        )
+                        if pairs_agree:
+                            self.assertTrue(complete(observation, target))
+                        count += 1
+        self.assertGreater(count, 0)
+
+    def test_empty_version_space_is_not_justified_certified(self):
+        observation = (0, 0)
+        samples = [(0, 0), (0, 1)]
+        possible = [
+            f for f in product(range(2), repeat=2)
+            if all(f[i] == value for i, value in samples)
+        ]
+        self.assertFalse(possible)
+        self.assertEqual(epistemic_status(observation, possible), "INCONSISTENT")
+        self.assertTrue(all(complete(observation, f) for f in possible))
+        self.assertTrue(all(not complete(observation, f) for f in possible))
+
+    def test_false_hypothesis_class_creates_false_confidence(self):
+        observation = (0, 0)
+        possible = [(0, 0), (1, 1)]  # Assumed, not independently justified.
+        self.assertEqual(epistemic_status(observation, possible), "CERTIFIED")
+        actual = (0, 1)
+        self.assertNotIn(actual, possible)
+        self.assertFalse(complete(observation, actual))
+
+
 if __name__ == "__main__":
     unittest.main()
