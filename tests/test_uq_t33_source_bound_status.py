@@ -53,7 +53,7 @@ class SourceBoundCorrespondenceTests(unittest.TestCase):
         self.assertEqual(rounds, 0)
         for x in range(8):
             for y in range(8):
-                self.assertEqual(classes[x] == classes[y], outputs[x] == outputs[y)
+                self.assertEqual(classes[x] == classes[y], outputs[x] == outputs[y])
 
     def test_nonparticipating_unknown_rules_do_not_change_classes(self):
         for rules in (frozenset(), frozenset(("arbitrary-unseen-rule",)),
