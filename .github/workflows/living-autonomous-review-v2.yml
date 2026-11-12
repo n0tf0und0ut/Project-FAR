@@ -161,7 +161,9 @@ jobs:
           python tools/validate_research_carry.py --ref "$source_sha" "${validation_args[@]}"
           rm -rf "$RUNNER_TEMP/living-source" "$RUNNER_TEMP/living-package"
           mkdir -p "$RUNNER_TEMP/living-source" "$RUNNER_TEMP/living-package"
-          git archive "$source_sha" -- "${snapshot_paths[@]}" | tar -x -C "$RUNNER_TEMP/living-source"
+          # Use attributes from the trusted protected-main checkout, not the
+          # unprotected source commit (.gitattributes export-subst/ignore).
+          git archive --worktree-attributes "$source_sha" -- "${snapshot_paths[@]}" | tar -x -C "$RUNNER_TEMP/living-source"
 
       - name: Execute bounded autonomous adjudication
         if: steps.gate.outputs.continue == 'true'
