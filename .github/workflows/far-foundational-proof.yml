@@ -35,7 +35,8 @@ jobs:
           mkdir -p artifacts/foundational
           {
             lean research/far-core-foundational-falsification/FARFoundationalAudit.lean
-            lean research/far-core-foundational-falsification/FARContractCompleteness.lean
+            lean -o research/far-core-foundational-falsification/FARContractCompleteness.olean research/far-core-foundational-falsification/FARContractCompleteness.lean
+            LEAN_PATH=research/far-core-foundational-falsification lean research/far-core-foundational-falsification/FARVersionSpace.lean
           } 2>&1 | tee artifacts/foundational/lean-kernel-and-axioms.log
           if grep -Ei 'declaration uses .sorry.|warning:.*sorry|error:' artifacts/foundational/lean-kernel-and-axioms.log; then
             echo "Lean proof has a placeholder or error" >&2
