@@ -14,7 +14,7 @@ python -m tools.factory_fargraph \
   --repository n0tf0und0ut/Project-FAR > /tmp/fargraph-advisory.json
 ```
 
-`tools.factory_fargraph` checks work-order schema, source SHA-256, repository string, base ancestry, exact checkout HEAD and clean working tree. It reads changed-file paths from the exact Git `base...head` diff and builds a source graph from that tree; deleted paths are explicitly flagged as unindexed. It prints an **advisory** JSON report with indexed source hashes, evidence-linked impact paths, uncertainties, and diagnostics. Output status is always `ADVISORY_ONLY_NO_MERGE_AUTHORITY`. Failed validation returns exit code 2 and no positive evidence.
+`tools.factory_fargraph` checks work-order schema, source SHA-256, repository string, base ancestry, exact checkout HEAD and clean working tree. It reads changed-file paths from the exact Git `base...head` diff and indexes tracked checkout files, and verifies each indexed SHA-256 against the raw committed regular Git blob. A clean checkout whose indexed bytes differ from the commit, such as through line-ending conversion, fails closed. Deleted paths are explicitly flagged as unindexed. It prints an **advisory** JSON report with indexed source hashes, evidence-linked impact paths, uncertainties, and diagnostics. Output status is always `ADVISORY_ONLY_NO_MERGE_AUTHORITY`. Failed validation returns exit code 2 and no positive evidence.
 
 Additional read-only operations:
 

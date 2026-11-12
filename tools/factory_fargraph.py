@@ -11,12 +11,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-from fargraph.core import build, git_changed_files
+from fargraph.core import MAX_SOURCE_BYTES, build, git_changed_files
 
 _SHA = re.compile(r"[0-9a-f]{40}\Z")
 
@@ -27,6 +28,62 @@ def _git(root: Path, *args: str) -> str:
     if proc.returncode != 0:
         raise ValueError("Git verification failed: " + (proc.stderr.strip() or "git exit " + str(proc.returncode)))
     return proc.stdout.strip()
+
+
+def _git_bytes(root: Path, *args: str, input_bytes: bytes | None = None) -> bytes:
+    proc = subprocess.run(
+        ["git", "--no-replace-objects", "-C", str(root), *args],
+        input=input_bytes, capture_output=True, timeout=25, check=False,
+    )
+    if proc.returncode != 0:
+        raise ValueError("Git object verification failed: " + os.fsdecode(proc.stderr).strip())
+    return proc.stdout
+
+
+def _verify_source_hashes(root: Path, head: str, hashes: dict[str, str]) -> None:
+    # Git's clean status accounts for checkout transformations. Compare the
+    # actual bytes indexed by the graph with the committed blobs instead.
+    paths_by_oid: dict[bytes, list[str]] = {}
+    sizes: dict[bytes, int] = {}
+    for entry in _git_bytes(root, "ls-tree", "-rlz", head).split(b"\0"):
+        if not entry:
+            continue
+        metadata, path_bytes = entry.split(b"\t", 1)
+        path = os.fsdecode(path_bytes)
+        if path not in hashes:
+            continue
+        mode, kind, oid, raw_size = metadata.split()
+        if mode not in {b"100644", b"100755"} or kind != b"blob":
+            raise ValueError(f"Indexed path is not a committed regular Git blob: {path}")
+        size = int(raw_size)
+        if size > MAX_SOURCE_BYTES:
+            raise ValueError(f"Committed Git blob exceeds the indexing limit: {path}")
+        paths_by_oid.setdefault(oid, []).append(path)
+        sizes[oid] = size
+
+    if sum(map(len, paths_by_oid.values())) != len(hashes):
+        raise ValueError("Indexed path is absent from the exact Git tree")
+
+    oids = list(paths_by_oid)
+    # Bound each subprocess's captured payload using the validated blob sizes.
+    for start in range(0, len(oids), 32):
+        batch = oids[start:start + 32]
+        data = _git_bytes(root, "cat-file", "--batch", input_bytes=b"\n".join(batch) + b"\n")
+        offset = 0
+        for oid in batch:
+            size = sizes[oid]
+            header = oid + b" blob " + str(size).encode("ascii") + b"\n"
+            begin = offset + len(header)
+            end = begin + size
+            if data[offset:begin] != header or data[end:end + 1] != b"\n":
+                raise ValueError("Unexpected Git blob response")
+            digest = hashlib.sha256(data[begin:end]).hexdigest()
+            for path in paths_by_oid[oid]:
+                if digest != hashes[path]:
+                    raise ValueError(f"Indexed source differs from committed Git blob: {path}")
+            offset = end + 1
+        if offset != len(data):
+            raise ValueError("Unexpected trailing Git blob data")
 
 
 def _read_work_order(path: Path) -> tuple[dict, str]:
@@ -67,8 +124,9 @@ def evaluate(root: Path, work_order: Path, head_sha: str, repository: str,
     # Only indexed Git-tracked bytes can be attributed to exact HEAD.
     # Ignored local files are not evidence from the committed candidate.
     graph = build(root, tracked_only=True)
+    _verify_source_hashes(root, head_sha, graph.hashes)
     freshness = graph.freshness()
-    if not freshness["fresh"]:
+    if not freshness["fresh"] or _git(root, "rev-parse", "HEAD") != head_sha:
         raise ValueError("Repository changed while indexing; graph is not exact-source")
     impact = graph.impact(sorted(set(changed + deleted)), max_depth=max_depth)
     # This snapshot is advisory even when every known edge resolves; unknown relations remain.

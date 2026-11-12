@@ -80,6 +80,15 @@ class FactoryFargraphTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "dirty"):
             self.run_eval()
 
+    def test_clean_checkout_transform_cannot_supply_exact_head_hash(self):
+        git(self.root, "config", "core.autocrlf", "true")
+        (self.root / "a.py").unlink()
+        git(self.root, "checkout", "--", "a.py")
+        self.assertEqual(git(self.root, "status", "--porcelain"), "")
+        self.assertIn(b"\r\n", (self.root / "a.py").read_bytes())
+        with self.assertRaisesRegex(ValueError, "differs from committed Git blob"):
+            self.run_eval()
+
     def test_fails_closed_on_wrong_repository(self):
         with self.assertRaisesRegex(ValueError, "identity"):
             self.run_eval(repository="other/repo")
