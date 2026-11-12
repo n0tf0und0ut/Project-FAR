@@ -151,6 +151,11 @@ class GitAndRuntimeTests(unittest.TestCase):
                                return_value=subprocess.CompletedProcess([], 0, stdout="image-tag-only\n")):
             with self.assertRaisesRegex(smoke.SmokeError, "non-addressed grader image"):
                 smoke.grader_image_id()
+        with mock.patch.object(smoke, "prepare_test_checkout") as prepare:
+            with self.assertRaisesRegex(smoke.SmokeError, "non-addressed grader image"):
+                smoke.grade_in_docker(self.repo, "test_health_and_runner", self.repo,
+                                      "before", image_id=smoke.IMAGE)
+        prepare.assert_not_called()
 
     def test_git_apply_checks_exact_allowlist(self):
         with tempfile.TemporaryDirectory() as root:
@@ -175,7 +180,8 @@ class GitAndRuntimeTests(unittest.TestCase):
                 return original(child, **kwargs)
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
                     mock.patch.object(smoke.subprocess, "Popen", side_effect=intercept):
-                result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
+                result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before",
+                                               image_id="sha256:" + "a" * 64)
             self.assertEqual(result["state"], "PASS")
             self.assertEqual(seen[:2], ["docker", "run"])
             self.assertIn("none", seen)
@@ -184,7 +190,9 @@ class GitAndRuntimeTests(unittest.TestCase):
             self.assertIn("readonly", " ".join(seen))
             self.assertIn("GIT_OPTIONAL_LOCKS=0", seen)
             self.assertIn("GIT_CONFIG_VALUE_0=/app", seen)
-            self.assertIn(smoke.IMAGE, seen)
+            self.assertIn("sha256:" + "a" * 64, seen)
+            self.assertNotIn(smoke.IMAGE, seen)
+            self.assertIn("--pull=never", seen)
             self.assertNotIn("GITHUB_TOKEN", " ".join(seen))
             self.assertEqual((Path(td) / "before.stdout").read_bytes(), b"good")
 
@@ -194,7 +202,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             original = smoke.subprocess.Popen
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
                     mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original(child, **kw)):
-                result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
+                result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before",
+                                               image_id="sha256:" + "a" * 64)
             self.assertEqual(result["state"], "UNKNOWN")
             self.assertEqual(result["test_count_reported"], 0)
 
@@ -205,7 +214,8 @@ class GitAndRuntimeTests(unittest.TestCase):
             with mock.patch.object(smoke, "prepare_test_checkout", return_value=self.repo), \
                     mock.patch.object(smoke.subprocess, "Popen", side_effect=lambda cmd, **kw: original(child, **kw)):
                 with mock.patch.object(smoke.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)):
-                    result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before")
+                    result = smoke.grade_in_docker(self.repo, "test_health_and_runner", Path(td), "before",
+                                               image_id="sha256:" + "a" * 64)
             self.assertEqual(result["state"], "UNKNOWN")
             self.assertTrue(result["output_truncated"])
             self.assertEqual((Path(td) / "before.stdout").stat().st_size, smoke.MAX_TEST_STREAM_BYTES)
@@ -223,12 +233,15 @@ class GitAndRuntimeTests(unittest.TestCase):
         with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": mock_module}), \
                 mock.patch.object(smoke, "model_reply", return_value=model), \
                 mock.patch.object(smoke, "grader_image_id", return_value="sha256:" + "a" * 64), \
-                mock.patch.object(smoke, "grade_in_docker", return_value=tests):
+                mock.patch.object(smoke, "grade_in_docker", return_value=tests) as grade:
             receipt = smoke.run(self.repo, manifest_path, output)
         self.assertEqual(receipt["verdict"], "VISIBLE_TESTS_PASSED_NOT_INDEPENDENTLY_VERIFIED")
         self.assertRegex(receipt["candidate_git_blob"], r"^[0-9a-f]{40}$")
         self.assertEqual(receipt["before"]["state"], "PASS")
         self.assertEqual(receipt["after"]["state"], "PASS")
+        self.assertEqual([call.args[3] for call in grade.call_args_list], ["before", "after"])
+        self.assertEqual([call.kwargs["image_id"] for call in grade.call_args_list],
+                         [receipt["grader_image_id"]] * 2)
         self.assertTrue((output / "receipt.json").is_file())
         self.assertTrue((output / "candidate.patch").is_file())
         self.assertEqual((output / "model-transport-response.json").read_bytes(), b'{"done":true}')

@@ -30,6 +30,7 @@ CHECK = re.compile(r"test_[A-Za-z0-9_]+\Z")
 MODEL = "qwen2.5-coder:1.5b"
 MODEL_DIGEST = "d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668"
 IMAGE = "far-zero-key-grader:648-v1"
+IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
 MAX_RESPONSE_BYTES = 65536
 MAX_SOURCE_BYTES = 120000
 MAX_TASK_BYTES = 20000
@@ -213,22 +214,24 @@ def grader_image_id() -> str:
     cp = subprocess.run(["docker", "image", "inspect", IMAGE, "--format", "{{.Id}}"],
                         capture_output=True, text=True, timeout=15, check=False)
     image_id = cp.stdout.strip()
-    if cp.returncode or re.fullmatch(r"sha256:[0-9a-f]{64}", image_id) is None:
+    if cp.returncode or IMAGE_ID.fullmatch(image_id) is None:
         raise SmokeError("unavailable or non-addressed grader image")
     return image_id
 
 
-def grade_in_docker(worktree: Path, module: str, out: Path, label: str) -> dict:
-    """Run the public tests from a temporary standalone Git snapshot."""
+def grade_in_docker(worktree: Path, module: str, out: Path, label: str, *, image_id: str) -> dict:
+    """Run public tests from a standalone Git snapshot with the recorded image."""
+    if IMAGE_ID.fullmatch(image_id) is None:
+        raise SmokeError("unavailable or non-addressed grader image")
     with tempfile.TemporaryDirectory(prefix="far-smoke-public-test-") as td:
         isolated = prepare_test_checkout(worktree, Path(td))
-        return _run_docker_public_tests(isolated, module, out, label)
+        return _run_docker_public_tests(isolated, module, out, label, image_id=image_id)
 
 
-def _run_docker_public_tests(worktree: Path, module: str, out: Path, label: str) -> dict:
+def _run_docker_public_tests(worktree: Path, module: str, out: Path, label: str, *, image_id: str) -> dict:
     """Bound the untrusted test process, and preserve its output/exit state."""
     name = "far-smoke-" + secrets.token_hex(8)
-    cmd = ["docker", "run", "--rm", "--name", name, "--network", "none", "--read-only",
+    cmd = ["docker", "run", "--pull=never", "--rm", "--name", name, "--network", "none", "--read-only",
            "--cap-drop", "ALL", "--pids-limit", "64", "--memory", "2g", "--cpus", "2",
            "--security-opt", "no-new-privileges", "--user", "65534:65534",
            "--tmpfs", "/tmp:rw,nosuid,nodev,size=128m", "--mount",
@@ -236,7 +239,7 @@ def _run_docker_public_tests(worktree: Path, module: str, out: Path, label: str)
            "-e", "PYTHONDONTWRITEBYTECODE=1", "-e", "HOME=/tmp",
            "-e", "GIT_OPTIONAL_LOCKS=0", "-e", "GIT_CONFIG_GLOBAL=/dev/null",
            "-e", "GIT_CONFIG_COUNT=1", "-e", "GIT_CONFIG_KEY_0=safe.directory",
-           "-e", "GIT_CONFIG_VALUE_0=/app", IMAGE,
+           "-e", "GIT_CONFIG_VALUE_0=/app", image_id,
            "python", "-m", "unittest", "-v", f"tests.{module}"]
     started = time.monotonic()
     result: dict = {"state": "UNKNOWN", "exit_code": None, "elapsed_seconds": None,
@@ -347,7 +350,8 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         receipt["model_digest"] = digest
         if digest != MODEL_DIGEST:
             raise SmokeError("unpinned model digest")
-        receipt["grader_image_id"] = grader_image_id()
+        image_id = grader_image_id()
+        receipt["grader_image_id"] = image_id
         worktree = Path(scratch.name) / "checkout"
         git(repo, "worktree", "add", "--detach", str(worktree), m["base_sha"])
         path = m["allowed_path"]
@@ -356,7 +360,7 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
             raise SmokeError("unavailable or unsafe bounded source")
         if git(worktree, "hash-object", path).stdout.decode().strip() != m["source_git_blob"]:
             raise SmokeError("source blob mismatch")
-        receipt["before"] = grade_in_docker(worktree, m["test_module"], output, "before")
+        receipt["before"] = grade_in_docker(worktree, m["test_module"], output, "before", image_id=image_id)
         # A failed baseline is an invalid evaluation environment, not a repair
         # opportunity. Avoid a wasteful model call that would be uninterpretable.
         if receipt["before"]["state"] != "PASS":
@@ -374,7 +378,7 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         blob = apply_candidate(worktree, patch, path)
         receipt["candidate_git_blob"] = blob
         receipt["candidate_patch_sha256"] = sha(patch.encode())
-        receipt["after"] = grade_in_docker(worktree, m["test_module"], output, "after")
+        receipt["after"] = grade_in_docker(worktree, m["test_module"], output, "after", image_id=image_id)
         receipt["verdict"] = ("VISIBLE_TESTS_PASSED_NOT_INDEPENDENTLY_VERIFIED"
                               if receipt["after"]["state"] == "PASS"
                               else "MODEL_PATCH_UNVERIFIED")

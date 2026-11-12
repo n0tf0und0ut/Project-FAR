@@ -67,7 +67,7 @@ jobs:
               git(repo, "worktree", "add", "--detach", str(checkout), base)
               try:
                   image = grader_image_id()
-                  result = grade_in_docker(checkout, "test_health_and_runner", out, "before")
+                  result = grade_in_docker(checkout, "test_health_and_runner", out, "before", image_id=image)
                   receipt = {"schema": "far-factory-public-grader-preflight/1",
                              "base_sha": base, "grader_image_id": image, "result": result,
                              "scope": "Research-only public baseline test, no model/worker execution"}
