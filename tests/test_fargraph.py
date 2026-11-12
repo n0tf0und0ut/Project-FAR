@@ -43,6 +43,18 @@ class RepoFixture(unittest.TestCase):
         self.assertIn('docs/home.md',impacted)
         self.assertEqual(result['missing'],[])
 
+    def test_invalid_markdown_link_preserves_other_link_evidence(self):
+        self.write('docs/links.md', 'Broken [URL](https://[broken)\nSee [home](home.md).\n')
+        graph = build(self.root)
+        self.assertTrue(any(
+            item['kind'] == 'invalid_link' and item['path'] == 'docs/links.md' and item['line'] == 1
+            for item in graph.diagnostics
+        ))
+        self.assertTrue(any(
+            edge.path == 'docs/links.md' and edge.target == 'file:docs/home.md' and edge.line == 2
+            for edge in graph.edges
+        ))
+
     def test_python_call_impact(self):
         g=build(self.root)
         result=g.impact(['pkg/base.py'])

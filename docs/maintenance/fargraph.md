@@ -24,6 +24,8 @@ python -m fargraph --root . impact --git-base main
 python -m fargraph.mcp --root .
 ```
 
+The factory adapter resolves dependency targets against regular files in the pinned Git tree. Ignored generated files cannot add a resolved edge, and a changed symbolic link retains its Git path. Invalid Markdown URLs are recorded as diagnostics while other links remain analyzable.
+
 The MCP subprocess exposes only structural read and refresh operations; it has no ability to write GitHub content, change factory queue state, approve reviews, or merge PRs. A graph finding may guide testing and source inspection but cannot replace either.
 
 ## Tested boundaries

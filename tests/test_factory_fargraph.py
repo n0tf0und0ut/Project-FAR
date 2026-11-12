@@ -139,6 +139,37 @@ class FactoryFargraphTests(unittest.TestCase):
         self.assertTrue(result["index_freshness"]["fresh"])
         self.assertEqual(result["status"],"ADVISORY_ONLY_NO_MERGE_AUTHORITY")
 
+    def test_local_generated_files_do_not_change_exact_head_targets(self):
+        (self.root / ".gitignore").write_text("local.py\nlocal.txt\n")
+        (self.root / "b.py").write_text("import local\n")
+        (self.root / "README.md").write_text("[Tracked](tracked.txt) and [Local](local.txt).\n")
+        (self.root / "tracked.txt").write_text("Checked-in release notes\n")
+        git(self.root, "add", ".")
+        git(self.root, "commit", "-qm", "Document release notes")
+        self.head = git(self.root, "rev-parse", "HEAD")
+        expected = self.run_eval()
+        (self.root / "local.py").write_text("# Generated scratch file\n")
+        (self.root / "local.txt").write_text("Generated release notes\n")
+        self.assertEqual(self.run_eval(), expected)
+        self.assertIn(
+            {"kind": "target_not_indexed", "path": "README.md", "line": 1, "detail": "tracked.txt"},
+            expected["diagnostics"],
+        )
+
+    def test_changed_alias_preserves_literal_git_path(self):
+        alias = self.root / "current.alias"
+        alias.symlink_to("a.py")
+        git(self.root, "add", "current.alias")
+        git(self.root, "commit", "-qm", "Publish file alias")
+        alias.unlink()
+        alias.symlink_to("b.py")
+        git(self.root, "add", "current.alias")
+        git(self.root, "commit", "-qm", "Change file alias")
+        self.head = git(self.root, "rev-parse", "HEAD")
+        impact = self.run_eval()["impact"]
+        self.assertEqual(impact["changed"], ["a.py", "current.alias"])
+        self.assertIn("current.alias", impact["missing"])
+
     def test_unicode_deleted_paths_are_reported_without_git_quoting(self):
         (self.root/"café.py").write_text("value = 1\n")
         git(self.root,"add","café.py")

@@ -40,29 +40,31 @@ def _git_bytes(root: Path, *args: str, input_bytes: bytes | None = None) -> byte
     return proc.stdout
 
 
-def _verify_source_hashes(root: Path, head: str, hashes: dict[str, str]) -> None:
+def _source_tree(root: Path, head: str) -> dict[str, tuple[bytes, int]]:
+    files = {}
+    for entry in _git_bytes(root, "ls-tree", "-rlz", "--full-tree", head).split(b"\0"):
+        if not entry:
+            continue
+        metadata, path_bytes = entry.split(b"\t", 1)
+        mode, kind, oid, raw_size = metadata.split()
+        if mode in {b"100644", b"100755"} and kind == b"blob":
+            files[os.fsdecode(path_bytes)] = (oid, int(raw_size))
+    return files
+
+
+def _verify_source_hashes(root: Path, files: dict[str, tuple[bytes, int]], hashes: dict[str, str]) -> None:
     # Git's clean status accounts for checkout transformations. Compare the
     # actual bytes indexed by the graph with the committed blobs instead.
     paths_by_oid: dict[bytes, list[str]] = {}
     sizes: dict[bytes, int] = {}
-    for entry in _git_bytes(root, "ls-tree", "-rlz", head).split(b"\0"):
-        if not entry:
-            continue
-        metadata, path_bytes = entry.split(b"\t", 1)
-        path = os.fsdecode(path_bytes)
-        if path not in hashes:
-            continue
-        mode, kind, oid, raw_size = metadata.split()
-        if mode not in {b"100644", b"100755"} or kind != b"blob":
+    for path in hashes:
+        if path not in files:
             raise ValueError(f"Indexed path is not a committed regular Git blob: {path}")
-        size = int(raw_size)
+        oid, size = files[path]
         if size > MAX_SOURCE_BYTES:
             raise ValueError(f"Committed Git blob exceeds the indexing limit: {path}")
         paths_by_oid.setdefault(oid, []).append(path)
         sizes[oid] = size
-
-    if sum(map(len, paths_by_oid.values())) != len(hashes):
-        raise ValueError("Indexed path is absent from the exact Git tree")
 
     oids = list(paths_by_oid)
     # Bound each subprocess's captured payload using the validated blob sizes.
@@ -123,8 +125,9 @@ def evaluate(root: Path, work_order: Path, head_sha: str, repository: str,
     deleted = git_changed_files(root, base, head_sha, diff_filter="D")
     # Only indexed Git-tracked bytes can be attributed to exact HEAD.
     # Ignored local files are not evidence from the committed candidate.
-    graph = build(root, tracked_only=True)
-    _verify_source_hashes(root, head_sha, graph.hashes)
+    source_tree = _source_tree(root, head_sha)
+    graph = build(root, tracked_only=True, source_paths=frozenset(source_tree))
+    _verify_source_hashes(root, source_tree, graph.hashes)
     freshness = graph.freshness()
     if not freshness["fresh"] or _git(root, "rev-parse", "HEAD") != head_sha:
         raise ValueError("Repository changed while indexing; graph is not exact-source")

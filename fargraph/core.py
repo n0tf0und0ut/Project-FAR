@@ -57,6 +57,7 @@ class Graph:
     hashes: dict[str, str] = field(default_factory=dict)
     diagnostics: list[dict] = field(default_factory=list)
     _edge_keys: set = field(default_factory=set, repr=False)
+    _source_paths: frozenset[str] | None = field(default=None, repr=False)
 
     def add_node(self, id: str, kind: str, path: str, line: int = 0, label: str = "") -> str:
         self.nodes.setdefault(id, Node(id, kind, path, line, label))
@@ -140,7 +141,8 @@ class Graph:
 
     def impact(self, changed_files: Iterable[str], max_depth: int = 8) -> dict:
         """Reverse dependency walk, preserving an evidence path for every reached node."""
-        changed = sorted(set(_normalize_query_path(self.root, p) for p in changed_files))
+        changed = sorted(set(_normalize_query_path(self.root, p, exact=self._source_paths is not None)
+                             for p in changed_files))
         seeds = set()
         missing = []
         for path in changed:
@@ -201,34 +203,49 @@ class Graph:
                 "coverage_warning":"No path found in known graph is not evidence that no relationship exists."}
 
 
-def _normalize_query_path(root: Path, path: str) -> str:
+def _normalize_query_path(root: Path, path: str, exact: bool = False) -> str:
     if not path or '\x00' in path:
         raise ValueError("Empty or invalid path")
-    candidate = (root / path).resolve()
+    candidate = Path(os.path.abspath(root / path)) if exact else (root / path).resolve()
     if not candidate.is_relative_to(root):
         raise ValueError("Path leaves repository root")
     return candidate.relative_to(root).as_posix()
 
 
-def _resolve_local(root: Path, current: str, raw: str) -> tuple[str | None, str]:
+def _resolve_local(g: Graph, current: str, raw: str) -> tuple[str | None, str]:
     """Only accept existing in-root files/dirs. Never resolve network locations."""
     raw = raw.strip().strip('<>')
     if not raw or raw.startswith('#') or raw.startswith('//'):
         return None, "external_or_fragment"
-    parsed=urlsplit(raw)
+    try:
+        parsed = urlsplit(raw)
+    except ValueError:
+        return None, "invalid_path"
     if parsed.scheme or parsed.netloc or raw.lower().startswith(('mailto:', 'data:')):
         return None, "external_or_fragment"
     path = unquote(parsed.path).replace('\\', '/')
     if not path:
         return None, "external_or_fragment"
+    root = g.root
+    target = root / path.lstrip('/') if path.startswith('/') else (root / current).parent / path
+    index_names = ('README.md', 'index.md', 'action.yml', 'action.yaml')
+    if g._source_paths is not None:
+        target = Path(os.path.abspath(target))
+        if not target.is_relative_to(root):
+            return None, "outside_root"
+        rel = target.relative_to(root)
+        for candidate in (rel, *(rel / name for name in index_names)):
+            if candidate.as_posix() in g._source_paths:
+                return candidate.as_posix(), "resolved"
+        return rel.as_posix(), "missing"
     try:
-        candidate = (root / path.lstrip('/') if path.startswith('/') else (root/current).parent/path).resolve()
+        candidate = target.resolve()
     except (OSError, RuntimeError):
         return None, "invalid_path"
     if not candidate.is_relative_to(root):
         return None, "outside_root"
     if candidate.is_dir():
-        for name in ('README.md', 'index.md', 'action.yml', 'action.yaml'):
+        for name in index_names:
             if (candidate/name).is_file():
                 candidate = candidate/name
                 break
@@ -237,7 +254,7 @@ def _resolve_local(root: Path, current: str, raw: str) -> tuple[str | None, str]
     return candidate.relative_to(root).as_posix(), "resolved"
 
 
-def _py_module_target(root: Path, source_path: str, module: str, level: int = 0) -> str | None:
+def _py_module_target(g: Graph, source_path: str, module: str, level: int = 0) -> str | None:
     src = PurePosixPath(source_path)
     base = list(src.parent.parts)
     if level:
@@ -246,11 +263,17 @@ def _py_module_target(root: Path, source_path: str, module: str, level: int = 0)
     else:
         base = []
     parts = [*base, *module.split('.')] if module else base
+    root = g.root
     candidates=[]
     if parts:
         candidates.append(root.joinpath(*parts[:-1],parts[-1]+'.py'))
     candidates.append(root.joinpath(*parts,'__init__.py'))
     for cand in candidates:
+        if g._source_paths is not None:
+            rel = cand.relative_to(root).as_posix()
+            if rel in g._source_paths:
+                return rel
+            continue
         if cand.is_file() and cand.resolve().is_relative_to(root):
             return cand.resolve().relative_to(root).as_posix()
     return None
@@ -281,7 +304,7 @@ def _read_source(g: Graph, path: Path) -> str | None:
 
 
 def _file_edge(g:Graph, src:str, raw:str, kind:str, line:int, relative_override: str|None=None) -> None:
-    dest,status = _resolve_local(g.root, relative_override or src,raw)
+    dest,status = _resolve_local(g, relative_override or src,raw)
     if status=='external_or_fragment':
         return
     if status=='outside_root':
@@ -321,7 +344,7 @@ def _lean(g: Graph, rel: str, body: str) -> None:
         for name in match.group(1).split():
             target=name.replace('.','/')+'.lean'
             # Lean roots are project-relative, not relative to importing file.
-            dest,status=_resolve_local(g.root,rel,'/'+target)
+            dest,status=_resolve_local(g,rel,'/'+target)
             if status=='resolved' and dest:
                 g.add_node(f'file:{dest}','file',dest,1,dest)
                 g.add_edge(f'file:{rel}', f'file:{dest}', 'lean_import',rel,line,'resolved_path',name)
@@ -404,12 +427,12 @@ class PythonVisitor(ast.NodeVisitor):
     def visit_Import(self,node:ast.Import)->None:
         for alias in node.names:
             self.import_aliases[alias.asname or alias.name.split('.')[0]]=alias.name
-            target=_py_module_target(self.g.root,self.rel,alias.name)
+            target=_py_module_target(self.g,self.rel,alias.name)
             self._import(target,node.lineno,alias.name)
 
     def visit_ImportFrom(self,node:ast.ImportFrom)->None:
         module=node.module or ''
-        target=_py_module_target(self.g.root,self.rel,module,node.level)
+        target=_py_module_target(self.g,self.rel,module,node.level)
         self._import(target,node.lineno,'.'*node.level+module)
         for alias in node.names:
             self.import_aliases[alias.asname or alias.name]=(module+'.' if module else '')+alias.name
@@ -417,7 +440,7 @@ class PythonVisitor(ast.NodeVisitor):
             # separately when the corresponding local source file exists.
             if alias.name == '*':
                 continue
-            candidate = _py_module_target(self.g.root,self.rel,
+            candidate = _py_module_target(self.g,self.rel,
                          (module+'.' if module else '')+alias.name,node.level)
             if candidate and candidate != target:
                 self._import(candidate,node.lineno,'.'*node.level+(module+'.' if module else '')+alias.name)
@@ -481,11 +504,12 @@ def _discover_files(root: Path, tracked_only: bool = False) -> list[Path]:
     return sorted(found)
 
 
-def build(root: str | Path, tracked_only: bool = False) -> Graph:
+def build(root: str | Path, tracked_only: bool = False, *,
+          source_paths: frozenset[str] | None = None) -> Graph:
     root=Path(root).expanduser().resolve()
     if not root.is_dir():
         raise ValueError(f'Not a directory: {root}')
-    g=Graph(root, tracked_only=tracked_only)
+    g=Graph(root, tracked_only=tracked_only, _source_paths=source_paths)
     files=_discover_files(root, tracked_only=tracked_only)
     for path in files:
         rel=path.relative_to(root)
