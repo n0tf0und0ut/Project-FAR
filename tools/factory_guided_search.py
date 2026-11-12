@@ -33,10 +33,10 @@ def _sha(value: object, pattern: re.Pattern, label: str) -> str:
 def _candidate(raw: object, base_sha: str) -> dict:
     if type(raw) is not dict or set(raw) != CANDIDATE_KEYS:
         raise SearchInputError("candidate shape mismatch")
-    candidate_id = _sha(raw["candidate_id"], IDENT, "candidate_id")
+    _sha(raw["candidate_id"], IDENT, "candidate_id")
     if _sha(raw["base_sha"], SHA, "base_sha") != base_sha:
         raise SearchInputError("candidate base mismatch")
-    source_sha = _sha(raw["source_sha"], SHA, "source_sha")
+    _sha(raw["source_sha"], SHA, "source_sha")
     _sha(raw["artifact_sha256"], DIGEST, "artifact_sha256")
     return dict(raw)
 
@@ -44,15 +44,16 @@ def _candidate(raw: object, base_sha: str) -> dict:
 def _receipt(raw: object, candidate: dict, oracle_sha256: str) -> dict:
     if type(raw) is not dict or set(raw) != RECEIPT_KEYS:
         raise SearchInputError("receipt shape mismatch")
-    if raw["candidate_id"] != candidate["candidate_id"]:
+    if _sha(raw["candidate_id"], IDENT, "candidate_id") != candidate["candidate_id"]:
         raise SearchInputError("receipt candidate mismatch")
-    if raw["source_sha"] != candidate["source_sha"]:
+    if _sha(raw["source_sha"], SHA, "source_sha") != candidate["source_sha"]:
         raise SearchInputError("receipt source mismatch")
     if _sha(raw["oracle_sha256"], DIGEST, "oracle_sha256") != oracle_sha256:
         raise SearchInputError("receipt oracle mismatch")
     _sha(raw["evidence_sha256"], DIGEST, "evidence_sha256")
-    if raw["test_status"] not in STATES or raw["contract_status"] not in STATES:
-        raise SearchInputError("invalid evaluation status")
+    for field in ("test_status", "contract_status"):
+        if type(raw[field]) is not str or raw[field] not in STATES:
+            raise SearchInputError(f"invalid {field}")
     for field in ("cost_micro_usd", "elapsed_ms"):
         if type(raw[field]) is not int or raw[field] < 0:
             raise SearchInputError(f"invalid {field}")

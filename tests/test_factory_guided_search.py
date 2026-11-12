@@ -74,6 +74,29 @@ class GuidedSearchTests(unittest.TestCase):
         r = self.search(lambda c: {**receipt(c), 'source_sha': 'e' * 40})
         self.assertIsNone(r['selected_candidate'])
 
+    def test_receipt_rejects_non_string_identity_and_status(self):
+        class Impostor:
+            def __eq__(self, other):
+                return True
+
+            def __hash__(self):
+                return hash("PASS")
+
+        cases = {
+            "candidate_id": Impostor(),
+            "source_sha": Impostor(),
+            "test_status": Impostor(),
+            "contract_status": Impostor(),
+        }
+        for field, value in cases.items():
+            with self.subTest(field=field):
+                result = self.search(lambda c: {**receipt(c), field: value})
+                self.assertIsNone(result["selected_candidate"])
+                self.assertEqual(result["attempts"][0]["error_type"], "SearchInputError")
+
+        result = self.search(lambda c: receipt(c, test=[]))
+        self.assertEqual(result["attempts"][0]["error_type"], "SearchInputError")
+
     def test_duplicate_identity_is_rejected_even_if_oracle_claims_pass(self):
         r = self.search(lambda c: receipt(c), proposer=lambda i, f: candidate(0))
         self.assertEqual([x['status'] for x in r['attempts']], ['ELIGIBLE', 'INVALID_PROPOSAL', 'INVALID_PROPOSAL'])
