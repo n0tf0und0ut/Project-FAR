@@ -4,6 +4,14 @@ Status: operational guidance only. This document does not establish or change FA
 
 This supplements the repository instructions in [`AGENTS.md`](../../AGENTS.md) (Codex and ChatGPT Chat/Work) and the separate runtime-specific [`CLAUDE.md`](../../CLAUDE.md) (Claude). The [Research Execution Charter](../governance/research-execution-charter.md), current canonical state, tool capabilities, protected-branch rules, and [PR review convergence policy](../governance/pr-review-convergence.md) control in case of conflict. A workflow aid never grants permission to perform a governed investigation or promote a result.
 
+## Code search and dependency analysis (operational guidance)
+
+Use the repository's existing **ripgrep (`rg`)** as the default first-pass code/test search when it is available; otherwise use an already authorized native search facility. Preserve broad source matches and follow them to the actual implementation, callers, tests, contracts, and evidence.
+
+**Graphify is optional**, not a required FAR dependency, agent capability, or source of scientific authority. When available, use its local code graph selectively as a *second-stage* dependency/impact navigation aid after first-pass search, especially for multi-hop relationships; retain ripgrep-only candidates rather than filtering them out solely because Graphify lacks an edge. Confirm consequential relationships against source and tests. Do not install agent hooks, edit agent startup instructions, make Graphify mandatory in CI, or modify protected/frozen research artifacts on the strength of this pilot.
+
+The [bounded 2026-11-12 comparison](../../research/comparisons/ripgrep-graphify-retrieval-2026-11-12/README.md) tested 12 Python call-site questions under each of three fixed-retrieval local-model arms. Exact answers were 10/12 for ripgrep, 6/12 for Graphify, and 11/12 for the combination; combined model tokens were 5,754 vs 6,069 for ripgrep. The small improvement is **Research evidence, not a demonstrated agent-reliability, end-to-end coding, or production-efficiency advantage**. Its raw positive and negative receipts are preserved at the linked research location.
+
 ## ChatGPT Chat and Work bootstrap
 
 Codex's native repository instruction discovery can load root `AGENTS.md` from a checkout. ChatGPT Chat and Work do not have a documented guarantee of automatically loading this repository file from GitHub merely because it exists. Their supported Project instructions can request a fresh fetch whenever a task involves FAR. This setup applies to chats launched *inside that ChatGPT Project*. Repository-only changes cannot enforce it across arbitrary chats or prove that a model actually followed a retrieved instruction.

@@ -25,6 +25,8 @@ These are **research records**, including negative and bounded results. The shor
 | **Can an agent select justified actions when the input is underspecified?** | The initial small-model pilot produced **11/12** admissible suggestions, tying the constant `ASK_SCOPE` baseline. The later bounded investigation required controller intervention; general autonomy is unestablished. | [Dispatch and investigations](uncertain-routing/README.md) · [initial execution](uncertain-routing/execution-v0.1.md) |
 | **Do bounded weight-space edits improve model reliability?** | The completed 432-generation pilot reported no improvement over simpler prompting. It did not qualify for production adoption. | [Experiment results](weight-space/RESULTS-V0.1.md) · [implementation, sources, and replay](weight-space/README.md) |
 
+| **Does adding Graphify to ripgrep improve code-navigation answers for a small local model?** | On 12 frozen syntactic Python call-site questions (36 local-model runs), exact answers were **10/12** ripgrep, **6/12** Graphify, **11/12** combined. Combined model tokens were 5,754 vs 6,069 ripgrep; only one question improved and 11 tied. No end-to-end coding-agent advantage is established. | [Research-only report, raw receipts and limits](comparisons/ripgrep-graphify-retrieval-2026-11-12/README.md) |
+
 ### Other research areas
 
 - `axiomatization/` — exploratory axiom and ontology research.
