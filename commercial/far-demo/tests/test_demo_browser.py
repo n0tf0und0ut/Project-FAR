@@ -32,6 +32,7 @@ const element = id => {
   return elements.get(id);
 };
 const report = id => ({headline: id, artifact: {sha256: id}, trace_completeness: 1,
+  release_decision: 'review', plain_summary: 'Summary', why_it_matters: 'Impact',
   status_transition: [], structural_changes: [], unknowns: [], rule_findings: []});
 const context = vm.createContext({
   document: {getElementById: element}, Blob, FormData: class {},
@@ -42,6 +43,7 @@ const context = vm.createContext({
   setTimeout: queueMicrotask,
   fetch: path => new Promise((resolve, reject) => requests.push({path,
     success: id => resolve({ok: true, json: async () => report(id)}),
+    malformed: data => resolve({ok: true, json: async () => data}),
     failure: detail => resolve({ok: false, json: async () => ({detail})}), reject,
   })),
 });
@@ -121,4 +123,20 @@ requests[2].failure('Current upload rejected'); await latest;
 requests[1].success('superseded upload'); await old;
 assert.equal(element('error').textContent, 'Current upload rejected');
 await assertResult('last success');
+""")
+
+    def test_malformed_success_preserves_current_report_and_download(self):
+        self.run_script("""
+const initial = upload(); requests[0].success('last success'); await initial;
+const originalUrl = element('downloadReport').href;
+for (const body of [{artifact: {}}, {...report('bad sample'), rule_findings: [null]}]) {
+  const pending = sample(); requests.at(-1).malformed(body); await pending;
+  await assertResult('last success');
+  assert.equal(element('downloadReport').href, originalUrl);
+  assert.equal(element('phasePct').textContent, '0%');
+  assert.equal(element('phase').textContent, 'Invalid analysis response');
+}
+const retry = upload(); requests.at(-1).success('retried upload'); await retry;
+await assertResult('retried upload');
+assert.equal(downloads.has(originalUrl), false);
 """)

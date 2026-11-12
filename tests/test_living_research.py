@@ -117,6 +117,43 @@ class LivingResearchTests(unittest.TestCase):
             self.assertEqual(result["status"],"PARTIAL_SOURCE_FAILURE"); self.assertFalse(result["cursor_advanced"]); self.assertIsNone(lr.read_json(repo.root/lr.STATE_PATH)["incremental_cursor_utc"])
         finally: repo.close()
 
+    def test_incremental_bootstrap_recovery_preserves_first_failed_date(self):
+        repo = TempRepo()
+        try:
+            windows = []
+            states = []
+            for day, failed in ((8, True), (9, True), (10, False), (11, False)):
+                def crossref(url, *_):
+                    query_filter = parse_qs(urlparse(url).query)["filter"][0]
+                    if query_filter.startswith("from-index-date:"):
+                        windows.append(query_filter)
+                        if failed:
+                            return {"message": {"items": [None]}}
+                    return {"message": {"items": []}}
+
+                result = lr.run(
+                    repo.root, now=datetime(2026, 9, day, 12, tzinfo=timezone.utc),
+                    crossref_transport=crossref, openalex_transport=lambda *_: {"results": []},
+                    openlibrary_transport=lambda *_: {"docs": []}, sleep_fn=lambda _: None,
+                )
+                self.assertEqual(result["cursor_advanced"], not failed)
+                states.append(lr.read_json(repo.root / lr.STATE_PATH))
+
+            self.assertEqual(windows, [
+                "from-index-date:2026-08-25,until-index-date:2026-09-08",
+                "from-index-date:2026-08-25,until-index-date:2026-09-09",
+                "from-index-date:2026-08-25,until-index-date:2026-09-10",
+                "from-index-date:2026-09-08,until-index-date:2026-09-11",
+            ])
+            for state in states[:2]:
+                self.assertIsNone(state["incremental_cursor_utc"])
+                self.assertEqual(state["incremental_bootstrap_start_date"], "2026-08-25")
+            for state in states[2:]:
+                self.assertNotIn("incremental_bootstrap_start_date", state)
+            self.assertEqual(states[2]["incremental_cursor_utc"], "2026-09-10T12:00:00Z")
+        finally:
+            repo.close()
+
     def test_historical_failure_freezes_historical_cursor(self):
         repo=TempRepo()
         try:

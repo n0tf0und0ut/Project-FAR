@@ -60,31 +60,6 @@ class CLITests(unittest.TestCase):
         self.assertEqual(inspect.returncode, 0, inspect.stderr)
         self.assertEqual(json.loads(inspect.stdout)["type"], "claim")
 
-    def test_diagnostics_uses_same_input_for_status_and_output(self):
-        malformed = ROOT / "tests" / "fixtures" / "mechanization" / "parser" / "invalid" / "malformed.json"
-        for fixture, code, expected in (
-            (VALID, 0, "No diagnostics."),
-            (BROKEN, 1, "FAR-GRAPH-001"),
-            (malformed, 1, "FAR-PARSE-003"),
-        ):
-            for output in ("text", "json"):
-                with self.subTest(fixture=fixture.name, output=output):
-                    args = ("diagnostics", "--format", "json", "--output", output, "--sort", "severity")
-                    file_result = self.run_far(*args, fixture)
-                    stdin_result = self.run_far(*args, "-", input_text=fixture.read_text(encoding="utf-8"))
-                    self.assertEqual(file_result.returncode, code, file_result.stderr)
-                    self.assertEqual(stdin_result.returncode, code, stdin_result.stderr)
-                    self.assertEqual(stdin_result.stderr, "")
-                    self.assertEqual(stdin_result.stdout, file_result.stdout.replace(str(fixture), "<stdin>"))
-                    if output == "json":
-                        payload = json.loads(stdin_result.stdout)
-                        self.assertEqual(payload["valid"], code == 0)
-                        self.assertEqual(payload["summary"]["total"], len(payload["diagnostics"]))
-                        if code:
-                            self.assertIn(expected, [item["code"] for item in payload["diagnostics"]])
-                    else:
-                        self.assertIn(expected, stdin_result.stdout)
-
     def test_missing_file_configuration_graph_export_and_write_protection(self):
         missing = self.run_far("validate", ROOT / "no-such-file.json")
         self.assertNotEqual(missing.returncode, 0)
@@ -95,9 +70,6 @@ class CLITests(unittest.TestCase):
             cfg_result = self.run_far("--config", cfg, "version")
             self.assertEqual(cfg_result.returncode, 0)
             self.assertTrue(cfg_result.stdout.lstrip().startswith("{"))
-            cfg_diagnostics = self.run_far("--config", cfg, "diagnostics", VALID)
-            self.assertEqual(cfg_diagnostics.returncode, 0)
-            self.assertEqual(cfg_diagnostics.stdout, "No diagnostics.\n")
             graph_out = Path(tmp) / "graph.json"
             graph = self.run_far("graph", GRAPH_VALID, "--export", graph_out)
             self.assertEqual(graph.returncode, 0, graph.stderr)

@@ -368,7 +368,43 @@ const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[
 let reportUrl=null;
 let analysisEpoch=0;
 function updateReportDownload(artifact){const next=URL.createObjectURL(new Blob([JSON.stringify(artifact,null,2)+'\n'],{type:'application/json'}));document.getElementById('downloadReport').href=next;if(reportUrl)URL.revokeObjectURL(reportUrl);reportUrl=next;}
-function render(d){updateReportDownload(d.artifact);document.getElementById('headline').textContent=d.headline;document.getElementById('releaseDecision').textContent=d.release_decision;document.getElementById('summary').textContent=d.plain_summary;document.getElementById('why').textContent=d.why_it_matters;document.getElementById('transition').textContent=d.status_transition.join(' → ');document.getElementById('changeCount').textContent=d.structural_changes.length;document.getElementById('completeness').textContent=Math.round(d.trace_completeness*100)+'%';document.getElementById('fingerprint').textContent=d.artifact.sha256.slice(0,12)+'…';document.getElementById('structural').innerHTML=d.structural_changes.map(x=>'<div class="finding"><b>'+esc(x.title)+'</b><span>'+esc(x.description)+'</span></div>').join('');document.getElementById('unknowns').innerHTML=d.unknowns.length?'<b>Declared unknowns</b><br>'+d.unknowns.map(esc).join('<br>'):'';document.getElementById('unknowns').style.display=d.unknowns.length?'block':'none';document.getElementById('ruleList').innerHTML=d.rule_findings.map(x=>'<p><b>'+esc(x.title)+':</b> '+esc(x.description)+'</p>').join('');document.getElementById('rules').style.display=d.rule_findings.length?'block':'none';document.getElementById('raw').textContent=JSON.stringify(d.artifact,null,2);document.getElementById('result').classList.add('show');document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});}
+function prepareReport(d) {
+  const isText=value=>typeof value==='string';
+  const isFinding=value=>value && isText(value.title) && isText(value.description);
+  if (!d || ![d.headline,d.release_decision,d.plain_summary,d.why_it_matters,d.artifact?.sha256].every(isText)
+      || !Number.isFinite(d.trace_completeness)
+      || !Array.isArray(d.status_transition) || !d.status_transition.every(isText)
+      || !Array.isArray(d.unknowns) || !d.unknowns.every(isText)
+      || !Array.isArray(d.structural_changes) || !d.structural_changes.every(isFinding)
+      || !Array.isArray(d.rule_findings) || !d.rule_findings.every(isFinding)) {
+    throw new Error('Invalid analysis response');
+  }
+  return {
+    text: {
+      headline: d.headline, releaseDecision: d.release_decision, summary: d.plain_summary, why: d.why_it_matters,
+      transition: d.status_transition.join(' → '), changeCount: d.structural_changes.length,
+      completeness: Math.round(d.trace_completeness*100)+'%', fingerprint: d.artifact.sha256.slice(0,12)+'…',
+      raw: JSON.stringify(d.artifact,null,2),
+    },
+    structural: d.structural_changes.map(x=>'<div class="finding"><b>'+esc(x.title)+'</b><span>'+esc(x.description)+'</span></div>').join(''),
+    unknowns: d.unknowns.length ? '<b>Declared unknowns</b><br>'+d.unknowns.map(esc).join('<br>') : '',
+    rules: d.rule_findings.map(x=>'<p><b>'+esc(x.title)+':</b> '+esc(x.description)+'</p>').join(''),
+  };
+}
+function render(d) {
+  // Prepare all response-derived content before replacing the visible report.
+  const report=prepareReport(d);
+  updateReportDownload(d.artifact);
+  for (const [id,value] of Object.entries(report.text)) document.getElementById(id).textContent=value;
+  document.getElementById('structural').innerHTML=report.structural;
+  document.getElementById('unknowns').innerHTML=report.unknowns;
+  document.getElementById('unknowns').style.display=report.unknowns?'block':'none';
+  document.getElementById('ruleList').innerHTML=report.rules;
+  document.getElementById('rules').style.display=report.rules?'block':'none';
+  const result=document.getElementById('result');
+  result.classList.add('show');
+  result.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function setExampleProgress(message, progress) {
   document.getElementById('phase').textContent=message;
   document.getElementById('phasePct').textContent=progress;
