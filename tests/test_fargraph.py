@@ -4,7 +4,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from fargraph.core import build, git_changed_files
+from unittest.mock import patch
+from fargraph.core import MAX_SOURCE_BYTES, build, git_changed_files
 from fargraph.mcp import Server
 
 
@@ -54,6 +55,16 @@ class RepoFixture(unittest.TestCase):
             edge.path == 'docs/links.md' and edge.target == 'file:docs/home.md' and edge.line == 2
             for edge in graph.edges
         ))
+
+    def test_invalid_decoded_markdown_path_does_not_hide_valid_link(self):
+        self.write('docs/links.md', 'Broken [path](broken%00.md)\nSee [home](home.md).\n')
+        graph = build(self.root)
+        self.assertIn(
+            {'kind': 'invalid_link', 'path': 'docs/links.md', 'line': 1, 'detail': 'broken%00.md'},
+            graph.diagnostics,
+        )
+        self.assertTrue(any(edge.path == 'docs/links.md' and edge.target == 'file:docs/home.md'
+                            and edge.line == 2 for edge in graph.edges))
 
     def test_python_call_impact(self):
         g=build(self.root)
@@ -166,6 +177,46 @@ class RepoFixture(unittest.TestCase):
     def test_freshness_on_unchanged_repo(self):
         g=build(self.root)
         self.assertTrue(g.freshness()['fresh'])
+
+    def test_mcp_requires_refresh_when_excluded_source_becomes_indexable(self):
+        content = b'import pkg.base\n'
+        caller = self.root / 'caller.py'
+        for excluded in (b'\xff' * len(content), b'x' * (MAX_SOURCE_BYTES + 1)):
+            with self.subTest(size=len(excluded)):
+                caller.write_bytes(excluded)
+                server = Server(str(self.root))
+                self.assertTrue(server.graph.freshness()['fresh'])
+                caller.write_bytes(content)
+                state = server.graph.freshness()
+                self.assertFalse(state['fresh'])
+                self.assertIn('caller.py', state['changed_or_removed'])
+                request = {'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
+                           'params': {'name': 'fargraph_impact', 'arguments': {'files': ['pkg/base.py']}}}
+                self.assertTrue(server.handle(request)['result']['isError'])
+                refresh = {'jsonrpc': '2.0', 'id': 2, 'method': 'tools/call',
+                           'params': {'name': 'fargraph_refresh', 'arguments': {}}}
+                self.assertFalse(server.handle(refresh)['result']['isError'])
+                result = server.handle(request)['result']
+                self.assertFalse(result['isError'])
+                self.assertIn('caller.py', [x['path'] for x in
+                              json.loads(result['content'][0]['text'])['possibly_affected']])
+
+    def test_file_read_failure_then_recovery_or_removal_invalidates_index(self):
+        caller = self.root / 'caller.py'
+        caller.write_text('import pkg.base\n')
+        original_open = Path.open
+
+        def open_source(path, *args, **kwargs):
+            if path == caller:
+                raise PermissionError('fixture denied')
+            return original_open(path, *args, **kwargs)
+
+        with patch.object(Path, 'open', open_source):
+            graph = build(self.root)
+            self.assertTrue(graph.freshness()['fresh'])
+        self.assertEqual(graph.freshness()['changed_or_removed'], ['caller.py'])
+        caller.unlink()
+        self.assertEqual(graph.freshness()['changed_or_removed'], ['caller.py'])
 
     def test_relative_imports(self):
         self.write('pkg/relative.py','from . import base\nfrom .base import middle\n')

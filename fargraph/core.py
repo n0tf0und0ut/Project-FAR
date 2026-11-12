@@ -56,7 +56,7 @@ class Graph:
     edges: list[Edge] = field(default_factory=list)
     hashes: dict[str, str] = field(default_factory=dict)
     diagnostics: list[dict] = field(default_factory=list)
-    source_snapshots: dict[str, tuple[int, str | None]] = field(default_factory=dict, repr=False)
+    source_snapshots: dict[str, tuple[int, str | None] | None] = field(default_factory=dict, repr=False)
     _edge_keys: set = field(default_factory=set, repr=False)
     _source_paths: frozenset[str] | None = field(default=None, repr=False)
 
@@ -98,23 +98,23 @@ class Graph:
         }
 
     def freshness(self) -> dict:
-        """Detect drift within the same inventory scope and excluded symlinks."""
+        """Detect drift in indexed sources, excluded sources, and external symlinks."""
         changed = []
-        snapshots = self.source_snapshots if self._source_paths is not None else self.hashes
-        for rel, snapshot in sorted(snapshots.items()):
+        for rel, snapshot in sorted(self.source_snapshots.items()):
             path = self.root / rel
+            current = None
             try:
                 resolved = path.resolve()
-                if (not path.is_file() or not resolved.is_relative_to(self.root)
+                if (not resolved.is_relative_to(self.root)
                         or (self._source_paths is not None and resolved != path)):
                     changed.append(rel)
                     continue
-                size, content = _bounded_source(path)
-                digest = _source_digest(content)
-                current = (size, digest) if self._source_paths is not None else digest
-                if current != snapshot:
-                    changed.append(rel)
+                if path.is_file():
+                    size, content = _bounded_source(path)
+                    current = size, _source_digest(content)
             except (OSError, RuntimeError):
+                pass
+            if current != snapshot:
                 changed.append(rel)
         excluded = {d['path']: d for d in self.diagnostics
                     if d['kind'] == 'external_symlink'}
@@ -129,11 +129,9 @@ class Graph:
                 changed.append(rel)
         ignored = {d['path'] for d in self.diagnostics
                    if d['kind'] in {'skipped_large_file', 'unreadable', 'external_symlink'}}
-        new = []
-        for path in self._source_files():
-            rel = path.relative_to(self.root).as_posix()
-            if rel not in self.hashes and rel not in ignored:
-                new.append(rel)
+        inventory = {path.relative_to(self.root).as_posix() for path in self._source_files()}
+        changed.extend(self.source_snapshots.keys() - inventory)
+        new = sorted(inventory - self.hashes.keys() - ignored)
         return {'fresh': not changed and not new,
                 'changed_or_removed': sorted(set(changed)),
                 'new_files': new, 'unindexed_at_snapshot': sorted(ignored)}
@@ -237,6 +235,8 @@ def _resolve_local(g: Graph, current: str, raw: str) -> tuple[str | None, str]:
     path = unquote(parsed.path).replace('\\', '/')
     if not path:
         return None, "external_or_fragment"
+    if '\x00' in path:
+        return None, "invalid_path"
     root = g.root
     target = root / path.lstrip('/') if path.startswith('/') else (root / current).parent / path
     index_names = ('README.md', 'index.md', 'action.yml', 'action.yaml')
@@ -308,8 +308,7 @@ def _read_source(g: Graph, path: Path) -> str | None:
     try:
         size, content = _bounded_source(path)
         digest = _source_digest(content)
-        if g._source_paths is not None:
-            g.source_snapshots[rel] = (size, digest)
+        g.source_snapshots[rel] = (size, digest)
         if content is None or digest is None:
             g.diagnostic('skipped_large_file',rel,0,f'{size} bytes')
             return None
@@ -320,6 +319,7 @@ def _read_source(g: Graph, path: Path) -> str | None:
     except OSError as exc:
         if g._source_paths is not None:
             raise ValueError(f'Cannot read pinned source: {rel}') from exc
+        g.source_snapshots[rel] = None
         g.diagnostic('unreadable',rel,0,str(exc))
         return None
     except UnicodeError as exc:

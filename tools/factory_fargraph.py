@@ -53,14 +53,17 @@ def _source_tree(root: Path, head: str) -> dict[str, tuple[bytes, int]]:
 
 
 def _verify_source_snapshots(root: Path, files: dict[str, tuple[bytes, int]],
-                             snapshots: dict[str, tuple[int, str | None]]) -> None:
+                             snapshots: dict[str, tuple[int, str | None] | None]) -> None:
     # Git's clean status accounts for checkout transformations. Compare the
     # actual bytes indexed by the graph with the committed blobs instead.
     paths_by_oid: dict[bytes, list[str]] = {}
     sizes: dict[bytes, int] = {}
-    for path, (local_size, digest) in snapshots.items():
+    for path, snapshot in snapshots.items():
         if path not in files:
             raise ValueError(f"Indexed path is not a committed regular Git blob: {path}")
+        if snapshot is None:
+            raise ValueError(f"Cannot read pinned source: {path}")
+        local_size, digest = snapshot
         oid, size = files[path]
         if local_size != size or (digest is None) != (size > MAX_SOURCE_BYTES):
             raise ValueError(f"Indexed source differs from committed Git blob: {path}")
@@ -84,7 +87,7 @@ def _verify_source_snapshots(root: Path, files: dict[str, tuple[bytes, int]],
                 raise ValueError("Unexpected Git blob response")
             digest = hashlib.sha256(data[begin:end]).hexdigest()
             for path in paths_by_oid[oid]:
-                if digest != snapshots[path][1]:
+                if (size, digest) != snapshots[path]:
                     raise ValueError(f"Indexed source differs from committed Git blob: {path}")
             offset = end + 1
         if offset != len(data):
