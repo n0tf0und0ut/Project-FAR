@@ -36,6 +36,26 @@ Further tests cover the sharp-length chain, constant-output cases, and malformed
 
 The implementation assumes outputs have hashable canonical labels (Python dictionary keys), which is stronger than the mathematical requirement of decidable equality; that implementation restriction must not be misread as a theorem premise. Exhaustive tests cover only the displayed finite machines. The mathematical proof uses induction and the monotonic finite-partition bound.
 
+## R5: finite-query black-box equivalence with a certified state bound
+
+Suppose the deterministic Moore assumptions above hold, the action alphabet is known, each of two initial states can be reset exactly, their outputs can be queried after any finite action word, and **external evidence certifies an upper bound N** on the number of states reachable in the combined machine.
+
+Enumerating and comparing the two outputs for every word of length at most max(N−2,0) decides whether the initial states are observationally equivalent under *all* words. By R4, the actual system has n≤N states and every possible difference is witnessed within length max(n−2,0)≤max(N−2,0). This is a complete positive result under the stated promise. The worst-case number of words queried per starting state is at most the sum of |A|^j over j=0,...,max(N−2,0), which can be exponential in N.
+
+The executable reference function black_box_equivalent accepts the external upper bound as an explicit input and uses only observation queries; it does **not** independently establish that the bound is correct. Its oracle contract also assumes the same fully deterministic semantics and reliable reset for every query.
+
+## R6: no uniform exact black-box decider without a state bound
+
+**Claim:** Even when the unknown target is promised to be some finite total deterministic Moore machine with one action and exact binary outputs, no deterministic algorithm can always decide equivalence of two resettable initial states using finitely many black-box queries if no state bound or complete structural certificate is supplied.
+
+**Proof:** Suppose a total algorithm exists. Give it a two-state all-zero machine with self-loops and both initial states outputting zero. It must terminate with the correct answer "equivalent." Its execution made finitely many queries, so let h be the maximum length of the queried words (or zero if there were none). Now replace the hidden machine with the n=h+3-state chain from R4, comparing its first two states. On every queried word (length≤h) both outputs remain zero, so the algorithm receives an identical adaptive transcript and returns "equivalent." But word a^(h+1) distinguishes the two states. Contradiction. ∎
+
+This is a **black-box information limitation** even for finite-state targets; it does not rely on general Turing-machine halting undecidability. It disappears when a justified state bound and exhaustive resettable tests are supplied. It does not assert that no approximate, probabilistic, identification-in-the-limit, or actively learned procedure can be useful.
+
+## Additional verification
+
+Two further tests compare the bound-based black-box oracle to the complete fixed-point quotient across all small two-action machines already enumerated, and exercise 12 deliberately underquoted state bounds against delayed chain witnesses. The full suite now passes **13/13 local regression tests**.
+
 ## Falsification and limitations
 
 A counterexample would be two states of a valid finite complete deterministic Moore machine agreeing on all words of length at most max(n−2,0) but differing on a longer word; or a flaw in the recurrence/fixed-point argument. Tests actively compare the algorithm to independently evaluated word outcomes.
