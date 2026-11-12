@@ -437,17 +437,21 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
     def save():
         if checkpoint is not None:
             checkpoint(copy.deepcopy(state))
+
+    def fail_source_action(reason: str) -> None:
+        state["status"] = "FAILED_OR_INCOMPLETE"
+        state["actions"][-1].update(status="FAILED", failure=reason)
+        save()
+
     def retrieve(key: str, *, recheck: bool = False) -> tuple[bytes, str]:
         try:
             return fetcher(key)
         except SourceResponseError as exc:
-            state["status"] = "FAILED_OR_INCOMPLETE"
             state["failed_source_call"] = {
                 "source": key, "recheck": recheck, "reason": str(exc),
                 "raw_envelope": exc.envelope,
             }
-            state["actions"][-1].update(status="FAILED", failure=str(exc))
-            save()
+            fail_source_action(str(exc))
             raise
     save()
     for _ in range(12):
@@ -487,8 +491,7 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
                 receipt["parsed"] = parse_source(key, raw)
             except InvestigationError as exc:
                 receipt["parse_error"] = str(exc)
-                state["status"] = "FAILED_OR_INCOMPLETE"
-                save()
+                fail_source_action(str(exc))
                 raise
         elif action == "REFETCH_ALL":
             for key in ("latest", "list"):
@@ -504,13 +507,14 @@ def execute(mode: str, fetcher: Callable[[str], tuple[bytes, str]] = fetch,
                     parsed = parse_source(key, raw)
                 except InvestigationError as exc:
                     receipt["parse_error"] = str(exc)
-                    state["status"] = "FAILED_OR_INCOMPLETE"
-                    save()
+                    fail_source_action(str(exc))
                     raise
                 receipt["parsed"] = parsed
-                save()
                 if parsed != state["receipts"][key]["parsed"]:
-                    raise InvestigationError("source projection changed during bounded recheck: " + key)
+                    reason = "source projection changed during bounded recheck: " + key
+                    fail_source_action(reason)
+                    raise InvestigationError(reason)
+                save()
             state["round1"] = max(x["retrieved_at"] for x in state["receipts"].values())
             state["round2"] = max(x["retrieved_at"] for x in state["rechecks"])
             state["cutoff"] = now()

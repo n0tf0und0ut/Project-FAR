@@ -248,9 +248,10 @@ class Factory:
                 if set(evidence) != {"head_sha", "reviewer", "review_url", "result", "unresolved"}:
                     raise FactoryError("review evidence fields invalid")
                 builder = next(e["worker"] for e in history if e["event"] == "completed" and e["stage"] == "build")
+                reviewer = evidence["reviewer"]
                 if (evidence["head_sha"] != build["head_sha"]
-                    or evidence["reviewer"] in {t["worker"], builder}
-                    or not isinstance(evidence["reviewer"], str) or not evidence["reviewer"].strip()
+                    or not isinstance(reviewer, str) or not reviewer.strip()
+                    or reviewer in {t["worker"], builder}
                     or not isinstance(evidence["review_url"], str) or not evidence["review_url"].startswith("https://github.com/")
                     or evidence["result"] != "clean" or evidence["unresolved"] != 0
                     or type(evidence["unresolved"]) is not int):

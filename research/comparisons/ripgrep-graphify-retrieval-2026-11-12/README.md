@@ -51,6 +51,9 @@ The following **exact executed research artifacts** are retained here, without u
 - [`analysis.json`](analysis.json): per-task scores, aggregate metrics, bootstrap and retained failures. SHA-256: `0c75972a72a6ca5f5b22dc1a29645322af2d471b971c32292a79b460a6243f30`.
 - [First extraction log](graphify_initial_extraction.json) and [unchanged-checkout repeat](graphify_repeat_extraction.json): observed stdout/stderr, exit status and wall-clock timing.
 
+**Frozen extractor receipt identities (byte-exact).** The extractor emitted JSON without a trailing newline. Preserve those exact bytes rather than reformatting the source evidence. The initial log SHA-256 is `c3421e09ae1faa8f5482f728086f5c563a0080557bc178e6bbf7e117b7a387bb` (Git blob SHA-1 `b466b0e9a0ac4577c831999bee175e3bf1a1ac80`); the repeat log SHA-256 is `b5f8e8175d62fb770641dcdf3e8260d0941e8d539368fc1ebd21ef96299b2da9` (Git blob SHA-1 `30a26acf7f99d3c7f999af3cb3d1121b0293093e`). FAR's existing final-newline checker recognizes source evidence with repository-recorded digests; registering these identities prevents alteration of frozen evidence while retaining all other newline enforcement.
+
+
 The [complete verified evaluation archive](https://d2ol7oe51mr4n9.cloudfront.net/user_3IVsV5OQ41U43FV2Cnr4dHkvb3g/82494e28-e248-4ef1-bcaf-c5f06cf3c3ba.zip) (ZIP SHA-256 `58d5ae67dc049536e402f55cff96766f1c832f11fa4c581f1473ec61117b994e`) additionally holds the pinned **19 MB graph**, executed `compare.py`, `prepare.py`, `analyze.py`, seven passing focused tests, `reproduce.sh`, and the complete study report. The external archive is supplemental; this repository retains the task manifest, oracle, all 36 raw receipts, analyzed outcomes and graph-construction observations. The graph and model weights are not vendored.
 
 ## Limits and next acceptance gate
