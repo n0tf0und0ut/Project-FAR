@@ -255,10 +255,85 @@ theorem residue_may_change
   have hb : Residue truth closure frame1 s := congrFun heq s ▸ ha
   exact hb.2 h1
 
+/-! The weakest premise for quotient action descent is congruence. -/
+def ObsSetoid {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) : Setoid X where
+  r := ObservationalAgreement obs
+  iseqv := {
+    refl := fun _ _ => rfl
+    symm := fun h t => (h t).symm
+    trans := fun h k t => (h t).trans (k t)
+  }
+
+abbrev ObsQuot {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) := Quotient (ObsSetoid obs)
+
+def obsQuot {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (x : X) : ObsQuot obs :=
+  Quotient.mk (ObsSetoid obs) x
+
+def obsLift {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (t : T) : ObsQuot obs -> V :=
+  Quotient.lift (fun x => obs t x) (fun _ _ h => h t)
+
+def Congruent {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (action : X -> X) : Prop :=
+  ∀ ⦃x y⦄, ObservationalAgreement obs x y ->
+    ObservationalAgreement obs (action x) (action y)
+
+theorem action_descends_iff_congruent
+    {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (action : X -> X) :
+    (∃ lifted : ObsQuot obs -> ObsQuot obs,
+       ∀ x, lifted (obsQuot obs x) = obsQuot obs (action x)) ↔
+    Congruent obs action := by
+  constructor
+  · rintro ⟨lifted, hlifted⟩ x y hxy t
+    have hquot : obsQuot obs x = obsQuot obs y := Quotient.sound hxy
+    have hstep : obsQuot obs (action x) = obsQuot obs (action y) := by
+      rw [← hlifted x, ← hlifted y]
+      exact congrArg lifted hquot
+    exact congrArg (obsLift obs t) hstep
+  · intro hc
+    refine ⟨Quotient.lift (fun x => obsQuot obs (action x))
+      (fun x y h => Quotient.sound (hc h)), ?_⟩
+    intro x
+    rfl
+
+def ContextClosed {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (action : X -> X) : Prop :=
+  ∀ t, ∃ continued : T, ∀ x, obs t (action x) = obs continued x
+
+theorem closed_implies_congruent
+    {T : Type u} {X : Type v} {V : Type w}
+    (obs : T -> X -> V) (action : X -> X)
+    (h : ContextClosed obs action) : Congruent obs action := by
+  intro x y hxy t
+  obtain ⟨continued, hcontinued⟩ := h t
+  rw [hcontinued x, hcontinued y]
+  exact hxy continued
+
+def constantAction (_ : Bool × Bool) : Bool × Bool := (false, false)
+
+theorem closure_is_not_necessary :
+    Congruent oneTest constantAction ∧
+      ¬ ContextClosed oneTest constantAction := by
+  constructor
+  · intro x y _ t
+    cases t
+    rfl
+  · intro h
+    obtain ⟨continued, hcontinued⟩ := h Unit.unit
+    have h0 := hcontinued (true, false)
+    cases continued
+    simp [oneTest, constantAction] at h0
+
 #print axioms FARFoundationalAudit.sufficiency_iff_collision_preservation
 #print axioms FARFoundationalAudit.quotient_least
 #print axioms FARFoundationalAudit.quotient_universal
 #print axioms FARFoundationalAudit.incompatible_contract_minima
 #print axioms FARFoundationalAudit.singleton_outcome_contracts_have_one_minimum
+#print axioms FARFoundationalAudit.action_descends_iff_congruent
+#print axioms FARFoundationalAudit.closure_is_not_necessary
 
 end FARFoundationalAudit
