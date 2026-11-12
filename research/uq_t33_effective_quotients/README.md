@@ -14,6 +14,7 @@
 - [Evidence regression suite](../../tests/test_uq_t33_evidence_gate.py): positive mapping plus twelve adversarial/induction checks.
 - [Real existing source correspondence](real_implementation_correspondence.md) and [source-bound checker](source_bound_status.py): R8 links the exact FAR decision-integrity adjudicator source blob and final status branch to a finite three-flag abstraction of its **status-only** output. It does not certify whole-program semantics or third-party I3 independence.
 - [Source-bound integration tests](../../tests/test_uq_t33_source_bound_status.py): source pin, adversarial mutations, exhaustive finite add-rule refinement and real production function invocations when the full checkout is available.
+- [Independent source-to-runtime replication packet](external_replication_packet.md): exact pinned subject source and failure criteria for two external teams; prepared, not executed.
 
 ## Reproduction
 
@@ -22,7 +23,7 @@ From the repository root with Python 3.10 or later, no third-party dependencies:
     python -m unittest tests.test_uq_t33_effective_quotients tests.test_uq_t33_evidence_gate tests.test_uq_t33_source_bound_status
     python research/uq_t33_effective_quotients/experiment.py
 
-The first command includes 36 test cases. The additional source-bound suite had 9/9 locally runnable tests pass; its two production-checkout integration cases were skipped in the standalone scratch workspace and must run in a full repository checkout. The second reruns the original six and rewrites results.json. These checks test bounded code cases and do not establish the undecidability theorem through execution.
+The first command includes **37 test cases** (25 original/evidence tests plus 12 source-bound cases). The ten source-bound tests runnable with a synthetic fixture passed in local scratch. Two mandatory real-production integration tests **fail closed** if no complete checkout exists; they were not executed successfully in that scratch environment. The real subject source Git blob and SHA-256 were separately verified from GitHub; that does not replace live runtime execution. The second reruns the original six and rewrites results.json. These checks test bounded code cases and do not establish the undecidability theorem through execution.
 
 ## Provenance and assurance limits
 
