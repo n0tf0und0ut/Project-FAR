@@ -600,6 +600,107 @@ class ReasonerLaneAdapterTests(unittest.TestCase):
                          (ROOT / a.skill_path).read_text(encoding="utf-8"))
         self.assertEqual(payload["agent"]["skill_sha256"], a.skill_sha256)
 
+    def test_wire_hash_binds_redacted_context_and_receipts(self):
+        plan = sub.far_research_plan(ROOT)
+        observed = {}
+
+        def reasoner(prompt, task_id):
+            payload = json.loads(prompt)
+            task = payload["task"]
+            wire_hash = task.pop("input_sha256")
+            self.assertEqual(wire_hash, sub.sha256_text(sub.canonical_json(payload)))
+            artifact = task["context"][0]
+            self.assertEqual(artifact["text"], "[REDACTED]")
+            self.assertEqual(artifact["sha256"], sub.sha256_text(artifact["text"]))
+            self.assertEqual(payload["agent"]["skill_sha256"],
+                             sub.sha256_text(payload["agent"]["instructions"]))
+            raw = json.dumps(dict(contract="far-subagent-report/1.0",
+                                  agent_id=payload["agent"]["agent_id"], task_id=task_id,
+                                  input_sha256=wire_hash, status="completed", findings=[],
+                                  limitations=[], error=None))
+            observed[task_id] = (prompt, raw)
+            return raw
+
+        def execute(model):
+            lanes = {
+                agent.agent_id: sub.ReasonerLane(
+                    agent.agent_id, model, f"sandbox:{agent.agent_id}", reasoner, True
+                )
+                for agent in plan.agents
+            }
+            return sub.orchestrate(
+                plan=plan, objective="Check provenance",
+                context=(sub.ContextArtifact.from_text("source", "token=example-credential"),),
+                runtime=sub.ReasonerLaneRuntime(lanes, root=ROOT),
+            )
+
+        result = execute("declared-model")
+        self.assertEqual(result.status, sub.RunStatus.COMPLETED)
+        self.assertEqual(len(result.invocation_receipts), 14)
+        self.assertEqual(len(result.runtime_capabilities), 14)
+        self.assertEqual({item.agent_id for item in result.invocation_receipts}, set(plan.by_id))
+        for receipt in result.invocation_receipts:
+            request, response = observed[receipt.task_id]
+            self.assertEqual(receipt.request_sha256, sub.sha256_text(request))
+            self.assertEqual(receipt.response_sha256, sub.sha256_text(response))
+        self.assertNotEqual(result.result_sha256, execute("different-model").result_sha256)
+
+    def test_failed_reentrant_call_preserves_both_request_receipts(self):
+        agent = spec(agent_id="coordinator", role="coordinate",
+                     kind=sub.AgentKind.COORDINATOR,
+                     skill_path=".claude/skills/far-research-orchestrator/SKILL.md")
+        plan = sub.OrchestrationPlan("one-lane", agent.agent_id, (agent,))
+        prompts = {}
+        nested = None
+
+        def reasoner(prompt, task_id):
+            nonlocal nested
+            task = json.loads(prompt)["task"]
+            prompts[task_id] = prompt
+            if task["run_id"] == "outer":
+                nested = execute("inner")
+                raise ValueError("outer transport failure")
+            return "{}"
+
+        runtime = sub.ReasonerLaneRuntime({
+            agent.agent_id: sub.ReasonerLane(agent.agent_id, "model", "sandbox", reasoner, True),
+        }, root=ROOT)
+
+        def execute(run_id):
+            return sub.orchestrate(plan=plan, objective="Check receipts", context=(),
+                                   runtime=runtime, run_id=run_id)
+
+        outer = execute("outer")
+        self.assertEqual(outer.status, sub.RunStatus.FAILED)
+        self.assertEqual(nested.status, sub.RunStatus.FAILED)
+        outer_receipt, = outer.invocation_receipts
+        inner_receipt, = nested.invocation_receipts
+        self.assertIsNone(outer_receipt.response_sha256)
+        self.assertEqual(inner_receipt.response_sha256, sub.sha256_text("{}"))
+        for receipt in (outer_receipt, inner_receipt):
+            self.assertEqual(receipt.request_sha256, sub.sha256_text(prompts[receipt.task_id]))
+
+    def test_malformed_typed_reports_and_ambiguous_isolation_fail_closed(self):
+        base = dict(agent_id="a", task_id="TASK-1", input_sha256="0" * 64)
+        with self.assertRaisesRegex(ValueError, "invalid report status"):
+            sub.AgentReport(**base, status="completed")
+        with self.assertRaisesRegex(ValueError, "limitations"):
+            sub.AgentReport(**base, status=sub.ReportStatus.COMPLETED, limitations="wrong")
+        with self.assertRaises(UnicodeError):
+            sub.AgentReport(**base, status=sub.ReportStatus.COMPLETED, limitations=("\ud800",))
+        with self.assertRaisesRegex(ValueError, "invalid finding disposition"):
+            sub.Finding("F-1", "C-1", "supports", "statement")
+        with self.assertRaisesRegex(ValueError, "flags must be booleans"):
+            sub.RuntimeCapabilities("sandbox", "false", "0" * 64)
+        with self.assertRaisesRegex(ValueError, "shared_state_with must be a tuple"):
+            sub.RuntimeCapabilities("sandbox", True, "0" * 64, shared_state_with="peer")
+        with self.assertRaisesRegex(ValueError, "contradictory clean-room capability"):
+            sub.RuntimeCapabilities("sandbox", False, "0" * 64, clean_room_verified=True)
+        with self.assertRaisesRegex(ValueError, "forbidden clean-room context"):
+            dataclasses.replace(sub.far_research_plan(ROOT).by_id["discovery"],
+                                clean_room=True, context_ids=("Prior-FAR-Verdict",),
+                                dependency_view=sub.DependencyView.CLAIMS_ONLY)
+
     def test_adapter_rejects_lane_provider_identity_mismatch_before_call(self):
         called = False
 
