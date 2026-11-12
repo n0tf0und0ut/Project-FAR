@@ -637,6 +637,14 @@ Acceptance criteria:
                     _criteria(body + "\nAcceptance criteria:\n- Real.\n"), ["Real."]
                 )
 
+    def test_empty_list_marker_preserves_container_context(self):
+        for marker, indent in (("-", "  "), ("2.", "   ")):
+            with self.subTest(marker=marker):
+                body = f"{marker}\n{indent}Example text.\n"
+                with self.assertRaisesRegex(IntakeError, "lazy Markdown container"):
+                    draft(body + "Acceptance criteria:\n- Example only.\n")
+                self.assertEqual(_criteria(body + "\nAcceptance criteria:\n- Real.\n"), ["Real."])
+
     def test_cli_submit_draft_cannot_occupy_or_alias_database_sidecar(self):
         d = draft()
         for suffix in ("-wal", "-shm", "-journal"):

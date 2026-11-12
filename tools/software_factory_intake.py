@@ -235,7 +235,7 @@ def _criteria(body: str) -> list[str]:
                 and line.lstrip().startswith("#")):
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
-        if not in_section and re.match(r"^ {0,3}(?:[-*+]|[0-9]{1,9}[.)])[ \t]+", line):
+        if not in_section and re.match(r"^ {0,3}(?:[-*+]|[0-9]{1,9}[.)])(?:[ \t]+|$)", line):
             list_context = True
             container_paragraph = True
         elif not in_section and re.match(r"^ {0,3}>", line):
