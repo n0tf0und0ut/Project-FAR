@@ -13,18 +13,18 @@ runner = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(runner)
 
 
-class _FakeCase:
-    def __init__(self, name: str) -> None:
-        self.name = name
-
-    def id(self) -> str:
-        return self.name
+def _case(module: str, identity: str):
+    cls = type("Case", (unittest.TestCase,), {
+        "__module__": module, "runTest": lambda self: None,
+        "id": lambda self: identity,
+    })
+    return cls()
 
 
 class CanonicalParallelCoverageTests(unittest.TestCase):
     def _cases(self):
         return [
-            _FakeCase(f"project_far_test_{i}_test_module.Case.test_{j}")
+            _case(f"project_far_test_{i}_test_module", f"project_far_test_{i}_test_module.Case.test_{j}")
             for i in range(5) for j in range(i + 1)
         ]
 
@@ -50,13 +50,23 @@ class CanonicalParallelCoverageTests(unittest.TestCase):
             runner._suite_fingerprint([cases[0], cases[0]])
 
     def test_unattributable_module_and_invalid_worker_count_fail_closed(self) -> None:
-        for invalid in ("unknown.case", "project_far_test_1_non_test.case"):
+        for invalid in ("unknown bad module", "__main__"):
             with self.subTest(test=invalid):
                 with self.assertRaisesRegex(ValueError, "identity"):
-                    runner._test_shards([_FakeCase(invalid)], 2)
+                    runner._test_shards([_case(invalid, "bad.case")], 2)
         for jobs in (0, -1, 33):
             with self.assertRaisesRegex(ValueError, "count"):
                 runner._test_shards(self._cases(), jobs)
+
+    def test_original_import_module_names_and_function_cases_are_supported(self) -> None:
+        original = _case("tests.test_far_investigation_benchmark",
+                         "tests.test_far_investigation_benchmark.FrozenSemanticTests.test_one")
+        wrapped = lambda: None
+        wrapped.__name__ = "project_far_test_1_test_example.test_function"
+        function_case = unittest.FunctionTestCase(wrapped)
+        self.assertEqual(runner._canonical_module(original), "tests.test_far_investigation_benchmark")
+        self.assertEqual(runner._canonical_module(function_case), "project_far_test_1_test_example")
+        self.assertEqual(len(runner._test_shards([original, function_case], 2)), 2)
 
     def test_serial_is_unmodified_default_and_parallel_is_opt_in(self) -> None:
         import json

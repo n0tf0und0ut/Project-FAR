@@ -147,11 +147,29 @@ def _canonical_cases(suite: unittest.TestSuite):
             yield item
 
 
+def _canonical_module(case) -> str:
+    # unittest.TestCase classes can retain their original import-path module
+    # even when discovered via a dynamically named source file.
+    # FunctionTestCase is different: its wrapper class is unittest.case, but
+    # the function ID is anchored to the actual dynamically loaded module.
+    source = (
+        case.id().rsplit(".", 1)[0]
+        if isinstance(case, unittest.FunctionTestCase)
+        else case.__class__.__module__
+    )
+    if not isinstance(source, str) or not re.fullmatch(
+        r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*", source
+    ) or source in {"unittest.case", "unittest.loader", "__main__"}:
+        raise ValueError(f"cannot prove canonical test-module identity: {case.id()}")
+    return source
+
+
 def _suite_fingerprint(cases) -> str:
     identities = [test.id() for test in cases]
     if len(identities) != len(set(identities)):
         raise ValueError("canonical test discovery contains duplicate test IDs")
-    return hashlib.sha256(json.dumps(identities, separators=(",", ":")).encode()).hexdigest()
+    records = [(test.id(), _canonical_module(test)) for test in cases]
+    return hashlib.sha256(json.dumps(records, separators=(",", ":")).encode()).hexdigest()
 
 
 def _test_shards(cases, jobs: int) -> list[list[int]]:
@@ -160,9 +178,7 @@ def _test_shards(cases, jobs: int) -> list[list[int]]:
         raise ValueError("canonical shard count must be in [1, 32]")
     by_module: dict[str, list[int]] = {}
     for index, case in enumerate(cases):
-        source = case.id().split(".", 1)[0]
-        if not re.fullmatch(r"project_far_test_[0-9]+_test_[A-Za-z0-9_]+", source):
-            raise ValueError(f"cannot prove canonical test-module identity: {case.id()}")
+        source = _canonical_module(case)
         by_module.setdefault(source, []).append(index)
     if not by_module:
         raise ValueError("canonical test discovery is empty")
