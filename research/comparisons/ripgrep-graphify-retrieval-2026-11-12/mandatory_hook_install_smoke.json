@@ -1,0 +1,99 @@
+{
+  "codex_hook_config": {
+    "hooks": {
+      "PreToolUse": [
+        {
+          "hooks": [
+            {
+              "command": "graphify hook-check",
+              "type": "command"
+            }
+          ],
+          "matcher": "Bash"
+        }
+      ]
+    }
+  },
+  "codex_pretool_command_is_graphify_hook_check": true,
+  "codex_skill_files": {
+    ".codex/hooks.json": {
+      "bytes": 218,
+      "sha256": "123313824d5e7a64f4ced412f15cf2161abb16d6a54bead18abd8f7f40e53eca"
+    },
+    ".codex/skills/graphify/.graphify_version": {
+      "bytes": 7,
+      "sha256": "4fe106394b81cd20a164b88fd5af65572a377404128dceb243faf9a545ffd3f6"
+    },
+    ".codex/skills/graphify/SKILL.md": {
+      "bytes": 51311,
+      "sha256": "2d1b7bb0e8f2f60f7691ec75eebaa75f9032cabcf8b2373c38f0b73825e402b3"
+    },
+    ".codex/skills/graphify/references/add-watch.md": {
+      "bytes": 2704,
+      "sha256": "1e77351815547334c7e030f018dba513b303d397bf73d11fac47df03ace3b3f4"
+    },
+    ".codex/skills/graphify/references/exports.md": {
+      "bytes": 4774,
+      "sha256": "c39a2f8062be9a5ac319220d6e66ca586ed0b0798292b1321206834be74c1b33"
+    },
+    ".codex/skills/graphify/references/extraction-spec.md": {
+      "bytes": 5240,
+      "sha256": "9525ca4e865711dc73406aa978600acda81e3a0f4ad164d707b87b5cdef2ba7b"
+    },
+    ".codex/skills/graphify/references/github-and-merge.md": {
+      "bytes": 2177,
+      "sha256": "e5ebd90c7686f50363ff7a535556bc2f596d4c47ec1e6c8b95e11e36a0dfea2b"
+    },
+    ".codex/skills/graphify/references/hooks.md": {
+      "bytes": 2109,
+      "sha256": "c3141e7124be8d1f0e96ff3895220a1b6318a644c4c6a60120e4aa6b1cd92d4a"
+    },
+    ".codex/skills/graphify/references/query.md": {
+      "bytes": 14775,
+      "sha256": "314e98daa21478e697643ec5b7cef5a35d04c4eb410037b37e22ac457610a147"
+    },
+    ".codex/skills/graphify/references/transcribe.md": {
+      "bytes": 3173,
+      "sha256": "676a1e39aa6d43cdfcc416ec56616e36f7bad74066a82bd33a9485515b9a865c"
+    },
+    ".codex/skills/graphify/references/update.md": {
+      "bytes": 12335,
+      "sha256": "66a13120e96344c0c5c39c54d899b94244c1f50dad6b093af3d633f0a44a3654"
+    }
+  },
+  "git_hooks": {
+    "post-checkout": {
+      "bytes": 13440,
+      "sha256": "cbb80531c5b5399ca72d2ce5dab6f86cd41ebe18aa9e3fb3542fe34d486b100d"
+    },
+    "post-commit": {
+      "bytes": 15926,
+      "sha256": "7ca34d7540cbb5828cdb9c82471722f9fdcb577636f19eabd37427f4d650b41d"
+    },
+    "post-merge": {
+      "bytes": 13416,
+      "sha256": "7a7ac46791ae818becd9eaf8fb63d507d140cbf5d35a59b299eac8d109e0c9f2"
+    },
+    "post-rewrite": {
+      "bytes": 13331,
+      "sha256": "8b9491bd55e23b5bf75daf3c0170659a93d7358a14d39019dc16ca9da8887c2e"
+    }
+  },
+  "git_merge_driver_config": "\"/__modal/volumes/vo-Akmz8eq2XDrm10zEapdhr8/far-graphify-eval-20261112/.venv/bin/python\" -m graphify merge-driver %O %A %B",
+  "gitattributes": "graphify-out/graph.json merge=graphify\n",
+  "graphify_version": "0.9.107",
+  "initial_policy_sha256": "1e8bcde2df2168aa693735cde89acf8cb6bd403990a23d0daa2bb4b21213750e",
+  "install_commands": [
+    "graphify install --project --platform codex",
+    "graphify hook install"
+  ],
+  "installed_policy_sha256": "e7c7e5adc34882146f87cad669e45371840796b6fbbb0b2d4ef82a3c99b8d6d6",
+  "installer_stdout_reports_pretool_noop": "Observed: graphify install --project --platform codex stdout declares hook-check an intentional no-op on Codex Desktop; agent guidance comes from AGENTS.md",
+  "new_policy_adds_graph_update_after_code_modification": true,
+  "new_policy_requires_graph_before_grep": true,
+  "original_policy_remains_textually_present": true,
+  "platform": "codex",
+  "scratch_path_not_repo": "/tmp/far-graphify-hook-adoption-smoke",
+  "status": "Research: isolated scratch filesystem observation; NO installation in Project FAR",
+  "test_assertions_passed": true
+}
