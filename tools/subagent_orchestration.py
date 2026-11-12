@@ -204,7 +204,10 @@ class AgentSpec:
                 raise ValueError(f"{self.agent_id}: clean-room context must have an explicit allowlist")
             if self.dependency_view is not DependencyView.CLAIMS_ONLY:
                 raise ValueError(f"{self.agent_id}: clean-room dependencies require claims-only view")
-            forbidden = _FORBIDDEN_CLEAN_ROOM_CONTEXT.intersection(self.context_ids)
+            forbidden = {
+                item for item in self.context_ids
+                if item.casefold().replace("-", "_") in _FORBIDDEN_CLEAN_ROOM_CONTEXT
+            }
             if forbidden:
                 raise ValueError(f"{self.agent_id}: forbidden clean-room context {sorted(forbidden)}")
             if not self.requires_isolation or self.repository_tools_allowed:
@@ -257,7 +260,8 @@ class RuntimeCapabilities:
                                          or self.repository_tools_enabled
                                          or self.shared_state_with):
             raise ValueError("contradictory clean-room capability")
-        for value in (self.provider_id, self.model_identity, self.prior_exposure):
+        for value in (self.sandbox_id, *self.shared_state_with,
+                      self.provider_id, self.model_identity, self.prior_exposure):
             if value is not None and (not _require_str(value, "runtime identity").strip()
                                       or redact_outbound(value) != value):
                 raise ValueError("invalid runtime identity")
@@ -425,11 +429,13 @@ class ReasonerLaneRuntime:
         prompt = canonical_json(payload)
         receipt = InvocationReceipt(agent.agent_id, task.task_id, wire_input,
                                     sha256_text(prompt), None)
-        self._receipt.set(receipt)
-        raw = lane.reasoner(prompt, task.task_id)
-        if not isinstance(raw, str):
-            raise TypeError("reasoner output must be text")
-        self._receipt.set(dataclasses.replace(receipt, response_sha256=sha256_text(raw)))
+        try:
+            raw = lane.reasoner(prompt, task.task_id)
+            if not isinstance(raw, str):
+                raise TypeError("reasoner output must be text")
+            receipt = dataclasses.replace(receipt, response_sha256=sha256_text(raw))
+        finally:
+            self._receipt.set(receipt)
         report = parse_agent_report(raw)
         if report.input_sha256 != wire_input:
             raise ValueError("wire report input hash mismatch")

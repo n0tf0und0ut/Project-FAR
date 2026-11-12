@@ -78,3 +78,23 @@ Run the focused tests with:
 ```bash
 python -m unittest tests.test_subagent_orchestration
 ```
+
+## Native Codex execution
+
+Run the mailbox adapter with an empty destination path outside the checkout:
+
+```bash
+python -m tools.codex_specialist_runtime \
+  --mailbox /tmp/far-native-run \
+  --objective "Audit the supplied evidence" \
+  --context evidence=/path/to/frozen-evidence.txt
+```
+
+The controller dispatches each published request to a native Codex worker,
+then calls `publish_native_report` with the request path, observed worker ID,
+and the worker's exact JSON report text. The adapter rejects reused worker IDs
+and mismatched request digests. Preserve the mailbox envelopes and
+`result.json` together to audit handoffs. The result binds envelope digests and
+controller-reported worker IDs to the orchestration result. The controller and
+workers share a workspace in this mode. Record the run as I0, with provider
+identity and isolation unattested.

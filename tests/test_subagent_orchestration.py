@@ -645,6 +645,41 @@ class ReasonerLaneAdapterTests(unittest.TestCase):
             self.assertEqual(receipt.response_sha256, sub.sha256_text(response))
         self.assertNotEqual(result.result_sha256, execute("different-model").result_sha256)
 
+    def test_failed_reentrant_call_preserves_both_request_receipts(self):
+        agent = spec(agent_id="coordinator", role="coordinate",
+                     kind=sub.AgentKind.COORDINATOR,
+                     skill_path=".claude/skills/far-research-orchestrator/SKILL.md")
+        plan = sub.OrchestrationPlan("one-lane", agent.agent_id, (agent,))
+        prompts = {}
+        nested = None
+
+        def reasoner(prompt, task_id):
+            nonlocal nested
+            task = json.loads(prompt)["task"]
+            prompts[task_id] = prompt
+            if task["run_id"] == "outer":
+                nested = execute("inner")
+                raise ValueError("outer transport failure")
+            return "{}"
+
+        runtime = sub.ReasonerLaneRuntime({
+            agent.agent_id: sub.ReasonerLane(agent.agent_id, "model", "sandbox", reasoner, True),
+        }, root=ROOT)
+
+        def execute(run_id):
+            return sub.orchestrate(plan=plan, objective="Check receipts", context=(),
+                                   runtime=runtime, run_id=run_id)
+
+        outer = execute("outer")
+        self.assertEqual(outer.status, sub.RunStatus.FAILED)
+        self.assertEqual(nested.status, sub.RunStatus.FAILED)
+        outer_receipt, = outer.invocation_receipts
+        inner_receipt, = nested.invocation_receipts
+        self.assertIsNone(outer_receipt.response_sha256)
+        self.assertEqual(inner_receipt.response_sha256, sub.sha256_text("{}"))
+        for receipt in (outer_receipt, inner_receipt):
+            self.assertEqual(receipt.request_sha256, sub.sha256_text(prompts[receipt.task_id]))
+
     def test_malformed_typed_reports_and_ambiguous_isolation_fail_closed(self):
         base = dict(agent_id="a", task_id="TASK-1", input_sha256="0" * 64)
         with self.assertRaisesRegex(ValueError, "invalid report status"):
@@ -661,6 +696,10 @@ class ReasonerLaneAdapterTests(unittest.TestCase):
             sub.RuntimeCapabilities("sandbox", True, "0" * 64, shared_state_with="peer")
         with self.assertRaisesRegex(ValueError, "contradictory clean-room capability"):
             sub.RuntimeCapabilities("sandbox", False, "0" * 64, clean_room_verified=True)
+        with self.assertRaisesRegex(ValueError, "forbidden clean-room context"):
+            dataclasses.replace(sub.far_research_plan(ROOT).by_id["discovery"],
+                                clean_room=True, context_ids=("Prior-FAR-Verdict",),
+                                dependency_view=sub.DependencyView.CLAIMS_ONLY)
 
     def test_adapter_rejects_lane_provider_identity_mismatch_before_call(self):
         called = False
