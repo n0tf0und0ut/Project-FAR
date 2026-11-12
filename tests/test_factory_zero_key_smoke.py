@@ -1,6 +1,7 @@
 """Fail-closed controls for the Research-only credential-free worker smoke."""
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -228,7 +229,8 @@ class GitAndRuntimeTests(unittest.TestCase):
         mock_module = types.ModuleType("tools.workflow_efficacy_free_agent")
         mock_module.local_model_digest = lambda: smoke.MODEL_DIGEST
         model = (encode({"patch": example_patch()}), b'{"done":true}',
-                 {"input_tokens": 21, "output_tokens": 42, "response_sha256": "c" * 64})
+                 {"input_tokens": 21, "output_tokens": 42, "response_sha256": "c" * 64,
+                  "api_model": smoke.MODEL})
         tests = {"state": "PASS", "exit_code": 0, "elapsed_seconds": 0.1}
         with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": mock_module}), \
                 mock.patch.object(smoke, "model_reply", return_value=model), \
@@ -248,6 +250,31 @@ class GitAndRuntimeTests(unittest.TestCase):
         self.assertEqual(len(run_git(self.repo, "worktree", "list").splitlines()), 1)
         with self.assertRaises(smoke.SmokeError):
             smoke.run(self.repo, manifest_path, output)
+
+    def test_smoke_blocks_mismatched_or_absent_reply_model_and_preserves_response(self):
+        manifest_path = Path(self.tmp.name) / "task-identity.json"
+        manifest_path.write_bytes(encode({**BASE, "base_sha": self.base, "source_git_blob": self.blob}))
+        stub = types.ModuleType("tools.workflow_efficacy_free_agent")
+        stub.local_model_digest = lambda: smoke.MODEL_DIGEST
+        for index, model_fields in enumerate(({"model": "another-model:1b"}, {})):
+            with self.subTest(model_fields=model_fields):
+                output = Path(self.tmp.name) / f"output-identity-{index}"
+                reply = encode({
+                    **model_fields, "done": True, "eval_count": 1, "prompt_eval_count": 1,
+                    "message": {"content": encode({"patch": example_patch()}).decode()},
+                })
+                with mock.patch.dict(sys.modules, {"tools.workflow_efficacy_free_agent": stub}), \
+                        mock.patch.object(smoke.urllib.request, "urlopen", return_value=io.BytesIO(reply)), \
+                        mock.patch.object(smoke, "grader_image_id", return_value="sha256:" + "a" * 64), \
+                        mock.patch.object(smoke, "grade_in_docker", return_value={"state": "PASS"}) as grade:
+                    receipt = smoke.run(self.repo, manifest_path, output)
+                self.assertEqual(receipt["verdict"], "BLOCKED_OR_MODEL_OUTPUT_INVALID")
+                self.assertIn("reply model", receipt["error"])
+                self.assertIsNone(receipt["after"])
+                self.assertFalse((output / "candidate.patch").exists())
+                self.assertEqual([call.args[3] for call in grade.call_args_list], ["before"])
+                self.assertEqual((output / "model-transport-response.json").read_bytes(), reply)
+                self.assertEqual(receipt["artifact_sha256"]["model-transport-response.json"], smoke.sha(reply))
 
     def test_missing_local_model_preserves_blocked_receipt(self):
         entry = {**BASE, "base_sha": self.base, "source_git_blob": self.blob}

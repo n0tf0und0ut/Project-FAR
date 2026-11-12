@@ -373,6 +373,8 @@ def run(repo: Path, taskfile: Path, output: Path) -> dict:
         (output / "model-content.json").write_bytes(raw)
         (output / "model-transport-response.json").write_bytes(response)
         receipt["generation"] = {**metrics, "prompt_sha256": sha(prompt.encode("utf-8"))}
+        if metrics["api_model"] != MODEL:
+            raise SmokeError("reply model does not match the requested pinned model tag")
         patch = patch_text(raw, path)
         (output / "candidate.patch").write_text(patch, encoding="utf-8")
         blob = apply_candidate(worktree, patch, path)
