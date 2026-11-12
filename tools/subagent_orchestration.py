@@ -18,7 +18,8 @@ import enum
 import hashlib
 import json
 import re
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from contextvars import ContextVar
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
@@ -34,7 +35,7 @@ _FORBIDDEN_CLEAN_ROOM_CONTEXT = frozenset({
 
 
 def canonical_json(value: object) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
 
 def sha256_text(text: str) -> str:
@@ -106,6 +107,11 @@ class Finding:
     def __post_init__(self) -> None:
         _validate_id(self.finding_id, "finding_id")
         _validate_id(self.claim_id, "claim_id")
+        if not isinstance(self.disposition, FindingDisposition):
+            raise ValueError("invalid finding disposition")
+        _require_str(self.statement, "statement")
+        if type(self.evidence_refs) is not tuple:
+            raise ValueError("evidence_refs must be a tuple")
         if not self.statement.strip():
             raise ValueError(f"{self.finding_id}: statement is required")
         if len(self.evidence_refs) != len(set(self.evidence_refs)):
@@ -129,13 +135,23 @@ class AgentReport:
         _validate_id(self.task_id, "task_id")
         if not _HEX64.fullmatch(self.input_sha256):
             raise ValueError(f"{self.agent_id}: input_sha256 must be lowercase hex")
+        if not isinstance(self.status, ReportStatus):
+            raise ValueError("invalid report status")
+        if type(self.findings) is not tuple or any(type(item) is not Finding for item in self.findings):
+            raise ValueError("findings must be a tuple of Finding values")
+        if type(self.limitations) is not tuple:
+            raise ValueError("limitations must be a tuple")
+        for limitation in self.limitations:
+            _require_str(limitation, "limitation")
+        if self.error is not None:
+            _require_str(self.error, "error")
         ids = [item.finding_id for item in self.findings]
         if len(ids) != len(set(ids)):
             raise ValueError(f"{self.agent_id}: duplicate finding_id")
         if self.status is ReportStatus.COMPLETED and self.error is not None:
             raise ValueError(f"{self.agent_id}: completed report cannot contain error")
         if self.status is ReportStatus.FAILED:
-            if not self.error:
+            if not self.error or not self.error.strip():
                 raise ValueError(f"{self.agent_id}: failed report requires error")
             if self.findings:
                 raise ValueError(f"{self.agent_id}: failed report cannot assert findings")
@@ -179,6 +195,10 @@ class AgentSpec:
                 raise ValueError(f"{self.agent_id}: context_ids must be unique")
             for artifact_id in self.context_ids:
                 _validate_id(artifact_id, "context_id")
+        for flag in (self.receives_dependency_reports, self.requires_isolation,
+                     self.repository_tools_allowed, self.clean_room):
+            if type(flag) is not bool:
+                raise ValueError("plan flags must be booleans")
         if self.clean_room:
             if self.context_ids is None:
                 raise ValueError(f"{self.agent_id}: clean-room context must have an explicit allowlist")
@@ -219,10 +239,28 @@ class RuntimeCapabilities:
     repository_tools_enabled: bool = False
     shared_state_with: tuple[str, ...] = ()
     clean_room_verified: bool = False
+    provider_id: str | None = None
+    model_identity: str | None = None
+    prior_exposure: str | None = None
 
     def __post_init__(self) -> None:
-        if not self.sandbox_id.strip():
-            raise ValueError("sandbox_id is required")
+        _validate_id(self.sandbox_id, "sandbox_id")
+        for flag in (self.isolation_verified, self.repository_tools_enabled,
+                     self.clean_room_verified):
+            if type(flag) is not bool:
+                raise ValueError("runtime capability flags must be booleans")
+        if type(self.shared_state_with) is not tuple:
+            raise ValueError("shared_state_with must be a tuple")
+        for peer in self.shared_state_with:
+            _validate_id(peer, "shared-state peer")
+        if self.clean_room_verified and (not self.isolation_verified
+                                         or self.repository_tools_enabled
+                                         or self.shared_state_with):
+            raise ValueError("contradictory clean-room capability")
+        for value in (self.provider_id, self.model_identity, self.prior_exposure):
+            if value is not None and (not _require_str(value, "runtime identity").strip()
+                                      or redact_outbound(value) != value):
+                raise ValueError("invalid runtime identity")
         if not _HEX64.fullmatch(self.instruction_sha256):
             raise ValueError("instruction_sha256 must be lowercase hex")
         if len(self.shared_state_with) != len(set(self.shared_state_with)):
@@ -269,6 +307,15 @@ class AgentFailure:
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
+class InvocationReceipt:
+    agent_id: str
+    task_id: str
+    input_sha256: str
+    request_sha256: str
+    response_sha256: str | None
+
+
+@dataclasses.dataclass(frozen=True, slots=True)
 class OrchestrationResult:
     run_id: str
     plan_sha256: str
@@ -279,6 +326,8 @@ class OrchestrationResult:
     blocked_agents: tuple[str, ...]
     coordinator_report: AgentReport | None
     result_sha256: str
+    runtime_capabilities: tuple[tuple[str, RuntimeCapabilities], ...] = ()
+    invocation_receipts: tuple[InvocationReceipt, ...] = ()
 
 
 class AgentRuntime(Protocol):
@@ -338,6 +387,9 @@ class ReasonerLaneRuntime:
         self._lanes = dict(lanes)
         self._root = Path(root).resolve()
         self._skill_texts = dict(skill_texts or {})
+        self._receipt: ContextVar[InvocationReceipt | None] = ContextVar(
+            "reasoner_lane_receipt", default=None
+        )
         self._skill_cache: dict[tuple[str, str], tuple[str, str]] = {}
 
     def capabilities(self, agent: AgentSpec) -> RuntimeCapabilities:
@@ -357,17 +409,36 @@ class ReasonerLaneRuntime:
             isolation_verified=lane.isolation_verified,
             instruction_sha256=digest,
             repository_tools_enabled=lane.repository_tools_enabled,
-            shared_state_with=tuple(lane.shared_state_with),
+            shared_state_with=lane.shared_state_with,
+            provider_id=lane.provider_id,
+            model_identity=lane.model_identity,
+            prior_exposure=lane.prior_exposure,
         )
 
     def invoke(self, agent: AgentSpec, task: AgentTask) -> AgentReport:
+        self._receipt.set(None)
         lane = self._lanes[agent.agent_id]
         skill_text, _digest = self._load_skill(agent)
-        prompt = canonical_json(_redacted_task_payload(agent, task, skill_text))
+        payload = _redacted_task_payload(agent, task, skill_text)
+        wire_input = sha256_text(canonical_json(payload))
+        payload["task"]["input_sha256"] = wire_input
+        prompt = canonical_json(payload)
+        receipt = InvocationReceipt(agent.agent_id, task.task_id, wire_input,
+                                    sha256_text(prompt), None)
+        self._receipt.set(receipt)
         raw = lane.reasoner(prompt, task.task_id)
         if not isinstance(raw, str):
             raise TypeError("reasoner output must be text")
-        return parse_agent_report(raw)
+        self._receipt.set(dataclasses.replace(receipt, response_sha256=sha256_text(raw)))
+        report = parse_agent_report(raw)
+        if report.input_sha256 != wire_input:
+            raise ValueError("wire report input hash mismatch")
+        return dataclasses.replace(report, input_sha256=task.input_sha256)
+
+    def take_receipt(self, task: AgentTask) -> InvocationReceipt | None:
+        receipt = self._receipt.get()
+        self._receipt.set(None)
+        return receipt if receipt is not None and receipt.task_id == task.task_id else None
 
     def _load_skill(self, agent: AgentSpec) -> tuple[str, str]:
         cache_key = (agent.skill_path, agent.skill_sha256)
@@ -609,7 +680,8 @@ def orchestrate(
 
     actual_run_id = run_id or _default_run_id(plan, objective, context_tuple)
     _validate_id(actual_run_id, "run_id")
-    _validate_runtime(plan, runtime)
+    capabilities = _validate_runtime(plan, runtime)
+    receipts: list[InvocationReceipt] = []
 
     by_id = plan.by_id
     reports: dict[str, AgentReport] = {}
@@ -643,6 +715,7 @@ def orchestrate(
                     failures=failures,
                     blocked=blocked,
                     coordinator_report=None,
+                    capabilities=capabilities, receipts=receipts,
                 )
 
         dependency_reports = (
@@ -672,8 +745,14 @@ def orchestrate(
                 task_id=task.task_id,
                 input_sha256=task.input_sha256,
                 status=ReportStatus.FAILED,
-                error=f"{type(exc).__name__}: {exc}",
+                error=redact_outbound(f"{type(exc).__name__}: {exc}").encode(
+                    "utf-8", errors="replace").decode("utf-8"),
             )
+        finally:
+            if isinstance(runtime, ReasonerLaneRuntime):
+                receipt = runtime.take_receipt(task)
+                if receipt is not None:
+                    receipts.append(receipt)
         reports[agent_id] = report
         if report.status is ReportStatus.FAILED:
             failures.append(
@@ -701,6 +780,7 @@ def orchestrate(
         failures=failures,
         blocked=blocked,
         coordinator_report=coordinator,
+        capabilities=capabilities, receipts=receipts,
     )
 
 
@@ -766,6 +846,23 @@ def far_research_plan(root: Path | str = Path(".")) -> OrchestrationPlan:
             ),
         ),
     )
+    specialists += (
+        bound("canonical-source", "far-canonical-source-resolver",
+              "Locate governing sources and identify provenance limits."),
+        bound("claim-registry", "far-claim-registry",
+              "Inspect claim identities and declared scope.", dependencies=("formalizer",)),
+        bound("clean-room-audit", "far-clean-room-auditor",
+              "Check isolation limitations without issuing an independent verdict."),
+        bound("contradiction", "far-contradiction-detector",
+              "Identify competing findings.", dependencies=("formalizer", "counterexample")),
+        bound("embedding", "far-embedding-tester",
+              "Check for unsupported transfer or embedding.", dependencies=("formalizer",)),
+        bound("evidence-ledger", "far-evidence-ledger",
+              "Check evidence traceability.", dependencies=("discovery", "canonical-source")),
+        bound("project-state", "far-project-state-manager",
+              "Summarize project-state implications without changing repository state.",
+              dependencies=("quality-gate",)),
+    )
     specialist_ids = tuple(agent.agent_id for agent in specialists)
     coordinator = bound(
         "coordinator",
@@ -775,17 +872,23 @@ def far_research_plan(root: Path | str = Path(".")) -> OrchestrationPlan:
         dependencies=specialist_ids,
     )
     return OrchestrationPlan(
-        plan_id="far-research-subagents-v1",
+        plan_id="far-research-subagents-v2",
         coordinator_id="coordinator",
         agents=specialists + (coordinator,),
     )
 
 
-def _validate_runtime(plan: OrchestrationPlan, runtime: AgentRuntime) -> None:
+def _validate_runtime(
+    plan: OrchestrationPlan, runtime: AgentRuntime
+) -> tuple[tuple[str, RuntimeCapabilities], ...]:
+    verified = []
     seen_sandboxes: dict[str, str] = {}
     plan_ids = set(plan.by_id)
     for agent in plan.agents:
         capabilities = runtime.capabilities(agent)
+        if type(capabilities) is not RuntimeCapabilities:
+            raise TypeError("runtime must return RuntimeCapabilities")
+        verified.append((agent.agent_id, capabilities))
         if capabilities.instruction_sha256 != agent.skill_sha256:
             raise ValueError(
                 f"{agent.agent_id}: runtime instruction hash does not match bound skill"
@@ -812,6 +915,7 @@ def _validate_runtime(plan: OrchestrationPlan, runtime: AgentRuntime) -> None:
                 f"{agent.agent_id}: sandbox_id duplicates {prior}: {capabilities.sandbox_id}"
             )
         seen_sandboxes[capabilities.sandbox_id] = agent.agent_id
+    return tuple(sorted(verified))
 
 
 def _build_task(
@@ -878,7 +982,7 @@ def _validate_report_binding(report: AgentReport, task: AgentTask) -> None:
 
 
 def _validate_global_finding_ids(
-    report: AgentReport, prior_reports: Sequence[AgentReport]
+    report: AgentReport, prior_reports: Iterable[AgentReport]
 ) -> None:
     prior = {
         finding.finding_id
@@ -911,6 +1015,8 @@ def _result(
     failures: Sequence[AgentFailure],
     blocked: Sequence[str],
     coordinator_report: AgentReport | None,
+    capabilities: tuple[tuple[str, RuntimeCapabilities], ...],
+    receipts: Sequence[InvocationReceipt],
 ) -> OrchestrationResult:
     ordered_reports = tuple(reports[key] for key in sorted(reports))
     payload = {
@@ -921,6 +1027,8 @@ def _result(
         "conflicts": [dataclasses.asdict(item) for item in conflicts],
         "failures": [dataclasses.asdict(item) for item in failures],
         "blocked_agents": sorted(set(blocked)),
+        "runtime_capabilities": [(agent, dataclasses.asdict(cap)) for agent, cap in capabilities],
+        "invocation_receipts": [dataclasses.asdict(item) for item in receipts],
         "coordinator_task_id": (
             coordinator_report.task_id if coordinator_report is not None else None
         ),
@@ -935,6 +1043,8 @@ def _result(
         blocked_agents=tuple(sorted(set(blocked))),
         coordinator_report=coordinator_report,
         result_sha256=sha256_text(canonical_json(payload)),
+        runtime_capabilities=capabilities,
+        invocation_receipts=tuple(receipts),
     )
 
 
@@ -1017,46 +1127,48 @@ def _dependency_payload(report: VisibleDependency) -> dict:
 def _redacted_task_payload(
     agent: AgentSpec, task: AgentTask, skill_text: str
 ) -> dict:
-    def redact(value):
-        if isinstance(value, str):
-            return redact_outbound(value)
-        if isinstance(value, list):
-            return [redact(item) for item in value]
-        if isinstance(value, dict):
-            return {key: redact(item) for key, item in value.items()}
-        return value
-
-    return redact(
-        {
-            "contract": "far-subagent-task/1.0",
-            "response_contract": "far-subagent-report/1.0",
-            "agent": {
-                "agent_id": agent.agent_id,
-                "role": agent.role,
-                "skill_path": agent.skill_path,
-                "skill_sha256": agent.skill_sha256,
-                "instructions": skill_text,
-            },
-            "task": {
-                "run_id": task.run_id,
-                "task_id": task.task_id,
-                "address": task.address,
-                "objective": task.objective,
-                "input_sha256": task.input_sha256,
-                "context": [_artifact_payload(item) for item in task.context],
-                "dependency_reports": [
-                    _dependency_payload(item) for item in task.dependency_reports
-                ],
-            },
-            "rules": [
-                "return exactly one JSON object matching far-subagent-report/1.0",
-                "separate evidence from inference",
-                "preserve unknowns and limitations",
-                "do not infer truth from agreement or agent count",
-                "do not claim authority beyond the assigned role",
-            ],
-        }
-    )
+    instructions = redact_outbound(skill_text)
+    context = [_artifact_payload(
+        ContextArtifact.from_text(item.artifact_id, redact_outbound(item.text))
+    ) for item in task.context]
+    dependencies = [_dependency_payload(item) for item in task.dependency_reports]
+    for dependency in dependencies:
+        for finding in dependency.get("findings", ()):
+            finding["statement"] = redact_outbound(finding["statement"])
+        if "limitations" in dependency:
+            dependency["limitations"] = [redact_outbound(item) for item in dependency["limitations"]]
+    payload = {
+        "contract": "far-subagent-task/1.0",
+        "response_contract": "far-subagent-report/1.0",
+        "agent": {
+            "agent_id": agent.agent_id,
+            "role": redact_outbound(agent.role),
+            "skill_path": agent.skill_path,
+            "skill_sha256": sha256_text(instructions),
+            "instructions": instructions,
+        },
+        "task": {
+            "run_id": task.run_id,
+            "task_id": task.task_id,
+            "address": task.address,
+            "objective": redact_outbound(task.objective),
+            "context": context,
+            "dependency_reports": dependencies,
+        },
+        "rules": [
+            "return exactly one JSON object matching far-subagent-report/1.0",
+            "separate evidence from inference",
+            "preserve unknowns and limitations",
+            "do not infer truth from agreement or agent count",
+            "do not claim authority beyond the assigned role",
+        ],
+    }
+    # Routing identities and references must remain exact. Reject the packet
+    # rather than rewriting identities or exposing credential-shaped metadata.
+    serialized = canonical_json(payload)
+    if redact_outbound(serialized) != serialized:
+        raise ValueError("credential-shaped metadata or unredacted prompt")
+    return payload
 
 
 def _validate_id(value: str, label: str) -> None:
@@ -1067,4 +1179,5 @@ def _validate_id(value: str, label: str) -> None:
 def _require_str(value: object, label: str) -> str:
     if not isinstance(value, str):
         raise ValueError(f"{label} must be a string")
+    value.encode("utf-8")
     return value
