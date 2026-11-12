@@ -154,9 +154,14 @@ class NativeCodexMailbox:
             raise ValueError("native agent ID already used in this run")
         if not isinstance(report, str):
             raise ValueError("mailbox report must preserve the worker's exact text")
+        try:
+            native_agent_id.encode("utf-8")
+            report_sha256 = sha256_text(report)
+        except UnicodeEncodeError as exc:
+            raise ValueError("mailbox worker ID and report must be valid UTF-8") from exc
         self._native_agents.add(native_agent_id)
         self._receipts[task_id] = dataclasses.replace(
-            receipt, native_agent_id=native_agent_id, report_sha256=sha256_text(report),
+            receipt, native_agent_id=native_agent_id, report_sha256=report_sha256,
         )
         return report
 

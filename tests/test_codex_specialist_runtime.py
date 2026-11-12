@@ -43,6 +43,22 @@ class NativeCodexRuntimeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not bound"):
             self.mailbox.exchange("c", "prompt", "task-c")
 
+    def test_invalid_worker_unicode_preserves_envelope_without_poisoning_manifest(self):
+        request = {
+            "schema": "far-native-codex-request/1", "agent_id": "a",
+            "task_id": "task-a", "prompt": "prompt",
+        }
+        path = self.mailbox.directory / f"{sha256_text('task-a')}.response.json"
+        path.write_text(json.dumps({
+            "schema": RESPONSE_SCHEMA, "request_sha256": sha256_text(canonical_json(request)),
+            "native_agent_id": "\ud800", "report": "exact report",
+        }), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "valid UTF-8"):
+            self.mailbox.exchange("a", "prompt", "task-a")
+        receipt, = self.mailbox.receipts
+        self.assertIsNone(receipt.native_agent_id)
+        self.assertEqual(receipt.response_sha256, sha256_text(path.read_text(encoding="utf-8")))
+
     def test_timeout_preserves_request_and_does_not_create_report(self):
         self.mailbox.timeout = 0.01
         with self.assertRaises(TimeoutError):
