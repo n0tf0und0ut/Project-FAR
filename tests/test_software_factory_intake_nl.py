@@ -615,6 +615,39 @@ Acceptance criteria:
                     self.assertEqual(database.read_bytes(), before)
                     self.assertFalse(receipt.exists() and receipt != database)
 
+    def test_blockquote_lazy_text_cannot_supply_acceptance(self):
+        with self.assertRaisesRegex(IntakeError, "blockquote"):
+            draft("> Example text\nAcceptance criteria:\n- Example only.\n")
+        self.assertEqual(_criteria("> Example text\n\nAcceptance criteria:\n- Real.\n"), ["Real."])
+        self.assertEqual(_criteria("> Example text\n## Acceptance criteria\n- Real.\n"), ["Real."])
+
+    def test_cli_receipt_rejects_database_hardlink(self):
+        d = draft()
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, database, alias = root / "draft.json", root / "db.sqlite", root / "receipt.json"
+            source.write_text(json.dumps(d))
+            submit_draft(d, database)
+            before = database.read_bytes()
+            alias.hardlink_to(database)
+            result = subprocess.run([sys.executable, "tools/software_factory_intake.py", "submit",
+                                     "--draft-file", str(source), "--db", str(database),
+                                     "--receipt-file", str(alias)], capture_output=True, text=True, timeout=15)
+            self.assertEqual(result.returncode, 2, result.stdout)
+            self.assertEqual(database.read_bytes(), before)
+
+    def test_cli_draft_rejects_source_hardlink(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, alias = root / "request.txt", root / "draft.json"
+            source.write_text(BODY)
+            alias.hardlink_to(source)
+            result = subprocess.run([sys.executable, "tools/software_factory_intake.py", "draft-text",
+                                     "--repo", REPO, "--base-sha", SHA, "--text-file", str(source),
+                                     "--output", str(alias)], capture_output=True, text=True, timeout=15)
+            self.assertEqual(result.returncode, 2, result.stdout)
+            self.assertEqual(source.read_text(), BODY)
+
     def test_cli_raw_crlf_source_is_preserved_byte_exactly(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -165,7 +166,10 @@ def _criteria(body: str) -> list[str]:
     fence: tuple[str, int] | None = None
     html_pre = False
     html_comment = False
+    quote_paragraph = False
     for line in re.split(r"\r\n|\n|\r", body):
+        if not line.strip(" \t"):
+            quote_paragraph = False
         marker = FENCE.fullmatch(line)
         if fence is not None:
             if (marker and not marker.group("suffix").strip(" \t")
@@ -207,6 +211,7 @@ def _criteria(body: str) -> list[str]:
                     raise IntakeError("backtick fence info string requires clarification")
                 if in_section:
                     raise IntakeError("fenced examples inside acceptance criteria require clarification")
+                quote_paragraph = False
                 fence = (marker.group("mark")[0], len(marker.group("mark")))
                 continue
         line, html_pre, html_comment = _visible_html_line(
@@ -224,12 +229,18 @@ def _criteria(body: str) -> list[str]:
                 and line.lstrip().startswith("#")):
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
+        if re.match(r"^ {0,3}>", line):
+            quote_paragraph = True
+        elif re.match(r"^#{1,6}[ \t]+", line):
+            quote_paragraph = False
         if HEADING.fullmatch(line) and not continuation:
             # Indented acceptance headers can be text inside an enclosing
             # Markdown list, not a live top-level work-order section.
             # Supporting them requires a container-aware Markdown parser.
             if leading:
                 raise IntakeError("indented acceptance heading requires clarification")
+            if quote_paragraph:
+                raise IntakeError("possible lazy blockquote acceptance heading requires clarification")
             last_bullet = None
             in_section = True
             continue
@@ -398,6 +409,32 @@ def submit_draft(draft: object, db_path: str | Path) -> dict:
             "draft_fingerprint": validated["fingerprint"], "authority": "ADVISORY_ONLY"}
 
 
+def _aliases(path: Path, protected: Path) -> bool:
+    if path.resolve() == protected.resolve():
+        return True
+    try:
+        return path.samefile(protected)
+    except FileNotFoundError:
+        return False
+
+
+def _write_json(path: Path, value: dict, *, ensure_ascii: bool = True) -> None:
+    # Replace the destination entry without truncating any existing inode.
+    # This also protects existing hardlinks if they appear after alias checks.
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent, delete=False,
+        ) as stream:
+            temp_path = Path(stream.name)
+            json.dump(value, stream, sort_keys=True, indent=2, ensure_ascii=ensure_ascii)
+            stream.write("\n")
+        temp_path.replace(path)
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -418,7 +455,8 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "draft-text":
-            if Path(args.text_file).resolve() == Path(args.output).resolve():
+            output = Path(args.output).resolve()
+            if _aliases(output, Path(args.text_file)):
                 raise IntakeError("draft output must not overwrite original source")
             text = Path(args.text_file).read_bytes().decode("utf-8", "strict")
             lines = text.splitlines()
@@ -428,6 +466,7 @@ def main(argv=None) -> int:
             draft = compile_request(repository=args.repo, base_sha=args.base_sha,
                                     title=title, body=text, source_kind="chat", source_ref=args.source_ref)
         elif args.command == "draft-issue":
+            output = Path(args.output).resolve()
             title, body = fetch_issue(args.repo, args.issue, token=os.getenv("GITHUB_TOKEN"))
             draft = compile_request(repository=args.repo, base_sha=args.base_sha, title=title,
                                     body=body, source_kind="github_issue",
@@ -435,21 +474,21 @@ def main(argv=None) -> int:
         else:
             db_file = Path(args.db).resolve()
             draft_file = Path(args.draft_file).resolve()
-            if draft_file == db_file:
+            if _aliases(draft_file, db_file):
                 raise IntakeError("draft must not be the queue database")
             if args.receipt_file:
                 receipt_file = Path(args.receipt_file).resolve()
                 related_db_files = {db_file, *(Path(str(db_file) + suffix) for suffix in
                                                 ("-wal", "-shm", "-journal"))}
-                if receipt_file == draft_file or receipt_file in related_db_files:
+                if any(_aliases(receipt_file, path) for path in (draft_file, *related_db_files)):
                     raise IntakeError("receipt must not overwrite draft or queue database/sidecars")
-            draft = _strict_json(Path(args.draft_file).read_text(encoding="utf-8"))
-            receipt = submit_draft(draft, args.db)
+            draft = _strict_json(draft_file.read_text(encoding="utf-8"))
+            receipt = submit_draft(draft, db_file)
             if args.receipt_file:
-                Path(args.receipt_file).write_text(json.dumps(receipt, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+                _write_json(receipt_file, receipt)
             print(json.dumps(receipt, sort_keys=True, indent=2))
             return 0
-        Path(args.output).write_text(json.dumps(draft, sort_keys=True, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        _write_json(output, draft, ensure_ascii=False)
         print(json.dumps({"status": draft["status"], "output": args.output,
                           "source_sha256": draft["source_sha256"], "questions": draft["questions"]}, indent=2))
         return 0 if draft["order"] else 3
