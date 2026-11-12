@@ -219,6 +219,18 @@ Acceptance criteria:
                          "## Acceptance criteria\n- Preserve all files.\n")
                 self.assertEqual(_criteria(valid), ["Preserve all files."])
 
+    def test_only_markdown_list_markers_supply_acceptance(self):
+        for marker in ("١. ", "1234567890. ", "-\u00a0"):
+            with self.subTest(marker=marker), self.assertRaises(IntakeError):
+                draft(f"Acceptance criteria:\n\n{marker}Count three words.\n")
+        for rule in ("- - -", "* **", "- ---"):
+            with self.subTest(rule=rule), self.assertRaises(IntakeError):
+                draft(f"## Acceptance criteria\n\n{rule}\n")
+        self.assertEqual(
+            _criteria("## Acceptance criteria\n1. Count three words.\n2. Handle empty input.\n"),
+            ["Count three words.", "Handle empty input."],
+        )
+
     def test_only_gfm_line_endings_split_source_lines(self):
         # U+2028, U+2029 and U+0085 belong to the code line, not to
         # GFM's LF, CR and CRLF line-ending categories.
@@ -536,6 +548,12 @@ Acceptance criteria:
             fetch_issue(REPO, 2, fetcher=lambda _: b"x" * 131073)
         with self.assertRaises(IntakeError):
             fetch_issue(REPO, 2, fetcher=lambda _: b'{"number":2,"number":2}')
+
+    def test_issue_requires_integer_identity(self):
+        payload = {"number": 2.0, "state": "open", "title": "Build X", "body": BODY,
+                   "repository_url": f"https://api.github.com/repos/{REPO}"}
+        with self.assertRaisesRegex(IntakeError, "issue number mismatch"):
+            fetch_issue(REPO, 2, fetcher=lambda _: json.dumps(payload).encode())
 
     def test_redirect_handler_rejects_cross_host_redirects(self):
         import urllib.request

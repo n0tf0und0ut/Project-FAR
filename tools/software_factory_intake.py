@@ -28,7 +28,10 @@ MAX_REQUEST_BYTES = 65536
 MAX_ISSUE_BYTES = 131072
 HEADING = re.compile(r"^\s*(?:#{1,5}\s*)?(?:acceptance(?:\s+criteria)?|done\s+when|definition\s+of\s+done|success\s+criteria)\s*:?\s*$", re.I)
 ANY_HEADING = re.compile(r"^\s*(?:#{1,5}\s+\S.*|[A-Z][\w /-]{2,48}:\s*)$")
-BULLET = re.compile(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)(?:\[[ xX]\]\s*)?(\S.*)$")
+LIST_MARKER = r"(?:[-*+]|[0-9]{1,9}[.)])"
+LIST_CONTAINER = re.compile(rf"^ {{0,3}}{LIST_MARKER}(?:[ \t]+|$)")
+BULLET = re.compile(rf"^[ \t]*{LIST_MARKER}[ \t]+(?:\[[ xX]\]\s*)?(\S.*)$")
+THEMATIC_BREAK = re.compile(r"^ {0,3}([*_-])(?:[ \t]*\1){2,}[ \t]*$")
 FENCE = re.compile(r"^ {0,3}(?P<mark>`{3,}|~{3,})(?P<suffix>.*)$")
 HTML_CONTROL = re.compile(r"<!--|-->|<pre(?:[ \t][^<>]*)?>|</pre[ \t]*>", re.I)
 HTML_PRE_PREFIX = re.compile(r"</?pre\b", re.I)
@@ -235,7 +238,7 @@ def _criteria(body: str) -> list[str]:
                 and line.lstrip().startswith("#")):
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
-        if not in_section and re.match(r"^ {0,3}(?:[-*+]|[0-9]{1,9}[.)])(?:[ \t]+|$)", line):
+        if not in_section and LIST_CONTAINER.match(line):
             list_context = True
             container_paragraph = True
         elif not in_section and re.match(r"^ {0,3}>", line):
@@ -259,6 +262,8 @@ def _criteria(body: str) -> list[str]:
             continue
         if not in_section:
             continue
+        if THEMATIC_BREAK.fullmatch(line):
+            raise IntakeError("thematic break in acceptance criteria requires clarification")
         # An indented title-like line may be a continuation of a bullet.
         # Do not silently terminate the section and drop later criteria.
         if ANY_HEADING.fullmatch(line) and not continuation:
@@ -361,7 +366,8 @@ def verify_draft(draft: object) -> dict:
 def _issue_from_payload(payload: object, repository: str, issue_number: int) -> tuple[str, str]:
     if not isinstance(payload, dict):
         raise IntakeError("invalid GitHub issue response")
-    if payload.get("number") != issue_number or isinstance(payload.get("number"), bool):
+    number = payload.get("number")
+    if type(number) is not int or number != issue_number:
         raise IntakeError("GitHub issue number mismatch")
     if "pull_request" in payload or payload.get("state") != "open":
         raise IntakeError("source must be an open GitHub issue, not a PR")
