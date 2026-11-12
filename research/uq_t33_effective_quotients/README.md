@@ -12,20 +12,24 @@
 - [Evidence and real-world correspondence boundary](evidence_boundary.md): R7 conditional finite behavioral envelope, externally checkable proof obligations, and a negative RFC 1661 source audit.
 - [Finite-model evidence checker](evidence_gate.py) and [example model](example_evidence.json) / [checked report](example_report.json): the checker validates declared finite tables, *not* external system correspondence.
 - [Evidence regression suite](../../tests/test_uq_t33_evidence_gate.py): positive mapping plus twelve adversarial/induction checks.
+- [Real existing source correspondence](real_implementation_correspondence.md) and [source-bound checker](source_bound_status.py): R8 links the exact FAR decision-integrity adjudicator source blob and final status branch to a finite three-flag abstraction of its **status-only** output. It does not certify whole-program semantics or third-party I3 independence.
+- [Source-bound integration tests](../../tests/test_uq_t33_source_bound_status.py): source pin, adversarial mutations, exhaustive finite add-rule refinement and real production function invocations when the full checkout is available.
 
 ## Reproduction
 
 From the repository root with Python 3.10 or later, no third-party dependencies:
 
-    python -m unittest tests.test_uq_t33_effective_quotients tests.test_uq_t33_evidence_gate
+    python -m unittest tests.test_uq_t33_effective_quotients tests.test_uq_t33_evidence_gate tests.test_uq_t33_source_bound_status
     python research/uq_t33_effective_quotients/experiment.py
 
-The first command runs three suites (25 tests in the locally verified run). The second reruns the original six and rewrites results.json. These checks test bounded code cases and do not establish the undecidability theorem through execution.
+The first command includes 36 test cases. The additional source-bound suite had 9/9 locally runnable tests pass; its two production-checkout integration cases were skipped in the standalone scratch workspace and must run in a full repository checkout. The second reruns the original six and rewrites results.json. These checks test bounded code cases and do not establish the undecidability theorem through execution.
 
 ## Provenance and assurance limits
 
 Base authority was protected main commit 8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe, current AGENTS.md and Research Execution Charter. The original supplied standalone research package was independently re-executed locally in this task. Its code and results are committed byte-identically; its original narrative has been integrated into discovery.md with explicit source SHA-256, scope and negative findings.
 
 The model certificate's source digest authenticates only the submitted table against its stated digest; it does not authenticate external source code or runtime semantics. The RFC 1661 review provides external documentary evidence of a control-state specification, but no implementation-bound certificate.
+
+R8's source identity binds only a reviewed fragment of a real implementation. The additional analysis wrapper does not reflect an actual event API in the adjudicator, and the rest of the production program remains outside its claim.
 
 No I3-independent proof review, adversarial external evaluation, prior-art novelty determination or governed Acceptance has occurred. A self-authored executable test is not external replication, and the results neither establish universality nor domain-specific suitability of any declared contract.
