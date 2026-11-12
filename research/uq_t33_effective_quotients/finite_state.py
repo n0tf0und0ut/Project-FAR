@@ -50,6 +50,22 @@ def bounded_partition(outputs, transitions, depth):
     return canonical(tuple(signature) for signature in signatures)
 
 
+def black_box_equivalent(observe, first, second, actions, certified_max_states):
+    """Exact equality of infinite-word behavior under a *trusted* finite-state cap.
+
+    The caller must externally certify a deterministic Moore model with
+    at most certified_max_states reachable states and reliable reset access.
+    No finite observations can verify this premise by themselves.
+    """
+    if type(actions) is not int or actions < 0 or type(certified_max_states) is not int or certified_max_states < 1:
+        raise ValueError("valid alphabet size and certified positive state bound required")
+    for length in range(max(certified_max_states - 2, 0) + 1):
+        for word in product(range(actions), repeat=length):
+            if observe(first, word) != observe(second, word):
+                return False
+    return True
+
+
 class FiniteStateQuotientTests(unittest.TestCase):
     def test_all_binary_one_action_machines_up_to_four_states(self):
         for n in range(1, 5):
@@ -88,6 +104,29 @@ class FiniteStateQuotientTests(unittest.TestCase):
             outputs = (0,) * n
             trans = tuple((min(x + 1, n - 1),) for x in range(n))
             self.assertEqual(quotient(outputs, trans), ((0,) * n, 0))
+
+    def test_certified_black_box_bound_matches_complete_quotient(self):
+        for n in range(1, 4):
+            for outputs in product((0, 1), repeat=n):
+                for dests in product(range(n), repeat=2 * n):
+                    trans = tuple(dests[2 * x:2 * x + 2] for x in range(n))
+                    labels, _ = quotient(outputs, trans)
+                    observe = lambda state, word: observation(outputs, trans, state, word)
+                    for x in range(n):
+                        for y in range(n):
+                            self.assertEqual(black_box_equivalent(observe, x, y, 2, n),
+                                             labels[x] == labels[y])
+
+    def test_unknown_state_bound_can_hide_later_distinction(self):
+        for observed_horizon in range(0, 12):
+            # A state cap underquoted to observed_horizon+2 misses the
+            # chain's first difference at word length observed_horizon+1.
+            n = observed_horizon + 3
+            outputs = tuple(int(x == n - 1) for x in range(n))
+            trans = tuple((min(x + 1, n - 1),) for x in range(n))
+            observe = lambda state, word: observation(outputs, trans, state, word)
+            self.assertTrue(black_box_equivalent(observe, 0, 1, 1, n - 1))
+            self.assertFalse(black_box_equivalent(observe, 0, 1, 1, n))
 
     def test_invalid_tables_fail(self):
         for outputs, transitions in (((), ()), ((0, 1), ((0,),)),
