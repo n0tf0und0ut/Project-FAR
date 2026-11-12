@@ -8,6 +8,7 @@ import types
 import unittest
 from unittest.mock import patch
 
+from fargraph.core import MAX_SOURCE_BYTES
 from tools.factory_fargraph import evaluate, main
 
 
@@ -119,6 +120,18 @@ class FactoryFargraphTests(unittest.TestCase):
                 self.assertEqual(result["deleted_paths_with_unknown_prior_edges"], ["b.py"])
                 self.assertIn("caller.py", result["impact"]["changed"])
 
+    def test_submodule_change_is_reported_independent_of_git_configuration(self):
+        (self.root / "library").mkdir()
+        git(self.root, "update-index", "--add", "--cacheinfo", f"160000,{self.base},library")
+        git(self.root, "commit", "-qm", "Add submodule pointer")
+        git(self.root, "update-index", "--cacheinfo", f"160000,{self.head},library")
+        git(self.root, "commit", "-qm", "Update submodule pointer")
+        self.head = git(self.root, "rev-parse", "HEAD")
+        git(self.root, "config", "diff.ignoreSubmodules", "all")
+        impact = self.run_eval()["impact"]
+        self.assertIn("library", impact["changed"])
+        self.assertIn("library", impact["missing"])
+
     def test_replace_ref_cannot_change_exact_head_ancestry(self):
         tree = git(self.root, "rev-parse", "HEAD^{tree}")
         alternate = git(self.root, "commit-tree", tree, "-m", "unrelated parentless commit")
@@ -157,18 +170,48 @@ class FactoryFargraphTests(unittest.TestCase):
         )
 
     def test_changed_alias_preserves_literal_git_path(self):
-        alias = self.root / "current.alias"
+        alias = self.root / "current.py"
         alias.symlink_to("a.py")
-        git(self.root, "add", "current.alias")
+        git(self.root, "add", "current.py")
         git(self.root, "commit", "-qm", "Publish file alias")
         alias.unlink()
         alias.symlink_to("b.py")
-        git(self.root, "add", "current.alias")
+        git(self.root, "add", "current.py")
         git(self.root, "commit", "-qm", "Change file alias")
         self.head = git(self.root, "rev-parse", "HEAD")
-        impact = self.run_eval()["impact"]
-        self.assertEqual(impact["changed"], ["a.py", "current.alias"])
-        self.assertIn("current.alias", impact["missing"])
+        result = self.run_eval()
+        self.assertEqual(result["impact"]["changed"], ["a.py", "current.py"])
+        self.assertIn("current.py", result["impact"]["missing"])
+        self.assertNotIn("current.py", result["indexed_source_hashes"])
+
+    def test_missing_tracked_source_cannot_silently_disappear_from_exact_head(self):
+        git(self.root, "update-index", "--skip-worktree", "b.py")
+        (self.root / "b.py").unlink()
+        self.assertEqual(git(self.root, "status", "--porcelain"), "")
+        with self.assertRaisesRegex(ValueError, "Pinned source is missing or not a regular file: b.py"):
+            self.run_eval()
+
+    def test_local_exclusion_cannot_hide_a_pinned_supported_source(self):
+        source = self.root / "b.py"
+        git(self.root, "update-index", "--skip-worktree", "b.py")
+        for local_bytes in (b"x" * (MAX_SOURCE_BYTES + 1), b"\xff" * source.stat().st_size):
+            with self.subTest(size=len(local_bytes)):
+                source.write_bytes(local_bytes)
+                self.assertEqual(git(self.root, "status", "--porcelain"), "")
+                with self.assertRaisesRegex(ValueError, "differs from committed Git blob: b.py"):
+                    self.run_eval()
+
+    def test_genuine_committed_exclusions_remain_advisory(self):
+        (self.root / "oversized.py").write_bytes(b"x" * (MAX_SOURCE_BYTES + 1))
+        (self.root / "undecodable.md").write_bytes(b"\xff")
+        git(self.root, "add", ".")
+        git(self.root, "commit", "-qm", "Add unindexed file fixtures")
+        self.head = git(self.root, "rev-parse", "HEAD")
+        result = self.run_eval()
+        self.assertTrue(result["index_freshness"]["fresh"])
+        self.assertNotIn("oversized.py", result["indexed_source_hashes"])
+        self.assertNotIn("undecodable.md", result["indexed_source_hashes"])
+        self.assertEqual(result["index_freshness"]["unindexed_at_snapshot"], ["oversized.py", "undecodable.md"])
 
     def test_unicode_deleted_paths_are_reported_without_git_quoting(self):
         (self.root/"café.py").write_text("value = 1\n")

@@ -22,6 +22,11 @@ class LiveCommercialVerifierTests(unittest.TestCase):
             return Path(result.stdout.strip()).resolve()
         self.assertNotEqual(common_git(copied), common_git(ROOT))
         self.assertTrue(common_git(copied).is_relative_to(copied.resolve()))
+        identity = subprocess.check_output(
+            ['git', 'reflog', 'show', '-1', '--format=%gn%n%ge', 'HEAD'],
+            cwd=copied, text=True,
+        ).splitlines()
+        self.assertEqual(identity, ['FAR replay fixture', 'replay@example.invalid'])
 
     def historical_repository(self):
         if not shutil.which('git') or subprocess.run(['git', 'cat-file', '-e', verifier.BASE],
@@ -33,7 +38,10 @@ class LiveCommercialVerifierTests(unittest.TestCase):
         # A worktree shares ROOT's Git metadata and writes its worktree registry
         # during setup/cleanup. Keep all fixture metadata and objects private;
         # source checkout and historical objects are read-only inputs.
+        # The initial clone reflog must use fixture identity, not runner DNS.
         subprocess.run(['git', 'clone', '--local', '--no-hardlinks', '--no-checkout',
+                        '--config', 'user.name=FAR replay fixture',
+                        '--config', 'user.email=replay@example.invalid',
                         '--', str(ROOT), str(copied)],
                        cwd=ROOT, check=True, capture_output=True)
         subprocess.run(['git', 'checkout', '--detach', 'HEAD'],

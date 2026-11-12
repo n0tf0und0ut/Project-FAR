@@ -56,6 +56,7 @@ class Graph:
     edges: list[Edge] = field(default_factory=list)
     hashes: dict[str, str] = field(default_factory=dict)
     diagnostics: list[dict] = field(default_factory=list)
+    source_snapshots: dict[str, tuple[int, str | None]] = field(default_factory=dict, repr=False)
     _edge_keys: set = field(default_factory=set, repr=False)
     _source_paths: frozenset[str] | None = field(default=None, repr=False)
 
@@ -72,6 +73,12 @@ class Graph:
 
     def diagnostic(self, kind: str, path: str, line: int, detail: str) -> None:
         self.diagnostics.append({"kind": kind, "path": path, "line": line, "detail": detail})
+
+    def _source_files(self) -> list[Path]:
+        if self._source_paths is None:
+            return _discover_files(self.root, tracked_only=self.tracked_only)
+        return sorted(self.root / path for path in self._source_paths
+                      if Path(path).suffix.lower() in SUPPORTED)
 
     def to_dict(self) -> dict:
         return {
@@ -93,15 +100,19 @@ class Graph:
     def freshness(self) -> dict:
         """Detect drift within the same inventory scope and excluded symlinks."""
         changed = []
-        for rel, previous in sorted(self.hashes.items()):
+        snapshots = self.source_snapshots if self._source_paths is not None else self.hashes
+        for rel, snapshot in sorted(snapshots.items()):
             path = self.root / rel
             try:
-                if not path.is_file() or not path.resolve().is_relative_to(self.root):
+                resolved = path.resolve()
+                if (not path.is_file() or not resolved.is_relative_to(self.root)
+                        or (self._source_paths is not None and resolved != path)):
                     changed.append(rel)
                     continue
-                with path.open("rb") as stream:
-                    current = stream.read(MAX_SOURCE_BYTES + 1)
-                if len(current) > MAX_SOURCE_BYTES or hashlib.sha256(current).hexdigest() != previous:
+                size, content = _bounded_source(path)
+                digest = _source_digest(content)
+                current = (size, digest) if self._source_paths is not None else digest
+                if current != snapshot:
                     changed.append(rel)
             except (OSError, RuntimeError):
                 changed.append(rel)
@@ -119,7 +130,7 @@ class Graph:
         ignored = {d['path'] for d in self.diagnostics
                    if d['kind'] in {'skipped_large_file', 'unreadable', 'external_symlink'}}
         new = []
-        for path in _discover_files(self.root, tracked_only=self.tracked_only):
+        for path in self._source_files():
             rel = path.relative_to(self.root).as_posix()
             if rel not in self.hashes and rel not in ignored:
                 new.append(rel)
@@ -279,26 +290,39 @@ def _py_module_target(g: Graph, source_path: str, module: str, level: int = 0) -
     return None
 
 
+def _bounded_source(path: Path) -> tuple[int, bytes | None]:
+    size = path.stat().st_size
+    if size > MAX_SOURCE_BYTES:
+        return size, None
+    with path.open("rb") as stream:
+        content = stream.read(MAX_SOURCE_BYTES + 1)
+    return len(content), content if len(content) <= MAX_SOURCE_BYTES else None
+
+
+def _source_digest(content: bytes | None) -> str | None:
+    return hashlib.sha256(content).hexdigest() if content is not None else None
+
+
 def _read_source(g: Graph, path: Path) -> str | None:
     rel=path.relative_to(g.root).as_posix()
     try:
-        # Check size and cap the actual read: an attacker can grow a file
-        # between stat and read, so neither an unbounded read_bytes() nor a
-        # pre-read stat alone is a valid memory limit.
-        size = path.stat().st_size
-        if size > MAX_SOURCE_BYTES:
+        size, content = _bounded_source(path)
+        digest = _source_digest(content)
+        if g._source_paths is not None:
+            g.source_snapshots[rel] = (size, digest)
+        if content is None or digest is None:
             g.diagnostic('skipped_large_file',rel,0,f'{size} bytes')
             return None
-        with path.open("rb") as stream:
-            content = stream.read(MAX_SOURCE_BYTES + 1)
-        if len(content) > MAX_SOURCE_BYTES:
-            g.diagnostic('skipped_large_file',rel,0,f'>{MAX_SOURCE_BYTES} bytes')
-            return None
         text=content.decode('utf-8')
-        g.hashes[rel]=hashlib.sha256(content).hexdigest()
+        g.hashes[rel]=digest
         g.add_node(f'file:{rel}', 'file', rel, 1, rel)
         return text
-    except (OSError, UnicodeError) as exc:
+    except OSError as exc:
+        if g._source_paths is not None:
+            raise ValueError(f'Cannot read pinned source: {rel}') from exc
+        g.diagnostic('unreadable',rel,0,str(exc))
+        return None
+    except UnicodeError as exc:
         g.diagnostic('unreadable',rel,0,str(exc))
         return None
 
@@ -479,7 +503,7 @@ def _python(g:Graph,rel:str,body:str)->None:
 
 
 def _discover_files(root: Path, tracked_only: bool = False) -> list[Path]:
-    """Prune local caches; exact Git views use the tracked index inventory."""
+    """Prune local caches or discover the caller's staged file inventory."""
     if tracked_only:
         done = subprocess.run(
             ['git', '-C', str(root), 'ls-files', '--cached', '-z'],
@@ -510,9 +534,10 @@ def build(root: str | Path, tracked_only: bool = False, *,
     if not root.is_dir():
         raise ValueError(f'Not a directory: {root}')
     g=Graph(root, tracked_only=tracked_only, _source_paths=source_paths)
-    files=_discover_files(root, tracked_only=tracked_only)
-    for path in files:
+    for path in g._source_files():
         rel=path.relative_to(root)
+        if source_paths is not None and (not path.is_file() or path.resolve() != path):
+            raise ValueError(f'Pinned source is missing or not a regular file: {rel.as_posix()}')
         if path.is_symlink() and not path.resolve().is_relative_to(root):
             # Excluded links are not graph evidence, but preserve their literal
             # target identity to detect meaningful changes during freshness.
@@ -540,7 +565,7 @@ def git_changed_files(root: Path, base: str, head: str = 'HEAD',
     # and preserve Unicode, spaces and literal newlines in filenames.
     if diff_filter not in {'ACMRTUXB', 'D'}:
         raise ValueError('Unsupported Git diff filter')
-    command=['git','--no-replace-objects','-C',str(root),'diff','--no-renames','--name-only','-z',
+    command=['git','--no-replace-objects','-C',str(root),'diff','--no-renames','--ignore-submodules=none','--name-only','-z',
              '--diff-filter='+diff_filter,f'{base}...{head}','--']
     done=subprocess.run(command,check=True,capture_output=True,timeout=30)
     return sorted(set(os.fsdecode(p) for p in done.stdout.split(b'\0') if p))

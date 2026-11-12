@@ -52,17 +52,20 @@ def _source_tree(root: Path, head: str) -> dict[str, tuple[bytes, int]]:
     return files
 
 
-def _verify_source_hashes(root: Path, files: dict[str, tuple[bytes, int]], hashes: dict[str, str]) -> None:
+def _verify_source_snapshots(root: Path, files: dict[str, tuple[bytes, int]],
+                             snapshots: dict[str, tuple[int, str | None]]) -> None:
     # Git's clean status accounts for checkout transformations. Compare the
     # actual bytes indexed by the graph with the committed blobs instead.
     paths_by_oid: dict[bytes, list[str]] = {}
     sizes: dict[bytes, int] = {}
-    for path in hashes:
+    for path, (local_size, digest) in snapshots.items():
         if path not in files:
             raise ValueError(f"Indexed path is not a committed regular Git blob: {path}")
         oid, size = files[path]
-        if size > MAX_SOURCE_BYTES:
-            raise ValueError(f"Committed Git blob exceeds the indexing limit: {path}")
+        if local_size != size or (digest is None) != (size > MAX_SOURCE_BYTES):
+            raise ValueError(f"Indexed source differs from committed Git blob: {path}")
+        if digest is None:
+            continue
         paths_by_oid.setdefault(oid, []).append(path)
         sizes[oid] = size
 
@@ -81,7 +84,7 @@ def _verify_source_hashes(root: Path, files: dict[str, tuple[bytes, int]], hashe
                 raise ValueError("Unexpected Git blob response")
             digest = hashlib.sha256(data[begin:end]).hexdigest()
             for path in paths_by_oid[oid]:
-                if digest != hashes[path]:
+                if digest != snapshots[path][1]:
                     raise ValueError(f"Indexed source differs from committed Git blob: {path}")
             offset = end + 1
         if offset != len(data):
@@ -127,7 +130,7 @@ def evaluate(root: Path, work_order: Path, head_sha: str, repository: str,
     # Ignored local files are not evidence from the committed candidate.
     source_tree = _source_tree(root, head_sha)
     graph = build(root, tracked_only=True, source_paths=frozenset(source_tree))
-    _verify_source_hashes(root, source_tree, graph.hashes)
+    _verify_source_snapshots(root, source_tree, graph.source_snapshots)
     freshness = graph.freshness()
     if not freshness["fresh"] or _git(root, "rev-parse", "HEAD") != head_sha:
         raise ValueError("Repository changed while indexing; graph is not exact-source")
