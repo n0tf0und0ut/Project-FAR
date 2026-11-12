@@ -6,7 +6,8 @@ claim acceptance, or the isolation classification doctrine.
 The single implementation is [`tools/subagent_orchestration.py`](../../tools/subagent_orchestration.py).
 It coordinates existing specialist skills using an `OrchestrationPlan`, a typed
 `AgentRuntime`, and content-addressed tasks and reports. `far_research_plan()`
-builds a reference graph from the skill files currently on disk. A coordinator
+builds a reference graph for all 14 FAR roles, including the terminal coordinator,
+from the skill files currently on disk. A coordinator
 receives all specialist reports and performs final integration. Specialists are
 read-only under this protocol; they do not write shared repository state.
 
@@ -23,8 +24,9 @@ An agent can declare `context_ids` to receive only the named `ContextArtifact`
 values. A missing artifact fails before the first invocation. Dependency views
 are `full`, `findings`, and `claims-only`. The last view contains claim IDs only;
 it carries no upstream disposition, evidence, recommendation, or narrative.
-The exact task packet, including its visible context and projected dependencies,
-is hashed and bound to the returned report. A report citing an evidence artifact
+The engine binds the local task to its report. The reasoner adapter separately
+hashes the redacted provider packet and checks that the provider echoed that
+hash before binding the report to the local task. A report citing an evidence artifact
 or finding absent from that packet fails closed.
 
 For a clean-room lane, set `clean_room=True`, an explicit `context_ids` allowlist,
@@ -58,7 +60,15 @@ in particular, I-class internal reasoning cannot itself justify acceptance.
 
 `CallableRuntime` can exercise a plan locally. `ReasonerLaneRuntime` adapts the
 repository's `ReasonerLane` abstraction and strictly parses a JSON report while
-redacting credential-shaped strings in outbound prompts. Other providers can
+redacting credential-shaped text in outbound prompts. It rehashes the
+transmitted skill and context text, rejects credential-shaped routing metadata,
+and computes the wire input digest over canonical JSON with the wire hash field
+omitted. An invocation receipt binds the wire input digest to the request and
+response byte digests. The result digest includes these receipts and the
+preflight capability snapshot, including the lane's declared model, provider
+and prior exposure. A missing response digest means the adapter obtained no
+hashable response. These are local observations and declarations, not provider
+signatures or independent verification of sandbox controls. Other providers can
 implement `AgentRuntime`. A serial local run tests functional routing, but
 does not establish independently isolated agents. The plan hash and result hash
 make repeated identical inputs comparable; no hash establishes factual truth.
@@ -68,3 +78,23 @@ Run the focused tests with:
 ```bash
 python -m unittest tests.test_subagent_orchestration
 ```
+
+## Native Codex execution
+
+Run the mailbox adapter with an empty destination path outside the checkout:
+
+```bash
+python -m tools.codex_specialist_runtime \
+  --mailbox /tmp/far-native-run \
+  --objective "Audit the supplied evidence" \
+  --context evidence=/path/to/frozen-evidence.txt
+```
+
+The controller dispatches each published request to a native Codex worker,
+then calls `publish_native_report` with the request path, observed worker ID,
+and the worker's exact JSON report text. The adapter rejects reused worker IDs
+and mismatched request digests. Preserve the mailbox envelopes and
+`result.json` together to audit handoffs. The result binds envelope digests and
+controller-reported worker IDs to the orchestration result. The controller and
+workers share a workspace in this mode. Record the run as I0, with provider
+identity and isolation unattested.

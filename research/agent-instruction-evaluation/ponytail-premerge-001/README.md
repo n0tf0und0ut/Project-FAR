@@ -1,6 +1,6 @@
 # FAR-PONYTAIL-PREMERGE-001 — Preregistered instruction screen
 
-**Status:** Research — protocol and corpus prepared; **zero agent executions observed**. This work is linked to [PR #632](https://github.com/n0tf0und0ut/Project-FAR/pull/632), which proposes a small change to `AGENTS.md`. No benchmark result, performance advantage, scientific status promotion, or merge authorization is claimed.
+**Status:** Historical Research preregistration — protocol and corpus prepared, **zero agent executions observed**. This screen targeted the original `AGENTS.md` treatment in [PR #632](https://github.com/n0tf0und0ut/Project-FAR/pull/632), which closed unmerged after [PR #647](https://github.com/n0tf0und0ut/Project-FAR/pull/647) superseded it. The frozen comparison applies to the two instruction blobs below. Testing the instructions from #647 would require a separately registered comparison.
 
 ## Question and comparison
 
@@ -43,13 +43,14 @@ and its verdict intact. Retained receipts from this prototype cannot qualify a
 slot. The analyzer reports `NOT_EXECUTED` for an unattempted campaign and
 `INVALID_EVIDENCE` for untrusted observations.
 
-Resume only after a separately reviewed grader independently verifies the
-preregistered mutation invariant. The frozen corpus, schedule, and prospective
-criteria remain intact. No agent was contacted for this correction.
+Any future live campaign requires a separately reviewed grader that independently
+verifies the preregistered mutation invariant and a renewed justification for
+evaluating the selected instruction versions. The offline commands preserve the
+preregistration and allow its validation.
 
 ## Dependency and authority limits
 
-This bounded Research study adds no requirement to protected branch rules and does not modify PR #632. It borrows the established output-capture/grader execution helpers from `tools/workflow_efficacy_free_agent.py`. It does not overwrite, pool, or reinterpret any prior FAR experiment, including the existing 60-run scripted-repair study or the 72/72 bounded tool-agent study. The independent Codex review and protected App gate for #632 remain obligatory. External/representative performance superiority is not established even if the internal screen passes.
+This bounded Research study borrows the established output-capture and grader helpers from `tools/workflow_efficacy_free_agent.py`. Its preregistration and any future observations are scoped to this campaign. The 60-run scripted-repair study and the 72/72 bounded tool-agent study have their own evidence and conclusions. A successful internal screen would support only bounded compatibility for the pinned comparison. Any instruction change requires the ordinary protected review and merge process.
 
 ## Exact-head repair and evidence hardening before model exposure
 
@@ -59,4 +60,4 @@ The repaired runner compares every source against controller-owned initial hashe
 
 `codex exec --json` must produce a single `thread.started`, a single `turn.started` and a final `turn.completed` with nonzero token usage. The invocation is restricted to the exact preregistered model-argument/sandbox/config command, and the actual executable path, SHA-256 and `codex --version` response are retained. This is **host-verified command and trace provenance**, not a cryptographically signed provider proof of the effective backend model. The operator must also independently establish and record CLI authentication, backend model availability, network/tool restrictions, and the isolation boundary. A Codex workspace-write sandbox on a host that also exposes the hidden task corpus may not be sufficient to establish blind evaluation; running it that way must not be represented as isolated or independently graded. A separate isolated agent host or container seeing only a single task workspace, and a trusted grader holding the oracles, is required for a defensible evaluation.
 
-**Execution boundary:** The connected GitHub reviewer is not a substitute for 40 model executions. This ChatGPT session does not have an authenticated Codex CLI, Docker grader and verified provider/model configuration. The campaign's status remains `PREREGISTERED_NOT_EXECUTED`; structural tests alone cannot satisfy the screen. PR #632 may only merge after its separately required protected review and authorization process. A pre-merge screen result must not be asserted while actual execution and isolation are unverified.
+**Execution boundary:** A scored campaign requires 40 authenticated model execution receipts, an isolated grader, and verified model configuration and workspace isolation. The historical status is `PREREGISTERED_NOT_EXECUTED`. Structural validation establishes the integrity of the preregistered inputs and the execution block.
