@@ -167,6 +167,7 @@ def _criteria(body: str) -> list[str]:
     html_pre = False
     html_comment = False
     container_paragraph = False
+    list_context = False
     for line in re.split(r"\r\n|\n|\r", body):
         if not line.strip(" \t"):
             container_paragraph = False
@@ -186,6 +187,10 @@ def _criteria(body: str) -> list[str]:
             columns = 0
             for char in indentation:
                 columns = columns + 1 if char == " " else (columns // 4 + 1) * 4
+            # A blank line ends the current paragraph, but an indented
+            # nonblank line can resume a list item at any supported indent.
+            if not in_section and list_context and columns and line.strip(" \t"):
+                container_paragraph = True
             if columns >= 4 and line.strip():
                 # A fence indented four or more columns may still be a valid
                 # GFM fenced block relative to a containing list item. The
@@ -212,6 +217,7 @@ def _criteria(body: str) -> list[str]:
                 if in_section:
                     raise IntakeError("fenced examples inside acceptance criteria require clarification")
                 container_paragraph = False
+                list_context = False
                 fence = (marker.group("mark")[0], len(marker.group("mark")))
                 continue
         line, html_pre, html_comment = _visible_html_line(
@@ -229,10 +235,16 @@ def _criteria(body: str) -> list[str]:
                 and line.lstrip().startswith("#")):
             raise IntakeError("nested Markdown heading requires clarification")
         continuation = (in_section and last_bullet is not None and leading >= 2)
-        if not in_section and re.match(r"^ {0,3}(?:>|(?:[-*+]|[0-9]{1,9}[.)])[ \t]+)", line):
+        if not in_section and re.match(r"^ {0,3}(?:[-*+]|[0-9]{1,9}[.)])[ \t]+", line):
+            list_context = True
+            container_paragraph = True
+        elif not in_section and re.match(r"^ {0,3}>", line):
             container_paragraph = True
         elif re.match(r"^#{1,6}[ \t]+", line):
             container_paragraph = False
+            list_context = False
+        elif not leading and not container_paragraph:
+            list_context = False
         if HEADING.fullmatch(line) and not continuation:
             # Indented acceptance headers can be text inside an enclosing
             # Markdown list, not a live top-level work-order section.
@@ -242,6 +254,7 @@ def _criteria(body: str) -> list[str]:
             if container_paragraph:
                 raise IntakeError("possible lazy Markdown container acceptance heading requires clarification")
             last_bullet = None
+            list_context = False
             in_section = True
             continue
         if not in_section:
@@ -474,12 +487,13 @@ def main(argv=None) -> int:
         else:
             db_file = Path(args.db).resolve()
             draft_file = Path(args.draft_file).resolve()
-            if _aliases(draft_file, db_file):
-                raise IntakeError("draft must not be the queue database")
+            related_db_files = (
+                db_file, *(Path(str(db_file) + suffix) for suffix in ("-wal", "-shm", "-journal")),
+            )
+            if any(_aliases(draft_file, path) for path in related_db_files):
+                raise IntakeError("draft must not be the queue database or its sidecars")
             if args.receipt_file:
                 receipt_file = Path(args.receipt_file).resolve()
-                related_db_files = {db_file, *(Path(str(db_file) + suffix) for suffix in
-                                                ("-wal", "-shm", "-journal"))}
                 if any(_aliases(receipt_file, path) for path in (draft_file, *related_db_files)):
                     raise IntakeError("receipt must not overwrite draft or queue database/sidecars")
             draft = _strict_json(draft_file.read_text(encoding="utf-8"))

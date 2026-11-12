@@ -627,6 +627,38 @@ Acceptance criteria:
                     _criteria(f"{example}\n## Acceptance criteria\n- Real.\n"), ["Real."]
                 )
 
+    def test_resumed_list_paragraph_cannot_supply_acceptance(self):
+        for marker, indent in (("- ", "  "), ("2. ", "   "), ("123. ", "     ")):
+            with self.subTest(marker=marker):
+                body = f"{marker}Example only:\n\n{indent}Example text.\n"
+                with self.assertRaisesRegex(IntakeError, "lazy Markdown container"):
+                    draft(body + "Acceptance criteria:\n- Example only.\n")
+                self.assertEqual(
+                    _criteria(body + "\nAcceptance criteria:\n- Real.\n"), ["Real."]
+                )
+
+    def test_cli_submit_draft_cannot_occupy_or_alias_database_sidecar(self):
+        d = draft()
+        for suffix in ("-wal", "-shm", "-journal"):
+            for alias in (False, True):
+                with self.subTest(suffix=suffix, alias=alias), tempfile.TemporaryDirectory() as folder:
+                    root = Path(folder)
+                    db = root / "db.sqlite"
+                    sidecar = root / f"db.sqlite{suffix}"
+                    sidecar.write_text(json.dumps(d))
+                    source = sidecar
+                    if alias:
+                        source = root / "draft.json"
+                        source.hardlink_to(sidecar)
+                    result = subprocess.run(
+                        [sys.executable, "tools/software_factory_intake.py", "submit",
+                         "--draft-file", str(source), "--db", str(db)],
+                        capture_output=True, text=True, timeout=15,
+                    )
+                    self.assertEqual(result.returncode, 2, result.stdout)
+                    self.assertFalse(db.exists())
+                    self.assertEqual(json.loads(sidecar.read_text()), d)
+
     def test_cli_receipt_rejects_database_hardlink(self):
         d = draft()
         with tempfile.TemporaryDirectory() as folder:
