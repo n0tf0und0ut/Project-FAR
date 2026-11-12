@@ -19,6 +19,8 @@ from urllib.request import Request, urlopen
 DEFAULT_REPO = "n0tf0und0ut/Project-FAR"
 API = "https://api.github.com"
 PAGE_SIZE = 100
+PERMANENT_INBOX_BRANCH = "automation/living-research-inbox"
+HISTORICAL_NO_MERGE_NUMBERS = frozenset({490, 653})
 
 
 class WorkboardError(Exception):
@@ -90,9 +92,26 @@ def _assignees(item: dict) -> list[str]:
     return sorted(str(x.get("login")) for x in item.get("assignees", []) if isinstance(x, dict) and x.get("login"))
 
 
+def _is_permanent_inbox_source(row: dict, repo: str) -> bool:
+    """Identify the actual rolling branch; don't trust a fixed PR number."""
+    if repo.casefold() != DEFAULT_REPO.casefold():
+        return False
+    head = row.get("head")
+    base = row.get("base")
+    if not isinstance(head, dict) or not isinstance(base, dict):
+        return False
+    source_repo = head.get("repo")
+    return (head.get("ref") == PERMANENT_INBOX_BRANCH
+            and base.get("ref") == "main"
+            and isinstance(source_repo, dict)
+            and str(source_repo.get("full_name", "")).casefold() == DEFAULT_REPO.casefold())
+
+
 def _pr(row: dict, repo: str) -> dict:
     number = row["number"]
-    protected_inbox = repo.casefold() == DEFAULT_REPO.casefold() and number == 490
+    protected_inbox = (repo.casefold() == DEFAULT_REPO.casefold()
+                       and (number in HISTORICAL_NO_MERGE_NUMBERS
+                            or _is_permanent_inbox_source(row, repo)))
     state = "PERMANENT INBOX — DO NOT MERGE" if protected_inbox else ("DRAFT" if row.get("draft") else "OPEN")
     return {
         "number": number,
@@ -142,6 +161,9 @@ def collect(api, repo: str = DEFAULT_REPO, now: datetime | None = None) -> dict:
     after = _head_sha(api, root, branch)
     if before != after:
         raise WorkboardError("Default branch advanced during retrieval; rerun for coherent snapshot")
+    source_prs = [row for row in pulls if _is_permanent_inbox_source(row, canonical_repo)]
+    if len(source_prs) > 1:
+        raise WorkboardError("Multiple active permanent inbox PRs; refuse ambiguous workboard")
     prs = sorted((_pr(row, canonical_repo) for row in pulls), key=lambda x: x["number"], reverse=True)
     tasks = sorted((_issue(row) for row in issues), key=lambda x: x["number"], reverse=True)
     actionable = sum(row["state"] != "PERMANENT INBOX — DO NOT MERGE" for row in prs)

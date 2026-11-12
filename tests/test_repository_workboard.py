@@ -15,10 +15,15 @@ spec.loader.exec_module(workboard)
 SHA = "a" * 40
 
 
-def pr(n, draft=False):
+def pr(n, draft=False, *, branch=None, head_repo=None):
+    if branch is None:
+        branch = workboard.PERMANENT_INBOX_BRANCH if n in (490, 653) else "feature/ordinary"
+    if head_repo is None:
+        head_repo = workboard.DEFAULT_REPO
     return {
         "number": n, "title": f"PR {n} | escaped", "html_url": f"https://github.com/x/y/pull/{n}",
-        "head": {"sha": "b" * 40}, "base": {"ref": "main"}, "draft": draft,
+        "head": {"sha": "b" * 40, "ref": branch, "repo": {"full_name": head_repo}},
+        "base": {"ref": "main"}, "draft": draft,
         "updated_at": "2026-11-09T10:00:00Z", "labels": [], "assignees": [],
     }
 
@@ -58,8 +63,8 @@ class StubAPI:
             if self.many:
                 if "&page=1" in path:
                     return [pr(i) for i in range(1, 101)]
-                return [pr(100, True)] if self.duplicate else [pr(490, True)]
-            return [pr(490, True), pr(615)]
+                return [pr(100, True)] if self.duplicate else [pr(653, True)]
+            return [pr(653, True), pr(615)]
         if "/issues?" in path:
             return [issue(513), issue(615, True)]
         raise AssertionError(path)
@@ -73,7 +78,8 @@ class WorkboardTests(unittest.TestCase):
             "open_prs": 2, "actionable_prs": 1, "permanent_inbox_prs": 1,
             "open_issues": 1, "unassigned_issues": 1, "unlabeled_issues": 1,
         })
-        self.assertEqual(doc["prs"][-1]["state"], "PERMANENT INBOX — DO NOT MERGE")
+        self.assertEqual(next(p for p in doc["prs"] if p["number"] == 653)["state"],
+                         "PERMANENT INBOX — DO NOT MERGE")
         self.assertEqual(doc["prs"][0]["merge_readiness"], "NOT_EVALUATED")
         self.assertEqual(api.branch_reads, 2)
         output = workboard.markdown(doc)
@@ -109,7 +115,42 @@ class WorkboardTests(unittest.TestCase):
         doc = workboard.collect(StubAPI(), repo="n0tf0und0ut/project-far")
         self.assertEqual(doc["repo"], workboard.DEFAULT_REPO)
         self.assertEqual(doc["counts"]["permanent_inbox_prs"], 1)
-        self.assertEqual(doc["prs"][-1]["state"], "PERMANENT INBOX — DO NOT MERGE")
+        self.assertEqual(next(p for p in doc["prs"] if p["number"] == 653)["state"],
+                         "PERMANENT INBOX — DO NOT MERGE")
+
+    def test_successor_and_future_rolling_inbox_are_not_actionable(self):
+        for n in (653, 700):
+            row = pr(n, False, branch=workboard.PERMANENT_INBOX_BRANCH)
+            self.assertEqual(workboard._pr(row, workboard.DEFAULT_REPO)["state"],
+                             "PERMANENT INBOX — DO NOT MERGE")
+            self.assertEqual(workboard._pr(row, "someone/else")["state"], "OPEN")
+            row["head"]["repo"]["full_name"] = "someone/else"
+            if n == 700:
+                self.assertEqual(workboard._pr(row, workboard.DEFAULT_REPO)["state"], "OPEN")
+        historical = pr(490, False, branch="retired/other")
+        self.assertEqual(workboard._pr(historical, workboard.DEFAULT_REPO)["state"],
+                         "PERMANENT INBOX — DO NOT MERGE")
+        historical_653 = pr(653, False, branch="unexpected/rewrite")
+        self.assertEqual(workboard._pr(historical_653, workboard.DEFAULT_REPO)["state"],
+                         "PERMANENT INBOX — DO NOT MERGE")
+
+    def test_ambiguous_active_rolling_inbox_fails_closed(self):
+        class DuplicateSources(StubAPI):
+            def get(self, path):
+                if "/pulls?" in path:
+                    return [pr(653, True),
+                            pr(700, True, branch=workboard.PERMANENT_INBOX_BRANCH)]
+                return super().get(path)
+        with self.assertRaisesRegex(workboard.WorkboardError, "Multiple active permanent inbox"):
+            workboard.collect(DuplicateSources())
+
+    def test_only_matching_owner_branch_and_base_are_special(self):
+        candidate = pr(700, True, branch=workboard.PERMANENT_INBOX_BRANCH)
+        candidate["base"]["ref"] = "develop"
+        self.assertEqual(workboard._pr(candidate, workboard.DEFAULT_REPO)["state"], "DRAFT")
+        candidate["base"]["ref"] = "main"
+        candidate["head"]["ref"] = "other/branch"
+        self.assertEqual(workboard._pr(candidate, workboard.DEFAULT_REPO)["state"], "DRAFT")
 
     def test_untrusted_markdown_metadata_is_inert(self):
         doc = workboard.collect(StubAPI())
