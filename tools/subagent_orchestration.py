@@ -673,11 +673,13 @@ def _invoke_once(runtime: AgentRuntime, agent: AgentSpec, task: AgentTask) -> Ag
     Other tasks and later sequential attempts remain valid. This guards the
     synchronous invocation boundary only; it cannot cancel a hung provider.
     """
-    inherited = _IN_FLIGHT_INVOCATIONS.get()
-    if any(item.active and item.task_id == task.task_id for item in inherited):
+    # A copied context may retain completed ancestors. Drop their markers
+    # before the next dispatch, or long call_soon chains accumulate tombstones.
+    active = tuple(item for item in _IN_FLIGHT_INVOCATIONS.get() if item.active)
+    if any(item.task_id == task.task_id for item in active):
         raise RuntimeError(f"duplicate in-flight task invocation: {task.task_id}")
     marker = _InFlightInvocation(task.task_id)
-    token = _IN_FLIGHT_INVOCATIONS.set((*inherited, marker))
+    token = _IN_FLIGHT_INVOCATIONS.set((*active, marker))
     try:
         return runtime.invoke(agent, task)
     finally:
