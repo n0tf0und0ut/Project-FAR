@@ -181,6 +181,19 @@ Acceptance criteria:
                 with self.assertRaises(IntakeError):
                     _criteria(body)
 
+    def test_pre_block_requires_exact_closing_delimiter(self):
+        for closer in ("</pre >", "</pre\t>", "</PRE \t>"):
+            with self.subTest(closer=closer):
+                body = (f"Example only:\n\n<pre>\n{closer}\nAcceptance criteria:\n"
+                        "- Count sample words.\n\nNotes:\nExample text only.\n")
+                with self.assertRaisesRegex(IntakeError, "malformed HTML pre tag"):
+                    draft(body)
+        for closer in ("</pre>", "</PRE>"):
+            with self.subTest(closer=closer):
+                body = (f"<pre>\nAcceptance criteria:\n- Count sample words.\n{closer}\n"
+                        "## Acceptance criteria\n- Count actual input words.\n")
+                self.assertEqual(_criteria(body), ["Count actual input words."])
+
     def test_pre_marker_inside_fenced_example_is_not_an_active_tag(self):
         body = ("~~~html\n<pre\nclass=\"example\">\n"
                 "Acceptance criteria:\n- Delete all files.\n~~~\n"
