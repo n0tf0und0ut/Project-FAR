@@ -34,10 +34,17 @@ _FORBIDDEN_CLEAN_ROOM_CONTEXT = frozenset({
 })
 
 
-# Prevent a callback from recursively dispatching its own in-flight task.
-# Context-local by design: not cross-thread or cross-process deduplication.
-_IN_FLIGHT_TASK_IDS: ContextVar[frozenset[str]] = ContextVar(
-    "far_in_flight_task_ids", default=frozenset()
+# Context copies (e.g. asyncio.call_soon) inherit marker references, not a
+# stale snapshot of "active" identities. A completed invocation clears its marker
+# even when the callback runs in a different, previously copied context.
+@dataclasses.dataclass(slots=True)
+class _InFlightInvocation:
+    task_id: str
+    active: bool = True
+
+
+_IN_FLIGHT_INVOCATIONS: ContextVar[tuple[_InFlightInvocation, ...]] = ContextVar(
+    "far_in_flight_invocations", default=()
 )
 
 
@@ -666,14 +673,16 @@ def _invoke_once(runtime: AgentRuntime, agent: AgentSpec, task: AgentTask) -> Ag
     Other tasks and later sequential attempts remain valid. This guards the
     synchronous invocation boundary only; it cannot cancel a hung provider.
     """
-    active = _IN_FLIGHT_TASK_IDS.get()
-    if task.task_id in active:
+    inherited = _IN_FLIGHT_INVOCATIONS.get()
+    if any(item.active and item.task_id == task.task_id for item in inherited):
         raise RuntimeError(f"duplicate in-flight task invocation: {task.task_id}")
-    token = _IN_FLIGHT_TASK_IDS.set(active | {task.task_id})
+    marker = _InFlightInvocation(task.task_id)
+    token = _IN_FLIGHT_INVOCATIONS.set((*inherited, marker))
     try:
         return runtime.invoke(agent, task)
     finally:
-        _IN_FLIGHT_TASK_IDS.reset(token)
+        marker.active = False
+        _IN_FLIGHT_INVOCATIONS.reset(token)
 
 
 def orchestrate(
