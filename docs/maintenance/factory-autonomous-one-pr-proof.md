@@ -58,5 +58,3 @@ explained away. No auto-merge, force-push, or protected bypass is enabled.
 No claims of agent general reliability, commercial value, or a performance
 advantage follow from a single small task. Worker identity is local-provider
 reported, and Docker is bounded rather than full host isolation.
-
-
