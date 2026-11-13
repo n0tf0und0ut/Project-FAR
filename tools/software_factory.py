@@ -339,7 +339,7 @@ class Factory:
 
     def fail(self, order_id: str, task_id: str, token: str, reason: str, now: float | None = None,
              max_attempts: int = 3) -> dict:
-        if not reason.strip() or max_attempts < 1:
+        if not isinstance(reason, str) or not reason.strip() or max_attempts < 1:
             raise FactoryError("failure reason and retry bound required")
         def apply():
             # Read clock only after BEGIN IMMEDIATE has acquired the writer lock.
