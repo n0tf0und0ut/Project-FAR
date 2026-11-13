@@ -34,6 +34,20 @@ _FORBIDDEN_CLEAN_ROOM_CONTEXT = frozenset({
 })
 
 
+# Context copies (e.g. asyncio.call_soon) inherit marker references, not a
+# stale snapshot of "active" identities. A completed invocation clears its marker
+# even when the callback runs in a different, previously copied context.
+@dataclasses.dataclass(slots=True)
+class _InFlightInvocation:
+    task_id: str
+    active: bool = True
+
+
+_IN_FLIGHT_INVOCATIONS: ContextVar[tuple[_InFlightInvocation, ...]] = ContextVar(
+    "far_in_flight_invocations", default=()
+)
+
+
 def canonical_json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
 
@@ -653,6 +667,26 @@ def detect_conflicts(reports: Sequence[AgentReport]) -> tuple[Conflict, ...]:
     return tuple(conflicts)
 
 
+def _invoke_once(runtime: AgentRuntime, agent: AgentSpec, task: AgentTask) -> AgentReport:
+    """Fail closed on same-context recursive dispatch, including on exception paths.
+
+    Other tasks and later sequential attempts remain valid. This guards the
+    synchronous invocation boundary only; it cannot cancel a hung provider.
+    """
+    # A copied context may retain completed ancestors. Drop their markers
+    # before the next dispatch, or long call_soon chains accumulate tombstones.
+    active = tuple(item for item in _IN_FLIGHT_INVOCATIONS.get() if item.active)
+    if any(item.task_id == task.task_id for item in active):
+        raise RuntimeError(f"duplicate in-flight task invocation: {task.task_id}")
+    marker = _InFlightInvocation(task.task_id)
+    token = _IN_FLIGHT_INVOCATIONS.set((*active, marker))
+    try:
+        return runtime.invoke(agent, task)
+    finally:
+        marker.active = False
+        _IN_FLIGHT_INVOCATIONS.reset(token)
+
+
 def orchestrate(
     *,
     plan: OrchestrationPlan,
@@ -742,7 +776,7 @@ def orchestrate(
             dependency_reports=dependency_reports,
         )
         try:
-            report = runtime.invoke(agent, task)
+            report = _invoke_once(runtime, agent, task)
             _validate_report_binding(report, task)
             _validate_global_finding_ids(report, reports.values())
         except Exception as exc:
