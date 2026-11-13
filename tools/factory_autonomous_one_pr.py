@@ -280,8 +280,7 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
                     "isinstance(True, int) and isinstance(False, int) are both True. "
                     "All original worker and ttl bounds must remain.\n"
                     "Previous generated guard: " + feedback['guard'] +
-                    "\nTest failure excerpt (execution output, not test source):\n" +
-                    feedback['stderr_excerpt'])
+                    "\nValidated grader result: " + feedback['diagnostic'])
                 proposed, metadata = ask_model(task_prompt, trial_dir)
                 state['model_generation'] = metadata
                 changed = replace_claim_guard(orig, proposed)
@@ -302,16 +301,17 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
                 state['model_trials'].append(trial)
                 state['after'] = outcome
                 if outcome['state'] != 'PASS' or outcome.get('test_count_reported') != 4:
-                    if model_round == 1:
-                        # Test OUTPUT only; the hidden oracle's source is never
-                        # passed back to the model. This makes round 2 adaptive,
-                        # not an untouched held-out evaluation.
-                        err = (output / 'after-1.stderr')
-                        raw_feedback = err.read_text(errors='replace') if err.is_file() else ''
-                        lines = [x.strip() for x in raw_feedback.splitlines()
-                                 if 'FAIL:' in x or 'ERROR:' in x or 'value=' in x]
+                    if (model_round == 1 and outcome['state'] == 'FAIL'
+                            and outcome.get('test_count_reported') == 4):
+                        # Model-authored code can print arbitrary stderr in the
+                        # sandbox. That output is NEVER sent to a new model call.
+                        # Only the validated grader result and preregistered
+                        # task requirements inform the second attempt.
                         feedback = {'guard': proposed,
-                                    'stderr_excerpt': ' | '.join(lines[:9])[:900]}
+                                    'diagnostic': 'FAIL (4 frozen acceptance tests). '
+                                    'Python bool subclasses int, so ensure both '
+                                    'True and False are rejected by exact type '
+                                    'validation while preserving original bounds.'}
                         continue
                     raise SmokeError('model candidate failed frozen acceptance oracle after two distinct proposals')
                 state['preservation_after'] = grade_with_oracle(
