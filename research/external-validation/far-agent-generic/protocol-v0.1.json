@@ -33,9 +33,8 @@
     "unit": "task",
     "paired": true,
     "repetitions_per_task_per_arm": 2,
-    "minimum_confirmatory_tasks": 24,
-    "minimum_distinct_repositories": 5,
-    "maximum_fraction_per_repository": "1/5",
+    "minimum_distinct_repositories": 6,
+    "maximum_fraction_per_repository": "1/6",
     "strata": [
       "bug_fix",
       "test_failure",
@@ -43,7 +42,7 @@
       "API_or_contract_change",
       "multi_file_change"
     ],
-    "task_identity_rule": "Use independently produced sealed task bundle and one-to-one blinded identity ledger, same exact source snapshot across arms; exclude Project FAR/forks/treatment exposure, all prior SWE-agent tasks and sacrificial pilot tasks",
+    "task_identity_rule": "Exactly 24 independently sourced eligible tasks across six provider-stable external repositories, four tasks per repository; independently sealed task bundle and one-to-one blinded ledger, identical exact source snapshot across arms. Exclude Project FAR/forks/treatment exposure, prior SWE-agent tasks and pilot tasks; no replacement after task seal or outcome exposure.",
     "selection_rule": "Independent custodian screens prospective external repository tasks with frozen inclusion/exclusion decisions before agent access; no outcome-dependent substitution",
     "order_rule": "Frozen independent random seed, balanced counterbalanced per-task arm and repetition ordering; no shared histories or PR merges into shared upstream; independent resettable snapshots",
     "run_equivalence": [
@@ -61,7 +60,9 @@
       "execution_requires_separate_prospective_authorization": true
     },
     "no_provider_fallback": true,
-    "zero_paid_spend_unless_separately_authorized": true
+    "zero_paid_spend_unless_separately_authorized": true,
+    "fixed_confirmatory_tasks": 24,
+    "maximum_tasks_per_repository": 4
   },
   "primary_endpoint": {
     "id": "independent_task_resolution",
@@ -74,13 +75,13 @@
     "invalid_run_is_not_success": true,
     "timeouts_and_bad_agent_actions": "measured unresolved, never silently excluded",
     "infrastructure_invalid": "retain original; at most one independently authorized same-slot replacement before any outcome reveal; if still invalid, retain missing cell and classify study inconclusive",
-    "denominator": "all frozen task-arm-repetition slots; every frozen task contributes paired arm means unless any required cell is missing",
+    "denominator": "The exactly 24 frozen tasks x 2 arms x 2 repetitions = 96 original slots; every frozen task contributes paired arm means unless any required cell is missing; same-slot replacements never enlarge the denominator.",
     "no_agent_self_grading": true
   },
   "statistics": {
     "estimand": "mean over frozen tasks of (mean resolved repetitions under FAR minus mean resolved repetitions under generic checker)",
     "minimum_practically_important_absolute_effect": "1/10",
-    "uncertainty": "paired task-cluster bootstrap, 100000 resamples, equal-tailed 95% percentile interval; exact SHA-256 rejection-stream RNG and type-7 quantile from governed SWE-agent v3 protocol; seed separately frozen before unblinding",
+    "uncertainty": "paired task-cluster bootstrap, 100000 resamples, equal-tailed 95% percentile interval; exact SHA-256 rejection-stream RNG and type-7 quantile from governed SWE-agent v3 protocol; seed separately frozen before unblinding; exactly 24 paired tasks are the resampling units",
     "decision_priority": [
       "invalid_protocol_or_compromised_seal",
       "inconclusive_due_to_missingness",
