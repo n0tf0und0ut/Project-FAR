@@ -1,0 +1,57 @@
+"""Frozen independently runnable oracle: Factory.claim must reject invalid lease parameters.
+
+Research-only holdout, not imported by normal test discovery. This oracle predates
+any model attempt at the claim-parameter defect and is not provided to the model.
+"""
+from pathlib import Path
+import tempfile
+import unittest
+from tools.software_factory import Factory, FactoryError
+
+
+class ClaimParameterOracle(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.factory = Factory(Path(self.temp.name) / 'factory.db')
+        self.factory.submit({
+            'schema': 'far-software-factory/work-order/1',
+            'id': 'claimparam',
+            'repository': 'n0tf0und0ut/Project-FAR',
+            'base_sha': 'a' * 40,
+            'tasks': [{'id': 'repair', 'objective': 'Validate claim lease parameters',
+                       'acceptance': ['Invalid lease parameters cannot consume leases'],
+                       'depends_on': []}],
+        })
+
+    def test_bad_ttl_does_not_consume_lease(self):
+        before = self.factory.snapshot('claimparam')
+        for value in (None, '300', True, False, [], {}, 2.5):
+            with self.subTest(value=repr(value)):
+                with self.assertRaisesRegex(FactoryError, 'worker or lease duration'):
+                    self.factory.claim('claimparam', 'builder', ttl=value, now=100)
+                self.assertEqual(self.factory.snapshot('claimparam'), before)
+
+    def test_bad_attempt_bound_does_not_consume_lease(self):
+        before = self.factory.snapshot('claimparam')
+        for value in (None, '3', True, False, [], {}, 2.5):
+            with self.subTest(value=repr(value)):
+                with self.assertRaisesRegex(FactoryError, 'worker or lease duration'):
+                    self.factory.claim('claimparam', 'builder', max_attempts=value, now=100)
+                self.assertEqual(self.factory.snapshot('claimparam'), before)
+
+    def test_valid_integer_lease_remains_accepted(self):
+        claim = self.factory.claim('claimparam', 'builder', ttl=900, max_attempts=3, now=100)
+        self.assertEqual(claim['expires_at'], 1000)
+        self.assertEqual(claim['stage'], 'build')
+        self.assertEqual(self.factory.snapshot('claimparam')['tasks'][0]['state'], 'running')
+
+    def test_upper_duration_bound_preserved(self):
+        before = self.factory.snapshot('claimparam')
+        with self.assertRaises(FactoryError):
+            self.factory.claim('claimparam', 'builder', ttl=86401, now=100)
+        self.assertEqual(before, self.factory.snapshot('claimparam'))
+
+
+if __name__ == '__main__':
+    unittest.main()
