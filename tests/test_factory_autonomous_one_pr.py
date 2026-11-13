@@ -130,5 +130,55 @@ class FactoryAutonomousProofContract(unittest.TestCase):
             publish(self.repo,self.db,self.out)
 
 
+    def test_mocked_valid_patch_reaches_publisher_and_real_queue_build_record(self):
+        # No real model, GitHub API, or push here. This validates the *complete*
+        # local state transition and Git diff handling with explicit host mocks.
+        import tools.factory_autonomous_one_pr as module
+        fake = types.ModuleType('tools.workflow_efficacy_free_agent')
+        fake.local_model_digest = lambda: MODEL_DIGEST
+        def grade(*args, **kwargs):
+            return {'state': 'PASS', 'test_count_reported': 44}
+        def hold(*args, **kwargs):
+            return {'state': 'FAIL' if args[3] == 'before' else 'PASS',
+                    'test_count_reported': 4}
+        with patch.dict(sys.modules, {'tools.workflow_efficacy_free_agent': fake}), \
+             patch('tools.factory_autonomous_one_pr.grader_image_id', return_value='sha256:'+'a'*64), \
+             patch('tools.factory_autonomous_one_pr.ask_model', return_value=(self.new, {'model':MODEL})), \
+             patch('tools.factory_autonomous_one_pr.grade_in_docker', side_effect=grade), \
+             patch('tools.factory_autonomous_one_pr.grade_with_oracle', side_effect=hold):
+            self.assertTrue(attempt(self.repo, self.db, self.out))
+
+        actual = module._run
+        actions = []
+        def fake_cli(*args, cwd):
+            if args[:3] == ('gh','auth','setup-git'):
+                actions.append('auth')
+                return ''
+            if args[:2] == ('git','push'):
+                actions.append('push')
+                return ''
+            if args[:3] == ('gh','pr','create'):
+                actions.append('create-pr')
+                return 'https://github.com/'+REPO+'/pull/999'
+            if args[:3] == ('gh','pr','view'):
+                actions.append('view-pr')
+                return '999'
+            return actual(*args, cwd=cwd)
+        with patch.dict(os.environ, {'GH_TOKEN':'fake-not-a-real-token',
+                                      'GITHUB_REPOSITORY': REPO,
+                                      'GITHUB_RUN_ID':'123'}), \
+             patch('tools.factory_autonomous_one_pr._run', side_effect=fake_cli):
+            result = publish(self.repo, self.db, self.out)
+        self.assertEqual(actions, ['auth','push','create-pr','view-pr'])
+        self.assertEqual(result['pr_number'], 999)
+        self.assertEqual(result['queue_snapshot']['tasks'][0]['stage'],'test')
+        self.assertEqual(result['queue_snapshot']['tasks'][0]['state'],'queued')
+        self.assertEqual([h['event'] for h in result['queue_snapshot']['tasks'][0]['history']],
+                         ['claimed','completed'])
+        self.assertEqual(result['queue_snapshot']['tasks'][0]['history'][-1]['evidence']['pr_number'], 999)
+        self.assertIn('type(ttl) is not int', (self.repo / SOURCE).read_text())
+        self.assertEqual((self.repo / TEST).read_bytes(),check_oracle(self.repo))
+
+
 if __name__ == '__main__':
     unittest.main()
