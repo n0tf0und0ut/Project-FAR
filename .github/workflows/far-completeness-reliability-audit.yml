@@ -75,6 +75,47 @@ jobs:
           assert replay["paired_success_delta"] == -1 / 30, "unexpected paired effect"
           print("PASS: 31/31 original archives, 60/60 raw observations, and exact frozen grader replay")
           PY
+      - name: Seal all original model and grader evidence before Actions retention expiry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import zipfile
+          from pathlib import Path
+          src = Path("frozen/research/workflow-efficacy/evidence")
+          out = Path("artifacts/far-reliability/original-60-raw-evidence.zip")
+          members = sorted(p for p in src.rglob("*") if p.is_file())
+          assert len(list(src.glob("pair-*.json"))) == 30
+          assert len(members) >= 60, "raw model/grade files not retained"
+          with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in members:
+                  info = zipfile.ZipInfo(p.relative_to(src).as_posix(), date_time=(2026, 11, 3, 0, 0, 0))
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.external_attr = 0o100644 << 16
+                  z.writestr(info, p.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+          with zipfile.ZipFile(out) as z:
+              assert z.testzip() is None
+              assert len(z.namelist()) == len(members)
+          manifest = {
+              "status": "Research",
+              "schema": "original-scripted-repair-raw-archive/1",
+              "source_run_id": 41556392256,
+              "source_commit": "a750c5523183f64a20ff644846c4fcd91c887824",
+              "original_artifacts_verified": 31,
+              "raw_files": len(members),
+              "raw_bytes": sum(p.stat().st_size for p in members),
+              "archive_sha256": hashlib.sha256(out.read_bytes()).hexdigest(),
+              "archive_size_bytes": out.stat().st_size,
+              "original_artifact_manifest_record": "research/workflow-efficacy/result/campaign-41556392256.json",
+              "replay": "frozen grader reproduced original analysis exactly; see job logs",
+              "scope": "authored synthetic one-shot repair; not general autonomous-agent reliability",
+          }
+          Path("artifacts/far-reliability/raw-archive-manifest.json").write_text(
+              json.dumps(manifest, indent=2, sort_keys=True)+"\n")
+          print("SEALED_RAW_ARCHIVE", json.dumps(manifest, sort_keys=True))
+          PY
       - name: Preserve raw-integrity and independent-statistical verification
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
