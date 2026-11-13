@@ -1,0 +1,18 @@
+{
+  "schema": "far-software-factory/work-order/1",
+  "id": "far-maint-003",
+  "repository": "n0tf0und0ut/Project-FAR",
+  "base_sha": "5253a45ac7f5bfbda1278cf3b8fbf4b9b22136f8",
+  "tasks": [
+    {
+      "id": "far-maint-003",
+      "objective": "Repair Factory.fail so max_attempts values of the wrong type (including bool, None, string, list, and dict) raise FactoryError, not TypeError or implicit acceptance. Reject them without changing the active lease or its history. Preserve existing valid integer retry behavior. Work on tools/software_factory.py only. Return exactly one JSON object with a unified Git diff in a patch property. No policy, test or frozen-evidence changes.",
+      "acceptance": [
+        "A frozen standalone oracle rejects five malformed retry bounds without consuming the lease",
+        "Existing software-factory test suite continues to pass",
+        "The actual queued worker attempt retains raw model and Docker receipts without asserting an unobserved PR"
+      ],
+      "depends_on": []
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+"""Withheld frozen defect oracle for FAR-MAINT-003, never sent to model."""
+import tempfile
+from pathlib import Path
+import unittest
+from tools.software_factory import Factory, FactoryError
+
+class RetryBoundOracle(unittest.TestCase):
+    def test_invalid_retry_bounds_fail_closed_and_preserve_live_lease(self):
+        with tempfile.TemporaryDirectory() as d:
+            f = Factory(Path(d) / "factory.sqlite")
+            f.submit({"schema":"far-software-factory/work-order/1", "id":"oracle",
+                "repository":"n0tf0und0ut/Project-FAR", "base_sha":"5253a45ac7f5bfbda1278cf3b8fbf4b9b22136f8",
+                "tasks":[{"id":"one", "objective":"check failure reason contract",
+                    "acceptance":["malformed bounds rejected"], "depends_on":[]}]})
+            c = f.claim("oracle", "testworker", now=100)
+            baseline = f.snapshot("oracle")
+            for bound in (None, "3", [], {}, True):
+                with self.subTest(bound=repr(bound)):
+                    with self.assertRaisesRegex(FactoryError, "retry bound"):
+                        f.fail("oracle", "one", c["token"], "ordinary worker failure", now=101,
+                               max_attempts=bound)
+                    self.assertEqual(f.snapshot("oracle"), baseline)
+            self.assertEqual(f.fail("oracle", "one", c["token"], "ordinary worker failure",
+                                    now=101, max_attempts=3)["state"], "queued")
+
+if __name__ == "__main__":
+    unittest.main()
