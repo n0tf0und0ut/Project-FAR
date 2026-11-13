@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/user/far-graphify-eval-20261112/.venv/bin/graphify",
+    "extract",
+    "/home/user/far-graphify-eval-20261112/far",
+    "--code-only",
+    "--no-cluster",
+    "--max-workers",
+    "4",
+    "--out",
+    "/home/user/far-graphify-eval-20261112/output"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 138.68,
+  "stdout_tail": "[graphify extract] incremental scan of /__modal/volumes/vo-Akmz8eq2XDrm10zEapdhr8/far-graphify-eval-20261112/far\n[graphify extract] --code-only: skipping 1537 non-code file(s) (1533 docs, 4 papers, 0 images) \u2014 no LLM extraction\n[graphify extract] 3 code, 0 docs, 0 papers, 0 images changed; 2357 unchanged; 0 deleted\n[graphify extract] 156 file(s) not classified (no supported extension or shebang), skipped: .editorconfig, .gitattributes, .gitignore, .gitkeep, CITATION.cff, CanonicalUniversalityTerminal.lean (+150 more)\n[graphify extract] AST extraction on 3 code files...\n  AST cache: 0/3 files served from cache (0%); 3 to extract\n[graphify extract] wrote /__modal/volumes/vo-Akmz8eq2XDrm10zEapdhr8/far-graphify-eval-20261112/output/graphify-out/graph.json \u2014 19100 nodes, 43839 edges (no clustering)\n",
+  "stderr_tail": ""
+}
