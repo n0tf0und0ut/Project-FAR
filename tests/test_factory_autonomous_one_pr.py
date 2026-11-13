@@ -24,6 +24,28 @@ def sh(repo, *argv):
     subprocess.run(['git', *argv], cwd=repo, check=True, capture_output=True)
 
 
+# Fixture is pinned to the historical defect, not the live implementation.
+# Its content must remain valid even after the generated PR fixes main.
+DEFECTIVE_CLAIM_GUARD = (
+    '        if not isinstance(worker, str) or not IDENT.fullmatch(worker) '
+    'or ttl < 1 or ttl > 86400 or max_attempts < 1:'
+)
+
+
+def frozen_defective_source(source: str) -> str:
+    guard, _ = claim_guard(source)
+    if guard.rstrip('\r\n') == DEFECTIVE_CLAIM_GUARD:
+        return source
+    lines = source.splitlines(keepends=True)
+    positions = [i for i, line in enumerate(lines) if line == guard]
+    if len(positions) != 1:
+        raise AssertionError('ambiguous claim guard in regression fixture')
+    lines[positions[0]] = DEFECTIVE_CLAIM_GUARD + ('\r\n' if guard.endswith('\r\n') else '\n')
+    restored = ''.join(lines)
+    __import__('ast').parse(restored)
+    return restored
+
+
 class FactoryAutonomousProofContract(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -36,6 +58,8 @@ class FactoryAutonomousProofContract(unittest.TestCase):
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes((BASE / path).read_bytes())
         (self.repo / 'tests').mkdir()
+        source_path = self.repo / SOURCE
+        source_path.write_text(frozen_defective_source(source_path.read_text(encoding='utf-8')), encoding='utf-8')
         sh(self.repo, 'init', '-q')
         sh(self.repo, 'config', 'user.name', 'test')
         sh(self.repo, 'config', 'user.email', 'test@example.invalid')
@@ -54,6 +78,13 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.new = ("if not isinstance(worker, str) or not IDENT.fullmatch(worker) "
                     "or type(ttl) is not int or ttl < 1 or ttl > 86400 "
                     "or type(max_attempts) is not int or max_attempts < 1:")
+
+    def test_defective_fixture_is_stable_after_valid_repair(self):
+        # Simulates a later protected-main checkout containing the intended fix.
+        repaired = replace_claim_guard(self.source, self.new)
+        self.assertNotEqual(repaired, self.source)
+        self.assertEqual(frozen_defective_source(repaired), self.source)
+        self.assertEqual(frozen_defective_source(self.source), self.source)
 
     def test_frozen_oracle_hash_and_red_baseline(self):
         raw = check_oracle(self.repo)
