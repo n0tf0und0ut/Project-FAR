@@ -184,15 +184,44 @@ def descriptive_analysis(record: dict) -> dict:
     }
 
 
+class NoAuthRedirect(urllib.request.HTTPRedirectHandler):
+    """GitHub's authenticated API may redirect to an anonymously signed blob URL.
+
+    Never forward a GitHub token outside the initial GitHub API hostname.
+    """
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
 def github_download(url: str, token: str) -> bytes:
+    from urllib.error import HTTPError
+    from urllib.parse import urlsplit
+    initial = urlsplit(url)
+    reject(initial.scheme == "https" and initial.hostname == "api.github.com",
+           "authenticated request is not to GitHub API")
     req = urllib.request.Request(url, headers={
         "Authorization": "Bearer " + token,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "far-research-raw-evidence-replay",
     })
-    with urllib.request.urlopen(req, timeout=45) as resp:
-        data = resp.read(10_000_001)
+    try:
+        response = urllib.request.build_opener(NoAuthRedirect).open(req, timeout=45)
+    except HTTPError as error:
+        if error.code not in (301, 302, 303, 307, 308):
+            raise ValueError("GitHub API access denied at " + initial.path
+                             + " (HTTP " + str(error.code) + ")") from error
+        location = error.headers.get("Location", "")
+        redirected = urlsplit(location)
+        reject(redirected.scheme == "https" and bool(redirected.hostname),
+               "unsigned or unsafe artifact redirect")
+        print("FETCH_SIGNED_ARTIFACT_NO_TOKEN " + initial.path, file=sys.stderr)
+        response = urllib.request.urlopen(
+            urllib.request.Request(location, headers={
+                "User-Agent": "far-research-raw-evidence-replay",
+            }), timeout=45)
+    with response:
+        data = response.read(10_000_001)
     reject(len(data) <= 10_000_000, "oversized artifact response")
     return data
 
@@ -202,6 +231,7 @@ def verify_archived_raw(record: dict, token: str, destination: Path) -> dict:
     destination.mkdir(parents=True, exist_ok=True)
     expected = {x["name"]: x for x in record["artifact_manifest"]}
     url = f"https://api.github.com/repos/n0tf0und0ut/Project-FAR/actions/runs/{CAMPAIGN}/artifacts?per_page=100"
+    print("FETCH_ARTIFACT_MANIFEST", file=sys.stderr)
     page = strict_json(github_download(url, token))
     listed = {x["name"]: x for x in page["artifacts"]}
     reject(set(listed) == set(expected), "hosted campaign artifacts missing or unexpected")
@@ -211,6 +241,7 @@ def verify_archived_raw(record: dict, token: str, destination: Path) -> dict:
         x = expected[name]
         reject(meta["id"] == x["id"] and meta["digest"] == x["digest"], "hosted archive metadata drift")
         reject(not meta["expired"], "original raw evidence expired")
+        print("FETCH_ARTIFACT " + name, file=sys.stderr)
         blob = github_download(
             f"https://api.github.com/repos/n0tf0und0ut/Project-FAR/actions/artifacts/{x['id']}/zip", token)
         reject("sha256:" + hashlib.sha256(blob).hexdigest() == x["digest"], "original zip hash mismatch: " + name)
