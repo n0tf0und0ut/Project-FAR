@@ -50,6 +50,13 @@ jobs:
           grep -q 'FAILED (' "$RUNNER_TEMP/factory-baseline.stderr"
           grep -q 'Ran 4 tests' "$RUNNER_TEMP/factory-baseline.stderr"
           echo "FROZEN_BASELINE_REPRODUCED"
+      - name: Verify original worker and lease safety contracts are preserved
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          cp research/factory-evaluation/claim-preservation-oracle.py.txt tests/test_factory_claim_preservation.py
+          python -m unittest tests.test_factory_claim_preservation -v
+          rm tests/test_factory_claim_preservation.py
       - name: Start pre-existing pinned local Qwen coding worker
         run: bash scripts/workflow_efficacy_start_ollama.sh
       - name: Build existing no-network Python grader

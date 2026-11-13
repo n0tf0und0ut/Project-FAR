@@ -1,5 +1,6 @@
 """Offline adversarial contracts only; mocking a model does NOT prove model autonomy."""
 import json
+import re
 import os
 from pathlib import Path
 import subprocess
@@ -29,7 +30,8 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.repo = Path(self.temp.name) / 'repo'
         self.repo.mkdir()
-        for path in (SOURCE, 'research/factory-evaluation/claim-parameter-holdout.py.txt'):
+        for path in (SOURCE, 'research/factory-evaluation/claim-parameter-holdout.py.txt',
+                     'research/factory-evaluation/claim-preservation-oracle.py.txt'):
             dst = self.repo / path
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes((BASE / path).read_bytes())
@@ -39,6 +41,12 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         sh(self.repo, 'config', 'user.email', 'test@example.invalid')
         sh(self.repo, 'add', '-A')
         sh(self.repo, 'commit', '-qm', 'baseline')
+        self.base_sha = subprocess.check_output(['git','rev-parse','HEAD'],cwd=self.repo,text=True).strip()
+        github_event = patch.dict(os.environ, {'GITHUB_EVENT_NAME':'push',
+            'GITHUB_REF':'refs/heads/main', 'GITHUB_REPOSITORY':REPO,
+            'GITHUB_SHA':self.base_sha})
+        github_event.start()
+        self.addCleanup(github_event.stop)
         self.out = Path(self.temp.name) / 'out'
         self.db = Path(self.temp.name) / 'store.sqlite'
         self.source = (self.repo / SOURCE).read_text()
@@ -80,11 +88,33 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         updated = replace_claim_guard(self.source, 'if True:')
         self.assertIn('        if True:', updated)
 
+    def test_reject_mismatched_trusted_main_event(self):
+        with patch.dict(os.environ, {'GITHUB_SHA':'f'*40}):
+            with self.assertRaisesRegex(SmokeError,'runner checkout differs'):
+                attempt(self.repo, self.db, self.out)
+        self.assertFalse(self.db.exists())
+
     def test_reject_holdout_tampering(self):
         p = self.repo / 'research/factory-evaluation/claim-parameter-holdout.py.txt'
         p.write_bytes(p.read_bytes()+b'\n')
         with self.assertRaisesRegex(SmokeError, 'oracle SHA-256'):
             check_oracle(self.repo)
+
+    def test_preservation_oracle_rejects_reviewed_counterexample(self):
+        from tools.factory_autonomous_one_pr import check_preservation
+        original = check_preservation(self.repo)
+        self.assertEqual(__import__('hashlib').sha256(original).hexdigest(),
+                         '104f24eeaede44a6f25bf16e2910c2512a7c21150646c1ebd66f06d88901cb51')
+        bad = replace_claim_guard(self.source,
+            'if type(ttl) is not int or type(max_attempts) is not int or ttl > 86400:')
+        (self.repo / SOURCE).write_text(bad)
+        (self.repo / 'tools/__init__.py').touch()
+        (self.repo / 'tests/__init__.py').touch()
+        (self.repo / 'tests/test_factory_claim_preservation.py').write_bytes(original)
+        proc = subprocess.run(['python','-m','unittest','tests.test_factory_claim_preservation','-v'],
+                              cwd=self.repo,capture_output=True,text=True)
+        self.assertNotEqual(proc.returncode,0)
+        self.assertIn('FAILED',proc.stderr)
 
     def test_mocked_model_lease_generates_advisory_patch_but_not_pr(self):
         # This is a structural test; no real model or Docker is invoked.
@@ -93,7 +123,8 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         def grader(*a, **kw):
             return {'state': 'PASS', 'test_count_reported': 44}
         def oracle(*a, **kw):
-            return {'state': 'FAIL' if a[3] == 'before' else 'PASS', 'test_count_reported': 4}
+            return {'state': 'FAIL' if a[3] == 'before' else 'PASS',
+                    'test_count_reported': 3 if a[3].startswith('preservation-') else 4}
         with patch.dict(sys.modules, {'tools.workflow_efficacy_free_agent':fake}), \
              patch('tools.factory_autonomous_one_pr.grader_image_id',return_value='sha256:'+'a'*64), \
              patch('tools.factory_autonomous_one_pr.ask_model',return_value=(self.new,{'model':MODEL})), \
@@ -140,7 +171,7 @@ class FactoryAutonomousProofContract(unittest.TestCase):
             return {'state': 'PASS', 'test_count_reported': 44}
         def hold(*args, **kwargs):
             return {'state': 'FAIL' if args[3] == 'before' else 'PASS',
-                    'test_count_reported': 4}
+                    'test_count_reported': 3 if args[3].startswith('preservation-') else 4}
         with patch.dict(sys.modules, {'tools.workflow_efficacy_free_agent': fake}), \
              patch('tools.factory_autonomous_one_pr.grader_image_id', return_value='sha256:'+'a'*64), \
              patch('tools.factory_autonomous_one_pr.ask_model', return_value=(self.new, {'model':MODEL})), \
@@ -178,6 +209,22 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.assertEqual(result['queue_snapshot']['tasks'][0]['history'][-1]['evidence']['pr_number'], 999)
         self.assertIn('type(ttl) is not int', (self.repo / SOURCE).read_text())
         self.assertEqual((self.repo / TEST).read_bytes(),check_oracle(self.repo))
+        from tools.factory_autonomous_one_pr import PRESERVATION_TEST, check_preservation
+        self.assertEqual((self.repo / PRESERVATION_TEST).read_bytes(),check_preservation(self.repo))
+        body=(self.out/'pr-body.md').read_text()
+        block=re.search(r'<!-- FAR-INVARIANTS-V1\n(.*?)\nFAR-INVARIANTS-END -->',body,re.S)
+        self.assertIsNotNone(block)
+        inv=json.loads(block.group(1))
+        self.assertEqual(set(inv),{'version','scope','invariants','limitations'})
+        self.assertEqual(inv['version'],1)
+        self.assertTrue(inv['limitations'])
+        row=inv['invariants'][0]
+        self.assertEqual(set(row),{'id','statement','boundary','changed_paths',
+            'failure_modes','positive_control','integration_control','assurance_limit'})
+        self.assertEqual(set(row['changed_paths']),{SOURCE,TEST,PRESERVATION_TEST})
+        self.assertGreaterEqual(len(row['failure_modes']),2)
+        refs=[x['test'] for x in row['failure_modes']]+[row['positive_control'],row['integration_control']]
+        self.assertEqual(len(set(refs)),len(refs))
 
 
 if __name__ == '__main__':

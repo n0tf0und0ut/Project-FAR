@@ -1,0 +1,55 @@
+"""Frozen preservation oracle for Factory.claim; counters independent review P2.
+
+Reject a model change which silently removes preexisting worker naming or lease
+bounds while fixing type validation. This oracle is not included in the model prompt.
+"""
+from pathlib import Path
+import tempfile
+import unittest
+from tools.software_factory import Factory, FactoryError
+
+
+class ClaimPreservationOracle(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.factory = Factory(Path(self.tmp.name) / 'factory.db')
+        self.factory.submit({
+            'schema': 'far-software-factory/work-order/1',
+            'id': 'preserve', 'repository': 'n0tf0und0ut/Project-FAR',
+            'base_sha': 'a' * 40,
+            'tasks': [{'id': 'repair', 'objective': 'Preserve claim validation',
+                       'acceptance': ['Invalid workers and bounds do not consume leases'],
+                       'depends_on': []}],
+        })
+
+    def test_invalid_worker_rejected_without_mutation(self):
+        initial = self.factory.snapshot('preserve')
+        for worker in ('', 'bad worker', 'BadWorker', None, [], 7):
+            with self.subTest(worker=repr(worker)):
+                with self.assertRaises(FactoryError):
+                    self.factory.claim('preserve', worker, ttl=100, max_attempts=3, now=100)
+                self.assertEqual(self.factory.snapshot('preserve'), initial)
+
+    def test_nonpositive_ttl_and_retry_rejected_without_mutation(self):
+        initial = self.factory.snapshot('preserve')
+        for ttl in (0, -1, 86401):
+            with self.subTest(ttl=ttl):
+                with self.assertRaises(FactoryError):
+                    self.factory.claim('preserve', 'worker', ttl=ttl, now=100)
+                self.assertEqual(self.factory.snapshot('preserve'), initial)
+        for attempts in (0, -1):
+            with self.subTest(attempts=attempts):
+                with self.assertRaises(FactoryError):
+                    self.factory.claim('preserve', 'worker', max_attempts=attempts, now=100)
+                self.assertEqual(self.factory.snapshot('preserve'), initial)
+
+    def test_positive_ttl_and_retry_contract_preserved(self):
+        claim = self.factory.claim('preserve', 'worker', ttl=1, max_attempts=1, now=100)
+        self.assertEqual(claim['expires_at'], 101)
+        self.assertEqual(claim['stage'], 'build')
+        self.assertEqual(self.factory.snapshot('preserve')['tasks'][0]['state'], 'running')
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -31,6 +31,9 @@ REPO = 'n0tf0und0ut/Project-FAR'
 SOURCE = 'tools/software_factory.py'
 HOLDOUT = 'research/factory-evaluation/claim-parameter-holdout.py.txt'
 TEST = 'tests/test_factory_claim_contract.py'
+PRESERVATION_HOLDOUT = 'research/factory-evaluation/claim-preservation-oracle.py.txt'
+PRESERVATION_TEST = 'tests/test_factory_claim_preservation.py'
+PRESERVATION_SHA256 = '104f24eeaede44a6f25bf16e2910c2512a7c21150646c1ebd66f06d88901cb51'
 ORACLE_SHA256 = '73a34c32a4ea99576fd2ee65121406eae57406528a1bdc3f3b13822b2877b0b4'
 SCHEMA = 'far-software-factory/autonomous-source-proposal/1'
 WORKER = 'qwen-local-model'
@@ -46,6 +49,13 @@ def check_oracle(root: Path) -> bytes:
     raw = p.read_bytes()
     if hashlib.sha256(raw).hexdigest() != ORACLE_SHA256:
         raise SmokeError('frozen oracle SHA-256 changed')
+    return raw
+
+
+def check_preservation(root: Path) -> bytes:
+    raw = (root / PRESERVATION_HOLDOUT).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != PRESERVATION_SHA256:
+        raise SmokeError('frozen preservation oracle SHA-256 changed')
     return raw
 
 
@@ -149,13 +159,14 @@ def ask_model(prompt: str, output: Path) -> tuple[str, dict]:
     return decoded['line'], metadata
 
 
-def grade_with_oracle(checkout: Path, oracle: bytes, output: Path, label: str, image: str) -> dict:
-    p = checkout / TEST
+def grade_with_oracle(checkout: Path, oracle: bytes, output: Path, label: str, image: str,
+                      *, target_path: str = TEST, test_module: str = 'test_factory_claim_contract') -> dict:
+    p = checkout / target_path
     if p.exists() or p.is_symlink():
         raise SmokeError('frozen test path collision')
     p.write_bytes(oracle)
     try:
-        return grade_in_docker(checkout, 'test_factory_claim_contract', output, label, image_id=image)
+        return grade_in_docker(checkout, test_module, output, label, image_id=image)
     finally:
         p.unlink()
 
@@ -180,6 +191,7 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
     if os.environ.get('GITHUB_SHA') and os.environ['GITHUB_SHA'] != base:
         raise SmokeError('runner checkout differs from trusted main event')
     oracle = check_oracle(repo)
+    preservation = check_preservation(repo)
     output.mkdir(mode=0o700, parents=True)
     o = work_order(base)
     (output / 'work-order.json').write_text(canonical(o)+'\n')
@@ -190,9 +202,11 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
         raise SmokeError('no valid initial build lease')
     state = {'schema': SCHEMA, 'base_sha': base, 'repository': REPO,
              'work_order_sha256': submit['sha256'], 'oracle_sha256': sha(oracle),
+             'preservation_oracle_sha256': sha(preservation),
              'worker': WORKER, 'worker_model': MODEL, 'model_digest': None,
              'source_blob': None, 'candidate_blob': None,
              'model_generation': None, 'before': None, 'after': None, 'regression': None,
+             'preservation_before': None, 'preservation_after': None,
              'verdict': 'UNKNOWN', 'attempt': 1,
              'limitations': ['Model identity is local Ollama-reported and not externally signed.',
                              'Generated source is not executed on the Actions host.',
@@ -218,6 +232,12 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
             state['before'] = grade_with_oracle(worktree, oracle, output, 'before', image)
             if state['before']['state'] != 'FAIL' or state['before'].get('test_count_reported') != 4:
                 raise SmokeError('baseline defect not reproduced; no model attempt allowed')
+            state['preservation_before'] = grade_with_oracle(
+                worktree, preservation, output, 'preservation-before', image,
+                target_path=PRESERVATION_TEST, test_module='test_factory_claim_preservation')
+            if (state['preservation_before']['state'] != 'PASS'
+                    or state['preservation_before'].get('test_count_reported') != 3):
+                raise SmokeError('existing claim validation did not pass preservation baseline')
             prompt = ("Task: Repair the existing Factory.claim first if guard. "
                       "It currently crashes on noninteger ttl/max_attempts and accepts Python booleans as lease limits. "
                       "Both ttl and max_attempts must be EXACT positive int values, not bool, float, string, None or containers. "
@@ -242,6 +262,12 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
             state['after'] = grade_with_oracle(worktree, oracle, output, 'after', image)
             if state['after']['state'] != 'PASS' or state['after'].get('test_count_reported') != 4:
                 raise SmokeError('model candidate failed frozen acceptance oracle')
+            state['preservation_after'] = grade_with_oracle(
+                worktree, preservation, output, 'preservation-after', image,
+                target_path=PRESERVATION_TEST, test_module='test_factory_claim_preservation')
+            if (state['preservation_after']['state'] != 'PASS'
+                    or state['preservation_after'].get('test_count_reported') != 3):
+                raise SmokeError('model proposal lost preexisting worker/lease bounds')
             state['regression'] = grade_in_docker(worktree, 'test_software_factory', output, 'regression', image_id=image)
             if state['regression']['state'] != 'PASS':
                 raise SmokeError('model candidate failed factory regression suite')
@@ -286,6 +312,12 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
     oracle = check_oracle(repo)
     if sha(oracle) != receipt['oracle_sha256']:
         raise SmokeError('oracle drift')
+    preservation = check_preservation(repo)
+    if sha(preservation) != receipt.get('preservation_oracle_sha256'):
+        raise SmokeError('preservation oracle drift')
+    if (receipt.get('preservation_before', {}).get('state') != 'PASS'
+            or receipt.get('preservation_after', {}).get('state') != 'PASS'):
+        raise SmokeError('missing successful preservation-bound receipts')
     patch = (output / 'candidate.patch').read_bytes()
     if sha(patch) != receipt.get('patch_sha256') or len(patch) > 10000:
         raise SmokeError('candidate patch digest mismatch')
@@ -306,11 +338,15 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
     if dest.exists() or dest.is_symlink():
         raise SmokeError('frozen regression test already exists')
     dest.write_bytes(oracle)
+    preservation_dest = repo / PRESERVATION_TEST
+    if preservation_dest.exists() or preservation_dest.is_symlink():
+        raise SmokeError('frozen preservation test path collision')
+    preservation_dest.write_bytes(preservation)
     if git(repo, 'hash-object', SOURCE).stdout.decode().strip() != receipt['candidate_blob']:
         raise SmokeError('model candidate source blob diverged during publication')
-    _run('git', 'add', '--', SOURCE, TEST, cwd=repo)
+    _run('git', 'add', '--', SOURCE, TEST, PRESERVATION_TEST, cwd=repo)
     staged = set(_run('git', 'diff', '--cached', '--name-only', cwd=repo).splitlines())
-    if staged != {SOURCE,TEST}:
+    if staged != {SOURCE,TEST,PRESERVATION_TEST}:
         raise SmokeError('staged paths are not source+frozen oracle')
     _run('git', 'config', 'user.name', 'project-far-factory-proof-bot', cwd=repo)
     _run('git', 'config', 'user.email', 'project-far-factory-proof-bot@users.noreply.github.com', cwd=repo)
@@ -329,7 +365,8 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
         f'Worker model: `{MODEL}`; digest `{MODEL_DIGEST}`.',
         f'Generated source blob: `{receipt["candidate_blob"]}`; patch SHA-256 `{receipt["patch_sha256"]}`.',
         f'Frozen independent-from-model four-test oracle SHA-256: `{ORACLE_SHA256}`.',
-        'Baseline oracle FAIL; model-generated candidate oracle PASS and existing factory regression PASS in bounded Docker.',
+        f'Frozen three-test preservation oracle SHA-256: `{PRESERVATION_SHA256}`.',
+        'Baseline oracle FAIL; model-generated candidate oracle PASS, preservation oracle PASS, and existing factory regression PASS in bounded Docker.',
         '', '## Trust and governance', '',
         'New PR head is a proposed result. Worker reports are untrusted; fresh independent exact-head CI and Codex review are mandatory. No protected merge has occurred.',
         'Model identity comes from pinned local Ollama binary, not externally signed attestation. The tested oracle was authored by the initiating coordinator, not an outside reviewer.',
@@ -337,13 +374,28 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
         '', '## Finding ledger', '',
         '- FACTORY-CLAIM-TYPES-001: invalid ttl/max_attempts types crash or consume lease on baseline; frozen oracle checks this. Candidate claims fix; independent exact-head validation pending.',
         '', '<!-- FAR-INVARIANTS-V1',
-        json.dumps({'version':1,'scope':'One source-exact generated fix for claim lease parameter types, plus frozen independent-from-model regression oracle',
-                    'invariants':[{'id':'FACTORY-CLAIM-TYPES-001','statement':'Reject noninteger and bool ttl/max_attempts before lease mutation',
-                    'changed_paths':[SOURCE,TEST],
-                    'failure_modes':[{'case':'Invalid ttl/attempts must not consume lease','test':TEST+'::test_bad_ttl_does_not_consume_lease'}],
-                    'positive_control':TEST+'::test_valid_integer_lease_remains_accepted',
-                    'integration_control':TEST+'::test_bad_attempt_bound_does_not_consume_lease',
-                    'assurance_limit':'No independent GitHub PR check or review yet; model identity not externally attested'}]},indent=2),
+        json.dumps({'version': 1,
+                    'scope': 'One source-exact generated Factory.claim repair with frozen new-behavior and preservation regression oracles',
+                    'limitations': [
+                        'Original holdout and preservation oracles are coordinator-authored, not externally authored.',
+                        'Local pinned model identity is based on Ollama metadata and not externally signed.',
+                        'No independent GitHub exact-head check, substantive review, or protected merge has occurred yet.',
+                    ],
+                    'invariants': [{
+                        'id': 'FACTORY-CLAIM-TYPES-001',
+                        'statement': 'Reject invalid and boolean lease parameter types before consuming a queue lease and preserve old valid worker checks.',
+                        'boundary': 'Untrusted model-authored Python guard entering the persistent factory SQLite lease transition',
+                        'changed_paths': [SOURCE, TEST, PRESERVATION_TEST],
+                        'failure_modes': [
+                            {'case': 'Malformed ttl must not consume a lease or raise uncontrolled input type errors',
+                             'test': TEST+'::test_bad_ttl_does_not_consume_lease'},
+                            {'case': 'Malformed retry bounds must not consume a lease or be interpreted as a positive integer',
+                             'test': TEST+'::test_bad_attempt_bound_does_not_consume_lease'},
+                        ],
+                        'positive_control': TEST+'::test_valid_integer_lease_remains_accepted',
+                        'integration_control': PRESERVATION_TEST+'::test_invalid_worker_rejected_without_mutation',
+                        'assurance_limit': 'This publisher creates a candidate PR only; independent exact-head checks, Codex review and protected merge are still mandatory.',
+                    }]}, indent=2),
         'FAR-INVARIANTS-END -->',
     ]
     body = output / 'pr-body.md'
