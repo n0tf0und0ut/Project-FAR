@@ -145,5 +145,55 @@ def verify():
         "extended_contract_loss_confirmed": True,
     }
 
+def check_lean_table(observed):
+    """Fail closed if any real engine observation is transcribed differently in Lean.
+
+    Checks the entire six-case finite table and class labels before kernel
+    compilation. The kernel then validates the algebra of that checked table.
+    """
+    from pathlib import Path
+    src = (Path(__file__).parent / "FiniteSQLite.lean").read_text()
+    fields = {
+        "behavior": src.split("def behavior : Case → Behavior", 1)[1].split("def extension", 1)[0],
+        "extension": src.split("def extension : Case → Option Bool", 1)[1].split("def quotientCode", 1)[0],
+        "quotient": src.split("def quotientCode : Case → Nat", 1)[1].split("def storageClass", 1)[0],
+        "storage": src.split("def storageClass : Case → Nat", 1)[1].split("def decode", 1)[0],
+    }
+    constructors = {
+        "null": "nullCase", "integer_zero": "integerZero", "integer_one": "integerOne",
+        "text_zero": "textZero", "text_one": "textOne", "text_other": "textOther",
+    }
+    codes = {
+        "missing": 0, "number_zero": 1, "number_one": 2, "other": 3,
+    }
+    types = {"null": 0, "integer": 1, "text": 2}
+    def typed(v):
+        if v is None:
+            return "none"
+        if v == 0 and type(v) is int:
+            return "some false"
+        if v == 1 and type(v) is int:
+            return "some true"
+        raise AssertionError("undeclared SQL result type")
+    for key, _ in CASES:
+        row = observed[key]
+        cons = constructors[key]
+        bool_null = "true" if row[0] == 1 else "false"
+        expected = f"| .{cons} => ⟨{bool_null}, {typed(row[1])}, {typed(row[2])}⟩"
+        if fields["behavior"].count(expected) != 1:
+            raise AssertionError(f"Lean primary table mismatch: {key}")
+        if fields["extension"].count(f"| .{cons} => {typed(row[3])}") != 1:
+            raise AssertionError(f"Lean extension mismatch: {key}")
+        if fields["quotient"].count(f"| .{cons} => {codes[code(key)]}") != 1:
+            raise AssertionError(f"Lean quotient mismatch: {key}")
+        if fields["storage"].count(f"| .{cons} => {types[storage_class(key)]}") != 1:
+            raise AssertionError(f"Lean coarse storage mismatch: {key}")
+    return True
+
+
 if __name__ == "__main__":
-    print(json.dumps(verify(), indent=2, sort_keys=True))
+    report = verify()
+    observed = {k: tuple(v) for k, v in report["rows_with_one_additional_query"].items()}
+    check_lean_table(observed)
+    report["lean_table_exactly_bound_to_real_engine"] = True
+    print(json.dumps(report, indent=2, sort_keys=True))
