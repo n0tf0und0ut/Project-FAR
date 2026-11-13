@@ -75,6 +75,96 @@ jobs:
           assert replay["paired_success_delta"] == -1 / 30, "unexpected paired effect"
           print("PASS: 31/31 original archives, 60/60 raw observations, and exact frozen grader replay")
           PY
+      - name: Independently reconstruct model response identities and cost decomposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import statistics
+          from pathlib import Path
+          base = Path("frozen/research/workflow-efficacy/evidence")
+          def sha(raw):
+              return hashlib.sha256(raw).hexdigest()
+          def row_data(row):
+              key = f"{row['task_id']}-{row['arm']}"
+              prefix = base / "evidence" / key
+              def validated(path, digest_key):
+                  raw = path.read_bytes()
+                  assert sha(raw) == row[digest_key], f"source drift: {key} {digest_key}"
+                  return raw
+              code = validated(prefix / "submitted-solution.py", "source_after_sha256")
+              events = validated(prefix / "agent-events.ndjson", "raw_event_stream_sha256").splitlines()
+              grade = json.loads(validated(prefix / "grader-trace.txt", "grader_trace_hash"))
+              assert len(events) == 1
+              event = json.loads(events[0])
+              assert event["done"] is True and event["model"] == "qwen2.5-coder:1.5b"
+              assert event["prompt_eval_count"] == row["input_tokens"]
+              assert event["eval_count"] == row["output_tokens"]
+              assert len(grade["comparisons"]) == 6
+              checks = [c["status"] for c in grade["comparisons"]]
+              assert (all(x == "PASS" for x in checks)) == (row["outcome"] == "SUCCESS")
+              return {
+                  "text": event["message"]["content"],
+                  "code": sha(code),
+                  "checks": checks,
+                  "success": row["outcome"] == "SUCCESS",
+                  "prompt_seconds": event["prompt_eval_duration"] / 1e9,
+                  "decode_seconds": event["eval_duration"] / 1e9,
+                  "request_seconds": row["elapsed_seconds"],
+                  "input_tokens": row["input_tokens"],
+                  "output_tokens": row["output_tokens"],
+                  "cached_tokens": event.get("prompt_eval_cached_count", 0),
+              }
+          pairs = []
+          for i in range(30):
+              original = json.loads((base / f"pair-{i}.json").read_text())
+              assert len(original) == 2 and {r["arm"] for r in original} == {"control", "treatment"}
+              assert {r["task_id"] for r in original} == {f"FWE-{i+1:03d}"}
+              p = {r["arm"]: row_data(r) for r in original}
+              pairs.append(p)
+          def count(predicate):
+              return sum(bool(predicate(p["control"],p["treatment"])) for p in pairs)
+          def delta(k):
+              return statistics.mean(p["treatment"][k] - p["control"][k] for p in pairs)
+          result = {
+              "schema": "far-raw-forensics/1",
+              "source_run": 41556392256,
+              "source_execution_commit": "a750c5523183f64a20ff644846c4fcd91c887824",
+              "raw_response_identical_pairs": count(lambda c,t: c["text"] == t["text"]),
+              "submitted_source_identical_pairs": count(lambda c,t: c["code"] == t["code"]),
+              "six_test_verdict_vector_identical_pairs": count(lambda c,t: c["checks"] == t["checks"]),
+              "treatment_slower_pairs": count(lambda c,t: t["request_seconds"] > c["request_seconds"]),
+              "control_not_worse_and_faster_pairs": count(lambda c,t: c["success"] >= t["success"] and c["request_seconds"] < t["request_seconds"]),
+              "control_success": sum(p["control"]["success"] for p in pairs),
+              "treatment_success": sum(p["treatment"]["success"] for p in pairs),
+              "public_pass_control": sum(sum(x=="PASS" for x in p["control"]["checks"][:2]) for p in pairs),
+              "public_pass_treatment": sum(sum(x=="PASS" for x in p["treatment"]["checks"][:2]) for p in pairs),
+              "hidden_pass_control": sum(sum(x=="PASS" for x in p["control"]["checks"][2:]) for p in pairs),
+              "hidden_pass_treatment": sum(sum(x=="PASS" for x in p["treatment"]["checks"][2:]) for p in pairs),
+              "mean_extra_input_tokens": delta("input_tokens"),
+              "mean_extra_request_seconds": delta("request_seconds"),
+              "mean_extra_prompt_eval_seconds": delta("prompt_seconds"),
+              "mean_extra_decode_seconds": delta("decode_seconds"),
+              "mean_extra_cached_tokens": delta("cached_tokens"),
+          }
+          assert (result["raw_response_identical_pairs"], result["submitted_source_identical_pairs"],
+                  result["six_test_verdict_vector_identical_pairs"]) == (20, 20, 26)
+          assert (result["treatment_slower_pairs"], result["control_not_worse_and_faster_pairs"]) == (30, 29)
+          assert (result["control_success"], result["treatment_success"]) == (11, 10)
+          assert (result["public_pass_control"], result["public_pass_treatment"]) == (29, 27)
+          assert (result["hidden_pass_control"], result["hidden_pass_treatment"]) == (77, 77)
+          assert result["mean_extra_input_tokens"] == 1421
+          assert abs(result["mean_extra_request_seconds"] - 26.7622) < 1e-8
+          assert abs(result["mean_extra_prompt_eval_seconds"] - 26.3457152667) < 1e-6
+          assert result["mean_extra_cached_tokens"] == 0
+          result["prompt_eval_share_of_added_request_time"] = (
+              result["mean_extra_prompt_eval_seconds"] / result["mean_extra_request_seconds"])
+          output = Path("artifacts/far-reliability/raw-output-forensics.json")
+          output.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n")
+          print("PASS_RAW_OUTPUT_FORENSICS", json.dumps(result, sort_keys=True))
+          PY
       - name: Seal all original model and grader evidence before Actions retention expiry
         shell: bash
         run: |
