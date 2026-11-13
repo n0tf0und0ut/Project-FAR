@@ -219,7 +219,8 @@ class FactoryAutonomousProofContract(unittest.TestCase):
             if label == 'after-1':
                 # Docker emits source-bound test output into its artifact.
                 (self.out / 'after-1.stderr').write_text(
-                    "FAIL: test_bad_ttl_does_not_consume_lease (value='True')\n")
+                    "FAIL: test_bad_ttl_does_not_consume_lease (value='True') "
+                    "FROZEN_ORACLE_SOURCE_DO_NOT_LEAK\n")
                 return {'state': 'FAIL', 'test_count_reported': 4}
             return {'state': 'PASS', 'test_count_reported': 3 if label.startswith('preservation-') else 4}
         with patch('tools.factory_autonomous_one_pr.pinned_model_digest', return_value=MODEL_DIGEST), \
@@ -234,7 +235,9 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.assertEqual([trial['acceptance']['state'] for trial in receipt['model_trials']],
                          ['FAIL', 'PASS'])
         self.assertIn('isinstance(True, int)', prompts[1])
-        self.assertIn("value='True'", prompts[1])
+        self.assertIn('FAIL (4 frozen acceptance tests)', prompts[1])
+        self.assertNotIn('FROZEN_ORACLE_SOURCE_DO_NOT_LEAK', prompts[1])
+        self.assertNotIn("value='True'", prompts[1])
         self.assertTrue((self.out/'model-round-1/candidate.patch').is_file())
         self.assertTrue((self.out/'model-round-2/candidate.patch').is_file())
         self.assertTrue((self.out/'candidate.patch').is_file())
