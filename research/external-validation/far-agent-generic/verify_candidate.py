@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PROTOCOL = ROOT / "protocol-v0.1.json"
 LAUNCH = ROOT / "launch-state-v0.1.json"
-EXPECTED_PROTOCOL_BLOB = "e94c9f6f5212155d1bf9b1bcb38ae976898695a8"
+EXPECTED_PROTOCOL_BLOB = "7c7258d8c327daac842d501fa09f2b7908c04f50"
 EXPECTED_LAUNCH_BLOB = "954bc82bb84b5feb19e29b28f8c5d2bf1b425e32"
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 TASK = re.compile(r"TASK-[0-9]{6}\Z")
@@ -114,9 +114,11 @@ def check_candidate(protocol_bytes: bytes, launch_bytes: bytes) -> dict:
     require(p["design"]["paired"] is True and
             type(p["design"]["repetitions_per_task_per_arm"]) is int and
             p["design"]["repetitions_per_task_per_arm"] == 2 and
-            p["design"]["minimum_confirmatory_tasks"] == 24 and
-            p["design"]["minimum_distinct_repositories"] == 5 and
-            p["design"]["maximum_fraction_per_repository"] == "1/5",
+            p["design"]["fixed_confirmatory_tasks"] == 24 and
+            p["design"]["minimum_distinct_repositories"] == 6 and
+            p["design"]["maximum_tasks_per_repository"] == 4 and
+            p["design"]["maximum_fraction_per_repository"] == "1/6" and
+            p["primary_endpoint"]["denominator"].startswith("The exactly 24 frozen tasks"),
             "design or denominator changed")
     require(p["statistics"]["minimum_practically_important_absolute_effect"] == "1/10" and
             p["statistics"]["no_posthoc_changes"] is True and
