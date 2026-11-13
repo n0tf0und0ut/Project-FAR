@@ -65,10 +65,19 @@ class CausalIdentificationTests(unittest.TestCase):
         protocol = copy.deepcopy(self.protocol)
         protocol["arms"].append({"id": "generic_checker"})
         r = audit.audit_design(protocol, self.gate)
-        self.assertTrue(r["far_minus_generic_checker_identified_by_protocol"])
+        self.assertFalse(r["far_minus_generic_checker_identified_by_protocol"])
         self.assertFalse(r["causal_effect_estimated"])
         self.assertEqual(r["far_mechanism_exercised_by_executions"],
                          "UNKNOWN_NO_VERIFIED_TOOL_EXECUTION_RECEIPTS")
+
+    def test_even_declared_generic_estimand_creates_no_effect_without_runs(self):
+        protocol = copy.deepcopy(self.protocol)
+        protocol["arms"].append({"id": "generic_checker"})
+        protocol["secondary_contrasts"].append("far_minus_generic_checker")
+        r = audit.audit_design(protocol, self.gate)
+        self.assertTrue(r["far_minus_generic_checker_identified_by_protocol"])
+        self.assertFalse(r["causal_effect_estimated"])
+        self.assertFalse(r["confirmatory_model_calls_permitted_by_this_audit"])
 
     def test_malformed_gate_counts_are_rejected(self):
         gate = copy.deepcopy(self.gate)
