@@ -1,0 +1,216 @@
+name: FAR foundational and reliability claim falsification (research)
+
+on:
+  pull_request:
+    paths:
+      - "research/completeness-reliability/**"
+      - ".github/workflows/far-completeness-reliability-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay-original-60:
+    name: replay-original-60
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Mutation-test original record and no-overclaim boundaries
+        run: |
+          set -euo pipefail
+          python research/completeness-reliability/test_verify_evidence.py -v
+      - name: Derive exact paired statistics from Git blob-pinned original outcomes
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/far-reliability
+          python research/completeness-reliability/verify_evidence.py \
+            --output artifacts/far-reliability/retrospective-analysis.json \
+            | tee artifacts/far-reliability/analysis-console.log
+      - name: Checkout the immutable original experiment implementation separately
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: a750c5523183f64a20ff644846c4fcd91c887824
+          path: frozen
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch and digest-check all 31 original hosted artifact ZIPs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python research/completeness-reliability/verify_evidence.py \
+            --verify-raw \
+            --raw-destination frozen/research/workflow-efficacy/evidence \
+            --output artifacts/far-reliability/raw-artifact-verification.json
+      - name: Replay the exact original grading analyzer against all 60 raw receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd frozen
+          python -m tools.workflow_efficacy_free_agent_analysis \
+            --results research/workflow-efficacy/evidence \
+            --output ../artifacts/far-reliability/frozen-source-replay.json \
+            | tee ../artifacts/far-reliability/frozen-source-replay.log
+      - name: Require exact equality to the source-registered hosted summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base = json.loads(Path("research/workflow-efficacy/result/campaign-41556392256.json").read_text())
+          replay = json.loads(Path("artifacts/far-reliability/frozen-source-replay.json").read_text())
+          assert replay == base["analysis"], "original grader replay diverges from registered original analysis"
+          assert replay["errors"] == [], "original grader errors"
+          assert replay["observed_records"] == 60 and replay["unique_slots"] == 60, "missing raw runs"
+          assert replay["paired_success_delta"] == -1 / 30, "unexpected paired effect"
+          print("PASS: 31/31 original archives, 60/60 raw observations, and exact frozen grader replay")
+          PY
+      - name: Independently reconstruct model response identities and cost decomposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import statistics
+          from pathlib import Path
+          base = Path("frozen/research/workflow-efficacy/evidence")
+          def sha(raw):
+              return hashlib.sha256(raw).hexdigest()
+          def row_data(row):
+              key = f"{row['task_id']}-{row['arm']}"
+              prefix = base / "evidence" / key
+              def validated(path, digest_key):
+                  raw = path.read_bytes()
+                  assert sha(raw) == row[digest_key], f"source drift: {key} {digest_key}"
+                  return raw
+              code = validated(prefix / "submitted-solution.py", "source_after_sha256")
+              events = validated(prefix / "agent-events.ndjson", "raw_event_stream_sha256").splitlines()
+              grade = json.loads(validated(prefix / "grader-trace.txt", "grader_trace_hash"))
+              assert len(events) == 1
+              event = json.loads(events[0])
+              assert event["done"] is True and event["model"] == "qwen2.5-coder:1.5b"
+              assert event["prompt_eval_count"] == row["input_tokens"]
+              assert event["eval_count"] == row["output_tokens"]
+              assert len(grade["comparisons"]) == 6
+              checks = [c["status"] for c in grade["comparisons"]]
+              assert (all(x == "PASS" for x in checks)) == (row["outcome"] == "SUCCESS")
+              return {
+                  "text": event["message"]["content"],
+                  "code": sha(code),
+                  "checks": checks,
+                  "success": row["outcome"] == "SUCCESS",
+                  "prompt_seconds": event["prompt_eval_duration"] / 1e9,
+                  "decode_seconds": event["eval_duration"] / 1e9,
+                  "request_seconds": row["elapsed_seconds"],
+                  "input_tokens": row["input_tokens"],
+                  "output_tokens": row["output_tokens"],
+                  "cached_tokens": event.get("prompt_eval_cached_count", 0),
+              }
+          pairs = []
+          for i in range(30):
+              original = json.loads((base / f"pair-{i}.json").read_text())
+              assert len(original) == 2 and {r["arm"] for r in original} == {"control", "treatment"}
+              assert {r["task_id"] for r in original} == {f"FWE-{i+1:03d}"}
+              p = {r["arm"]: row_data(r) for r in original}
+              pairs.append(p)
+          def count(predicate):
+              return sum(bool(predicate(p["control"],p["treatment"])) for p in pairs)
+          def delta(k):
+              return statistics.mean(p["treatment"][k] - p["control"][k] for p in pairs)
+          result = {
+              "schema": "far-raw-forensics/1",
+              "source_run": 41556392256,
+              "source_execution_commit": "a750c5523183f64a20ff644846c4fcd91c887824",
+              "raw_response_identical_pairs": count(lambda c,t: c["text"] == t["text"]),
+              "submitted_source_identical_pairs": count(lambda c,t: c["code"] == t["code"]),
+              "six_test_verdict_vector_identical_pairs": count(lambda c,t: c["checks"] == t["checks"]),
+              "treatment_slower_pairs": count(lambda c,t: t["request_seconds"] > c["request_seconds"]),
+              "control_not_worse_and_faster_pairs": count(lambda c,t: c["success"] >= t["success"] and c["request_seconds"] < t["request_seconds"]),
+              "control_success": sum(p["control"]["success"] for p in pairs),
+              "treatment_success": sum(p["treatment"]["success"] for p in pairs),
+              "public_pass_control": sum(sum(x=="PASS" for x in p["control"]["checks"][:2]) for p in pairs),
+              "public_pass_treatment": sum(sum(x=="PASS" for x in p["treatment"]["checks"][:2]) for p in pairs),
+              "hidden_pass_control": sum(sum(x=="PASS" for x in p["control"]["checks"][2:]) for p in pairs),
+              "hidden_pass_treatment": sum(sum(x=="PASS" for x in p["treatment"]["checks"][2:]) for p in pairs),
+              "mean_extra_input_tokens": delta("input_tokens"),
+              "mean_extra_request_seconds": delta("request_seconds"),
+              "mean_extra_prompt_eval_seconds": delta("prompt_seconds"),
+              "mean_extra_decode_seconds": delta("decode_seconds"),
+              "mean_extra_cached_tokens": delta("cached_tokens"),
+          }
+          assert (result["raw_response_identical_pairs"], result["submitted_source_identical_pairs"],
+                  result["six_test_verdict_vector_identical_pairs"]) == (20, 20, 26)
+          assert (result["treatment_slower_pairs"], result["control_not_worse_and_faster_pairs"]) == (30, 29)
+          assert (result["control_success"], result["treatment_success"]) == (11, 10)
+          assert (result["public_pass_control"], result["public_pass_treatment"]) == (29, 27)
+          assert (result["hidden_pass_control"], result["hidden_pass_treatment"]) == (77, 77)
+          assert result["mean_extra_input_tokens"] == 1421
+          assert abs(result["mean_extra_request_seconds"] - 26.7622) < 1e-8
+          assert abs(result["mean_extra_prompt_eval_seconds"] - 26.3457152667) < 1e-6
+          assert result["mean_extra_cached_tokens"] == 0
+          result["prompt_eval_share_of_added_request_time"] = (
+              result["mean_extra_prompt_eval_seconds"] / result["mean_extra_request_seconds"])
+          output = Path("artifacts/far-reliability/raw-output-forensics.json")
+          output.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n")
+          print("PASS_RAW_OUTPUT_FORENSICS", json.dumps(result, sort_keys=True))
+          PY
+      - name: Seal all original model and grader evidence before Actions retention expiry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import zipfile
+          from pathlib import Path
+          src = Path("frozen/research/workflow-efficacy/evidence")
+          out = Path("artifacts/far-reliability/original-60-raw-evidence.zip")
+          members = sorted(p for p in src.rglob("*") if p.is_file())
+          assert len(list(src.glob("pair-*.json"))) == 30
+          assert len(members) >= 60, "raw model/grade files not retained"
+          with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+              for p in members:
+                  info = zipfile.ZipInfo(p.relative_to(src).as_posix(), date_time=(2026, 11, 3, 0, 0, 0))
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.external_attr = 0o100644 << 16
+                  z.writestr(info, p.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+          with zipfile.ZipFile(out) as z:
+              assert z.testzip() is None
+              assert len(z.namelist()) == len(members)
+          manifest = {
+              "status": "Research",
+              "schema": "original-scripted-repair-raw-archive/1",
+              "source_run_id": 41556392256,
+              "source_commit": "a750c5523183f64a20ff644846c4fcd91c887824",
+              "original_artifacts_verified": 31,
+              "raw_files": len(members),
+              "raw_bytes": sum(p.stat().st_size for p in members),
+              "archive_sha256": hashlib.sha256(out.read_bytes()).hexdigest(),
+              "archive_size_bytes": out.stat().st_size,
+              "original_artifact_manifest_record": "research/workflow-efficacy/result/campaign-41556392256.json",
+              "replay": "frozen grader reproduced original analysis exactly; see job logs",
+              "scope": "authored synthetic one-shot repair; not general autonomous-agent reliability",
+          }
+          Path("artifacts/far-reliability/raw-archive-manifest.json").write_text(
+              json.dumps(manifest, indent=2, sort_keys=True)+"\n")
+          print("SEALED_RAW_ARCHIVE", json.dumps(manifest, sort_keys=True))
+          PY
+      - name: Preserve raw-integrity and independent-statistical verification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: far-completeness-reliability-replay
+          path: artifacts/far-reliability/
+          retention-days: 30
+          if-no-files-found: warn
