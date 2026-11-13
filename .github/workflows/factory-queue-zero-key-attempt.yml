@@ -1,0 +1,105 @@
+name: Factory Queue-Bound Zero-Key Attempt (Research)
+
+on:
+  pull_request:
+    paths:
+      - tools/factory_queue_zero_key.py
+      - tests/test_factory_queue_zero_key.py
+      - research/factory-evaluation/zero-key-worker-smoke-far-003-v1.json
+      - research/factory-evaluation/queue-zero-key-work-order-far-003-v1.json
+      - research/factory-evaluation/holdout-far-003.py.txt
+      - .github/workflows/factory-queue-zero-key-attempt.yml
+
+permissions:
+  contents: read
+
+jobs:
+  offline-queue-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - name: Checkout exact candidate without persistent credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify actual queued-worker bridge contract
+        run: python -m unittest tests.test_factory_queue_zero_key -v
+      - name: Compile bridge without invoking model
+        run: python -m py_compile tools/factory_queue_zero_key.py
+
+  one-genuine-model-attempt:
+    needs: [offline-queue-contract]
+    # Research-only, credential-free one-shot; never trigger on untrusted forks.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'research/factory-queue-zero-key-20261112'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact candidate without persistent credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Freeze baseline acceptance oracle and prove red on original source
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum research/factory-evaluation/holdout-far-003.py.txt
+          cp research/factory-evaluation/holdout-far-003.py.txt "$RUNNER_TEMP/far003_holdout.py"
+          set +e
+          PYTHONPATH="$GITHUB_WORKSPACE" python "$RUNNER_TEMP/far003_holdout.py" \
+            > "$RUNNER_TEMP/far003_before.stdout" 2> "$RUNNER_TEMP/far003_before.stderr"
+          rc=$?
+          set -e
+          echo "Red baseline exit code=$rc"
+          test "$rc" -ne 0
+          grep -F "FAILED" "$RUNNER_TEMP/far003_before.stderr"
+      - name: Install existing pinned local coding model
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Build existing bounded no-network grader
+        run: |
+          docker build --pull=false -t far-zero-key-grader:648-v1 \
+            --file tools/factory_zero_key_grader.Dockerfile .
+          docker image inspect far-zero-key-grader:648-v1 --format '{{.Id}}'
+      - name: Execute frozen work order via actual factory queue and model runtime
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m tools.factory_queue_zero_key \
+            --db "$RUNNER_TEMP/far003_queue.sqlite" \
+            --order research/factory-evaluation/queue-zero-key-work-order-far-003-v1.json \
+            --repository "$GITHUB_WORKSPACE" \
+            --task-file research/factory-evaluation/zero-key-worker-smoke-far-003-v1.json \
+            --output "$RUNNER_TEMP/far003_model_attempt"
+      - name: Preserve all worker outcomes and failed baseline evidence
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/far003_evidence"
+          cp -f "$RUNNER_TEMP/far003_before.stdout" "$RUNNER_TEMP/far003_before.stderr" \
+            "$RUNNER_TEMP/far003_evidence/" 2>/dev/null || true
+          if test -d "$RUNNER_TEMP/far003_model_attempt"; then
+            cp -a "$RUNNER_TEMP/far003_model_attempt/." "$RUNNER_TEMP/far003_evidence/"
+          fi
+      - name: Upload truthful queue and model receipts (not SQLite lease secrets)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: factory-queued-model-attempt-${{ github.run_id }}
+          path: ${{ runner.temp }}/far003_evidence/
+          if-no-files-found: warn
+          retention-days: 30
