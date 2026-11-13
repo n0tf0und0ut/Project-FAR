@@ -27,6 +27,18 @@ Primary provenance for the quotient and no-go proofs: accepted [Core Theory v1.1
 
 **Important logical point:** a universal proof requires precise quantifiers. The identity-on-X positive theorem and no-universal-minimum negative theorem are **compatible**, not competing. The absence of an externally justified world and target cannot be repaired by copying every field in a self-authored model.
 
+### Stronger undecidability boundary — unrestricted algorithmic certification
+
+**Claim (deductive reduction, not an independently mechanized Lean proof):** No total computable procedure decides exact completeness of a fixed constant observation map O:Nat→Unit against *every total computable* Boolean target F:Nat→Bool when the target is supplied as an arbitrary Turing-complete program.
+
+**Derivation:** Given an arbitrary program P and input z, construct a total computable function F_(P,z)(n) that returns false at n=0 and, for n>0, simulates P(z) for exactly n−1 steps and returns true iff it has halted by then. It terminates for every n, and O is constant. If P(z) never halts, F is constant false, so Complete(O,F) holds. If P(z) halts after t steps, F(0)=false but F(t+1)=true, so Complete(O,F) fails. A total algorithm deciding Complete(O,F) for arbitrary such total programs would therefore decide whether P(z) halts.
+
+**Why the halting decider cannot exist (diagonal argument):** Suppose a program H(p,x) always halts and returns whether program p halts on x. Construct D(p) that loops forever if H(p,p) returns true and terminates otherwise. Applied to its own code d, D(d) halts iff it does not halt, a contradiction. Therefore no such H exists, and consequently no universal total completeness-decider exists on this Turing-complete input class.
+
+This result is stronger than finite-sample underidentification: the target function is guaranteed **total and computable**, and the observer O is completely specified. The obstruction is undecidability of a semantic property of arbitrary target programs. It does **not** contradict the extensional mathematical truth of Complete(O,F), does not rule out deductive proofs for particular program classes, and does not rule out finite-state model checking or sound **partial** verifiers that sometimes return UNKNOWN. For unrestricted programs, the algorithm cannot always return a correct YES/NO verdict.
+
+This reduction relies on standard effective program self-encoding and simulation. It is an explicit human-readable proof in this Research report, **not** a claim of a kernel-checked halting-theorem formalization. The existing version-space and finite completeness results have separately been Lean checked under PR #665.
+
 ### Empirical evidence — what was actually executed
 
 **Immutable primary source:** [research/workflow-efficacy/result/campaign-41556392256.json](../workflow-efficacy/result/campaign-41556392256.json), Git blob \`90b3a56bb43d772a9e891766a578a93e73928aa8\`. Exact original run \`41556392256\`, source merge \`a750c5523183f64a20ff644846c4fcd91c887824\`, model \`ollama/qwen2.5-coder:1.5b\`, digest \`d7372fd828518a4d38b1eb196c673c31a85f2ed302b3d1e406c4c2d1b64a0668\`.
