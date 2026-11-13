@@ -1,16 +1,16 @@
 # FAR versus active generic checker: autonomous-agent causal study
 
-Program: \`FAR-AGENT-GENERIC-CAUSAL-001\`
+Program: `FAR-AGENT-GENERIC-CAUSAL-001`
 Status: **Research candidate; NOT FROZEN; NOT AUTHORIZED; NOT EXECUTED**
 
 ## Observed necessity and scope
 
-Protected-main SWE-agent v3 \`FAR-SWE-V3-001\` currently registers
-\`baseline\`, \`placebo\`, and \`far\`, with \`far_minus_placebo\` as its primary
+Protected-main SWE-agent v3 `FAR-SWE-V3-001` currently registers
+`baseline`, `placebo`, and `far`, with `far_minus_placebo` as its primary
 contrast. It contains no matched active generic-checker arm; its FAR treatment
 capsule and sealed task cohort are uninstantiated and its launch flags false.
 No observational/statistical analysis of that three-arm design can identify
-\`far_minus_generic_checker\`. The internally exposed finite checker comparison
+`far_minus_generic_checker`. The internally exposed finite checker comparison
 also cannot establish autonomous-agent success.
 
 This **separate prospective two-arm candidate** targets precisely the missing
@@ -24,12 +24,12 @@ stop; don't silently substitute parameters.
 
 ## Experimental contract and limitation
 
-\`protocol-v0.1.json\` records the prospective contrast, minimum population
+`protocol-v0.1.json` records the prospective contrast, minimum population
 conditions, paired run equivalence, outcomes, fixed analysis, critical
 invalidity rules and nonclaims. Source identities are pinned to protected main
-\`a9eb83eee705ba3e242b3f329712f6352761c6c1\`. The strict FAR verifier
-is \`mechanization/far_mechanization/contract_v2_strict_v11.py\`; the active
-generic checker is \`tools/efr_generic_collision_checker.py\`. Those paths are
+`a9eb83eee705ba3e242b3f329712f6352761c6c1`. The strict FAR verifier
+is `mechanization/far_mechanization/contract_v2_strict_v11.py`; the active
+generic checker is `tools/efr_generic_collision_checker.py`. Those paths are
 historical implementation candidates, not proof that either is connected to
 a live agent. They must be wrapped behind an equal-capability tool interface
 and independently verified **before** freeze. The generic checker can match
@@ -73,7 +73,7 @@ must be issued by a real authorized party. Before the confirmatory study,
 independently verify the excluded pilot and all updated launch bindings. Neither
 a true flag nor a self-authored hash grants execution.
 
-\`launch-state-v0.1.json\` intentionally contains **zero supplied external
+`launch-state-v0.1.json` intentionally contains **zero supplied external
 credentials, seals, or authorizations**. It cannot turn a model or benchmark on.
 
 ## Mechanism evidence: rawest available records
@@ -81,16 +81,16 @@ credentials, seals, or authorizations**. It cannot turn a model or benchmark on.
 A trusted observer *outside the agent's writable workspace* must capture each
 run's raw tool requests/responses, context continuation, pre/post state, tool
 identity, model/provider identity, complete task/runtime configuration, and
-termination. A log entry can be marked \`activated\`, \`not_triggered\`, or
-\`tool_failed\` under the frozen contract; **every run** must retain its state,
+termination. A log entry can be marked `activated`, `not_triggered`, or
+`tool_failed` under the frozen contract; **every run** must retain its state,
 including no-call runs and negative outcomes.
 
-Each \`far-agent-mechanism-receipt/1\` record binds an exact
-\`far-agent-tool-log/1\` raw byte stream and the candidate event by SHA-256,
+Each `far-agent-mechanism-receipt/1` record binds an exact
+`far-agent-tool-log/1` raw byte stream and the candidate event by SHA-256,
 run identity, arm, task, repetition and five raw payloads. The validator
 checks canonical base64, event sequence, exact linkage, arm/tool identity,
 duplicates, and missing data. It returns
-\`STRUCTURALLY_BOUND_UNATTESTED_...\` deliberately. **No local checksum
+`STRUCTURALLY_BOUND_UNATTESTED_...` deliberately. **No local checksum
 establishes the observer's identity, a genuine model/tool invocation, a correct
 enforcement decision, or the absence of omitted events.** Those require a
 separately trusted execution service, external signature/key provenance,
@@ -104,12 +104,12 @@ runs where FAR activated.
 
 ## Verify without running any agent
 
-\`\`\`bash
+```bash
 python research/external-validation/far-agent-generic/verify_candidate.py
 python -m unittest discover -s research/external-validation/far-agent-generic \
   -p 'test_verify_candidate.py' -v
 python research/external-validation/far-agent-generic/verify_candidate.py --require-launch
-\`\`\`
+```
 
 The final command **must exit 3**, indicating launch is denied. All tests use
 synthetic log bytes and mutate their contents; they are not agent or model runs.
@@ -127,7 +127,7 @@ isolated CI environment and never require provider credentials.
 - **Unresolved external prerequisites:** task custodian, independently signed
   seal, selected model/harness, operational observer and verifier, excluded
   pilot, exact-head review, prospective signed launch authorization.
-- **Current verdict:** \`NOT_EXECUTED\`. No new model calls, tool-using runs,
+- **Current verdict:** `NOT_EXECUTED`. No new model calls, tool-using runs,
   independent outcomes, causal advantage, or scientific promotion.
 
 Research status must not be promoted from test success or PR creation. Normal
