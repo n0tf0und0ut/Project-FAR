@@ -72,6 +72,35 @@ def check_candidate(protocol_bytes: bytes, launch_bytes: bytes) -> dict:
     require(git_blob(launch_bytes) == EXPECTED_LAUNCH_BLOB,
             "launch state changed since author candidate was pinned")
     p, gate = exact_json(protocol_bytes), exact_json(launch_bytes)
+    # Verify authoritative upstream code and v3 governance from raw checkout bytes.
+    repo_root = ROOT.parents[2]
+    sources = (
+        ("research/external-validation/swe-agent-v3/preregistration-v1.0.json",
+         "governed_v3_preregistration_blob"),
+        ("research/external-validation/swe-agent-v3/execution-gate-v1.0.json",
+         "governed_v3_gate_blob"),
+        ("tools/efr_generic_collision_checker.py", "generic_checker_blob"),
+        ("mechanization/far_mechanization/contract_v2_strict_v11.py",
+         "far_strict_verifier_blob"),
+    )
+    for source_path, source_key in sources:
+        expected = p["prior_evidence"][source_key]
+        require(type(expected) is str and re.fullmatch(r"[0-9a-f]{40}", expected),
+                "invalid pinned source identity: " + source_key)
+        require(git_blob((repo_root / source_path).read_bytes()) == expected,
+                "pinned source drift: " + source_path)
+    v3p = exact_json((repo_root / sources[0][0]).read_bytes())
+    v3g = exact_json((repo_root / sources[1][0]).read_bytes())
+    require([arm["id"] for arm in v3p["arms"]] == ["baseline", "placebo", "far"] and
+            v3p["primary_contrast"] == "far_minus_placebo",
+            "governed v3 design no longer matches baseline")
+    require(all(value is False for value in v3g["pilot_gates"].values()) and
+            all(value is False for value in v3g["gates"].values()) and
+            all(v3g[key] is False for key in (
+                "execution_authorized", "model_calls_authorized",
+                "benchmark_execution_authorized", "pilot_execution_authorized",
+                "confirmatory_execution_authorized")),
+            "governed v3 launch state changed; independent reassessment required")
     require(p["program_id"] == gate["program_id"] == "FAR-AGENT-GENERIC-CAUSAL-001",
             "program identity mismatch")
     require(p["status"] == "RESEARCH_CANDIDATE_NOT_FROZEN", "status promoted without review")
