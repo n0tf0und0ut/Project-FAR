@@ -1,0 +1,85 @@
+name: FAR foundational and reliability claim falsification (research)
+
+on:
+  pull_request:
+    paths:
+      - "research/completeness-reliability/**"
+      - ".github/workflows/far-completeness-reliability-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay-original-60:
+    name: replay-original-60
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Mutation-test original record and no-overclaim boundaries
+        run: |
+          set -euo pipefail
+          python research/completeness-reliability/test_verify_evidence.py -v
+      - name: Derive exact paired statistics from Git blob-pinned original outcomes
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/far-reliability
+          python research/completeness-reliability/verify_evidence.py \
+            --output artifacts/far-reliability/retrospective-analysis.json \
+            | tee artifacts/far-reliability/analysis-console.log
+      - name: Checkout the immutable original experiment implementation separately
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          ref: a750c5523183f64a20ff644846c4fcd91c887824
+          path: frozen
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch and digest-check all 31 original hosted artifact ZIPs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python research/completeness-reliability/verify_evidence.py \
+            --verify-raw \
+            --raw-destination frozen/research/workflow-efficacy/evidence \
+            --output artifacts/far-reliability/raw-artifact-verification.json
+      - name: Replay the exact original grading analyzer against all 60 raw receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd frozen
+          python -m tools.workflow_efficacy_free_agent_analysis \
+            --results research/workflow-efficacy/evidence \
+            --output ../artifacts/far-reliability/frozen-source-replay.json \
+            | tee ../artifacts/far-reliability/frozen-source-replay.log
+      - name: Require exact equality to the source-registered hosted summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base = json.loads(Path("research/workflow-efficacy/result/campaign-41556392256.json").read_text())
+          replay = json.loads(Path("artifacts/far-reliability/frozen-source-replay.json").read_text())
+          assert replay == base["analysis"], "original grader replay diverges from registered original analysis"
+          assert replay["errors"] == [], "original grader errors"
+          assert replay["observed_records"] == 60 and replay["unique_slots"] == 60, "missing raw runs"
+          assert replay["paired_success_delta"] == -1 / 30, "unexpected paired effect"
+          print("PASS: 31/31 original archives, 60/60 raw observations, and exact frozen grader replay")
+          PY
+      - name: Preserve raw-integrity and independent-statistical verification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: far-completeness-reliability-replay
+          path: artifacts/far-reliability/
+          retention-days: 30
+          if-no-files-found: warn
