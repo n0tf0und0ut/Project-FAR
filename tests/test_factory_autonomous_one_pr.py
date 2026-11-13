@@ -203,6 +203,77 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.assertTrue((self.out/'candidate.patch').exists())
         self.assertNotIn('token', json.dumps(receipt['queue_snapshot']).lower())
 
+    def test_failed_oracle_drives_second_model_proposal_with_source_bound_feedback(self):
+        import tools.factory_autonomous_one_pr as module
+        unsafe = ('if not isinstance(worker, str) or not IDENT.fullmatch(worker) '
+                  'or not isinstance(ttl, int) or ttl < 1 or ttl > 86400 '
+                  'or not isinstance(max_attempts, int) or max_attempts < 1:')
+        prompts = []
+        def model(prompt, output):
+            prompts.append(prompt)
+            return (unsafe if len(prompts) == 1 else self.new), {'model': MODEL}
+        def oracle(*a, **kw):
+            label = a[3]
+            if label == 'before':
+                return {'state': 'FAIL', 'test_count_reported': 4}
+            if label == 'after-1':
+                # Docker emits source-bound test output into its artifact.
+                (self.out / 'after-1.stderr').write_text(
+                    "FAIL: test_bad_ttl_does_not_consume_lease (value='True')\n")
+                return {'state': 'FAIL', 'test_count_reported': 4}
+            return {'state': 'PASS', 'test_count_reported': 3 if label.startswith('preservation-') else 4}
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest', return_value=MODEL_DIGEST), \
+             patch('tools.factory_autonomous_one_pr.grader_image_id', return_value='sha256:'+'a'*64), \
+             patch('tools.factory_autonomous_one_pr.ask_model', side_effect=model), \
+             patch('tools.factory_autonomous_one_pr.grade_in_docker',
+                   return_value={'state':'PASS', 'test_count_reported':44}), \
+             patch('tools.factory_autonomous_one_pr.grade_with_oracle', side_effect=oracle):
+            self.assertTrue(attempt(self.repo, self.db, self.out))
+        receipt = json.loads((self.out/'attempt-receipt.json').read_text())
+        self.assertEqual(receipt['verdict'], 'MODEL_PATCH_ELIGIBLE_FOR_INDEPENDENT_GITHUB_PR')
+        self.assertEqual([trial['acceptance']['state'] for trial in receipt['model_trials']],
+                         ['FAIL', 'PASS'])
+        self.assertIn('isinstance(True, int)', prompts[1])
+        self.assertIn("value='True'", prompts[1])
+        self.assertTrue((self.out/'model-round-1/candidate.patch').is_file())
+        self.assertTrue((self.out/'model-round-2/candidate.patch').is_file())
+        self.assertTrue((self.out/'candidate.patch').is_file())
+        self.assertIn('model-round-1/candidate.patch', receipt['artifacts_sha256'])
+        self.assertEqual(receipt['queue_snapshot']['tasks'][0]['stage'], 'build')
+        self.assertEqual([event['event'] for event in receipt['queue_snapshot']['tasks'][0]['history']],
+                         ['claimed'])
+
+    def test_both_failed_model_candidates_preserved_without_queue_promotion(self):
+        unsafe = ('if not isinstance(worker, str) or not IDENT.fullmatch(worker) '
+                  'or not isinstance(ttl, int) or ttl < 1 or ttl > 86400 '
+                  'or not isinstance(max_attempts, int) or max_attempts < 1:')
+        calls = []
+        def model(prompt, output):
+            calls.append(prompt)
+            return unsafe, {'model':MODEL}
+        def oracle(*a, **kw):
+            label = a[3]
+            if label.startswith('preservation-'):
+                return {'state':'PASS','test_count_reported':3}
+            return {'state':'FAIL','test_count_reported':4}
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest', return_value=MODEL_DIGEST), \
+             patch('tools.factory_autonomous_one_pr.grader_image_id', return_value='sha256:'+'a'*64), \
+             patch('tools.factory_autonomous_one_pr.ask_model', side_effect=model), \
+             patch('tools.factory_autonomous_one_pr.grade_with_oracle', side_effect=oracle):
+            self.assertFalse(attempt(self.repo, self.db, self.out))
+        receipt = json.loads((self.out/'attempt-receipt.json').read_text())
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(receipt['model_trials']), 2)
+        self.assertEqual(receipt['failure_stage'],
+                         'model candidate failed frozen acceptance oracle after two distinct proposals')
+        self.assertFalse((self.out/'candidate.patch').exists())
+        self.assertTrue((self.out/'model-round-1/candidate.patch').is_file())
+        self.assertTrue((self.out/'model-round-2/candidate.patch').is_file())
+        self.assertEqual([event['event'] for event in receipt['queue_snapshot']['tasks'][0]['history']],
+                         ['claimed', 'failed'])
+        self.assertEqual(receipt['queue_snapshot']['tasks'][0]['stage'], 'build')
+        self.assertEqual(receipt['queue_snapshot']['tasks'][0]['state'], 'queued')
+
     def test_mocked_worker_rejection_does_not_complete_factory(self):
         with patch('tools.factory_autonomous_one_pr.pinned_model_digest',return_value=MODEL_DIGEST), \
              patch('tools.factory_autonomous_one_pr.grader_image_id',return_value='sha256:'+'a'*64), \
