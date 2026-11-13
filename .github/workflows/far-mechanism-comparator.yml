@@ -59,6 +59,10 @@ jobs:
           assert len(r["timing"]["observations"]) == 1134
           print("PASS_REGISTERED_MECHANISM_COMPARISON")
           PY
+      - name: Check prototype source-content cache invalidation and diagnostic parity
+        run: |
+          set -euo pipefail
+          python research/mechanism-comparator/test_profile_schema_cost.py -v
       - name: Post-hoc exploratory diagnosis of repeated schema compilation overhead
         run: |
           set -euo pipefail
