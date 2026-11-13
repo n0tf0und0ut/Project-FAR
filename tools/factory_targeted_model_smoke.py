@@ -180,9 +180,11 @@ def run(repo: Path, taskfile: Path, output: Path, *, invoke=None, holdout: Path 
                 raise SmokeError("baseline public tests not passing")
             engineering_goal = m["task_text"].split("Work on tools/software_factory.py only.", 1)[0]
             prompt = ("Frozen task: " + engineering_goal + "\nThe ONLY editable location is the first if guard of Factory.fail. "
-                      "The original guard crashes on nonnumeric max_attempts such as None, "
-                      "and Python accepts bool True as 1. Add an explicit validation that "
-                      "max_attempts is an int but NOT bool BEFORE the numeric comparison. "
+                      "The original guard crashes on nonnumeric max_attempts such as None. "
+                      "CRITICAL Python fact: bool subclasses int, so isinstance(True, int) "
+                      "is True; a plain isinstance(max_attempts, int) guard FAILS the frozen "
+                      "bool requirement. Use an exact-int type check OR an explicit bool "
+                      "exclusion BEFORE numeric comparison. "
                       "Keep the existing reason validation and valid integer retry behavior. "
                       "Return a CHANGED corrected guard line as JSON with key line.\n"
                       "Current exact function:\n" + snippet)
