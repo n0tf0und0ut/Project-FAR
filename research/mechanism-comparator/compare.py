@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
-import importlib
+import importlib.metadata
 import json
 import platform
 import random
