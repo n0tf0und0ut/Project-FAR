@@ -23,8 +23,7 @@ import urllib.request
 
 from tools.software_factory import Factory, FactoryError, canonical
 from tools.factory_zero_key_smoke import (
-    MODEL, MODEL_DIGEST, SmokeError, git, grade_in_docker,
-    grader_image_id, sha, strict_json,
+    SmokeError, git, grade_in_docker, grader_image_id, sha, strict_json,
 )
 
 REPO = 'n0tf0und0ut/Project-FAR'
@@ -36,7 +35,11 @@ PRESERVATION_TEST = 'tests/test_factory_claim_preservation.py'
 PRESERVATION_SHA256 = '104f24eeaede44a6f25bf16e2910c2512a7c21150646c1ebd66f06d88901cb51'
 ORACLE_SHA256 = '73a34c32a4ea99576fd2ee65121406eae57406528a1bdc3f3b13822b2877b0b4'
 SCHEMA = 'far-software-factory/autonomous-source-proposal/1'
-WORKER = 'qwen-local-model'
+# Separately pinned Research escalation: the earlier 1.5B model returned
+# the original defective guard unchanged (see frozen Actions run 43348516108).
+MODEL = 'qwen2.5-coder:7b'
+MODEL_DIGEST = 'dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364'
+WORKER = 'qwen-local-model-7b'
 MAX_BYTES = 20000
 
 
@@ -116,6 +119,24 @@ def replace_claim_guard(source: str, proposal: object) -> str:
     if len(updated) > len(source) + 500:
         raise SmokeError('model proposal unusually large')
     return updated
+
+
+def pinned_model_digest() -> str:
+    """Check the actual local Ollama model against its frozen full manifest hash."""
+    req = urllib.request.Request('http://127.0.0.1:11434/api/tags', method='GET')
+    with urllib.request.urlopen(req, timeout=12) as response:
+        raw = response.read(MAX_BYTES + 1)
+    if len(raw) > MAX_BYTES:
+        raise SmokeError('oversized model inventory')
+    inventory = strict_json(raw)
+    if type(inventory) is not dict or type(inventory.get('models')) is not list:
+        raise SmokeError('invalid local model inventory')
+    matches = [item for item in inventory['models']
+               if type(item) is dict and item.get('name') == MODEL]
+    if (len(matches) != 1 or type(matches[0].get('digest')) is not str
+            or matches[0]['digest'] != MODEL_DIGEST):
+        raise SmokeError('pinned coding model digest mismatch')
+    return matches[0]['digest']
 
 
 def ask_model(prompt: str, output: Path) -> tuple[str, dict]:
@@ -214,10 +235,7 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
                              'No protected merge occurs in this model generation stage.']}
     worktree = None
     try:
-        from tools.workflow_efficacy_free_agent import local_model_digest
-        state['model_digest'] = local_model_digest()
-        if state['model_digest'] != MODEL_DIGEST:
-            raise SmokeError('model binary digest mismatch')
+        state['model_digest'] = pinned_model_digest()
         image = grader_image_id()
         state['grader_image_id'] = image
         with tempfile.TemporaryDirectory(prefix='far-auto-proof-') as tmp:
@@ -245,7 +263,9 @@ def attempt(repo: Path, db: Path, output: Path) -> bool:
                       "Preserve current worker name validation, ttl 1..86400 limit, and positive attempt count. "
                       "Return a complete replacement of ONLY the guard IF line in JSON with key line. "
                       "No edits to other lines, and do not add any explanatory comments.\n"
-                      "Original Factory.claim function:\n"+snippet)
+                      "The guard below is defective: an unchanged copy is not a repair. "
+                       "Keep every original worker check and lease bound.\n"
+                       "Original Factory.claim function:\n"+snippet)
             proposed, metadata = ask_model(prompt, output)
             state['model_generation'] = metadata
             changed = replace_claim_guard(orig, proposed)
@@ -308,7 +328,9 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
     if receipt.get('base_sha') != git(repo, 'rev-parse', 'HEAD^{commit}').stdout.decode().strip():
         raise SmokeError('source changed between model run and publisher')
     if not os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_REPOSITORY') != REPO:
-        raise SmokeError('publisher requires explicit credential and repository binding')
+        raise SmokeError('publisher requires independently authorized credential and repository binding')
+    if receipt.get('worker_model') != MODEL or receipt.get('model_digest') != MODEL_DIGEST:
+        raise SmokeError('model identity changed between execution and publication')
     oracle = check_oracle(repo)
     if sha(oracle) != receipt['oracle_sha256']:
         raise SmokeError('oracle drift')
@@ -362,7 +384,7 @@ def publish(repo: Path, db: Path, output: Path) -> dict:
         '## Source-exact autonomous factory proof candidate', '',
         f'Factory queue and genuine pinned local coding worker generated the SOURCE edit, not the operator. GitHub Actions source event `{receipt["base_sha"]}`.',
         f'Worker run: https://github.com/{REPO}/actions/runs/{os.environ["GITHUB_RUN_ID"]}',
-        f'Worker model: `{MODEL}`; digest `{MODEL_DIGEST}`.',
+        f'Worker model: `{MODEL}`; digest `{receipt["model_digest"]}`.',
         f'Generated source blob: `{receipt["candidate_blob"]}`; patch SHA-256 `{receipt["patch_sha256"]}`.',
         f'Frozen independent-from-model four-test oracle SHA-256: `{ORACLE_SHA256}`.',
         f'Frozen three-test preservation oracle SHA-256: `{PRESERVATION_SHA256}`.',

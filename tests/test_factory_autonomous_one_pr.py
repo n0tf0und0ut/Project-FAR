@@ -13,9 +13,8 @@ from unittest.mock import patch
 from tools.factory_autonomous_one_pr import (
     ORACLE_SHA256, REPO, SOURCE, TEST, SmokeError,
     ask_model, attempt, check_oracle, claim_guard, replace_claim_guard, work_order,
-    publish,
+    publish, pinned_model_digest, MODEL_DIGEST, MODEL,
 )
-from tools.factory_zero_key_smoke import MODEL_DIGEST, MODEL
 
 BASE = Path(__file__).resolve().parents[1]
 
@@ -78,6 +77,41 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.new = ("if not isinstance(worker, str) or not IDENT.fullmatch(worker) "
                     "or type(ttl) is not int or ttl < 1 or ttl > 86400 "
                     "or type(max_attempts) is not int or max_attempts < 1:")
+
+    def test_full_model_manifest_pin_and_rejection(self):
+        class Response:
+            def __init__(self, data):
+                self.data = data
+            def __enter__(self):
+                return self
+            def __exit__(self, *_):
+                return False
+            def read(self, n):
+                return self.data[:n]
+        def response(rows):
+            return Response(json.dumps({'models': rows}).encode('utf-8'))
+        valid = {'name': MODEL, 'digest': MODEL_DIGEST}
+        with patch('tools.factory_autonomous_one_pr.urllib.request.urlopen',
+                   return_value=response([valid])):
+            self.assertEqual(pinned_model_digest(), MODEL_DIGEST)
+        for rows in ([], [valid, valid], [{'name': MODEL, 'digest': '0'*64}],
+                     [{'name': 'qwen2.5-coder:1.5b', 'digest': MODEL_DIGEST}]):
+            with self.subTest(rows=rows):
+                with patch('tools.factory_autonomous_one_pr.urllib.request.urlopen',
+                           return_value=response(rows)):
+                    with self.assertRaisesRegex(SmokeError, 'digest mismatch'):
+                        pinned_model_digest()
+
+    def test_wrong_model_digest_releases_lease_without_patch(self):
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest',
+                   side_effect=SmokeError('pinned coding model digest mismatch')):
+            self.assertFalse(attempt(self.repo, self.db, self.out))
+        receipt = json.loads((self.out / 'attempt-receipt.json').read_text())
+        self.assertEqual(receipt['verdict'], 'MODEL_ATTEMPT_FAILED')
+        self.assertEqual(receipt['failure_stage'], 'pinned coding model digest mismatch')
+        self.assertEqual([event['event'] for event in receipt['queue_snapshot']['tasks'][0]['history']],
+                         ['claimed', 'failed'])
+        self.assertFalse((self.out / 'candidate.patch').exists())
 
     def test_defective_fixture_is_stable_after_valid_repair(self):
         # Simulates a later protected-main checkout containing the intended fix.
@@ -149,14 +183,12 @@ class FactoryAutonomousProofContract(unittest.TestCase):
 
     def test_mocked_model_lease_generates_advisory_patch_but_not_pr(self):
         # This is a structural test; no real model or Docker is invoked.
-        fake = types.ModuleType('tools.workflow_efficacy_free_agent')
-        fake.local_model_digest = lambda: MODEL_DIGEST
         def grader(*a, **kw):
             return {'state': 'PASS', 'test_count_reported': 44}
         def oracle(*a, **kw):
             return {'state': 'FAIL' if a[3] == 'before' else 'PASS',
                     'test_count_reported': 3 if a[3].startswith('preservation-') else 4}
-        with patch.dict(sys.modules, {'tools.workflow_efficacy_free_agent':fake}), \
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest',return_value=MODEL_DIGEST), \
              patch('tools.factory_autonomous_one_pr.grader_image_id',return_value='sha256:'+'a'*64), \
              patch('tools.factory_autonomous_one_pr.ask_model',return_value=(self.new,{'model':MODEL})), \
              patch('tools.factory_autonomous_one_pr.grade_in_docker',side_effect=grader), \
@@ -172,9 +204,7 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         self.assertNotIn('token', json.dumps(receipt['queue_snapshot']).lower())
 
     def test_mocked_worker_rejection_does_not_complete_factory(self):
-        fake = types.ModuleType('tools.workflow_efficacy_free_agent')
-        fake.local_model_digest=lambda:MODEL_DIGEST
-        with patch.dict(sys.modules,{'tools.workflow_efficacy_free_agent':fake}), \
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest',return_value=MODEL_DIGEST), \
              patch('tools.factory_autonomous_one_pr.grader_image_id',return_value='sha256:'+'a'*64), \
              patch('tools.factory_autonomous_one_pr.ask_model',return_value=(self.old.strip(),{'model':MODEL})), \
              patch('tools.factory_autonomous_one_pr.grade_with_oracle',return_value={'state':'FAIL','test_count_reported':4}):
@@ -196,14 +226,12 @@ class FactoryAutonomousProofContract(unittest.TestCase):
         # No real model, GitHub API, or push here. This validates the *complete*
         # local state transition and Git diff handling with explicit host mocks.
         import tools.factory_autonomous_one_pr as module
-        fake = types.ModuleType('tools.workflow_efficacy_free_agent')
-        fake.local_model_digest = lambda: MODEL_DIGEST
         def grade(*args, **kwargs):
             return {'state': 'PASS', 'test_count_reported': 44}
         def hold(*args, **kwargs):
             return {'state': 'FAIL' if args[3] == 'before' else 'PASS',
                     'test_count_reported': 3 if args[3].startswith('preservation-') else 4}
-        with patch.dict(sys.modules, {'tools.workflow_efficacy_free_agent': fake}), \
+        with patch('tools.factory_autonomous_one_pr.pinned_model_digest',return_value=MODEL_DIGEST), \
              patch('tools.factory_autonomous_one_pr.grader_image_id', return_value='sha256:'+'a'*64), \
              patch('tools.factory_autonomous_one_pr.ask_model', return_value=(self.new, {'model':MODEL})), \
              patch('tools.factory_autonomous_one_pr.grade_in_docker', side_effect=grade), \

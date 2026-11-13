@@ -9,8 +9,8 @@ on:
       - '.github/workflows/factory-autonomous-proof.yml'
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 concurrency:
   group: far-factory-one-code-to-pr-proof
@@ -59,6 +59,13 @@ jobs:
           rm tests/test_factory_claim_preservation.py
       - name: Start pre-existing pinned local Qwen coding worker
         run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Pull and verify separate pinned 7B coding worker
+        run: |
+          ollama pull qwen2.5-coder:7b
+          python - <<'PY'
+          from tools.factory_autonomous_one_pr import pinned_model_digest
+          print('verified qwen2.5-coder:7b manifest sha256:', pinned_model_digest())
+          PY
       - name: Build existing no-network Python grader
         run: |
           docker build --pull=false -t far-zero-key-grader:648-v1 \
@@ -76,7 +83,7 @@ jobs:
       - name: Independently recheck and publish only an accepted model patch as a PR
         if: steps.attempt.outcome == 'success'
         env:
-          GH_TOKEN: ${{ secrets.FAR_FACTORY_PUBLISH_TOKEN || github.token }}
+          GH_TOKEN: ${{ secrets.FAR_FACTORY_PUBLISH_TOKEN }}
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
           python -m tools.factory_autonomous_one_pr publish \
