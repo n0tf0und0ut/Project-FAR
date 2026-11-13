@@ -1,0 +1,88 @@
+name: Factory Targeted Model Probe (Research)
+
+on:
+  pull_request:
+    paths:
+      - tools/factory_targeted_model_smoke.py
+      - tools/factory_queue_targeted_model.py
+      - tests/test_factory_targeted_model_smoke.py
+      - .github/workflows/factory-targeted-model-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - name: Checkout exact candidate without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Test bounded model output, source identity and queue non-promotion
+        run: python -m unittest tests.test_factory_targeted_model_smoke -v
+      - name: Syntax check without model invocation
+        run: python -m py_compile tools/factory_targeted_model_smoke.py tools/factory_queue_targeted_model.py
+
+  one-targeted-model-attempt:
+    needs: [offline-contract]
+    # Explicit same-repository scope. This never runs on forks or other branches.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'research/factory-targeted-model-20261112'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact candidate without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged frozen task and withheld oracle
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '52d2d22c5fb0f708ace2a331e91a8d0558b86b41132b19679f8c7bd2d86ff308  research/factory-evaluation/zero-key-worker-smoke-far-003-v1.json' | sha256sum --check
+          echo '45b73d2b4a0f2092ae82e79e5c137aaecd0c5e8537f2820b1e0c96819f61c67e  research/factory-evaluation/holdout-far-003.py.txt' | sha256sum --check
+          git cat-file -t 5253a45ac7f5bfbda1278cf3b8fbf4b9b22136f8
+      - name: Install existing pinned local coding model
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Build existing bounded no-network grader
+        run: |
+          docker build --pull=false -t far-zero-key-grader:648-v1 \
+            --file tools/factory_zero_key_grader.Dockerfile .
+          docker image inspect far-zero-key-grader:648-v1 --format '{{.Id}}'
+      - name: Execute one frozen targeted coding attempt through actual queue
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m tools.factory_queue_targeted_model \
+            --db "$RUNNER_TEMP/far003-targeted-queue.sqlite" \
+            --order research/factory-evaluation/queue-zero-key-work-order-far-003-v1.json \
+            --repository "$GITHUB_WORKSPACE" \
+            --task-file research/factory-evaluation/zero-key-worker-smoke-far-003-v1.json \
+            --holdout research/factory-evaluation/holdout-far-003.py.txt \
+            --output "$RUNNER_TEMP/far003-targeted-attempt"
+      - name: Preserve all results including failed model attempts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: far-targeted-model-probe-${{ github.run_id }}
+          path: ${{ runner.temp }}/far003-targeted-attempt/
+          if-no-files-found: warn
+          retention-days: 30
