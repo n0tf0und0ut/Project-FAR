@@ -76,7 +76,10 @@ def audit_design(protocol: dict[str, Any], gate: dict[str, Any]) -> dict[str, An
         "arm_names": names,
         "number_of_arms": len(names),
         "contains_matched_generic_active_comparator": "generic_checker" in names,
-        "far_minus_generic_checker_identified_by_protocol": "generic_checker" in names and "far" in names,
+        "far_minus_generic_checker_identified_by_protocol": (
+            "generic_checker" in names and "far" in names
+            and "far_minus_generic_checker" in protocol.get("secondary_contrasts", [])
+        ),
         "far_mechanism_exercised_by_executions": "UNKNOWN_NO_VERIFIED_TOOL_EXECUTION_RECEIPTS",
         "pilot_total_gates": len(pilots),
         "pilot_true_gates": sum(pilots.values()),
