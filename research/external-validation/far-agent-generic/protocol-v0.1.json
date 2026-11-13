@@ -33,7 +33,6 @@
     "unit": "task",
     "paired": true,
     "repetitions_per_task_per_arm": 2,
-    "minimum_distinct_repositories": 6,
     "maximum_fraction_per_repository": "1/6",
     "strata": [
       "bug_fix",
@@ -62,7 +61,8 @@
     "no_provider_fallback": true,
     "zero_paid_spend_unless_separately_authorized": true,
     "fixed_confirmatory_tasks": 24,
-    "maximum_tasks_per_repository": 4
+    "maximum_tasks_per_repository": 4,
+    "fixed_distinct_repositories": 6
   },
   "primary_endpoint": {
     "id": "independent_task_resolution",
