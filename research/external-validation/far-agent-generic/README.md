@@ -42,7 +42,9 @@ For each task, run two fresh repetitions per arm in isolated identical snapshots
 counterbalance order, and freeze allocations before any outcomes. The primary
 estimand is the task-weighted mean difference in independently graded resolution
 probabilities, FAR minus generic. The minimum practically important difference
-is 0.10; the proposed 24-task minimum is a scope floor, **not** a power claim.
+is 0.10. The candidate fixes **24 tasks across exactly six provider-stable
+repositories, four tasks per repository**, with two runs per arm/task (96 frozen
+slots). This deliberately small fixed cohort is **not** a power claim.
 An independent prospective precision/power review must decide whether that
 minimum permits a meaningful test **before** any task identities are unblinded;
 otherwise publish an explicit inconclusive design finding or a new prospective
