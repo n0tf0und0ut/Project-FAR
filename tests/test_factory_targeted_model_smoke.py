@@ -46,8 +46,14 @@ class TargetedModelTests(unittest.TestCase):
         self.assertEqual(result.splitlines()[:2] + result.splitlines()[3:],
                          SOURCE.splitlines()[:2] + SOURCE.splitlines()[3:])
 
+    def test_optional_indentation_normalization_does_not_change_semantics(self):
+        stripped = GOOD_LINE.lstrip()
+        self.assertEqual(candidate_source(SOURCE, stripped), candidate_source(SOURCE, GOOD_LINE))
+        with self.assertRaisesRegex(SmokeError, "did not change guard"):
+            candidate_source(SOURCE, SOURCE.splitlines()[2].lstrip())
+
     def test_rejects_non_line_replacement_and_multiline_attack(self):
-        for repl in (None, [], {}, "", "if True:", "        if True:\n        evil()",
+        for repl in (None, [], {}, "", "        if True:\n        evil()",
                      "        import os", "        if True:\x00", "        if +++:"):
             with self.subTest(repl=repr(repl)), self.assertRaises(SmokeError):
                 candidate_source(SOURCE, repl)
@@ -76,6 +82,35 @@ class TargetedModelTests(unittest.TestCase):
         self.assertEqual(line, GOOD_LINE)
         self.assertEqual(raw, body)
         self.assertEqual(metrics["output_tokens"], 33)
+
+    def test_malformed_model_content_preserves_full_bounded_original_and_metadata(self):
+        malformed = '```json\n{"line": "        if True:"}\n```'
+        body = json.dumps({"model": "qwen2.5-coder:1.5b", "done": True,
+            "eval_count": 31, "prompt_eval_count": 123,
+            "message": {"content": malformed}}).encode()
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            with patch("tools.factory_targeted_model_smoke.urllib.request.urlopen",
+                       return_value=Response(body)):
+                with self.assertRaises(SmokeError):
+                    local_model_line("repair retry bound", output=out)
+            self.assertEqual((out / "model-transport-response.json").read_bytes(), body)
+            self.assertEqual((out / "model-content.txt").read_text(), malformed)
+            receipt = json.loads((out / "model-generation-metadata.json").read_text())
+            self.assertEqual(receipt["output_tokens"], 31)
+            self.assertEqual(receipt["input_tokens"], 123)
+            self.assertEqual(receipt["model"], "qwen2.5-coder:1.5b")
+
+    def test_invalid_transport_retains_original_bytes(self):
+        bad = b"<invalid_json>"
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            with patch("tools.factory_targeted_model_smoke.urllib.request.urlopen",
+                       return_value=Response(bad)):
+                with self.assertRaises((SmokeError, ValueError)):
+                    local_model_line("repair retry bound", output=out)
+            self.assertEqual((out / "model-transport-response.json").read_bytes(), bad)
+            self.assertFalse((out / "model-generation-metadata.json").exists())
 
     def test_model_invalid_identity_or_output_never_passes(self):
         scenarios = [

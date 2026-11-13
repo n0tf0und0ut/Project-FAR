@@ -59,6 +59,10 @@ def candidate_source(source: str, replacement: object) -> str:
     if (type(replacement) is not str or len(replacement) > 400 or "\n" in replacement
             or "\r" in replacement or "\x00" in replacement):
         raise SmokeError("non-single-line model replacement")
+    # Ollama JSON mode sometimes omits indentation. Restore only the known
+    # AST-derived prefix; never rewrite the generated condition expression.
+    if replacement.startswith("if "):
+        replacement = "        " + replacement
     if not replacement.startswith("        if ") or not replacement.endswith(":"):
         raise SmokeError("not a single Python guard replacement")
     if replacement + "\n" == original:
@@ -74,7 +78,7 @@ def candidate_source(source: str, replacement: object) -> str:
     return result
 
 
-def local_model_line(prompt: str) -> tuple[object, bytes, dict]:
+def local_model_line(prompt: str, *, output: Path | None = None) -> tuple[object, bytes, dict]:
     """Ollama JSON mode; records real transport, rejects absent generation metrics."""
     raw_prompt = prompt.encode("utf-8")
     if len(raw_prompt) > REQUEST_MAX:
@@ -93,6 +97,11 @@ def local_model_line(prompt: str) -> tuple[object, bytes, dict]:
     begin = time.monotonic()
     with urllib.request.urlopen(req, timeout=MODEL_SECONDS) as response:
         transport = response.read(REPLY_MAX + 1)
+    # Preserve bounded bytes BEFORE any transport or generated-content parsing.
+    # A malformed *completed* model response is a negative finding, not missing
+    # evidence; do not discard it when the parser rejects its contents.
+    if output is not None:
+        (output / "model-transport-response.json").write_bytes(transport)
     if len(transport) > REPLY_MAX:
         raise SmokeError("oversized model transport")
     decoded = strict_json(transport)
@@ -104,15 +113,20 @@ def local_model_line(prompt: str) -> tuple[object, bytes, dict]:
             or decoded.get("model") != MODEL):
         raise SmokeError("invalid or unpinned model transport receipt")
     content = decoded["message"]["content"].encode()
-    data = strict_json(content)
-    if type(data) is not dict or set(data) != {"line"}:
-        raise SmokeError("model must return only line")
-    return data["line"], transport, {
+    metadata = {
         "model": decoded["model"], "prompt_sha256": sha(raw_prompt),
         "transport_sha256": sha(transport), "response_sha256": sha(content),
         "input_tokens": decoded["prompt_eval_count"], "output_tokens": decoded["eval_count"],
         "elapsed_seconds": round(time.monotonic() - begin, 3),
     }
+    if output is not None:
+        (output / "model-content.txt").write_bytes(content)
+        (output / "model-generation-metadata.json").write_text(
+            json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    data = strict_json(content)
+    if type(data) is not dict or set(data) != {"line"}:
+        raise SmokeError("model must return only line")
+    return data["line"], transport, metadata
 
 
 def run(repo: Path, taskfile: Path, output: Path, *, invoke=None, holdout: Path | None = None) -> dict:
@@ -166,9 +180,14 @@ def run(repo: Path, taskfile: Path, output: Path, *, invoke=None, holdout: Path 
                 raise SmokeError("baseline public tests not passing")
             engineering_goal = m["task_text"].split("Work on tools/software_factory.py only.", 1)[0]
             prompt = ("Frozen task: " + engineering_goal + "\nThe ONLY editable location is the first if guard of Factory.fail. "
-                      "Return the corrected FULL line, with eight leading spaces, as JSON with key line.\n"
+                      "The original guard crashes on nonnumeric max_attempts such as None, "
+                      "and Python accepts bool True as 1. Add an explicit validation that "
+                      "max_attempts is an int but NOT bool BEFORE the numeric comparison. "
+                      "Keep the existing reason validation and valid integer retry behavior. "
+                      "Return a CHANGED corrected guard line as JSON with key line.\n"
                       "Current exact function:\n" + snippet)
-            chosen, transport, metrics = (local_model_line if invoke is None else invoke)(prompt)
+            chosen, transport, metrics = (local_model_line(prompt, output=output)
+                                          if invoke is None else invoke(prompt))
             (output / "model-transport-response.json").write_bytes(transport)
             receipt["generation"] = metrics
             result = candidate_source(source, chosen)
@@ -200,6 +219,9 @@ def run(repo: Path, taskfile: Path, output: Path, *, invoke=None, holdout: Path 
                     raise SmokeError("candidate failed independently frozen holdout")
             receipt["verdict"] = "MODEL_PATCH_PASSED_VISIBLE_AND_FROZEN_TESTS_NOT_PR_DELIVERY"
         except (SmokeError, OSError, RuntimeError, ImportError, ValueError, TimeoutError, subprocess.SubprocessError) as exc:
+            preserved_metrics = output / "model-generation-metadata.json"
+            if receipt["generation"] is None and preserved_metrics.is_file():
+                receipt["generation"] = json.loads(preserved_metrics.read_text(encoding="utf-8"))
             receipt["verdict"] = "BLOCKED_OR_MODEL_OUTPUT_INVALID"
             receipt["error_type"] = type(exc).__name__
             receipt["error"] = str(exc)[:170]
