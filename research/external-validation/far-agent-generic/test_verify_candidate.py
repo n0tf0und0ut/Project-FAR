@@ -71,6 +71,20 @@ class ResearchCandidateTests(unittest.TestCase):
         self.assertEqual(p.returncode, 3)
         self.assertIn("DENIED:", p.stdout)
 
+    def test_pinned_governing_source_drift_rejected(self):
+        from unittest import mock
+        original = pathlib.Path.read_bytes
+        protocol, gate = v.PROTOCOL.read_bytes(), v.LAUNCH.read_bytes()
+
+        def changed_source(path):
+            if str(path).endswith("tools/efr_generic_collision_checker.py"):
+                return b"changed governing checker"
+            return original(path)
+
+        with mock.patch.object(pathlib.Path, "read_bytes", changed_source):
+            with self.assertRaisesRegex(ValueError, "pinned source drift"):
+                v.check_candidate(protocol, gate)
+
     def test_no_inheritance_of_v3_execution_grants(self):
         data = v.exact_json(v.PROTOCOL.read_bytes())
         self.assertTrue(data["prior_evidence"]["no_inheritance_of_launch_authorization"])
@@ -194,9 +208,10 @@ class ReceiptBindingTests(unittest.TestCase):
 
     def test_duplicate_log_key_rejected(self):
         receipt, log = sample_receipt(activated=False)
-        text = raw(log)
-        self.assertRaises(ValueError, v.check_receipt, receipt,
-                          text.replace(b'"run_id":', b'"run_id":"fake","run_id":', 1))
+        corrupted = raw(log).replace(b'"run_id":', b'"run_id":"fake","run_id":', 1)
+        receipt["raw_event_log_sha256"] = digest(corrupted)
+        with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
+            v.check_receipt(receipt, corrupted)
 
 
 if __name__ == "__main__":
