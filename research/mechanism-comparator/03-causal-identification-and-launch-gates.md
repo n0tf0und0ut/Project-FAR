@@ -21,7 +21,7 @@ Additionally, assignment to a FAR capsule and observing task success establishes
 
 ## Executed read-only checks
 
-Source: research/mechanism-comparator/audit_causal_readiness.py (actual v3 source parser). Tests: research/mechanism-comparator/test_audit_causal_readiness.py. Nine mutation/negative tests enforce actual false gates; 3-arm under-identification; opposed FAR-minus-generic worlds; false permission even after forged all-true gate flags; lack of outcomes after merely adding an arm to an in-memory design; malformed Boolean, duplicate arm, wrong program, and duplicate JSON key refusal.
+Source: research/mechanism-comparator/audit_causal_readiness.py (actual v3 source parser). Tests: research/mechanism-comparator/test_audit_causal_readiness.py. Ten mutation/negative tests enforce actual false gates; 3-arm under-identification; opposed FAR-minus-generic worlds; false permission even after forged all-true gate flags; lack of both preregistered FAR-minus-generic contrast and actual outcomes after merely adding an arm to an in-memory design; still no effect even if a fictional in-memory contrast is also appended; malformed Boolean, duplicate arm, wrong program, and duplicate JSON key refusal.
 
 A read-only Actions Research job reruns these with existing W6 and comparator checks and retains an exact source output named v3-readiness.json. Do not assert a hosted pass until the exact-head job confirms it.
 
