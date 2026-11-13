@@ -79,6 +79,24 @@ jobs:
           assert r["original_frozen_verifier_mutated"] is False
           print("PASS_SCHEMA_CACHE_DIAGNOSTIC_EQUIVALENCE")
           PY
+      - name: Falsify overclaims and verify the actual SWE-agent v3 authorization gates
+        run: |
+          set -euo pipefail
+          python research/mechanism-comparator/test_audit_causal_readiness.py -v
+          python research/mechanism-comparator/audit_causal_readiness.py \
+            --output artifacts/far-mechanism-comparator/v3-readiness.json \
+            | tee artifacts/far-mechanism-comparator/v3-readiness-console.log
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path("artifacts/far-mechanism-comparator/v3-readiness.json").read_text())
+          assert r["causal_effect_estimated"] is False
+          assert r["far_minus_generic_checker_identified_by_protocol"] is False
+          assert r["pilot_model_calls_permitted_by_this_audit"] is False
+          assert r["confirmatory_model_calls_permitted_by_this_audit"] is False
+          assert r["prospective_fully_bound_launch_record_verified"] is False
+          print("PASS_NO_FABRICATED_AGENT_CAUSAL_RESULT")
+          PY
       - name: Retain complete outcomes, timing and diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
