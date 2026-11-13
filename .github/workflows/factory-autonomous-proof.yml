@@ -1,0 +1,89 @@
+name: Factory One Genuine Code-to-PR Proof (Research)
+
+# A one-shot trigger: the workflow runs after its initial protected-main merge.
+# The workflow and worker policy are read from protected main, never a PR head.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/factory-autonomous-proof.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: far-factory-one-code-to-pr-proof
+  cancel-in-progress: false
+
+jobs:
+  one-frozen-task:
+    if: github.repository == 'n0tf0und0ut/Project-FAR' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout protected main without persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Run strict offline dispatcher and publisher contract tests
+        run: |
+          python -m unittest tests.test_factory_autonomous_one_pr -v
+          python -m py_compile tools/factory_autonomous_one_pr.py
+      - name: Verify frozen holdout is red on the original protected code
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          cp research/factory-evaluation/claim-parameter-holdout.py.txt tests/test_factory_claim_contract.py
+          set +e
+          python -m unittest tests.test_factory_claim_contract -v > "$RUNNER_TEMP/factory-baseline.stdout" 2> "$RUNNER_TEMP/factory-baseline.stderr"
+          exit_code=$?
+          set -e
+          rm tests/test_factory_claim_contract.py
+          test "$exit_code" -ne 0
+          grep -q 'FAILED (' "$RUNNER_TEMP/factory-baseline.stderr"
+          grep -q 'Ran 4 tests' "$RUNNER_TEMP/factory-baseline.stderr"
+          echo "FROZEN_BASELINE_REPRODUCED"
+      - name: Start pre-existing pinned local Qwen coding worker
+        run: bash scripts/workflow_efficacy_start_ollama.sh
+      - name: Build existing no-network Python grader
+        run: |
+          docker build --pull=false -t far-zero-key-grader:648-v1 \
+            --file tools/factory_zero_key_grader.Dockerfile .
+          docker image inspect far-zero-key-grader:648-v1 --format '{{.Id}}'
+      - name: Execute genuine coding attempt through real SQLite queue lease
+        id: attempt
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m tools.factory_autonomous_one_pr run \
+            --repo "$GITHUB_WORKSPACE" \
+            --db "$RUNNER_TEMP/factory-proof-queue.sqlite" \
+            --output "$RUNNER_TEMP/factory-proof-receipts"
+      - name: Independently recheck and publish only an accepted model patch as a PR
+        if: steps.attempt.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.FAR_FACTORY_PUBLISH_TOKEN || github.token }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python -m tools.factory_autonomous_one_pr publish \
+            --repo "$GITHUB_WORKSPACE" \
+            --db "$RUNNER_TEMP/factory-proof-queue.sqlite" \
+            --output "$RUNNER_TEMP/factory-proof-receipts"
+      - name: Retain source-bound model and publishing evidence, including negative results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: far-factory-one-code-pr-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/factory-proof-receipts/
+            ${{ runner.temp }}/factory-baseline.stdout
+            ${{ runner.temp }}/factory-baseline.stderr
+          if-no-files-found: warn
+          retention-days: 30
