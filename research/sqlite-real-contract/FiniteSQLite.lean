@@ -58,12 +58,16 @@ def decode : Nat → Behavior
 
 /-- Positive: every case's complete three-query behavior factors through the code. -/
 theorem full_finite_factorization :
-    ∀ c : Case, decode (quotientCode c) = behavior c := by decide
+    ∀ c : Case, decode (quotientCode c) = behavior c := by
+  intro c
+  cases c <;> decide
 
 /-- Positive: the code's kernel exactly matches SQLite's observed behavior kernel. -/
 theorem finite_least_informative :
     ∀ x y : Case, (quotientCode x = quotientCode y) ↔
-      (behavior x = behavior y) := by decide
+      (behavior x = behavior y) := by
+  intro x y
+  cases x <;> cases y <;> decide
 
 /-- Real lossy representation: SQLite storage class merges values distinct by SQL. -/
 theorem storage_class_loss :
