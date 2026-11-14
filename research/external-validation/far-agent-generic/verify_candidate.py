@@ -9,6 +9,7 @@ import argparse
 import base64
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 
@@ -45,8 +46,14 @@ def bad_constant(value):
 
 
 def exact_json(data: bytes):
+    def finite_float(raw: str) -> float:
+        value = float(raw)
+        if not math.isfinite(value):
+            raise ValueError("non-finite JSON number")
+        return value
+
     return json.loads(data.decode("utf-8"), object_pairs_hook=reject_duplicates,
-                      parse_constant=bad_constant)
+                      parse_constant=bad_constant, parse_float=finite_float)
 
 
 def git_blob(raw: bytes) -> str:
