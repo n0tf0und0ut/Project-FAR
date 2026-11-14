@@ -111,6 +111,10 @@ class ResearchCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-finite"):
             v.exact_json(b'{"n":NaN}')
 
+    def test_exponent_overflow_json_rejected(self):
+        with self.assertRaisesRegex(ValueError, "non-finite"):
+            v.exact_json(b'{"n":1e9999}')
+
 
 class ReceiptBindingTests(unittest.TestCase):
     def checked(self, receipt, log):
