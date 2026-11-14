@@ -35,6 +35,14 @@ jobs:
           assert "DENIED:" in p.stdout
           print("PASS_REAL_AGENT_LAUNCH_PROHIBITED")
           PY
+      - name: Install pinned real-verifier test dependencies
+        run: python -m pip install 'jsonschema==4.23.0' 'PyYAML==6.0.2'
+      - name: Calibrate actual generic and FAR strict checkers (no agent)
+        run: |
+          set -euo pipefail
+          python -m unittest discover \
+            -s research/external-validation/far-agent-generic \
+            -p 'test_checker_calibration.py' -v
       - name: Run adversarial receipt/registration tests
         run: |
           set -euo pipefail
