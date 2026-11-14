@@ -104,6 +104,28 @@ A receipt alone cannot establish that FAR caused a better result. The primary
 causal estimate must use the frozen intention-to-treat sample, never select only
 runs where FAR activated.
 
+## Matched checker calibration (previously exposed records only)
+
+The read-only `checker_calibration.py` adapter consumes identical complete
+far-ir/2.0 JSON bytes through a common input interface. In the generic arm
+it projects the registered finite representation/required-behavior tables and
+runs the existing generic collision checker; in the FAR arm it executes the
+current strict FAR verifier with all full-record integrity requirements. Both
+return the same output envelope, with intentionally different details.
+
+It is **calibration only**: there is no operational tool host, model endpoint,
+agent process, signed witness, benchmark task or launch mode. Its `--arm`
+argument is supplied by a calibration operator, not an agent; an eventual
+independently governed runtime must control arm selection outside the model's
+writable environment. Full input equality does not imply equal computational
+burden or report contents; these must be registered and measured before launch.
+
+`test_checker_calibration.py` verifies the real implementations against the
+12 frozen, previously exposed W4 records, the metadata-integrity counterexample,
+and invalid input/path cases. Such calibration cannot establish agent efficacy
+or independence. All original W4 files and accepted verifier sources retain
+their byte identities.
+
 ## Verify without running any agent
 
 ```bash
@@ -111,6 +133,8 @@ python research/external-validation/far-agent-generic/verify_candidate.py
 python -m unittest discover -s research/external-validation/far-agent-generic \
   -p 'test_verify_candidate.py' -v
 python research/external-validation/far-agent-generic/verify_candidate.py --require-launch
+python -m unittest discover -s research/external-validation/far-agent-generic \
+  -p 'test_checker_calibration.py' -v
 ```
 
 The final command **must exit 3**, indicating launch is denied. All tests use
