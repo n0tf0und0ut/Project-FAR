@@ -221,6 +221,7 @@
         "directBinaryVocabulary",
         "embeddingRangeEquiv",
         "finite_operator_count_noninvariant",
+        "finite_panel_observation_extensions",
         "finite_panel_two_completions",
         "identity_is_universally_sufficient",
         "invariants_antitone",
@@ -243,10 +244,10 @@
       "imports": [
         "FARCoreV11Substrate"
       ],
-      "line_count": 364,
+      "line_count": 388,
       "path": "mechanization/lean/FARCoreV11Claims001To012.lean",
       "role": "W2_CORE_V1_1",
-      "sha256": "2d50a81a7a6e3c60bc795d29a326b2fdc613ba30fe602585930354c627db1c43"
+      "sha256": "52dbd255de8cd64cbcac5a437bd8827d20e9fe4c0fbd3fb318e01b5be22e04a7"
     },
     {
       "declarations": [
