@@ -120,6 +120,29 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
         self.assertEqual(checker.statement_lock_errors(ledger, lock, {path: changed}), [])
 
 
+
+    def test_proposition_lock_rejects_module_identity_substitution(self):
+        import copy
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = copy.deepcopy(checker.load(checker.STATEMENT_LOCK_PATH))
+        target = "FARCoreV11.finite_panel_two_completions"
+        lock["signatures"][target]["module"] = "mechanization/lean/FARCoreV11Substrate.lean"
+        errors = checker.statement_lock_errors(ledger, lock)
+        self.assertTrue(
+            any(target in error and "module mismatch" in error for error in errors), errors
+        )
+
+    def test_proposition_lock_is_enforced_at_alignment_entrypoint(self):
+        from unittest import mock
+        ledger = checker.load(checker.LEDGER_PATH)
+        assurance = checker.load(checker.ASSURANCE_PATH)
+        core = checker.load(checker.CORE_PATH)
+        generated = checker.inventory(ledger)
+        sentinel = "synthetic proposition lock enforcement failure"
+        with mock.patch.object(checker, "statement_lock_errors", return_value=[sentinel]):
+            errors = checker.alignment_errors(ledger, assurance, core, generated)
+        self.assertIn(sentinel, errors)
+
     def test_generated_views_are_current(self):
         self.assertEqual(checker.main([]), 0)
 
