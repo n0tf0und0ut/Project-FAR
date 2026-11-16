@@ -70,6 +70,56 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
         self.assertTrue(any("actual axiom set" in error and "Hidden.secret" in error for error in errors))
         self.assertIsNotNone(checker.FORBIDDEN.search("constant hidden : False\n"))
 
+
+    def test_proposition_lock_covers_all_governed_declarations(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        self.assertEqual(checker.statement_lock_errors(ledger, lock), [])
+        self.assertEqual(len(lock["signatures"]), 40)
+
+    def test_proposition_lock_rejects_trivial_theorem_replacement(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.finite_panel_two_completions"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        import re
+        mutated, count = re.subn(
+            r"(?ms)^[ \t]*theorem finite_panel_two_completions\b.*?(?=:= by)",
+            "theorem finite_panel_two_completions : True ",
+            source, count=1,
+        )
+        self.assertEqual(count, 1)
+        errors = checker.statement_lock_errors(ledger, lock, {path: mutated})
+        self.assertTrue(
+            any(target in error and "proposition signature drift" in error for error in errors),
+            errors,
+        )
+
+    def test_proposition_lock_rejects_duplicate_declaration(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.finite_panel_two_completions"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        duplicated = source + "\ntheorem finite_panel_two_completions : True := by trivial\n"
+        errors = checker.statement_lock_errors(ledger, lock, {path: duplicated})
+        self.assertTrue(any(target in error and "duplicated" in error for error in errors), errors)
+
+    def test_proposition_lock_ignores_proof_body_comments(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        path = "mechanization/lean/FARCoreV11Claims001To012.lean"
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        self.assertIn("  refine ⟨fun _ => True,", source)
+        changed = source.replace(
+            "  refine ⟨fun _ => True,",
+            "  -- Statement-level lock does not freeze proof implementation.\n  refine ⟨fun _ => True,",
+            1,
+        )
+        self.assertEqual(checker.statement_lock_errors(ledger, lock, {path: changed}), [])
+
+
     def test_generated_views_are_current(self):
         self.assertEqual(checker.main([]), 0)
 
