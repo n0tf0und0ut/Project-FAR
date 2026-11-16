@@ -53,7 +53,7 @@ not an externally replicated verdict or a change to the governed claim ledger.
 | 006 | Injection yields recovery and transport of named operations/relations onto the reachable image. It does not imply the host has the structure natively. | `embeddingRangeEquiv` and transport commutation are explicit. The extra philosophical/non-selection inference is not itself a Lean theorem. | Partial: transport established, non-selection requires separate semantic formulation |
 | 007 | Typed relation occurrence reification can reconstruct the original binary relation, but a statement about primitive-count invariance requires a formal presentation and counting rule. | `reification_recovers_relation` is substantive; count difference is between hand-stipulated `directBinaryVocabulary` and `reifiedIncidenceVocabulary`. | Partial: stipulated counts, no syntax-derived count |
 | 008 | A tagged dispatcher and family are mutually recoverable; a genuine primitive-count comparison requires the count to be derived from the admitted presentation syntax. | `combine_split_operator_family`, `split_combine_operator` verify recovery; 2-versus-1 count is stipulated. | Partial: stipulated counts, no syntax-derived count |
-| 009 | A proper finite observed panel has at least two open-domain predicate extensions with identical on-panel behavior and differing off-panel behavior. | Original `finite_panel_two_completions` proves two completions agree on-panel but does not parameterize the observed predicate. The proposed additive `finite_panel_observation_extensions` explicitly carries `observed` and requires agreement with it on-panel. | Partial in baseline; additive strengthening awaiting the latest hosted proof validation |
+| 009 | A proper finite observed panel has at least two open-domain predicate extensions with identical on-panel behavior and differing off-panel behavior. | Original `finite_panel_two_completions` proves two completions agree on-panel but does not parameterize the observed predicate. The proposed additive `finite_panel_observation_extensions` explicitly carries `observed` and requires agreement with it on-panel. | Partial in baseline; additive strengthening compiled in Lean 4.19.0 on exact source at hosted run `43881439555` |
 | 010 | Holding `L,J,I` and their models fixed, exact common theory is independent of `Gamma`; frame-subtracted residue may vary. | `CommonTheory` is an abstract truth intersection rather than first-order `Th_L`; `Residue` uses an abstract consequence operator; the frame independence is definitional and the residue witness premises are supplied. | Partial: full model/closure semantics unformalized |
 | 011 | Any collision induced by omitting a consequence-changing parameter violates exact sufficiency. | `omitted_parameter_refutes_sufficiency` is a direct kernel/collision instantiation. | In-scope correspondence observed |
 | 012 | Distinct outcomes such as determinate absence and unknown cannot be merged under any sufficient representation when the contract observes them. | `absent_unknown_must_separate` proves the typed one-test case; a general typed multi-test claim follows from 001 but is not explicitly quantified here. | Partial: one-test witness |
@@ -94,8 +94,11 @@ unproved metaphysical claim.
   checks and generated-report checks passed.
 - Hosted general Lean mechanization run `43879761411` on that same initial
   head: **success**.
-- Subsequent additive FAR-CORE-009 source change requires fresh exact-head
-  hosted evidence before it can be reported as formally verified.
+- The additive FAR-CORE-009 lemma and regenerated module inventory passed
+  hosted FAR-CORE formalization run `43881439555` at commit
+  `352c103b0c72e453116c3b0bd7dae5e5eca3d9e5`, including Lean 4.19.0
+  compilation and 12 targeted Python tests. This is machine assurance for the
+  encoded proposition, not an independent evaluation of the prose claim.
 - No I2/I3 isolation or independent mathematical review has been obtained.
   A second reviewer must not be simulated by another prompted response.
 - No complete raw elaborated-expression comparison to a separately authored
