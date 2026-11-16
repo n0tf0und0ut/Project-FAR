@@ -1,0 +1,167 @@
+{
+  "format": "FAR-CORE-v1.1-source-proposition-lock-1.0",
+  "source_ref": "a9eb83eee705ba3e242b3f329712f6352761c6c1",
+  "scope": "Textual Lean declaration-header regression guard only. This does not establish elaborated type identity, prose correspondence, mathematical truth, or independent replication.",
+  "signatures": {
+    "FARCoreV11.Omega.omega_elimination": {
+      "module": "mechanization/lean/FARCoreV11Omega.lean",
+      "header": "theorem omega_elimination {Investigation : Type u} {Classification : Type v} {OmegaRecord : Type w} (classifyKappa : Investigation -> Classification) (represent : Classification -> OmegaRecord) (investigation : Investigation) : omega classifyKappa represent investigation = represent (classifyKappa investigation)"
+    },
+    "FARCoreV11.Omega.resolve_is_composition": {
+      "module": "mechanization/lean/FARCoreV11Omega.lean",
+      "header": "theorem resolve_is_composition {Investigation : Type u} {Classification : Type v} {OmegaRecord : Type w} {Result : Type z} (classifyKappa : Investigation -> Classification) (represent : Classification -> OmegaRecord) (resolve : OmegaRecord -> Result) : (fun investigation => resolve (omega classifyKappa represent investigation)) = resolve ∘ represent ∘ classifyKappa"
+    },
+    "FARCoreV11.SSS.MLL.bounded_projected_decoder_failure": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem bounded_projected_decoder_failure (decoder : SuccessorDecoder) : decoderPrediction decoder sOrSummary ≠ sOrSummary.derivable ∨ decoderPrediction decoder sAndSummary ≠ sAndSummary.derivable"
+    },
+    "FARCoreV11.SSS.MLL.derivable_atom_balance": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem derivable_atom_balance {sequent : Sequent} (derivation : Derivable sequent) (target : Nat) : sequentWeight target sequent = 0"
+    },
+    "FARCoreV11.SSS.MLL.mll_projected_decoder_failure": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem mll_projected_decoder_failure (decoder : SuccessorDecoder) : ¬ ((decoderPrediction decoder sOrSummary = true ↔ Derivable sOr) ∧ (decoderPrediction decoder sAndSummary = true ↔ Derivable sAnd))"
+    },
+    "FARCoreV11.SSS.MLL.sAnd_witness_certified": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem sAnd_witness_certified : Derivable sAnd ∧ ¬ Terminal sAnd ∧ MixedSuccessors sAnd"
+    },
+    "FARCoreV11.SSS.MLL.sOr_witness_certified": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem sOr_witness_certified : ¬ Derivable sOr ∧ ¬ Terminal sOr ∧ MixedSuccessors sOr"
+    },
+    "FARCoreV11.SSS.MLL.summaries_match_mll_witnesses": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem summaries_match_mll_witnesses : (sOrSummary.derivable = true ↔ Derivable sOr) ∧ (sOrSummary.terminal = true ↔ Terminal sOr) ∧ (sOrSummary.successorTruths = SuccessorTruthShape.mixed ∧ MixedSuccessors sOr) ∧ (sAndSummary.derivable = true ↔ Derivable sAnd) ∧ (sAndSummary.terminal = true ↔ Terminal sAnd) ∧ (sAndSummary.successorTruths = SuccessorTruthShape.mixed ∧ MixedSuccessors sAnd)"
+    },
+    "FARCoreV11.SSS.four_monotone_decoders": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem four_monotone_decoders (decoder : SuccessorDecoder) : decoder = termDecoder ∨ decoder = andDecoder ∨ decoder = orDecoder ∨ decoder = nonemptyDecoder"
+    },
+    "FARCoreV11.SSS.frontier_factorization": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem frontier_factorization {Frontier : Type u} (closable empty : Frontier -> Prop) (step : Frontier -> Frontier -> Prop) (frontierRecursion : ∀ frontier, closable frontier ↔ empty frontier ∨ ∃ next, step frontier next ∧ closable next) : ExactlySufficient closable (frontierView empty step)"
+    },
+    "FARCoreV11.SSS.hyperedge_factorization": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem hyperedge_factorization {State : Type u} (derivable : State -> Prop) (hyperedges : State -> HyperedgeView State) (ruleCharacterization : ∀ state, derivable state ↔ hyperedgeDecoder derivable (hyperedges state)) : ExactlySufficient derivable hyperedges"
+    },
+    "FARCoreV11.SSS.projected_successor_decoder_failure": {
+      "module": "mechanization/lean/FARCoreV11SSS.lean",
+      "header": "theorem projected_successor_decoder_failure (decoder : SuccessorDecoder) : decoderPrediction decoder sOrSummary ≠ sOrSummary.derivable ∨ decoderPrediction decoder sAndSummary ≠ sAndSummary.derivable"
+    },
+    "FARCoreV11.absent_unknown_must_separate": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem absent_unknown_must_separate {X : Type u} {R : Type v} (rho : X -> R) (beta : X -> EpistemicOutcome) (xAbsent xUnknown : X) (hAbsent : beta xAbsent = .absent) (hUnknown : beta xUnknown = .unknown) (hsufficient : ExactlySufficient beta rho) : rho xAbsent ≠ rho xUnknown"
+    },
+    "FARCoreV11.action_preserves_observational_equivalence": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem action_preserves_observational_equivalence {T : Type u} {X : Type v} {V : Type w} (obs : T -> X -> V) (action : X -> X) (hclosed : ContextClosedFor obs action) {x y : X} (hequivalent : ObservationallyEquivalent obs x y) : ObservationallyEquivalent obs (action x) (action y)"
+    },
+    "FARCoreV11.collision_refutes_sufficiency": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem collision_refutes_sufficiency {X : Type u} {B : Type v} {R : Type w} (beta : X -> B) (rho : X -> R) {x y : X} (representationCollision : rho x = rho y) (behaviorSeparation : beta x ≠ beta y) : ¬ ExactlySufficient beta rho"
+    },
+    "FARCoreV11.combine_split_operator_family": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem combine_split_operator_family {I : Type u} {A : I -> Type v} {B : Type w} (family : FiniteOperatorFamily I A B) : splitOperator (combineOperator family.operation) = family.operation"
+    },
+    "FARCoreV11.commonTheory_frame_independent": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem commonTheory_frame_independent {Index : Type u} {Sentence : Type v} (truth : Index -> Sentence -> Prop) (frame₀ frame₁ : Sentence -> Prop) : (fun _frame : Sentence -> Prop => CommonTheory truth) frame₀ = (fun _frame : Sentence -> Prop => CommonTheory truth) frame₁"
+    },
+    "FARCoreV11.commonTheory_invariant_under_truth_equivalence": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem commonTheory_invariant_under_truth_equivalence {Index : Type u} {Sentence : Type v} (truth₀ truth₁ : Index -> Sentence -> Prop) (hequivalent : ∀ index sentence, truth₀ index sentence ↔ truth₁ index sentence) : CommonTheory truth₀ = CommonTheory truth₁"
+    },
+    "FARCoreV11.descendAction": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "def descendAction {T : Type u} {X : Type v} {V : Type w} (obs : T -> X -> V) (action : X -> X) (hclosed : ContextClosedFor obs action) : Quotient (observationSetoid obs) -> Quotient (observationSetoid obs)"
+    },
+    "FARCoreV11.embeddingRangeEquiv": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "noncomputable def embeddingRangeEquiv {X : Type u} {H : Type v} (encoding : X -> H) (hinjective : IsInjective encoding) : Isomorphism X (RepImage encoding) where toFun"
+    },
+    "FARCoreV11.exact_factorization_criterion": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem exact_factorization_criterion {X : Type u} {B : Type v} {R : Type w} (beta : X -> B) (rho : X -> R) : ExactlySufficient beta rho ↔ KernelRefines rho beta"
+    },
+    "FARCoreV11.factorToQuotient_surjective": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem factorToQuotient_surjective {X : Type u} {B : Type v} {R : Type w} (beta : X -> B) (rho : X -> R) (hsufficient : ExactlySufficient beta rho) : IsSurjective (factorToQuotient rho beta)"
+    },
+    "FARCoreV11.finite_operator_count_noninvariant": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem finite_operator_count_noninvariant {A : Bool -> Type v} {B : Type w} (opFalse : A false -> B) (opTrue : A true -> B) : let family : (i : Bool) -> A i -> B"
+    },
+    "FARCoreV11.finite_panel_two_completions": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem finite_panel_two_completions {D : Type u} [DecidableEq D] (panel : List D) (outside : D) (houtside : outside ∉ panel) : ∃ trueCompletion falseCompletion : D -> Prop, (∀ x ∈ panel, trueCompletion x ↔ falseCompletion x) ∧ trueCompletion outside ∧ ¬ falseCompletion outside"
+    },
+    "FARCoreV11.identity_is_universally_sufficient": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem identity_is_universally_sufficient {X : Type u} {B : Type v} (beta : X -> B) : ExactlySufficient beta (id : X -> X)"
+    },
+    "FARCoreV11.invariants_antitone": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem invariants_antitone {X : Type u} {smaller larger : (X -> X) -> Prop} {property : X -> Prop} (hinclusion : ∀ transformation, smaller transformation -> larger transformation) (hinvariant : InvariantUnder larger property) : InvariantUnder smaller property"
+    },
+    "FARCoreV11.leastInformativeImageEquiv": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "noncomputable def leastInformativeImageEquiv {X : Type u} {B : Type v} {R : Type w} (rho : X -> R) (beta : X -> B) (hkernels : KernelEqual rho beta) : Isomorphism (RepImage rho) (ObservationalQuotient beta)"
+    },
+    "FARCoreV11.leastInformativeSufficient_iff_kernelEqual": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem leastInformativeSufficient_iff_kernelEqual {X : Type u} {B : Type v} {R : Type w} (beta : X -> B) (rho : X -> R) : LeastInformativeSufficient beta rho ↔ KernelEqual rho beta"
+    },
+    "FARCoreV11.no_contract_free_simultaneous_minimum": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem no_contract_free_simultaneous_minimum {X : Type u} {R : Type v} (x₀ x₁ : X) (hdistinct : x₀ ≠ x₁) (rho : X -> R) : ¬ (KernelEqual rho (fun _ : X => true) ∧ KernelEqual rho (id : X -> X))"
+    },
+    "FARCoreV11.no_simultaneous_least_informative_sufficient": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem no_simultaneous_least_informative_sufficient {X : Type u} {R : Type v} (x₀ x₁ : X) (hdistinct : x₀ ≠ x₁) (rho : X -> R) : ¬ (LeastInformativeSufficient (fun _ : X => true) rho ∧ LeastInformativeSufficient (id : X -> X) rho)"
+    },
+    "FARCoreV11.observational_quotient_universal": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem observational_quotient_universal {X : Type u} {B : Type v} {R : Type w} (beta : X -> B) (rho : X -> R) (hsufficient : ExactlySufficient beta rho) : ∃ factor : RepImage rho -> ObservationalQuotient beta, (∀ x, factor (imageValue rho x) = quotientRep beta x) ∧ ∀ other : RepImage rho -> ObservationalQuotient beta, (∀ x, other (imageValue rho x) = quotientRep beta x) -> other = factor"
+    },
+    "FARCoreV11.omitted_parameter_refutes_sufficiency": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem omitted_parameter_refutes_sufficiency {X : Type u} {Context : Type v} {B : Type w} {R : Type u} (rho₀ : X -> R) (beta : X × Context -> B) (x : X) (context₀ context₁ : Context) (hbehavior : beta (x, context₀) ≠ beta (x, context₁)) : ¬ ExactlySufficient beta (fun pair : X × Context => rho₀ pair.1)"
+    },
+    "FARCoreV11.primitive_vocabulary_count_noninvariant": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem primitive_vocabulary_count_noninvariant {X : Type u} (relation : X -> X -> Prop) : (∀ x y, relation x y ↔ ∃ occurrence : RelationOccurrence relation, typedIncidence occurrence .left x ∧ typedIncidence occurrence .right y) ∧ directBinaryVocabulary ≠ reifiedIncidenceVocabulary"
+    },
+    "FARCoreV11.quotient_is_least_informative_sufficient": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem quotient_is_least_informative_sufficient {X : Type u} {B : Type v} (beta : X -> B) : LeastInformativeSufficient beta (quotientRep beta)"
+    },
+    "FARCoreV11.quotient_is_sufficient": {
+      "module": "mechanization/lean/FARCoreV11Substrate.lean",
+      "header": "theorem quotient_is_sufficient {X : Type u} {B : Type v} (beta : X -> B) : ExactlySufficient beta (quotientRep beta)"
+    },
+    "FARCoreV11.reification_recovers_relation": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem reification_recovers_relation {X : Type u} (relation : X -> X -> Prop) (x y : X) : relation x y ↔ ∃ occurrence : RelationOccurrence relation, typedIncidence occurrence .left x ∧ typedIncidence occurrence .right y"
+    },
+    "FARCoreV11.residue_can_change_with_frame": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem residue_can_change_with_frame {Index : Type u} {Sentence : Type v} (truth : Index -> Sentence -> Prop) (consequence : (Sentence -> Prop) -> Sentence -> Prop) (frame₀ frame₁ : Sentence -> Prop) (sentence : Sentence) (hcommon : CommonTheory truth sentence) (houtside₀ : ¬ consequence frame₀ sentence) (hinside₁ : consequence frame₁ sentence) : Residue truth consequence frame₀ ≠ Residue truth consequence frame₁"
+    },
+    "FARCoreV11.split_combine_operator": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem split_combine_operator {I : Type u} {A : I -> Type v} {B : Type w} (dispatcher : FiniteTaggedDispatcher I A B) : combineOperator (splitOperator dispatcher.dispatch) = dispatcher.dispatch"
+    },
+    "FARCoreV11.transport_operation_commutes": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem transport_operation_commutes {X : Type u} {H : Type v} (encoding : X -> H) (hinjective : IsInjective encoding) {n : Nat} (operation : (Fin n -> X) -> X) (arguments : Fin n -> X) : transportOperation (embeddingRangeEquiv encoding hinjective) operation (fun i => imageValue encoding (arguments i)) = imageValue encoding (operation arguments)"
+    },
+    "FARCoreV11.transport_relation_commutes": {
+      "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
+      "header": "theorem transport_relation_commutes {X : Type u} {H : Type v} (encoding : X -> H) (hinjective : IsInjective encoding) {n : Nat} (relation : (Fin n -> X) -> Prop) (arguments : Fin n -> X) : transportRelation (embeddingRangeEquiv encoding hinjective) relation (fun i => imageValue encoding (arguments i)) ↔ relation arguments"
+    }
+  }
+}
