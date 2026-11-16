@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT))
 import jsonschema  # noqa: E402
 
 LEDGER_PATH = "theory/evaluation/far-core-formalization-ledger-v1.0.json"
+STATEMENT_LOCK_PATH = "tools/far_core_v11_statement_lock.json"
 ASSURANCE_PATH = "theory/evaluation/far-core-assurance-v1.0.json"
 CORE_PATH = "theory/terminal/project-far-core-theory-v1.1.json"
 INVENTORY_PATH = "artifacts/mechanization/lean-inventory-v1.0.json"
@@ -267,6 +268,75 @@ def axiom_output_errors(text: str, ledger: dict) -> list[str]:
     return sorted(set(errors))
 
 
+
+def statement_header(text: str, qualified: str) -> str | None:
+    """Read a Lean declaration's source-level type signature, excluding its proof/body.
+
+    This is a regression guard, not elaborator-level theorem equivalence or mathematical proof.
+    Duplicate declarations fail closed instead of silently matching the first one.
+    """
+    terminal = qualified.rsplit(".", 1)[-1]
+    code = lean_code(text)
+    pattern = re.compile(
+        rf"(?m)^[ \t]*(?:(?:noncomputable|protected)\s+)?"
+        rf"(?:def|theorem|abbrev)\s+{re.escape(terminal)}(?=\s|$)"
+    )
+    matches = list(pattern.finditer(code))
+    if len(matches) != 1:
+        return None
+    match = matches[0]
+    remainder = code[match.start():]
+    end = remainder.find(":=")
+    if end < 0:
+        return None
+    next_declaration = DECLARATION.search(remainder, match.end() - match.start())
+    if next_declaration is not None and next_declaration.start() < end:
+        return None
+    return " ".join(remainder[:end].split())
+
+
+def statement_lock_errors(
+    ledger: dict, lock: dict, source_overrides: dict[str, str] | None = None
+) -> list[str]:
+    """Fail on drift of any of the 40 governed source-level declaration statements.
+
+    Locks are reviewed commitments to the initial source signatures; they are NOT an
+    independently justified Lean elaboration or full prose-to-formalization mapping.
+    """
+    expected = {
+        declaration: claim["intended_lean_module"]
+        for claim in ledger["claims"]
+        for declaration in claim["lean_declarations"]
+    }
+    locked = lock.get("signatures")
+    if not isinstance(locked, dict):
+        return ["proposition lock is missing its signatures map"]
+    errors = []
+    if set(locked) != set(expected):
+        errors.append(
+            f"source proposition lock coverage drift: "
+            f"missing={sorted(set(expected) - set(locked))} "
+            f"unexpected={sorted(set(locked) - set(expected))}"
+        )
+    sources: dict[str, str] = {}
+    for declaration, path in sorted(expected.items()):
+        entry = locked.get(declaration)
+        if not isinstance(entry, dict) or entry.get("module") != path:
+            errors.append(f"{declaration}: proposition lock module mismatch or missing entry")
+            continue
+        if path not in sources:
+            if source_overrides is not None and path in source_overrides:
+                sources[path] = source_overrides[path]
+            else:
+                sources[path] = (ROOT / path).read_text(encoding="utf-8")
+        observed = statement_header(sources[path], declaration)
+        if observed is None:
+            errors.append(f"{declaration}: absent, duplicated, or malformed proposition declaration")
+        elif observed != entry.get("header"):
+            errors.append(f"{declaration}: proposition signature drift from the reviewed source lock")
+    return sorted(set(errors))
+
+
 def inventory(ledger: dict) -> dict:
     files = []
     forbidden_count = 0
@@ -302,6 +372,7 @@ def inventory(ledger: dict) -> dict:
 
 def alignment_errors(ledger: dict, assurance: dict, core: dict, generated: dict) -> list[str]:
     errors: list[str] = axiom_contract_errors(ledger)
+    errors.extend(statement_lock_errors(ledger, load(STATEMENT_LOCK_PATH)))
     expected_ids = [f"FAR-CORE-{index:03d}" for index in range(1, 15)]
     ledger_claims = ledger["claims"]
     assurance_by_id = {item["id"]: item for item in assurance["claims"]}
