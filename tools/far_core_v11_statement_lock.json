@@ -81,7 +81,7 @@
     },
     "FARCoreV11.embeddingRangeEquiv": {
       "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
-      "header": "noncomputable def embeddingRangeEquiv {X : Type u} {H : Type v} (encoding : X -> H) (hinjective : IsInjective encoding) : Isomorphism X (RepImage encoding) where toFun"
+      "header": "noncomputable def embeddingRangeEquiv {X : Type u} {H : Type v} (encoding : X -> H) (hinjective : IsInjective encoding) : Isomorphism X (RepImage encoding)"
     },
     "FARCoreV11.exact_factorization_criterion": {
       "module": "mechanization/lean/FARCoreV11Substrate.lean",
@@ -93,7 +93,7 @@
     },
     "FARCoreV11.finite_operator_count_noninvariant": {
       "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
-      "header": "theorem finite_operator_count_noninvariant {A : Bool -> Type v} {B : Type w} (opFalse : A false -> B) (opTrue : A true -> B) : let family : (i : Bool) -> A i -> B"
+      "header": "theorem finite_operator_count_noninvariant {A : Bool -> Type v} {B : Type w} (opFalse : A false -> B) (opTrue : A true -> B) : let family : (i : Bool) -> A i -> B := fun | false => opFalse | true => opTrue let dispatcher : Sigma A -> B := combineOperator family (splitOperator dispatcher = family) ∧ splitTwoOperatorVocabulary ≠ combinedDispatcherVocabulary"
     },
     "FARCoreV11.finite_panel_two_completions": {
       "module": "mechanization/lean/FARCoreV11Claims001To012.lean",
