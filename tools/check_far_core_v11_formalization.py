@@ -292,21 +292,23 @@ def statement_header(text: str, qualified: str) -> str | None:
     block = remainder[:next_declaration.start()] if next_declaration else remainder
 
     # Lean permits `def f : T where ...` instead of `:= ...`.
+    # Choose the FIRST actual declaration-body delimiter. A `where` within
+    # the implementation after `:= by` is not part of the type.
     where_match = re.search(r"\bwhere[ \t]*(?:\n|$)", block)
-    if where_match:
-        end = where_match.start()
-    elif match.group("kind") == "theorem":
-        # A mapped theorem is required to have an explicit `:= by` body.
-        # This skips `let x := ...` inside the *type* rather than truncating it.
+    if match.group("kind") == "theorem":
+        # A mapped theorem requires a body introduced by `:= by`, not the
+        # `:=` used by dependent `let` binders inside its proposition.
         body_match = re.search(r":=[ \t]*by\b", block)
         if body_match is None:
             return None
-        end = body_match.start()
     else:
         body_match = re.search(r":=", block)
-        if body_match is None:
-            return None
+    if where_match and (body_match is None or where_match.start() < body_match.start()):
+        end = where_match.start()
+    elif body_match:
         end = body_match.start()
+    else:
+        return None
 
     header = " ".join(block[:end].split())
     return header if header else None
