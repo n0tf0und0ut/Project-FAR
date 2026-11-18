@@ -296,9 +296,11 @@ def statement_header(text: str, qualified: str) -> str | None:
     # the implementation after `:= by` is not part of the type.
     where_match = re.search(r"\bwhere[ \t]*(?:\n|$)", block)
     if match.group("kind") == "theorem":
-        # A mapped theorem requires a body introduced by `:= by`, not the
-        # `:=` used by dependent `let` binders inside its proposition.
-        body_match = re.search(r":=[ \t]*by\b", block)
+        # The mapped Lean proofs use `:= by` or a direct constructor `:= ⟨...`.
+        # Neither matches dependent `let family := fun` or `let dispatcher := ...`
+        # assignments within FAR-CORE-008's theorem TYPE. Fail closed on any
+        # unsupported new proof syntax instead of guessing its boundary.
+        body_match = re.search(r":=\s*(?:by\b|⟨)", block)
         if body_match is None:
             return None
     else:
