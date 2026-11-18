@@ -269,40 +269,70 @@ def axiom_output_errors(text: str, ledger: dict) -> list[str]:
 
 
 
-def statement_header(text: str, qualified: str) -> str | None:
-    """Lock the complete Lean declaration header without copying its proof/body.
+def _qualified_declaration_offsets(code: str, qualified: str) -> list[tuple[int, int, str]]:
+    """Resolve actual Lean namespace scopes before matching mapped declaration names.
 
-    The type of a theorem may contain dependent `let` assignments (`:=`);
-    the first assignment is therefore NOT necessarily the declaration body.
-    `where`-defined values also have field assignments after the type.
-    This is lexical source regression assurance, not elaborated type equivalence.
+    Only the concrete namespace/declaration syntax used by governed modules is
+    accepted. Any unrecognized scope boundary fails closed. In particular,
+    \`namespace Decoy\` may not satisfy a lock for \`FARCoreV11.target\`.
+    Quoted identifiers such as \`«target»\` are normalized for lookup.
     """
-    terminal = qualified.rsplit(".", 1)[-1]
-    code = lean_code(text)
-    pattern = re.compile(
-        rf"(?m)^[ \t]*(?:(?:noncomputable|protected)\s+)?"
-        rf"(?P<kind>def|theorem|abbrev)\s+{re.escape(terminal)}(?=\s|$)"
+    namespace: list[str] = []
+    matches: list[tuple[int, int, str]] = []
+    declaration = re.compile(
+        r"^[ \t]*(?:(?:noncomputable|protected)\s+)*"
+        r"(?P<kind>def|theorem|abbrev)\s+"
+        r"(?P<name>«[^»]+»|[A-Za-z_][A-Za-z0-9_']*)"
     )
-    matches = list(pattern.finditer(code))
-    if len(matches) != 1:
-        return None
-    match = matches[0]
-    remainder = code[match.start():]
-    next_declaration = DECLARATION.search(remainder, match.end() - match.start())
-    block = remainder[:next_declaration.start()] if next_declaration else remainder
+    offset = 0
+    for raw in code.splitlines(keepends=True):
+        stripped = raw.strip()
+        opening = re.fullmatch(r"namespace\s+([A-Za-z_][A-Za-z0-9_.']*)", stripped)
+        closing = re.fullmatch(r"end\s+([A-Za-z_][A-Za-z0-9_.']*)", stripped)
+        if opening:
+            namespace.extend(opening.group(1).split("."))
+        elif closing:
+            ending = closing.group(1).split(".")
+            if namespace[-len(ending):] != ending:
+                return []
+            del namespace[-len(ending):]
+        elif stripped.startswith("namespace ") or stripped.startswith("end "):
+            # Reject unsupported scope syntax rather than guessing which
+            # namespace owns a theorem.
+            return []
+        else:
+            found = declaration.match(raw)
+            if found:
+                name = found.group("name")
+                if name.startswith("«") and name.endswith("»"):
+                    name = name[1:-1]
+                actual = ".".join(namespace + [name])
+                if actual == qualified:
+                    matches.append((offset + found.start(), offset + found.end(), found.group("kind")))
+        offset += len(raw)
+    return matches if not namespace else []
 
-    # Lean permits `def f : T where ...` instead of `:= ...`.
-    # Choose the FIRST actual declaration-body delimiter. A `where` within
-    # the implementation after `:= by` is not part of the type.
+
+def statement_header(text: str, qualified: str) -> str | None:
+    """Lock the complete, qualified Lean source proposition, excluding proof.
+
+    This is a regression guard, not elaborator-level theorem equivalence.
+    Duplicated, quoted, re-namespaced and malformed declarations fail closed.
+    """
+    code = lean_code(text)
+    positions = _qualified_declaration_offsets(code, qualified)
+    if len(positions) != 1:
+        return None
+    start, after_name, kind = positions[0]
+    remainder = code[start:]
+    next_declaration = DECLARATION.search(remainder, after_name - start)
+    block = remainder[:next_declaration.start()] if next_declaration else remainder
+    # \`where\`-defined values contain field assignments inside their bodies.
     where_match = re.search(r"\bwhere[ \t]*(?:\n|$)", block)
-    if match.group("kind") == "theorem":
-        # The mapped Lean proofs use `:= by` or a direct constructor `:= ⟨...`.
-        # Neither matches dependent `let family := fun` or `let dispatcher := ...`
-        # assignments within FAR-CORE-008's theorem TYPE. Fail closed on any
-        # unsupported new proof syntax instead of guessing its boundary.
+    if kind == "theorem":
+        # Skip dependent \`let x := ...\` inside a proposition; accept only
+        # observed tactic- and constructor-bodied theorem forms.
         body_match = re.search(r":=\s*(?:by\b|⟨)", block)
-        if body_match is None:
-            return None
     else:
         body_match = re.search(r":=", block)
     if where_match and (body_match is None or where_match.start() < body_match.start()):
@@ -311,7 +341,6 @@ def statement_header(text: str, qualified: str) -> str | None:
         end = body_match.start()
     else:
         return None
-
     header = " ".join(block[:end].split())
     return header if header else None
 
