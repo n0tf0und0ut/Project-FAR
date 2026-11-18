@@ -307,6 +307,11 @@ def _qualified_declaration_offsets(code: str, qualified: str) -> list[tuple[int,
                 if name.startswith("«") and name.endswith("»"):
                     name = name[1:-1]
                 actual = ".".join(namespace + [name])
+                if name == qualified.rsplit(".", 1)[-1] and actual != qualified:
+                    # A second declaration with the governed terminal name in a
+                    # decoy or global namespace is suspicious even if Lean permits it.
+                    # Reject instead of silently treating it as unrelated.
+                    return []
                 if actual == qualified:
                     matches.append((offset + found.start(), offset + found.end(), found.group("kind")))
         offset += len(raw)
