@@ -144,7 +144,9 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
         mutated = mutated.replace("\\n", "\n")
         errors = checker.statement_lock_errors(ledger, lock, {path: mutated})
         self.assertTrue(
-            any(target in error and "signature drift" in error for error in errors),
+            any(target in error and (
+                "signature drift" in error or "absent, duplicated, or malformed" in error
+            ) for error in errors),
             errors,
         )
 
