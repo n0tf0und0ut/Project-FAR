@@ -96,6 +96,34 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
             errors,
         )
 
+    def test_dependent_let_conclusion_is_locked(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.finite_operator_count_noninvariant"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        exact_conclusion = "splitTwoOperatorVocabulary ≠ combinedDispatcherVocabulary"
+        self.assertIn(exact_conclusion, lock["signatures"][target]["header"])
+        self.assertEqual(source.count(exact_conclusion), 1)
+        mutated = source.replace(exact_conclusion, "True", 1)
+        errors = checker.statement_lock_errors(ledger, lock, {path: mutated})
+        self.assertTrue(any(target in error and "signature drift" in error for error in errors), errors)
+
+    def test_where_defined_value_locks_type_not_fields(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.embeddingRangeEquiv"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        self.assertNotIn("where toFun", lock["signatures"][target]["header"])
+        changed = source.replace(
+            "  toFun := imageValue encoding",
+            "  -- An implementation-only comment after the type.\n  toFun := imageValue encoding",
+            1,
+        )
+        self.assertNotEqual(changed, source)
+        self.assertEqual(checker.statement_lock_errors(ledger, lock, {path: changed}), [])
+
     def test_proposition_lock_rejects_duplicate_declaration(self):
         ledger = checker.load(checker.LEDGER_PATH)
         lock = checker.load(checker.STATEMENT_LOCK_PATH)
