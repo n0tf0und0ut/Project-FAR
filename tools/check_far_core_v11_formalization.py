@@ -270,29 +270,46 @@ def axiom_output_errors(text: str, ledger: dict) -> list[str]:
 
 
 def statement_header(text: str, qualified: str) -> str | None:
-    """Read a Lean declaration's source-level type signature, excluding its proof/body.
+    """Lock the complete Lean declaration header without copying its proof/body.
 
-    This is a regression guard, not elaborator-level theorem equivalence or mathematical proof.
-    Duplicate declarations fail closed instead of silently matching the first one.
+    The type of a theorem may contain dependent `let` assignments (`:=`);
+    the first assignment is therefore NOT necessarily the declaration body.
+    `where`-defined values also have field assignments after the type.
+    This is lexical source regression assurance, not elaborated type equivalence.
     """
     terminal = qualified.rsplit(".", 1)[-1]
     code = lean_code(text)
     pattern = re.compile(
         rf"(?m)^[ \t]*(?:(?:noncomputable|protected)\s+)?"
-        rf"(?:def|theorem|abbrev)\s+{re.escape(terminal)}(?=\s|$)"
+        rf"(?P<kind>def|theorem|abbrev)\s+{re.escape(terminal)}(?=\s|$)"
     )
     matches = list(pattern.finditer(code))
     if len(matches) != 1:
         return None
     match = matches[0]
     remainder = code[match.start():]
-    end = remainder.find(":=")
-    if end < 0:
-        return None
     next_declaration = DECLARATION.search(remainder, match.end() - match.start())
-    if next_declaration is not None and next_declaration.start() < end:
-        return None
-    return " ".join(remainder[:end].split())
+    block = remainder[:next_declaration.start()] if next_declaration else remainder
+
+    # Lean permits `def f : T where ...` instead of `:= ...`.
+    where_match = re.search(r"\bwhere[ \t]*(?:\n|$)", block)
+    if where_match:
+        end = where_match.start()
+    elif match.group("kind") == "theorem":
+        # A mapped theorem is required to have an explicit `:= by` body.
+        # This skips `let x := ...` inside the *type* rather than truncating it.
+        body_match = re.search(r":=[ \t]*by\b", block)
+        if body_match is None:
+            return None
+        end = body_match.start()
+    else:
+        body_match = re.search(r":=", block)
+        if body_match is None:
+            return None
+        end = body_match.start()
+
+    header = " ".join(block[:end].split())
+    return header if header else None
 
 
 def statement_lock_errors(
