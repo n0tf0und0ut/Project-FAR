@@ -124,6 +124,30 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
         self.assertNotEqual(changed, source)
         self.assertEqual(checker.statement_lock_errors(ledger, lock, {path: changed}), [])
 
+    def test_qualified_lock_rejects_decoy_namespace_and_quoted_true(self):
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.finite_panel_two_completions"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        start = source.index("theorem finite_panel_two_completions")
+        stop = source.index("/-! ## FAR-CORE-010 -/", start)
+        original = source[start:stop]
+        mutated = (
+            source[:start]
+            + "namespace Decoy\\n"
+            + original
+            + "end Decoy\\n"
+            + "theorem «finite_panel_two_completions» : True := by trivial\\n\\n"
+            + source[stop:]
+        )
+        mutated = mutated.replace("\\n", "\n")
+        errors = checker.statement_lock_errors(ledger, lock, {path: mutated})
+        self.assertTrue(
+            any(target in error and "signature drift" in error for error in errors),
+            errors,
+        )
+
     def test_proposition_lock_rejects_duplicate_declaration(self):
         ledger = checker.load(checker.LEDGER_PATH)
         lock = checker.load(checker.STATEMENT_LOCK_PATH)
