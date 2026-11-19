@@ -296,12 +296,21 @@ def _qualified_declaration_offsets(code: str, qualified: str) -> list[tuple[int,
             if namespace[-len(ending):] != ending:
                 return []
             del namespace[-len(ending):]
-        elif stripped.startswith("namespace ") or stripped.startswith("end "):
-            # Reject unsupported scope syntax rather than guessing which
-            # namespace owns a theorem.
+        elif re.match(r"^(?:namespace|end)\b", stripped):
+            # Fail closed on bare/line-broken or otherwise unsupported Lean
+            # scope commands: e.g. `namespace\\n Decoy` and bare `end`.
+            # Ignoring them could bind a decoy theorem to a governed name.
             return []
         else:
             found = declaration.match(raw)
+            # The checked modules use single-line declaration keywords and
+            # names. Lean also admits `theorem\\n «name»`; do not silently
+            # skip unsupported split commands or spelling variants.
+            if not found and re.match(
+                r"^(?:(?:noncomputable|protected|private|nonrec|partial)\\s+)*"
+                r"(?:theorem|def|abbrev)\b", stripped,
+            ):
+                return []
             if found:
                 name = found.group("name")
                 if name.startswith("«") and name.endswith("»"):
