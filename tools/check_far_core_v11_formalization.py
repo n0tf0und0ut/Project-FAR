@@ -307,7 +307,7 @@ def _qualified_declaration_offsets(code: str, qualified: str) -> list[tuple[int,
             # names. Lean also admits `theorem\\n «name»`; do not silently
             # skip unsupported split commands or spelling variants.
             if not found and re.match(
-                r"^(?:(?:noncomputable|protected|private|nonrec|partial)\\s+)*"
+                r"^(?:(?:noncomputable|protected|private|nonrec|partial)\s+)*"
                 r"(?:theorem|def|abbrev)\b", stripped,
             ):
                 return []
