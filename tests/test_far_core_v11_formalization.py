@@ -150,6 +150,52 @@ class FARCoreV11FormalizationTests(unittest.TestCase):
             errors,
         )
 
+    def test_line_broken_namespace_and_theorem_decoy_is_rejected(self):
+        """Reproduce the Codex review: Lean permits split scope/declaration commands."""
+        ledger = checker.load(checker.LEDGER_PATH)
+        lock = checker.load(checker.STATEMENT_LOCK_PATH)
+        target = "FARCoreV11.finite_panel_two_completions"
+        path = lock["signatures"][target]["module"]
+        source = (checker.ROOT / path).read_text(encoding="utf-8")
+        start = source.index("theorem finite_panel_two_completions")
+        stop = source.index("/-! ## FAR-CORE-010 -/", start)
+        original = source[start:stop]
+        mutated = (
+            source[:start]
+            + "namespace\\n  Decoy\\n".replace("\\n", "\n")
+            + original
+            + "end\\n".replace("\\n", "\n")
+            + "theorem\\n  «finite_panel_two_completions» : True := by trivial\\n\\n".replace("\\n", "\n")
+            + source[stop:]
+        )
+        errors = checker.statement_lock_errors(ledger, lock, {path: mutated})
+        self.assertTrue(
+            any(target in error and (
+                "absent, duplicated, or malformed" in error or "signature drift" in error
+            ) for error in errors),
+            errors,
+        )
+
+    def test_unsupported_bare_lean_commands_fail_closed(self):
+        """Do not overlook namespace/end/declaration keywords split over lines."""
+        qualified = "FARCoreV11.exact_factorization_criterion"
+        source = (checker.ROOT / "mechanization/lean/FARCoreV11Substrate.lean").read_text(encoding="utf-8")
+        marker = "namespace FARCoreV11"
+        self.assertIn(marker, source)
+        for swapped in ("namespace\n  FARCoreV11", "namespace\n -- comment\n FARCoreV11"):
+            with self.subTest(swapped=swapped):
+                self.assertIsNone(checker.statement_header(source.replace(marker, swapped, 1), qualified))
+        self.assertIsNone(checker.statement_header(
+            source.replace("end FARCoreV11", "end\n", 1), qualified,
+        ))
+        self.assertIsNone(checker.statement_header(
+            source.replace(
+                "theorem exact_factorization_criterion",
+                "theorem\n  exact_factorization_criterion",
+                1,
+            ), qualified,
+        ))
+
     def test_proposition_lock_rejects_duplicate_declaration(self):
         ledger = checker.load(checker.LEDGER_PATH)
         lock = checker.load(checker.STATEMENT_LOCK_PATH)
