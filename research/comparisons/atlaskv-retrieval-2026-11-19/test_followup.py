@@ -44,3 +44,29 @@ def test_upstream_index_space_failure():
     assert x['intermediate']=={'actual_global_id':20,'expected_global_id':40}
     assert x['leaf']=={'actual_value':1.0,'expected_value':7.0}
     assert all(x['controls'].values())
+
+
+def test_native_preflight_missing_assets_cannot_be_ready():
+    from full_model_preflight import probe
+    report=probe({})
+    assert report['status']=='BLOCKED'
+    assert 'cuda_unavailable' in report['blockers']
+    assert 'upstream_git_sha_unverified_or_mismatch' in report['blockers']
+    assert 'missing_atlas_repo' in report['blockers']
+
+
+def test_native_preflight_rejects_wrong_upstream_sha_even_if_paths_exist(tmp_path,monkeypatch):
+    import full_model_preflight as m
+    from unittest.mock import patch
+    for name in m.REQUIRED_PATHS:
+        (tmp_path/name).touch()
+    (tmp_path/'atlas_repo').unlink()
+    (tmp_path/'atlas_repo').mkdir()
+    with patch.object(m,'checked_git_sha',return_value='0'*40), \
+         patch.object(m.torch.cuda,'is_available',return_value=True), \
+         patch.object(m.torch.cuda,'device_count',return_value=1), \
+         patch.object(m.torch.cuda,'get_device_name',return_value='mock'), \
+         patch.object(m.importlib.util,'find_spec',return_value=object()):
+        result=m.probe({name:str(tmp_path/name) for name in m.REQUIRED_PATHS})
+    assert result['status']=='BLOCKED'
+    assert result['blockers']==['upstream_git_sha_unverified_or_mismatch']
