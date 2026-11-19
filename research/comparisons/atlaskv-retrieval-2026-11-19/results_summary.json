@@ -1,0 +1,146 @@
+{
+  "arms": {
+    "flat_tfidf_full": {
+      "cases": 108,
+      "exact_answer": 72,
+      "family_exact": {
+        "contradiction": {
+          "correct": 24,
+          "total": 24
+        },
+        "multi_hop": {
+          "correct": 0,
+          "total": 36
+        },
+        "temporal": {
+          "correct": 24,
+          "total": 24
+        },
+        "unknown_entity": {
+          "correct": 12,
+          "total": 12
+        },
+        "unknown_source": {
+          "correct": 12,
+          "total": 12
+        }
+      },
+      "full_proof": 48,
+      "known_cases": 84,
+      "median_retrieval_ms": 0.39321,
+      "unknown_abstentions": 24,
+      "unknown_cases": 24
+    },
+    "flat_tfidf_triples": {
+      "cases": 108,
+      "exact_answer": 24,
+      "family_exact": {
+        "contradiction": {
+          "correct": 0,
+          "total": 24
+        },
+        "multi_hop": {
+          "correct": 0,
+          "total": 36
+        },
+        "temporal": {
+          "correct": 0,
+          "total": 24
+        },
+        "unknown_entity": {
+          "correct": 12,
+          "total": 12
+        },
+        "unknown_source": {
+          "correct": 12,
+          "total": 12
+        }
+      },
+      "full_proof": 0,
+      "known_cases": 84,
+      "median_retrieval_ms": 0.35542,
+      "unknown_abstentions": 24,
+      "unknown_cases": 24
+    },
+    "hierarchical_proxy_full": {
+      "cases": 108,
+      "exact_answer": 70,
+      "family_exact": {
+        "contradiction": {
+          "correct": 24,
+          "total": 24
+        },
+        "multi_hop": {
+          "correct": 0,
+          "total": 36
+        },
+        "temporal": {
+          "correct": 22,
+          "total": 24
+        },
+        "unknown_entity": {
+          "correct": 12,
+          "total": 12
+        },
+        "unknown_source": {
+          "correct": 12,
+          "total": 12
+        }
+      },
+      "full_proof": 34,
+      "known_cases": 84,
+      "median_retrieval_ms": 0.4656,
+      "unknown_abstentions": 24,
+      "unknown_cases": 24
+    },
+    "structured_graph_oracle": {
+      "cases": 108,
+      "exact_answer": 108,
+      "family_exact": {
+        "contradiction": {
+          "correct": 24,
+          "total": 24
+        },
+        "multi_hop": {
+          "correct": 36,
+          "total": 36
+        },
+        "temporal": {
+          "correct": 24,
+          "total": 24
+        },
+        "unknown_entity": {
+          "correct": 12,
+          "total": 12
+        },
+        "unknown_source": {
+          "correct": 12,
+          "total": 12
+        }
+      },
+      "full_proof": 84,
+      "known_cases": 84,
+      "median_retrieval_ms": 0.01627,
+      "unknown_abstentions": 24,
+      "unknown_cases": 24
+    }
+  },
+  "cases": 108,
+  "collision_witnesses": {
+    "all_valid": true,
+    "provenance": 24,
+    "temporal": 24,
+    "total": 48
+  },
+  "facts": 364,
+  "fixture_sha256": "7c11af94668e1fe3d0d765711119d565cdc0f13b12b754e1e14b12d782d80626",
+  "hardware": {
+    "numpy": "2.3.5",
+    "processor": "CPU only",
+    "python": "3.13.5",
+    "sklearn": "1.8.0"
+  },
+  "manifest_sha256": "ece0befdb80fea324e3a94820686e95242e17ecbc0a333e68c7a5d67c55f0a43",
+  "schema": "atlaskv-far-retrieval-results/1.0",
+  "scope": "Exploratory internal synthetic retrieval and projection test; no AtlasKV weights, LLM outputs, or external evaluation"
+}

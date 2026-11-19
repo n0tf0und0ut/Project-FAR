@@ -30,6 +30,7 @@ These are **research records**, including negative and bounded results. The shor
 - `axiomatization/` — exploratory axiom and ontology research.
 - `bibliography/` and `literature/` — source records.
 - `comparisons/` — exploratory comparison studies.
+- [AtlasKV-inspired retrieval and representation stress test](comparisons/atlaskv-retrieval-2026-11-19/README.md) — internal CPU proxy study: 364 synthetic facts, 108 cases, and 48 contract-level collision witnesses; no AtlasKV inference or EFR evidence.
 - `discovery/` — discovery records.
 - `foundations/` — research concerning foundations; not the accepted `../foundations/` domain.
 - `methodology/` — research-stage methods, not governing methodology.
