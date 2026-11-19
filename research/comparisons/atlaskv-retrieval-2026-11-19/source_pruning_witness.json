@@ -1,0 +1,16 @@
+{
+  "controls": {
+    "prefix_leaf_correct": true,
+    "unpruned_inter_correct": true
+  },
+  "intermediate": {
+    "actual_global_id": 20,
+    "expected_global_id": 40
+  },
+  "leaf": {
+    "actual_value": 1.0,
+    "expected_value": 7.0
+  },
+  "scope": "isolated upstream indexing expressions; not full AtlasKV inference",
+  "source_commit": "61e3abc1fb09fbfb426cfc847c4c26c5e94bcaeb"
+}

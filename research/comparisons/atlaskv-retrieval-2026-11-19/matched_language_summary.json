@@ -1,0 +1,140 @@
+{
+  "arms": {},
+  "by_budget": {
+    "1": {
+      "flat_tfidf_full": {
+        "complete_proof": 29,
+        "correct": 65,
+        "positive_correct": 41,
+        "unknown_correct": 24
+      },
+      "flat_tfidf_triples": {
+        "complete_proof": 0,
+        "correct": 24,
+        "positive_correct": 0,
+        "unknown_correct": 24
+      },
+      "hierarchical_proxy_full": {
+        "complete_proof": 22,
+        "correct": 57,
+        "positive_correct": 33,
+        "unknown_correct": 24
+      },
+      "structured_graph_text_parsed": {
+        "complete_proof": 36,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      }
+    },
+    "16": {
+      "flat_tfidf_full": {
+        "complete_proof": 48,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      },
+      "flat_tfidf_triples": {
+        "complete_proof": 0,
+        "correct": 24,
+        "positive_correct": 0,
+        "unknown_correct": 24
+      },
+      "hierarchical_proxy_full": {
+        "complete_proof": 36,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      },
+      "structured_graph_text_parsed": {
+        "complete_proof": 84,
+        "correct": 108,
+        "positive_correct": 84,
+        "unknown_correct": 24
+      }
+    },
+    "2": {
+      "flat_tfidf_full": {
+        "complete_proof": 48,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      },
+      "flat_tfidf_triples": {
+        "complete_proof": 0,
+        "correct": 24,
+        "positive_correct": 0,
+        "unknown_correct": 24
+      },
+      "hierarchical_proxy_full": {
+        "complete_proof": 26,
+        "correct": 62,
+        "positive_correct": 38,
+        "unknown_correct": 24
+      },
+      "structured_graph_text_parsed": {
+        "complete_proof": 48,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      }
+    },
+    "3": {
+      "flat_tfidf_full": {
+        "complete_proof": 48,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      },
+      "flat_tfidf_triples": {
+        "complete_proof": 0,
+        "correct": 24,
+        "positive_correct": 0,
+        "unknown_correct": 24
+      },
+      "hierarchical_proxy_full": {
+        "complete_proof": 27,
+        "correct": 63,
+        "positive_correct": 39,
+        "unknown_correct": 24
+      },
+      "structured_graph_text_parsed": {
+        "complete_proof": 84,
+        "correct": 108,
+        "positive_correct": 84,
+        "unknown_correct": 24
+      }
+    },
+    "8": {
+      "flat_tfidf_full": {
+        "complete_proof": 48,
+        "correct": 72,
+        "positive_correct": 48,
+        "unknown_correct": 24
+      },
+      "flat_tfidf_triples": {
+        "complete_proof": 0,
+        "correct": 24,
+        "positive_correct": 0,
+        "unknown_correct": 24
+      },
+      "hierarchical_proxy_full": {
+        "complete_proof": 34,
+        "correct": 70,
+        "positive_correct": 46,
+        "unknown_correct": 24
+      },
+      "structured_graph_text_parsed": {
+        "complete_proof": 84,
+        "correct": 108,
+        "positive_correct": 84,
+        "unknown_correct": 24
+      }
+    }
+  },
+  "cases": 108,
+  "note": "Parser authored after exposure to dataset templates; flat and hierarchical arms use the original typed answer semantics.",
+  "parser_coverage": 108,
+  "schema": "far-matched-language-followup/1.0",
+  "scope": "post-hoc, template-specific internal synthetic evaluation, no trained AtlasKV model"
+}
