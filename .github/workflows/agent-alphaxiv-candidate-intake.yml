@@ -12,6 +12,7 @@ on:
       - 'tests/test_agent_alphaxiv_successor_intake.py'
       - 'tests/test_agent_alphaxiv_receipt_integrity.py'
       - 'tests/test_agent_alphaxiv_source_screen.py'
+      - 'tests/test_agent_alphaxiv_source_receipt.py'
       - 'tools/agent_alphaxiv_source_screen.py'
       - 'research/external-validation/agent-alphaxiv-001/**'
       - 'research/external-validation/agent-alphaxiv-002/**'
@@ -114,6 +115,44 @@ jobs:
             --selection research/external-validation/agent-alphaxiv-002/selection-receipt.json \
             --output "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
           sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
+
+      - name: Inspect one selected archive structure without executing its contents
+        run: |
+          python - <<'PY'
+          import json, tarfile, hashlib
+          from collections import Counter
+          from pathlib import Path
+          from datasets import load_dataset
+          from huggingface_hub import hf_hub_download
+          selection = json.loads(Path('research/external-validation/agent-alphaxiv-002/selection-receipt.json').read_text())
+          first = selection['selected'][0]
+          pid, version = first['project_id'], first['latest_version_id']
+          arts = load_dataset('alphaXiv/AgentAlphaXiv', 'artifacts', split='train',
+                              revision='cc892aab131be3872283e1a778af663382315817')
+          matched = [r for r in arts if r['project_id'] == pid and r['version_id'] == version]
+          print('FIRST_SOURCE_ID=' + pid)
+          print('FIRST_ARTIFACT_ROW_SAMPLE=' + json.dumps([
+              {'logical_path': a['logical_path'], 'kind': a['kind'], 'in_release_tar': a['in_release_tar']}
+              for a in matched[:8]], sort_keys=True))
+          try:
+              archive = Path(hf_hub_download('alphaXiv/AgentAlphaXiv',
+                  filename='artifacts/' + pid + '.tar', repo_type='dataset',
+                  revision='cc892aab131be3872283e1a778af663382315817'))
+              h = hashlib.sha256()
+              with archive.open('rb') as inp:
+                  for chunk in iter(lambda: inp.read(1024*1024), b''):
+                      h.update(chunk)
+              print('FIRST_ARCHIVE_BYTES=' + str(archive.stat().st_size))
+              print('FIRST_ARCHIVE_SHA256=' + h.hexdigest())
+              with tarfile.open(archive, 'r:*') as tf:
+                  members = tf.getmembers()
+                  print('FIRST_ARCHIVE_MEMBER_COUNT=' + str(len(members)))
+                  print('FIRST_ARCHIVE_MEMBER_SAMPLE=' + json.dumps([
+                      {'name': m.name, 'size': m.size, 'kind': 'file' if m.isfile() else 'other'}
+                      for m in members[:12]], sort_keys=True))
+          except Exception as exc:
+              print('FIRST_ARCHIVE_ACCESS_UNVERIFIED=' + type(exc).__name__ + ': ' + str(exc)[:300])
+          PY
 
       - name: Preserve complete metadata-only source-coverage record
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
