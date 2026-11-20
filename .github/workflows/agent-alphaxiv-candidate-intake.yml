@@ -45,7 +45,7 @@ jobs:
 
       - name: Verify candidate sampling and failure contract
         run: |
-          python -m unittest discover -s tests -p 'test_agent_alphaxiv_external_intake.py' -v
+          python -m unittest discover -s tests -p 'test_agent_alphaxiv_*_intake.py' -v
           python -m py_compile tools/agent_alphaxiv_external_intake.py
 
       - name: Install pinned read-only metadata client
@@ -71,6 +71,30 @@ jobs:
                   print(label + '_SOURCE_ERROR=' + type(exc).__name__ + ': ' + str(exc)[:300], flush=True)
           print('OBSERVATION_ONLY_NO_REPIN_OR_STUDY_LAUNCH', flush=True)
           PY
+
+      - name: Execute distinct 002 metadata intake from its own pinned revision
+        run: |
+          python tools/agent_alphaxiv_external_intake.py --candidate 002 --from-hub --output "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json"
+          sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json"
+          python - "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json" <<'PY'
+          import json, sys
+          p = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert p['protocol'] == 'FAR-AGENT-ALPHAXIV-002/candidate-v0.1'
+          assert p['dataset_revision'] == 'cc892aab131be3872283e1a778af663382315817'
+          assert (p['all_studies'], p['paper_cohort']) == (916, 881)
+          assert len(p['selected']) == 60 and p['verified_empirical_claims'] == 0
+          print('CANDIDATE_002_MANIFEST_SHA256=' + p['manifest_sha256'])
+          for row in p['selected']:
+              print('CANDIDATE_002_SELECTED=' + json.dumps(row, ensure_ascii=False, sort_keys=True))
+          PY
+
+      - name: Preserve separate 002 metadata candidate for independent screening
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: agent-alphaxiv-002-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/agent-alphaxiv-002-candidate.json
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Retrieve pinned study metadata and generate candidate receipt
         run: |
