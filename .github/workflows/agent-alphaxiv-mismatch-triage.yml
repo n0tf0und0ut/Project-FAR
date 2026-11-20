@@ -22,7 +22,8 @@ jobs:
       github.repository == 'n0tf0und0ut/Project-FAR' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main' &&
-      github.head_ref == 'research/agent-alphaxiv-001-candidate'
+      github.head_ref == 'research/agent-alphaxiv-001-candidate' &&
+      github.event.pull_request.head.sha == '090173ae42b18dbff45b6a0de95f2a248436ffb3'
     runs-on: ubuntu-24.04
     timeout-minutes: 55
     env:
