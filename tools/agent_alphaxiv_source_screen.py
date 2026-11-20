@@ -45,10 +45,50 @@ def verify_selection(receipt: dict) -> list[dict]:
     return rows
 
 
+def verify_selection_receipt_hash(receipt: dict) -> list[dict]:
+    """Bind selected identities to the published original manifest, not just a SHA field."""
+    rows = verify_selection(receipt)
+    if (receipt.get("protocol"), receipt.get("dataset"), receipt.get("expected_studies"),
+            receipt.get("expected_paper_cohort"), receipt.get("represented_sample_labs"),
+            receipt.get("verified_empirical_claims")) != (
+                "FAR-AGENT-ALPHAXIV-002/candidate-v0.1", DATASET, 916, 881, 31, 0):
+        raise ValueError("selection receipt authority fields changed")
+    label = receipt["protocol"]
+    for row in rows:
+        if row.get("selection_digest") != hashlib.sha256(
+                (label + "\n" + row["project_id"]).encode("utf-8")).hexdigest():
+            raise ValueError("selection identity hash mismatch")
+    if len({row["lab"] for row in rows}) != 31:
+        raise ValueError("selection lab coverage changed")
+    candidates = {
+        "protocol": label,
+        "status": "RESEARCH_CANDIDATE_NOT_LAUNCHED",
+        "dataset": DATASET,
+        "dataset_revision": REVISION,
+        "all_studies": receipt["expected_studies"],
+        "paper_cohort": receipt["expected_paper_cohort"],
+        "represented_labs": receipt["represented_sample_labs"],
+        "sample_size": 60,
+        "input_row_metadata_sha256": receipt["input_row_metadata_sha256"],
+        "selection_rule": "min SHA256(label + LF + project_id) per lab; then global min SHA256 fill",
+        "selected": rows,
+        "verified_empirical_claims": 0,
+    }
+    if digest(candidates) != MANIFEST:
+        raise ValueError("selection receipt canonical digest mismatch")
+    candidates["manifest_sha256"] = MANIFEST
+    serialized = (json.dumps(candidates, ensure_ascii=False, sort_keys=True, indent=2)
+                  + "\n").encode("utf-8")
+    if hashlib.sha256(serialized).hexdigest() != receipt.get("manifest_json_file_sha256"):
+        raise ValueError("selection receipt serialized-source digest mismatch")
+    return rows
+
+
 def audit_source(receipt: dict, paper_rows: list[dict],
                  artifact_rows: list[dict], version_rows: list[dict],
                  release_paths: set[str], *, strict_counts: bool = True) -> dict:
-    selected = verify_selection(receipt)
+    selected = (verify_selection_receipt_hash(receipt) if strict_counts
+                else verify_selection(receipt))
     if strict_counts and (len(paper_rows) != COUNTS["paper_texts"]
                          or len(artifact_rows) != COUNTS["artifacts"]
                          or len(version_rows) != COUNTS["versions"]):
