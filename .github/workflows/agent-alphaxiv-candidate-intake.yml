@@ -51,6 +51,27 @@ jobs:
       - name: Install pinned read-only metadata client
         run: python -m pip install --disable-pip-version-check 'datasets==4.4.1'
 
+      - name: Forensically check pinned and current upstream source references
+        run: |
+          python - <<'PY'
+          from huggingface_hub import HfApi
+          from datasets import load_dataset
+          api = HfApi()
+          dataset = 'alphaXiv/AgentAlphaXiv'
+          previous = 'a63f46066ac16fcb470f41933415e175825b6bcc'
+          for label, revision in (('REGISTERED', previous), ('CURRENT', None)):
+              try:
+                  info = api.dataset_info(dataset, revision=revision)
+                  print(label + '_REVISION_SHA=' + str(info.sha), flush=True)
+                  if label == 'CURRENT':
+                      rows = load_dataset(dataset, 'studies', split='train', revision=info.sha)
+                      print('CURRENT_STUDIES=' + str(len(rows)), flush=True)
+                      print('CURRENT_PAPER_COHORT=' + str(sum(bool(r['in_paper_cohort']) for r in rows)), flush=True)
+              except Exception as exc:
+                  print(label + '_SOURCE_ERROR=' + type(exc).__name__ + ': ' + str(exc)[:300], flush=True)
+          print('OBSERVATION_ONLY_NO_REPIN_OR_STUDY_LAUNCH', flush=True)
+          PY
+
       - name: Retrieve pinned study metadata and generate candidate receipt
         run: |
           python tools/agent_alphaxiv_external_intake.py --from-hub --output "$RUNNER_TEMP/agent-alphaxiv-candidate.json"
