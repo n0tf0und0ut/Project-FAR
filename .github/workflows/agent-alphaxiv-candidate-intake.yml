@@ -9,6 +9,8 @@ on:
       - '.github/workflows/agent-alphaxiv-candidate-intake.yml'
       - 'tools/agent_alphaxiv_external_intake.py'
       - 'tests/test_agent_alphaxiv_external_intake.py'
+      - 'tests/test_agent_alphaxiv_successor_intake.py'
+      - 'tests/test_agent_alphaxiv_receipt_integrity.py'
       - 'research/external-validation/agent-alphaxiv-001/**'
       - 'research/external-validation/agent-alphaxiv-002/**'
 
@@ -46,7 +48,7 @@ jobs:
 
       - name: Verify candidate sampling and failure contract
         run: |
-          python -m unittest discover -s tests -p 'test_agent_alphaxiv_*_intake.py' -v
+          python -m unittest discover -s tests -p 'test_agent_alphaxiv_*.py' -v
           python -m py_compile tools/agent_alphaxiv_external_intake.py
 
       - name: Install pinned read-only metadata client
