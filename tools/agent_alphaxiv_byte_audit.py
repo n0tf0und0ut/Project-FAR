@@ -83,8 +83,10 @@ def audit_tar(path: Path, expected: list[dict]) -> dict:
                 mismatches += 1
     missing_claimed = sorted(k for k, r in inventory.items()
                              if r.get("in_release_tar") is True and k not in present)
+    with path.open("rb") as stream:
+        archive_sha256 = hash_stream(stream)
     return {
-        "archive_sha256": hash_stream(path.open("rb")),
+        "archive_sha256": archive_sha256,
         "archive_bytes": path.stat().st_size,
         "regular_members": safe_members,
         "members_matched_inventory_hash": matches,
@@ -93,7 +95,7 @@ def audit_tar(path: Path, expected: list[dict]) -> dict:
         "members_unindexed": unindexed,
         "members_marked_excluded_but_present": undesired,
         "members_marked_included_but_missing": len(missing_claimed),
-        "excluded_but_present_names_digest": digest(sorted(names_unindexed)) if names_unindexed else None,
+        "unindexed_names_sha256": digest(sorted(names_unindexed)) if names_unindexed else None,
         "missing_included_names_sha256": digest(missing_claimed) if missing_claimed else None,
         "integrity_status": ("BYTE_INVENTORY_MATCH"
                              if not any((mismatches, size_mismatches, unindexed,
@@ -158,8 +160,8 @@ def audit_archive_selection(receipt: dict, source_rows: list[dict],
         "archive_download_errors": sum(r["status"] == "UNVERIFIABLE_ARCHIVE_ERROR" for r in rows),
         "archive_budget_or_size_skips": sum(r["status"] == "SKIPPED_PREDECLARED_BYTE_BUDGET" for r in rows),
         "archive_missing_size": sum(r["status"] == "UNVERIFIED_ARCHIVE_SIZE_OR_MISSING" for r in rows),
-        "bytes_matching_inventory_members": sum(r.get("members_matched_inventory_hash", 0) for r in rows),
-        "bytes_mismatching_inventory_members": sum(r.get("members_mismatched_inventory_hash", 0) for r in rows),
+        "members_matching_inventory_sha256": sum(r.get("members_matched_inventory_hash", 0) for r in rows),
+        "members_mismatching_inventory_sha256": sum(r.get("members_mismatched_inventory_hash", 0) for r in rows),
         "unmatched_archive_members": sum(r.get("members_unindexed", 0) for r in rows),
         "unreleased_declared_members_found": sum(r.get("members_marked_excluded_but_present", 0) for r in rows),
         "declared_included_members_missing": sum(r.get("members_marked_included_but_missing", 0) for r in rows),
