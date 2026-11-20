@@ -47,7 +47,7 @@ class ByteAuditTest(unittest.TestCase):
     def test_changed_bytes_preserve_unknown_not_scientific_fault(self):
         with tempfile.TemporaryDirectory() as work:
             p = Path(work) / "redacted.tar"
-            make_tar(p, [("code/main.py", b"redacted")])
+            make_tar(p, [("code/main.py", b"redacted!")])
             r = audit.audit_tar(p, [artifact("code/main.py", b"original")])
             self.assertEqual(r["members_mismatched_inventory_hash"], 1)
             self.assertEqual(r["members_mismatched_inventory_bytes"], 1)
