@@ -54,3 +54,9 @@ If a minimum predeclared set of independently verified positive and negative cas
 - **0 externally sealed eligible tasks, 0 matched arm executions, 0 independently confirmed defects, 0 verified comparative outcomes.**
 - Independent intake seal, eligibility and benchmark labels, accepted prospective protocol, reproducible/isolated source execution, and launch authority remain absent.
 - Preserve all limitations and any negative results. The next admissible action is a pinned dataset intake by a data-enabled independent custodian, followed by blind eligibility screening and governance review. Do not assert readiness from a clean PR check.
+
+## 2026-11-20 source-access disposition
+
+GitHub Actions actually attempted the original pinned source, and the registered revision was **unavailable** (404). Both the executed commands and their failure were retained at [the source-access execution record](execution-attempt-2026-11-20.md), citing runs 44744341908 and 44744679448. The original 001 cohort remains unselected (0/60), with no scientific comparison.
+
+An observational check found an accessible **different** Hugging Face revision, `cc892aab131be3872283e1a778af663382315817`, with 916 studies and 881 in the paper cohort. It was not substituted into 001. Instead, [FAR-AGENT-ALPHAXIV-002](../agent-alphaxiv-002/README.md) uses a distinct ID, a separately pinned prospective source candidate, and its own nonconfirmatory metadata intake. The distinction is essential: the 002 selection is not an outcome of 001 and does not repair the 001 scientific study.
