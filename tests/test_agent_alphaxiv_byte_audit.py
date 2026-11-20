@@ -78,6 +78,55 @@ class ByteAuditTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unsafe or oversized"):
                 audit.audit_tar(p, [])
 
+    def test_codex_review_reproducer_charges_failed_malformed_download(self):
+        """Exact P2 reproducer: one malformed 9216-byte tar, 60 IDs, one 9216-byte budget."""
+        with tempfile.TemporaryDirectory() as work:
+            bad = Path(work) / "malformed.tar"
+            bad.write_bytes(b"not-a-tar" * 1024)  # 9216 bytes, not parseable by tarfile
+            self.assertEqual(bad.stat().st_size, 9216)
+            selected = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+                         "selection_digest": f"k{i:02}", "screening_status": "UNSCREENED"}
+                        for i in range(60)]
+            receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
+                       "dataset_revision": audit.REVISION, "sample_size": 60, "selected": selected}
+            source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
+                       "source_text_sha256": "x" * 64} for i in range(60)]
+            sizes = {f"artifacts/p{i:02}.tar": 9216 for i in range(60)}
+            calls = []
+            def download(name):
+                calls.append(name)
+                return bad
+            outcome = audit.audit_archive_selection(receipt, source, [], sizes, download,
+                                                   max_total_bytes=9216)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(outcome["summary"]["archive_download_errors"], 1)
+            self.assertEqual(outcome["summary"]["archive_budget_or_size_skips"], 59)
+            self.assertEqual(outcome["summary"]["archives_examined"], 0)
+            self.assertEqual(outcome["summary"]["paired_far_checker_executions"], 0)
+
+    def test_underreported_failed_archive_bytes_exhaust_remaining_budget(self):
+        """An understated listing cannot permit subsequent downloads after a rejected tar."""
+        with tempfile.TemporaryDirectory() as work:
+            bad = Path(work) / "malformed.tar"
+            bad.write_bytes(b"not-a-tar" * 1024)  # 9216 actual bytes
+            selected = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+                         "selection_digest": f"k{i:02}", "screening_status": "UNSCREENED"}
+                        for i in range(60)]
+            receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
+                       "dataset_revision": audit.REVISION, "sample_size": 60, "selected": selected}
+            source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
+                       "source_text_sha256": "x" * 64} for i in range(60)]
+            sizes = {f"artifacts/p{i:02}.tar": 4608 for i in range(60)}
+            calls = []
+            def download(name):
+                calls.append(name)
+                return bad
+            outcome = audit.audit_archive_selection(receipt, source, [], sizes, download,
+                                                   max_total_bytes=9216)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(outcome["summary"]["archive_download_errors"], 1)
+            self.assertEqual(outcome["summary"]["archive_budget_or_size_skips"], 59)
+
     def test_60_row_budget_prevents_unbounded_download_and_preserves_scientific_unknown(self):
         with tempfile.TemporaryDirectory() as work:
             p = Path(work) / "a.tar"
