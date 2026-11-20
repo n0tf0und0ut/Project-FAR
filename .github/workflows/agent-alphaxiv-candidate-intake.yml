@@ -11,6 +11,8 @@ on:
       - 'tests/test_agent_alphaxiv_external_intake.py'
       - 'tests/test_agent_alphaxiv_successor_intake.py'
       - 'tests/test_agent_alphaxiv_receipt_integrity.py'
+      - 'tests/test_agent_alphaxiv_source_screen.py'
+      - 'tools/agent_alphaxiv_source_screen.py'
       - 'research/external-validation/agent-alphaxiv-001/**'
       - 'research/external-validation/agent-alphaxiv-002/**'
 
@@ -105,6 +107,21 @@ jobs:
           for row in p['selected']:
               print('CANDIDATE_002_SELECTED=' + json.dumps(row, ensure_ascii=False, sort_keys=True))
           PY
+
+      - name: Screen all 60 studies for source-text and released-artifact coverage
+        run: |
+          python tools/agent_alphaxiv_source_screen.py \
+            --selection research/external-validation/agent-alphaxiv-002/selection-receipt.json \
+            --output "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
+          sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
+
+      - name: Preserve complete metadata-only source-coverage record
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: agent-alphaxiv-002-source-coverage-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/agent-alphaxiv-002-source-coverage.json
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Preserve separate 002 metadata candidate for independent screening
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
