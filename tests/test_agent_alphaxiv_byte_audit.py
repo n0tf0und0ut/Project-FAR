@@ -127,6 +127,72 @@ class ByteAuditTest(unittest.TestCase):
             self.assertEqual(outcome["summary"]["archive_download_errors"], 1)
             self.assertEqual(outcome["summary"]["archive_budget_or_size_skips"], 59)
 
+    def test_codex_second_review_failed_transfer_with_unmeasured_bytes_is_terminal(self):
+        """Second exact P2 witness: 1-byte listing, 60-byte total, 9216 received then exception."""
+        with tempfile.TemporaryDirectory() as work:
+            selected = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+                         "selection_digest": f"k{i:02}", "screening_status": "UNSCREENED"}
+                        for i in range(60)]
+            receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
+                       "dataset_revision": audit.REVISION, "sample_size": 60, "selected": selected}
+            source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
+                       "source_text_sha256": "x" * 64} for i in range(60)]
+            hints = {f"artifacts/p{i:02}.tar": 1 for i in range(60)}
+            calls = []
+            def failing_transfer(name):
+                calls.append(name)
+                (Path(work) / f"partial-{len(calls)}").write_bytes(b"x" * 9216)
+                raise OSError("upstream downloader raised after receiving unknown bytes")
+            result = audit.audit_archive_selection(
+                receipt, source, [], hints, failing_transfer, max_total_bytes=60)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(result["summary"]["archive_download_errors"], 1)
+            self.assertEqual(result["summary"]["archive_budget_or_size_skips"], 59)
+            self.assertTrue(result["records"][0]["unmeasured_transfer_exhausted_remaining_budget"])
+            self.assertEqual(result["summary"]["archives_examined"], 0)
+            self.assertEqual(result["summary"]["independently_adjudicated_scientific_claims"], 0)
+
+    def test_unreturned_path_cannot_escape_budget(self):
+        """An adapter that returns a nonexistent path has unmeasured transfer cost."""
+        selected = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+                     "selection_digest": f"k{i:02}", "screening_status": "UNSCREENED"}
+                    for i in range(60)]
+        receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
+                   "dataset_revision": audit.REVISION, "sample_size": 60, "selected": selected}
+        source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
+                   "source_text_sha256": "x" * 64} for i in range(60)]
+        hints = {f"artifacts/p{i:02}.tar": 1 for i in range(60)}
+        calls = []
+        def absent_file(name):
+            calls.append(name)
+            return Path("/not-a-real-archive-for-far-agent-alphaxiv.tar")
+        result = audit.audit_archive_selection(
+            receipt, source, [], hints, absent_file, max_total_bytes=60)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(result["summary"]["archive_download_errors"], 1)
+        self.assertEqual(result["summary"]["archive_budget_or_size_skips"], 59)
+        self.assertTrue(result["records"][0]["unmeasured_transfer_exhausted_remaining_budget"])
+
+    def test_zero_byte_listings_do_not_allow_unbounded_transfers(self):
+        """An unknown or zero remote listing cannot reserve zero bytes."""
+        selected = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+                     "selection_digest": f"k{i:02}", "screening_status": "UNSCREENED"}
+                    for i in range(60)]
+        receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
+                   "dataset_revision": audit.REVISION, "sample_size": 60, "selected": selected}
+        source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
+                   "source_text_sha256": "x" * 64} for i in range(60)]
+        calls = []
+        def forbidden_transfer(name):
+            calls.append(name)
+            raise AssertionError("no transfer should be attempted")
+        hints = {f"artifacts/p{i:02}.tar": 0 for i in range(60)}
+        result = audit.audit_archive_selection(
+            receipt, source, [], hints, forbidden_transfer, max_total_bytes=60)
+        self.assertEqual(calls, [])
+        self.assertEqual(result["summary"]["archive_missing_size"], 60)
+        self.assertEqual(result["summary"]["archives_examined"], 0)
+
     def test_60_row_budget_prevents_unbounded_download_and_preserves_scientific_unknown(self):
         with tempfile.TemporaryDirectory() as work:
             p = Path(work) / "a.tar"
