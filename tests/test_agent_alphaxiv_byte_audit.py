@@ -88,7 +88,7 @@ class ByteAuditTest(unittest.TestCase):
             receipt = {"manifest_canonical_sha256": audit.verify_selection.__globals__["MANIFEST"],
                        "dataset_revision": audit.REVISION, "sample_size": 60,
                        "selected": selected}
-            source = [{"project_id": f"p{i:02}", "latest_version_id": f"v{i:02}",
+            source = [{"project_id": f"p{i:02}", "selected_version_id": f"v{i:02}",
                        "source_text_sha256": "x" * 64} for i in range(60)]
             arts = [{"project_id": "p00", "version_id": "v00", **artifact("sample.txt", b"valid")}]
             sizes = {f"artifacts/p{i:02}.tar": p.stat().st_size for i in range(60)}
