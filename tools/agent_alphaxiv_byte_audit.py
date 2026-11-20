@@ -109,6 +109,8 @@ def audit_archive_selection(receipt: dict, source_rows: list[dict],
                             inventory_sizes: dict[str, int | None],
                             download: Callable[[str], Path],
                             *, max_total_bytes: int = MAX_TOTAL_BYTES) -> dict:
+    if type(max_total_bytes) is not int or not 0 <= max_total_bytes <= MAX_TOTAL_BYTES:
+        raise ValueError('invalid archive byte budget')
     selected = verify_selection(receipt)
     observed_source = {r["project_id"]: r for r in source_rows}
     if set(observed_source) != {r["project_id"] for r in selected}:
@@ -131,22 +133,31 @@ def audit_archive_selection(receipt: dict, source_rows: list[dict],
                "archive_listed_bytes": size_hint,
                "scientific_adjudication": "NOT_PERFORMED",
                "source_code_executed": False}
-        if size_hint is None:
+        if type(size_hint) is not int or size_hint < 0:
             row.update(status="UNVERIFIED_ARCHIVE_SIZE_OR_MISSING")
         elif size_hint > MAX_ARCHIVE_BYTES or size_hint > remaining:
             row.update(status="SKIPPED_PREDECLARED_BYTE_BUDGET")
         else:
+            # A failed tar inspection still incurred a download. Book the
+            # entire listed byte cost BEFORE the transfer and never refund it.
+            # Otherwise 60 malformed tars could evade one aggregate budget.
+            remaining -= size_hint
             try:
                 archive = download(relpath)
                 if not isinstance(archive, Path):
                     raise ValueError("download adapter must return a Path")
+                actual_bytes = archive.stat().st_size
+                # A larger-than-listed download consumes the excess as well,
+                # even when tar parsing, size validation or hashing fails.
+                remaining -= max(actual_bytes - size_hint, 0)
+                if actual_bytes > MAX_ARCHIVE_BYTES or remaining < 0:
+                    raise ValueError("download exceeds registered byte budget")
                 result = audit_tar(archive, grouped[(pid, vid)])
                 if result["archive_bytes"] != size_hint:
                     result["inventory_archive_size_disagrees"] = True
                     result["integrity_status"] = "BYTE_INVENTORY_DISAGREEMENT_REQUIRES_ADJUDICATION"
                 else:
                     result["inventory_archive_size_disagrees"] = False
-                remaining -= result["archive_bytes"]
                 row.update(status="ARCHIVE_BYTES_EXAMINED", **result)
             except Exception as exc:
                 row.update(status="UNVERIFIABLE_ARCHIVE_ERROR",
