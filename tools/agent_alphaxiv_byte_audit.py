@@ -133,22 +133,25 @@ def audit_archive_selection(receipt: dict, source_rows: list[dict],
                "archive_listed_bytes": size_hint,
                "scientific_adjudication": "NOT_PERFORMED",
                "source_code_executed": False}
-        if type(size_hint) is not int or size_hint < 0:
+        if type(size_hint) is not int or size_hint <= 0:
+            # Empty and unknown remote sizes cannot establish a safe budget.
             row.update(status="UNVERIFIED_ARCHIVE_SIZE_OR_MISSING")
         elif size_hint > MAX_ARCHIVE_BYTES or size_hint > remaining:
             row.update(status="SKIPPED_PREDECLARED_BYTE_BUDGET")
         else:
-            # A failed tar inspection still incurred a download. Book the
-            # entire listed byte cost BEFORE the transfer and never refund it.
-            # Otherwise 60 malformed tars could evade one aggregate budget.
+            # Reserve the declared bytes before any transfer. Never refund this
+            # reservation: a failed archive check still incurred the download.
             remaining -= size_hint
+            actual_size_measured = False
             try:
                 archive = download(relpath)
                 if not isinstance(archive, Path):
                     raise ValueError("download adapter must return a Path")
                 actual_bytes = archive.stat().st_size
-                # A larger-than-listed download consumes the excess as well,
-                # even when tar parsing, size validation or hashing fails.
+                actual_size_measured = True
+                # Charge any size understatement, including when tar validation
+                # then fails. A large single transfer can still exceed the
+                # budget before a third-party downloader returns its file.
                 remaining -= max(actual_bytes - size_hint, 0)
                 if actual_bytes > MAX_ARCHIVE_BYTES or remaining < 0:
                     raise ValueError("download exceeds registered byte budget")
@@ -160,6 +163,14 @@ def audit_archive_selection(receipt: dict, source_rows: list[dict],
                     result["inventory_archive_size_disagrees"] = False
                 row.update(status="ARCHIVE_BYTES_EXAMINED", **result)
             except Exception as exc:
+                # Hugging Face may raise AFTER writing remote bytes, before
+                # returning a path (e.g. size mismatch). With no observed file,
+                # the transfer cost is unmeasurable. Charge ALL remaining
+                # budget, not the potentially false remote size hint: never
+                # permit a second download on unknown consumed bytes.
+                if not actual_size_measured:
+                    remaining = 0
+                    row["unmeasured_transfer_exhausted_remaining_budget"] = True
                 row.update(status="UNVERIFIABLE_ARCHIVE_ERROR",
                            error_type=type(exc).__name__,
                            error_summary=str(exc)[:180])
