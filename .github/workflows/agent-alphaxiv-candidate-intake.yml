@@ -75,6 +75,20 @@ jobs:
           print('OBSERVATION_ONLY_NO_REPIN_OR_STUDY_LAUNCH', flush=True)
           PY
 
+      - name: Inspect exact source schema and availability for external screening
+        run: |
+          python - <<'PY'
+          import json
+          from datasets import load_dataset
+          rev = 'cc892aab131be3872283e1a778af663382315817'
+          for config in ('paper_texts', 'artifacts', 'versions'):
+              ds = load_dataset('alphaXiv/AgentAlphaXiv', config, split='train', revision=rev)
+              print('SOURCE_SCHEMA', json.dumps({'config': config, 'rows': len(ds), 'columns': ds.column_names}, sort_keys=True), flush=True)
+              first = ds[0]
+              info = {k: {'type': type(v).__name__, 'length': len(v) if isinstance(v, (str, list, dict)) else None, 'short_value': str(v)[:120] if k not in ('text', 'full_text', 'body', 'content', 'raw_text') else '[OMITTED]'} for k, v in first.items()}
+              print('SOURCE_ROW_SHAPE', json.dumps({'config': config, 'shape': info}, sort_keys=True), flush=True)
+          PY
+
       - name: Execute distinct 002 metadata intake from its own pinned revision
         run: |
           python tools/agent_alphaxiv_external_intake.py --candidate 002 --from-hub --output "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json"
