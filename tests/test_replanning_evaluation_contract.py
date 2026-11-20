@@ -106,6 +106,26 @@ class ReplanningContractTests(unittest.TestCase):
             self.assertEqual(output[j]["slot"], j + 1)
         self.assertEqual(len({row["task_id"] for row in output}), 12)
 
+    def test_allocation_fixed_reference_vector(self):
+        # A public deterministic regression vector, never a real trial seed.
+        seed = "0123456789abcdef" * 4
+        tasks = [f"case-{i:02}" for i in range(12)]
+        sequence = [(row["task_id"], row["arm"]) for row in contract.assignment_schedule(seed, tasks)]
+        self.assertEqual(sequence, [
+            ("case-06", "replanning"), ("case-06", "control"),
+            ("case-08", "replanning"), ("case-08", "control"),
+            ("case-11", "control"), ("case-11", "replanning"),
+            ("case-03", "control"), ("case-03", "replanning"),
+            ("case-00", "control"), ("case-00", "replanning"),
+            ("case-09", "control"), ("case-09", "replanning"),
+            ("case-04", "control"), ("case-04", "replanning"),
+            ("case-05", "replanning"), ("case-05", "control"),
+            ("case-01", "replanning"), ("case-01", "control"),
+            ("case-02", "replanning"), ("case-02", "control"),
+            ("case-07", "replanning"), ("case-07", "control"),
+            ("case-10", "control"), ("case-10", "replanning"),
+        ])
+
     def test_allocation_rejects_invalid_seed_tasks_and_duplicates(self):
         tasks = [f"case-{i:02}" for i in range(12)]
         seed = "0123456789abcdef" * 4
