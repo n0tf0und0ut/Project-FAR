@@ -53,6 +53,21 @@ class PersistedSourceEvidence(unittest.TestCase):
         self.assertEqual(s["native_claims_adjudicated"], 0)
         self.assertEqual(s["paired_far_checker_runs"], 0)
 
+    def test_live_intake_digest_is_enforced_in_runtime(self):
+        receipt = json.loads(SELECTION.read_text(encoding="utf-8"))
+        self.assertEqual(len(screen.verify_selection_receipt_hash(receipt)), 60)
+        receipt["selected"][0]["title"] += " unauthorized change"
+        with self.assertRaisesRegex(ValueError, "canonical digest mismatch"):
+            screen.verify_selection_receipt_hash(receipt)
+        receipt = json.loads(SELECTION.read_text(encoding="utf-8"))
+        receipt["selected"][0]["selection_digest"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "identity hash mismatch"):
+            screen.verify_selection_receipt_hash(receipt)
+        receipt = json.loads(SELECTION.read_text(encoding="utf-8"))
+        receipt["manifest_json_file_sha256"] = "f" * 64
+        with self.assertRaisesRegex(ValueError, "serialized-source digest mismatch"):
+            screen.verify_selection_receipt_hash(receipt)
+
     def test_mutant_record_breaks_sha256(self):
         x = json.loads(SOURCE.read_text(encoding="utf-8"))
         digest = x.pop("receipt_sha256")
