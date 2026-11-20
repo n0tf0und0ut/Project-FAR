@@ -566,5 +566,16 @@
       "slug": "does-the-fragility-index-know-anything-the-p-value-doesn-t-a-cffe3bc2",
       "title": "Does the Fragility Index Know Anything the P-Value Doesn't? A Preregistered Test on Independent Generation Banks"
     }
-  ]
+  ],
+  "input_row_metadata_sha256": "c5d7993d6d4382111c6f154e4e87c91e4184956abb7b62a64f3c58522ef47d25",
+  "successor_verification": {
+    "run_id": 44745783234,
+    "job_id": 136320726323,
+    "head_sha": "4ee1aa10d65402baae18d85b821bee8f8105a41e",
+    "conclusion": "success",
+    "manifest_sha256": "771d7b6cb86d93b804e165def7507a6ec517d59839d65e603c911459d0cab603",
+    "manifest_file_sha256": "f201fd60042cf10c266755826831cb1ab77dd4cb0471c7a6730221d24ec21f47",
+    "source_metadata_sha256": "c5d7993d6d4382111c6f154e4e87c91e4184956abb7b62a64f3c58522ef47d25",
+    "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/44745783234"
+  }
 }
