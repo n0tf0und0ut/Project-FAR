@@ -76,8 +76,11 @@ class ScreenTest(unittest.TestCase):
             screen.audit_source(r, p, a, v, listing, strict_counts=False)
 
     def test_registered_counts_fail_closed(self):
-        with self.assertRaisesRegex(ValueError, "source count"):
-            screen.audit_source(*fixture())
+        valid = json.loads((SRC.parents[1] / 'research' / 'external-validation' /
+                            'agent-alphaxiv-002' / 'selection-receipt.json').read_text(encoding='utf-8'))
+        _, papers, artifacts, versions, paths = fixture()
+        with self.assertRaisesRegex(ValueError, 'source count'):
+            screen.audit_source(valid, papers, artifacts, versions, paths)
 
     def test_excluded_member_not_misreported_as_released(self):
         r, p, a, v, listing = fixture()
