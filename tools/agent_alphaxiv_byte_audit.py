@@ -15,7 +15,7 @@ from pathlib import Path, PurePosixPath
 import tarfile
 from typing import Callable
 
-from agent_alphaxiv_source_screen import canonical, digest, verify_selection, REVISION, DATASET
+from agent_alphaxiv_source_screen import canonical, digest, verify_selection, verify_selection_receipt_hash, REVISION, DATASET
 
 PROTOCOL = "FAR-AGENT-ALPHAXIV-002/archive-integrity-v0.1"
 MAX_MEMBER_BYTES = 512 * 1024 * 1024
@@ -193,6 +193,7 @@ def main() -> int:
     from datasets import load_dataset
     from huggingface_hub import HfApi, hf_hub_download
     selection = json.loads(args.selection.read_text(encoding="utf-8"))
+    verify_selection_receipt_hash(selection)
     source = json.loads(args.source_coverage.read_text(encoding="utf-8"))
     if source.get("receipt_sha256") != "5fecd596dacc52ba696789ad57294b5b0544670f1b777ea0effd6c300917a21c":
         raise ValueError("unrecognized source-coverage evidence")
