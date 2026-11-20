@@ -34,7 +34,7 @@ class TriageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as work:
             path = Path(work) / "paper.tar"
             archive(path, b"redacted source")
-            meta = metadata(b"original source")
+            meta = metadata(b"original")
             original = audit_tar(path, meta)
             original["project_id"] = "test"
             data = triage.classify_mismatches(path, meta, original)
