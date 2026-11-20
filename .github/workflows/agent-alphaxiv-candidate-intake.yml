@@ -1,7 +1,7 @@
-name: AgentAlphaXiv Candidate Metadata Intake (Research)
+name: AgentAlphaXiv 002 Metadata Intake and 001 Source Forensics (Research)
 
-# This job retrieves metadata only. It cannot approve, launch, score, or
-# adjudicate FAR-AGENT-ALPHAXIV-001. Never silently repin the source.
+# Metadata-only successor intake. The unavailable 001 source is observed and
+# remains a separately preserved failure; no scientific study is launched.
 on:
   pull_request:
     types: [opened, reopened, synchronize]
@@ -10,6 +10,7 @@ on:
       - 'tools/agent_alphaxiv_external_intake.py'
       - 'tests/test_agent_alphaxiv_external_intake.py'
       - 'research/external-validation/agent-alphaxiv-001/**'
+      - 'research/external-validation/agent-alphaxiv-002/**'
 
 permissions:
   contents: read
@@ -84,6 +85,7 @@ jobs:
           assert (p['all_studies'], p['paper_cohort']) == (916, 881)
           assert len(p['selected']) == 60 and p['verified_empirical_claims'] == 0
           print('CANDIDATE_002_MANIFEST_SHA256=' + p['manifest_sha256'])
+          print('CANDIDATE_002_INPUT_ROW_METADATA_SHA256=' + p['input_row_metadata_sha256'])
           for row in p['selected']:
               print('CANDIDATE_002_SELECTED=' + json.dumps(row, ensure_ascii=False, sort_keys=True))
           PY
@@ -96,24 +98,3 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Retrieve pinned study metadata and generate candidate receipt
-        run: |
-          python tools/agent_alphaxiv_external_intake.py --from-hub --output "$RUNNER_TEMP/agent-alphaxiv-candidate.json"
-          sha256sum "$RUNNER_TEMP/agent-alphaxiv-candidate.json"
-          python - "$RUNNER_TEMP/agent-alphaxiv-candidate.json" <<'PY'
-          import json, sys
-          p = json.load(open(sys.argv[1], encoding='utf-8'))
-          assert p['status'] == 'RESEARCH_CANDIDATE_NOT_LAUNCHED'
-          assert p['dataset_revision'] == 'a63f46066ac16fcb470f41933415e175825b6bcc'
-          assert p['all_studies'] == 961 and p['paper_cohort'] == 926
-          assert len(p['selected']) == 60 and p['verified_empirical_claims'] == 0
-          print('CANDIDATE_INTAKE_COUNTS_VERIFIED', p['manifest_sha256'])
-          PY
-
-      - name: Preserve non-confirmatory intake manifest
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: agent-alphaxiv-candidate-${{ github.event.pull_request.head.sha }}
-          path: ${{ runner.temp }}/agent-alphaxiv-candidate.json
-          if-no-files-found: error
-          retention-days: 14
