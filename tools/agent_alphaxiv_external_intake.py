@@ -19,6 +19,18 @@ EXPECTED_COHORT = 926
 SAMPLE_SIZE = 60
 SELECTION_LABEL = "FAR-AGENT-ALPHAXIV-001/candidate-v0.1"
 
+# Distinct, nonconfirmatory candidate source registrations. The unavailable
+# 001 source and expected counts remain immutable; 002 never substitutes for it.
+SOURCES = {
+    "001": (REVISION, EXPECTED_STUDIES, EXPECTED_COHORT, SELECTION_LABEL),
+    "002": (
+        "cc892aab131be3872283e1a778af663382315817",
+        916,
+        881,
+        "FAR-AGENT-ALPHAXIV-002/candidate-v0.1",
+    ),
+}
+
 
 def _canonical(value: object) -> bytes:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
@@ -28,11 +40,15 @@ def _hash(value: object) -> str:
     return hashlib.sha256(_canonical(value)).hexdigest()
 
 
-def selection_key(project_id: str) -> str:
-    return hashlib.sha256((SELECTION_LABEL + "\n" + project_id).encode("utf-8")).hexdigest()
+def selection_key(project_id: str, *, label: str = SELECTION_LABEL) -> str:
+    return hashlib.sha256((label + "\n" + project_id).encode("utf-8")).hexdigest()
 
 
-def build_manifest(rows: Iterable[dict], *, strict: bool = True, sample_size: int = SAMPLE_SIZE) -> dict:
+def build_manifest(rows: Iterable[dict], *, strict: bool = True, sample_size: int = SAMPLE_SIZE, candidate: str = "001") -> dict:
+    try:
+        source_revision, source_studies, source_cohort, source_label = SOURCES[candidate]
+    except KeyError as exc:
+        raise ValueError("unregistered candidate ID") from exc
     if sample_size < 1:
         raise ValueError("sample_size must be positive")
     studies: list[dict] = []
@@ -51,14 +67,14 @@ def build_manifest(rows: Iterable[dict], *, strict: bool = True, sample_size: in
         seen.add(project_id)
         studies.append({k: row[k] for k in ("project_id", "lab", "title", "latest_version_id", "slug", "in_paper_cohort")})
     cohort = [r for r in studies if r["in_paper_cohort"]]
-    if strict and (len(studies), len(cohort)) != (EXPECTED_STUDIES, EXPECTED_COHORT):
-        raise ValueError(f"source count mismatch: got {len(studies)} studies, {len(cohort)} in cohort; expected {EXPECTED_STUDIES}, {EXPECTED_COHORT}")
+    if strict and (len(studies), len(cohort)) != (source_studies, source_cohort):
+        raise ValueError(f"source count mismatch: got {len(studies)} studies, {len(cohort)} in cohort; expected {source_studies}, {source_cohort}")
     if len(cohort) < sample_size:
         raise ValueError(f"insufficient eligible cohort metadata: {len(cohort)} < {sample_size}")
 
     # One deterministic minimum-hash paper per lab first, then global minimum-hash fill.
     # Selection does not depend on titles, abstracts, review outcomes, or defect labels.
-    ordered = sorted(cohort, key=lambda r: (selection_key(r["project_id"]), r["project_id"]))
+    ordered = sorted(cohort, key=lambda r: (selection_key(r["project_id"], label=source_label), r["project_id"]))
     first_per_lab: dict[str, dict] = {}
     for r in ordered:
         first_per_lab.setdefault(r["lab"], r)
@@ -72,15 +88,15 @@ def build_manifest(rows: Iterable[dict], *, strict: bool = True, sample_size: in
     selected = [
         {"project_id": r["project_id"], "lab": r["lab"], "title": r["title"],
          "slug": r["slug"], "latest_version_id": r["latest_version_id"],
-         "selection_digest": selection_key(r["project_id"]),
+         "selection_digest": selection_key(r["project_id"], label=source_label),
          "screening_status": "UNSCREENED"}
         for r in ordered if r["project_id"] in selected_ids
     ]
     data = {
-        "protocol": SELECTION_LABEL,
+        "protocol": source_label,
         "status": "RESEARCH_CANDIDATE_NOT_LAUNCHED",
         "dataset": DATASET,
-        "dataset_revision": REVISION,
+        "dataset_revision": source_revision,
         "all_studies": len(studies),
         "paper_cohort": len(cohort),
         "represented_labs": len({r["lab"] for r in cohort}),
@@ -99,12 +115,14 @@ def load_jsonl(path: Path) -> list[dict]:
         return [json.loads(line) for line in fh if line.strip()]
 
 
-def load_hub() -> list[dict]:
+def load_hub(*, candidate: str = "001") -> list[dict]:
     try:
         from datasets import load_dataset  # type: ignore
     except ImportError as exc:
         raise RuntimeError("from-hub requires 'pip install datasets'; no fallback revision is permitted") from exc
-    return list(load_dataset(DATASET, "studies", split="train", revision=REVISION))
+    if candidate not in SOURCES:
+        raise ValueError("unregistered candidate ID")
+    return list(load_dataset(DATASET, "studies", split="train", revision=SOURCES[candidate][0]))
 
 
 def main() -> None:
@@ -113,9 +131,11 @@ def main() -> None:
     source.add_argument("--from-hub", action="store_true", help="fetch pinned Hugging Face studies config")
     source.add_argument("--input-jsonl", type=Path, help="previously exported studies JSONL")
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--candidate", choices=tuple(SOURCES), default="001",
+                        help="explicit source candidate ID; default retains original 001 registration")
     args = parser.parse_args()
-    rows = load_hub() if args.from_hub else load_jsonl(args.input_jsonl)
-    manifest = build_manifest(rows)
+    rows = load_hub(candidate=args.candidate) if args.from_hub else load_jsonl(args.input_jsonl)
+    manifest = build_manifest(rows, candidate=args.candidate)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     print(f"UNSCREENED candidate sample: {len(manifest['selected'])}; manifest_sha256={manifest['manifest_sha256']}")
