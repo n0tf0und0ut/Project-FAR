@@ -1,0 +1,38 @@
+name: FAR Replanning Research Provider Preflight
+on:
+  push:
+    branches: ["research/replanning-execution-*"]
+permissions:
+  contents: read
+jobs:
+  candidate-validation:
+    if: contains(github.event.head_commit.message, '[FAR-REPLAN-PROBE]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify candidate is unsealed and tests are adversarial
+        run: |
+          python -m unittest discover -s tests -p 'test_replanning_study_*.py' -v
+          python -m tools.replanning_study_gate
+      - name: Provision pinned credential-free CPU inference provider
+        run: bash scripts/tool_agent_reliability_start_7b.sh
+      - name: Check exact current local provider registry without scored inference
+        run: |
+          mkdir -p artifacts/replanning
+          python -m tools.replanning_study_runner provider-preflight > artifacts/replanning/preflight.json
+          cat artifacts/replanning/preflight.json
+      - name: Preserve observed provider outcome without hiding failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: far-replan-001-candidate-provider-preflight
+          path: artifacts/replanning/
+          if-no-files-found: warn
+          retention-days: 30
