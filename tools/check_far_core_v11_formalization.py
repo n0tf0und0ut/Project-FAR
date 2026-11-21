@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT))
 import jsonschema  # noqa: E402
 
 LEDGER_PATH = "theory/evaluation/far-core-formalization-ledger-v1.0.json"
+STATEMENT_LOCK_PATH = "tools/far_core_v11_statement_lock.json"
 ASSURANCE_PATH = "theory/evaluation/far-core-assurance-v1.0.json"
 CORE_PATH = "theory/terminal/project-far-core-theory-v1.1.json"
 INVENTORY_PATH = "artifacts/mechanization/lean-inventory-v1.0.json"
@@ -267,6 +268,139 @@ def axiom_output_errors(text: str, ledger: dict) -> list[str]:
     return sorted(set(errors))
 
 
+
+def _qualified_declaration_offsets(code: str, qualified: str) -> list[tuple[int, int, str]]:
+    """Resolve actual Lean namespace scopes before matching mapped declaration names.
+
+    Only the concrete namespace/declaration syntax used by governed modules is
+    accepted. Any unrecognized scope boundary fails closed. In particular,
+    \`namespace Decoy\` may not satisfy a lock for \`FARCoreV11.target\`.
+    Quoted identifiers such as \`«target»\` are normalized for lookup.
+    """
+    namespace: list[str] = []
+    matches: list[tuple[int, int, str]] = []
+    declaration = re.compile(
+        r"^[ \t]*(?:(?:noncomputable|protected)\s+)*"
+        r"(?P<kind>def|theorem|abbrev)\s+"
+        r"(?P<name>«[^»]+»|[A-Za-z_][A-Za-z0-9_']*)"
+    )
+    offset = 0
+    for raw in code.splitlines(keepends=True):
+        stripped = raw.strip()
+        opening = re.fullmatch(r"namespace\s+([A-Za-z_][A-Za-z0-9_.']*)", stripped)
+        closing = re.fullmatch(r"end\s+([A-Za-z_][A-Za-z0-9_.']*)", stripped)
+        if opening:
+            namespace.extend(opening.group(1).split("."))
+        elif closing:
+            ending = closing.group(1).split(".")
+            if namespace[-len(ending):] != ending:
+                return []
+            del namespace[-len(ending):]
+        elif re.match(r"^(?:namespace|end)\b", stripped):
+            # Fail closed on bare/line-broken or otherwise unsupported Lean
+            # scope commands: e.g. `namespace\\n Decoy` and bare `end`.
+            # Ignoring them could bind a decoy theorem to a governed name.
+            return []
+        else:
+            found = declaration.match(raw)
+            # The checked modules use single-line declaration keywords and
+            # names. Lean also admits `theorem\\n «name»`; do not silently
+            # skip unsupported split commands or spelling variants.
+            if not found and re.match(
+                r"^(?:(?:noncomputable|protected|private|nonrec|partial)\s+)*"
+                r"(?:theorem|def|abbrev)\b", stripped,
+            ):
+                return []
+            if found:
+                name = found.group("name")
+                if name.startswith("«") and name.endswith("»"):
+                    name = name[1:-1]
+                actual = ".".join(namespace + [name])
+                if name == qualified.rsplit(".", 1)[-1] and actual != qualified:
+                    # A second declaration with the governed terminal name in a
+                    # decoy or global namespace is suspicious even if Lean permits it.
+                    # Reject instead of silently treating it as unrelated.
+                    return []
+                if actual == qualified:
+                    matches.append((offset + found.start(), offset + found.end(), found.group("kind")))
+        offset += len(raw)
+    return matches if not namespace else []
+
+
+def statement_header(text: str, qualified: str) -> str | None:
+    """Lock the complete, qualified Lean source proposition, excluding proof.
+
+    This is a regression guard, not elaborator-level theorem equivalence.
+    Duplicated, quoted, re-namespaced and malformed declarations fail closed.
+    """
+    code = lean_code(text)
+    positions = _qualified_declaration_offsets(code, qualified)
+    if len(positions) != 1:
+        return None
+    start, after_name, kind = positions[0]
+    remainder = code[start:]
+    next_declaration = DECLARATION.search(remainder, after_name - start)
+    block = remainder[:next_declaration.start()] if next_declaration else remainder
+    # \`where\`-defined values contain field assignments inside their bodies.
+    where_match = re.search(r"\bwhere[ \t]*(?:\n|$)", block)
+    if kind == "theorem":
+        # Skip dependent \`let x := ...\` inside a proposition; accept only
+        # observed tactic- and constructor-bodied theorem forms.
+        body_match = re.search(r":=\s*(?:by\b|⟨)", block)
+    else:
+        body_match = re.search(r":=", block)
+    if where_match and (body_match is None or where_match.start() < body_match.start()):
+        end = where_match.start()
+    elif body_match:
+        end = body_match.start()
+    else:
+        return None
+    header = " ".join(block[:end].split())
+    return header if header else None
+
+
+def statement_lock_errors(
+    ledger: dict, lock: dict, source_overrides: dict[str, str] | None = None
+) -> list[str]:
+    """Fail on drift of any of the 40 governed source-level declaration statements.
+
+    Locks are reviewed commitments to the initial source signatures; they are NOT an
+    independently justified Lean elaboration or full prose-to-formalization mapping.
+    """
+    expected = {
+        declaration: claim["intended_lean_module"]
+        for claim in ledger["claims"]
+        for declaration in claim["lean_declarations"]
+    }
+    locked = lock.get("signatures")
+    if not isinstance(locked, dict):
+        return ["proposition lock is missing its signatures map"]
+    errors = []
+    if set(locked) != set(expected):
+        errors.append(
+            f"source proposition lock coverage drift: "
+            f"missing={sorted(set(expected) - set(locked))} "
+            f"unexpected={sorted(set(locked) - set(expected))}"
+        )
+    sources: dict[str, str] = {}
+    for declaration, path in sorted(expected.items()):
+        entry = locked.get(declaration)
+        if not isinstance(entry, dict) or entry.get("module") != path:
+            errors.append(f"{declaration}: proposition lock module mismatch or missing entry")
+            continue
+        if path not in sources:
+            if source_overrides is not None and path in source_overrides:
+                sources[path] = source_overrides[path]
+            else:
+                sources[path] = (ROOT / path).read_text(encoding="utf-8")
+        observed = statement_header(sources[path], declaration)
+        if observed is None:
+            errors.append(f"{declaration}: absent, duplicated, or malformed proposition declaration")
+        elif observed != entry.get("header"):
+            errors.append(f"{declaration}: proposition signature drift from the reviewed source lock")
+    return sorted(set(errors))
+
+
 def inventory(ledger: dict) -> dict:
     files = []
     forbidden_count = 0
@@ -302,6 +436,7 @@ def inventory(ledger: dict) -> dict:
 
 def alignment_errors(ledger: dict, assurance: dict, core: dict, generated: dict) -> list[str]:
     errors: list[str] = axiom_contract_errors(ledger)
+    errors.extend(statement_lock_errors(ledger, load(STATEMENT_LOCK_PATH)))
     expected_ids = [f"FAR-CORE-{index:03d}" for index in range(1, 15)]
     ledger_claims = ledger["claims"]
     assurance_by_id = {item["id"]: item for item in assurance["claims"]}

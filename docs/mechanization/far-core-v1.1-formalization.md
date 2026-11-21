@@ -46,7 +46,7 @@ formalization does not enlarge FAR-CORE-014 into a universal architecture claim.
 | File | SHA-256 | Lines | Imports |
 |---|---|---:|---|
 | `mechanization/lean/FARCoreV11AxiomAudit.lean` | `cd6e88e642ac0d397eacde46201b552f6c2ed1a7c02607181b57bbb7e70c55fa` | 44 | `FARCoreV11Claims001To012`, `FARCoreV11Omega`, `FARCoreV11SSS` |
-| `mechanization/lean/FARCoreV11Claims001To012.lean` | `2d50a81a7a6e3c60bc795d29a326b2fdc613ba30fe602585930354c627db1c43` | 364 | `FARCoreV11Substrate` |
+| `mechanization/lean/FARCoreV11Claims001To012.lean` | `52dbd255de8cd64cbcac5a437bd8827d20e9fe4c0fbd3fb318e01b5be22e04a7` | 388 | `FARCoreV11Substrate` |
 | `mechanization/lean/FARCoreV11Mutations.lean` | `e129549526c8f13078c3ae5d8897926700c5cef340f5b56387dd2212c603bdf7` | 182 | `FARCoreV11Claims001To012`, `FARCoreV11Omega`, `FARCoreV11SSS` |
 | `mechanization/lean/FARCoreV11Omega.lean` | `52570fe1ed0c7a76b850162d584d47e759098b054a8cd147161891d663a7044c` | 51 | `FARCoreV11Substrate` |
 | `mechanization/lean/FARCoreV11SSS.lean` | `c58a9b55385fb1ce0a6555ef827ebec0d5c38a63130eb07f8003f6821c73ad53` | 412 | `FARCoreV11Substrate` |

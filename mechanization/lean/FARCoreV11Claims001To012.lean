@@ -272,6 +272,30 @@ theorem finite_panel_two_completions {D : Type u} [DecidableEq D]
   · intro hself
     exact hself rfl
 
+/-- An arbitrary observed predicate on the finite panel has two extensions agreeing
+with every panel observation but disagreeing at an outside case. Unlike the
+unparameterized completion witness above, this ties both extensions to the
+actual submitted panel predicate rather than merely to each other.
+This remains a finite-panel underdetermination result, not an open-domain
+completeness or soundness theorem. -/
+theorem finite_panel_observation_extensions {D : Type u} [DecidableEq D]
+    (panel : List D) (observed : D -> Prop) (outside : D)
+    (houtside : outside ∉ panel) :
+    ∃ positive negative : D -> Prop,
+      (∀ x ∈ panel, positive x ↔ observed x) ∧
+      (∀ x ∈ panel, negative x ↔ observed x) ∧
+      positive outside ∧ ¬ negative outside := by
+  classical
+  refine ⟨(fun x => if x ∈ panel then observed x else True),
+    (fun x => if x ∈ panel then observed x else False), ?_, ?_, ?_, ?_⟩
+  · intro x hx
+    simp [hx]
+  · intro x hx
+    simp [hx]
+  · simp [houtside]
+  · simp [houtside]
+
+
 /-! ## FAR-CORE-010 -/
 
 /-- Exact common theory for fixed language/interpretation profile/target class. -/
