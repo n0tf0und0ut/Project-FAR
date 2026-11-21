@@ -1,0 +1,57 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-CD385D78E169B24C",
+  "discovery": {
+    "first_seen_utc": "2026-09-09T10:08:23Z",
+    "last_seen_utc": "2026-09-10T11:22:59Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "AI peer review false positive calibration",
+        "seen_utc": "2026-09-09T10:08:23Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.5256/f1000research.207873.r512923",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [],
+      "container": null,
+      "doi": "10.5256/f1000research.207873.r512923",
+      "provider": "Crossref",
+      "provider_id": "10.5256/f1000research.207873.r512923",
+      "published_date": "2026-09-09",
+      "publisher": "F1000 Research Ltd",
+      "title": "Peer Review Report For: Preserving Participant Meaning in AI-Mediated Multilingual Qualitative Research [version 1; peer review: 1 approved with reservations]",
+      "url": "https://doi.org/10.5256/f1000research.207873.r512923",
+      "work_type": "peer-review"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

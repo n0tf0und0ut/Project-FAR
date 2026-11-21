@@ -1,0 +1,64 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-E16C2C1235FCCB5D",
+  "discovery": {
+    "first_seen_utc": "2026-11-09T19:42:02Z",
+    "last_seen_utc": "2026-11-11T02:31:42Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information bottleneck decision loss sufficient statistic",
+        "seen_utc": "2026-11-09T19:42:02Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.3389/fonc.2026.1857871",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Gang Liu",
+        "Sijia Chen",
+        "Yaling Zhu",
+        "Hui Zhang",
+        "Yan Li",
+        "Qingjie Dong"
+      ],
+      "container": "Frontiers in Oncology",
+      "doi": "10.3389/fonc.2026.1857871",
+      "provider": "Crossref",
+      "provider_id": "10.3389/fonc.2026.1857871",
+      "published_date": "2026-07-08",
+      "publisher": "Frontiers Media SA",
+      "title": "Multi-scale information bottleneck with confidence-weighted decision fusion for robust breast ultrasound lesion classification",
+      "url": "https://doi.org/10.3389/fonc.2026.1857871",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

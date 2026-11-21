@@ -1,0 +1,2984 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "cursor_advanced": true,
+  "failures": [],
+  "finished_utc": "2026-10-23T14:54:33Z",
+  "historical_advanced": true,
+  "queries": [
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "observational equivalence quotient algorithm minimization",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "observational equivalence quotient algorithm minimization",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-360C2369D5A886FE",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1007/s11590-020-01691-z",
+          "title": "A new concave minimization algorithm for the absolute value equation solution"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7DB985E3B26CD94D",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.1016/j.brainres.2006.01.012",
+          "title": "Predicting Autism Spectrum Quotient (AQ) from the Systemizing Quotient-Revised (SQ-R) and Empathy Quotient (EQ)"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-67F21BC84DDDF6C8",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.3233/fi-2009-113",
+          "title": "A New Algorithm for Optimal Path Finding in Complex Networks Based on the Quotient Space"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-2975B3E7BB91401F",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.3390/math13091504"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5ABCC2DF3AACEA2A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1137/0329022"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A0A6DD2C42E82D83",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1023/b:jmiv.0000011325.36760.1e"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-2B725CE12874C4FD",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1103/physrevb.53.r1740"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B3D85383D641B8E9",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.3934/ipi.2011.5.731"
+        }
+      ],
+      "target_id": "FAR-RQ-003"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "bisimulation quotient minimization computation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "bisimulation quotient minimization computation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-CC09EE6DC03FED58",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1090/s0025-5718-1970-0274029-x",
+          "title": "Conditioning of quasi-Newton methods for function minimization"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3C4603860192E4C4",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1016/j.amc.2014.11.103",
+          "title": "A branch-and-bound method for the single-machine scheduling problem under a non-availability constraint for maximum delivery time minimization"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D6EBE15A153973C1",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1080/03610918.2022.2110594",
+          "title": "A review of ridge parameter selection: minimization of the mean squared error vs. mitigation of multicollinearity"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7DB985E3B26CD94D",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.1016/j.brainres.2006.01.012"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7377C340D87577E4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1109/tcomm.2023.3237854"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-CF5D476321A73C07",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1109/mass58611.2023.00044"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0417942DCF68D017",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.1007/978-3-319-95930-6_69"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-1C893780875B713A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "minimization"
+          ],
+          "source_key": "doi:10.1109/tmc.2024.3502004"
+        }
+      ],
+      "target_id": "FAR-RQ-003"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "minimal sufficient statistic algorithm representation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "minimal sufficient statistic algorithm representation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-70CF7DD4808A6810",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "sufficient statistic"
+          ],
+          "source_key": "doi:10.1109/tvt.2025.3604610",
+          "title": "AoA Estimation Using Sufficient Statistic-Based MUSIC Algorithms for Low SNR"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-ABC3C10AE656738A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.2307/2347485"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EC887FF0C1244E9E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.2307/2986316"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9F3C3C02C6B6838E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1016/j.imlet.2005.03.021"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-2E8D44DED940A60E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1021/bi980542h"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-6956B159255F41A6",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.24963/ijcai.2024/541"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-42822F72E44B7FB4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1109/tpwrs.2018.2801286"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5D6DD0134B151244",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1006/jvci.1994.1017"
+        }
+      ],
+      "target_id": "FAR-RQ-003"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "approximate sufficiency representation loss metric",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "approximate sufficiency representation loss metric",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-76CE9325170D3825",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "approximate"
+          ],
+          "source_key": "doi:10.1016/j.ijar.2011.05.003",
+          "title": "Fuzzy ontology representation using OWL 2"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D75994E0B7159C9F",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "approximate"
+          ],
+          "source_key": "doi:10.1007/s00023-018-0716-0",
+          "title": "Universal Recovery Maps and Approximate Sufficiency of Quantum Relative Entropy"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-34B0AD183E48DD49",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "metric"
+          ],
+          "source_key": "doi:10.1016/j.jvcir.2024.104290",
+          "title": "SR4KVQA: Video quality assessment database and metric for 4K super-resolution"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-FA8D611FCE5AEDDC",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "metric"
+          ],
+          "source_key": "doi:10.1016/j.buildenv.2025.113209"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A4225886C3E4159B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "approximate",
+            "loss"
+          ],
+          "source_key": "doi:10.1016/j.jvcir.2024.104318"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-935DE26C921157BE",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "approximate",
+            "metric"
+          ],
+          "source_key": "doi:10.1109/tpwrs.2018.2807623"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C56913CEB4845CFC",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "metric"
+          ],
+          "source_key": "doi:10.1109/cisp-bmei60920.2023.10373382"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-6240E6C6C4F90C63",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "metric"
+          ],
+          "source_key": "doi:10.1109/access.2024.3407604"
+        }
+      ],
+      "target_id": "FAR-RQ-004"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "multiobjective cost preorder Pareto representation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "multiobjective cost preorder Pareto representation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D8701EA390B94DC5",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1016/j.asoc.2024.112022",
+          "title": "A new prediction-based evolutionary dynamic multiobjective optimization algorithm aided by Pareto optimal solution estimation strategy"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7A65147E44A3C978",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1109/4235.797969",
+          "title": "Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-8EBA9EE9E4D19886",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1109/tevc.2008.925798",
+          "title": "Multiobjective Optimization Problems With Complicated Pareto Sets, MOEA/D and NSGA-II"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-26B0A5A895B321D6",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1080/02331934.2024.2369605"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-BA4F719108441CA7",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1109/tro.2024.3428990"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-38473129DF78BCFB",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1021/acs.iecr.6b03453"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-538500BC1465319A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1016/j.engappai.2015.04.002"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-26D9CC80B3684ADB",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "pareto"
+          ],
+          "source_key": "doi:10.1109/tcyb.2022.3163759"
+        }
+      ],
+      "target_id": "FAR-RQ-004"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "information bottleneck decision loss sufficient statistic",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "information bottleneck decision loss sufficient statistic",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7DE7AFDEC249A391",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "information bottleneck"
+          ],
+          "source_key": "doi:10.3390/e22020131",
+          "title": "On the Difference between the Information Bottleneck and the Deep Information Bottleneck"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3968B546D8F3B589",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "information bottleneck"
+          ],
+          "source_key": "doi:10.1109/itw.2015.7133169",
+          "title": "Deep learning and the information bottleneck principle"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D7BD6A9BF6A4285C",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "information bottleneck",
+            "loss"
+          ],
+          "source_key": "doi:10.3390/e23080974",
+          "title": "Information Bottleneck Analysis by a Conditional Mutual Information Bound"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-58C7C02C306889BD",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "approximate"
+          ],
+          "source_key": "doi:10.2139/ssrn.7656766"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C335F1CFF936C522",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.2139/ssrn.7634994"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-70CF7DD4808A6810",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "sufficient statistic"
+          ],
+          "source_key": "doi:10.1109/tvt.2025.3604610"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-92121F76B1C9E14A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.3390/info2030528"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C211643458568911",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "information bottleneck"
+          ],
+          "source_key": "doi:10.1063/5.0038198"
+        }
+      ],
+      "target_id": "FAR-RQ-004"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "structured reasoning audit error detection human evaluation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "structured reasoning audit error detection human evaluation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-86661BEAC86A772B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.18653/v1/2025.sigdial-1.46"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3CAFF89A0493116E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.3390/data10110172"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9F24BE45D5399FF7",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.11591/ijece.v14i6.pp6619-6627"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F5D6962F338753E6",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1111/j.1468-0297.2010.02408.x"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D212B2A4C126A1C7",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.3233/faia260993"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-71648F898902FB3E",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit"
+          ],
+          "source_key": "doi:10.21203/rs.3.rs-11435156/v1",
+          "title": "Decoupling Performance from Energy in AI-Based Business Optimization: An Error-Driven Control Loop for Sustainable Tabular Reasoning"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B1C61DCDE4B54749",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "empirical"
+          ],
+          "source_key": "doi:10.18653/v1/2025.emnlp-main.654",
+          "title": "Advancing Oversight Reasoning across Languages for Audit Sycophantic Behaviour via X-Agent"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-61BFF610012EC73E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1017/cbo9781139062367"
+        }
+      ],
+      "target_id": "FAR-RQ-005"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "representation loss audit empirical study",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "representation loss audit empirical study",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-51A83EE531D2E7E2",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "empirical"
+          ],
+          "source_key": "doi:10.29040/ijebar.v10i2.19861",
+          "title": "EFFECT OF E-AUDIT, AI, AND BIG DATA ANALYTICS ON AUDIT QUALITY: EMPIRICAL STUDY AT BPK RI"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EDEB5410438B1BD2",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "empirical"
+          ],
+          "source_key": "doi:10.30736/jpensi.v10i3.2768",
+          "title": "The Effect of Company Size, Auditor Change, and Audit Committee Gender on Audit Delay (Empirical Study of Banking Sub-Sector Companies Listed on the Indonesia Stock Exchange 2020-2024)"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EE486DF6581269CB",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit"
+          ],
+          "source_key": "doi:10.1111/1911-3846.12977",
+          "title": "Bank audit committee financial expertise and timely loan loss recognition"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-52CEDE49754C65C8",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "empirical",
+            "representation"
+          ],
+          "source_key": "doi:10.36001/phmconf.2026.v18i1.5103"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A159A518DC350744",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "empirical"
+          ],
+          "source_key": "doi:10.3390/en15217955"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B1C61DCDE4B54749",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "empirical"
+          ],
+          "source_key": "doi:10.18653/v1/2025.emnlp-main.654"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-6F788F9112389F12",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "empirical"
+          ],
+          "source_key": "doi:10.69725/ami.v1i1.96"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-26BB97CEBABFCBF4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "empirical"
+          ],
+          "source_key": "doi:10.1016/j.aap.2009.04.018"
+        }
+      ],
+      "target_id": "FAR-RQ-005"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "decision audit omission detection experiment",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "decision audit omission detection experiment",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9629EC5EFEFE28CC",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "omission"
+          ],
+          "source_key": "doi:10.1006/obhd.1999.2839",
+          "title": "Protected Values and Omission Bias"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-40B9B317EFFABD7B",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "omission"
+          ],
+          "source_key": "doi:10.1378/chest.128.3.1497",
+          "title": "Omission Bias and Decision Making in Pulmonary and Critical Care Medicine"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D24344761DBBA429",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.3390/s19030528"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-046C433B3CE3428F",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit"
+          ],
+          "source_key": "doi:10.17762/jidmis.v3.3368",
+          "title": "External Audit Quality, Audit Committee Characteristics, and Financial Reporting Quality: Evidence in the Context of Sustainability and Ai-Driven Corporate Governance"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-DFD015B7D3DB397D",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "omission"
+          ],
+          "source_key": "doi:10.1080/08870446.2025.2552228"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-222489BFAD4BC547",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit"
+          ],
+          "source_key": "doi:10.1177/02750740261498871"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F02513FC8DD17F89",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1098/rsos.251802/v2/decision1"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-AB69DB8DB89DCF5F",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1098/rsos.251802/v3/decision1"
+        }
+      ],
+      "target_id": "FAR-RQ-005"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "formal audit representation cost effectiveness",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "formal audit representation cost effectiveness",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9C3F011ED11E4B25",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "cost"
+          ],
+          "source_key": "doi:10.21203/rs.3.rs-11415811/v1",
+          "title": "Verifiable Delegated Authority for LLM Agents in Banking: A Formal Architecture, Capability Protocol, and Audit Guarantees"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-E916C55B0296F8C9",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "cost",
+            "effectiveness"
+          ],
+          "source_key": "doi:10.1186/1478-7547-11-4",
+          "title": "Cost-utility analysis of a dance intervention for adolescent girls with internalizing problems"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-DCB614A4213187B3",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "effectiveness"
+          ],
+          "source_key": "doi:10.1080/23311975.2024.2315318",
+          "title": "Audit committee effectiveness, audit quality and earnings management: evidence from Ghana"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-15587EB9735A946A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.2139/ssrn.7647678"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C9814D889E067395",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.23941/ejpe.v19i1.1213"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-BFD596A9566647C0",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "effectiveness"
+          ],
+          "source_key": "doi:10.1108/ajar-10-2019-0075"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-297553319273BFF0",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost",
+            "effectiveness"
+          ],
+          "source_key": "doi:10.1186/s12962-026-00846-6"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-E4C70A9613C68270",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost",
+            "effectiveness",
+            "efficiency"
+          ],
+          "source_key": "doi:10.1093/med/9780198838197.001.0001"
+        }
+      ],
+      "target_id": "FAR-RQ-006"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "structured argument audit cost benefit",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "structured argument audit cost benefit",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A51CD8B8E16F7EC3",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "cost",
+            "effectiveness",
+            "efficiency"
+          ],
+          "source_key": "doi:10.1017/bca.2021.11",
+          "title": "Benefit-Cost Analysis for Climate Action"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3806498B92447121",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "cost"
+          ],
+          "source_key": "doi:10.1017/bca.2019.11",
+          "title": "Should Benefit-Cost Analysis Include a Correction for the Marginal Excess Burden of Taxation?"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3D42FBB33DC07505",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1075/la.259"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-8B39EBD1D39C5C99",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "cost",
+            "efficiency"
+          ],
+          "source_key": "doi:10.1017/bca.2020.18",
+          "title": "Efficiency without Apology: Consideration of the Marginal Excess Tax Burden and Distributional Impacts in Benefit–Cost Analysis"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A6198449A436C152",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost"
+          ],
+          "source_key": "doi:10.1515/jbca-2013-0016"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-04A3A0216622ECB9",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost"
+          ],
+          "source_key": "doi:10.7551/mitpress/11571.001.0001"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0742393081A9BDE3",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost"
+          ],
+          "source_key": "doi:10.9783/9781512809466-010"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-BC59C8367918AB1B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "cost"
+          ],
+          "source_key": "doi:10.4324/9781003191377"
+        }
+      ],
+      "target_id": "FAR-RQ-006"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "reasoning audit workload efficiency",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "reasoning audit workload efficiency",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-55059027C74AB7D1",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "workload"
+          ],
+          "source_key": "doi:10.1109/iiswc66894.2025.00018",
+          "title": "EdgeReasoning: Characterizing Reasoning LLM Deployment on Edge GPUs"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0718DDF01A258C60",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "efficiency"
+          ],
+          "source_key": "doi:10.55248/gengpi.5.1224.250122",
+          "title": "Enhancing Internal Audit Efficiency for Effective Risk Management and Corporate Governance Frameworks"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-782527DB4023817E",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "workload"
+          ],
+          "source_key": "doi:10.1016/j.is.2018.04.005",
+          "title": "Performance prediction and adaptation for database management system workload using Case-Based Reasoning approach"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B1C61DCDE4B54749",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit"
+          ],
+          "source_key": "doi:10.18653/v1/2025.emnlp-main.654"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4143EA222558DFD9",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "efficiency"
+          ],
+          "source_key": "doi:10.2308/ajpt-52597"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C1C9072CAC840BA8",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "efficiency",
+            "workload"
+          ],
+          "source_key": "doi:10.1038/s41598-017-05378-x"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-6BEA7B7C79019EE5",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "workload"
+          ],
+          "source_key": "doi:10.4103/ams.ams_12_26"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0FA263D0D65D05A5",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "efficiency",
+            "workload"
+          ],
+          "source_key": "doi:10.3390/f15050798"
+        }
+      ],
+      "target_id": "FAR-RQ-006"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "reasoning representation audit provenance failure unknown factorization",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "reasoning representation audit provenance failure unknown factorization",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-15587EB9735A946A",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "reasoning",
+            "representation"
+          ],
+          "source_key": "doi:10.2139/ssrn.7647678",
+          "title": "The Primitive Recursor Test: Construction-Recognition Gap and Representation-Shift Failure in Formal Reasoning"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F3EBF3E753E19D8D",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "reasoning",
+            "representation"
+          ],
+          "source_key": "doi:10.1016/b978-1-4832-1452-8.50102-0",
+          "title": "Spatial Reasoning with Propositional Logics"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-85D2BEBF7E4AB212",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "factorization",
+            "representation"
+          ],
+          "source_key": "doi:10.1109/tdsc.2026.3683950/mm1",
+          "title": "Federated Latent Factorization of Tensors for Privacy-Preserving Representation Learning to Large-scale Dynamic Weighted Directed Network_supp1-3683950.pdf"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-76CE9325170D3825",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "reasoning",
+            "representation"
+          ],
+          "source_key": "doi:10.1016/j.ijar.2011.05.003"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-223ACF44C73F3DF4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "reasoning",
+            "representation"
+          ],
+          "source_key": "doi:10.24963/kr.2024/70"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3D1023A1886F3881",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "provenance"
+          ],
+          "source_key": "doi:10.5194/wes-2026-166"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-04ECCCB32313291D",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "factorization",
+            "representation"
+          ],
+          "source_key": "doi:10.1134/s0040577926100107"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-FBD0E9D5DC62762B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "provenance"
+          ],
+          "source_key": "doi:10.5194/wes-2026-166-supplement"
+        }
+      ],
+      "target_id": "FAR-RQ-007"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "information preserving representation audit observational equivalence",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "information preserving representation audit observational equivalence",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4260D02A1AF41CA3",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.1023/b:alge.0000003543.02426.4d"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-889ACD5B6E9DB800",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.21437/interspeech.2023-2138"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-85D2BEBF7E4AB212",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "factorization",
+            "representation"
+          ],
+          "source_key": "doi:10.1109/tdsc.2026.3683950/mm1",
+          "title": "Federated Latent Factorization of Tensors for Privacy-Preserving Representation Learning to Large-scale Dynamic Weighted Directed Network_supp1-3683950.pdf"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-450AD294EF7F9816",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.5194/egusphere-2026-3142"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C6174BEA7912BDE1",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1007/s00145-018-9281-4"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-53CB5D4AE77ED662",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.1007/s10468-013-9422-2"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-921050C2962EA929",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.1080/00927878508823203"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-A4225886C3E4159B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "representation"
+          ],
+          "source_key": "doi:10.1016/j.jvcir.2024.104318"
+        }
+      ],
+      "target_id": "FAR-RQ-007"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "structured reasoning contract provenance audit",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "structured reasoning contract provenance audit",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9318C828CE3AECFC",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "contract",
+            "reasoning"
+          ],
+          "source_key": "doi:10.60082/2817-5069.2824",
+          "title": "Book Review: Contract Law and Contract Practice: Bridging the Gap between Legal Reasoning and Commercial Expectation, by Catherine Mitchell"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F0B2D2BFE33FFA16",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "contract",
+            "provenance"
+          ],
+          "source_key": "doi:10.1109/access.2026.3683717",
+          "title": "Expanding the Horizon of Provenance Domains for Smart Contract-Based Workflows"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3D1023A1886F3881",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "audit",
+            "provenance"
+          ],
+          "source_key": "doi:10.5194/wes-2026-166",
+          "title": "Structural defects in the Kelmarsh open SCADA dataset: a provenance audit with file reconstruction and downstream consequences"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3CAFF89A0493116E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [
+            "reasoning"
+          ],
+          "source_key": "doi:10.3390/data10110172"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-FBD0E9D5DC62762B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "provenance"
+          ],
+          "source_key": "doi:10.5194/wes-2026-166-supplement"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EA63C3AD6984899B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "provenance",
+            "reasoning"
+          ],
+          "source_key": "doi:10.1007/978-3-031-21541-4_10"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B1C61DCDE4B54749",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "audit",
+            "reasoning"
+          ],
+          "source_key": "doi:10.18653/v1/2025.emnlp-main.654"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-624FA890A3AC9E86",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "reasoning",
+            "representation"
+          ],
+          "source_key": "doi:10.71465/mrcis159"
+        }
+      ],
+      "target_id": "FAR-RQ-007"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "preference elicitation multi criteria orientation Pareto",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "preference elicitation multi criteria orientation Pareto",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-D7DC65FE85178B12",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-criteria",
+            "pareto"
+          ],
+          "source_key": "doi:10.3390/a17050206",
+          "title": "Elite Multi-Criteria Decision Making—Pareto Front Optimization in Multi-Objective Optimization"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EE0B8A3674497833",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-criteria",
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.dajour.2026.100757",
+          "title": "A probabilistic PROMETHEE-based multi-actor multi-criteria framework for consensus and compromise under preference uncertainty"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-544151305856009B",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-criteria",
+            "preference"
+          ],
+          "source_key": "doi:10.1108/idd-06-2025-0134",
+          "title": "A multi-stakeholder recommendation system through deep multi-criteria preference learning and utility optimization"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4EF150377C13B967",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-criteria",
+            "pareto"
+          ],
+          "source_key": "doi:10.30837/0135-1710.2026.190.198"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-789CE4B2F3844F9B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "elicitation",
+            "multi-criteria"
+          ],
+          "source_key": "doi:10.1016/j.eswa.2026.131315"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9DC9B44C4331BE93",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-criteria",
+            "pareto"
+          ],
+          "source_key": "doi:10.1016/j.jspi.2014.12.004"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4CB7D0AC11FA184F",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-criteria"
+          ],
+          "source_key": "doi:10.1002/mcda.v33.3"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-FA79E8B195D98C15",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.foodqual.2016.07.007"
+        }
+      ],
+      "target_id": "FAR-RQ-008"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "partial order preference elicitation incomparable criteria",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "partial order preference elicitation incomparable criteria",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-628C19F485747F48",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1007/s11573-026-01282-x",
+          "title": "Shaping the compass? How sustainability preference elicitation guides investor demand"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-78A3A3E1C4A2CFD5",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1186/s44247-025-00222-z",
+          "title": "Older adults’ preferences for features of medication adherence technologies: a preference elicitation study"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5FD883E56EAC368A",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "elicitation"
+          ],
+          "source_key": "doi:10.1016/j.ejor.2015.04.037",
+          "title": "Elicitation of criteria importance weights through the Simos method: A robustness concern"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B04A16A33516AA69",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.apenergy.2026.127540"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-DD313C1DFFC1121F",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1111/tgis.12191"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-6D55058213690C10",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1007/s11166-022-09377-w"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-041662FC9335CD80",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1002/num.22038"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-07E97D2AA72A2D69",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "elicitation",
+            "preference"
+          ],
+          "source_key": "doi:10.1007/s13198-014-0236-3"
+        }
+      ],
+      "target_id": "FAR-RQ-008"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "multiobjective decision external preference orientation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "multiobjective decision external preference orientation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-FA79E8B195D98C15",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.foodqual.2016.07.007",
+          "title": "Food pleasure orientation diminishes the “healthy = less tasty” intuition"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-496ADF015FB492D0",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.foodqual.2012.04.008",
+          "title": "Consumer segmentation based on convenience orientation and attitudes towards quality attributes of lamb meat"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F4D2CCC572CB1EA1",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.ins.2026.124081",
+          "title": "Stochastic preference analysis in group decision making: A cooperative game approach for interval additive preference relation"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-42A43DC6B5349A37",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective"
+          ],
+          "source_key": "doi:10.1016/j.ejdp.2024.100047"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5F789584C0202A83",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.foodqual.2012.07.008"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-ED983BA3EA4576D1",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "preference"
+          ],
+          "source_key": "doi:10.1109/tai.2024.3444736"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EE0B8A3674497833",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-criteria",
+            "preference"
+          ],
+          "source_key": "doi:10.1016/j.dajour.2026.100757"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-3B92C13DD5EED5ED",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multiobjective",
+            "preference"
+          ],
+          "source_key": "doi:10.1109/tsmc.2021.3061698"
+        }
+      ],
+      "target_id": "FAR-RQ-008"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "minimal sufficient statistic counterexample observational equivalence",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "minimal sufficient statistic counterexample observational equivalence",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-70CF7DD4808A6810",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "sufficient statistic"
+          ],
+          "source_key": "doi:10.1109/tvt.2025.3604610",
+          "title": "AoA Estimation Using Sufficient Statistic-Based MUSIC Algorithms for Low SNR"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-9F3C3C02C6B6838E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1016/j.imlet.2005.03.021"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-2E8D44DED940A60E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1021/bi980542h"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-88EFFC257A61E199",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "counterexample"
+          ],
+          "source_key": "doi:10.2139/ssrn.7659838",
+          "title": "A Counterexample to Lemma 64 of the Kahrs and Smith Proof for RTA-79"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F0E95E8D1BF383CC",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1172/jci112886"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C82CDFD61E500959",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "counterexample"
+          ],
+          "source_key": "doi:10.1080/03605309408821069",
+          "title": "A Counterexample to Strong Uniqueness for Partial Differential Equations of Schrödinger's Type"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-563EA1ECC78E66BB",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.3390/make8100319"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-24F882EE5D00E70C",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "sufficiency"
+          ],
+          "source_key": "doi:10.1159/000337762"
+        }
+      ],
+      "target_id": "FAR-RQ-009"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "Blackwell sufficiency quotient counterexample",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "Blackwell sufficiency quotient counterexample",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F3388EB08B0FDCB8",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "sufficiency"
+          ],
+          "source_key": "doi:10.2307/j.ctt9qcxgd.6",
+          "title": "Introduction."
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7DB985E3B26CD94D",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.1016/j.brainres.2006.01.012",
+          "title": "Predicting Autism Spectrum Quotient (AQ) from the Systemizing Quotient-Revised (SQ-R) and Empathy Quotient (EQ)"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-88EFFC257A61E199",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "counterexample"
+          ],
+          "source_key": "doi:10.2139/ssrn.7659838",
+          "title": "A Counterexample to Lemma 64 of the Kahrs and Smith Proof for RTA-79"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-643A21B5EB7047E4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "sufficiency"
+          ],
+          "source_key": "doi:10.1016/j.spc.2021.07.030"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C82CDFD61E500959",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "counterexample"
+          ],
+          "source_key": "doi:10.1080/03605309408821069"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-BEB8F8435BE5EABA",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "Blackwell"
+          ],
+          "source_key": "doi:10.1002/9780470751466.ch26"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-11A70C813937D758",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "Blackwell"
+          ],
+          "source_key": "doi:10.1111/b.9780631218418.2004.00016.x"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5FDA516B63DB9C1D",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "sufficiency"
+          ],
+          "source_key": "doi:10.21956/openreseurope.19774.r56785"
+        }
+      ],
+      "target_id": "FAR-RQ-009"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "observational quotient impossibility theorem",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "observational quotient impossibility theorem",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0103EE4E1DE7ED3D",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.5186/aasfm.1969.432"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-CD67D2CB47DE2683",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.2139/ssrn.7552101"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7DB985E3B26CD94D",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "quotient"
+          ],
+          "source_key": "doi:10.1016/j.brainres.2006.01.012",
+          "title": "Predicting Autism Spectrum Quotient (AQ) from the Systemizing Quotient-Revised (SQ-R) and Empathy Quotient (EQ)"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5C4E1BAAB8B943F8",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1162/artl_a_00336"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-982A613D3089E3B4",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.31234/osf.io/4fzkc_v4"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-747337C872E3F431",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.31234/osf.io/4fzkc_v1"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C9AD64AC7C9911C3",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1136/medethics-2014-102308"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4714470DCC79E8AE",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1017/s1752971926100451"
+        }
+      ],
+      "target_id": "FAR-RQ-009"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "large language model adversarial reviewer calibration independent evaluation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "large language model adversarial reviewer calibration independent evaluation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-DD6D4E0A34ED6F05",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "language model",
+            "reviewer"
+          ],
+          "source_key": "doi:10.31219/osf.io/wydct",
+          "title": "A day in the life of ChatGPT as an academic reviewer: Investigating the potential of large language model for scientific literature review"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4CBDAC81BED7DBBA",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "language model"
+          ],
+          "source_key": "doi:10.1109/tevc.2026.3744149/mm1",
+          "title": "Topology-Adaptive Evolutionary Multiobjective Optimization for Black-Box Adversarial Attacks on Large Audio-Language Models_supp1-3744149.pdf"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-863AEED79A65B2B8",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "language model",
+            "reviewer"
+          ],
+          "source_key": "doi:10.7554/elife.108442.4.sa1",
+          "title": "Reviewer #3 (Public review): Large language models poorly capture how word order shapes representations of sentence meaning in the human brain"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-5E2919BD71C83326",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "language model"
+          ],
+          "source_key": "doi:10.2196/90759"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-EA623A3636789847",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "language model"
+          ],
+          "source_key": "doi:10.18653/v1/2024.findings-emnlp.407"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-E126F45544D8D49E",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "language model",
+            "reviewer"
+          ],
+          "source_key": "doi:10.1016/j.crad.2026.107506"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-518AEF452E9961C0",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "calibration",
+            "independent",
+            "language model"
+          ],
+          "source_key": "doi:10.64898/2026.10.17.26365807"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-74A16355C65711A8",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "calibration",
+            "language model"
+          ],
+          "source_key": "doi:10.64898/2026.10.20.26366028"
+        }
+      ],
+      "target_id": "FAR-RQ-010"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "multi agent debate correlated errors independence evaluation",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "multi agent debate correlated errors independence evaluation",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B09A6EB4E449CE31",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1109/tbdata.2026.3744835/mm1",
+          "title": "An Evidence-Grounded Iterative Multi-Agent Framework for Similarity Evaluation in NLG Tasks_supp1-3744835.pdf"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-2E487EDD167CFC49",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.18653/v1/2025.findings-acl.606",
+          "title": "Voting or Consensus? Decision-Making in Multi-Agent Debate"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-1A59772C1C4827F1",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1109/pimrc50174.2021.9569358",
+          "title": "RAN Resource Slicing in 5G Using Multi-Agent Correlated Q-Learning"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-820F71CD311353D2",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1109/cvprf71909.2026.00912"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4A690B822B96C384",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1007/s10458-008-9050-0"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-18357C1878A16102",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1007/s10458-019-09408-y"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4F3CBCBB3008C793",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1007/s10458-005-6825-4"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-0406A21D39C01A3F",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "multi-agent"
+          ],
+          "source_key": "doi:10.1016/b978-0-44-340495-5.00016-0"
+        }
+      ],
+      "target_id": "FAR-RQ-010"
+    },
+    {
+      "mode": "incremental",
+      "provider": "Crossref",
+      "query": "AI peer review false positive calibration",
+      "request": {
+        "parameters": {
+          "filter": "from-index-date:2026-10-21,until-index-date:2026-10-23",
+          "query.bibliographic": "AI peer review false positive calibration",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B7E27D296952849B",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "false positive",
+            "language model"
+          ],
+          "source_key": "doi:10.21203/rs.3.rs-5420741/v1",
+          "title": "Using LLMs as AI Agents to Identify False Positive Alerts in Security Operation Center"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C4588379EF40929A",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.23842.r74029",
+          "title": "Peer Review Report For: Factors shaping non-expert trust in AI: A systematic snowballing review of explainable AI design considerations [version 1; peer review: 2 approved with reservations]"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F7302CA2395AE4AA",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.23842.r72826",
+          "title": "Peer Review Report For: Factors shaping non-expert trust in AI: A systematic snowballing review of explainable AI design considerations [version 1; peer review: 1 approved with reservations]"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-4E304127D30FB095",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.26520.r80116"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-C97D9E8108268183",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "independent"
+          ],
+          "source_key": "doi:10.3389/frobt.2026.1900388"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-418D221CCCA888F2",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.26091.r76062"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-CA58F84A92D6727A",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.26040.r79904"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-92AF5E074CB4E8E9",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "QUERY_ACCEPTANCE_CAP",
+          "signal_hits": [
+            "peer review"
+          ],
+          "source_key": "doi:10.21956/openreseurope.25644.r73534"
+        }
+      ],
+      "target_id": "FAR-RQ-010"
+    },
+    {
+      "historical_query_id": "META-GROUNDING-DEPENDENCE",
+      "mode": "historical_backfill",
+      "provider": "Crossref",
+      "query": "grounding dependence supervenience formal logic order metaphysics",
+      "request": {
+        "parameters": {
+          "filter": "from-pub-date:1857,until-pub-date:1866",
+          "query.bibliographic": "grounding dependence supervenience formal logic order metaphysics",
+          "rows": "8",
+          "sort": "relevance"
+        },
+        "provider": "Crossref",
+        "rows_returned": 8
+      },
+      "results": [
+        {
+          "bridge_hits": [
+            "logic"
+          ],
+          "candidate_id": "FAR-LIT-BEF9E128269FACAA",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 1,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "logic"
+          ],
+          "source_key": "doi:10.1037/12195-000",
+          "title": "Lectures on metaphysics and logic, Vol 1: Metaphysics."
+        },
+        {
+          "bridge_hits": [
+            "logic"
+          ],
+          "candidate_id": "FAR-LIT-751EC5B691DF279F",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 2,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "logic"
+          ],
+          "source_key": "doi:10.1037/12154-000",
+          "title": "Lectures on metaphysics and logic, Vol 1: Metaphysics."
+        },
+        {
+          "bridge_hits": [
+            "logic"
+          ],
+          "candidate_id": "FAR-LIT-AFCA270800CD92AD",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 3,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "logic"
+          ],
+          "source_key": "doi:10.1037/12217-000",
+          "title": "Lectures on metaphysics and logic, Vol 3."
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-7734560826345071",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 4,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1037/12205-000"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-ABCF5E25A2BBE65C",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 5,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1037/12181-000"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-B295BEDC4D49119B",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 6,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1192/bjp.11.56.533"
+        },
+        {
+          "bridge_hits": [],
+          "candidate_id": "FAR-LIT-F396797E7BB461B8",
+          "decision": "REJECT",
+          "provider": "Crossref",
+          "rank": 7,
+          "reason": "NO_SIGNAL_TERM",
+          "signal_hits": [],
+          "source_key": "doi:10.1192/bjp.11.56.533-a"
+        },
+        {
+          "bridge_hits": [
+            "identity",
+            "logic",
+            "order",
+            "relation"
+          ],
+          "candidate_id": "FAR-LIT-778923352A73EE40",
+          "decision": "ACCEPT",
+          "provider": "Crossref",
+          "rank": 8,
+          "reason": "ACCEPTED_SIGNAL_MATCH",
+          "signal_hits": [
+            "logic",
+            "order"
+          ],
+          "source_key": "doi:10.1192/bjp.8.42.176",
+          "title": "The Problem of Mind, propounded to Metaphysics and Science"
+        }
+      ],
+      "window": [
+        1857,
+        1866
+      ]
+    },
+    {
+      "historical_query_id": "META-GROUNDING-DEPENDENCE",
+      "mode": "historical_backfill",
+      "provider": "OpenAlex",
+      "query": "grounding dependence supervenience formal logic order metaphysics",
+      "request": {
+        "parameters": {
+          "filter": "from_publication_date:1857-01-01,to_publication_date:1866-12-31",
+          "per_page": "8",
+          "search": "grounding dependence supervenience formal logic order metaphysics",
+          "select": "id,doi,display_name,publication_date,type,cited_by_count,authorships,keywords,topics,primary_location",
+          "sort": "relevance_score:desc"
+        },
+        "provider": "OpenAlex",
+        "rows_returned": 0
+      },
+      "results": [],
+      "window": [
+        1857,
+        1866
+      ]
+    },
+    {
+      "historical_query_id": "BOOK-MATHEMATICAL-FOUNDATIONS",
+      "mode": "historical_book_backfill",
+      "page": 17,
+      "provider": "Open Library",
+      "query": "foundations mathematics logic equivalence structure",
+      "request": {
+        "parameters": {
+          "fields": "key,title,author_name,first_publish_year,subject,edition_count,isbn,lcc,ddc",
+          "limit": "5",
+          "page": "17",
+          "q": "foundations mathematics logic equivalence structure",
+          "sort": "old"
+        },
+        "provider": "Open Library",
+        "rows_returned": 0
+      },
+      "results": []
+    }
+  ],
+  "run_id": "20261023T145433Z-39973277045",
+  "schema_version": "1.0",
+  "started_utc": "2026-10-23T14:54:33Z",
+  "status": "SUCCESS"
+}

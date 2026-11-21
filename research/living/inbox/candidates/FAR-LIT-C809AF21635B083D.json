@@ -1,0 +1,61 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-C809AF21635B083D",
+  "discovery": {
+    "first_seen_utc": "2026-09-22T00:08:31Z",
+    "last_seen_utc": "2026-09-22T04:59:26Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "structured reasoning contract provenance audit",
+        "seen_utc": "2026-09-22T00:08:31Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.54899/iij.v20i1.1490",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Luisa Morales-Maure",
+        "Keila Chacón-Rivadeneira",
+        "Mariana Gabriela Torres"
+      ],
+      "container": "Interpersona An International Journal on Personal Relationships",
+      "doi": "10.54899/iij.v20i1.1490",
+      "provider": "Crossref",
+      "provider_id": "10.54899/iij.v20i1.1490",
+      "published_date": "2026-09-20",
+      "publisher": "Editoriales Iberoamericanos",
+      "title": "Mathematical reasoning and Generative AI: an audit-to-repair experience in elementary number theory",
+      "url": "https://doi.org/10.54899/iij.v20i1.1490",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-C1C9072CAC840BA8",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T18:30:29Z",
+    "last_seen_utc": "2026-09-16T06:04:04Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COST_EFFECTIVENESS_EVIDENCE_CANDIDATE",
+        "governed_question_sha256": "4dda90b4b58a6aa0c2b1fa1f713675b633cc05c37fa3e70c6f81720a666fd956",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning audit workload efficiency",
+        "seen_utc": "2026-09-10T18:30:29Z",
+        "target_id": "FAR-RQ-006",
+        "target_ids": [
+          "FAR-RQ-006"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1038/s41598-017-05378-x",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Mickaël Causse",
+        "Zarrin Chua",
+        "Vsevolod Peysakhovich",
+        "Natalia Del Campo",
+        "Nadine Matton"
+      ],
+      "container": "Scientific Reports",
+      "doi": "10.1038/s41598-017-05378-x",
+      "provider": "Crossref",
+      "provider_id": "10.1038/s41598-017-05378-x",
+      "published_date": "2017-07-12",
+      "publisher": "Springer Science and Business Media LLC",
+      "title": "Mental workload and neural efficiency quantified in the prefrontal cortex using fNIRS",
+      "url": "https://doi.org/10.1038/s41598-017-05378-x",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

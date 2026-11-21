@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-399C449ADAB747B0",
+  "discovery": {
+    "first_seen_utc": "2026-11-10T20:28:45Z",
+    "last_seen_utc": "2026-11-11T14:36:34Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_ORIENTATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "8abb652d0ffbdaaafa74e01e36a942c08477c737766be54e52016a80f009f07c",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "preference elicitation multi criteria orientation Pareto",
+        "seen_utc": "2026-11-10T20:28:45Z",
+        "target_id": "FAR-RQ-008",
+        "target_ids": [
+          "FAR-RQ-008"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1007/0-306-48332-7_149",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Roman Slowinski"
+      ],
+      "container": "Encyclopedia of Optimization",
+      "doi": "10.1007/0-306-48332-7_149",
+      "provider": "Crossref",
+      "provider_id": "10.1007/0-306-48332-7_149",
+      "published_date": "2001-01-01",
+      "publisher": "Springer US",
+      "title": "Bi-objective assignment problem; Decision support systems with multiple criteria; Estimating data for multicriteria decision making problems: Optimization techniques; Financial applications of multicriteria analysis; Multi-objective combinatorial optimization; Multi-objective integer linear programming; Multi-objective optimization and decision support systems; Multi-objective optimization: Interaction of design and control; Multi-objective optimization: Interactive methods for preference value functions; Multi-objective optimization: Lagrange duality; Multi-objective optimization: Pareto optimal solutions, properties; Multicriteria sorting methods; Multiple objective programming support; Outranking methods; Portfolio selection and multicriteria analysis; Preference disaggregation; Preference disaggregation approach: Basic features, examples from financial decision making; Preference modelingBi-objective assignment problem; Decision support systems with multiple criteria; Estimating data for multicriteria decision making problems: Optimization techniques; Financial applications of multicriteria analysis; Multi-objective combinatorial optimization; Multi-objective integer linear programming; Multi-objective optimization and decision support systems; Multi-objective optimization: Interaction of design and control; Multi-objective optimization: Interactive methods for preference value functions; Multi-objective optimization: Lagrange duality; Multi-objective optimization: Pareto optimal solutions, properties; Multicriteria sorting methods; Multiple objective programming support; Outranking methods; Portfolio selection and multicriteria analysis; Preference disaggregation; Preference disaggregation approach: Basic features, examples from financial decision making; Preference modelingFUZZY MULTI-OBJECTIVE LINEAR PROGRAMMING",
+      "url": "https://doi.org/10.1007/0-306-48332-7_149",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

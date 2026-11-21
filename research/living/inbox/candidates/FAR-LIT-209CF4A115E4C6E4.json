@@ -1,0 +1,77 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-209CF4A115E4C6E4",
+  "discovery": {
+    "first_seen_utc": "2026-09-12T11:16:39Z",
+    "last_seen_utc": "2026-09-12T11:16:39Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_PRIMARY_OR_BOOK_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "BOOK-MATHEMATICAL-FOUNDATIONS",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "Open Library",
+        "query": "foundations mathematics logic equivalence structure",
+        "seen_utc": "2026-09-12T11:16:39Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "openlibrary:/works/ol21511763w",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Kenny A. Hunt",
+        "David D. Riley"
+      ],
+      "doi": null,
+      "edition_count": 5,
+      "provider": "Open Library",
+      "provider_id": "/works/OL21511763W",
+      "published_date": "2014-01-01",
+      "title": "Computational Thinking for the Modern Problem Solver",
+      "url": "https://openlibrary.org/works/OL21511763W",
+      "work_type": "book"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "historical_foundations"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

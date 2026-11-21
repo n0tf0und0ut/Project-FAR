@@ -1,0 +1,85 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-F98E451EBE6026FF",
+  "discovery": {
+    "first_seen_utc": "2026-11-11T10:12:29Z",
+    "last_seen_utc": "2026-11-11T10:12:29Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "HIST-BLACKWELL-DECISION",
+        "lens": "formal_mathematics",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          1727,
+          1736
+        ],
+        "query": "Blackwell comparison experiments sufficiency decision theory",
+        "seen_utc": "2026-11-11T10:12:29Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-008",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.5962/bhl.title.106596",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Stephen Hales",
+        "William Innys",
+        "Richard Manby",
+        "Thomas Woodward"
+      ],
+      "container": null,
+      "doi": "10.5962/bhl.title.106596",
+      "provider": "Crossref",
+      "provider_id": "10.5962/bhl.title.106596",
+      "published_date": "1733-01-01",
+      "publisher": "Printed for W. Innys and R. Manby, at the west-end of St. Paul's, and T. Woodward, at the Half-Moon between Temple-Gate, Fleetstreet",
+      "title": "Statical essays, containing haemastaticks, or, An account of some hydraulick and hydrostatical experiments made on the blood and blood vessels of animals : also an account of some experiments on stones in the kidneys and bladder : with an enquiry into the nature of those anomalous concretions : to which is added, an appendix, containing observations and experiments relating to several subjects in the first volume, the greater part of which were read at several meetings before the Royal Society : with an index to both volumes. Vol. II",
+      "url": "https://doi.org/10.5962/bhl.title.106596",
+      "work_type": "monograph"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "formal_mathematics"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

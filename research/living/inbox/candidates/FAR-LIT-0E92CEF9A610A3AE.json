@@ -1,0 +1,62 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-0E92CEF9A610A3AE",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T21:13:16Z",
+    "last_seen_utc": "2026-09-13T01:26:04Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multi agent debate correlated errors independence evaluation",
+        "seen_utc": "2026-09-10T21:13:16Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1145/3846189",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Yong Jin Chun",
+        "QiHong Chen",
+        "Jiawei Li",
+        "Iftekhar Ahmed"
+      ],
+      "container": "ACM Transactions on Software Engineering and Methodology",
+      "doi": "10.1145/3846189",
+      "provider": "Crossref",
+      "provider_id": "10.1145/3846189",
+      "published_date": "2026-09-10",
+      "publisher": "Association for Computing Machinery (ACM)",
+      "title": "Enhancing LLM Performance Through Debate: An Empirical Study on Multi-Agent Debate for Coding Tasks",
+      "url": "https://doi.org/10.1145/3846189",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

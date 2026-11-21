@@ -1,0 +1,98 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-77F8C29268273C90",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T01:10:31Z",
+    "last_seen_utc": "2026-09-10T01:10:31Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "historical_query_id": "HIST-PROBABILITY-DECISION",
+        "lens": "historical_foundations",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          2017,
+          2026
+        ],
+        "query": "probability decision theory sufficient information history",
+        "seen_utc": "2026-09-10T01:10:31Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1371/journal.pone.0169748",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Tomislav Hengl",
+        "Jorge Mendes de Jesus",
+        "G.B.M. Heuvelink",
+        "M. Ruiperez González",
+        "Milan Kilibarda",
+        "Aleksandar Blagotić",
+        "Wei Shangguan",
+        "Marvin N. Wright",
+        "Xiaoyuan Geng",
+        "Bernhard Bauer-Marschallinger",
+        "Mário Guevara",
+        "Rodrigo Vargas",
+        "R.A. MacMillan",
+        "N.H. Batjes",
+        "J.G.B. Leenaars",
+        "Eloi Ribeiro",
+        "Ichsani Wheeler",
+        "S. Mantel",
+        "Bas Kempen"
+      ],
+      "cited_by_count": 4843,
+      "doi": "10.1371/journal.pone.0169748",
+      "provider": "OpenAlex",
+      "provider_id": "https://openalex.org/W2588003345",
+      "published_date": "2017-02-16",
+      "title": "SoilGrids250m: Global gridded soil information based on machine learning",
+      "url": "https://doi.org/10.1371/journal.pone.0169748",
+      "work_type": "article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "historical_foundations"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

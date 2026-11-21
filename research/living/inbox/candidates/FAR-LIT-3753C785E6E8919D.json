@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-3753C785E6E8919D",
+  "discovery": {
+    "first_seen_utc": "2026-09-28T19:41:32Z",
+    "last_seen_utc": "2026-10-01T01:36:18Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "representation loss audit empirical study",
+        "seen_utc": "2026-09-28T19:41:32Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.2139/ssrn.3379324",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Edgar Loew",
+        "Tim Mollenhauer"
+      ],
+      "container": null,
+      "doi": "10.2139/ssrn.3379324",
+      "provider": "Crossref",
+      "provider_id": "10.2139/ssrn.3379324",
+      "published_date": "2019-01-01",
+      "publisher": "Elsevier BV",
+      "title": "An Empirical Analysis of Key Audit Matters in the Financial Industry",
+      "url": "https://doi.org/10.2139/ssrn.3379324",
+      "work_type": "posted-content"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

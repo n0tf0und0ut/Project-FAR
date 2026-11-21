@@ -1,0 +1,80 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-585C6118E5DD235E",
+  "discovery": {
+    "first_seen_utc": "2026-09-15T22:18:14Z",
+    "last_seen_utc": "2026-09-15T22:18:14Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "HIST-AUTOMATA-MYHILL-NERODE",
+        "lens": "formal_mathematics",
+        "mode": "historical_backfill",
+        "provider": "OpenAlex",
+        "publication_window": [
+          1987,
+          1996
+        ],
+        "query": "automata Myhill Nerode equivalence minimization",
+        "seen_utc": "2026-09-15T22:18:14Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "openalex:w1521993263",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "BW Bruce Watson"
+      ],
+      "cited_by_count": 59,
+      "doi": null,
+      "provider": "OpenAlex",
+      "provider_id": "https://openalex.org/W1521993263",
+      "published_date": "1993-01-01",
+      "title": "A taxonomy of finite automata minimization algorithms",
+      "url": "https://research.tue.nl/en/publications/04746c38-59d1-4043-8c06-fb73413b0e3b",
+      "work_type": "report"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "formal_mathematics"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

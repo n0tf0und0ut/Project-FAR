@@ -1,0 +1,81 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-C48838A22DD6F041",
+  "discovery": {
+    "first_seen_utc": "2026-09-12T14:13:29Z",
+    "last_seen_utc": "2026-09-12T14:13:29Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "historical_query_id": "HIST-FORMAL-LANGUAGE",
+        "lens": "history_of_logic",
+        "mode": "historical_backfill",
+        "provider": "Crossref",
+        "publication_window": [
+          2007,
+          2016
+        ],
+        "query": "formal language equivalence semantics representation proof theory",
+        "seen_utc": "2026-09-12T14:13:29Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003",
+          "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-001",
+    "FAR-CORE-002",
+    "FAR-CORE-003",
+    "FAR-CORE-004",
+    "FAR-CORE-005",
+    "FAR-CORE-006",
+    "FAR-CORE-007",
+    "FAR-CORE-008",
+    "FAR-CORE-009",
+    "FAR-CORE-010",
+    "FAR-CORE-011",
+    "FAR-CORE-012",
+    "FAR-CORE-013",
+    "FAR-CORE-014"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1007/978-3-319-16250-8_9",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Mark Joshi"
+      ],
+      "container": "Proof Patterns",
+      "doi": "10.1007/978-3-319-16250-8_9",
+      "provider": "Crossref",
+      "provider_id": "10.1007/978-3-319-16250-8_9",
+      "published_date": "2015-03-18",
+      "publisher": "Springer International Publishing",
+      "title": "Formal Equivalence",
+      "url": "https://doi.org/10.1007/978-3-319-16250-8_9",
+      "work_type": "book-chapter"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "history_of_logic"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

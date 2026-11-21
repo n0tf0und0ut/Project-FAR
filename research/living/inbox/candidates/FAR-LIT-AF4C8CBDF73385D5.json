@@ -1,0 +1,63 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-AF4C8CBDF73385D5",
+  "discovery": {
+    "first_seen_utc": "2026-10-19T20:15:28Z",
+    "last_seen_utc": "2026-10-23T00:06:43Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-10-19T20:15:28Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.52202/085713-1252",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Asterios Tsiourvas",
+        "Wei Sun",
+        "Georgia Perakis"
+      ],
+      "container": "Advances in Neural Information Processing Systems 38",
+      "doi": "10.52202/085713-1252",
+      "provider": "Crossref",
+      "provider_id": "10.52202/085713-1252",
+      "published_date": "2025-01-01",
+      "publisher": "Neural Information Processing Systems Foundation, Inc. (NeurIPS)",
+      "title": "Causal LLM Routing: End-to-End Regret Minimization from Observational Data",
+      "url": "https://doi.org/10.52202/085713-1252",
+      "work_type": "proceedings-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

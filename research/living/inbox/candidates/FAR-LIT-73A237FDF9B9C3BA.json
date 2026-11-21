@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-73A237FDF9B9C3BA",
+  "discovery": {
+    "first_seen_utc": "2026-09-17T10:27:04Z",
+    "last_seen_utc": "2026-09-20T00:25:24Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "large language model adversarial reviewer calibration independent evaluation",
+        "seen_utc": "2026-09-17T10:27:04Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1016/j.nlp.2026.100215",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Liu Yingzhe"
+      ],
+      "container": "Natural Language Processing Journal",
+      "doi": "10.1016/j.nlp.2026.100215",
+      "provider": "Crossref",
+      "provider_id": "10.1016/j.nlp.2026.100215",
+      "published_date": "2026-09-01",
+      "publisher": "Elsevier BV",
+      "title": "Academic english writing generation-evaluation closed-loop system driven by large language model: adversarial training and cognitive logic verification",
+      "url": "https://doi.org/10.1016/j.nlp.2026.100215",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

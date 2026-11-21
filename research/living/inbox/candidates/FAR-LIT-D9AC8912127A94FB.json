@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-D9AC8912127A94FB",
+  "discovery": {
+    "first_seen_utc": "2026-09-28T05:27:03Z",
+    "last_seen_utc": "2026-09-30T00:46:37Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "REVIEWER_CALIBRATION_METHOD_CANDIDATE",
+        "governed_question_sha256": "be14de49e4fe57328899659970f844f5ff2567532232c080a95c138c75f13b9a",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multi agent debate correlated errors independence evaluation",
+        "seen_utc": "2026-09-28T05:27:03Z",
+        "target_id": "FAR-RQ-010",
+        "target_ids": [
+          "FAR-RQ-010"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.29140/97817637116240-03",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Tianshu Chu"
+      ],
+      "container": "Proceedings of the International CALL Research Conference",
+      "doi": "10.29140/97817637116240-03",
+      "provider": "Crossref",
+      "provider_id": "10.29140/97817637116240-03",
+      "published_date": "2025-09-30",
+      "publisher": "Castledown Publishers",
+      "title": "Multi-agent debate in L2 argumentative writing: An exploratory study of Chinese EFL learners",
+      "url": "https://doi.org/10.29140/97817637116240-03",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

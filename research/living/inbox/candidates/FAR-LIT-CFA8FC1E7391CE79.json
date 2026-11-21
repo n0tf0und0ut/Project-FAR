@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-CFA8FC1E7391CE79",
+  "discovery": {
+    "first_seen_utc": "2026-11-09T16:15:34Z",
+    "last_seen_utc": "2026-11-11T14:36:34Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "EXTERNAL_UTILITY_METHOD_CANDIDATE",
+        "governed_question_sha256": "330fba62f06fb3a4551256163f4c41267441b49bafbccc578936388598981c9d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "decision audit omission detection experiment",
+        "seen_utc": "2026-11-09T16:15:34Z",
+        "target_id": "FAR-RQ-005",
+        "target_ids": [
+          "FAR-RQ-005"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.21428/cb6ab371.55002f44",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "David S. Kirk",
+        "Marti Rovira"
+      ],
+      "container": "CrimRxiv",
+      "doi": "10.21428/cb6ab371.55002f44",
+      "provider": "Crossref",
+      "provider_id": "10.21428/cb6ab371.55002f44",
+      "published_date": "2022-09-12",
+      "publisher": "Knowledge Futures",
+      "title": "An audit experiment to investigate the “war on cops”: a research note&nbsp;&nbsp;",
+      "url": "https://doi.org/10.21428/cb6ab371.55002f44",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

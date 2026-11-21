@@ -4,8 +4,21 @@
   "candidate_id": "FAR-LIT-5892F4207E8C1FF3",
   "discovery": {
     "first_seen_utc": "2026-09-08T12:42:01Z",
-    "last_seen_utc": "2026-09-08T14:07:29Z",
+    "last_seen_utc": "2026-10-22T00:06:25Z",
     "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "minimal sufficient statistic algorithm representation",
+        "seen_utc": "2026-09-19T14:49:10Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      },
       {
         "candidate_relation": "HISTORICAL_OR_FOUNDATIONAL_CANDIDATE",
         "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
@@ -23,6 +36,32 @@
         "target_ids": [
           "FAR-RQ-003",
           "FAR-RQ-007",
+          "FAR-RQ-009"
+        ]
+      },
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "information bottleneck decision loss sufficient statistic",
+        "seen_utc": "2026-09-19T14:49:10Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      },
+      {
+        "candidate_relation": "POTENTIAL_COUNTEREXAMPLE_OR_RELATED_THEOREM",
+        "governed_question_sha256": "75813771b97aa4e80b8f54148c7371b88b82da661cf90247b1db564066444e39",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "minimal sufficient statistic counterexample observational equivalence",
+        "seen_utc": "2026-09-19T14:49:10Z",
+        "target_id": "FAR-RQ-009",
+        "target_ids": [
           "FAR-RQ-009"
         ]
       }
@@ -75,7 +114,8 @@
   "triage": {
     "attention_terms": [],
     "lenses": [
-      "formal_mathematics"
+      "formal_mathematics",
+      "governed_question"
     ],
     "status": "UNREVIEWED_CANDIDATE"
   }

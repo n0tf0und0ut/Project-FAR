@@ -1,0 +1,60 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-D8701EA390B94DC5",
+  "discovery": {
+    "first_seen_utc": "2026-09-12T06:31:55Z",
+    "last_seen_utc": "2026-10-25T17:11:18Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "APPROXIMATION_METRIC_OR_COST_CANDIDATE",
+        "governed_question_sha256": "37ddfc020e9212827655cd99089eb5cd9b5964524fc838c3e2cf2e307fa94696",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "multiobjective cost preorder Pareto representation",
+        "seen_utc": "2026-09-12T06:31:55Z",
+        "target_id": "FAR-RQ-004",
+        "target_ids": [
+          "FAR-RQ-004"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1016/j.asoc.2024.112022",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Kai Gao",
+        "Lihong Xu"
+      ],
+      "container": "Applied Soft Computing",
+      "doi": "10.1016/j.asoc.2024.112022",
+      "provider": "Crossref",
+      "provider_id": "10.1016/j.asoc.2024.112022",
+      "published_date": "2024-11-01",
+      "publisher": "Elsevier BV",
+      "title": "A new prediction-based evolutionary dynamic multiobjective optimization algorithm aided by Pareto optimal solution estimation strategy",
+      "url": "https://doi.org/10.1016/j.asoc.2024.112022",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

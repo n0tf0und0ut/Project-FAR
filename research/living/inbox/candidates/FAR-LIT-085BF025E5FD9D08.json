@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-085BF025E5FD9D08",
+  "discovery": {
+    "first_seen_utc": "2026-09-10T21:13:16Z",
+    "last_seen_utc": "2026-09-26T10:17:34Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "INTEGRATED_PRIOR_ART_CANDIDATE",
+        "governed_question_sha256": "6dc8a671105199c962dba7a4ed3afd1645f548124b12dc171e457b36202fffa8",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "reasoning representation audit provenance failure unknown factorization",
+        "seen_utc": "2026-09-10T21:13:16Z",
+        "target_id": "FAR-RQ-007",
+        "target_ids": [
+          "FAR-RQ-007"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/tfuzz.2026.3732342/mm1",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [
+        "Xin Luo"
+      ],
+      "container": null,
+      "doi": "10.1109/tfuzz.2026.3732342/mm1",
+      "provider": "Crossref",
+      "provider_id": "10.1109/tfuzz.2026.3732342/mm1",
+      "published_date": null,
+      "publisher": "Institute of Electrical and Electronics Engineers (IEEE)",
+      "title": "A Fuzzy Nesterov-Accelerated Nonnegative Latent Factorization of Tensors Model for Efficient Representation of Dynamic Directed Graph_supp1-3732342.pdf",
+      "url": "https://doi.org/10.1109/tfuzz.2026.3732342/mm1",
+      "work_type": "component"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}

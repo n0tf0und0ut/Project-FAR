@@ -1,0 +1,59 @@
+{
+  "authority": "Research",
+  "authority_boundary": "Research candidate only. Discovery or triage does not establish support, dispute, novelty, priority, external validity, utility, independence, theorem status, EFR result, or any other Project FAR claim/evidence disposition.",
+  "candidate_id": "FAR-LIT-5A94D068BBA6155B",
+  "discovery": {
+    "first_seen_utc": "2026-09-15T06:10:59Z",
+    "last_seen_utc": "2026-09-17T00:33:39Z",
+    "query_bindings": [
+      {
+        "candidate_relation": "COMPUTABILITY_OR_OBSTRUCTION_CANDIDATE",
+        "governed_question_sha256": "463edff1358d273674ca2a6db985091ac053ff29b86169583dbf2e1894cdc21d",
+        "lens": "governed_question",
+        "mode": "incremental",
+        "provider": "Crossref",
+        "query": "observational equivalence quotient algorithm minimization",
+        "seen_utc": "2026-09-15T06:10:59Z",
+        "target_id": "FAR-RQ-003",
+        "target_ids": [
+          "FAR-RQ-003"
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "may_change_claim_status": false,
+    "may_count_as_external_independence": false,
+    "may_establish_novelty": false,
+    "may_execute_efr": false,
+    "stage": "DISCOVERED"
+  },
+  "potential_claim_ids": [
+    "FAR-CORE-002"
+  ],
+  "record_type": "CANDIDATE_LITERATURE",
+  "schema_version": "1.0",
+  "source_key": "doi:10.1109/lsp.2014.2322123",
+  "sources": [
+    {
+      "attention_terms": [],
+      "authors": [],
+      "container": "IEEE Signal Processing Letters",
+      "doi": "10.1109/lsp.2014.2322123",
+      "provider": "Crossref",
+      "provider_id": "10.1109/lsp.2014.2322123",
+      "published_date": "2014-08-01",
+      "publisher": "Institute of Electrical and Electronics Engineers (IEEE)",
+      "title": "A Generic Proximal Algorithm for Convex Optimization—Application to Total Variation Minimization",
+      "url": "https://doi.org/10.1109/lsp.2014.2322123",
+      "work_type": "journal-article"
+    }
+  ],
+  "triage": {
+    "attention_terms": [],
+    "lenses": [
+      "governed_question"
+    ],
+    "status": "UNREVIEWED_CANDIDATE"
+  }
+}
