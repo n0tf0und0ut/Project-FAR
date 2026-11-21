@@ -1,0 +1,130 @@
+{
+  "schema": "far-replanning-comparison/1",
+  "study_id": "FAR-REPLAN-001",
+  "status": "Research-proposed-not-executed",
+  "reference_repository": "n0tf0und0ut/Project-FAR",
+  "registration_base_sha": "a9eb83eee705ba3e242b3f329712f6352761c6c1",
+  "question": "Does bounded event-triggered replanning improve independently verified completion on unexpected-dependency tasks compared with the existing static FAR orchestration under matched model, tools and resources?",
+  "arms": [
+    {
+      "id": "control",
+      "implementation": "Current tools/subagent_orchestration.py orchestrate() over one prospectively frozen task plan; no revision based on mid-task observations"
+    },
+    {
+      "id": "replanning",
+      "implementation": "Research-only adapter invoking the same runtime; newly verified events can schedule additional bounded intents without changing the frozen task objective, tools, permissions or oracle"
+    }
+  ],
+  "sampling": {
+    "design": "prospective-paired-diagnostic-pilot",
+    "distinct_task_count": 12,
+    "runs_per_task": 2,
+    "eligible_tasks": "Independent evaluator-authored or independently held-out local software tasks with a testable unexpected prerequisite or mid-task tool failure; identical exact source and task wording in both isolated arms",
+    "exclusions": [
+      "tasks requiring external attack targets, credentials, secrets or paid services",
+      "tasks with oracles written or revealed by the compared agents",
+      "changes to frozen research evidence or accepted theory",
+      "tasks without independently executable completion and safety oracles"
+    ],
+    "freeze_before_seed": true,
+    "task_ids_frozen": false,
+    "task_base_sha_frozen": false,
+    "oracles_frozen": false,
+    "allocation_algorithm": "sha256-utf8-task-and-order-v1",
+    "allocation": "After independently freezing twelve unique task IDs, source SHAs, oracles, and eligibility decisions, independently generate a fresh unpredictable 32-byte seed and preserve its origin. Sort tasks by SHA256(UTF8(seed + ':task:' + task_id)), tie-break by task_id. For each task, first arm is replanning iff the last byte of SHA256(UTF8(seed + ':order:' + task_id)) is odd; run the other arm second. Never select tasks, seed or order after observing outcomes.",
+    "post_allocation_policy": "Keep all twelve paired tasks and both allocated runs in the original denominator, including aborted, blocked, timed out, invalid, unstarted or unsafe runs; never replace or exclude a failed task. Mark causal inference INCOMPARABLE where isolation or parity fails."
+  },
+  "controls": {
+    "same_base_source_and_task_per_pair": true,
+    "same_model_manifest_and_generation_settings": true,
+    "same_tools_permissions_oracle_and_runner": true,
+    "fresh_isolated_context_and_workspace_per_arm": true,
+    "no_cross_arm_feedback_until_pair_terminal": true,
+    "same_task_budget": true,
+    "max_wall_minutes_per_run": 45,
+    "max_model_tokens_per_run": 15000,
+    "max_tool_calls_per_run": 60,
+    "max_model_replanning_rounds": 12,
+    "max_paid_provider_usd_per_run": 0,
+    "interruption_policy": "Freeze which tasks inject one identical, deterministic tool interruption before allocation; count recovery only when the oracle independently confirms final state",
+    "deviation_policy": "Any unregistered prompt, model, controller, tool, oracle, source or budget change after freeze invalidates the affected causal pair; retain raw observations and mark INCOMPARABLE."
+  },
+  "execution_manifest": {
+    "required_before_first_run": true,
+    "independent_review_required": true,
+    "required_fields": [
+      "protocol_sha256",
+      "protected_main_registration_sha",
+      "cohort_manifest_sha256",
+      "seed_and_origin",
+      "source_sha_per_task",
+      "oracle_sha256_per_task",
+      "control_adapter_sha",
+      "replanning_adapter_sha",
+      "model_manifest_sha256",
+      "prompt_and_tools_sha256",
+      "container_image_digest",
+      "isolation_and_permissions",
+      "interruption_schedule_sha256",
+      "independent_reviewer_identity"
+    ],
+    "implementations_frozen": false,
+    "provider_verified": false,
+    "tasks_enrolled": 0
+  },
+  "primary_metric": {
+    "id": "paired_verified_completion_difference",
+    "denominator": 12,
+    "definition": "For each prospectively allocated task, independent oracle success in treatment minus independent oracle success in control. Report sum of paired differences divided by 12, with the complete 2x2 paired-outcome table. Missing, unauthorized, invalid or unstarted runs are not counted as success.",
+    "independent_oracle_required": true,
+    "worker_claim_not_evidence": true
+  },
+  "secondary_metrics": [
+    "unauthorized_writes",
+    "verified_interruption_recoveries",
+    "duplicate_or_stale_intents",
+    "model_tokens",
+    "executed_tool_calls",
+    "wall_seconds",
+    "provider_cost_usd",
+    "human_interventions",
+    "evidence_binding_failures",
+    "unresolved_failures"
+  ],
+  "receipt_fields": [
+    "study_id",
+    "protocol_sha256",
+    "task_id",
+    "arm_id",
+    "task_source_sha",
+    "oracle_sha256",
+    "executor_identity",
+    "model_manifest_sha256",
+    "prompt_and_tools_sha256",
+    "runner_image_digest",
+    "started_at",
+    "ended_at",
+    "raw_request_response_digest",
+    "tool_execution_receipts_digest",
+    "oracle_execution_receipt_digest",
+    "termination_reason",
+    "outcome",
+    "budget_usage",
+    "human_interventions"
+  ],
+  "decision": {
+    "study_type": "diagnostic-only",
+    "superiority_or_generalization_claim_allowed": false,
+    "security_or_provenance_breach": "STOP_AND_PRESERVE",
+    "missing_or_incomparable": "UNKNOWN_OR_INCOMPARABLE",
+    "success_condition": "Preserve and report all twelve paired outcomes and full receipts, including unfavorable or invalid outcomes; only prospective independent oracle verification may count as completion.",
+    "followup": "If technically feasible and interpretable, independently preregister a larger confirmatory study before claims of reliable or superior agent performance."
+  },
+  "limitations": [
+    "Registration candidate only: no task cohort or execution manifest is sealed, no runtime is frozen, and no trial has run.",
+    "A twelve-pair authored-task diagnostic pilot cannot establish population-wide autonomy or commercial advantage.",
+    "Algorithm and schema checks do not authenticate provider identity, actual tool execution, oracle independence or real-world correctness.",
+    "ARTEX source code is not imported; this is an independent comparison of general orchestration behaviors.",
+    "This study does not amend FAR-FACTORY-SELF-EVAL-001 or any frozen evidence."
+  ]
+}
