@@ -1,0 +1,12 @@
+{
+  "result": "FINITE_TABLE_REFINEMENT_VERIFIED",
+  "authority": "DECLARED_MODELS_ONLY",
+  "external_system_correspondence": "NOT_VERIFIED",
+  "source_table_sha256": "5926fac0b89a78b95ad7439c0b07a93387d45b4df87267a49015c580601fdeab",
+  "source_states": 6,
+  "abstract_states": 3,
+  "behavioral_classes_in_abstract_model": 3,
+  "word_length_bound": 1,
+  "verified_output_obligations": 6,
+  "verified_transition_obligations": 12
+}
