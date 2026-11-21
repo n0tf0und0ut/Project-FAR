@@ -108,7 +108,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
             try:
                 body = json.loads(resp, object_pairs_hook=gate.unique_pairs,
                                   parse_constant=lambda x: (_ for _ in ()).throw(EvidenceError("nonfinite response")))
-            except (ValueError, UnicodeError, TypeError) as exc:
+            except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
                 raise EvidenceError("malformed raw model response") from exc
             if type(body) is not dict or body.get("model") != runner.MODEL["name"]:
                 raise EvidenceError("response model drift")
@@ -136,6 +136,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         raise EvidenceError("worker action missing intermediate tool receipt")
     fault_events = 0
     first_write_seen = False
+    worker_finished = False
     for i, e in enumerate(row["tool_execution_receipts"]):
         if type(e) is not dict or set(e) != {"action", "tool_number", "result", "receipt_sha256"}:
             raise EvidenceError("tool receipt shape mismatch")
@@ -144,6 +145,8 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         if type(e["action"]) is not dict or e["action"].get("action") not in runner.ALLOWED_TOOLS:
             raise EvidenceError("unapproved tool receipt")
         action = e["action"]
+        if worker_finished:
+            raise EvidenceError("worker action recorded after finish")
         if requested_worker_actions[i] != action:
             raise EvidenceError("tool action differs from decoded worker response")
         if action["action"] in ("read_file", "write_file"):
@@ -162,6 +165,8 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
                 raise EvidenceError("invalid solution write content")
             first_write = not first_write_seen
             first_write_seen = True
+            if first_write and row["fault_required"] and result != {"error": "INJECTED_TRANSIENT_WRITE_FAILURE", "executed": False}:
+                raise EvidenceError("scheduled first-write fault is missing")
             if result == {"error": "INJECTED_TRANSIENT_WRITE_FAILURE", "executed": False}:
                 fault_events += 1
                 if not row["fault_required"] or not first_write or fault_events > 1:
@@ -180,6 +185,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         elif action["action"] == "finish":
             if result != {"finished": True}:
                 raise EvidenceError("invalid finish receipt")
+            worker_finished = True
         actual = gate.digest(gate.canonical({"action": e["action"], "result": e["result"], "tool_number": i+1}))
         if actual != e["receipt_sha256"]:
             raise EvidenceError("tool execution receipt modified")
@@ -196,7 +202,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         raise EvidenceError("grader trace hash mismatch")
     try:
         trace = json.loads(g["trace"], object_pairs_hook=gate.unique_pairs)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError, RecursionError) as exc:
         raise EvidenceError("invalid grader trace") from exc
     if type(trace) is not dict or set(trace) != {"schema", "comparisons", "executed", "success"} or trace["schema"] != "far-isolated-output-grade/1":
         raise EvidenceError("unrecognized grader trace")
@@ -209,6 +215,17 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
     statuses = {"PASS", "FAILURE", "OUTPUT_LIMIT", "RESOURCE_LIMIT", "INFRA_FAILURE"}
     if any(x.get("status") not in statuses or type(x.get("status")) is not str for x in comps):
         raise EvidenceError("unknown or missing grader comparison status")
+    for comp in comps:
+        if comp["status"] == "PASS":
+            # The Docker grader can emit PASS only after a started candidate
+            # exits 0 without timeout/output limits. Host receipt assertions
+            # still need an independent source of authenticity.
+            if (type(comp.get("exit_code")) is not int or comp["exit_code"] != 0
+                    or comp.get("timed_out") is not False
+                    or comp.get("output_limited") is not False
+                    or type(comp.get("stdout")) is not str
+                    or not comp["stdout"].startswith(runner.free.CANDIDATE_STARTED + "\n")):
+                raise EvidenceError("contradictory PASS process receipt")
     executed = all(x["status"] != "INFRA_FAILURE" for x in comps)
     success = executed and all(x.get("status") == "PASS" for x in comps)
     if (trace["executed"] is not executed or trace["success"] is not success
@@ -251,6 +268,10 @@ def analyze(candidate: dict, receipts: dict[str, dict], schedule: list[dict]) ->
         if row is None:
             records.append({"slot": slot["slot"], "task_id": slot["task_id"], "arm": slot["arm"], "status": "UNSTARTED_OR_MISSING"})
             continue
+        if isinstance(row, EvidenceError):
+            records.append({"slot": slot["slot"], "task_id": slot["task_id"], "arm": slot["arm"],
+                            "status": "INVALID_PRESERVED", "error": str(row)[:180]})
+            continue
         try:
             audit = verify_arm(row, lookup[slot["task_id"]], slot["arm"])
             records.append({"slot": slot["slot"], **audit, "status": "STRUCTURALLY_REPLAYED_NOT_AUTHENTICATED"})
@@ -269,6 +290,21 @@ def analyze(candidate: dict, receipts: dict[str, dict], schedule: list[dict]) ->
             "records": records}
 
 
+def read_receipts(directory: Path) -> dict[str, dict | EvidenceError]:
+    """Preserve malformed source records as invalid slots, never drop the pair."""
+    receipts: dict[str, dict | EvidenceError] = {}
+    for path in directory.glob("slot-*.json"):
+        if path.stem in receipts:
+            raise EvidenceError("duplicate evidence file")
+        try:
+            row, _ = gate.read_json(path, max_size=4_000_000)
+        except (gate.GateError, UnicodeError, ValueError, OSError, RecursionError) as exc:
+            receipts[path.stem] = EvidenceError("malformed slot evidence: " + type(exc).__name__)
+        else:
+            receipts[path.stem] = row
+    return receipts
+
+
 def main(argv: list[str] | None = None) -> int:
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--evidence-dir",type=Path,required=True)
@@ -278,10 +314,7 @@ def main(argv: list[str] | None = None) -> int:
         candidate=gate.check_candidate()
         approved=gate.require_launch_manifest(candidate,a.manifest)
         receipts={}
-        for path in a.evidence_dir.glob("slot-*.json"):
-            if path.stem in receipts: raise EvidenceError("duplicate evidence file")
-            row,_=gate.read_json(path,max_size=4_000_000)
-            receipts[path.stem]=row
+        receipts = read_receipts(a.evidence_dir)
         result=analyze(candidate,receipts,approved["schedule"])
     except (gate.GateError,EvidenceError,ValueError,OSError) as exc:
         print("INVALID/NOT ESTABLISHED: "+str(exc),file=__import__("sys").stderr)
