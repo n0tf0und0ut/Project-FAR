@@ -1,0 +1,71 @@
+{
+  "archive_bytes": 12353,
+  "archive_sha256": "c8761815985b9938d52cd292653d5e5bd480ba7aeb7ff9f0e0d0afbed7da75c8",
+  "arms": {
+    "control": {
+      "fault_injected": true,
+      "final_source_unchanged": true,
+      "grader_executed": true,
+      "grader_success": false,
+      "model_requests": 4,
+      "model_tokens": 1412,
+      "orchestration_rounds": 1,
+      "record_path": "noncohort-smoke/NONCOHORT-FWE-001-control.json",
+      "status": "failed",
+      "task_id": "FWE-001",
+      "tool_calls": 4,
+      "wall_seconds": 41.144606941000006
+    },
+    "replanning": {
+      "fault_injected": true,
+      "final_source_unchanged": true,
+      "grader_executed": true,
+      "grader_success": false,
+      "model_requests": 7,
+      "model_tokens": 3055,
+      "orchestration_rounds": 2,
+      "record_path": "noncohort-smoke/NONCOHORT-FWE-001-replanning.json",
+      "status": "NO_NEW_VERIFIED_EVENT",
+      "task_id": "FWE-001",
+      "tool_calls": 6,
+      "wall_seconds": 68.20057542400002
+    }
+  },
+  "artifact_url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/44946362557/artifacts/14724140887",
+  "encoded_archive_path": "replanning-smoke-20261121.zip.base64",
+  "exact_head": "053bb91c4518159cea311f332ba214e715ccd177",
+  "github_artifact_id": 14724140887,
+  "github_run_attempt": 1,
+  "github_run_id": 44946362557,
+  "interpretation": "Both actual Qwen 7B tool-using candidate arms failed host Docker grading. Replanning executed two orchestration rounds but did not repair the source. These are noncohort, nonrandomized capability observations only; not a paired study result or a FAR benefit estimate.",
+  "limits": [
+    "Provider identity is attested by the hosted Ollama registry only for this run.",
+    "The host-produced receipts are unsigned; their authenticity beyond this retained artifact is not independently certified.",
+    "Model failure in this source/budget/injection condition does not prove failure on prospective held-out tasks.",
+    "Neither arm counts in the 12-task matched diagnostic denominator."
+  ],
+  "members": {
+    "noncohort-smoke/NONCOHORT-FWE-001-control.json": {
+      "bytes": 17499,
+      "sha256": "68da300920863c0681302d9b6dd8427be7437539399a55af8e13fca0e3e5eff8"
+    },
+    "noncohort-smoke/NONCOHORT-FWE-001-replanning.json": {
+      "bytes": 27790,
+      "sha256": "52a333ee3c0ce581ee2ee096ef666bb9105173fc0fc80d726cc5c0a69426486e"
+    },
+    "preflight.json": {
+      "bytes": 310,
+      "sha256": "8445ed7e75f70f0e796f39fd3cf6b128a16e89e4788b6841cf5147ae1b942801"
+    }
+  },
+  "model_digest": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+  "model_name": "qwen2.5-coder:7b",
+  "original_archive_name": "far-replan-001-candidate-provider-preflight.zip",
+  "pilot_pair_count": 0,
+  "schema": "far-replanning-noncohort-capability-smoke/1",
+  "scored_task_count": 0,
+  "status": "Research-negative-nonscored",
+  "study_reference": "FAR-REPLAN-001",
+  "test_case_id": "FWE-001",
+  "test_case_in_candidate_cohort": false
+}
