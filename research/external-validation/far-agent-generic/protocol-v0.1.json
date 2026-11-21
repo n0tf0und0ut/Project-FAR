@@ -1,0 +1,191 @@
+{
+  "schema_version": "0.1",
+  "program_id": "FAR-AGENT-GENERIC-CAUSAL-001",
+  "status": "RESEARCH_CANDIDATE_NOT_FROZEN",
+  "primary_question": "For independently sealed software-engineering tasks, does a real tool-using agent with FAR's strict semantic-and-evidence checker resolve more tasks than the same agent using an active generic semantic collision checker?",
+  "prior_evidence": {
+    "protected_main_at_design": "a9eb83eee705ba3e242b3f329712f6352761c6c1",
+    "governed_v3_preregistration_blob": "0ad555d3f7b2173477c405d06675690353f3ba7e",
+    "governed_v3_gate_blob": "ecbb50fde6afad4e082bdf4b9135443ddb2d3f85",
+    "generic_checker_blob": "d4e3bb438c39f59bc5b970c8264edece04b78551",
+    "far_strict_verifier_blob": "618acff6e7575b937414629c315dda5e08861d8f",
+    "no_inheritance_of_launch_authorization": true,
+    "prior_v3_design_unchanged": true,
+    "previous_mechanism_benchmark_exposed_not_reused": true
+  },
+  "arms": [
+    {
+      "id": "generic_checker",
+      "checker": "tools/efr_generic_collision_checker.py",
+      "role": "active semantic collision checker",
+      "exposure": "same tool-call interface and permitted access as FAR"
+    },
+    {
+      "id": "far",
+      "checker": "mechanization/far_mechanization/contract_v2_strict_v11.py",
+      "role": "actual strict FAR semantic and evidence-integrity checker",
+      "exposure": "same tool-call interface and permitted access as generic"
+    }
+  ],
+  "primary_contrast": "far_minus_generic_checker",
+  "design": {
+    "target": "independently verified task-resolution probability among the prospectively sealed eligible task set",
+    "unit": "task",
+    "paired": true,
+    "repetitions_per_task_per_arm": 2,
+    "maximum_fraction_per_repository": "1/6",
+    "strata": [
+      "bug_fix",
+      "test_failure",
+      "behavioral_regression",
+      "API_or_contract_change",
+      "multi_file_change"
+    ],
+    "task_identity_rule": "Exactly 24 independently sourced eligible tasks across six provider-stable external repositories, four tasks per repository; independently sealed task bundle and one-to-one blinded ledger, identical exact source snapshot across arms. Exclude Project FAR/forks/treatment exposure, prior SWE-agent tasks and pilot tasks; no replacement after task seal or outcome exposure.",
+    "selection_rule": "Independent custodian screens prospective external repository tasks with frozen inclusion/exclusion decisions before agent access; no outcome-dependent substitution",
+    "order_rule": "Frozen independent random seed, balanced counterbalanced per-task arm and repetition ordering; no shared histories or PR merges into shared upstream; independent resettable snapshots",
+    "run_equivalence": [
+      "same model endpoint/version/digest and parameters",
+      "same system/agent prompts except frozen checker treatment",
+      "same tool names, invocation affordances, permissions and budgets",
+      "same container image, dependencies, repository commit and task specification",
+      "fresh agent/model context per run",
+      "no cross-arm hints, memory or task outcome exposure",
+      "same independent hidden scorer and outcome contract"
+    ],
+    "pilot": {
+      "minimum_sacrificial_tasks": 3,
+      "excluded_from_primary": true,
+      "execution_requires_separate_prospective_authorization": true
+    },
+    "no_provider_fallback": true,
+    "zero_paid_spend_unless_separately_authorized": true,
+    "fixed_confirmatory_tasks": 24,
+    "maximum_tasks_per_repository": 4,
+    "fixed_distinct_repositories": 6
+  },
+  "primary_endpoint": {
+    "id": "independent_task_resolution",
+    "source": "sealed external grader on final isolated workspace state",
+    "values": [
+      "resolved",
+      "unresolved",
+      "invalid"
+    ],
+    "invalid_run_is_not_success": true,
+    "timeouts_and_bad_agent_actions": "measured unresolved, never silently excluded",
+    "infrastructure_invalid": "retain original; at most one independently authorized same-slot replacement before any outcome reveal; if still invalid, retain missing cell and classify study inconclusive",
+    "denominator": "The exactly 24 frozen tasks x 2 arms x 2 repetitions = 96 original slots; every frozen task contributes paired arm means unless any required cell is missing; same-slot replacements never enlarge the denominator.",
+    "no_agent_self_grading": true
+  },
+  "statistics": {
+    "estimand": "mean over frozen tasks of (mean resolved repetitions under FAR minus mean resolved repetitions under generic checker)",
+    "minimum_practically_important_absolute_effect": "1/10",
+    "uncertainty": "paired task-cluster bootstrap, 100000 resamples, equal-tailed 95% percentile interval; exact SHA-256 rejection-stream RNG and type-7 quantile from governed SWE-agent v3 protocol; seed separately frozen before unblinding; exactly 24 paired tasks are the resampling units",
+    "decision_priority": [
+      "invalid_protocol_or_compromised_seal",
+      "inconclusive_due_to_missingness",
+      "harm",
+      "improvement_demonstrated",
+      "no_demonstrated_advantage",
+      "inconclusive"
+    ],
+    "positive_rule": "all complete; FAR-minus-generic estimate >= 1/10; lower 95% bound > 0; no critical harm; mechanism instrumentation integrity verified",
+    "harm_rule": "no missing cells and upper 95% bound < 0, or preregistered critical harm threshold triggered (report separately)",
+    "no_advantage_rule": "no missing cells and upper 95% bound < 1/10; do not infer equivalence",
+    "sensitivity": [
+      "missing FAR=0 and generic=1 bound",
+      "missing FAR=1 and generic=0 bound",
+      "per-repository and per-task-family descriptive heterogeneity"
+    ],
+    "no_pseudoreplication": true,
+    "no_posthoc_changes": true,
+    "secondary": [
+      "latency",
+      "tokens",
+      "model calls",
+      "tool calls",
+      "cost",
+      "invalid runs",
+      "regression introduction",
+      "FAR vs generic activation and behavioral effect"
+    ],
+    "secondary_are_exploratory": true
+  },
+  "mechanism_receipts": {
+    "required_for_every_run": true,
+    "capture_boundary": "independent trusted harness observing actual invoked tool process and pre/post agent/environment state",
+    "include_nonactivation_and_errors": true,
+    "raw_tool_log_schema": "far-agent-tool-log/1",
+    "receipt_schema": "far-agent-mechanism-receipt/1",
+    "expected_tool_ids": {
+      "generic_checker": "generic_checker",
+      "far": "far_strict_verifier"
+    },
+    "require_source_binding": [
+      "run_id",
+      "arm",
+      "blind_task_id",
+      "repetition",
+      "configuration_root_sha256",
+      "raw_event_log_sha256",
+      "tool_event_index",
+      "raw_request_sha256",
+      "raw_response_sha256",
+      "raw_continuation_sha256",
+      "pre_state_sha256",
+      "post_state_sha256",
+      "mechanism_status"
+    ],
+    "permitted_mechanism_status": [
+      "activated",
+      "not_triggered",
+      "tool_failed"
+    ],
+    "provenance": "content-address all raw evidence; independent runtime witness signing and signed artifact-store admission required before any result is described as authenticated",
+    "distinctions": [
+      "invocation",
+      "mechanism activation",
+      "downstream behavior change",
+      "task success",
+      "causal effect"
+    ],
+    "not_proven_by_receipt_alone": "causal mediation or external independence",
+    "no_posttreatment_activation_filter_for_primary": true
+  },
+  "independent_requirements": {
+    "before_pilot": [
+      "protocol promoted through protected main with independent exact-head review",
+      "independent custodian holds sealed task manifest and audited identity ledger",
+      "registered grading and replay contract",
+      "frozen treatment/checker source, model, agent, environments, budgets and randomization",
+      "independent prospective launch record with explicit manual authorization",
+      "verified run-logger and artifact-store restoration"
+    ],
+    "before_confirmatory": [
+      "successful separately authorized excluded sacrificial pilot",
+      "all pilot requirements still valid for exact confirmatory heads",
+      "signed task-seal and identity-audit record held separately from capsule authors and operators",
+      "complete independent confirmatory launch authorization before any model/task call"
+    ],
+    "after_execution": [
+      "independent scorer verifies original final state",
+      "independent auditor reconstructs receipts from observer-owned event logs and authenticates signatures",
+      "analysis independently reproduced from frozen task order and sealed run denominator"
+    ],
+    "forbidden": [
+      "unblinding before task and treatment freeze",
+      "self-sealing or signing as independent custodian",
+      "marking a gate true from authored placeholders",
+      "running a model/benchmark under SWE-agent v3's currently false gates",
+      "fabricating external authorization, execution or outcomes"
+    ]
+  },
+  "nonclaims": [
+    "no general agent reliability claim without completed prospective trial",
+    "no inference of mechanism causal mediation from observational receipts",
+    "no reuse or promotion of frozen SWE-agent v3 data",
+    "no theoretical proof or commercial superiority",
+    "a research PR is not a preregistration freeze until reviewed protected-main promotion"
+  ]
+}

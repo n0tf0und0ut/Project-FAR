@@ -1,0 +1,30 @@
+{
+  "schema_version": "0.1",
+  "program_id": "FAR-AGENT-GENERIC-CAUSAL-001",
+  "status": "NOT_AUTHORIZED",
+  "launch_authorization": false,
+  "independent_custodian_id": null,
+  "external_task_seal_manifest_sha256": null,
+  "sealed_identity_ledger_git_blob_sha1": null,
+  "independent_task_audit_sha256": null,
+  "protocol_reviewed_protected_main_commit": null,
+  "protocol_hash_sha256": null,
+  "model_endpoint_and_digests_sha256": null,
+  "agent_and_checker_mounts_sha256": null,
+  "execution_environment_and_budgets_sha256": null,
+  "randomization_seed_commitment_sha256": null,
+  "sealed_grader_contract_sha256": null,
+  "mechanism_receipt_observer_attestation_sha256": null,
+  "evidence_store_restoration_receipt_sha256": null,
+  "excluded_sacrificial_pilot_completion_sha256": null,
+  "independent_exact_head_review_sha256": null,
+  "authorized_manual_launch_record_sha256": null,
+  "current_prohibitions": [
+    "no model calls",
+    "no task selection or unblinding by capsule authors",
+    "no pilot or confirmatory runs",
+    "no outcome reveal",
+    "no claims of causal benefit"
+  ],
+  "rule": "Every evidence identity above must be non-null and independently verified against its authoritative source; a separate prospective signed authorization reviewed before model access is mandatory. This candidate file never grants launch permission."
+}
