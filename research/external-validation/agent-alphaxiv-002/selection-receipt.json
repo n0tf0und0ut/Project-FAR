@@ -1,0 +1,581 @@
+{
+  "protocol": "FAR-AGENT-ALPHAXIV-002/candidate-v0.1",
+  "evidence_class": "Research candidate intake; source selection only; no independent scientific review",
+  "status": "METADATA_INTAKE_COMPLETE_UNSCREENED",
+  "registered_previous_protocol": "FAR-AGENT-ALPHAXIV-001/candidate-v0.1",
+  "previous_protocol_disposition": "FAILED_SOURCE_INTAKE_NO_REPIN",
+  "dataset": "alphaXiv/AgentAlphaXiv",
+  "dataset_revision": "cc892aab131be3872283e1a778af663382315817",
+  "expected_studies": 916,
+  "expected_paper_cohort": 881,
+  "represented_sample_labs": 31,
+  "sample_size": 60,
+  "manifest_canonical_sha256": "771d7b6cb86d93b804e165def7507a6ec517d59839d65e603c911459d0cab603",
+  "manifest_json_file_sha256": "f201fd60042cf10c266755826831cb1ab77dd4cb0471c7a6730221d24ec21f47",
+  "source_execution": {
+    "github_actions_run_id": 44745310371,
+    "github_job_id": 136319126270,
+    "executed_branch_head": "683e36daa9049e023e15e20d33d823d6553f7882",
+    "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/44745310371",
+    "metadata_selection_step": "SUCCESS",
+    "artifact_upload_step": "SUCCESS",
+    "overall_workflow_status": "FAILURE_FROM_EXPECTED_001_PINNED_REVISION_404"
+  },
+  "verified_empirical_claims": 0,
+  "independent_sealed_cases": 0,
+  "checker_executions": 0,
+  "far_executions": 0,
+  "selected": [
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a1c2ca-fcf7-7f5c-adfb-3423800944f8",
+      "project_id": "01a1c2ca-fcdf-7a67-890f-55590fd30847",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0048dd10ff44d1d1058df31c8565ea42153d7261fba750638adf2b61551c2722",
+      "slug": "does-concept-steering-capture-the-self-first-no-privileged-s-329ed772",
+      "title": "Does Concept Steering Capture the Self First? No Privileged Self, but In-Context Descriptions Protect Identities"
+    },
+    {
+      "lab": "Lab 20",
+      "latest_version_id": "01a1b2ff-16c2-77c4-81d8-f45092f0335f",
+      "project_id": "01a1b2ff-16ae-7303-bb14-2367609b425d",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "006f59cff533d3d8e403528146c6dae0ecfe4ac61c724115e874af0f271f9a75",
+      "slug": "do-same-item-replicate-runs-fall-inside-published-item-boots-a4276832",
+      "title": "Do same-item replicate runs fall inside published item-bootstrap intervals? A small convenience set"
+    },
+    {
+      "lab": "Lab 14",
+      "latest_version_id": "01a1a295-325d-76df-93e6-f4ec565b8011",
+      "project_id": "01a19d9e-6c72-7d10-96ed-005d248ed63c",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "008731cdcb57a33c8253bc02878cbefd2004258a3d9d032e355afa917446548c",
+      "slug": "voting-breaks-a-second-look-restores-faulty-and-adversarial--83a9ade0",
+      "title": "Voting Breaks, a Second Look Restores: Faulty and Adversarial Members in Claude Haiku Agent Swarms"
+    },
+    {
+      "lab": "Lab 29",
+      "latest_version_id": "01a1ba7a-76ad-7fc9-846d-3eab94e38379",
+      "project_id": "01a1b6f7-48f0-7726-b892-879f32252db0",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "008814a1b037a73e386aac5c3bdfce9bc840e09f0a664b39a3e8855f4d25cb0a",
+      "slug": "a-one-step-dry-run-does-not-make-a-learned-safety-value-act--079ecc5b",
+      "title": "A One-Step Dry Run Does Not Make a Learned Safety Value Act on Time: Previews, First-Alarm Interception and the Point of No Return"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a1732d-9619-76fd-a0ff-15ba539c2c6a",
+      "project_id": "01a1732d-95fe-7c79-bad8-87083b1b4c53",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0090df4a4b803d468db9ef5c7f1c1a6164c1b0a3ae880330ac00b8329cd57c57",
+      "slug": "hidden-or-erased-in-released-language-models-post-training-f-cb4a16ad",
+      "title": "Hidden or Erased? In Released Language Models, Post-Training Forgetting Lives in the Upper Blocks, Not the Output Head, and a Linear Readout Does Not Recover It"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a1239a-65b0-71a8-9e2a-365ea2752f2f",
+      "project_id": "01a1239a-659a-72b4-9f70-1f2ce34a89f5",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "01065052fe1231775dfc50033d3427b3a64b1b04571e56fb42d52033086d3857",
+      "slug": "subject-addressed-sparse-memory-writes-keep-a-model-s-prior--a1002c52",
+      "title": "Subject-Addressed Sparse Memory Writes Keep a Model's Prior Knowledge but Not Its Earlier Updates, Because Subjects Share Name Tokens"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a1755e-7792-7189-9a22-58336cdb55e0",
+      "project_id": "01a1755e-7777-712f-8e47-aa8554c8080b",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "011dfabfbfcdab84377ef016cb789dc430949a253bdea881626c949b15752222",
+      "slug": "do-adapter-thickets-need-disjoint-data-a-same-shard-seed-ens-e50b01a5",
+      "title": "Do Adapter Thickets Need Disjoint Data? A Same-Shard Seed-Ensemble Control for Split-Budget RLVR"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18ca9-e660-735d-944f-72b618ce9670",
+      "project_id": "01a18ca9-e648-7417-8abb-3edd53fa54a8",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0138d5586696b3d75193201171f71704a540b36e11ced67949ec977569bc75fb",
+      "slug": "portable-probes-read-what-the-target-will-say-but-add-little-ddb780a7",
+      "title": "Portable Probes Read What the Target Will Say, but Add Little About Whether It Is Right: A Preregistered Source-Only-Proxy Test of Cross-Model White-Box Monitoring"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a0914a-533b-74ce-b92a-5199086a1f0d",
+      "project_id": "01a0914a-5326-797e-b0d0-e4095d5c1f03",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "01b2e5f8f024fbfd0eeb4ef84d83bd3b0f9cd303baf1eceba4f849af352aed16",
+      "slug": "recognition-is-not-recall-what-survives-repeated-factual-fin-bb1ff8c3",
+      "title": "Recognition Is Not Recall: What Survives Repeated Factual Fine-Tuning, and What It Costs"
+    },
+    {
+      "lab": "Lab 18",
+      "latest_version_id": "01a19754-edd8-70d6-9705-f953e1bd2a66",
+      "project_id": "01a19727-95ab-7d89-9187-f1ebf16265cd",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "020fd751622ae019d24cd89dd5babfd2a7acebc37c502a95405e4bc43506dc06",
+      "slug": "no-detectable-lines-advantage-over-uniform-interpolation-at--b7ed7e30",
+      "title": "No Detectable LiNeS Advantage over Uniform Interpolation at Matched Math Gain, but Less Forgetting than a Tuned Training Frontier: A Preregistered Test on Qwen3.5-0.8B"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a184e9-a480-7d00-b7f4-93c2b1d61607",
+      "project_id": "01a184e9-a468-7c07-b981-498c92419525",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "024c88ae1b42c2cd450858d0f0e175c3a4ce9abd0a04c8fc836fd7d2aa682eb2",
+      "slug": "is-think-direction-steering-specific-to-think-mode-a-length--4b269d2d",
+      "title": "Is Think-Direction Steering Specific to Think Mode? A Length-Matched Control for the Thinking-Leakage Steering Evidence in Qwen3-8B"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18f0d-a3a6-757c-98fb-1fa8666dd22c",
+      "project_id": "01a18f0d-a38c-7705-b6c8-1b33f10f5ae1",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "02f350377ede30cb142b15d3be9d1028b3992ab068e7138767303574adfcba54",
+      "slug": "does-sam-accelerate-grokking-beyond-a-tuned-weight-decay-bas-b2e8afb0",
+      "title": "Does SAM Accelerate Grokking Beyond a Tuned Weight-Decay Baseline? A Preregistered, Compute-Matched Test"
+    },
+    {
+      "lab": "Lab 22",
+      "latest_version_id": "01a1caa7-b3b8-7ac7-91f1-5de078821db4",
+      "project_id": "01a1a98c-8985-72a3-a983-17f9b1864050",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0349cef298c46c477436f054b9c2ca1a2048daa7d5022532b7edd934a4176077",
+      "slug": "the-empirical-appeals-court-and-independent-guest-editorship-3c967293",
+      "title": "The Empirical Appeals Court and Independent Guest Editorship in an Autonomous Agent Journal: Evaluating 276 Summary-Statistic-Executable Reviewer Concerns (Primary N=40 Inconclusive, Exploratory N=276 Census Differentiated) and 244 Live Code Audits"
+    },
+    {
+      "lab": "Lab 29",
+      "latest_version_id": "01a1ba7d-b370-7cf6-ab86-6e0b1b9b9f9a",
+      "project_id": "01a1b1ef-fc26-7aab-b2fe-ba5eb9754818",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "03503ed4f9fafb2ad4e32ae8d2e052ce71ec8855e0b3f7c20416b33ba5a6e905",
+      "slug": "choosing-is-easier-than-verifying-language-models-pick-the-s-a58d157f",
+      "title": "Choosing Is Easier than Verifying: At the Point of No Return, gpt-4.1 Picks the Safe Action More Often than Its Own Verification Scores Rank It"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a0fb8c-0f87-739e-9572-450e84ab89d7",
+      "project_id": "01a0fb8c-0f71-7cf4-a265-63ba46898418",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "046bbe913a7f8b18c7b3f97452c9efae3045a08bc43b133327328a619c14c814",
+      "slug": "fresh-capacity-is-not-an-address-write-time-keys-fail-and-a--37394662",
+      "title": "Fresh Capacity Is Not an Address: Write-Time Keys Fail and a Structural Key Works for Sequential Factual Fine-Tuning"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a0ea13-c669-7d8b-9c72-b803dfe76262",
+      "project_id": "01a0ea13-c652-7d8d-9f29-5a24cfb64c01",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0478d3e237662e28886739c367954121ba5cdff0e337ee68672bf91e8a506d28",
+      "slug": "new-facts-about-known-entities-same-entity-writes-erase-an-e-5ab490ce",
+      "title": "New Facts About Known Entities: Same-Entity Writes Erase an Entity's Other Facts, a Sibling Anchor Prevents It, and a Write-Time Null Space Blocks Revisions on Qwen"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a0f407-8c22-7ea2-80a6-50e2b79eb771",
+      "project_id": "01a0f407-8c0e-7cbf-b020-e0f049a15bac",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "047a7566a4ab7f38ba22ccfd103bf4d2a692b1c29e878eef0633af27a7e4b480",
+      "slug": "small-protected-writes-start-in-the-wrong-place-aligning-the-6ef20b23",
+      "title": "Small Protected Writes Start in the Wrong Place: Aligning the Adapter's Input Factor With the New Facts Restores Acquisition Under a Write-Time Null Space"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a17568-84b6-7b57-a4a7-c9ccebe73141",
+      "project_id": "01a17568-849e-7441-8b8a-c48ad73a1550",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "04b80f7237763df9b29fa438dec6e344cd9d1dab88e52e1afc4f8424a6a9a5d1",
+      "slug": "present-but-undetected-early-prefixes-of-reasoning-rollouts--26185c29",
+      "title": "Present but Undetected: Early Prefixes of Reasoning Rollouts Carry Outcome Information That Cheap Pruning Signals Do Not Detect"
+    },
+    {
+      "lab": "Lab 14",
+      "latest_version_id": "01a19dc9-6715-7d46-8188-866eb224c9c2",
+      "project_id": "01a19d9e-6775-77f0-b8b9-c25d6bd3627b",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "04dc08778d916647e4e0303a815dee525fff478232d475f9b26a3af8ab853a38",
+      "slug": "traces-instead-of-talk-a-preregistered-call-matched-test-of--46aa2859",
+      "title": "Traces Instead of Talk? A Preregistered Call-Matched Test of Stigmergic Coordination in Claude Haiku Agent Swarms"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a196ef-1289-7bf6-81d9-62b9d67cafdb",
+      "project_id": "01a196ef-1272-7b34-8b19-c67e48f27736",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "050186af2bf4806197c31756676c1a9199e88d6cbccc989e4adc1ddd509c05b8",
+      "slug": "is-the-exponential-residual-flow-s-noise-to-text-map-ode-lik-2b4cfa10",
+      "title": "Is the Exponential Residual Flow's Noise-to-Text Map ODE-Like? A Preregistered Test Finds Partial Step Consistency and Substantial Noise Sensitivity on Masked and Uniform Diffusion LMs"
+    },
+    {
+      "lab": "Lab 21",
+      "latest_version_id": "01a19d0f-c862-731f-8a70-013598954d06",
+      "project_id": "01a19d0f-c84b-7d82-afc8-23a4f7d72c3a",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "05184b61dab6636f03ef5138149642142d7f969e9ec26f090fac05c6157a22d5",
+      "slug": "average-the-path-or-shrink-the-endpoint-an-ema-of-the-weight-4b2fd664",
+      "title": "Average the Path or Shrink the Endpoint? An EMA of the Weights Beats a Tuned Learning Rate but Does Not Beat Post-Hoc Interpolation at Matched Gain in Continual Pretraining of Qwen3.5-0.8B"
+    },
+    {
+      "lab": "Lab 24",
+      "latest_version_id": "01a1c1fb-10fd-75f6-83fc-8aabe1c497a4",
+      "project_id": "01a1acad-487f-70fb-841b-db67fcaf3471",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "058cc54936bfde64c1f67c7e6667fee7bab603a18761c8a955939f4b8ad921a9",
+      "slug": "continue-or-restart-in-multi-round-self-training-on-gsm8k-bo-273bebf2",
+      "title": "Continue or Restart in Multi-Round Self-Training? On GSM8K, Both Still Improve on Test Through Round 3 but Gains Flatten; Continuing Gains a Small, Seed-Fragile Accuracy Edge but Forgets Far More Web Text and Loses Sample Diversity Faster"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a193ee-48a8-7d06-a172-b428c09236ca",
+      "project_id": "01a193ee-4891-7303-a0ea-30f304399bbc",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "05ee4e6891d7f44694990e7232101d5bae31fc9c4cdd2f8ba463ef69fd09742f",
+      "slug": "the-residual-buffer-is-the-active-ingredient-a-preregistered-fe6c58d2",
+      "title": "The Residual Buffer Is the Active Ingredient: A Preregistered Zero-State Control for Error-Diffusion Training of Binary-Weight Transformers"
+    },
+    {
+      "lab": "Lab 23",
+      "latest_version_id": "01a1ad62-5b41-7354-80f2-47eba185644a",
+      "project_id": "01a1ad62-5b29-71d8-9e26-e73b1a69070d",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "06456162ef23837f648a5aa15a3b9003aada5f34e44c9713ec8c4e88fbf0ed90",
+      "slug": "option-order-is-not-a-detectable-confound-for-haiku-on-medqa-89dd5b3a",
+      "title": "Option Order Is Not a Detectable Confound for Haiku on MedQA: A Preregistered Matched-Call Permutation Audit"
+    },
+    {
+      "lab": "Lab 21",
+      "latest_version_id": "01a19a68-3bd5-7927-9543-a4dbc1c3f1cc",
+      "project_id": "01a19a68-3bbd-7882-beb7-35fd8e58126a",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "069701d54d3ba5cace44a87dacf2ad085ae7ae0662bf7ce71e2d61aa94e903ca",
+      "slug": "at-matched-gain-cosine-wsd-and-constant-learning-rate-schedu-f55d8fee",
+      "title": "At Matched Gain, Cosine, WSD and Constant Learning-Rate Schedules Forget the Same in Continual Pretraining, Until the Gain Ceiling"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a17b47-4ec7-786d-b130-6c3be065b26b",
+      "project_id": "01a17b47-4e93-7cc4-b259-c2a97e54d14e",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "06d13e6c2d065ab0e66878d69a6b02b1699f8e701af8bbb9b705908d142fc29c",
+      "slug": "tuned-damping-not-worst-case-robustness-a-preregistered-test-43c24b55",
+      "title": "Tuned Damping, Not Worst-Case Robustness: A Preregistered Test of Distributionally Robust Code Refinement for 3-Bit GPTQ"
+    },
+    {
+      "lab": "Lab 18",
+      "latest_version_id": "01a195e9-4cc6-720b-b825-e338768e95b6",
+      "project_id": "01a195b6-a93a-74ca-89cd-8811a8ff4238",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "07011c5b29acc16a221caebbd660fde7d21c0d0f6d544ad88f52a3b9b051f39d",
+      "slug": "at-matched-kl-grpo-and-sft-leave-the-same-share-of-bf16-weig-7aa8b486",
+      "title": "At Matched KL, GRPO and SFT Leave Almost the Same Share of bf16 Weights Unchanged: A Preregistered Test of RL Update Sparsity with fp32 Master Weights"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18418-5e0d-762f-b2bc-6e8af3fe5aef",
+      "project_id": "01a18418-5df4-7a19-a19e-b3eee119a410",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "076fdd58a93e2c8ef719d29cc469a22894c748c3a0eee82ee443a45b67b4eb45",
+      "slug": "adaptive-voting-is-not-what-wins-plain-self-consistency-with-d49eec76",
+      "title": "Adaptive Voting Is Not What Wins: Plain Self-Consistency with PRICE's Learned Stopping Rule Matches PRICE Under Token Budgets"
+    },
+    {
+      "lab": "Lab 28",
+      "latest_version_id": "01a1b00f-e1ad-7225-a43f-738515566e81",
+      "project_id": "01a1b00f-e193-7b5e-b08d-5b091edb988e",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "077ef8a2e09c6e7420183dd1b746f3e697c99d5a2d9fa9523c9e6fe9bfffd36f",
+      "slug": "shared-feedback-and-own-stream-false-acceptance-a-fixed-weig-85429c11",
+      "title": "Shared Feedback and Own-Stream False Acceptance: A Fixed-Weight Procedural-Memory Audit"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a17e9f-614d-78fa-a866-8b5e745942ea",
+      "project_id": "01a17e9f-6136-7f7e-a5ff-d313befa9ee8",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "079aefc929ad322065085d435c9382b59d2140a9034f7616812b21810188a919",
+      "slug": "persistence-or-input-access-a-parameter-matched-write-once-s-adae660d",
+      "title": "Persistence or Input Access? A Parameter-Matched Write-Once State Recovers StateLoop's Gain in Small Looped Language Models"
+    },
+    {
+      "lab": "Lab 13",
+      "latest_version_id": "01a18e3f-155c-7575-8f78-24c46346b057",
+      "project_id": "01a18cfc-9b2e-719b-bbf6-63f2098eef6e",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "07c11cabbe8fc9e07c7ae5e8d558844b94122fdde18227fb58f2271ffced5ad1",
+      "slug": "order-or-evidence-informative-flags-and-a-stated-probability-5ca05dbc",
+      "title": "Order or Evidence? Informative Flags and a Stated-Probability Dose-Response for Frontier Self-Correction with Claude Opus 5.5 on Hard BBEH Reasoning"
+    },
+    {
+      "lab": "Lab 5",
+      "latest_version_id": "01a17a33-ba57-7d1b-901b-42627d50a09c",
+      "project_id": "01a16e96-2655-7916-9601-d20485fd5071",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "07d7e7dcaab230fa1c4d0af9d3a3a478bb9b38501b3002a636facfbd48eb54b5",
+      "slug": "pair-selection-is-treatment-assignment-identification-and-co-464e8426",
+      "title": "Pair Selection Is Treatment Assignment: Identification and Collider Bias in Bradley–Terry Reward Learning"
+    },
+    {
+      "lab": "Lab 9",
+      "latest_version_id": "01a18bb4-7de5-7eb4-b3b9-e645fb28a646",
+      "project_id": "01a183d3-0cca-7c9d-9508-2ff94f28919c",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0828e333c905d3b007d70f5626e96e72b34dca755c6f084bfc1c0dd4fa67beba",
+      "slug": "a-low-rank-filter-does-not-clean-a-forward-only-gradient-a-p-2edd1674",
+      "title": "A Low-Rank Filter Does Not Clean a Forward-Only Gradient: A Pre-registered Test of PowerSGD-style Estimates for Dust"
+    },
+    {
+      "lab": "Lab 11",
+      "latest_version_id": "01a18e90-1b5b-74aa-9eeb-d88a4ca40911",
+      "project_id": "01a18e90-1b43-76dc-9e52-ca036f451ebc",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "08e9b9285b81ce98972b917565e085da1f1011cc86fa915d550c0128f74cd395",
+      "slug": "where-does-a-likelihood-gain-go-an-exact-codebook-decomposit-c6952e3f",
+      "title": "Where Does a Likelihood Gain Go? An Exact Codebook Decomposition of Centered Residual Adaptation"
+    },
+    {
+      "lab": "Lab 31",
+      "latest_version_id": "01a1b113-fb6b-7dba-b8c9-91afcee578f6",
+      "project_id": "01a1b113-fb54-78a0-9205-0f993e0623b6",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "096f4af3220caf84fd3111361452c4ac8ba94d47b0cc567c2dbd7d10f9e8a704",
+      "slug": "what-ten-papers-support-a-zero-call-meta-analysis-of-critic--469ea3b1",
+      "title": "What Ten Papers Support: A Zero-Call Meta-Analysis of Critic-versus-Voter Finds a Small, Fragile Critic Advantage and No Demonstrated Equivalence of Self-Critique and Self-Vote"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a0a8d9-85ca-7429-8b98-375447c6613e",
+      "project_id": "01a0a8d9-85b5-7e5e-a8d4-8743e9f8756a",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "099ceb03a79392862d4c35effe9cc6b5def593881498944e61ae6defa9e731bd",
+      "slug": "where-a-factual-update-lands-is-a-weak-lever-confining-seque-bcc19349",
+      "title": "Where a Factual Update Lands Is a Weak Lever: Confining Sequential Fine-Tuning to Update-Specific MLP Neurons Keeps Slightly More Facts, and So Does Any Rarely-Used Locus"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18cfc-e369-7377-848a-7620dc120b6c",
+      "project_id": "01a18cfc-e354-7d81-a069-027e21db70d2",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "09d0cb933975f228657797c5b738ea8fddafc726c91a7b2460b9e26979200a68",
+      "slug": "random-kv-eviction-ties-today-s-scores-not-an-oracle-a-prere-62a18eaa",
+      "title": "Random KV Eviction Ties Today's Scores, Not an Oracle: A Preregistered Headroom Test of Signal-Free Eviction for Reasoning"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18182-11a2-7650-8c58-b44fef0ce242",
+      "project_id": "01a18182-1186-7452-91b7-92e4089dc379",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0a54c91cc253035a1934f96928cc80f030e7e26458fb3fabdf6edc88722346c6",
+      "slug": "a-lower-learning-rate-not-clipping-or-warmup-prevents-the-si-686a37fd",
+      "title": "A Lower Learning Rate, Not Clipping or Warmup, Prevents the Silent LeJEPA Readability Decline: A Preregistered Optimiser Test"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a17bf0-fe88-797f-aa6a-bfe3c103f239",
+      "project_id": "01a17bf0-fe6a-7b12-8b5a-1977c7fe7909",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0ad583e93ea3dfd043f978baea71b0432c8b4d833bb6ca1960f3d0ce5eef5143",
+      "slug": "is-the-gram-matrix-doing-the-work-a-preregistered-gram-free--905e6c3b",
+      "title": "Is the Gram Matrix Doing the Work? A Preregistered Gram-Free Control Finds No TTR-Compressor Advantage in Small-Scale Block-Sparse Attention"
+    },
+    {
+      "lab": "Lab 24",
+      "latest_version_id": "01a1c1f8-bad9-751b-9da8-21f7b205ebd9",
+      "project_id": "01a1a278-c9a7-7670-8fa7-e869bce4e934",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0b48e76b23128c367d8aae3e9db423ee475d2875aeb188cd518f5089c74b4d8d",
+      "slug": "shrink-don-t-truncate-spectral-truncation-of-a-continual-pre-c4d2de34",
+      "title": "Shrink, Don't Truncate: Spectral Truncation of a Continual-Pretraining Update Forgets Several Times More Than Uniform Interpolation at Matched Gain"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a06e5a-c256-7ce9-98b8-3785ef248942",
+      "project_id": "01a06e5a-c23e-7315-9da1-8ecf630d7c44",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0ca7f596decc6a9df735ca2d769510792138dadd3bc8bd7f4ee799626bd0ff2b",
+      "slug": "anchor-where-the-base-model-is-sensitive-self-fisher-anchori-1e25ccf6",
+      "title": "Anchor Where the Base Model Is Sensitive? Self-Fisher Anchoring for Continual Post-Training Matches, but Does Not Beat, Tuned Weight Anchors"
+    },
+    {
+      "lab": "Lab 14",
+      "latest_version_id": "01a1a292-d79a-71a4-9a72-4f075c24a93b",
+      "project_id": "01a19eb9-f308-77a4-8ad4-af6b0ad8c39f",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0cde192edd72a3dec0ca988cfad2efd4546f7e700fa00711d7b1f159393463ef",
+      "slug": "one-rewrite-does-most-of-the-work-recursive-self-improvement-669194de",
+      "title": "One Rewrite Does Most of the Work: Recursive Self-Improvement of a Strategy Guide in Claude Haiku Beats Matched-Call Self-Consistency, but Recursion and Ground Truth Add Little"
+    },
+    {
+      "lab": "Lab 1",
+      "latest_version_id": "01a18bc2-3bad-73c7-a09d-2e14b8cd2504",
+      "project_id": "01a18bc2-3b96-7c42-947f-2530a5615094",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0cff54c5cc2d2ba9e256c65a7d0d196f355ba4ebf7e1c7bad6c2426eaa2b5b03",
+      "slug": "where-does-lossy-speculative-decoding-change-reasoning-lengt-24669890",
+      "title": "Where Does Lossy Speculative Decoding Change Reasoning Length? A Preregistered Stop-Token Test with Qwen3"
+    },
+    {
+      "lab": "Lab 11",
+      "latest_version_id": "01a18de1-7ac5-7811-a4d6-14cea4d7b478",
+      "project_id": "01a18de1-7aae-76a0-9401-9a8f8da024c9",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0d44ce07d83a6129b68a2272b55b7c86c5013afcad52959a3e2a9ffc793160e6",
+      "slug": "can-one-chosen-example-resolve-rule-ambiguity-a-finite-gramm-366ecf46",
+      "title": "One Fixed Example Matches Active Querying: A Finite-Grammar Audit of In-Context Consolidation"
+    },
+    {
+      "lab": "Lab 12",
+      "latest_version_id": "01a18e07-936a-7864-a568-ca8b602105a2",
+      "project_id": "01a18e07-9353-7182-a0ec-11176afc297f",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0d5935d5f491e4f966a6d74ac966a0365e324874bb78fd5de681585105c61ee2",
+      "slug": "centered-low-rank-residuals-versus-their-initial-tangents-in-7587cc99",
+      "title": "Centered Low-Rank Residuals Versus Their Initial Tangents in a Frozen Language Model"
+    },
+    {
+      "lab": "Lab 3",
+      "latest_version_id": "01a1416c-142d-7d4c-8d4c-91bf6b5e9bb3",
+      "project_id": "01a1416c-1417-7149-b340-e52e87d28fd3",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0d91f033d22726bab3e6ee11a55d7a41fb361deba5770584b80b9495576640d1",
+      "slug": "sunk-compute-moves-the-first-decision-not-the-campaign-a-pre-52ca7455",
+      "title": "Sunk Compute Moves the First Decision, Not the Campaign: A Preregistered Test of Sunk-Cost Bias and Remaining-Budget Prompting in LLM Experimental-Design Agents"
+    },
+    {
+      "lab": "Lab 2",
+      "latest_version_id": "01a1826a-2f20-7c22-8e0a-d8b6ea22ca87",
+      "project_id": "01a145e3-6101-761b-b023-bfbd2e1a232e",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "0e440b36d0b509a4b19993263d33f71036a232ff0cb4ff6c8b46df12fc0eec8f",
+      "slug": "a-tuned-recurrent-controller-gains-nothing-measurable-from-a-84f5b8c2",
+      "title": "A Tuned Recurrent Controller Gains Nothing Measurable From an Auxiliary Transition-Prediction Loss in a Small Partially Observed Control Problem"
+    },
+    {
+      "lab": "Lab 17",
+      "latest_version_id": "01a198d9-2ee2-7abf-8e15-494afa16fa28",
+      "project_id": "01a198d9-2ecc-7b0a-a6fd-2f8566bfcb29",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "10462113a6be757527f37b4525f3434e5d9a78920363929b0b1341ccc100e16b",
+      "slug": "noticing-a-missing-key-is-not-noticing-a-missed-value-a-prer-8a9ae981",
+      "title": "Noticing a Missing Key Is Not Noticing a Missed Value: A Preregistered Test of Coverage Reporting in Long-Context Retrieval"
+    },
+    {
+      "lab": "Lab 25",
+      "latest_version_id": "01a1a565-a8ae-737f-9164-a820e24da0ef",
+      "project_id": "01a1a565-a895-78c8-b0c1-67dc4f5532c9",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "12711934fd37d4a2616a4511fc3a7a4209483b9560703394df26bbba2dfc85c0",
+      "slug": "the-last-layer-is-nearly-the-worst-which-layer-should-a-trai-9233f8d0",
+      "title": "The Last Layer Is Nearly the Worst: Which Layer Should a Training-Free Sentence Embedding Use?"
+    },
+    {
+      "lab": "Lab 16",
+      "latest_version_id": "01a1b000-2ffd-78be-adf2-f299962ec3a9",
+      "project_id": "01a1a9b5-a249-71f3-ab77-bf1e303c3c55",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "128561befda84b535b5c96277357b05db601bd859c22c6cec2cc83f857a006d7",
+      "slug": "what-does-your-answer-is-wrong-buy-another-attempt-answer-ex-d2e5e127",
+      "title": "What Does \"Your Answer Is Wrong\" Buy? Another Attempt, Answer Exclusion and Anchoring on the Own Trace in Math Self-Correction"
+    },
+    {
+      "lab": "Lab 30",
+      "latest_version_id": "01a1adee-ce41-764e-a104-b44df4525ed0",
+      "project_id": "01a1adee-ce2a-7089-bb2a-9be51d69db7b",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "129cc8c2714dabc0b2cc7f75de451a8b183c7a53fd409e8c2bcb8ac442ddeef0",
+      "slug": "numerical-drift-and-answer-changes-under-adamw-clock-compens-adf4aa28",
+      "title": "Numerical Drift and Answer Changes Under AdamW Clock Compensation in LoRA"
+    },
+    {
+      "lab": "Lab 19",
+      "latest_version_id": "01a19f9a-69d0-71b5-8567-6e4dcc521425",
+      "project_id": "01a19f9a-69ba-7996-a0da-d2726cc77592",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "12b1d8bb41f2e4eea3df6047f1b7de7084b409da2c1c3388bc6540740d697d17",
+      "slug": "self-evolved-prompts-find-little-headroom-and-do-not-beat-eq-4ac65740",
+      "title": "Self-Evolved Prompts Find Little Headroom and Do Not Beat Equal-Call Voting on Hard BBEH Tasks"
+    },
+    {
+      "lab": "Lab 27",
+      "latest_version_id": "01a1a7cc-162b-7bf1-ad1c-c5e7a4b3ea48",
+      "project_id": "01a1a7cc-1603-7ea9-91af-5f051775f2f2",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "14cba7a32e5416f94c1e4eec3bbd9756ff80edecc480367950dcdd9a2b7e8c5e",
+      "slug": "is-it-the-rule-or-the-count-a-matched-count-rule-type-ablati-8acb0462",
+      "title": "Is It the Rule or the Count? A Matched-Count Rule-Type Ablation with Exact Path Counts on SPaRC-Style Grid Puzzles"
+    },
+    {
+      "lab": "Lab 8",
+      "latest_version_id": "01a1c79c-698b-7cab-a332-f26ac1db6935",
+      "project_id": "01a174ce-6bb3-70f3-ac65-2ba7ab456899",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "15ca892813976a979364a725bad30c831ac4dc04dc4b8d2026de817c6ba51912",
+      "slug": "held-out-assay-reconstruction-does-not-establish-assay-inter-01341381",
+      "title": "Held-out assay reconstruction does not establish assay interchangeability in a nanobody developability panel"
+    },
+    {
+      "lab": "Lab 10",
+      "latest_version_id": "01a18635-c8d2-71e9-9158-6795a5384dd4",
+      "project_id": "01a18635-c8b9-7c8e-bdaa-6642d65c8bd5",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "16087432bacb9ace3e95f1944b3b283175b44797ed03e6b5f2ad6446acdcd833",
+      "slug": "consolidation-in-context-grouping-facts-by-entity-model-rewr-1fc30784",
+      "title": "Consolidation in Context: Grouping Facts by Entity, Model-Rewritten Profiles, and What Each Does to Recall and One-Hop Composition at Equal Content"
+    },
+    {
+      "lab": "Lab 6",
+      "latest_version_id": "01a1a2e5-ade6-7191-955d-4a5eabac1814",
+      "project_id": "01a1a2e5-adc8-75f9-b67f-cc3e3177d497",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "16ff0dd11da79da4b61cfe78c3d847ee30c4a4dc3218554f04680dc0f830fd37",
+      "slug": "the-solar-diffusivity-grows-with-scale-aac7d4c5",
+      "title": "The Solar Diffusivity Grows with Scale"
+    },
+    {
+      "lab": "Lab 7",
+      "latest_version_id": "01a17a7d-c689-7bf7-b108-3d351a15802c",
+      "project_id": "01a17a7d-c672-7982-9e4c-b844dfcf5fc2",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "252e910f03cd955459a7482e1eb4448a8ac666051e1229542c006da141393460",
+      "slug": "positive-claims-under-a-known-null-warnings-and-preregistrat-ca484c9b",
+      "title": "Positive Claims Under a Known Null: Warnings and Preregistration in Language-Model Analysts"
+    },
+    {
+      "lab": "Lab 34",
+      "latest_version_id": "01a1c7e6-f74d-7bc5-8e1b-83ff5d9b6622",
+      "project_id": "01a1c77b-e460-730b-99ed-3c2e979275a6",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "2930d3ce50225ccf72342f883d04facb6636ec95d28ba9293dd0f724227315ec",
+      "slug": "warm-not-wrong-at-4b-warmth-fine-tuning-delays-answers-and-r-2cc3fb00",
+      "title": "Warm, Not Wrong: At 4B, Warmth Fine-Tuning Delays Answers and Raises Belief Adoption but Barely Costs Facts"
+    },
+    {
+      "lab": "Lab 26",
+      "latest_version_id": "01a1a578-e958-76a5-9902-a2a56d64b95f",
+      "project_id": "01a1a578-e941-782f-8a60-84b15d3d1932",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "56d650a38e3177006f41ab9474530db9634e9ef28929d71952ff96f4748d1bc7",
+      "slug": "does-tool-contract-diversity-improve-whole-call-voting-a-bal-1b5a74c4",
+      "title": "Does Tool-Contract Diversity Improve Whole-Call Voting? A Balanced Three-Call Audit of Cached BFCL Responses"
+    },
+    {
+      "lab": "Lab 32",
+      "latest_version_id": "01a1b646-bcaf-70d3-9f5c-03adbb3e4cf2",
+      "project_id": "01a1b646-bc98-7d25-bd7b-3ec266cfa79a",
+      "screening_status": "UNSCREENED",
+      "selection_digest": "a55b750ec1169e21079054fc61f0835262617a9a0e10feda9c51ff19a22a805e",
+      "slug": "does-the-fragility-index-know-anything-the-p-value-doesn-t-a-cffe3bc2",
+      "title": "Does the Fragility Index Know Anything the P-Value Doesn't? A Preregistered Test on Independent Generation Banks"
+    }
+  ],
+  "input_row_metadata_sha256": "c5d7993d6d4382111c6f154e4e87c91e4184956abb7b62a64f3c58522ef47d25",
+  "successor_verification": {
+    "run_id": 44745783234,
+    "job_id": 136320726323,
+    "head_sha": "4ee1aa10d65402baae18d85b821bee8f8105a41e",
+    "conclusion": "success",
+    "manifest_sha256": "771d7b6cb86d93b804e165def7507a6ec517d59839d65e603c911459d0cab603",
+    "manifest_file_sha256": "f201fd60042cf10c266755826831cb1ab77dd4cb0471c7a6730221d24ec21f47",
+    "source_metadata_sha256": "c5d7993d6d4382111c6f154e4e87c91e4184956abb7b62a64f3c58522ef47d25",
+    "url": "https://github.com/n0tf0und0ut/Project-FAR/actions/runs/44745783234"
+  }
+}

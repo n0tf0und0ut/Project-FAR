@@ -1,0 +1,70 @@
+name: AgentAlphaXiv 002 Archive Byte Audit (Research)
+
+# Source-data forensics only; no code execution from any downloaded study.
+# Isolated from scientific preregistration, acceptance, and EFR-001.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/agent-alphaxiv-byte-integrity.yml'
+      - 'tools/agent_alphaxiv_byte_audit.py'
+      - 'tests/test_agent_alphaxiv_byte_audit.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-alphaxiv-byte-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  audit-external-archives:
+    if: >-
+      github.repository == 'n0tf0und0ut/Project-FAR' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'research/agent-alphaxiv-001-candidate' &&
+      github.event.pull_request.head.sha == 'f8bbe0eed8acd36dfb6341db3b76e0ca287716b3'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_ETAG_TIMEOUT: '20'
+    steps:
+      - name: Checkout exact candidate with read-only credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Prepare pinned Python runtime
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Run malicious archive and provenance controls
+        run: |
+          python -m unittest discover -s tests -p 'test_agent_alphaxiv_byte_audit.py' -v
+          python -m unittest discover -s tests -p 'test_agent_alphaxiv_source_receipt.py' -v
+          python -m py_compile tools/agent_alphaxiv_byte_audit.py
+
+      - name: Install exact read-only Hugging Face dataset client
+        run: python -m pip install --disable-pip-version-check 'datasets==4.4.1'
+
+      - name: Verify released archive bytes for all 60 fixed studies
+        run: |
+          python tools/agent_alphaxiv_byte_audit.py \
+            --selection research/external-validation/agent-alphaxiv-002/selection-receipt.json \
+            --source-coverage research/external-validation/agent-alphaxiv-002/source-coverage-receipt.json \
+            --output "$RUNNER_TEMP/agent-alphaxiv-002-byte-audit.json"
+          sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-byte-audit.json"
+
+      - name: Preserve full byte-verification record
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: agent-alphaxiv-byte-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/agent-alphaxiv-002-byte-audit.json
+          if-no-files-found: warn
+          retention-days: 14

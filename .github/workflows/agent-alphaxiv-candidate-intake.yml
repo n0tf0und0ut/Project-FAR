@@ -1,0 +1,173 @@
+name: AgentAlphaXiv 002 Metadata Intake and 001 Source Forensics (Research)
+
+# Metadata-only successor intake. The unavailable 001 source is observed and
+# remains a separately preserved failure; no scientific study is launched.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/agent-alphaxiv-candidate-intake.yml'
+      - 'tools/agent_alphaxiv_external_intake.py'
+      - 'tests/test_agent_alphaxiv_external_intake.py'
+      - 'tests/test_agent_alphaxiv_successor_intake.py'
+      - 'tests/test_agent_alphaxiv_receipt_integrity.py'
+      - 'tests/test_agent_alphaxiv_source_screen.py'
+      - 'tests/test_agent_alphaxiv_source_receipt.py'
+      - 'tools/agent_alphaxiv_source_screen.py'
+      - 'research/external-validation/agent-alphaxiv-001/**'
+      - 'research/external-validation/agent-alphaxiv-002/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-alphaxiv-candidate-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  metadata-only-intake:
+    if: >-
+      github.repository == 'n0tf0und0ut/Project-FAR' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.head_ref == 'research/agent-alphaxiv-001-candidate' &&
+      github.event.pull_request.head.sha == '660a33f0d72e05a110d4169f4c69abf8ca31bed2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_ETAG_TIMEOUT: '20'
+    steps:
+      - name: Checkout exact untrusted research candidate without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Prepare pinned Python runtime
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Verify candidate sampling and failure contract
+        run: |
+          python -m unittest discover -s tests -p 'test_agent_alphaxiv_*.py' -v
+          python -m py_compile tools/agent_alphaxiv_external_intake.py
+
+      - name: Install pinned read-only metadata client
+        run: python -m pip install --disable-pip-version-check 'datasets==4.4.1'
+
+      - name: Forensically check pinned and current upstream source references
+        run: |
+          python - <<'PY'
+          from huggingface_hub import HfApi
+          from datasets import load_dataset
+          api = HfApi()
+          dataset = 'alphaXiv/AgentAlphaXiv'
+          previous = 'a63f46066ac16fcb470f41933415e175825b6bcc'
+          for label, revision in (('REGISTERED', previous), ('CURRENT', None)):
+              try:
+                  info = api.dataset_info(dataset, revision=revision)
+                  print(label + '_REVISION_SHA=' + str(info.sha), flush=True)
+                  if label == 'CURRENT':
+                      rows = load_dataset(dataset, 'studies', split='train', revision=info.sha)
+                      print('CURRENT_STUDIES=' + str(len(rows)), flush=True)
+                      print('CURRENT_PAPER_COHORT=' + str(sum(bool(r['in_paper_cohort']) for r in rows)), flush=True)
+              except Exception as exc:
+                  print(label + '_SOURCE_ERROR=' + type(exc).__name__ + ': ' + str(exc)[:300], flush=True)
+          print('OBSERVATION_ONLY_NO_REPIN_OR_STUDY_LAUNCH', flush=True)
+          PY
+
+      - name: Inspect exact source schema and availability for external screening
+        run: |
+          python - <<'PY'
+          import json
+          from datasets import load_dataset
+          rev = 'cc892aab131be3872283e1a778af663382315817'
+          for config in ('paper_texts', 'artifacts', 'versions'):
+              ds = load_dataset('alphaXiv/AgentAlphaXiv', config, split='train', revision=rev)
+              print('SOURCE_SCHEMA', json.dumps({'config': config, 'rows': len(ds), 'columns': ds.column_names}, sort_keys=True), flush=True)
+              first = ds[0]
+              info = {k: {'type': type(v).__name__, 'length': len(v) if isinstance(v, (str, list, dict)) else None, 'short_value': str(v)[:120] if k not in ('text', 'full_text', 'body', 'content', 'raw_text') else '[OMITTED]'} for k, v in first.items()}
+              print('SOURCE_ROW_SHAPE', json.dumps({'config': config, 'shape': info}, sort_keys=True), flush=True)
+          PY
+
+      - name: Execute distinct 002 metadata intake from its own pinned revision
+        run: |
+          python tools/agent_alphaxiv_external_intake.py --candidate 002 --from-hub --output "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json"
+          sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json"
+          python - "$RUNNER_TEMP/agent-alphaxiv-002-candidate.json" <<'PY'
+          import json, sys
+          p = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert p['protocol'] == 'FAR-AGENT-ALPHAXIV-002/candidate-v0.1'
+          assert p['dataset_revision'] == 'cc892aab131be3872283e1a778af663382315817'
+          assert (p['all_studies'], p['paper_cohort']) == (916, 881)
+          assert len(p['selected']) == 60 and p['verified_empirical_claims'] == 0
+          print('CANDIDATE_002_MANIFEST_SHA256=' + p['manifest_sha256'])
+          print('CANDIDATE_002_INPUT_ROW_METADATA_SHA256=' + p['input_row_metadata_sha256'])
+          for row in p['selected']:
+              print('CANDIDATE_002_SELECTED=' + json.dumps(row, ensure_ascii=False, sort_keys=True))
+          PY
+
+      - name: Screen all 60 studies for source-text and released-artifact coverage
+        run: |
+          python tools/agent_alphaxiv_source_screen.py \
+            --selection research/external-validation/agent-alphaxiv-002/selection-receipt.json \
+            --output "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
+          sha256sum "$RUNNER_TEMP/agent-alphaxiv-002-source-coverage.json"
+
+      - name: Inspect one selected archive structure without executing its contents
+        run: |
+          python - <<'PY'
+          import json, tarfile, hashlib
+          from collections import Counter
+          from pathlib import Path
+          from datasets import load_dataset
+          from huggingface_hub import hf_hub_download
+          selection = json.loads(Path('research/external-validation/agent-alphaxiv-002/selection-receipt.json').read_text())
+          first = selection['selected'][0]
+          pid, version = first['project_id'], first['latest_version_id']
+          arts = load_dataset('alphaXiv/AgentAlphaXiv', 'artifacts', split='train',
+                              revision='cc892aab131be3872283e1a778af663382315817')
+          matched = [r for r in arts if r['project_id'] == pid and r['version_id'] == version]
+          print('FIRST_SOURCE_ID=' + pid)
+          print('FIRST_ARTIFACT_ROW_SAMPLE=' + json.dumps([
+              {'logical_path': a['logical_path'], 'kind': a['kind'], 'in_release_tar': a['in_release_tar']}
+              for a in matched[:8]], sort_keys=True))
+          try:
+              archive = Path(hf_hub_download('alphaXiv/AgentAlphaXiv',
+                  filename='artifacts/' + pid + '.tar', repo_type='dataset',
+                  revision='cc892aab131be3872283e1a778af663382315817'))
+              h = hashlib.sha256()
+              with archive.open('rb') as inp:
+                  for chunk in iter(lambda: inp.read(1024*1024), b''):
+                      h.update(chunk)
+              print('FIRST_ARCHIVE_BYTES=' + str(archive.stat().st_size))
+              print('FIRST_ARCHIVE_SHA256=' + h.hexdigest())
+              with tarfile.open(archive, 'r:*') as tf:
+                  members = tf.getmembers()
+                  print('FIRST_ARCHIVE_MEMBER_COUNT=' + str(len(members)))
+                  print('FIRST_ARCHIVE_MEMBER_SAMPLE=' + json.dumps([
+                      {'name': m.name, 'size': m.size, 'kind': 'file' if m.isfile() else 'other'}
+                      for m in members[:12]], sort_keys=True))
+          except Exception as exc:
+              print('FIRST_ARCHIVE_ACCESS_UNVERIFIED=' + type(exc).__name__ + ': ' + str(exc)[:300])
+          PY
+
+      - name: Preserve complete metadata-only source-coverage record
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: agent-alphaxiv-002-source-coverage-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/agent-alphaxiv-002-source-coverage.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Preserve separate 002 metadata candidate for independent screening
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: agent-alphaxiv-002-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/agent-alphaxiv-002-candidate.json
+          if-no-files-found: error
+          retention-days: 14
+
