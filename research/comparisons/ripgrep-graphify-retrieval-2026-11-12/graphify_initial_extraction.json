@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/user/far-graphify-eval-20261112/.venv/bin/graphify",
+    "extract",
+    "/home/user/far-graphify-eval-20261112/far",
+    "--code-only",
+    "--no-cluster",
+    "--max-workers",
+    "4",
+    "--out",
+    "/home/user/far-graphify-eval-20261112/output"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 117.16,
+  "stdout_tail": "[graphify extract] scanning /__modal/volumes/vo-Akmz8eq2XDrm10zEapdhr8/far-graphify-eval-20261112/far\n[graphify extract] --code-only: skipping 1537 non-code file(s) (1533 docs, 4 papers, 0 images) \u2014 no LLM extraction\n[graphify extract] found 2360 code, 0 docs, 0 papers, 0 images\n[graphify extract] 156 file(s) not classified (no supported extension or shebang), skipped: .editorconfig, .gitattributes, .gitignore, .gitkeep, CITATION.cff, CanonicalUniversalityTerminal.lean (+150 more)\n[graphify extract] AST extraction on 2360 code files...\n  AST cache: 0/2360 files served from cache (0%); 2360 to extract\n  AST extraction: 100/2360 uncached files (4%) [4 workers]\n  AST extraction: 200/2360 uncached files (8%) [4 workers]\n  AST extraction: 300/2360 uncached files (12%) [4 workers]\n  AST extraction: 400/2360 uncached files (16%) [4 workers]\n  AST extraction: 500/2360 uncached files (21%) [4 workers]\n  AST extraction: 600/2360 uncached files (25%) [4 workers]\n  AST extraction: 700/2360 uncached files (29%) [4 workers]\n  AST extraction: 800/2360 uncached files (33%) [4 workers]\n  AST extraction: 900/2360 uncached files (38%) [4 workers]\n  AST extraction: 1000/2360 uncached files (42%) [4 workers]\n  AST extraction: 1100/2360 uncached files (46%) [4 workers]\n  AST extraction: 1200/2360 uncached files (50%) [4 workers]\n  AST extraction: 1300/2360 uncached files (55%) [4 workers]\n  AST extraction: 1400/2360 uncached files (59%) [4 workers]\n  AST extraction: 1500/2360 uncached files (63%) [4 workers]\n  AST extraction: 1600/2360 uncached files (67%) [4 workers]\n  AST extraction: 1700/2360 uncached files (72%) [4 workers]\n  AST extraction: 1800/2360 uncached files (76%) [4 workers]\n  AST extraction: 1900/2360 uncached files (80%) [4 workers]\n  AST extraction: 2000/2360 uncached files (84%) [4 workers]\n  AST extraction: 2100/2360 uncached files (88%) [4 workers]\n  AST extraction: 2200/2360 uncached files (93%) [4 workers]\n  AST extraction: 2300/2360 uncached files (97%) [4 workers]\n  AST extraction: 2360/2360 uncached files (100%) [4 workers]\n[graphify extract] wrote /__modal/volumes/vo-Akmz8eq2XDrm10zEapdhr8/far-graphify-eval-20261112/output/graphify-out/graph.json \u2014 19100 nodes, 43839 edges (no clustering)\n",
+  "stderr_tail": "  warning: 10 code file(s) yielded no symbols (0.01 MB) \u2014 a data file, or source this extractor models no symbols for: commercial/far-decision-integrity/pyproject.toml, commercial/far-demo/pyproject.toml, commercial/far-release-assurance/external-validation/swe-agent-v1.0.0-v1.0.1/test_execution_outcome.py, commercial/far-release-assurance/external-validation/swe-agent-v1.0.0-v1.0.1/test_execution_workflow_contract.py, commercial/far-release-assurance/external-validation/swe-agent-v1.0.0-v1.0.1/validated_execute_controller.py (+5 more)\n"
+}

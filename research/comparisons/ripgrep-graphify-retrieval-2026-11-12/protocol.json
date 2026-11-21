@@ -1,0 +1,84 @@
+{
+  "arms": [
+    "rg",
+    "graphify",
+    "hybrid"
+  ],
+  "commit": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "constraints": "model seed fixed, temperature=0, no hidden gold in prompt/tool evidence; no external provider API. Graph extraction from pinned previous run backend none; 0 LLM graph tokens. All results Research.",
+  "frozen_on": "2026-11-12",
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "negative_controls": "preserve false positives, omitted files, malformed outputs and model errors",
+  "outputs": "exact set accuracy, macro precision/recall/F1, tool seconds, prompt+completion tokens from model usage, total tokens per task. Record failures, raw outputs and evidence hashes.",
+  "pool_size": 92,
+  "regimen": "Each arm invokes its fixed retrieval adapter; the SAME local model sees the fixed prompt plus tool evidence once and emits JSON file paths. Stateless model calls and task-order rotation. No model-written code, no autonomous tool choice.",
+  "research_status": "Research; no independent claims; exploratory pilot",
+  "schema": "far-retrieval-llm-comparison-v0.1",
+  "seed": "FAR-THREE-ARM-RETRIEVAL-20261112-v0.1",
+  "source_archive_sha256": "2ac7d3b0fe05bfadc97199e9fcbf6cfc6c74627f9039878532bfd12a943d9d3c",
+  "task_count": 12,
+  "task_selector": "Unique definitions, names>=14 and nonprivate, 3..18 AST-call-file hits, exclude tests/vendored definition files. Rank stable SHA256(seed|function|defining path), first 12.",
+  "task_spec": "Find tracked .py files containing ast.Call of Name(function) or Attribute(...,function). Does not establish binding to a particular definition.",
+  "tasks": [
+    {
+      "definition_file": "tools/run_tests.py",
+      "function": "discover_suite",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "tools/check_governance_register_integrity.py",
+      "function": "promotion_clauses",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "far_validation/certificate.py",
+      "function": "verify_certificate",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "tools/check_far_core_v11_formalization.py",
+      "function": "axiom_output_errors",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "commercial/far-investigation-audit/debugger_cli.py",
+      "function": "resume_request",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "tools/run_living_research.py",
+      "function": "validate_bindings",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "tools/upp_queue_history.py",
+      "function": "terminally_closed",
+      "gold_file_count": 5
+    },
+    {
+      "definition_file": "mechanization/far_mechanization/compare_adjudication.py",
+      "function": "artifact_sha256",
+      "gold_file_count": 4
+    },
+    {
+      "definition_file": "theory/irreducibility/upp_irreducibility_maximality_v1.py",
+      "function": "maximality_verdict",
+      "gold_file_count": 3
+    },
+    {
+      "definition_file": "commercial/far-investigation-audit/field_validation.py",
+      "function": "predictions_from_far_bundle",
+      "gold_file_count": 5
+    },
+    {
+      "definition_file": "mechanization/far_mechanization/_intake_v1_core.py",
+      "function": "freeze_manifest",
+      "gold_file_count": 4
+    },
+    {
+      "definition_file": "tools/s_core_w3_reference.py",
+      "function": "semantic_agreement",
+      "gold_file_count": 4
+    }
+  ]
+}

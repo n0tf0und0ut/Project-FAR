@@ -1,0 +1,69 @@
+{
+  "artifact_sha256": [
+    "mechanization/far_mechanization/compare_adjudication.py",
+    "tests/test_compare_adjudication.py",
+    "tests/test_compare_adjudication_integrity.py",
+    "tests/test_compare_adjudication_mutations.py"
+  ],
+  "axiom_output_errors": [
+    "tests/test_far_core_v11_formalization.py",
+    "tests/test_far_core_v11_formalization_rules.py",
+    "tools/check_far_core_v11_formalization.py"
+  ],
+  "discover_suite": [
+    "tests/test_health_and_runner.py",
+    "tests/test_root_of_trust_regressions.py",
+    "tools/run_tests.py"
+  ],
+  "freeze_manifest": [
+    "mechanization/far_mechanization/_intake_v1_core.py",
+    "tests/test_far_intake_hardening.py",
+    "tests/test_far_intake_v1.py",
+    "tools/far_autonomous_investigation.py"
+  ],
+  "maximality_verdict": [
+    "tests/test_upp_w14_irreducibility_maximality.py",
+    "theory/irreducibility/upp_irreducibility_maximality_v1.py",
+    "tools/check_upp_w14_maximality.py"
+  ],
+  "predictions_from_far_bundle": [
+    "commercial/far-investigation-audit/field_validation.py",
+    "commercial/far-investigation-audit/tests/test_field_validation.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle4.py",
+    "commercial/far-investigation-audit/tests/test_review_578_cycle8.py",
+    "tools/run_internal_investigation_evaluation.py"
+  ],
+  "promotion_clauses": [
+    "tests/test_checker_behavioral_assurance.py",
+    "tests/test_governance_register_integrity.py",
+    "tools/check_governance_register_integrity.py"
+  ],
+  "resume_request": [
+    "commercial/far-investigation-audit/debugger_cli.py",
+    "commercial/far-investigation-audit/tests/test_debugger.py",
+    "commercial/far-investigation-audit/tests/test_debugger_review.py"
+  ],
+  "semantic_agreement": [
+    "tests/test_s_core_w3_reference.py",
+    "tests/test_s_core_w4_negative_controls.py",
+    "tools/s_core_w3_reference.py",
+    "tools/s_core_w4_negative_controls.py"
+  ],
+  "terminally_closed": [
+    "tests/test_upp_historical_checkers.py",
+    "tools/check_upp_w12_component_independence.py",
+    "tools/check_upp_w13_sufficiency_construction.py",
+    "tools/check_upp_w14_maximality.py",
+    "tools/check_upp_w15_terminal_theorem.py"
+  ],
+  "validate_bindings": [
+    "tests/test_living_research.py",
+    "tools/check_living_research.py",
+    "tools/run_living_research.py"
+  ],
+  "verify_certificate": [
+    "far_validation/certificate.py",
+    "far_validation/mutations.py",
+    "tests/test_validation_assurance.py"
+  ]
+}

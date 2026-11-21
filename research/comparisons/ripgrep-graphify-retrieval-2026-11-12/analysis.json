@@ -1,0 +1,552 @@
+{
+  "limitations": [
+    "Single 1.5B local model, single temperature-0 trial per arm/task",
+    "Fixed retrieval adapter plus a one-turn model response is not an autonomous coding agent",
+    "Syntactic AST oracle is not semantic call binding ground truth",
+    "Model prompt content differs by arm because retrieved evidence differs",
+    "Graphify prior build cost is excluded from per-task model tokens; graph build time was measured separately",
+    "Small sample; exploratory bootstrap is not a confirmatory scientific confidence statement",
+    "The selection algorithm and questions are visible in the archive; model did not receive oracle"
+  ],
+  "model": "Qwen2.5-Coder-1.5B-Instruct Q4_K_M via llama.cpp",
+  "model_sha256": "f530705d447660a4336c329981af164b471b60b974b1d808d57e8ec9fe23b239",
+  "paired_exploratory": {
+    "hybrid_minus_graphify_mean_task_f1": {
+      "bootstrap_95_percentile_ci": [
+        0.048,
+        0.2917
+      ],
+      "losses": 0,
+      "paired_mean_diff": 0.1637,
+      "ties": 6,
+      "wins": 6
+    },
+    "hybrid_minus_rg_mean_task_f1": {
+      "bootstrap_95_percentile_ci": [
+        0.0,
+        0.05
+      ],
+      "losses": 0,
+      "paired_mean_diff": 0.0167,
+      "ties": 11,
+      "wins": 1
+    }
+  },
+  "per_task": [
+    {
+      "function": "discover_suite",
+      "gold_files": 3,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.5,
+        "fn": 2,
+        "fp": 0,
+        "missing": [
+          "tests/test_health_and_runner.py",
+          "tests/test_root_of_trust_regressions.py"
+        ],
+        "model_tokens": 277,
+        "tp": 1
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 406,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 438,
+        "tp": 3
+      }
+    },
+    {
+      "function": "promotion_clauses",
+      "gold_files": 3,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.5,
+        "fn": 2,
+        "fp": 0,
+        "missing": [
+          "tests/test_checker_behavioral_assurance.py",
+          "tests/test_governance_register_integrity.py"
+        ],
+        "model_tokens": 290,
+        "tp": 1
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 410,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 439,
+        "tp": 3
+      }
+    },
+    {
+      "function": "verify_certificate",
+      "gold_files": 3,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 332,
+        "tp": 3
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 403,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 465,
+        "tp": 3
+      }
+    },
+    {
+      "function": "axiom_output_errors",
+      "gold_files": 3,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 387,
+        "tp": 3
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 489,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 553,
+        "tp": 3
+      }
+    },
+    {
+      "function": "resume_request",
+      "gold_files": 3,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 387,
+        "tp": 3
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 475,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 505,
+        "tp": 3
+      }
+    },
+    {
+      "function": "validate_bindings",
+      "gold_files": 3,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 349,
+        "tp": 3
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 419,
+        "tp": 3
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 438,
+        "tp": 3
+      }
+    },
+    {
+      "function": "terminally_closed",
+      "gold_files": 5,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.889,
+        "fn": 1,
+        "fp": 0,
+        "missing": [
+          "tests/test_upp_historical_checkers.py"
+        ],
+        "model_tokens": 408,
+        "tp": 4
+      },
+      "hybrid": {
+        "exact": false,
+        "extra": [
+          "tools/upp_queue_history.py"
+        ],
+        "f1": 0.909,
+        "fn": 0,
+        "fp": 1,
+        "missing": [],
+        "model_tokens": 567,
+        "tp": 5
+      },
+      "rg": {
+        "exact": false,
+        "extra": [
+          "tools/upp_queue_history.py"
+        ],
+        "f1": 0.909,
+        "fn": 0,
+        "fp": 1,
+        "missing": [],
+        "model_tokens": 553,
+        "tp": 5
+      }
+    },
+    {
+      "function": "artifact_sha256",
+      "gold_files": 4,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 420,
+        "tp": 4
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 525,
+        "tp": 4
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 542,
+        "tp": 4
+      }
+    },
+    {
+      "function": "maximality_verdict",
+      "gold_files": 3,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.5,
+        "fn": 2,
+        "fp": 0,
+        "missing": [
+          "tests/test_upp_w14_irreducibility_maximality.py",
+          "tools/check_upp_w14_maximality.py"
+        ],
+        "model_tokens": 318,
+        "tp": 1
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 476,
+        "tp": 3
+      },
+      "rg": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.8,
+        "fn": 1,
+        "fp": 0,
+        "missing": [
+          "tools/check_upp_w14_maximality.py"
+        ],
+        "model_tokens": 503,
+        "tp": 2
+      }
+    },
+    {
+      "function": "predictions_from_far_bundle",
+      "gold_files": 5,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.889,
+        "fn": 1,
+        "fp": 0,
+        "missing": [
+          "tools/run_internal_investigation_evaluation.py"
+        ],
+        "model_tokens": 444,
+        "tp": 4
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 591,
+        "tp": 5
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 609,
+        "tp": 5
+      }
+    },
+    {
+      "function": "freeze_manifest",
+      "gold_files": 4,
+      "graphify": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 418,
+        "tp": 4
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 536,
+        "tp": 4
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 547,
+        "tp": 4
+      }
+    },
+    {
+      "function": "semantic_agreement",
+      "gold_files": 4,
+      "graphify": {
+        "exact": false,
+        "extra": [],
+        "f1": 0.667,
+        "fn": 2,
+        "fp": 0,
+        "missing": [
+          "tests/test_s_core_w3_reference.py",
+          "tests/test_s_core_w4_negative_controls.py"
+        ],
+        "model_tokens": 316,
+        "tp": 2
+      },
+      "hybrid": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 457,
+        "tp": 4
+      },
+      "rg": {
+        "exact": true,
+        "extra": [],
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "missing": [],
+        "model_tokens": 477,
+        "tp": 4
+      }
+    }
+  ],
+  "protocol_sha256": "f6ca19d8f772d1e487579ea7ef460de41bf24e4392161334b0e968e766960564",
+  "runs": 36,
+  "source_commit": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "status": "Research; bounded exploratory retrieval-conditioned local-model pilot",
+  "summary": {
+    "graphify": {
+      "cases_incorrect": [
+        "discover_suite",
+        "promotion_clauses",
+        "terminally_closed",
+        "maximality_verdict",
+        "predictions_from_far_bundle",
+        "semantic_agreement"
+      ],
+      "exact_tasks": 6,
+      "invalid_json": [],
+      "mean_model_tokens_per_task": 362.1667,
+      "mean_task_f1": 0.8287,
+      "median_model_tokens_per_task": 368.0,
+      "median_task_f1": 0.9444,
+      "micro_f1": 0.8684,
+      "micro_fn": 10,
+      "micro_fp": 0,
+      "micro_precision": 1.0,
+      "micro_recall": 0.7674,
+      "micro_tp": 33,
+      "model_errors": [],
+      "runs": 12,
+      "total_completion_tokens": 551,
+      "total_inference_seconds": 69.916,
+      "total_model_tokens": 4346,
+      "total_prompt_tokens": 3795,
+      "total_retrieval_seconds": 0.0
+    },
+    "hybrid": {
+      "cases_incorrect": [
+        "terminally_closed"
+      ],
+      "exact_tasks": 11,
+      "invalid_json": [],
+      "mean_model_tokens_per_task": 479.5,
+      "mean_task_f1": 0.9924,
+      "median_model_tokens_per_task": 475.5,
+      "median_task_f1": 1.0,
+      "micro_f1": 0.9885,
+      "micro_fn": 0,
+      "micro_fp": 1,
+      "micro_precision": 0.9773,
+      "micro_recall": 1.0,
+      "micro_tp": 43,
+      "model_errors": [],
+      "runs": 12,
+      "total_completion_tokens": 683,
+      "total_inference_seconds": 89.879,
+      "total_model_tokens": 5754,
+      "total_prompt_tokens": 5071,
+      "total_retrieval_seconds": 0.603
+    },
+    "rg": {
+      "cases_incorrect": [
+        "terminally_closed",
+        "maximality_verdict"
+      ],
+      "exact_tasks": 10,
+      "invalid_json": [],
+      "mean_model_tokens_per_task": 505.75,
+      "mean_task_f1": 0.9758,
+      "median_model_tokens_per_task": 504.0,
+      "median_task_f1": 1.0,
+      "micro_f1": 0.9767,
+      "micro_fn": 1,
+      "micro_fp": 1,
+      "micro_precision": 0.9767,
+      "micro_recall": 0.9767,
+      "micro_tp": 42,
+      "model_errors": [],
+      "runs": 12,
+      "total_completion_tokens": 669,
+      "total_inference_seconds": 94.87,
+      "total_model_tokens": 6069,
+      "total_prompt_tokens": 5400,
+      "total_retrieval_seconds": 0.717
+    }
+  },
+  "tasks": 12
+}

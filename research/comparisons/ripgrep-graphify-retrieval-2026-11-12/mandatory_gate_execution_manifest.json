@@ -1,0 +1,17 @@
+{
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "max_tokens_per_call": 400,
+  "model_calls_per_task": "baseline=1; mandatory=1; optional=1 or 2 if model requests graphify",
+  "model_package": "llama-cpp-python==0.3.36",
+  "model_seed": 662,
+  "model_sha256": "f530705d447660a4336c329981af164b471b60b974b1d808d57e8ec9fe23b239",
+  "n_ctx": 4096,
+  "oracle_sha256": "abb4f420e829748de5c3932e7dfc277a4067c561d0ceca88ef26921459856fdc",
+  "protocol_sha256": "64b58b30c274867d36844350de2836f6b382ed09a71471370eae8162129ec43c",
+  "run_order": "Rotate three arms per frozen task index modulo 3. No model fine-tuning. No gold access in prompts.",
+  "runner_sha256": "18748249368ae6f905fddfdd1b3268191e77b6cf89a93e8aad96e975aabd6b9c",
+  "scope": "Nonsemantic syntactic rename; no original repository edits or runtime behavior claims",
+  "source_sha": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "temperature": 0,
+  "tool_runner": "Model chooses candidate paths; deterministic AST token mutation tool changes those and definition file only, in disposable scratch dir."
+}

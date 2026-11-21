@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "graph_index_present": true,
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "graphify_version": "0.9.107",
+  "hook_config_command": "graphify hook-check",
+  "interpretation": "Codex registered PreToolUse hook supplies no graph context even with a graph file present. Instructions are instead injected in AGENTS.md. This is not a tested production Codex session.",
+  "schema": "far-pr662-graphify-codex-hook-check-smoke/v0.1",
+  "status": "Research; local scratch execution; not FAR integration",
+  "stderr_bytes": 0,
+  "stdin_json": {
+    "tool_input": {
+      "command": "rg function ."
+    },
+    "tool_name": "Bash"
+  },
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

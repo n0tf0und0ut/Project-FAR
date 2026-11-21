@@ -1,0 +1,28 @@
+{
+  "additional_22_receipts_appended": true,
+  "compressed_receipt_sha256": "310de9914bdfc140f972920db2e25c1288c225121200f160de5765863043265a",
+  "compressed_receipt_size_bytes": 30406,
+  "continuation_process_lease": {
+    "exit_code": 0,
+    "observed_completed_lines": 22,
+    "stdout_file": "mandatory_gate_resume_stdout.txt",
+    "stdout_sha256": "2b5618d7586ddafc9d6b38d7324c6503b32561276cc8ce2efe1c9906174aa9e7"
+  },
+  "continuation_skipped_first_50_pairs": true,
+  "first_50_receipts_kept_bitwise": true,
+  "full_receipt_sha256": "be8903fab02fc4ba94c41f51491331575c9f7e0ca279cc88f9ecbd4daad3d519",
+  "initial_process_lease": {
+    "exit_code": 124,
+    "observed_completed_lines": 50,
+    "stdout_file": "mandatory_gate_initial_run_stdout.txt",
+    "stdout_sha256": "372abed80cabf26597561cd8ff3fb90728ab34cd4b76fa402e79fab4693ff336"
+  },
+  "model_completed_calls_or_action_receipts": 72,
+  "not_a_new_protocol": "The continuation changed only skip-completed handling, not prompts, arms, task order or model/scoring policy.",
+  "raw_receipt_size_bytes": 499714,
+  "resume_source_sha256": "62f6aa6aa1224ba37d9582db2f81b8ceb4bf77e165477abe7160b908662dd307",
+  "runner_sha256": "18748249368ae6f905fddfdd1b3268191e77b6cf89a93e8aad96e975aabd6b9c",
+  "schema": "far-pr662-append-only-run-resumption/v0.1",
+  "status": "Research; preserve execution interruption and retry",
+  "unrecorded_inflight_work_note": "The initial 15-minute hosted process lease expired with code 124 after 50 completed pair receipts. A model action in flight may have been interrupted and was not scored; the restart was append-only and reexecuted missing pairs. The incomplete attempt is preserved as a separate infrastructure failure, not silently promoted to a successful scored run."
+}

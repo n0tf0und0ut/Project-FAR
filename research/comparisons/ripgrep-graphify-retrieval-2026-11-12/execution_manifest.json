@@ -1,0 +1,18 @@
+{
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "max_tokens": 450,
+  "model_name": "Qwen2.5-Coder-1.5B-Instruct Q4_K_M via llama.cpp",
+  "model_package": "llama-cpp-python==0.3.36",
+  "model_path": "/home/user/far-graphify-eval-20261112/agent_compare/models/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+  "model_sha256": "f530705d447660a4336c329981af164b471b60b974b1d808d57e8ec9fe23b239",
+  "n_batch": 256,
+  "n_ctx": 4096,
+  "n_threads": 1,
+  "oracle_sha256": "a23c05325d326c0c9f5a79ae26e776c84f63a89b3e292c51ca959a4c0300bd30",
+  "program_sha256": "1456b1e177d1a6d65d542c73642ad62f7a834dddf12c0985aff9ed9f79f1be01",
+  "prompt_policy": "Same fixed system, same function-only user question. Tool evidence differs by arm. Fixed retrieval, single-turn local model; NOT autonomous search or code-edit agent.",
+  "protocol_sha256": "f6ca19d8f772d1e487579ea7ef460de41bf24e4392161334b0e968e766960564",
+  "run_order": "Task list frozen SHA-order; within task rotate rg/graphify/hybrid by task index modulo 3; model context reset between arms.",
+  "source_sha": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "temperature": 0
+}

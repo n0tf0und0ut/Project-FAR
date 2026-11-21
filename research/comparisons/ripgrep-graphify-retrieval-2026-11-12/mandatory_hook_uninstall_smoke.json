@@ -1,0 +1,21 @@
+{
+  "commands": [
+    "graphify codex uninstall",
+    "graphify hook uninstall",
+    "graphify hook status"
+  ],
+  "graphify_version": "0.9.107",
+  "hook_status": {
+    "post-checkout": "not installed",
+    "post-commit": "not installed",
+    "post-merge": "not installed",
+    "post-rewrite": "not installed"
+  },
+  "initial_agents_sha256": "1e8bcde2df2168aa693735cde89acf8cb6bd403990a23d0daa2bb4b21213750e",
+  "interpretation": "Scratch cleanup succeeded; this does not validate adoption in FAR.",
+  "merge_driver_removed": true,
+  "policy_byte_identical": true,
+  "remaining_git_hooks": [],
+  "restored_agents_sha256": "1e8bcde2df2168aa693735cde89acf8cb6bd403990a23d0daa2bb4b21213750e",
+  "scope": "isolated scratch repository; FAR repo unchanged"
+}

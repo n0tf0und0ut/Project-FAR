@@ -1,0 +1,196 @@
+{
+  "arms": {
+    "mandatory_graph_hook": "Graphify graph-call context automatically provided with rg candidates on every task -> one model patch action",
+    "optional_graph": "rg candidates/excerpts -> model may request Graphify via explicit tool action -> final patch action",
+    "rg_only": "rg candidates and excerpts -> one model patch action"
+  },
+  "decision_gate": {
+    "global_mandatory_hooks": "NO unless independently replicated across full relevant FAR file types, all 14 role execution paths and genuine multi-step coding tasks, AND controlled study satisfies all measurable predeclared gates. Any unsatisfied/unmeasured gate => NO; optional on-demand usage is allowed.",
+    "pilot_efficiency": "Model tokens and measured end-to-end wall time (including honestly amortized graph build) no worse than 5 percent above BOTH alternatives",
+    "pilot_performance": "At least 3 additional exact patch successes out of 24 compared with BOTH rg_only AND optional_graph, with no new exact failures",
+    "pilot_safety": "0 out-of-oracle edits, 0 invalid Python after tool mutation, no unhandled failures and safe fail-open if index missing or stale",
+    "scope": "No agent hooks, CI or startup modifications are made in the experiment. Even success only supports a subsequent governed integration proposal; no automatic promotion.",
+    "uncertainty": "Report paired wins/ties/losses and bootstrap 95% percentile interval; nonpositive lower bound blocks promoting a general effectiveness claim"
+  },
+  "graph_sha256": "44684f162f115b4193d09b49ec42d0bee2e30751e0f2de662cfd55ac22f59625",
+  "groups": {
+    "3_or_4": 60,
+    "5_or_more": 20
+  },
+  "initial_model_sha256": "f530705d447660a4336c329981af164b471b60b974b1d808d57e8ec9fe23b239",
+  "metrics": [
+    "exact_file_set",
+    "AST_callsite_edit_correctness",
+    "false_edits",
+    "false_omissions",
+    "model_token_usage",
+    "retrieval_latency",
+    "inference_latency",
+    "graph_index_cold_warm_build_overhead",
+    "tool_choice_rate",
+    "errors",
+    "failure_recovery"
+  ],
+  "model": "Qwen2.5-Coder-1.5B-Instruct Q4_K_M, pinned sha, llama-cpp-python=0.3.36, temperature=0, n_ctx=4096, single run per arm/task, no provider APIs.",
+  "pool_n": 80,
+  "provenance_and_limitations": [
+    "Internal authored experiment, not independent provider/model. Graphify extracted Python analysis; Lean/doc and unclassified coverage excluded.",
+    "Exclusion set is the original 12 pilot functions. No task outcome was known when selecting this prospective task set.",
+    "Oracle treats same-named terminal callee expressions as matches without type binding. AST token rewrite can be mechanically complete but may break runtime imports or behavior; no runtime safety claims.",
+    "Mandatory hook simulated by auto-injecting graph evidence at task start, not an actual installed agent lifecycle hook; cold/warm indexing separately measured.",
+    "Index taken from original pinned clean source tree; staging source changes would require fresh Graphify index to avoid staleness."
+  ],
+  "question": "An agent must plan all Python file edits needed to rename exactly one uniquely defined function and every ast.Call where terminal callee identifier matches it. Definition file is supplied. A deterministic AST token rewrite tool applies edits to exactly the agent-selected caller files plus definition file in an isolated copy; defect-detecting AST parse/compilation and exact caller-oracle check grade the result. This is a synthetic refactor and does not establish real runtime binding or live repository repair.",
+  "sample": "24 held-out Python functions (disjoint from all 12 prior local-model tasks), 12 with >=5 syntactic caller files and 12 with 3-4 caller files, ranked by SHA256; one task x 3 arms; syntactic AST call-site oracle hidden during inference",
+  "schema": "far-pr662-mandatory-graphify-adoption-gate/v0.1",
+  "seed": "FAR-PR-662-MANDATORY-GRAPHIFY-ADOPTION-20261112-V01",
+  "source_sha": "8c6dc6cf840a0d82fb4dcde114c1af471b3f74fe",
+  "status": "Research - prospective, bounded, internal",
+  "tasks": [
+    {
+      "callsite_files": 11,
+      "definition_file": "far_validation/weakening.py",
+      "function": "detect_weakening",
+      "task_id": "32bb276c0edd31d8"
+    },
+    {
+      "callsite_files": 5,
+      "definition_file": "commercial/far-investigation-audit/full_cli.py",
+      "function": "parse_json_artifact",
+      "task_id": "c27b5c0b8a26f449"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "commercial/far-investigation-audit/acquire.py",
+      "function": "resolve_public",
+      "task_id": "3750ae39cb3aa3c5"
+    },
+    {
+      "callsite_files": 5,
+      "definition_file": "far_validation/trust.py",
+      "function": "read_attestation",
+      "task_id": "298fb37e483aa2ae"
+    },
+    {
+      "callsite_files": 6,
+      "definition_file": "commercial/far-investigation-audit/proposals.py",
+      "function": "heuristic_proposal",
+      "task_id": "b63b051d486fe0f8"
+    },
+    {
+      "callsite_files": 5,
+      "definition_file": "far_validation/trust.py",
+      "function": "write_attestation",
+      "task_id": "be8db3bb6920f628"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "commercial/far-decision-integrity/src/far_decision_integrity/swe_agent.py",
+      "function": "load_swe_agent_trace",
+      "task_id": "b3536c3768cdba42"
+    },
+    {
+      "callsite_files": 5,
+      "definition_file": "tools/upp_queue_history.py",
+      "function": "history_contiguous",
+      "task_id": "7aebb2f9196d562c"
+    },
+    {
+      "callsite_files": 7,
+      "definition_file": "mechanization/far_mechanization/serialization.py",
+      "function": "serialize_yaml",
+      "task_id": "4227ff4d992464fe"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "far_validation/repin_signature.py",
+      "function": "verify_signature",
+      "task_id": "cd6796293fb1f61e"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "tools/s_core_w3_recovery.py",
+      "function": "recover_target",
+      "task_id": "840a70db51d42edf"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "tools/adversarial_research_harness.py",
+      "function": "redact_outbound",
+      "task_id": "cb61d7edc0f99c52"
+    },
+    {
+      "callsite_files": 6,
+      "definition_file": "mechanization/far_mechanization/socratic_epistemic.py",
+      "function": "validate_socratic_record",
+      "task_id": "1ca3d9ea99fd5cfb"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "far_validation/oracle.py",
+      "function": "analyze_checker_source",
+      "task_id": "514640b2d604b381"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "tools/weight_space_pilot.py",
+      "function": "source_receipt",
+      "task_id": "d84fa51108ea4891"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "commercial/far-investigation-audit/proposals.py",
+      "function": "compile_proposal",
+      "task_id": "b7f0eea15faf6aa4"
+    },
+    {
+      "callsite_files": 5,
+      "definition_file": "mechanization/far_mechanization/compare_adjudication.py",
+      "function": "compare_packages",
+      "task_id": "6c14c125c5372ef8"
+    },
+    {
+      "callsite_files": 6,
+      "definition_file": "mechanization/far_mechanization/parser.py",
+      "function": "parse_yaml_text",
+      "task_id": "1e567262b91f01ca"
+    },
+    {
+      "callsite_files": 8,
+      "definition_file": "tools/upp_queue_history.py",
+      "function": "successor_recorded",
+      "task_id": "5b47640f9ff76dbd"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "commercial/far-investigation-audit/proposals.py",
+      "function": "openai_proposal",
+      "task_id": "d79987da0c69838e"
+    },
+    {
+      "callsite_files": 6,
+      "definition_file": "mechanization/far_mechanization/serialization.py",
+      "function": "serialize_json",
+      "task_id": "2f8991b546e351c8"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "commercial/far-decision-integrity/src/far_decision_integrity/evidence.py",
+      "function": "verify_evidence_bundle",
+      "task_id": "87ccb4271e1f7d96"
+    },
+    {
+      "callsite_files": 3,
+      "definition_file": "tools/weight_space_replay.py",
+      "function": "independent_grade",
+      "task_id": "5375e08b1617d12e"
+    },
+    {
+      "callsite_files": 4,
+      "definition_file": "commercial/far-investigation-audit/tests/test_independent_evidence.py",
+      "function": "evidence_bundle",
+      "task_id": "304e4ff4666a4587"
+    }
+  ],
+  "tool_data_boundary": "Only terminal identifier, candidate paths/snippets and (when allowed) graph call edges. Neither gold file list nor hidden oracle nor grading output is given to the model before its final patch decision."
+}
