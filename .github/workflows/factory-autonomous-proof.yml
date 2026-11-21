@@ -71,7 +71,9 @@ jobs:
           docker build --pull=false -t far-zero-key-grader:648-v1 \
             --file tools/factory_zero_key_grader.Dockerfile .
           docker image inspect far-zero-key-grader:648-v1 --format '{{.Id}}'
-      - name: Execute genuine coding attempt through real SQLite queue lease
+      # Frozen research iteration: at most two model proposals under one build lease.
+      # First rejected patch and test output remain independently hashed artifacts.
+      - name: Execute bounded model-feedback retry through real SQLite queue lease
         id: attempt
         env:
           PYTHONDONTWRITEBYTECODE: '1'
