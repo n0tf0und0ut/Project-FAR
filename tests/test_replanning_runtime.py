@@ -70,7 +70,7 @@ def verified(result: sub.OrchestrationResult, *, event_id="event-1",
     return rr.VerifiedEvent.declare(event_id, result.result_sha256, detail, "fixture-host")
 
 
-def proposed(event: rr.VerifiedEvent, result: sub.OrchestrationResult,
+def proposed(event: rr.VerifiedEvent,
              *, agent_id="worker", instruction="Inspect the missing dependency") -> rr.ReplanIntent:
     return rr.ReplanIntent(
         intent_id="proposal-" + event.event_id,
@@ -102,7 +102,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
             "frozen_plan": self.plan, "objective": OBJECTIVE,
             "context": CONTEXT, "runtime": self.runtime,
             "observe": lambda result: (verified(result) if result.status is sub.RunStatus.FAILED else None),
-            "propose": lambda event, result: proposed(event, result),
+            "propose": lambda event: proposed(event),
         }
         inputs.update(changes)
         return rr.run_replanning(**inputs)
@@ -150,8 +150,8 @@ class ReplanningRuntimeTests(unittest.TestCase):
             with self.subTest(agent=unauthorized):
                 self.invocations.clear()
                 with self.assertRaisesRegex(rr.ReplanningError, "not an authorized frozen specialist"):
-                    self.run(propose=lambda event, result, agent_id=unauthorized: proposed(
-                        event, result, agent_id=agent_id))
+                    self.run(propose=lambda event, agent_id=unauthorized: proposed(
+                        event, agent_id=agent_id))
                 self.assertEqual([t.agent_id for t in self.invocations], ["worker"])
 
     def test_untrusted_planner_cannot_bypass_specialist_dependencies(self):
@@ -161,11 +161,22 @@ class ReplanningRuntimeTests(unittest.TestCase):
         runtime = sub.CallableRuntime({name: callback for name in p.by_id}, capabilities(p))
         with self.assertRaisesRegex(rr.ReplanningError, "cannot bypass frozen specialist prerequisites"):
             self.run(frozen_plan=p, runtime=runtime,
-                     propose=lambda event, result: proposed(event, result, agent_id="second"))
+                     propose=lambda event: proposed(event, agent_id="second"))
+
+    def test_frozen_specialist_context_allowlist_cannot_be_widened(self):
+        agent_with_allowlist = dataclasses.replace(
+            self.plan.by_id["worker"], context_ids=("frozen-source",))
+        p = sub.OrchestrationPlan(
+            plan_id="replan-allowlist", coordinator_id="coordinator",
+            agents=(agent_with_allowlist, self.plan.by_id["coordinator"]),
+        )
+        with self.assertRaisesRegex(rr.ReplanningError, "context allowlist"):
+            self.run(frozen_plan=p)
+        self.assertEqual(len(self.invocations), 1)
 
     def test_spoofed_planner_event_id_fails_closed(self):
         with self.assertRaisesRegex(rr.ReplanningError, "bound to current verified event"):
-            self.run(propose=lambda event, result: rr.ReplanIntent(
+            self.run(propose=lambda event: rr.ReplanIntent(
                 "proposal-2", "wrong-event", "worker", "use a missing prerequisite"))
         self.assertEqual(len(self.invocations), 1)
 
@@ -195,7 +206,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
         self.assertEqual(len(result.rounds), 2)
 
     def test_verified_event_with_no_intent_does_not_execute(self):
-        result = self.run(propose=lambda event, result: None)
+        result = self.run(propose=lambda event: None)
         self.assertEqual(result.status, "NO_NEW_INTENT")
         self.assertEqual(len(result.rounds), 1)
         self.assertEqual(len(self.invocations), 1)
