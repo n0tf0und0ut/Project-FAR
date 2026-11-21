@@ -215,4 +215,94 @@ class StructuralReplayTests(unittest.TestCase):
         with self.assertRaisesRegex(ev.EvidenceError,"grader comparison status"):self.check(row)
 
 
+
+    def test_required_fault_cannot_be_omitted_when_write_occurs(self):
+        import base64
+        row=copy.deepcopy(self.row)
+        action={"action":"write_file","path":"solution.py","content":"correct"}
+        result={"written":"solution.py","sha256":gate.digest(b"correct")}
+        row["tool_execution_receipts"]=[{"action":action,"tool_number":1,"result":result,
+            "receipt_sha256":gate.digest(gate.canonical({"action":action,"tool_number":1,"result":result}))}]
+        req=gate.canonical({"model":runner.MODEL["name"]})
+        resp=gate.canonical({"model":runner.MODEL["name"],"done":True,
+            "message":{"content":gate.canonical(action).decode()},"prompt_eval_count":0,"eval_count":0})
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":base64.b64encode(req).decode(),"request_sha256":gate.digest(req),
+            "response_base64":base64.b64encode(resp).decode(),"response_sha256":gate.digest(resp),
+            "http_status":200,"error":None}]
+        row["fault_required"]=True
+        row["usage"]["tool_calls"]=1
+        row["final_file_sha256"]=gate.digest(b"correct")
+        task={**self.task,"interrupted":True}
+        with self.assertRaisesRegex(ev.EvidenceError,"scheduled first-write fault is missing"):
+            self.check(row,task)
+
+    def test_worker_cannot_execute_action_after_finish(self):
+        import base64
+        row=copy.deepcopy(self.row)
+        actions=[{"action":"finish"},{"action":"write_file","path":"solution.py","content":"correct"}]
+        results=[{"finished":True},{"written":"solution.py","sha256":gate.digest(b"correct")}]
+        req=gate.canonical({"model":runner.MODEL["name"]})
+        row["model_requests"]=[];row["tool_execution_receipts"]=[]
+        for i,(action,result) in enumerate(zip(actions,results)):
+            resp=gate.canonical({"model":runner.MODEL["name"],"done":True,
+                "message":{"content":gate.canonical(action).decode()},"prompt_eval_count":0,"eval_count":0})
+            row["model_requests"].append({"kind":"synthetic_provider_test","purpose":"worker",
+                "request_base64":base64.b64encode(req).decode(),"request_sha256":gate.digest(req),
+                "response_base64":base64.b64encode(resp).decode(),"response_sha256":gate.digest(resp),
+                "http_status":200,"error":None})
+            row["tool_execution_receipts"].append({"action":action,"tool_number":i+1,"result":result,
+                "receipt_sha256":gate.digest(gate.canonical({"action":action,"tool_number":i+1,"result":result}))})
+        row["usage"]["tool_calls"]=2
+        row["final_file_sha256"]=gate.digest(b"correct")
+        with self.assertRaisesRegex(ev.EvidenceError,"after finish"):self.check(row)
+
+    def test_malformed_files_preserve_the_invalid_slot_and_other_23(self):
+        import tempfile
+        from pathlib import Path
+        rows=[{"task_id":f"FWE-{i:03d}","source_sha256":"a"*64,"interrupted":False} for i in range(1,13)]
+        schedule=[{"slot":2*i+j+1,"task_id":t["task_id"],"arm":arm}
+             for i,t in enumerate(rows) for j,arm in enumerate(gate.ARMS)]
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            (root/"slot-01.json").write_text('{invalid json')
+            (root/"slot-02.json").write_text('[]')
+            records=ev.read_receipts(root)
+            self.assertIsInstance(records["slot-01"],ev.EvidenceError)
+            self.assertIsInstance(records["slot-02"],ev.EvidenceError)
+            result=ev.analyze({"task_rows":rows},records,schedule)
+            self.assertEqual(result["records_invalid"],2)
+            self.assertEqual(result["records_missing"],22)
+            self.assertIsNone(result["paired_verified_completion_difference"])
+
+    def test_deeply_nested_provider_response_is_an_invalid_slot(self):
+        import base64
+        row=copy.deepcopy(self.row)
+        raw=('{"model":"'+runner.MODEL["name"]+'","done":true,"message":{"content":"{}"},'
+             '"extra":'+ '['*10000 + '0' + ']'*10000 + '}').encode()
+        req=gate.canonical({"model":runner.MODEL["name"]})
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":base64.b64encode(req).decode(),"request_sha256":gate.digest(req),
+            "response_base64":base64.b64encode(raw).decode(),"response_sha256":gate.digest(raw),
+            "http_status":200,"error":None}]
+        with self.assertRaisesRegex(ev.EvidenceError,"malformed raw model response"):self.check(row)
+
+    def test_deeply_nested_grader_trace_is_invalid(self):
+        row=copy.deepcopy(self.row)
+        raw='['*10000+'0'+']'*10000
+        row["grade"].update(trace=raw,trace_sha256=gate.digest(raw.encode()))
+        with self.assertRaisesRegex(ev.EvidenceError,"invalid grader trace"):self.check(row)
+
+    def test_pass_requires_consistent_process_exit_and_limits(self):
+        row=copy.deepcopy(self.row)
+        tr=json.loads(row["grade"]["trace"])
+        for comp in tr["comparisons"]:
+            comp.update(status="PASS",exit_code=1,timed_out=False,output_limited=False,
+                stdout="FAR_CANDIDATE_STARTED_V1\n42")
+        tr.update(executed=True,success=True)
+        raw=gate.canonical(tr).decode()
+        row["grade"].update(trace=raw,trace_sha256=gate.digest(raw.encode()),success=True,exit_status=0)
+        with self.assertRaisesRegex(ev.EvidenceError,"contradictory PASS process receipt"):self.check(row)
+
+
 if __name__=="__main__":unittest.main()
