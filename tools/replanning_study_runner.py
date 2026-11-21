@@ -306,7 +306,7 @@ def run_arm(t: dict, arm: str, *, inject_fault: bool, provider=tar.local_provide
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["candidate-audit", "provider-preflight", "run-slot"])
+    parser.add_argument("command", choices=["candidate-audit", "provider-preflight", "smoke-noncohort", "run-slot"])
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--slot", type=int)
     parser.add_argument("--out", type=Path)
@@ -322,6 +322,35 @@ def main(argv: list[str] | None = None) -> int:
             print(_json({"study_id": "FAR-REPLAN-001", "mode": "PREFLIGHT_ONLY_NO_TASK_EXPOSURE",
                          "provider": "LOCAL_OLLAMA", "model": MODEL, "verified_digest": identity,
                          "scored_runs": 0}))
+            return 0
+        if args.command == "smoke-noncohort":
+            if args.out is None or args.manifest is not None or args.slot is not None:
+                raise gate.GateError("smoke requires --out only, never a scored manifest or slot")
+            # Explicit noncohort capability input: this may never be incorporated
+            # into the prospective 12-case denominator or its holdout oracle.
+            if 0 in {x["fixture_index"] for x in candidate["task_rows"]}:
+                raise gate.GateError("smoke task unexpectedly entered scored candidate cohort")
+            digest = tar.installed_digest(MODEL)
+            if digest != MODEL["digest"]:
+                raise gate.GateError("smoke model identity mismatch")
+            args.out.mkdir(parents=True, exist_ok=False)
+            for arm in ("control", "replanning"):
+                target = args.out / ("NONCOHORT-FWE-001-" + arm + ".json")
+                try:
+                    result = run_arm(fixtures.task(0), arm, inject_fault=True,
+                                     provider=tar.local_provider, model_verified=True)
+                    result.update(study_score=False, cohort_member=False,
+                                  smoke_label="NONCOHORT_CAPABILITY_ONLY")
+                except Exception as exc:
+                    result = {"study_score": False, "cohort_member": False,
+                              "smoke_label": "NONCOHORT_CAPABILITY_ONLY",
+                              "arm": arm, "outcome": "EXCEPTION_PRESERVED",
+                              "exception_type": type(exc).__name__}
+                tar.checkpoint(target, result)
+            print(_json({"status": "NONCOHORT_CAPABILITY_SMOKE_COMPLETE_NOT_SCORED",
+                         "model_manifest_sha256": digest, "case_id": "FWE-001",
+                         "enrolled_in_12_case_cohort": False,
+                         "expected_evidence_files": 2, "scored_runs": 0}))
             return 0
         if args.manifest is None or args.slot is None or args.out is None:
             raise gate.GateError("missing external execution manifest, allocated slot, or evidence path")
