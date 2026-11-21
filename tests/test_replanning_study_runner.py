@@ -157,6 +157,33 @@ class StudyRunnerTests(unittest.TestCase):
         with patch.object(study.tar,"installed_digest",side_effect=AssertionError("model should not run")):
             self.assertEqual(study.main(["run-slot","--slot","1"]),2)
 
+    def test_noncohort_smoke_never_counts_scored_or_exposes_selected_tasks(self):
+        with tempfile.TemporaryDirectory() as d:
+            evidence=Path(d)/"smoke"
+            with patch.object(study.tar,"installed_digest",return_value=study.MODEL["digest"]), \
+                 patch.object(study,"run_arm",side_effect=lambda task,arm,**kw: {"task_id":task["task_id"],"arm":arm}):
+                self.assertEqual(study.main(["smoke-noncohort","--out",str(evidence)]),0)
+            files=sorted(evidence.glob("*.json"))
+            self.assertEqual(len(files),2)
+            for f in files:
+                row=json.loads(f.read_text())
+                self.assertEqual(row["task_id"],"FWE-001")
+                self.assertFalse(row["study_score"])
+                self.assertFalse(row["cohort_member"])
+                self.assertEqual(row["smoke_label"],"NONCOHORT_CAPABILITY_ONLY")
+
+    def test_noncohort_smoke_rejects_enrolled_task_before_model_access(self):
+        with tempfile.TemporaryDirectory() as d:
+            with patch.object(study.gate,"check_candidate",return_value={"task_rows":[{"fixture_index":0}]}), \
+                 patch.object(study.tar,"installed_digest",side_effect=AssertionError("unapproved model exposure")):
+                self.assertEqual(study.main(["smoke-noncohort","--out",str(Path(d)/"smoke")]),2)
+
+    def test_noncohort_smoke_fails_if_provider_digest_drifts(self):
+        with tempfile.TemporaryDirectory() as d:
+            with patch.object(study.tar,"installed_digest",return_value="0"*64), \
+                 patch.object(study,"run_arm",side_effect=AssertionError("inference forbidden")):
+                self.assertEqual(study.main(["smoke-noncohort","--out",str(Path(d)/"smoke")]),2)
+
     def test_preflight_checks_registry_without_exposing_task(self):
         with patch.object(study.tar,"installed_digest",return_value=study.MODEL["digest"]) as check:
             self.assertEqual(study.main(["provider-preflight"]),0)
