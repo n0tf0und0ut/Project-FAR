@@ -97,7 +97,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
             {name: callback for name in self.plan.by_id}, capabilities(self.plan)
         )
 
-    def run(self, **changes):
+    def execute_replanning(self, **changes):
         inputs = {
             "frozen_plan": self.plan, "objective": OBJECTIVE,
             "context": CONTEXT, "runtime": self.runtime,
@@ -109,7 +109,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
 
     def test_real_far_orchestrator_recovers_with_same_objective_and_permissions(self):
         original_hash = self.plan.sha256
-        trace = self.run()
+        trace = self.execute_replanning()
         self.assertEqual([x.status for x in trace.rounds],
                          [sub.RunStatus.FAILED, sub.RunStatus.COMPLETED])
         self.assertEqual(trace.status, "NO_NEW_VERIFIED_EVENT")
@@ -128,7 +128,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
         self.assertEqual(trace.rounds[1].coordinator_report.agent_id, "coordinator")
 
     def test_no_observation_keeps_original_failure_without_retry(self):
-        result = self.run(observe=lambda x: None)
+        result = self.execute_replanning(observe=lambda x: None)
         self.assertEqual(result.status, "NO_NEW_VERIFIED_EVENT")
         self.assertEqual(len(result.rounds), 1)
         self.assertEqual(result.rounds[0].status, sub.RunStatus.FAILED)
@@ -138,7 +138,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
         def false_event(result):
             return rr.VerifiedEvent.declare("event-1", "0" * 64, "fabricated", "fixture-host")
         with self.assertRaisesRegex(rr.ReplanningError, "exact executed result"):
-            self.run(observe=false_event)
+            self.execute_replanning(observe=false_event)
         self.assertEqual(len(self.invocations), 1)
 
     def test_event_content_hash_mismatch_is_rejected(self):
@@ -150,7 +150,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
             with self.subTest(agent=unauthorized):
                 self.invocations.clear()
                 with self.assertRaisesRegex(rr.ReplanningError, "not an authorized frozen specialist"):
-                    self.run(propose=lambda event, agent_id=unauthorized: proposed(
+                    self.execute_replanning(propose=lambda event, agent_id=unauthorized: proposed(
                         event, agent_id=agent_id))
                 self.assertEqual([t.agent_id for t in self.invocations], ["worker"])
 
@@ -160,7 +160,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
             return report(task, failed=task.agent_id == "worker")
         runtime = sub.CallableRuntime({name: callback for name in p.by_id}, capabilities(p))
         with self.assertRaisesRegex(rr.ReplanningError, "cannot bypass frozen specialist prerequisites"):
-            self.run(frozen_plan=p, runtime=runtime,
+            self.execute_replanning(frozen_plan=p, runtime=runtime,
                      propose=lambda event: proposed(event, agent_id="second"))
 
     def test_frozen_specialist_context_allowlist_cannot_be_widened(self):
@@ -171,12 +171,12 @@ class ReplanningRuntimeTests(unittest.TestCase):
             agents=(agent_with_allowlist, self.plan.by_id["coordinator"]),
         )
         with self.assertRaisesRegex(rr.ReplanningError, "context allowlist"):
-            self.run(frozen_plan=p)
+            self.execute_replanning(frozen_plan=p)
         self.assertEqual(len(self.invocations), 1)
 
     def test_spoofed_planner_event_id_fails_closed(self):
         with self.assertRaisesRegex(rr.ReplanningError, "bound to current verified event"):
-            self.run(propose=lambda event: rr.ReplanIntent(
+            self.execute_replanning(propose=lambda event: rr.ReplanIntent(
                 "proposal-2", "wrong-event", "worker", "use a missing prerequisite"))
         self.assertEqual(len(self.invocations), 1)
 
@@ -185,7 +185,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
             self.invocations.append(task)
             return report(task, failed=task.agent_id == "worker")
         runtime = sub.CallableRuntime({name: callback for name in self.plan.by_id}, capabilities(self.plan))
-        result = self.run(runtime=runtime,
+        result = self.execute_replanning(runtime=runtime,
                           observe=lambda item: verified(item, event_id="same-event", detail="same observation"))
         self.assertEqual(result.status, "DUPLICATE_EVENT_STALLED")
         self.assertEqual(len(result.rounds), 2)
@@ -201,21 +201,21 @@ class ReplanningRuntimeTests(unittest.TestCase):
         def obs(result):
             n[0] += 1
             return verified(result, event_id=f"event-{n[0]}", detail=f"different observation {n[0]}")
-        result = self.run(runtime=runtime, observe=obs)
+        result = self.execute_replanning(runtime=runtime, observe=obs)
         self.assertEqual(result.status, "DUPLICATE_INTENT_STALLED")
         self.assertEqual(len(result.rounds), 2)
 
     def test_verified_event_with_no_intent_does_not_execute(self):
-        result = self.run(propose=lambda event: None)
+        result = self.execute_replanning(propose=lambda event: None)
         self.assertEqual(result.status, "NO_NEW_INTENT")
         self.assertEqual(len(result.rounds), 1)
         self.assertEqual(len(self.invocations), 1)
 
     def test_round_bound_enforced_and_boolean_rejected(self):
-        self.assertEqual(self.run(max_replans=0).status, "REPLAN_ROUND_BUDGET_EXHAUSTED")
+        self.assertEqual(self.execute_replanning(max_replans=0).status, "REPLAN_ROUND_BUDGET_EXHAUSTED")
         for bad in (-1, True, 13, 1.5, "12"):
             with self.subTest(value=bad), self.assertRaisesRegex(rr.ReplanningError, "exceeds registered protocol"):
-                self.run(max_replans=bad)
+                self.execute_replanning(max_replans=bad)
 
     def test_conflicting_findings_stop_before_verifier_and_coordinator(self):
         p = plan(two_workers=True)
@@ -231,7 +231,7 @@ class ReplanningRuntimeTests(unittest.TestCase):
                 ),))
             return report(task)
         runtime = sub.CallableRuntime({name: callback for name in p.by_id}, capabilities(p))
-        output = self.run(frozen_plan=p, runtime=runtime,
+        output = self.execute_replanning(frozen_plan=p, runtime=runtime,
                           observe=lambda result: self.fail("observer must not run after conflict"))
         self.assertEqual(output.status, "BLOCKED_OR_CONFLICT")
         self.assertEqual(len(output.rounds), 1)
@@ -245,16 +245,16 @@ class ReplanningRuntimeTests(unittest.TestCase):
             {name: lambda a, task: self.fail("not allowed to execute")
              for name in self.plan.by_id}, broken)
         with self.assertRaisesRegex(ValueError, "isolation is not verified"):
-            self.run(runtime=runtime)
+            self.execute_replanning(runtime=runtime)
 
     def test_replanning_cannot_overwrite_frozen_context_artifact_id(self):
         injected = (*CONTEXT, sub.ContextArtifact.from_text("REPLAN-INTENT-1", "frozen important source"))
         with self.assertRaisesRegex(rr.ReplanningError, "collides with frozen inputs"):
-            self.run(context=injected)
+            self.execute_replanning(context=injected)
         self.assertEqual(len(self.invocations), 1)
 
     def test_no_fabricated_success_or_trial_claim(self):
-        result = self.run()
+        result = self.execute_replanning()
         self.assertNotEqual(result.status, "SUCCESS")
         self.assertFalse(hasattr(result, "oracle_result"))
         self.assertFalse(hasattr(result, "model_tokens"))
