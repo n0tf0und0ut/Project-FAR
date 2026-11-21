@@ -1,0 +1,27 @@
+{
+  "schema": "far-replanning-candidate-cohort/1",
+  "study_id": "FAR-REPLAN-001",
+  "status": "Research-candidate-unsealed",
+  "origin": "Existing authored synthetic FWE-030 corpus; prior different-model evaluation disclosed; not independent replication",
+  "source_path": "tools/workflow_efficacy_internal_fixtures.py",
+  "source_git_blob_sha1": "f6f1ab694a42a715a5361056320ab71f2de7095e",
+  "selection_rule": "First 12 of 30 indices sorted by SHA256(UTF8('FAR-REPLAN-001|FWE-' + 3-digit one-based index)); compare raw digest bytes and break ties by index",
+  "selected_indices": [11, 15, 4, 28, 10, 14, 1, 19, 26, 12, 29, 25],
+  "interrupted_indices": [11, 4, 10, 1, 26, 29],
+  "interruption": "On the first attempted solution.py write only, a host-declared, one-shot transient tool error aborts the current worker. Fault is identical across both arms, seeded before allocation; the replanning arm may recover through a distinct budgeted agent invocation.",
+  "reference_code": "tools/workflow_efficacy_free_agent.py::grade",
+  "model_candidate": "qwen2.5-coder:7b",
+  "model_digest_candidate": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+  "independent_oracle_approved": false,
+  "independent_cohort_approved": false,
+  "cohort_frozen": false,
+  "provider_currently_attested": false,
+  "scored_run_authorized": false,
+  "scored_runs_executed": 0,
+  "limitations": [
+    "The 30 FWE cases were previously run with a separate 1.5B model; the cohort is not fresh independent external evidence.",
+    "An agent may learn an existing publicly available corpus; independently exclude contamination before execution.",
+    "The documented deterministic transient write failure makes this a mechanism diagnostic rather than typical task sampling.",
+    "This candidate is not a frozen cohort and may not be used to launch scored inference."
+  ]
+}
