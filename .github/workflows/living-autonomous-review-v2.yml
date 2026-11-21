@@ -139,10 +139,31 @@ jobs:
 
       - name: Extract exact inbox snapshot
         if: steps.gate.outputs.continue == 'true'
+        shell: bash
         run: |
+          set -euo pipefail
+          source_sha="${{ steps.freeze.outputs.source_sha }}"
+          # The rolling inbox is unprotected data. Do not extract arbitrary tree
+          # objects (including symlinks) into a secret-bearing writer job.
+          snapshot_paths=(research/living/repository-state-v1.0.json)
+          # Preserve all data that the retry-only writer carries forward.
+          # The entire inbox (including its permanent PR anchor), run history,
+          # and both state files are consumed downstream; validate every Git blob.
+          for path in research/living/inbox research/living/runs research/living/state-v1.0.json; do
+            if git cat-file -e "$source_sha:$path" 2>/dev/null; then
+              snapshot_paths+=("$path")
+            fi
+          done
+          validation_args=()
+          for path in "${snapshot_paths[@]}"; do
+            validation_args+=(--path "$path")
+          done
+          python tools/validate_research_carry.py --ref "$source_sha" "${validation_args[@]}"
           rm -rf "$RUNNER_TEMP/living-source" "$RUNNER_TEMP/living-package"
           mkdir -p "$RUNNER_TEMP/living-source" "$RUNNER_TEMP/living-package"
-          git archive "${{ steps.freeze.outputs.source_sha }}" | tar -x -C "$RUNNER_TEMP/living-source"
+          # Use attributes from the trusted protected-main checkout, not the
+          # unprotected source commit (.gitattributes export-subst/ignore).
+          git archive --worktree-attributes "$source_sha" -- "${snapshot_paths[@]}" | tar -x -C "$RUNNER_TEMP/living-source"
 
       - name: Execute bounded autonomous adjudication
         if: steps.gate.outputs.continue == 'true'

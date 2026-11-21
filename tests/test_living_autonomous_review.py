@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import io
 import json
+import subprocess
+import tarfile
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -8,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from tools import run_living_autonomous_review as ar
+from tools.validate_research_carry import validate_ref_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 CID = "FAR-LIT-55DC0543A2C4B8A2"
@@ -605,6 +609,136 @@ class AutonomousLivingReviewTests(unittest.TestCase):
         self.assertTrue((out / "manifest.json").is_file())
         self.assertTrue((out / "review" / ar.REVIEWS).is_file())
         self.assertFalse((out / "inbox" / ar.REVIEWS).exists())
+
+    def test_privileged_review_archives_only_validated_data(self):
+        workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
+        extract = workflow.split("      - name: Extract exact inbox snapshot", 1)[1].split(
+            "      - name: Execute bounded autonomous adjudication", 1)[0]
+        self.assertIn("set -euo pipefail", extract)
+        self.assertIn("snapshot_paths=(research/living/repository-state-v1.0.json)", extract)
+        self.assertIn("research/living/inbox research/living/runs research/living/state-v1.0.json", extract)
+        self.assertIn('python tools/validate_research_carry.py --ref "$source_sha" "${validation_args[@]}"', extract)
+        self.assertIn('git archive --worktree-attributes "$source_sha" -- "${snapshot_paths[@]}"', extract)
+        self.assertLess(extract.index("python tools/validate_research_carry.py"), extract.index("git archive"))
+        self.assertNotIn('git archive "${{ steps.freeze.outputs.source_sha }}" |', extract)
+
+    def test_research_carry_validator_rejects_symlinked_state_and_accepts_blob(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            rel = "research/living/repository-state-v1.0.json"
+            state = repo / rel
+            state.parent.mkdir(parents=True)
+            state.symlink_to("/scratch/outside.json")
+            subprocess.run(["git", "-C", str(repo), "add", "--", rel], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "symlink"], check=True)
+            with self.assertRaisesRegex(ValueError, "forbidden carried git object"):
+                validate_ref_paths(repo, "HEAD", [rel])
+            state.unlink()
+            state.write_text('{"core_claim_review_queue":[]}', encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "--", rel], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit", "-qm", "blob"], check=True)
+            validate_ref_paths(repo, "HEAD", [rel])
+
+    def test_validated_snapshot_preserves_retry_writer_inputs(self):
+        # Reproduce the retry-only path's copy requirements from the exact
+        # extraction inputs, including the permanent nonmergeable inbox anchor.
+        workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
+        extract = workflow.split("      - name: Extract exact inbox snapshot", 1)[1].split(
+            "      - name: Execute bounded autonomous adjudication", 1)[0]
+        retry = workflow.split("      - name: Persist bounded retry record only", 1)[1].split(
+            "      - name: Materialize and validate human-review branch", 1)[0]
+        paths = ("research/living/inbox", "research/living/runs",
+                 "research/living/state-v1.0.json", "research/living/repository-state-v1.0.json")
+        for path in paths:
+            self.assertIn(path, extract)
+            self.assertIn(path, retry)
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            files = {
+                "research/living/inbox/.rolling-pr-anchor.json": "anchor",
+                "research/living/inbox/candidates/candidate.json": "candidate",
+                "research/living/runs/record.json": "run-history",
+                "research/living/state-v1.0.json": "cursor",
+                "research/living/repository-state-v1.0.json": "queue",
+            }
+            for rel, value in files.items():
+                target = repo / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(value, encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "research/living"], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Fixture",
+                            "-c", "user.email=fixture@example.invalid", "commit",
+                            "-qm", "carry"], check=True)
+            validate_ref_paths(repo, "HEAD", list(paths))
+            archive = subprocess.run(
+                ["git", "-C", str(repo), "archive", "HEAD", "--", *paths],
+                check=True, capture_output=True, timeout=10,
+            ).stdout
+            with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as bundle:
+                members = {item.name.rstrip("/"): item for item in bundle.getmembers()}
+                for rel, expected in files.items():
+                    self.assertIn(rel, members)
+                    self.assertTrue(members[rel].isfile())
+                    self.assertEqual(expected.encode(), bundle.extractfile(members[rel]).read())
+
+    def test_archive_ignores_untrusted_source_export_attributes(self):
+        # A source-commit .gitattributes is outside the selected data paths
+        # yet can silently substitute JSON bytes or export-ignore retry data.
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            state_rel = "research/living/repository-state-v1.0.json"
+            candidate_rel = "research/living/inbox/candidates/one.json"
+            state = repo / state_rel
+            candidate = repo / candidate_rel
+            state.parent.mkdir(parents=True)
+            candidate.parent.mkdir(parents=True)
+            original_state = b'{"source":"$Format:%H$"}\n'
+            original_candidate = b'{"candidate":"test"}\n'
+            state.write_bytes(original_state)
+            candidate.write_bytes(original_candidate)
+            subprocess.run(["git", "-C", str(repo), "add", "research/living"], check=True)
+            identity = ["git", "-C", str(repo), "-c", "user.name=Fixture",
+                        "-c", "user.email=fixture@example.invalid"]
+            subprocess.run([*identity, "commit", "-qm", "trusted"], check=True)
+            subprocess.run(["git", "-C", str(repo), "branch", "-M", "main"], check=True)
+            subprocess.run(["git", "-C", str(repo), "switch", "-q", "-c", "untrusted"], check=True)
+            (repo / ".gitattributes").write_text(
+                state_rel + " export-subst\n" + candidate_rel + " export-ignore\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "-C", str(repo), "add", ".gitattributes"], check=True)
+            subprocess.run([*identity, "commit", "-qm", "untrusted-attributes"], check=True)
+            source_sha = subprocess.run(
+                ["git", "-C", str(repo), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+            subprocess.run(["git", "-C", str(repo), "switch", "-q", "main"], check=True)
+            validate_ref_paths(repo, source_sha, [state_rel, candidate_rel])
+
+            def archived(*flags):
+                payload = subprocess.run(
+                    ["git", "-C", str(repo), "archive", *flags, source_sha,
+                     "--", state_rel, candidate_rel],
+                    check=True, capture_output=True, timeout=10,
+                ).stdout
+                with tarfile.open(fileobj=io.BytesIO(payload), mode="r:") as bundle:
+                    return {
+                        entry.name: bundle.extractfile(entry).read()
+                        for entry in bundle.getmembers() if entry.isfile()
+                    }
+
+            unsafe = archived()
+            self.assertNotEqual(original_state, unsafe[state_rel])
+            self.assertNotIn(candidate_rel, unsafe)
+            safe = archived("--worktree-attributes")
+            self.assertEqual(original_state, safe[state_rel])
+            self.assertEqual(original_candidate, safe[candidate_rel])
 
     def test_workflow_contains_race_serialization_retry_validation_and_explicit_dispatch_guards(self):
         workflow = (ROOT / ".github/workflows/living-autonomous-review-v2.yml").read_text(encoding="utf-8")
