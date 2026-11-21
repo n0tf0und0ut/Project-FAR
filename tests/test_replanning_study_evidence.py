@@ -12,11 +12,11 @@ def specimen():
     comparisons=[{"group":g,"index":i,"status":"FAILURE"} for g,n in (("public",2),("hidden",4)) for i in range(n)]
     trace=gate.canonical({"schema":"far-isolated-output-grade/1","comparisons":comparisons,
                           "executed":True,"success":False}).decode()
-    task={"task_id":"FWE-999","source_sha256":gate.digest(b"buggy"),"interrupted":False}
+    task={"task_id":"FWE-999","source":"buggy","source_sha256":gate.digest(b"buggy"),"interrupted":False}
     row={"schema":"far-replan-candidate-arm/1","task_id":"FWE-999","arm":"control",
          "provenance":"SYNTHETIC_TEST","model":runner.MODEL,
          "status":"DIAGNOSTIC_ONLY_NOT_INDEPENDENTLY_ATTESTED", "trace_status":"completed",
-         "initial_file_sha256":task["source_sha256"],"final_file_sha256":gate.digest(b"result"),
+         "initial_file_sha256":task["source_sha256"],"final_file_sha256":gate.digest(b"buggy"),
          "fault_injected":False,"fault_required":False,"orchestration_result_sha256":["a"*64],
          "model_requests":[],"tool_execution_receipts":[],
          "grade":{"source":"trusted-host-docker-grader","executed":True,"success":False,
@@ -81,7 +81,7 @@ class StructuralReplayTests(unittest.TestCase):
         row["tool_execution_receipts"]=[{"action":action,"tool_number":1,
                                          "result":{"ok":True},"receipt_sha256":gate.digest(b"fake")}]
         row["usage"]["tool_calls"]=1
-        with self.assertRaisesRegex(ev.EvidenceError,"unapproved tool receipt"):self.check(row)
+        with self.assertRaisesRegex(ev.EvidenceError,"unapproved tool receipt|no corresponding model action"):self.check(row)
 
     def test_tool_receipt_mutation_detected(self):
         row=copy.deepcopy(self.row)
@@ -90,9 +90,18 @@ class StructuralReplayTests(unittest.TestCase):
         bound=gate.digest(gate.canonical({"action":action,"result":result,"tool_number":1}))
         row["tool_execution_receipts"]=[{"action":action,"tool_number":1,"result":result,"receipt_sha256":bound}]
         row["usage"]["tool_calls"]=1
+        # The matching synthetic model response and receipt are bound together.
+        from base64 import b64encode
+        model_response=gate.canonical({"model":runner.MODEL["name"], "done":True,
+            "message":{"content":gate.canonical(action).decode()}, "prompt_eval_count":0,"eval_count":0})
+        model_request=gate.canonical({"model":runner.MODEL["name"]})
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":b64encode(model_request).decode(),"request_sha256":gate.digest(model_request),
+            "response_base64":b64encode(model_response).decode(),"response_sha256":gate.digest(model_response),
+            "http_status":200,"error":None}]
         self.check(row)
         row["tool_execution_receipts"][0]["result"]["finished"]=False
-        with self.assertRaisesRegex(ev.EvidenceError,"tool execution receipt modified"):self.check(row)
+        with self.assertRaisesRegex(ev.EvidenceError,"invalid finish receipt|tool execution receipt modified"):self.check(row)
 
     def test_tool_receipt_numbering_and_usage_reconciled(self):
         row=copy.deepcopy(self.row);row["usage"]["tool_calls"]=1
@@ -144,6 +153,66 @@ class StructuralReplayTests(unittest.TestCase):
             "request_sha256":"f"*64,"response_base64":None,
             "response_sha256":None,"http_status":None,"error":None}]
         with self.assertRaisesRegex(ev.EvidenceError,"digest mismatch"):self.check(row)
+
+
+    def test_fault_flags_must_match_schedule_and_first_write_only(self):
+        row=copy.deepcopy(self.row)
+        action={"action":"write_file","path":"solution.py","content":"correct"}
+        result={"error":"INJECTED_TRANSIENT_WRITE_FAILURE","executed":False}
+        row["tool_execution_receipts"]=[{"action":action,"tool_number":1,"result":result,
+              "receipt_sha256":gate.digest(gate.canonical({"action":action,"tool_number":1,"result":result}))}]
+        row["usage"]["tool_calls"]=1
+        from base64 import b64encode
+        req=gate.canonical({"model":runner.MODEL["name"]})
+        resp=gate.canonical({"model":runner.MODEL["name"],"done":True,
+             "message":{"content":gate.canonical(action).decode()},"prompt_eval_count":0,"eval_count":0})
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":b64encode(req).decode(),"request_sha256":gate.digest(req),
+            "response_base64":b64encode(resp).decode(),"response_sha256":gate.digest(resp),
+            "http_status":200,"error":None}]
+        with self.assertRaisesRegex(ev.EvidenceError,"unscheduled"):self.check(row)
+        row["fault_required"]=True
+        row["fault_injected"]=True
+        task={**self.task,"interrupted":True}
+        self.assertTrue(self.check(row,task)["structurally_consistent"])
+
+    def test_final_source_digest_must_match_replayed_writes(self):
+        row=copy.deepcopy(self.row);row["final_file_sha256"]="e"*64
+        with self.assertRaisesRegex(ev.EvidenceError,"final source digest"):self.check(row)
+
+    def test_nonobject_model_request_is_invalid_without_crashing_census(self):
+        row=copy.deepcopy(self.row)
+        import base64
+        raw=b'[]'
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":base64.b64encode(raw).decode(),"request_sha256":gate.digest(raw),
+            "response_base64":None,"response_sha256":None,"http_status":None,"error":None}]
+        with self.assertRaisesRegex(ev.EvidenceError,"model request must be a JSON object"):self.check(row)
+
+    def test_worker_model_action_must_match_tool_receipt(self):
+        row=copy.deepcopy(self.row)
+        import base64
+        request=gate.canonical({"model":runner.MODEL["name"]})
+        response=gate.canonical({"model":runner.MODEL["name"],"done":True,
+            "message":{"content":gate.canonical({"action":"finish"}).decode()},
+            "prompt_eval_count":0,"eval_count":0})
+        row["model_requests"]=[{"kind":"synthetic_provider_test","purpose":"worker",
+            "request_base64":base64.b64encode(request).decode(),"request_sha256":gate.digest(request),
+            "response_base64":base64.b64encode(response).decode(),"response_sha256":gate.digest(response),
+            "http_status":200,"error":None}]
+        action={"action":"list_files"};result={"files":["solution.py"]}
+        row["tool_execution_receipts"]=[{"action":action,"tool_number":1,"result":result,
+            "receipt_sha256":gate.digest(gate.canonical({"action":action,"tool_number":1,"result":result}))}]
+        row["usage"]["tool_calls"]=1
+        with self.assertRaisesRegex(ev.EvidenceError,"decoded worker response"):self.check(row)
+
+    def test_grader_status_must_be_known(self):
+        row=copy.deepcopy(self.row)
+        trace=json.loads(row["grade"]["trace"])
+        del trace["comparisons"][0]["status"]
+        raw=gate.canonical(trace).decode()
+        row["grade"].update(trace=raw,trace_sha256=gate.digest(raw.encode()))
+        with self.assertRaisesRegex(ev.EvidenceError,"grader comparison status"):self.check(row)
 
 
 if __name__=="__main__":unittest.main()
