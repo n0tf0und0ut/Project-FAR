@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import math
 from pathlib import Path
 
 from tools import replanning_study_gate as gate
@@ -62,14 +63,41 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         raise EvidenceError("raw request/receipt collections missing")
     if len(row["model_requests"]) > 70 or len(row["tool_execution_receipts"]) > 60:
         raise EvidenceError("unbounded trace")
+    # Reconstruct the starting task source from the frozen fixture identity,
+    # not from a mutable model claim. Synthetic unit fixtures supply source.
+    if "fixture_index" in expected_task:
+        index = expected_task["fixture_index"]
+        if type(index) is not int or not 0 <= index < 30:
+            raise EvidenceError("invalid frozen fixture index")
+        fixture = gate.fixtures.task(index)
+        if fixture["task_id"] != expected_task["task_id"]:
+            raise EvidenceError("fixture/task identity drift")
+        source = fixture["source"]
+        workspace = {"solution.py": source,
+                     "README.md": fixture["spec"] + "\nImplement transform(payload) in solution.py. Do not alter other files.\n",
+                     "test_public.py": gate.fixtures.public_test_code(fixture)}
+    else:
+        source = expected_task.get("source")
+        if type(source) is not str:
+            raise EvidenceError("source bytes unavailable for structural replay")
+        workspace = {"solution.py": source}
+    if gate.digest(source.encode("utf-8")) != expected_task["source_sha256"]:
+        raise EvidenceError("source snapshot does not match frozen digest")
     observed_model_tokens = 0
+    requested_worker_actions = []
     for i, e in enumerate(row["model_requests"]):
         if type(e) is not dict or set(e) != {"kind", "purpose", "request_base64", "request_sha256", "response_base64", "response_sha256", "http_status", "error"}:
             raise EvidenceError("model event schema mismatch")
         if e["kind"] != ("genuine_provider_request" if row["provenance"] == "LOCAL_OLLAMA" else "synthetic_provider_test"):
             raise EvidenceError("provider evidence confusion")
         req = _bytes64(e["request_base64"], e["request_sha256"], "model request")
-        data = json.loads(req, object_pairs_hook=gate.unique_pairs)
+        try:
+            data = json.loads(req, object_pairs_hook=gate.unique_pairs,
+                              parse_constant=lambda x: (_ for _ in ()).throw(EvidenceError("nonfinite model request")))
+        except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
+            raise EvidenceError("malformed model request") from exc
+        if type(data) is not dict:
+            raise EvidenceError("model request must be a JSON object")
         if data.get("model") != runner.MODEL["name"]:
             raise EvidenceError("request provider identity drift")
         if e["response_base64"] is None:
@@ -89,8 +117,25 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
                 if type(a) is not int or type(b) is not int or a < 0 or b < 0:
                     raise EvidenceError("missing trustworthy provider counters")
                 observed_model_tokens += a + b
+                if e["error"] is None and e["purpose"] == "worker":
+                    message = body.get("message")
+                    if type(message) is not dict or type(message.get("content")) is not str:
+                        raise EvidenceError("missing worker action content")
+                    try:
+                        action = runner.tar.strict_json(message["content"])
+                    except (ValueError, UnicodeError, TypeError, RecursionError) as exc:
+                        raise EvidenceError("malformed decoded worker action") from exc
+                    if type(action) is not dict:
+                        raise EvidenceError("decoded worker action must be an object")
+                    requested_worker_actions.append(action)
         if e["purpose"] not in ("planner", "worker"):
             raise EvidenceError("unregistered model request")
+    if len(requested_worker_actions) < len(row["tool_execution_receipts"]):
+        raise EvidenceError("tool receipt has no corresponding model action")
+    if len(requested_worker_actions) - len(row["tool_execution_receipts"]) > 1:
+        raise EvidenceError("worker action missing intermediate tool receipt")
+    fault_events = 0
+    first_write_seen = False
     for i, e in enumerate(row["tool_execution_receipts"]):
         if type(e) is not dict or set(e) != {"action", "tool_number", "result", "receipt_sha256"}:
             raise EvidenceError("tool receipt shape mismatch")
@@ -99,12 +144,49 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         if type(e["action"]) is not dict or e["action"].get("action") not in runner.ALLOWED_TOOLS:
             raise EvidenceError("unapproved tool receipt")
         action = e["action"]
+        if requested_worker_actions[i] != action:
+            raise EvidenceError("tool action differs from decoded worker response")
         if action["action"] in ("read_file", "write_file"):
             if action.get("path") not in (runner.ALLOWED_READS if action["action"] == "read_file" else {"solution.py"}):
                 raise EvidenceError("unapproved tool path")
+        expected_keys = {"list_files": {"action"}, "read_file": {"action", "path"},
+                         "write_file": {"action", "path", "content"},
+                         "finish": {"action"}}[action["action"]]
+        if set(action) != expected_keys:
+            raise EvidenceError("unexpected tool action arguments")
+        result = e["result"]
+        if type(result) is not dict:
+            raise EvidenceError("tool result must be a dictionary")
+        if action["action"] == "write_file":
+            if type(action["content"]) is not str or len(action["content"].encode("utf-8")) > 32768:
+                raise EvidenceError("invalid solution write content")
+            first_write = not first_write_seen
+            first_write_seen = True
+            if result == {"error": "INJECTED_TRANSIENT_WRITE_FAILURE", "executed": False}:
+                fault_events += 1
+                if not row["fault_required"] or not first_write or fault_events > 1:
+                    raise EvidenceError("unscheduled or repeated injected fault")
+            else:
+                expected_result = {"written": "solution.py", "sha256": gate.digest(action["content"].encode("utf-8"))}
+                if result != expected_result:
+                    raise EvidenceError("inconsistent successful write receipt")
+                workspace["solution.py"] = action["content"]
+        elif action["action"] == "read_file":
+            if action["path"] not in workspace or result != {"content": workspace[action["path"]]}:
+                raise EvidenceError("file read receipt does not match replayed workspace")
+        elif action["action"] == "list_files":
+            if result != {"files": sorted(workspace)}:
+                raise EvidenceError("list_files receipt does not match workspace")
+        elif action["action"] == "finish":
+            if result != {"finished": True}:
+                raise EvidenceError("invalid finish receipt")
         actual = gate.digest(gate.canonical({"action": e["action"], "result": e["result"], "tool_number": i+1}))
         if actual != e["receipt_sha256"]:
             raise EvidenceError("tool execution receipt modified")
+    if row["fault_injected"] is not (fault_events == 1):
+        raise EvidenceError("fault flag disagrees with executed receipt sequence")
+    if gate.digest(workspace["solution.py"].encode("utf-8")) != row["final_file_sha256"]:
+        raise EvidenceError("final source digest contradicts replayed tool writes")
     g = row["grade"]
     if type(g) is not dict or set(g) != {"source", "executed", "success", "exit_status", "trace_sha256", "trace"}:
         raise EvidenceError("oracle grade shape mismatch")
@@ -124,7 +206,10 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
     if [(x.get("group"),x.get("index")) for x in comps] != [
         ("public",0),("public",1),("hidden",0),("hidden",1),("hidden",2),("hidden",3)]:
         raise EvidenceError("grader slot identity mismatch")
-    executed = all(x.get("status") != "INFRA_FAILURE" for x in comps)
+    statuses = {"PASS", "FAILURE", "OUTPUT_LIMIT", "RESOURCE_LIMIT", "INFRA_FAILURE"}
+    if any(x.get("status") not in statuses or type(x.get("status")) is not str for x in comps):
+        raise EvidenceError("unknown or missing grader comparison status")
+    executed = all(x["status"] != "INFRA_FAILURE" for x in comps)
     success = executed and all(x.get("status") == "PASS" for x in comps)
     if (trace["executed"] is not executed or trace["success"] is not success
             or g["executed"] is not executed or g["success"] is not success
@@ -141,7 +226,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
         raise EvidenceError("model token budget exceeded")
     if u["model_tokens"] < observed_model_tokens:
         raise EvidenceError("raw model counters exceed recorded total")
-    if type(u["wall_seconds"]) not in (int,float) or not 0 <= u["wall_seconds"] <= 2700:
+    if type(u["wall_seconds"]) not in (int,float) or not math.isfinite(u["wall_seconds"]) or not 0 <= u["wall_seconds"] <= 2700:
         raise EvidenceError("wall budget exceeded")
     return {"task_id": row["task_id"], "arm": row["arm"],
             "structurally_consistent": True, "provider_declared": row["provenance"],
@@ -150,7 +235,7 @@ def verify_arm(row: dict, expected_task: dict, expected_arm: str) -> dict:
 
 def analyze(candidate: dict, receipts: dict[str, dict], schedule: list[dict]) -> dict:
     """Retain complete denominator; missing receipts are NOT imputed successes."""
-    expected = {(r["task_id"], arm) for r in candidate["task_rows"] for arm in runner.ARMS}
+    expected = {(r["task_id"], arm) for r in candidate["task_rows"] for arm in gate.ARMS}
     if len(schedule) != 24 or {(r["task_id"],r["arm"]) for r in schedule} != expected:
         raise EvidenceError("allocation schedule invalid")
     if len({r["slot"] for r in schedule}) != 24 or [r["slot"] for r in schedule] != list(range(1,25)):
