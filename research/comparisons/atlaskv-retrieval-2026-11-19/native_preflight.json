@@ -1,0 +1,99 @@
+{
+  "blockers": [
+    "missing_atlas_repo",
+    "missing_model_dir",
+    "missing_encoder_file",
+    "missing_llama_base",
+    "missing_test_data",
+    "missing_leaf_keys",
+    "missing_leaf_values",
+    "missing_inter_keys",
+    "missing_root_keys",
+    "missing_root_c2id",
+    "missing_inter_c2id",
+    "missing_root_id2c",
+    "missing_inter_id2c",
+    "cuda_unavailable",
+    "missing_python_module_transformers",
+    "missing_python_module_sentence_transformers",
+    "missing_python_module_accelerate",
+    "upstream_git_sha_unverified_or_mismatch"
+  ],
+  "cuda_available": false,
+  "dependencies": {
+    "accelerate": false,
+    "evaluate": true,
+    "sentence_transformers": false,
+    "transformers": false
+  },
+  "gpu_count": 0,
+  "gpu_names": [],
+  "nonclaims": [
+    "checkpoint identity unverified",
+    "checkpoint-data compatibility unverified",
+    "GPU memory sufficiency unverified",
+    "training/model inference not executed"
+  ],
+  "paths": {
+    "atlas_repo": {
+      "exists": false,
+      "supplied": false
+    },
+    "encoder_file": {
+      "exists": false,
+      "supplied": false
+    },
+    "inter_c2id": {
+      "exists": false,
+      "supplied": false
+    },
+    "inter_id2c": {
+      "exists": false,
+      "supplied": false
+    },
+    "inter_keys": {
+      "exists": false,
+      "supplied": false
+    },
+    "leaf_keys": {
+      "exists": false,
+      "supplied": false
+    },
+    "leaf_values": {
+      "exists": false,
+      "supplied": false
+    },
+    "llama_base": {
+      "exists": false,
+      "supplied": false
+    },
+    "model_dir": {
+      "exists": false,
+      "supplied": false
+    },
+    "root_c2id": {
+      "exists": false,
+      "supplied": false
+    },
+    "root_id2c": {
+      "exists": false,
+      "supplied": false
+    },
+    "root_keys": {
+      "exists": false,
+      "supplied": false
+    },
+    "test_data": {
+      "exists": false,
+      "supplied": false
+    }
+  },
+  "python": "3.13.5",
+  "schema": "atlas-kv-native-preflight/1.1",
+  "scope": "prerequisite inventory only; no trained AtlasKV model inference or comparison",
+  "status": "BLOCKED",
+  "torch": "2.10.0+cpu",
+  "upstream_expected_git_sha": "61e3abc1fb09fbfb426cfc847c4c26c5e94bcaeb",
+  "upstream_observed_git_sha": null,
+  "upstream_repository": "HKUST-KnowComp/AtlasKV"
+}

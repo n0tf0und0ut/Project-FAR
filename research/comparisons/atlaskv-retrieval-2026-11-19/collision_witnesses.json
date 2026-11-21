@@ -1,0 +1,290 @@
+[
+  {
+    "changed_contract_answer": true,
+    "id": "C00",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C01",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C02",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C03",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C04",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C05",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C06",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C07",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C08",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C09",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C10",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C11",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C12",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C13",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C14",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C15",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C16",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C17",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C18",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C19",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C20",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C21",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C22",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "C23",
+    "kind": "provenance_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T00",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T01",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T02",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T03",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T04",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T05",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T06",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T07",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T08",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T09",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T10",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T11",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T12",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T13",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T14",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T15",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T16",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T17",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T18",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T19",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T20",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T21",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T22",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  },
+  {
+    "changed_contract_answer": true,
+    "id": "T23",
+    "kind": "timestamp_swap",
+    "same_triple_projection": true
+  }
+]
