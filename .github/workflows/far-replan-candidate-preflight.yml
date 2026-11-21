@@ -28,6 +28,10 @@ jobs:
           mkdir -p artifacts/replanning
           python -m tools.replanning_study_runner provider-preflight > artifacts/replanning/preflight.json
           cat artifacts/replanning/preflight.json
+      - name: Execute actual noncohort tool-use recovery smoke, never score pilot tasks
+        if: contains(github.event.head_commit.message, '[FAR-REPLAN-SMOKE]')
+        run: |
+          python -m tools.replanning_study_runner smoke-noncohort --out artifacts/replanning/noncohort-smoke
       - name: Preserve observed provider outcome without hiding failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
